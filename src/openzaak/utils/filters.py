@@ -4,7 +4,6 @@ from typing import List, Optional
 
 from django.utils.module_loading import import_string
 
-
 from django_filters import filters
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
@@ -32,7 +31,7 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         return super().filter(qs, numeric_value)
 
 
-class IncludeFilter(filters.BaseInFilter, filters.ChoiceFilter):
+class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
     def __init__(self, *args, **kwargs):
         serializer_class = kwargs.pop("serializer_class")
 

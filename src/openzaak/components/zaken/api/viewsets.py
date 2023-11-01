@@ -40,7 +40,6 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.pagination import OptimizedPagination
-from openzaak.utils.inclusion import InclusionJSONRenderer
 from openzaak.utils.permissions import AuthRequired
 
 from ..models import (
@@ -71,7 +70,7 @@ from .filters import (
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin
+from .mixins import ClosedZaakMixin, ExpandMixin
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -103,6 +102,7 @@ logger = logging.getLogger(__name__)
 
 @conditional_retrieve(extra_depends_on={"status"})
 class ZaakViewSet(
+    ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     GeoMixin,
@@ -245,7 +245,6 @@ class ZaakViewSet(
     filterset_class = ZaakFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
-    renderer_classes = (InclusionJSONRenderer,)
 
     permission_classes = (ZaakAuthRequired,)
     required_scopes = {
@@ -273,15 +272,6 @@ class ZaakViewSet(
             # of queries will be the same.
             qs = qs.prefetch_related(None)
         return qs
-
-    def include_allowed(self):
-        return self.action in ["list", "_zoek"]
-
-    def get_requested_inclusions(self, request):
-        # Pull include parameter from request body in case of _zoek operation
-        if request.method == "POST":
-            return ",".join(request.data.get("include", []))
-        return request.GET.get("include")
 
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):

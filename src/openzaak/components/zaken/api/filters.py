@@ -14,7 +14,7 @@ from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
 from openzaak.utils.filters import (
-    IncludeFilter,
+    ExpandFilter,
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
 
@@ -102,11 +102,10 @@ class ZaakFilter(FilterSet):
         help_text=_("Het veld waarop de resultaten geordend worden."),
     )
 
-    include = IncludeFilter(
+    expand = ExpandFilter(
         serializer_class=ZaakSerializer,
         help_text=_(
             "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
-            "Indien de waarde '*' opgegeven is, dan worden alle mogelijke inclusions opgenomen."
         ),
     )
 

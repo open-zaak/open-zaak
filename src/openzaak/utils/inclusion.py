@@ -191,5 +191,4 @@ def get_include_options_for_serializer(
     serializer_class: Type[Serializer],
 ) -> List[tuple]:
     choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
-    choices.append(("*", "*",))
     return choices
