@@ -1320,6 +1320,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             concept=False,
             zaaktype_omschrijving="GH-981",
+            identificatie="ZAAKTYPE1",
             datum_begin_geldigheid=date(2021, 1, 1),
             datum_einde_geldigheid=date(2022, 1, 1),
         )
@@ -1337,6 +1338,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
                 concept=False,
                 catalogus=zaaktype.catalogus,
                 zaaktype_omschrijving="GH-981",
+                identificatie="ZAAKTYPE1",
                 datum_begin_geldigheid=date(2020, 1, 1),
                 datum_einde_geldigheid=date(2020, 12, 31),
             )
