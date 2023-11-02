@@ -26,7 +26,6 @@ from vng_api_common.constants import (
 )
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.models import APIMixin
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
@@ -37,7 +36,7 @@ from openzaak.utils.fields import (
     RelativeURLField,
     ServiceFkField,
 )
-from openzaak.utils.mixins import AuditTrailMixin
+from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 from ..query import (
@@ -537,7 +536,7 @@ class RelevanteZaakRelatie(models.Model):
     )
 
 
-class Status(ETagMixin, models.Model):
+class Status(ETagMixin, APIMixin, models.Model):
     """
     Modelleer een status van een ZAAK.
 
@@ -632,7 +631,7 @@ class Status(ETagMixin, models.Model):
         return self.zaak.current_status_uuid == self.uuid
 
 
-class Resultaat(ETagMixin, models.Model):
+class Resultaat(ETagMixin, APIMixin, models.Model):
     """
     Het behaalde RESULTAAT is een koppeling tussen een RESULTAATTYPE en een
     ZAAK.
@@ -700,7 +699,7 @@ class Resultaat(ETagMixin, models.Model):
         )
 
 
-class Rol(ETagMixin, models.Model):
+class Rol(ETagMixin, APIMixin, models.Model):
     """
     Modelleer de rol van een BETROKKENE bij een ZAAK.
 
@@ -869,7 +868,7 @@ class Rol(ETagMixin, models.Model):
         return f"({self.zaak.unique_representation()}) - {betrokkene.rsplit('/')[-1]}"
 
 
-class ZaakObject(models.Model):
+class ZaakObject(APIMixin, models.Model):
     """
     Modelleer een object behorende bij een ZAAK.
 
@@ -979,7 +978,7 @@ class ZaakObject(models.Model):
         return f"({self.zaak.unique_representation()}) - {object.rsplit('/')[-1]}"
 
 
-class ZaakEigenschap(ETagMixin, models.Model):
+class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
     """
     Een relevant inhoudelijk gegeven waarvan waarden bij
     ZAAKen van eenzelfde ZAAKTYPE geregistreerd moeten
@@ -1075,7 +1074,7 @@ class ZaakKenmerk(models.Model):
         verbose_name_plural = "zaak kenmerken"
 
 
-class ZaakInformatieObject(ETagMixin, models.Model):
+class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
     """
     Modelleer INFORMATIEOBJECTen die bij een ZAAK horen.
     """

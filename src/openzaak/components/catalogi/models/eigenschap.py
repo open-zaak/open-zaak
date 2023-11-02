@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 
+from openzaak.utils.mixins import APIMixin
+
 from ..constants import FormaatChoices
 from .mixins import OptionalGeldigheidMixin
 from .validators import (
@@ -127,7 +129,7 @@ class EigenschapSpecificatie(models.Model):
                     )
 
 
-class Eigenschap(ETagMixin, OptionalGeldigheidMixin, models.Model):
+class Eigenschap(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     """
     Een relevant inhoudelijk gegeven dat bij ZAAKen van dit ZAAKTYPE geregistreerd
     moet kunnen worden en geen standaard kenmerk is van een zaak.
