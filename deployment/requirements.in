@@ -1,4 +1,4 @@
-ansible~=4.2.0
+ansible
 openshift
 PyYAML
 kubernetes-validate

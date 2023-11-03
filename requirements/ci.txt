@@ -107,7 +107,7 @@ coreschema==0.0.4
     #   drf-yasg
 coverage==6.3.2
     # via -r requirements/test-tools.in
-cryptography==39.0.2
+cryptography==41.0.5
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
@@ -395,7 +395,7 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==23.0.0
+pyopenssl==23.3.0
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
