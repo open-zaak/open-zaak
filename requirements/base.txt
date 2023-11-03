@@ -70,7 +70,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==39.0.2
+cryptography==41.0.5
     # via
     #   django-simple-certmanager
     #   josepy
@@ -277,7 +277,7 @@ pyjwt==2.4.0
     # via
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==23.0.0
+pyopenssl==23.3.0
     # via
     #   django-simple-certmanager
     #   josepy

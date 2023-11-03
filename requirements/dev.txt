@@ -10,9 +10,9 @@ amqp==5.1.1
     # via
     #   -r requirements/ci.txt
     #   kombu
-ansible==4.2.0
+ansible==8.5.0
     # via -r requirements/../deployment/requirements.in
-ansible-core==2.11.8
+ansible-core==2.15.5
     # via ansible
 appdirs==1.4.4
     # via
@@ -126,7 +126,7 @@ coreschema==0.0.4
     #   drf-yasg
 coverage==6.3.2
     # via -r requirements/ci.txt
-cryptography==39.0.2
+cryptography==41.0.5
     # via
     #   -r requirements/ci.txt
     #   ansible-core
@@ -483,7 +483,7 @@ pyjwt==2.4.0
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==23.0.0
+pyopenssl==23.3.0
     # via
     #   -r requirements/ci.txt
     #   django-simple-certmanager
