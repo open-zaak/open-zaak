@@ -760,6 +760,111 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_import_zaaktype_auto_match_besluittype_and_informatieobjecttype (self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+        Catalogus.objects.exclude(pk=catalogus.pk)
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+        )
+        informatieobjecttype2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+        )
+        ziot = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+        ziot2 = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype2
+        )
+
+        besluittype1 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="1")
+        besluittype1.zaaktypen.set([zaaktype])
+
+        besluittype2 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="2")
+        besluittype2.zaaktypen.set([zaaktype])
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        # one should be new
+        informatieobjecttype2.delete()
+        besluittype2.delete()
+
+        response = form.submit("_import_zaaktype").follow()
+
+        # IOT exists and should be selected
+        iotype_field_0 = response.form["iotype-0-existing"]
+        self.assertEqual(len(iotype_field_0.options), 2)
+        self.assertEqual(  # default option not selected
+            iotype_field_0.options[0],
+            ("", False, _("Create new"))
+        )
+        self.assertEqual(  # option 1 is selected
+            iotype_field_0.options[1],
+            (str(informatieobjecttype.id), True, str(informatieobjecttype))
+        )
+        self.assertEqual(iotype_field_0.value, str(informatieobjecttype.id))
+
+        # IOT does not exist and should select create new
+        iotype_field_1 = response.form["iotype-1-existing"]
+        self.assertEqual(len(iotype_field_1.options), 2)
+        self.assertEqual(  # default option selected
+            iotype_field_1.options[0],
+            ("", True, _("Create new"))
+        )
+        self.assertEqual(  # option 1 not selected
+            iotype_field_1.options[1],
+            (str(informatieobjecttype.id), False, str(informatieobjecttype))
+        )
+        self.assertEqual(iotype_field_1.value, "")
+
+        # BesluitType exists and should be selected
+        besluittype_field_0 = response.form["besluittype-0-existing"]
+        self.assertEqual(len(besluittype_field_0.options), 2)
+        self.assertEqual(  # default option not selected
+            besluittype_field_0.options[0],
+            ("", False, _("Create new"))
+        )
+        self.assertEqual(  # option 1 is selected
+            besluittype_field_0.options[1],
+            (str(besluittype1.id), True, str(besluittype1))
+        )
+        self.assertEqual(besluittype_field_0.value, str(besluittype1.id))
+
+        # BesluitType does not exist and should select create new
+        besluittype_field_1 = response.form["besluittype-1-existing"]
+        self.assertEqual(len(besluittype_field_1.options), 2)
+        self.assertEqual( # default option selected
+            besluittype_field_1.options[0],
+            ("", True,  _("Create new"))
+        )
+        self.assertEqual( # option 1 not selected
+            besluittype_field_1.options[1],
+            (str(besluittype1.id), False,  str(besluittype1))
+        )
+        self.assertEqual(besluittype_field_1.value, "")
+
 
 @patch(
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
@@ -904,7 +1009,10 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         )
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+
+        form = response.form
+        form["besluittype-0-existing"].value__set("")
+        response = form.submit("_select")
 
         self.assertIn(
             _("A validation error occurred while deserializing a {}\n{}").format(
@@ -957,7 +1065,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         )
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        form = response.form
+        form["iotype-0-existing"].value__set("")
+        response = form.submit("_select")
 
         self.assertIn(
             _("A validation error occurred while deserializing a {}\n{}").format(

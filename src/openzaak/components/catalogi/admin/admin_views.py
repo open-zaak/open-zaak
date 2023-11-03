@@ -90,7 +90,7 @@ class CatalogusZaakTypeImportSelectView(
         try:
             return model.objects.get(omschrijving=value, catalogus=catalogus)
         except ObjectDoesNotExist:
-            return 0
+            return ""
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -145,7 +145,6 @@ class CatalogusZaakTypeImportSelectView(
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
         try:
             with transaction.atomic():
                 iotypen_uuid_mapping = {}
@@ -183,4 +182,5 @@ class CatalogusZaakTypeImportSelectView(
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
+        context = self.get_context_data(**kwargs)
         return TemplateResponse(request, self.template_name, context)
