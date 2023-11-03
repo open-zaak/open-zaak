@@ -1,6 +1,82 @@
 Changelog
 =========
 
+1.10.0 (2023-11-01)
+-------------------
+
+Open Zaak 1.10.0 is a release focused on supporting the latest versions of the ZGW API standards.
+
+Open Zaak now supports:
+
+  * Besluiten API 1.1
+  * Catalogi API 1.2
+  * Documenten API 1.3
+  * Zaken API 1.4
+
+**New features**
+
+* [#1412] `Besluiten API 1.1 <https://github.com/VNG-Realisatie/besluiten-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1413] Added HTTP cache-related ``ETag`` header support
+
+* [#1411] `Catalogi API 1.2 <https://github.com/VNG-Realisatie/catalogi-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1415] Added 'Correcties' - new permission claim for update and partial_update
+    - [#1419] Added new resource `ZaakObjectType`
+    - [#1485] Added query parameters `datumGeldigheid`, `omschrijving` and `zaaktypeIdentificatie`
+    - [#1420] Added new date properties `beginGeldigheid`, `eindeGeldigheid`, `beginObject` and `eindeObject`
+    - [#1423] Added new property `zaaktypeIdentificatie`
+    - [#1421] Added new property `catalogus`
+    - [#1476] Added new resource-specific properties
+    - [#1483] Changed `ResultaatType.omschrijving` max length from 20 to 30
+    - [#1486] Replaced unique constraint of `ZaakType.omschrijving` & `ZaakType.catalogus` with `ZaakType.identificatie` & `ZaakType.catalogus`
+
+* [#1410] `Documenten API 1.3 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1424] Added a new claim `documenten.geforceerd-bijwerken`
+    - [#1433] Added a new `__zoek` endpoint for `EnkelvoudigInformatieObject`
+    - [#1435] Added a new resource `Verzending` (**NOTE** this change is not supported when CMIS is enabled)
+    - [#1437] Added a new property`EnkelvoudigInformatieObject.verschijningsvorm` (**NOTE** this change is not supported when CMIS is enabled)
+    - [#1431] Changed description of `EnkelvoudigInformatieObject.taal`
+    - [#1429] Added validation: locked documents cannot be deleted
+    - [#1439] Removed validation: `EnkelvoudigInformatieObject.informatieobject` is now mutable
+
+* [#1407] `Zaken API 1.4 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1075] Added new query params `zaak_list` for rollen:
+    - [#1046] Added new query param `ordering` in `zaak_list`
+    - [#1446] Added new properties to `Zaak` to show subresources: `rollen`, `zaakinformatieobjecten`, `zaakobjecten`
+    - [#1448] Added new archive properties to `Zaak`: `processobjectaard`
+    - [#1450] Added new date query params to `zaak_list` #1450
+    - [#1452] Added new properties to `Status`: `indicatieLaatstGezetteStatus`,`gezetdoor` and `zaakinformatieobjecten`
+    - [#1455] Added new properties to `Rol`: `contactpersoonRol`, `afwijkendeNaamBetrokkene`, `statussen` and `Vestiging.kvkNummer`
+    - [#1452] Added new properties to `ZaakInformatieObject`: `vernietigingsdatum` and `status`
+    - [#1457] Added `zaakobjecttype` to `ZaakObject`
+    - [#1458] Added validation of the `Zaak` with a `gearchiveerd` status
+    - [#1450] Added query params to `zaak_list`: `bronorganisatie__in`, `archiefactiedatum__isnull`, `einddatum__isnull`
+    - [#1460] Added values `registratiedatum` and `identificatie` to query param `ordering` in `zaak_list`
+    - [#1462] Added `zaaktype__in` to `zaak__zoek` request
+
+**Bugfixes**
+
+  * [#1441] Fixed saving `Enkelvoudiginformatieobject` with empty `informatieobjecttype` in the Admin
+
+**Project maintenance**
+
+  * [#1418] Replaced `Django-Choices` with native django `TextChoices`
+  * [#1417] Added `django-log-outgoing-requests` library to log outgoing requests
+  * [#1471] Suported configuring `GEOS_LIBRARY_PATH` with environment variables
+  * Bumped django to latest available security patch
+  * Updated some other third party dependencies to newer versions
+
+**Documentation**
+
+  * [#1442] Updated Standard for public code assessment to 0.7.1
+
 1.9.0 (2023-07-17)
 ------------------
 

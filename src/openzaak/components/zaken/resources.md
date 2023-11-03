@@ -57,13 +57,13 @@ Uitleg bij mogelijke waarden:
 
 Uitleg bij mogelijke waarden:
 
-* `adviseur` - (Adviseur) Kennis in dienst stellen van de behandeling van (een deel van) een zaak.
-* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van) een zaak.
-* `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst van een zaak.
-* `beslisser` - (Beslisser) Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.
-* `initiator` - (Initiator) Aanleiding geven tot de start van een zaak ..
-* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers en bedrijven ..
-* `zaakcoordinator` - (Zaakcoördinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt conform de daarover gemaakte afspraken.
+* `adviseur` - Adviseur
+* `behandelaar` - Behandelaar
+* `belanghebbende` - Belanghebbende
+* `beslisser` - Beslisser
+* `initiator` - Initiator
+* `klantcontacter` - Klantcontacter
+* `zaakcoordinator` - Zaakcoördinator
 * `mede_initiator` - Mede-initiator | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | roltoelichting |  | string | ja | C​R​U​D |
 | registratiedatum | De datum waarop dit object is geregistreerd. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
@@ -73,6 +73,7 @@ Uitleg bij mogelijke waarden:
 
 * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
 * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen | string | nee | C​R​U​D |
+| statussen | De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat STATUSsen in die ZAAK bereikt zijn. | array | nee | ~~C~~​R​~~U~~​~~D~~ |
 
 ## SubVerblijfBuitenland
 

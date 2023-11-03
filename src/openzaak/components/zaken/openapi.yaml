@@ -42,7 +42,7 @@ info:
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.2.0
+  version: 1.4.0
 security:
 - JWT-Claims: []
 paths:
@@ -5083,17 +5083,9 @@ components:
           title: Omschrijving generiek
           description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
             \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
-            \ (Adviseur) Kennis in dienst stellen van de behandeling van (een deel\
-            \ van) een zaak.\n* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling\
-            \ doen van (een deel van) een zaak.\n* `belanghebbende` - (Belanghebbende)\
-            \ Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de\
-            \ behandeling en/of de uitkomst van een zaak.\n* `beslisser` - (Beslisser)\
-            \ Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.\n\
-            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak\
-            \ ..\n* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn\
-            \ voor vragen van burgers en bedrijven ..\n* `zaakcoordinator` - (Zaakco\xF6\
-            rdinator) Er voor zorg dragen dat de behandeling van de zaak in samenhang\
-            \ uitgevoerd wordt conform de daarover gemaakte afspraken.\n* `mede_initiator`\
+            \ Adviseur\n* `behandelaar` - Behandelaar\n* `belanghebbende` - Belanghebbende\n\
+            * `beslisser` - Beslisser\n* `initiator` - Initiator\n* `klantcontacter`\
+            \ - Klantcontacter\n* `zaakcoordinator` - Zaakco\xF6rdinator\n* `mede_initiator`\
             \ - Mede-initiator"
           type: string
           readOnly: true
@@ -5128,6 +5120,17 @@ components:
           - machtiginggever
         contactpersoonRol:
           $ref: '#/components/schemas/ContactPersoonRol'
+        statussen:
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          type: array
+          items:
+            description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+              dat STATUSsen in die ZAAK bereikt zijn.
+            type: string
+            format: uri
+          readOnly: true
+          uniqueItems: true
       discriminator:
         propertyName: betrokkeneType
     VerblijfsAdres:
@@ -6386,13 +6389,13 @@ components:
             Uitleg bij mogelijke waarden:
 
 
-            * `breedspoor` - breedspoor
+            * `breedspoor` - Breedspoor
 
-            * `normaalspoor` - normaalspoor
+            * `normaalspoor` - Normaalspoor
 
-            * `smalspoor` - smalspoor
+            * `smalspoor` - Smalspoor
 
-            * `spoorbaan` - spoorbaan'
+            * `spoorbaan` - Spoorbaan'
           type: string
           enum:
           - breedspoor
