@@ -4,9 +4,10 @@ Changelog
 1.10.0 (2023-11-01)
 -------------------
 
-Open Zaak 1.10.0 is a release focused on supporting new versions of ZGW API standarts.
+Open Zaak 1.10.0 is a release focused on supporting the latest versions of the ZGW API standards.
 
 Open Zaak now supports:
+
   * Besluiten API 1.1
   * Catalogi API 1.2
   * Documenten API 1.3
