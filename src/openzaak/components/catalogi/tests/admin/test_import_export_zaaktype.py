@@ -761,6 +761,103 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_import_zaaktype_besluittype_and_informatieobjecttype_order(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+        Catalogus.objects.exclude(pk=catalogus.pk)
+        iot_1 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Charlie",
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=iot_1
+        )
+        iot_2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=iot_2
+        )
+        iot_3 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Bravo",
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=iot_3
+        )
+
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Banana"
+        )
+        besluittype1.zaaktypen.set([zaaktype])
+
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Apple"
+        )
+        besluittype2.zaaktypen.set([zaaktype])
+
+        besluittype3 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Cherry"
+        )
+        besluittype3.zaaktypen.set([zaaktype])
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        response = form.submit("_import_zaaktype").follow()
+
+        iotype_field_0 = response.form["iotype-0-existing"]
+        self.assertEqual(len(iotype_field_0.options), 4)
+        # Create new object
+        self.assertEqual(iotype_field_0.options[0][2], _("Create new"))
+        # First alphabetically
+        self.assertEqual(iotype_field_0.options[1][0], str(iot_2.id))
+        self.assertEqual(iotype_field_0.options[1][2], str(iot_2))
+        # First alphabetically
+        self.assertEqual(iotype_field_0.options[2][0], str(iot_3.id))
+        self.assertEqual(iotype_field_0.options[2][2], str(iot_3))
+        # First alphabetically
+        self.assertEqual(iotype_field_0.options[3][0], str(iot_1.id))
+        self.assertEqual(iotype_field_0.options[3][2], str(iot_1))
+
+        # BesluitType exists and should be selected
+        besluittype_field_0 = response.form["besluittype-0-existing"]
+        self.assertEqual(len(besluittype_field_0.options), 4)
+        # Create new object
+        self.assertEqual(besluittype_field_0.options[0][2], _("Create new"))
+        # First alphabetically
+        self.assertEqual(besluittype_field_0.options[1][0], str(besluittype2.id))
+        self.assertEqual(besluittype_field_0.options[1][2], str(besluittype2))
+        # First alphabetically
+        self.assertEqual(besluittype_field_0.options[2][0], str(besluittype1.id))
+        self.assertEqual(besluittype_field_0.options[2][2], str(besluittype1))
+        # First alphabetically
+        self.assertEqual(besluittype_field_0.options[3][0], str(besluittype3.id))
+        self.assertEqual(besluittype_field_0.options[3][2], str(besluittype3))
+
     def test_import_zaaktype_auto_match_besluittype_and_informatieobjecttype(
         self, *mocks
     ):
