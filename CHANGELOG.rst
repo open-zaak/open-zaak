@@ -70,6 +70,12 @@ Open Zaak now supports:
   * [#1418] Replaced `Django-Choices` with native django `TextChoices`
   * [#1417] Added `django-log-outgoing-requests` library to log outgoing requests
   * [#1471] Suported configuring `GEOS_LIBRARY_PATH` with environment variables
+  * Bumped django to latest available security patch
+  * Updated some other third party dependencies to newer versions
+
+**Documentation**
+
+  * [#1442] Updated Standard for public code assessment to 0.7.1
 
 1.9.0 (2023-07-17)
 ------------------
