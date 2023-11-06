@@ -14,11 +14,7 @@ from django.views.generic import FormView, TemplateView
 
 from openzaak.utils.admin import AdminContextMixin
 
-from ..models import (
-    Catalogus,
-    BesluitType,
-    InformatieObjectType,
-)
+from ..models import BesluitType, Catalogus, InformatieObjectType
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
     construct_besluittypen,
@@ -102,7 +98,13 @@ class CatalogusZaakTypeImportSelectView(
         if iotypen:
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
-                    {"existing": self.find_existing(InformatieObjectType, instance["omschrijving"], catalogus=catalogus)}
+                    {
+                        "existing": self.find_existing(
+                            InformatieObjectType,
+                            instance["omschrijving"],
+                            catalogus=catalogus,
+                        )
+                    }
                     for instance in iotypen
                 ],
                 form_kwargs={
@@ -119,7 +121,11 @@ class CatalogusZaakTypeImportSelectView(
         if besluittypen:
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
-                    {"existing": self.find_existing(BesluitType, instance["omschrijving"], catalogus=catalogus)}
+                    {
+                        "existing": self.find_existing(
+                            BesluitType, instance["omschrijving"], catalogus=catalogus
+                        )
+                    }
                     for instance, uuids in besluittypen
                 ],
                 form_kwargs={
