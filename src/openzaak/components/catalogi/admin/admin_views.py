@@ -185,5 +185,4 @@ class CatalogusZaakTypeImportSelectView(
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
-        context = self.get_context_data(**kwargs)
         return TemplateResponse(request, self.template_name, context)
