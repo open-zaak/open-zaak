@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 import logging
-from typing import Dict, Generator, Iterator, List, Optional, Tuple, Type
+from typing import Dict, Iterator, List, Tuple, Type
 
 from django.db import models
 from django.utils.module_loading import import_string
@@ -10,13 +10,7 @@ from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.serializers import (
-    BaseSerializer,
-    Field,
-    HyperlinkedRelatedField,
-    ListSerializer,
-    Serializer,
-)
+from rest_framework.serializers import BaseSerializer, Field, Serializer
 from rest_framework_inclusions.core import Error, InclusionLoader, sort_key
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer,
@@ -174,19 +168,26 @@ class ExpandLoader(InclusionLoader):
 
     def _loose_fk_field_inclusions(
         self,
-        path: Tuple[str],
+        path: Tuple[str, ...],
         field: Field,
         instance: models.Model,
         inclusion_serializer: Type[Serializer],
     ) -> Iterator[models.Model]:
+        """
+        handler for loose-fk-field
+        """
         obj = field.get_attribute(instance)
         if obj is None or obj.pk is None:
             return
 
         # TODO check if it's external link
-        if self._has_been_seen(obj):
-            return
         yield obj
+
+    def _has_been_seen(self, obj: models.Model) -> bool:
+        """
+        we don't deduplicate objects here
+        """
+        return False
 
 
 class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
