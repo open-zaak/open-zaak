@@ -84,7 +84,7 @@ class CatalogusZaakTypeImportSelectView(
     @staticmethod
     def find_existing(model, value, catalogus):
         try:
-            return str(model.objects.get(omschrijving=value, catalogus=catalogus).id)
+            return str(model.objects.get(omschrijving=value, catalogus=catalogus).pk)
         except ObjectDoesNotExist:
             return ""
 

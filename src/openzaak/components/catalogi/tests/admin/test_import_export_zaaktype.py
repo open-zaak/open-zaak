@@ -822,9 +822,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.assertEqual(  # option 1 is selected
             iotype_field_0.options[1],
-            (str(informatieobjecttype.id), True, str(informatieobjecttype)),
+            (str(informatieobjecttype.pk), True, str(informatieobjecttype)),
         )
-        self.assertEqual(iotype_field_0.value, str(informatieobjecttype.id))
+        self.assertEqual(iotype_field_0.value, str(informatieobjecttype.pk))
 
         # IOT does not exist and should select create new
         iotype_field_1 = response.form["iotype-1-existing"]
@@ -834,7 +834,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.assertEqual(  # option 1 not selected
             iotype_field_1.options[1],
-            (str(informatieobjecttype.id), False, str(informatieobjecttype)),
+            (str(informatieobjecttype.pk), False, str(informatieobjecttype)),
         )
         self.assertEqual(iotype_field_1.value, "")
 
@@ -846,9 +846,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.assertEqual(  # option 1 is selected
             besluittype_field_0.options[1],
-            (str(besluittype1.id), True, str(besluittype1)),
+            (str(besluittype1.pk), True, str(besluittype1)),
         )
-        self.assertEqual(besluittype_field_0.value, str(besluittype1.id))
+        self.assertEqual(besluittype_field_0.value, str(besluittype1.pk))
 
         # BesluitType does not exist and should select create new
         besluittype_field_1 = response.form["besluittype-1-existing"]
@@ -858,7 +858,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.assertEqual(  # option 1 not selected
             besluittype_field_1.options[1],
-            (str(besluittype1.id), False, str(besluittype1)),
+            (str(besluittype1.pk), False, str(besluittype1)),
         )
         self.assertEqual(besluittype_field_1.value, "")
 
