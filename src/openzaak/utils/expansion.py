@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 import logging
-from typing import Dict, Iterator, List, Tuple, Type
+from typing import Dict, Iterator, List, Optional, Tuple, Type
 
 from django.db import models
 from django.utils.module_loading import import_string
@@ -11,7 +11,7 @@ from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework.serializers import BaseSerializer, Field, Serializer
-from rest_framework_inclusions.core import Error, InclusionLoader, sort_key
+from rest_framework_inclusions.core import InclusionLoader
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer,
     get_allowed_paths,
@@ -21,6 +21,87 @@ from rest_framework_inclusions.renderer import (
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
 
 logger = logging.getLogger(__name__)
+
+EXPAND_KEY = "_expand"
+
+
+class InclusionNode:
+    """
+    very simple implementation of the tree to display inclusions
+    """
+
+    def __init__(
+        self,
+        id: str,
+        value: dict,
+        label: str,
+        many: bool,
+        parent: "InclusionNode" = None,
+    ):
+        self.id = id
+        self.value = value
+        self.label = label
+        self.many = many
+        self.parent = parent
+        self._children = []
+
+        if self.parent:
+            self.parent.add_child(self)
+
+    def __str__(self):
+        return f"{self.label}: {self.id}"
+
+    def add_child(self, node: "InclusionNode"):
+        self._children.append(node)
+
+    def display_children(self) -> dict:
+        """
+        return dict where children are grouped by their label
+        """
+        results = {}
+        for child in self._children:
+            child_result = child.display()
+            if child.many:
+                results.setdefault(child.label, []).append(child_result)
+            else:
+                results[child.label] = child_result
+        return results
+
+    def display(self) -> dict:
+        data = self.value.copy()
+        if self._children:
+            data[EXPAND_KEY] = self.display_children()
+        return data
+
+
+class InclusionTree:
+    """
+    strictly speaking it's not a tree but a collection of nodes
+    It's a little helper class to display nested inclusions
+    """
+
+    _nodes = []
+
+    def add_node(
+        self, id: str, value: dict, label: str, many: bool, parent_id: str = None
+    ) -> None:
+        if not parent_id:
+            node = InclusionNode(id, value, label, many)
+            self._nodes.append(node)
+            return
+
+        parent_nodes = [n for n in self._nodes if n.id == parent_id]
+        for parent_node in parent_nodes:
+            node = InclusionNode(id, value, label, many, parent=parent_node)
+            self._nodes.append(node)
+
+    def display_tree(self) -> dict:
+        result = {}
+        root_nodes = [n for n in self._nodes if n.parent is None]
+
+        for node in root_nodes:
+            result[node.id] = node.display_children()
+        return result
 
 
 class ExpandLoader(InclusionLoader):
@@ -33,8 +114,6 @@ class ExpandLoader(InclusionLoader):
     Since this change affects most of the methods, some copy-pasting is involved here
     """
 
-    response_expand_key = "_expand"
-
     def inclusions_dict(self, serializer: Serializer) -> dict:
         """
         The method is used by the renderer.
@@ -42,9 +121,9 @@ class ExpandLoader(InclusionLoader):
         :param serializer: serializer with 'instance'
         :return dictionary which maps parent urls and related inclusions
 
-        The example of the inclusions with 'expand=zaaktype,status.statustype':
+        The example of the inclusions with 'expand=zaaktype,status,status.statustype':
         {
-          <zaak1.uuid>: {
+          <zaak1.url>: {
             "zaaktype": {...},
             "status": {
                ...
@@ -56,49 +135,57 @@ class ExpandLoader(InclusionLoader):
         }
         """
 
-        entries = self._inclusions((), serializer, serializer.instance)
-        # FIXME make inclusions based on depth
-        result = {}
-        nested_inclusions = []
-        for obj, inclusion_serializer, parent, path, many in entries:
-            # TODO show nested objects
-            print(
-                "obj=",
-                obj,
-                "; inclusion_serializer=",
-                inclusion_serializer,
-                "; parent=",
-                parent,
-                "; path=",
-                path,
-                "; many=",
-                many,
+        tree = InclusionTree()
+        request = serializer.context["request"]
+
+        # add parent nodes to the tree
+        zaken = (
+            serializer.instance
+            if isinstance(serializer.instance, list)
+            else [serializer.instance]
+        )
+        for zaak in zaken:
+            tree.add_node(
+                id=zaak.get_absolute_api_url(request=request),
+                label="",
+                value={},
+                many=False,
             )
-            if len(path) > 1:
-                nested_inclusions.append(
-                    (obj, inclusion_serializer, parent, path, many)
-                )
-                continue
 
-            # process 1-level inclusions
-            request = serializer.context["request"]
-            parent_url = parent.get_absolute_api_url(request=request)
-            parent_results = result.setdefault(parent_url, {})
+        entries = self._inclusions((), serializer, serializer.instance)
 
-            # todo model_key = self.get_model_key(obj, inclusion_serializer) ?
-            model_key = path[-1]
-
+        for obj, inclusion_serializer, parent, path, many in entries:
             data = inclusion_serializer(instance=obj, context=serializer.context).data
-            if many:
-                parent_results.setdefault(model_key, []).append(data)
-            else:
-                parent_results[model_key] = data
+            tree.add_node(
+                id=data["url"],
+                value=data,
+                label=path[-1],
+                many=many,
+                parent_id=parent.get_absolute_api_url(request=request),
+            )
 
-        # todo sort and process other inclusions
-        # in-place sort of inclusions
-        # for value in result.values():
-        #     value.sort(key=sort_key)
+        result = tree.display_tree()
+
         return result
+
+    def _instance_inclusions(
+        self,
+        path: Tuple[str, ...],
+        serializer: Serializer,
+        instance: models.Model,
+        inclusion_serializers: Optional[dict] = None,
+    ):
+        """
+        add parameter 'inclusion_serializers'
+        """
+        inclusion_serializers = inclusion_serializers or getattr(
+            serializer, "inclusion_serializers", {}
+        )
+        for name, field in serializer.fields.items():
+            for entry in self._field_inclusions(
+                path, field, instance, name, inclusion_serializers
+            ):
+                yield entry
 
     def _field_inclusions(
         self,
@@ -122,24 +209,25 @@ class ExpandLoader(InclusionLoader):
             for entry in self._sub_serializer_inclusions(new_path, field, instance):
                 yield entry
             return
-        inclusion_serializer = inclusion_serializers.get(name)
+        inclusion_serializer = inclusion_serializers.get(".".join(new_path))
         if inclusion_serializer is None:
             return
         if isinstance(inclusion_serializer, str):
             inclusion_serializer = import_string(inclusion_serializer)
 
         many = True if hasattr(field, "child_relation") else False
+
         for obj in self._some_related_field_inclusions(
             new_path, field, instance, inclusion_serializer
         ):
             yield obj, inclusion_serializer, instance, new_path, many
             # when we do inclusions in inclusions, we base path off our
             # parent object path, not the sub-field
-            nested_path = (
-                new_path if self.nested_inclusions_use_complete_path else new_path[:-1]
-            )
             for entry in self._instance_inclusions(
-                nested_path, inclusion_serializer(instance=object), obj
+                new_path,
+                inclusion_serializer(instance=object),
+                obj,
+                inclusion_serializers,
             ):
                 yield entry
 
@@ -197,7 +285,6 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
     """
 
     loader_class = ExpandLoader
-    response_data_key = "results"
 
     def _render_inclusions(self, data, renderer_context):
         renderer_context = renderer_context or {}
@@ -241,11 +328,11 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
         if isinstance(serializer_data, list):
             for record in serializer_data:
                 if record["url"] in inclusions:
-                    record["_expand"] = inclusions[record["url"]]
+                    record[EXPAND_KEY] = inclusions[record["url"]]
 
         if isinstance(serializer_data, dict):
             if serializer_data["url"] in inclusions:
-                serializer_data["_expand"] = inclusions[serializer_data["url"]]
+                serializer_data[EXPAND_KEY] = inclusions[serializer_data["url"]]
 
         return render_data
 
