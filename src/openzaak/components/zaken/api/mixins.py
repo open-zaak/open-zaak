@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.models import Zaak
-from openzaak.utils.inclusion import InclusionJSONRenderer
+from openzaak.utils.expansion import ExpandJSONRenderer
 
 from .exceptions import ZaakClosed
 from .serializers import ZaakSerializer
@@ -78,7 +78,7 @@ class ClosedZaakMixin:
 
 
 class ExpandMixin:
-    renderer_classes = (InclusionJSONRenderer,)
+    renderer_classes = (ExpandJSONRenderer,)
     expand_param = "expand"
 
     def include_allowed(self):
