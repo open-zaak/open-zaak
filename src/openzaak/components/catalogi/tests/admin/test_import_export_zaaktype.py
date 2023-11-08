@@ -771,10 +771,14 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         Catalogus.objects.exclude(pk=catalogus.pk)
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
         )
         informatieobjecttype2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Beta",
         )
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype

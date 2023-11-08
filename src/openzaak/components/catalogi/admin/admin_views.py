@@ -96,6 +96,7 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
+            iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
                     {
@@ -119,6 +120,7 @@ class CatalogusZaakTypeImportSelectView(
 
         besluittypen = self.request.session.get("besluittypen")
         if besluittypen:
+            besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
                     {
