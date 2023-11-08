@@ -66,7 +66,7 @@ class ExpandLoader(InclusionLoader):
         # FIXME make inclusions based on depth
         result = {}
         nested_inclusions = []
-        for obj, inclusion_serializer, parent, path in entries:
+        for obj, inclusion_serializer, parent, path, many in entries:
             # TODO show nested objects
             print(
                 "obj=",
@@ -77,23 +77,28 @@ class ExpandLoader(InclusionLoader):
                 parent,
                 "; path=",
                 path,
+                "; many=",
+                many,
             )
             if len(path) > 1:
-                nested_inclusions.append((obj, inclusion_serializer, parent, path))
+                nested_inclusions.append(
+                    (obj, inclusion_serializer, parent, path, many)
+                )
                 continue
 
             # process 1-level inclusions
-            # todo replace it with function?
             request = serializer.context["request"]
             parent_url = parent.get_absolute_api_url(request=request)
             parent_results = result.setdefault(parent_url, {})
 
-            # model_key = self.get_model_key(obj, inclusion_serializer)
+            # todo model_key = self.get_model_key(obj, inclusion_serializer) ?
             model_key = path[-1]
 
-            # todo separate many and not-many
             data = inclusion_serializer(instance=obj, context=serializer.context).data
-            parent_results.setdefault(model_key, []).append(data)
+            if many:
+                parent_results.setdefault(model_key, []).append(data)
+            else:
+                parent_results[model_key] = data
 
         # todo sort and process other inclusions
         # in-place sort of inclusions
@@ -103,14 +108,17 @@ class ExpandLoader(InclusionLoader):
 
     def _field_inclusions(
         self,
-        path: Tuple[str],
+        path: Tuple[str, ...],
         field: Field,
         instance: models.Model,
         name: str,
         inclusion_serializers: Dict[str, str | Type[Serializer]],
-    ) -> Iterator[Tuple[models.Model, Type[Serializer], models.Model, Tuple[str, ...]]]:
+    ) -> Iterator[
+        Tuple[models.Model, Type[Serializer], models.Model, Tuple[str, ...], bool]
+    ]:
         """
-        change return of this generator from (obj, serializer_class) to (obj, serializer_class, parent_obj, path)
+        change return of this generator from (obj, serializer_class) to
+        (obj, serializer_class, parent_obj, path, many)
         """
         # if this turns out to be None, we don't want to do a thing
         if instance is None:
@@ -125,10 +133,12 @@ class ExpandLoader(InclusionLoader):
             return
         if isinstance(inclusion_serializer, str):
             inclusion_serializer = import_string(inclusion_serializer)
+
+        many = True if hasattr(field, "child_relation") else False
         for obj in self._some_related_field_inclusions(
             new_path, field, instance, inclusion_serializer
         ):
-            yield obj, inclusion_serializer, instance, new_path
+            yield obj, inclusion_serializer, instance, new_path, many
             # when we do inclusions in inclusions, we base path off our
             # parent object path, not the sub-field
             nested_path = (
@@ -141,7 +151,7 @@ class ExpandLoader(InclusionLoader):
 
     def _some_related_field_inclusions(
         self,
-        path: Tuple[str],
+        path: Tuple[str, ...],
         field: Field,
         instance: models.Model,
         inclusion_serializer: Type[Serializer],
@@ -242,5 +252,5 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 def get_expand_options_for_serializer(
     serializer_class: Type[Serializer],
 ) -> List[tuple]:
-    choices = [(opt, opt,) for opt in serializer_class.expand_serializers]
+    choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
     return choices
