@@ -73,6 +73,9 @@ class InclusionNode:
             data[EXPAND_KEY] = self.display_children()
         return data
 
+    def has_child(self, id) -> bool:
+        return any(child.id == id for child in self._children)
+
 
 class InclusionTree:
     """
@@ -90,7 +93,9 @@ class InclusionTree:
             self._nodes.append(node)
             return
 
-        parent_nodes = [n for n in self._nodes if n.id == parent_id]
+        parent_nodes = [
+            n for n in self._nodes if n.id == parent_id and not n.has_child(id)
+        ]
         for parent_node in parent_nodes:
             node = InclusionNode(id, value, label, many, parent=parent_node)
             self._nodes.append(node)
@@ -331,7 +336,7 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
                     record[EXPAND_KEY] = inclusions[record["url"]]
 
         if isinstance(serializer_data, dict):
-            if serializer_data["url"] in inclusions:
+            if inclusions.get(serializer_data["url"]):
                 serializer_data[EXPAND_KEY] = inclusions[serializer_data["url"]]
 
         return render_data
