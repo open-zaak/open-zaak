@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector, ReferencingSerializerInspector
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import Serializer, ListSerializer
 
 from .expansion import EXPAND_KEY
 from .serializer_fields import LengthHyperlinkedRelatedField
@@ -69,7 +69,6 @@ class ExpandSerializerInspector(ReferencingSerializerInspector):
             if "." in name:
                 continue
 
-            # todo is it array or not
             inclusion_serializer = import_string(serializer_class)()
             inclusion_ref = self.probe_field_inspectors(
                 inclusion_serializer,
@@ -77,7 +76,13 @@ class ExpandSerializerInspector(ReferencingSerializerInspector):
                 use_references=True,
                 inside_inclusion=True,
             )
-            expand_properties[name] = inclusion_ref
+            # define is it many=True field
+            # we can't initialize serializer with many=True, because it will trigger infinite loop
+            # therefore we create array manually
+            inclusion_field = field.fields[name]
+            many = True if hasattr(inclusion_field, "child_relation") else False
+            inclusion_schema = openapi.Schema(type=openapi.TYPE_ARRAY, items=inclusion_ref) if many else inclusion_ref
+            expand_properties[name] = inclusion_schema
 
         expand_schema = openapi.Schema(
             type=openapi.TYPE_OBJECT,
