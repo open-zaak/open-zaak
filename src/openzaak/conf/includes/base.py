@@ -707,7 +707,7 @@ OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
-JWT_EXPIRY = config("JWT_EXPIRY", default=3600*24)
+JWT_EXPIRY = config("JWT_EXPIRY", default=3600 * 24)
 # leeway when comparing timestamps - non-zero value account for clock drift
 JWT_LEEWAY = config("JWT_LEEWAY", default=5)
 
