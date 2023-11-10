@@ -2,13 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 
+from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector, ReferencingSerializerInspector
-from rest_framework.serializers import Serializer, ListSerializer
+from furl import furl
+from rest_framework.serializers import Serializer
 
 from .expansion import EXPAND_KEY
 from .serializer_fields import LengthHyperlinkedRelatedField
@@ -42,6 +44,23 @@ class LengthHyperlinkedRelatedFieldInspector(FieldInspector):
         return NotHandled
 
 
+def get_component_from_serializer(serializer: Serializer) -> str:
+    return serializer.Meta.model._meta.app_label
+
+
+def get_external_schema_ref(serializer: Serializer) -> str:
+    """
+    Constructs the schema references for external resource
+    """
+    component = get_component_from_serializer(serializer)
+    oas_url = settings.EXTERNAL_API_MAPPING[component].oas_url
+    resource_name = serializer.Meta.model._meta.object_name
+
+    f = furl(oas_url)
+    f.fragment.path = f"/components/schemas/{resource_name}"
+    return f.url
+
+
 class ExpandSerializerInspector(ReferencingSerializerInspector):
     def field_to_swagger_object(
         self,
@@ -70,18 +89,30 @@ class ExpandSerializerInspector(ReferencingSerializerInspector):
                 continue
 
             inclusion_serializer = import_string(serializer_class)()
-            inclusion_ref = self.probe_field_inspectors(
-                inclusion_serializer,
-                openapi.Schema,
-                use_references=True,
-                inside_inclusion=True,
-            )
-            # define is it many=True field
+            if get_component_from_serializer(field) == get_component_from_serializer(
+                inclusion_serializer
+            ):
+                # same component - local ref
+                inclusion_ref = self.probe_field_inspectors(
+                    inclusion_serializer,
+                    openapi.Schema,
+                    use_references=True,
+                    inside_inclusion=True,
+                )
+            else:
+                # external component - external ref
+                inclusion_ref = get_external_schema_ref(inclusion_serializer)
+
+            # define if it is many=True field
             # we can't initialize serializer with many=True, because it will trigger infinite loop
             # therefore we create array manually
             inclusion_field = field.fields[name]
             many = True if hasattr(inclusion_field, "child_relation") else False
-            inclusion_schema = openapi.Schema(type=openapi.TYPE_ARRAY, items=inclusion_ref) if many else inclusion_ref
+            inclusion_schema = (
+                openapi.Schema(type=openapi.TYPE_ARRAY, items=inclusion_ref)
+                if many
+                else inclusion_ref
+            )
             expand_properties[name] = inclusion_schema
 
         expand_schema = openapi.Schema(

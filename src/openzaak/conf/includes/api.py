@@ -138,6 +138,12 @@ VRC_API_STANDARD = APIStandard(
     ),
     is_standardized=False,
 )
+EXTERNAL_API_MAPPING = {
+    "besluiten": BRC_API_STANDARD,
+    "catalogi": ZTC_API_STANDARD,
+    "documenten": DRC_API_STANDARD,
+    "zaken": ZRC_API_STANDARD,
+}
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
