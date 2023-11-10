@@ -271,6 +271,19 @@ Uitleg bij mogelijke waarden:
 | resultaattoelichting | Een toelichting op wat het resultaat van de zaak inhoudt. | string | nee | C​R​U​D |
 | startdatumBewaartermijn | De datum die de start markeert van de termijn waarop het zaakdossier vernietigd moet worden. | string | nee | C​R​U​D |
 
+## ZaakEigenschap
+
+Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakeigenschap)
+
+| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
+| --- | --- | --- | --- | --- |
+| url |  | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| zaak |  | string | ja | C​R​U​D |
+| eigenschap | URL-referentie naar de EIGENSCHAP (in de Catalogi API). | string | ja | C​R​U​D |
+| naam | De naam van de EIGENSCHAP (overgenomen uit de Catalogi API). | string | nee | ~~C~~​R​~~U~~​~~D~~ |
+| waarde |  | string | ja | C​R​U​D |
+
 ## AuditTrail
 
 Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/audittrail)
@@ -325,19 +338,6 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | url |  | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | besluit | URL-referentie naar het BESLUIT (in de Besluiten API). | string | ja | C​R​U​D |
-
-## ZaakEigenschap
-
-Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/objecttype/zaakeigenschap)
-
-| Attribuut | Omschrijving | Type | Verplicht | CRUD* |
-| --- | --- | --- | --- | --- |
-| url |  | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| uuid | Unieke resource identifier (UUID4) | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| zaak |  | string | ja | C​R​U​D |
-| eigenschap | URL-referentie naar de EIGENSCHAP (in de Catalogi API). | string | ja | C​R​U​D |
-| naam | De naam van de EIGENSCHAP (overgenomen uit de Catalogi API). | string | nee | ~~C~~​R​~~U~~​~~D~~ |
-| waarde |  | string | ja | C​R​U​D |
 
 
 * Create, Read, Update, Delete
