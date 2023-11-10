@@ -10,7 +10,12 @@ from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.serializers import BaseSerializer, Field, Serializer
+from rest_framework.serializers import (
+    BaseSerializer,
+    Field,
+    HyperlinkedRelatedField,
+    Serializer,
+)
 from rest_framework_inclusions.core import InclusionLoader
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer,
@@ -119,6 +124,11 @@ class ExpandLoader(InclusionLoader):
     Since this change affects most of the methods, some copy-pasting is involved here
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._seen_external: Dict[str, ProxyMixin] = {}
+
     def inclusions_dict(self, serializer: Serializer) -> dict:
         """
         The method is used by the renderer.
@@ -160,7 +170,11 @@ class ExpandLoader(InclusionLoader):
         entries = self._inclusions((), serializer, serializer.instance)
 
         for obj, inclusion_serializer, parent, path, many in entries:
-            data = inclusion_serializer(instance=obj, context=serializer.context).data
+            data = (
+                obj._initial_data
+                if isinstance(obj, ProxyMixin)
+                else inclusion_serializer(instance=obj, context=serializer.context).data
+            )
             tree.add_node(
                 id=data["url"],
                 value=data,
@@ -270,11 +284,29 @@ class ExpandLoader(InclusionLoader):
         handler for loose-fk-field
         """
         obj = field.get_attribute(instance)
-        if obj is None or obj.pk is None:
+
+        if obj is None:
             return
 
-        # TODO check if it's external link
-        yield obj
+        # external
+        if isinstance(obj, str):
+            # check in cache
+            if obj in self._seen_external:
+                yield self._seen_external[obj]
+
+            else:
+                try:
+                    # model field descriptor uses loader for external urls
+                    instance = getattr(instance, field.field_name)
+                except FetchError:
+                    return
+                else:
+                    self._seen_external[obj] = instance
+                    yield instance
+
+        # local
+        else:
+            yield obj
 
     def _has_been_seen(self, obj: models.Model) -> bool:
         """
