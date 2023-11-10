@@ -1,17 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
-from collections import OrderedDict
-from typing import Iterable, List
+from typing import List
 
 from django.conf import settings
+from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
-from drf_yasg.inspectors.field import FieldInspector, SerializerInspector
+from drf_yasg.inspectors.field import FieldInspector, ReferencingSerializerInspector
 from furl import furl
+from rest_framework.serializers import Serializer
 
-from .inclusion import get_component_name, get_include_resources
+from .expansion import EXPAND_KEY
 from .serializer_fields import LengthHyperlinkedRelatedField
 
 logger = logging.getLogger(__name__)
@@ -64,56 +66,60 @@ def get_external_schema_refs(component: str, resource: str) -> List[str]:
     return [url.url]
 
 
-class IncludeSerializerInspector(SerializerInspector):
-    def get_inclusion_props(self, serializer_class) -> OrderedDict:
-        inclusion_props = OrderedDict()
-        inclusion_opts = get_include_resources(serializer_class)
-        for component, resource in inclusion_opts:
-            # If the compont the resource is present in is the component for which the
-            # schema is being generated, simply use an internal reference
-            if component == get_component_name(serializer_class):
-                ref_url = f"#/components/schemas/{resource}"
-                inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.SwaggerDict(**{"$ref": ref_url}),
-                )
-            else:
-                ref_urls = get_external_schema_refs(component, resource)
-                inclusion_props[f"{component}:{resource}".lower()] = openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.SwaggerDict(
-                        oneOf=[
-                            openapi.SwaggerDict(**{"$ref": ref_url})
-                            for ref_url in ref_urls
-                        ]
-                    ),
-                )
-        return inclusion_props
+class ExpandSerializerInspector(ReferencingSerializerInspector):
+    def field_to_swagger_object(
+        self,
+        field: Serializer,
+        swagger_object_type,
+        use_references: bool,
+        inside_inclusion: bool = False,
+        **kwargs,
+    ):
+        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
+        inclusion_serializers = getattr(field, "inclusion_serializers", {})
 
-    def get_inclusion_responses(
-        self, renderer_classes: Iterable, response_schema: OrderedDict
-    ) -> OrderedDict:
-        allowed_check = getattr(self.view, "include_allowed", lambda: True)
-        skip_includes = not allowed_check()
-        if skip_includes:
-            return response_schema
+        if not include_allowed or not inclusion_serializers or inside_inclusion:
+            return NotHandled
 
-        for status, response in response_schema.items():
-            if "schema" not in response:
+        # retrieve base schema
+        base_schema_ref = super().field_to_swagger_object(
+            field, swagger_object_type, use_references, **kwargs
+        )
+
+        # create schema for inclusions
+        expand_properties = {}
+        for name, serializer_class in inclusion_serializers.items():
+            # create schema for top-level inclusions for now
+            if "." in name:
                 continue
 
-            inclusion_props = self.get_inclusion_props(self.view.serializer_class)
-            if "properties" in response["schema"]:
-                properties = response["schema"]["properties"]
-                properties["inclusions"] = openapi.Schema(
-                    type=openapi.TYPE_OBJECT, properties=inclusion_props
-                )
+            # todo is it array or not
+            inclusion_serializer = import_string(serializer_class)()
+            inclusion_ref = self.probe_field_inspectors(
+                inclusion_serializer,
+                openapi.Schema,
+                use_references=True,
+                inside_inclusion=True,
+            )
+            expand_properties[name] = inclusion_ref
 
-                schema = openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties=properties,
-                    required=response["schema"].get("required", []) + ["inclusions"],
-                )
-                response["schema"] = schema
+        expand_schema = openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties=expand_properties,
+            description=_(
+                "Display details of the linked resources requested in the `expand` parameter"
+            ),
+        )
 
-        return response_schema
+        # combine base schema with inclusions
+        allof_schema = openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            all_of=[
+                base_schema_ref,
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT, properties={EXPAND_KEY: expand_schema},
+                ),
+            ],
+        )
+
+        return allof_schema
