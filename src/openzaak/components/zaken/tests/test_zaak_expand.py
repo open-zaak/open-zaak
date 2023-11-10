@@ -25,8 +25,6 @@ from .factories import (
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
-    get_catalogus_response,
-    get_operation_url,
     get_resultaattype_response,
     get_zaaktype_response,
 )

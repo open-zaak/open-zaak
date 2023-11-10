@@ -1,16 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
-from typing import List
 
-from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from drf_yasg import openapi
 from drf_yasg.inspectors.base import NotHandled
 from drf_yasg.inspectors.field import FieldInspector, ReferencingSerializerInspector
-from furl import furl
 from rest_framework.serializers import Serializer
 
 from .expansion import EXPAND_KEY
@@ -43,27 +40,6 @@ class LengthHyperlinkedRelatedFieldInspector(FieldInspector):
             return res
 
         return NotHandled
-
-
-API_VERSION_MAPPING = {
-    "autorisaties": settings.AUTORISATIES_API_VERSION,
-    "besluiten": settings.BESLUITEN_API_VERSION,
-    "catalogi": settings.CATALOGI_API_VERSION,
-    "documenten": settings.DOCUMENTEN_API_VERSION,
-    "zaken": settings.ZAKEN_API_VERSION,
-}
-
-
-# TODO API settings should have a list of supported API versions
-# see: https://github.com/open-zaak/open-zaak/pull/1138#discussion_r892398142
-def get_external_schema_refs(component: str, resource: str) -> List[str]:
-    """
-    Constructs the schema references for external resources
-    """
-    url = furl(settings.COMPONENT_TO_API_SPEC_MAPPING[component])
-    schema_ref = f"/components/schemas/{resource}"
-    url.fragment.path = schema_ref
-    return [url.url]
 
 
 class ExpandSerializerInspector(ReferencingSerializerInspector):

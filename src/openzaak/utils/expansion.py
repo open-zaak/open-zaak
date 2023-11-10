@@ -1,21 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2022 Dimpact
+# Copyright (C) 2023 Dimpact
 import logging
 from typing import Dict, Iterator, List, Optional, Tuple, Type
 
 from django.db import models
 from django.utils.module_loading import import_string
 
-from django_loose_fk.drf import FKOrURLField
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework.serializers import (
-    BaseSerializer,
-    Field,
-    HyperlinkedRelatedField,
-    Serializer,
-)
+from rest_framework.serializers import BaseSerializer, Field, Serializer
 from rest_framework_inclusions.core import InclusionLoader
 from rest_framework_inclusions.renderer import (
     InclusionJSONRenderer,
@@ -118,7 +112,7 @@ class ExpandLoader(InclusionLoader):
     """
     ExpandLoader is hugely inspired by 'InclusionLoader' from 'djangorestframework-inclusions'
 
-    Unlike InclusionLoader ExpandLoader keeps track on the parent object of the inclusion
+    Unlike InclusionLoader ExpandLoader keeps track of the parent object of the inclusion
     and the path to this inclusion.
     It helps to back track each inclusion to the root objects.
     Since this change affects most of the methods, some copy-pasting is involved here

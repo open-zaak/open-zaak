@@ -139,13 +139,6 @@ VRC_API_STANDARD = APIStandard(
     is_standardized=False,
 )
 
-COMPONENT_TO_API_SPEC_MAPPING = {
-    "besluiten": BRC_API_SPEC,
-    "catalogi": ZTC_API_SPEC,
-    "documenten": DRC_API_SPEC,
-    "zaken": ZRC_API_SPEC,
-}
-
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 
 LINK_FETCHER = "openzaak.nlx.fetcher"
