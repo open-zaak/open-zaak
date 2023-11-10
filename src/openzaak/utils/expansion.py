@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
 import logging
-from typing import Dict, Iterator, List, Optional, Tuple, Type
+from typing import Dict, Iterator, List, Optional, Tuple, Type, Union
 
 from django.db import models
 from django.utils.module_loading import import_string
@@ -206,7 +206,7 @@ class ExpandLoader(InclusionLoader):
         field: Field,
         instance: models.Model,
         name: str,
-        inclusion_serializers: Dict[str, str | Type[Serializer]],
+        inclusion_serializers: Dict[str, Union[str, Type[Serializer]]],
     ) -> Iterator[
         Tuple[models.Model, Type[Serializer], models.Model, Tuple[str, ...], bool]
     ]:
