@@ -116,7 +116,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         ).json()
 
         response = self.client.post(
-            self.url,
+            reverse("zaak--zoek"),
             {
                 "zaakgeometrie": {
                     "within": {

@@ -532,21 +532,24 @@ class PerformanceTests(
                 skipped, it's create of root resource!) vng_api_common.caching.signals
             32: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
             33: select zaak rollen
-            34: select zaak zaakinformatieobjecten
-            35: select zaak zaakobjecten
-            36: select zaak kenmerken (nested inline create, can't avoid this)
-            37: insert audit trail
-         38-39: notifications, select created zaak (?), notifs config
-            40: release savepoint (from NotificationsCreateMixin)
-            41: savepoint create transaction.on_commit ETag handler (start new transaction)
-            42: update ETag column of zaak
-            43: release savepoint (commit transaction)
+            34: select zaak statussen
+            35: select zaak zaakinformatieobjecten
+            36: select zaak zaakobjecten
+            37: select zaak kenmerken (nested inline create, can't avoid this)
+            38: insert audit trail
+         39-40: notifications, select created zaak (?), notifs config
+            41: release savepoint (from NotificationsCreateMixin)
+            42: select zaak relevantezaakrelatie (nested inline create)
+            43: select zaak kenmerken (nested inline create)
+            44: savepoint create transaction.on_commit ETag handler (start new transaction)
+            45: update ETag column of zaak
+            46: release savepoint (commit transaction)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 43
+        EXPECTED_NUM_QUERIES = 46
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
