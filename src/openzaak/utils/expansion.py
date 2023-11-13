@@ -324,6 +324,9 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
         if response is not None and response.status_code >= 400:
             return None
 
+        if not data:
+            return None
+
         render_data = data.copy()
 
         if render_data and "results" in render_data:

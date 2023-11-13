@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from datetime import timedelta
+from datetime import date, timedelta
+from typing import Optional
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -100,6 +101,38 @@ class GeldigheidMixin(models.Model):
                         "voor een Versiedatum van het gerelateerde zaaktype."
                     )
                 )
+
+    @property
+    def begin_object(self) -> date:
+        # annotated in the queryset
+        if hasattr(self, "datum_begin_object"):
+            return self.datum_begin_object
+
+        # for inclusions we don't have annotated queryset
+        return (
+            self._meta.default_manager.filter(
+                **{self.omschrijving_field: getattr(self, self.omschrijving_field)}
+            )
+            .order_by("datum_begin_geldigheid")
+            .first()
+            .datum_begin_geldigheid
+        )
+
+    @property
+    def einde_object(self) -> Optional[date]:
+        # annotated in the queryset
+        if hasattr(self, "datum_einde_object"):
+            return self.datum_einde_object
+
+        # for inclusions we don't have annotated queryset
+        return (
+            self._meta.default_manager.filter(
+                **{self.omschrijving_field: getattr(self, self.omschrijving_field)}
+            )
+            .order_by("-datum_begin_geldigheid")
+            .first()
+            .datum_einde_geldigheid
+        )
 
 
 class OptionalGeldigheidMixin(models.Model):
