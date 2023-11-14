@@ -299,9 +299,9 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
-          severity: 'CRITICAL,HIGH'
           format: 'sarif'
           output: 'trivy-results-docker.sarif'
+          ignore-unfixed: true
       - name: Upload results to GH Security tab
         uses: github/codeql-action/upload-sarif@v2
         with:
