@@ -82,9 +82,13 @@ class CatalogusZaakTypeImportSelectView(
     raise_exception = True
 
     @staticmethod
-    def find_existing(model, value, catalogus):
+    def find_existing(queryset, value, catalogus, start_date):
         try:
-            return str(model.objects.get(omschrijving=value, catalogus=catalogus).pk)
+            return queryset.get(
+                omschrijving=value,
+                catalogus=catalogus,
+                datum_begin_geldigheid=start_date,
+            ).pk
         except ObjectDoesNotExist:
             return ""
 
@@ -96,14 +100,16 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
+            iot_queryset = InformatieObjectType.objects.filter(catalogus=catalogus)
             iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
                     {
                         "existing": self.find_existing(
-                            InformatieObjectType,
+                            iot_queryset,
                             instance["omschrijving"],
-                            catalogus=catalogus,
+                            catalogus,
+                            instance["begin_geldigheid"],
                         )
                     }
                     for instance in iotypen
@@ -120,12 +126,16 @@ class CatalogusZaakTypeImportSelectView(
 
         besluittypen = self.request.session.get("besluittypen")
         if besluittypen:
+            besluittypen_queryset = BesluitType.objects.filter(catalogus=catalogus)
             besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
                     {
                         "existing": self.find_existing(
-                            BesluitType, instance["omschrijving"], catalogus=catalogus
+                            besluittypen_queryset,
+                            instance["omschrijving"],
+                            catalogus,
+                            instance["begin_geldigheid"],
                         )
                     }
                     for instance, uuids in besluittypen
