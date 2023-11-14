@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import io
 import zipfile
+from datetime import datetime
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
@@ -769,22 +770,17 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
-        Catalogus.objects.exclude(pk=catalogus.pk)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
         )
         informatieobjecttype2 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Beta",
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype2
+            zaaktypen__zaaktype=zaaktype,
         )
 
         besluittype1 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="1")
@@ -865,6 +861,83 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             (str(besluittype1.pk), False, str(besluittype1)),
         )
         self.assertEqual(besluittype_field_1.value, "")
+
+    def test_import_zaaktype_auto_match_import_relations(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            datum_begin_geldigheid="2023-01-01",
+        )
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+        )
+
+        informatieobjecttype2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Beta",
+            zaaktypen__zaaktype=zaaktype,
+        )
+
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
+        )
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Charlie", zaaktypen=[zaaktype]
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        # one should be new
+        informatieobjecttype2.delete()
+        besluittype2.delete()
+
+        zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1)
+        zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31)
+        zaaktype.save()
+
+        self.assertEqual(ZaakType.objects.all().count(), 1)
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.all().count(), 2)
+
+        new_zaaktype = ZaakType.objects.exclude(pk=zaaktype.pk).get()
+
+        old_iot = new_zaaktype.informatieobjecttypen.all().get(omschrijving="Alpha")
+        self.assertEqual(old_iot, informatieobjecttype)
+        new_iot = new_zaaktype.informatieobjecttypen.all().get(omschrijving="Beta")
+        self.assertNotEqual(new_iot.pk, informatieobjecttype2.pk)
+
+        old_besluittype = new_zaaktype.besluittypen.all().get(omschrijving="Apple")
+        self.assertEqual(old_besluittype, besluittype1)
+        new_besluittype = new_zaaktype.besluittypen.all().get(omschrijving="Charlie")
+        self.assertNotEqual(new_besluittype.pk, besluittype2.pk)
 
 
 @patch(

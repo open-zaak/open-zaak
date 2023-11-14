@@ -15,7 +15,7 @@ class ZaakTypeInformatieObjectTypeFactory(factory.django.DjangoModelFactory):
         "openzaak.components.catalogi.tests.factories.InformatieObjectTypeFactory",
         zaaktypen=None,
     )
-    volgnummer = factory.sequence(lambda x: x)
+    volgnummer = factory.sequence(lambda x: x + 1)
     richting = RichtingChoices.inkomend
 
     class Meta:
