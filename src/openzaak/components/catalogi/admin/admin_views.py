@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
