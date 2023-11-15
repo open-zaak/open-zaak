@@ -1512,6 +1512,139 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         self.assertEqual(ZaakType.objects.count(), 0)
         self.assertEqual(Eigenschap.objects.count(), 0)
 
+    def test_import_zaaktype_informatieobjectype_overlapping(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            datum_begin_geldigheid="2023-01-01",
+        )
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-01-01",
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
+        zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31).date()
+        zaaktype.save()
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 200)
+
+        error_text = (
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            )
+            .format(informatieobjecttype._meta.verbose_name)
+            .title()
+        )
+        expected_html = f'<ul class="errorlist"><li>begin_geldigheid: overlap — {error_text}</li></ul>'
+
+        self.assertIn(
+            expected_html, response.text,
+        )
+
+        informatieobjecttype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
+        informatieobjecttype.datum_einde_geldigheid = datetime(2022, 12, 31).date()
+        informatieobjecttype.save()
+
+        self.assertEqual(InformatieObjectType.objects.all().count(), 1)
+        response = response.form.submit("_select")
+        # ensure form submits correctly
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(InformatieObjectType.objects.all().count(), 2)
+
+    def test_import_zaaktype_besluittype_overlapping(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            datum_begin_geldigheid="2023-01-01",
+        )
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-01-01",
+        )
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
+        zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31).date()
+        zaaktype.save()
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 200)
+
+        error_text = (
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            )
+            .format(besluittype1._meta.verbose_name)
+            .title()
+        )
+        expected_html = f'<ul class="errorlist"><li>begin_geldigheid: overlap — {error_text}</li></ul>'
+
+        self.assertIn(
+            expected_html, response.text,
+        )
+
+        besluittype1.datum_begin_geldigheid = datetime(2022, 1, 1).date()
+        besluittype1.datum_einde_geldigheid = datetime(2022, 12, 31).date()
+        besluittype1.save()
+
+        self.assertEqual(BesluitType.objects.all().count(), 1)
+        response = response.form.submit("_select")
+        # ensure form submits correctly
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(BesluitType.objects.all().count(), 2)
+
 
 @tag("readonly-user")
 class ReadOnlyUserTests(WebTest):

@@ -77,9 +77,9 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
     return besluittypen
 
 
-def construct_iotypen(iotypen, iotype_form_data):
+def construct_iotypen(iotypen, iotype_form_data, iot_formset):
     iotypen_uuid_mapping = {}
-    for imported, form_data in zip(iotypen, iotype_form_data):
+    for imported, form_data, form in zip(iotypen, iotype_form_data, iot_formset.forms):
         uuid = imported["url"].split("/")[-1]
         if form_data["existing"]:
             iotypen_uuid_mapping[uuid] = form_data["existing"]
@@ -94,20 +94,29 @@ def construct_iotypen(iotypen, iotype_form_data):
                 instance = InformatieObjectType(**data)
                 instance.omschrijving_generiek = omschrijving_generiek
             else:
+                error_message = ", ".join(
+                    [
+                        f"{k}: {v[0].code} — {v[0].title()}"
+                        for k, v in deserialized.errors.items()
+                    ]
+                )
+                form.add_error("existing", error_message)
                 raise CommandError(
                     _(
                         "A validation error occurred while deserializing a {}\n{}"
-                    ).format("InformatieObjectType", deserialized.errors)
+                    ).format("InformatieObjectType", error_message)
                 )
             instance.save()
             iotypen_uuid_mapping[uuid] = instance
     return iotypen_uuid_mapping
 
 
-def construct_besluittypen(besluittypen, besluittype_form_data, iotypen_uuid_mapping):
+def construct_besluittypen(
+    besluittypen, besluittype_form_data, iotypen_uuid_mapping, besluittype_formset
+):
     besluittypen_uuid_mapping = {}
-    for (imported, related_iotypen_uuids,), form_data in zip(
-        besluittypen, besluittype_form_data
+    for (imported, related_iotypen_uuids,), form_data, form in zip(
+        besluittypen, besluittype_form_data, besluittype_formset
     ):
         uuid = imported["url"].split("/")[-1]
         if form_data["existing"]:
@@ -122,6 +131,13 @@ def construct_besluittypen(besluittypen, besluittype_form_data, iotypen_uuid_map
 
                 instance = BesluitType(**deserialized.validated_data)
             else:
+                error_message = ", ".join(
+                    [
+                        f"{k}: {v[0].code} — {v[0].title()}"
+                        for k, v in deserialized.errors.items()
+                    ]
+                )
+                form.add_error("existing", error_message)
                 raise CommandError(
                     _(
                         "A validation error occurred while deserializing a {}\n{}"
