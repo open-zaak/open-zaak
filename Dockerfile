@@ -1,7 +1,7 @@
 # Stage 1 - Compile needed python dependencies
 FROM python:3.9-slim-bullseye AS build
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
         pkg-config \
         build-essential \
         libpq-dev \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY ./requirements /app/requirements
-RUN pip install pip 'setuptools<59.0' -U
+RUN pip install pip setuptools -U
 RUN pip install -r requirements/production.txt
 
 
@@ -40,10 +40,10 @@ FROM python:3.9-slim-bullseye AS production
 
 # Stage 3.1 - Set up the needed production dependencies
 # install all the dependencies for GeoDjango
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
         # bare minimum to debug live containers
         procps \
-        vim \
+        nano \
         # serve correct Content-Type headers
         mime-support \
         # (geo) django dependencies
