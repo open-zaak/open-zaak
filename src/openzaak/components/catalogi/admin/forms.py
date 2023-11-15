@@ -516,7 +516,9 @@ class ExistingInformatieObjectTypeForm(ExistingTypeForm):
 
 class ExistingBesluitTypeForm(ExistingTypeForm):
     existing = forms.ModelChoiceField(
-        queryset=BesluitType.objects.all().order_by("omschrijving"), required=False, empty_label=_("Create new")
+        queryset=BesluitType.objects.all().order_by("omschrijving"),
+        required=False,
+        empty_label=_("Create new"),
     )
 
 

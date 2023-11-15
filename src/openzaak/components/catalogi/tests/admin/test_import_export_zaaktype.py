@@ -773,41 +773,30 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Charlie",
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=iot_1
+            zaaktypen__zaaktype=zaaktype,
         )
         iot_2 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=iot_2
+            zaaktypen__zaaktype=zaaktype,
         )
         iot_3 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=iot_3
+            zaaktypen__zaaktype=zaaktype,
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Banana"
+            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
         )
-        besluittype1.zaaktypen.set([zaaktype])
-
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Apple"
+            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
         )
-        besluittype2.zaaktypen.set([zaaktype])
-
         besluittype3 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Cherry"
+            catalogus=catalogus, omschrijving="Cherry", zaaktypen=[zaaktype]
         )
-        besluittype3.zaaktypen.set([zaaktype])
 
         # create zip
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
@@ -857,6 +846,89 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         # First alphabetically
         self.assertEqual(besluittype_field_0.options[3][0], str(besluittype3.id))
         self.assertEqual(besluittype_field_0.options[3][2], str(besluittype3))
+
+    def test_import_zaaktype_saved_selected_on_error(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+        Catalogus.objects.exclude(pk=catalogus.pk)
+        iot_1 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+        )
+        iot_2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Bravo",
+            zaaktypen__zaaktype=zaaktype,
+        )
+        iot_3 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Charlie",
+            zaaktypen__zaaktype=zaaktype,
+        )
+
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
+        )
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
+        )
+        besluittype3 = BesluitTypeFactory.create(
+            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        response = form.submit("_import_zaaktype").follow()
+        # default value and order of fields is not guaranteed, will be in #1493
+        response.form["iotype-0-existing"].value = iot_3.pk
+        response.form["iotype-1-existing"].value = iot_1.pk
+        response.form["iotype-2-existing"].value = iot_2.pk
+
+        response.form["besluittype-0-existing"].value = besluittype3.pk
+        response.form["besluittype-1-existing"].value = besluittype1.pk
+        response.form["besluittype-2-existing"].value = besluittype2.pk
+        response = response.form.submit("_select")
+
+        # should fail as it imports overlapping IOTs and besluit types
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.form["iotype-0-existing"].value, str(iot_3.pk))
+        self.assertEqual(response.form["iotype-1-existing"].value, str(iot_1.pk))
+        self.assertEqual(response.form["iotype-2-existing"].value, str(iot_2.pk))
+
+        self.assertEqual(
+            response.form["besluittype-0-existing"].value, str(besluittype3.pk)
+        )
+        self.assertEqual(
+            response.form["besluittype-1-existing"].value, str(besluittype1.pk)
+        )
+        self.assertEqual(
+            response.form["besluittype-2-existing"].value, str(besluittype2.pk)
+        )
 
     def test_import_zaaktype_auto_match_besluittype_and_informatieobjecttype(
         self, *mocks
