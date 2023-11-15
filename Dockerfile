@@ -10,7 +10,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 WORKDIR /app
 
 COPY ./requirements /app/requirements
-RUN pip install pip -U
+RUN pip install pip setuptools -U
 RUN pip install -r requirements/production.txt
 
 
