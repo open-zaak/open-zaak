@@ -2,7 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 import logging
-from datetime import date
+import re
+from datetime import date, datetime
 from typing import Iterable, Optional
 
 from django.conf import settings
@@ -20,6 +21,7 @@ from vng_api_common.validators import (
     URLValidator,
 )
 
+from openzaak.components.catalogi.constants import FormaatChoices
 from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -524,4 +526,67 @@ class ZaakArchiefStatusValidator:
             return
 
         if zaak.archiefstatus != Archiefstatus.nog_te_archiveren:
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
+def match_eigenschap_specificatie(spec, value: str) -> bool:
+    """
+    validate value against eigenschap.specificatie
+    moved to the separate function to reuse for admin validation
+    """
+    # enum
+    if spec.waardenverzameling:
+        return value in spec.waardenverzameling
+
+    if spec.formaat == FormaatChoices.tekst:
+        return len(value) <= int(spec.lengte)
+
+    if spec.formaat == FormaatChoices.getal:
+        whole_length = spec.lengte.split(",")[0]
+        regex = rf"\d{{0,{whole_length}}}"
+        if "," in spec.lengte:
+            fractional_length = spec.lengte.split(",")[-1]
+            regex += rf",?\d{{0,{fractional_length}}}"
+
+        match = re.fullmatch(regex, value)
+        return bool(match)
+
+    if spec.formaat == FormaatChoices.datum:
+        # according ZGW standard datum should be in 'jjjjmmdd' format
+        try:
+            datetime.strptime(value, "%Y%m%d")
+        except ValueError:
+            return False
+        else:
+            return True
+
+    if spec.formaat == FormaatChoices.datum_tijd:
+        # according ZGW standard datum/tijd should be in 'jjjjmmdduummss' format
+        try:
+            datetime.strptime(value, "%Y%m%d%H%M%S")
+        except ValueError:
+            return False
+        else:
+            return True
+
+    return True
+
+
+class ZaakEigenschapValueValidator:
+    code = "waarde-incorrect-format"
+    message = _("The 'waarde' value doesn't match the related eigenschap.specificatie")
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        eigenschap = get_from_serializer_data_or_instance(
+            "eigenschap", attrs, serializer
+        )
+        waarde = get_from_serializer_data_or_instance("waarde", attrs, serializer)
+
+        if not eigenschap or not waarde:
+            return
+
+        if not match_eigenschap_specificatie(
+            eigenschap.specificatie_van_eigenschap, waarde
+        ):
             raise serializers.ValidationError(self.message, code=self.code)
