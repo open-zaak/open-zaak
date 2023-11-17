@@ -772,30 +772,55 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         iot_1 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="Charlie",
+            omschrijving="Brave",
             zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-17",
         )
         iot_2 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-18",
         )
         iot_3 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-17",
+        )
+        iot_4 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-18",
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-17",
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-18",
         )
         besluittype3 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Cherry", zaaktypen=[zaaktype]
+            catalogus=catalogus,
+            omschrijving="Banana",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-18",
+        )
+        besluittype4 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Banana",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-17",
         )
 
         # create zip
@@ -819,33 +844,39 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_import_zaaktype").follow()
 
         iotype_field_0 = response.form["iotype-0-existing"]
-        self.assertEqual(len(iotype_field_0.options), 4)
+        self.assertEqual(len(iotype_field_0.options), 5)
         # Create new object
         self.assertEqual(iotype_field_0.options[0][2], _("Create new"))
-        # First alphabetically
-        self.assertEqual(iotype_field_0.options[1][0], str(iot_2.id))
-        self.assertEqual(iotype_field_0.options[1][2], str(iot_2))
-        # First alphabetically
-        self.assertEqual(iotype_field_0.options[2][0], str(iot_3.id))
-        self.assertEqual(iotype_field_0.options[2][2], str(iot_3))
-        # First alphabetically
+        # First alphabetically, first date wise
+        self.assertEqual(iotype_field_0.options[1][0], str(iot_3.id))
+        self.assertEqual(iotype_field_0.options[1][2], str(iot_3))
+        # First alphabetically, second date wise
+        self.assertEqual(iotype_field_0.options[2][0], str(iot_2.id))
+        self.assertEqual(iotype_field_0.options[2][2], str(iot_2))
+        # Second alphabetically, First date wise
         self.assertEqual(iotype_field_0.options[3][0], str(iot_1.id))
         self.assertEqual(iotype_field_0.options[3][2], str(iot_1))
+        # Second alphabetically, second date wise
+        self.assertEqual(iotype_field_0.options[4][0], str(iot_4.id))
+        self.assertEqual(iotype_field_0.options[4][2], str(iot_4))
 
         # BesluitType exists and should be selected
         besluittype_field_0 = response.form["besluittype-0-existing"]
-        self.assertEqual(len(besluittype_field_0.options), 4)
+        self.assertEqual(len(besluittype_field_0.options), 5)
         # Create new object
         self.assertEqual(besluittype_field_0.options[0][2], _("Create new"))
-        # First alphabetically
-        self.assertEqual(besluittype_field_0.options[1][0], str(besluittype2.id))
-        self.assertEqual(besluittype_field_0.options[1][2], str(besluittype2))
-        # First alphabetically
-        self.assertEqual(besluittype_field_0.options[2][0], str(besluittype1.id))
-        self.assertEqual(besluittype_field_0.options[2][2], str(besluittype1))
-        # First alphabetically
-        self.assertEqual(besluittype_field_0.options[3][0], str(besluittype3.id))
-        self.assertEqual(besluittype_field_0.options[3][2], str(besluittype3))
+        # First alphabetically, first date wise
+        self.assertEqual(besluittype_field_0.options[1][0], str(besluittype1.id))
+        self.assertEqual(besluittype_field_0.options[1][2], str(besluittype1))
+        # First alphabetically, second date wise
+        self.assertEqual(besluittype_field_0.options[2][0], str(besluittype2.id))
+        self.assertEqual(besluittype_field_0.options[2][2], str(besluittype2))
+        # Second alphabetically, First date wise
+        self.assertEqual(besluittype_field_0.options[3][0], str(besluittype4.id))
+        self.assertEqual(besluittype_field_0.options[3][2], str(besluittype4))
+        # Second alphabetically, second date wise
+        self.assertEqual(besluittype_field_0.options[4][0], str(besluittype3.id))
+        self.assertEqual(besluittype_field_0.options[4][2], str(besluittype3))
 
     def test_import_zaaktype_saved_selected_on_error(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
