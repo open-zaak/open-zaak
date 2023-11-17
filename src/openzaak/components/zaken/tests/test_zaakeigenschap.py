@@ -113,7 +113,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_update(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
@@ -136,7 +138,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_partial_update(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
@@ -159,7 +163,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_partial_update_without_eigenschap(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
