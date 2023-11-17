@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2023 Dimpact
 from django.test import TestCase
 
 from rest_framework.exceptions import ErrorDetail
