@@ -586,7 +586,9 @@ class ZaakEigenschapValueValidator:
         if not eigenschap or not waarde:
             return
 
-        if not match_eigenschap_specificatie(
-            eigenschap.specificatie_van_eigenschap, waarde
-        ):
+        spec = eigenschap.specificatie_van_eigenschap
+        if not spec:
+            return
+
+        if not match_eigenschap_specificatie(spec, waarde):
             raise serializers.ValidationError(self.message, code=self.code)
