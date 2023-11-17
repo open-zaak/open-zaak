@@ -7,7 +7,6 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
-from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 
@@ -93,17 +92,6 @@ class InformatieObjectType(
         max_length=255,
         blank=True,
         help_text=_("Zinvolle toelichting bij het informatieobjecttype"),
-    )
-    omschrijving_generiek = GegevensGroepType(
-        {
-            "informatieobjecttype_omschrijving_generiek": omschrijving_generiek_informatieobjecttype,
-            "definitie_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_definitie,
-            "herkomst_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_herkomst,
-            "hierarchie_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_hierarchie,
-            "opmerking_informatieobjecttype_omschrijving_generiek": omschrijving_generiek_opmerking,
-        },
-        optional=("opmerking_informatieobjecttype_omschrijving_generiek",),
-        required=False,
     )
 
     # relation fields
