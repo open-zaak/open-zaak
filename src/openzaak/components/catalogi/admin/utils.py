@@ -22,6 +22,19 @@ setattr(REQUEST, "versioning_scheme", URLPathVersioning())
 setattr(REQUEST, "version", "1")
 
 
+def format_serializer_errors(errors, is_fk=False):
+
+    # if list of errors
+    if isinstance(errors, list):
+        return ",".join([f"{error.title()}" for error in errors])
+
+    seperator = ", " if is_fk else "\n"
+    # otherwise nested error list
+    return seperator.join(
+        [f"{k}: {format_serializer_errors(v, True)}" for k, v in errors.items()]
+    )
+
+
 def retrieve_iotypen(catalogus_pk, import_file_content):
     catalogus = Catalogus.objects.get(pk=catalogus_pk)
     catalogus_uuid = str(catalogus.uuid)
@@ -94,12 +107,7 @@ def construct_iotypen(iotypen, iotype_form_data, iot_formset):
                 instance = InformatieObjectType(**data)
                 instance.omschrijving_generiek = omschrijving_generiek
             else:
-                error_message = ", ".join(
-                    [
-                        f"{k}: {v[0].code} — {v[0].title()}"
-                        for k, v in deserialized.errors.items()
-                    ]
-                )
+                error_message = format_serializer_errors(deserialized.errors)
                 form.add_error("existing", error_message)
                 raise CommandError(
                     _(
