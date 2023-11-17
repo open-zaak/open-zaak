@@ -1564,10 +1564,11 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             .format(informatieobjecttype._meta.verbose_name)
             .title()
         )
-        expected_html = f'<ul class="errorlist"><li>begin_geldigheid: overlap — {error_text}</li></ul>'
 
-        self.assertIn(
-            expected_html, response.text,
+        expected_error = {"existing": [f"begin_geldigheid: overlap — {error_text}"]}
+        iotype_forms = response.context["iotype_forms"]
+        self.assertEqual(
+            iotype_forms.errors, [expected_error],
         )
 
         informatieobjecttype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
