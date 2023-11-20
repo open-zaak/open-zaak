@@ -978,13 +978,13 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
-            datum_einde_geldigheid="2023-04-01",
+            datum_begin_geldigheid="2023-04-01",
         )
         besluittype2 = BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
-            datum_einde_geldigheid="2023-04-01",
+            datum_begin_geldigheid="2023-04-01",
         )
 
         url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))

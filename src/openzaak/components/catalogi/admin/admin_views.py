@@ -80,13 +80,6 @@ class CatalogusZaakTypeImportSelectView(
     permission_required = "catalogi.add_zaaktype"
     raise_exception = True
 
-    @staticmethod
-    def get_query_dict(querset):
-        query_dict = {}
-        for obj in querset:
-            query_dict[obj.omschrijving] = obj.pk
-        return query_dict
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -95,11 +88,13 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
-            iot_dict = self.get_query_dict(
-                InformatieObjectType.objects.filter(catalogus=catalogus)
-                .order_by("omschrijving", "datum_begin_geldigheid")
+            iot_dict = {
+                obj.omschrijving: obj.pk
+                for obj in InformatieObjectType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
-            )
+            }
+
             iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
@@ -118,11 +113,12 @@ class CatalogusZaakTypeImportSelectView(
 
         besluittypen = self.request.session.get("besluittypen")
         if besluittypen:
-            besluittypen_dict = self.get_query_dict(
-                BesluitType.objects.filter(catalogus=catalogus)
-                .order_by("omschrijving", "datum_begin_geldigheid")
+            besluittypen_dict = {
+                obj.omschrijving: obj.pk
+                for obj in BesluitType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
-            )
+            }
             besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
