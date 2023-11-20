@@ -136,7 +136,9 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         verbose_name_plural = _("besluittypen")
 
     def __str__(self):
-        representation = f"{self.catalogus} - {self.omschrijving}"
+        representation = (
+            f"{self.catalogus} - {self.omschrijving}  {self.datum_begin_geldigheid}"
+        )
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation

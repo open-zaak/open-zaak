@@ -81,19 +81,10 @@ class CatalogusZaakTypeImportSelectView(
     raise_exception = True
 
     @staticmethod
-    def find_existing(query_dict, value, start_date):
-        try:
-            return query_dict[value][start_date]
-        except KeyError:
-            return ""
-
-    @staticmethod
     def get_query_dict(querset):
         query_dict = {}
         for obj in querset:
-            description = query_dict.get(obj.omschrijving, {})
-            description[str(obj.datum_begin_geldigheid)] = obj.pk
-            query_dict[obj.omschrijving] = description
+            query_dict[obj.omschrijving] = obj.pk
         return query_dict
 
     def get_context_data(self, **kwargs):
@@ -106,17 +97,13 @@ class CatalogusZaakTypeImportSelectView(
         if iotypen:
             iot_dict = self.get_query_dict(
                 InformatieObjectType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "datum_begin_geldigheid")
+                .distinct("omschrijving")
             )
             iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
-                    {
-                        "existing": self.find_existing(
-                            iot_dict,
-                            instance["omschrijving"],
-                            instance["begin_geldigheid"],
-                        )
-                    }
+                    {"existing": iot_dict.get(instance["omschrijving"])}
                     for instance in iotypen
                 ],
                 form_kwargs={
@@ -133,17 +120,13 @@ class CatalogusZaakTypeImportSelectView(
         if besluittypen:
             besluittypen_dict = self.get_query_dict(
                 BesluitType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "datum_begin_geldigheid")
+                .distinct("omschrijving")
             )
             besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
-                    {
-                        "existing": self.find_existing(
-                            besluittypen_dict,
-                            instance["omschrijving"],
-                            instance["begin_geldigheid"],
-                        )
-                    }
+                    {"existing": besluittypen_dict.get(instance["omschrijving"])}
                     for instance, uuids in besluittypen
                 ],
                 form_kwargs={
