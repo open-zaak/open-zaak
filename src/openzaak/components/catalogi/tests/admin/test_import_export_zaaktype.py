@@ -1596,7 +1596,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             .title()
         )
 
-        expected_error = {"existing": [f"begin_geldigheid: overlap — {error_text}"]}
+        expected_error = {"existing": [f"begin_geldigheid: {error_text}"]}
         iotype_forms = response.context["iotype_forms"]
         self.assertEqual(
             iotype_forms.errors, [expected_error],
