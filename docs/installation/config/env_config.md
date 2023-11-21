@@ -144,6 +144,8 @@ on Docker, since `localhost` is contained within the container:
 * `LOG_LEVEL`: control the verbosity of logging output. Available values are `CRITICAL`,
   `ERROR`, `WARNING`, `INFO` and `DEBUG`. Defaults to `WARNING`.
 
+* `LOG_REQUESTS`: enable logging of the outgoing requests. Defaults to `False`.
+
 * `PROFILE`: whether to enable profiling-tooling or not. Applies to the development
   settings only. Defaults to `False`.
 
