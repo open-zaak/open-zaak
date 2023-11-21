@@ -1662,7 +1662,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             .title()
         )
 
-        expected_error = {"existing": [f"begin_geldigheid: overlap — {error_text}"]}
+        expected_error = {"existing": [f"begin_geldigheid: {error_text}"]}
         besluittype_forms = response.context["besluittype_forms"]
         self.assertEqual(
             besluittype_forms.errors, [expected_error],

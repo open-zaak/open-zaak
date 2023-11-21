@@ -139,17 +139,12 @@ def construct_besluittypen(
 
                 instance = BesluitType(**deserialized.validated_data)
             else:
-                error_message = ", ".join(
-                    [
-                        f"{k}: {v[0].code} — {v[0].title()}"
-                        for k, v in deserialized.errors.items()
-                    ]
-                )
+                error_message = format_serializer_errors(deserialized.errors)
                 form.add_error("existing", error_message)
                 raise CommandError(
                     _(
                         "A validation error occurred while deserializing a {}\n{}"
-                    ).format("BesluitType", deserialized.errors)
+                    ).format("BesluitType", error_message)
                 )
             instance.save()
             chosen_object = instance

@@ -149,13 +149,39 @@ class CatalogusZaakTypeImportSelectView(
 
     def post(self, request, *args, **kwargs):
 
+        catalogus_pk = kwargs.get("catalogus_pk")
+        catalogus = Catalogus.objects.get(pk=catalogus_pk)
+
         if "iotype-TOTAL_FORMS" in request.POST:
-            iotype_forms = InformatieObjectTypeFormSet(request.POST, prefix="iotype",)
+            iotype_forms = InformatieObjectTypeFormSet(
+                request.POST,
+                prefix="iotype",
+                form_kwargs={
+                    "catalogus_pk": catalogus_pk,
+                    "labels": [
+                        str(catalogus) + " - " + i["omschrijving"]
+                        for i in request.session.get("iotypen")
+                    ],
+                },
+            )
+            kwargs["iotype_forms"] = iotype_forms
         else:
             iotype_forms = None
 
         if "besluittype-TOTAL_FORMS" in request.POST:
-            besluittype_forms = BesluitTypeFormSet(request.POST, prefix="besluittype",)
+
+            besluittype_forms = BesluitTypeFormSet(
+                request.POST,
+                prefix="besluittype",
+                form_kwargs={
+                    "catalogus_pk": catalogus_pk,
+                    "labels": [
+                        str(catalogus) + " - " + i["omschrijving"]
+                        for i, uuids in request.session.get("besluittypen")
+                    ],
+                },
+            )
+            kwargs["besluittype_forms"] = besluittype_forms
         else:
             besluittype_forms = None
 
@@ -196,25 +222,6 @@ class CatalogusZaakTypeImportSelectView(
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
-
-        catalogus_pk = kwargs.get("catalogus_pk")
-        catalogus = Catalogus.objects.get(pk=catalogus_pk)
-
-        if iotype_forms:
-            for i, form in zip(request.session["iotypen"], iotype_forms.forms):
-                form._bound_fields_cache["existing"].label = (
-                    str(catalogus) + " - " + i["omschrijving"]
-                )
-            kwargs["iotype_forms"] = iotype_forms
-
-        if besluittype_forms:
-            for i, form in zip(
-                request.session["besluittypen"], besluittype_forms.forms
-            ):
-                form._bound_fields_cache["existing"].label = (
-                    str(catalogus) + " - " + i[0]["omschrijving"]
-                )
-            kwargs["besluittype_forms"] = besluittype_forms
 
         context = self.get_context_data(**kwargs)
         return TemplateResponse(request, self.template_name, context)
