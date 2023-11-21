@@ -198,9 +198,6 @@ class CatalogusZaakTypeImportSelectView(
 
                 besluittypen_uuid_mapping = {}
                 if besluittype_forms:
-                    besluittype_forms = BesluitTypeFormSet(
-                        request.POST, prefix="besluittype"
-                    )
                     if besluittype_forms.is_valid():
                         besluittypen_uuid_mapping = construct_besluittypen(
                             request.session["besluittypen"],
