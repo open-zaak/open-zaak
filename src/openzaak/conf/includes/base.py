@@ -262,7 +262,7 @@ DEFAULT_FROM_EMAIL = "openzaak@example.com"
 LOG_STDOUT = config("LOG_STDOUT", default=False)
 LOG_LEVEL = config("LOG_LEVEL", default="WARNING")
 LOG_QUERIES = config("LOG_QUERIES", default=False)
-LOG_REQUESTS = config("LOG_REQUESTS", default=True)
+LOG_REQUESTS = config("LOG_REQUESTS", default=False)
 if LOG_QUERIES and not DEBUG:
     warnings.warn(
         "Requested LOG_QUERIES=1 but DEBUG is false, no query logs will be emited.",
