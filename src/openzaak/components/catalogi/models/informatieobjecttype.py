@@ -133,7 +133,7 @@ class InformatieObjectType(
         verbose_name_plural = _("Informatieobjecttypen")
 
     def __str__(self):
-        representation = self.omschrijving
+        representation = f"{self.omschrijving} {self.datum_begin_geldigheid}"
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation

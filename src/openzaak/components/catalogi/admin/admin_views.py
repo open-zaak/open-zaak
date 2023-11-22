@@ -13,7 +13,7 @@ from django.views.generic import FormView, TemplateView
 
 from openzaak.utils.admin import AdminContextMixin
 
-from ..models import Catalogus
+from ..models import BesluitType, Catalogus, InformatieObjectType
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
     construct_besluittypen,
@@ -88,8 +88,19 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
+            iot_dict = {
+                obj.omschrijving: obj.pk
+                for obj in InformatieObjectType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "-datum_begin_geldigheid")
+                .distinct("omschrijving")
+            }
+
+            iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
             iotype_forms = InformatieObjectTypeFormSet(
-                initial=[{"new_instance": instance} for instance in iotypen],
+                initial=[
+                    {"existing": iot_dict.get(instance["omschrijving"])}
+                    for instance in iotypen
+                ],
                 form_kwargs={
                     "catalogus_pk": catalogus_pk,
                     "labels": [
@@ -102,9 +113,17 @@ class CatalogusZaakTypeImportSelectView(
 
         besluittypen = self.request.session.get("besluittypen")
         if besluittypen:
+            besluittypen_dict = {
+                obj.omschrijving: obj.pk
+                for obj in BesluitType.objects.filter(catalogus=catalogus)
+                .order_by("omschrijving", "-datum_begin_geldigheid")
+                .distinct("omschrijving")
+            }
+            besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
-                    {"new_instance": instance} for instance, uuids in besluittypen
+                    {"existing": besluittypen_dict.get(instance["omschrijving"])}
+                    for instance, uuids in besluittypen
                 ],
                 form_kwargs={
                     "catalogus_pk": catalogus_pk,
@@ -129,7 +148,6 @@ class CatalogusZaakTypeImportSelectView(
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
         try:
             with transaction.atomic():
                 iotypen_uuid_mapping = {}
@@ -167,4 +185,5 @@ class CatalogusZaakTypeImportSelectView(
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
+        context = self.get_context_data(**kwargs)
         return TemplateResponse(request, self.template_name, context)
