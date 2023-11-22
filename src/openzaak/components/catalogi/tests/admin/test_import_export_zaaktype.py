@@ -1584,7 +1584,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         zaaktype.save()
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        form = response.form
+        form["iotype-0-existing"].value = ""
+        response = form.submit("_select")
 
         self.assertEqual(response.status_code, 200)
 
@@ -1607,7 +1609,10 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         informatieobjecttype.save()
 
         self.assertEqual(InformatieObjectType.objects.all().count(), 1)
-        response = response.form.submit("_select")
+        form = response.form
+        form["iotype-0-existing"].value = ""
+        response = form.submit("_select")
+
         # ensure form submits correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(InformatieObjectType.objects.all().count(), 2)
@@ -1650,7 +1655,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         zaaktype.save()
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        form = response.form
+        form["besluittype-0-existing"].value = ""
+        response = form.submit("_select")
 
         self.assertEqual(response.status_code, 200)
 
