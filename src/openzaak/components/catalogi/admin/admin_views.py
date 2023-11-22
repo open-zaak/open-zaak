@@ -94,8 +94,10 @@ class CatalogusZaakTypeImportSelectView(
                 .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
             }
-
+            # sort alphabetically, save for use in post
             iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
+            self.request.session["iotypen"] = iotypen
+
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
                     {"existing": iot_dict.get(instance["omschrijving"])}
@@ -119,7 +121,10 @@ class CatalogusZaakTypeImportSelectView(
                 .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
             }
+            # sort alphabetically, save for use in post
             besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
+            self.request.session["besluittypen"] = besluittypen
+
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
                     {"existing": besluittypen_dict.get(instance["omschrijving"])}
