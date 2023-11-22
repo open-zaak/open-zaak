@@ -1,0 +1,31 @@
+{% extends "master.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2023 Dimpact {% endcomment %}
+
+{% block content %}
+  <div class="header">
+    <h1 class="header__title">{{ settings.PROJECT_NAME }} configuratie</h1>
+    <p class="header__description">{{ settings.SITE_TITLE }}</p>
+  </div>
+
+  <div class="container container--center">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Parameter</th>
+          <th scope="col">Waarde</th>
+          <th scope="col">Ok?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for param, value, ok in config %}
+          <tr>
+            <td><strong>{{ param }}</strong></td>
+            <td>{{ value|urlize }}</td>
+            <td><i class="fa fa-{{ ok|yesno:'check,times,minus' }}"></i></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

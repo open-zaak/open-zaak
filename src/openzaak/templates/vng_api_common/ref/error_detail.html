@@ -1,0 +1,31 @@
+{% extends "master.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2023 Dimpact {% endcomment %}
+
+{% load markup_tags %}
+
+{% block content %}
+
+  <div class="header">
+    <h1 class="header__title">{{ settings.PROJECT_NAME }} foutomschrijving</h1>
+    <p class="header__description">{{ settings.SITE_TITLE }}</p>
+  </div>
+
+  <div class="container">
+
+    <h2><code>{{ type }}</code> fouttype</h2>
+
+    <dl class="error-detail-properties">
+      <dt class="error-detail-properties__property">HTTP Status code</dt>
+      <dd class="error-detail-properties__value"><code>{{ status_code }}</code></dd>
+
+      <dt class="error-detail-properties__property">Default title</dt>
+      <dd class="error-detail-properties__value"><code>{{ default_detail }}</code></dd>
+
+      <dt class="error-detail-properties__property">Default code</dt>
+      <dd class="error-detail-properties__value"><code>{{ default_code }}</code></dd>
+    </dl>
+
+  </div>
+
+{% endblock %}
