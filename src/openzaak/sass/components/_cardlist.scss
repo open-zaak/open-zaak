@@ -1,0 +1,27 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2023 Dimpact */
+
+.cardlist {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-left: -15px;
+  margin-right: -15px;
+  margin-bottom: 1rem;
+
+  &__item {
+    position: relative;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    // number of items per row is responsive (but default is 3)
+    @media (min-width: 576px) {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+    }
+
+
+
+  }
+}

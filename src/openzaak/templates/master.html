@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/screen.css' %}">
     <link rel="stylesheet" href="{% static 'vng_api_common/libs/fontawesome/css/all.min.css' %}">
 
     <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
@@ -32,50 +32,40 @@
     {% endblock %}
 
     <div class="container">
-      <footer class="pt-4 my-md-5 pt-md-5 border-top">
-        <div class="row">
-          <div class="col-4 col-md">
-            <img class="mb-2" src="{% static 'img/logo.png' %}" alt="" height="50">
-              <small class="d-block mb-3 text-muted">Ontwikkeld door <a href="https://www.maykinmedia.nl">Maykin Media</a><br>in opdracht van <a href="https://www.dimpact.nl">Dimpact</a> &copy; {% now "Y" %}</small>
+      <footer class="footer">
+        <div class="footer__row">
+          <div class="footer__item footer__logo">
+            <img src="{% static 'img/logo.png' %}" alt="" height="50">
+            <small>Ontwikkeld door <a class="link" href="https://www.maykinmedia.nl">Maykin Media</a><br>in opdracht van <a class=link href="https://www.dimpact.nl">Dimpact</a> &copy; {% now "Y" %}</small>
           </div>
-          <div class="col-4 col-md">
+          <div class="footer__item">
             <h5>Open Zaak</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="https://open-zaak.readthedocs.io/en/latest/">Documentatie</a></li>
-              <li><a class="text-muted" href="https://github.com/open-zaak/open-zaak">Code op Github</a></li>
-              <li><a class="text-muted" href="https://vng-realisatie.github.io/gemma-zaken/">Standaard "API's voor Zaakgericht werken"</a></li>
+            <ul class="list">
+              <li><a class="link link--muted" href="https://open-zaak.readthedocs.io/en/latest/">Documentatie</a></li>
+              <li><a class="link link--muted" href="https://github.com/open-zaak/open-zaak">Code op Github</a></li>
+              <li><a class="link link--muted" href="https://vng-realisatie.github.io/gemma-zaken/">Standaard "API's voor Zaakgericht werken"</a></li>
             </ul>
           </div>
-          <div class="col-4 col-md">
+          <div class="footer__item">
             <h5>Overige</h5>
-            <ul class="list-unstyled text-small">
-              <li><a class="text-muted" href="https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken">Zaakgericht werken volgen VNG</a></li>
-              <li><a class="text-muted" href="https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken">API's voor Zaakgericht werken</a></li>
-              <li><a class="text-muted" href="https://commonground.nl/">Common Ground</a></li>
+            <ul class="list">
+              <li><a class="link link--muted" href="https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken">Zaakgericht werken volgen VNG</a></li>
+              <li><a class="link link--muted" href="https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken">API's voor Zaakgericht werken</a></li>
+              <li><a class="link link--muted" href="https://commonground.nl/">Common Ground</a></li>
             </ul>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-6 text-muted">
+        <div class="footer__row">
+          <div class="footer__item footer__item--wide">
             <code>{{ settings.RELEASE }}</code>
           </div>
-          <div class="col-6 text-muted text-right">
+          <div class="footer__item footer__item--wide footer__item--right">
             <code>{{ settings.GIT_SHA|default:"" }}</code>
           </div>
         </div>
       </footer>
     </div>
-
-    <script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
-    <script src="{% static 'vng_api_common/libs/popper/popper.min.js' %}"></script>
-    <script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
-
-    <script>
-      $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-      })
-    </script>
 
     {% block extra_scripts %}{% endblock %}
   </body>

@@ -1,0 +1,27 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2023 Dimpact */
+
+//css vars
+:root {
+  --color-darkest: #000;
+  --color-dark: #212529;
+  --color-light: #dee2e6;
+  --color-lightest: #fff;
+
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+
+  --color-secondary: #6c757d;
+  --color-secondary-dark: #5a6268;
+
+  --color-alert: #dc3545;
+  --color-alert-dark: #c82333;
+
+  --color-link: var(--color-primary);
+  --color-link-hover: var(--color-primary-dark);
+  --color-text: var(--color-dark);
+  --color-muted: var(--color-secondary);
+  --color-border: var(--color-light);
+  --color-code: #e83e8c;
+  --color-background: var(--color-lightest);
+}

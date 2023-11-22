@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2023 Dimpact */
+
+.header {
+  text-align: center;
+  padding: 1rem;
+  margin-right: auto;
+  margin-left: auto;
+
+  &__title {
+    font-size: 3.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+
+  &__description {
+    font-size: 1.25rem;
+    font-weight: 300;
+  }
+}
