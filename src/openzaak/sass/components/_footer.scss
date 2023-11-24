@@ -17,13 +17,6 @@
     width: 100%;
     padding-right: 15px;
     padding-left: 15px;
-	flex: 0 0 33.333333%;
-	max-width: 33.333333%;
-  }
-
-  &__item--wide {
-    flex: 0 0 50%;
-    max-width: 50%;
   }
 
   &__item--right {
@@ -32,7 +25,6 @@
 
   &__logo {
     margin-bottom: 0.5rem;
-    vertical-align: middle;
 
     img {
       display: block;
