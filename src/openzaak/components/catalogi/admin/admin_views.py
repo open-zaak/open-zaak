@@ -41,12 +41,18 @@ class CatalogusZaakTypeImportUploadView(
             request.session["file_content"] = import_file.read()
 
             iotypen = retrieve_iotypen(catalogus_pk, request.session["file_content"])
-            request.session["iotypen"] = iotypen
+            request.session["iotypen"] = (
+                sorted(iotypen, key=lambda x: x["omschrijving"]) if iotypen else iotypen
+            )
 
             besluittypen = retrieve_besluittypen(
                 catalogus_pk, request.session["file_content"]
             )
-            request.session["besluittypen"] = besluittypen
+            request.session["besluittypen"] = (
+                sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
+                if besluittypen
+                else besluittypen
+            )
 
             if besluittypen or iotypen:
                 return HttpResponseRedirect(
@@ -94,10 +100,6 @@ class CatalogusZaakTypeImportSelectView(
                 .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
             }
-            # sort alphabetically, save for use in post
-            iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
-            self.request.session["iotypen"] = iotypen
-
             iotype_forms = InformatieObjectTypeFormSet(
                 initial=[
                     {"existing": iot_dict.get(instance["omschrijving"])}
@@ -121,10 +123,6 @@ class CatalogusZaakTypeImportSelectView(
                 .order_by("omschrijving", "-datum_begin_geldigheid")
                 .distinct("omschrijving")
             }
-            # sort alphabetically, save for use in post
-            besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
-            self.request.session["besluittypen"] = besluittypen
-
             besluittype_forms = BesluitTypeFormSet(
                 initial=[
                     {"existing": besluittypen_dict.get(instance["omschrijving"])}

@@ -22,13 +22,19 @@ setattr(REQUEST, "versioning_scheme", URLPathVersioning())
 setattr(REQUEST, "version", "1")
 
 
-def format_serializer_errors(errors, is_fk=False):
+def format_serializer_errors(errors, related=False):
+    """
+    Formats a DRF serializer's validation errors to a single string
+    :param errors: standard DRF error dict returned from a serializer
+    :param related: whether an error dict is from a related serializer
+    :returns: errors formatted as a string
+    """
 
     # if list of errors
     if isinstance(errors, list):
         return ",".join([f"{error.title()}" for error in errors])
 
-    seperator = ", " if is_fk else "\n"
+    seperator = ", " if related else "\n"
     # otherwise nested error list
     return seperator.join(
         [f"{k}: {format_serializer_errors(v, True)}" for k, v in errors.items()]
