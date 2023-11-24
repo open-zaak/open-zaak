@@ -878,6 +878,109 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(besluittype_field_0.options[4][0], str(besluittype3.id))
         self.assertEqual(besluittype_field_0.options[4][2], str(besluittype3))
 
+    def test_import_zaaktype_besluittype_and_informatieobjecttype_field_order(
+        self, *mocks
+    ):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+        Catalogus.objects.exclude(pk=catalogus.pk)
+        iot_1 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Brave",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-17",
+        )
+        iot_2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-18",
+        )
+        iot_3 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-17",
+        )
+        iot_4 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Bravo",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-11-18",
+        )
+
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-17",
+        )
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-18",
+        )
+        besluittype3 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Banana",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-18",
+        )
+        besluittype4 = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Banana",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-11-17",
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        response = form.submit("_import_zaaktype").follow()
+        returned_labels = [str(label) for label in response.html.find_all("label")]
+
+        expected_labels = [
+            f'<label for="id_iotype-0-existing">{catalogus} - {iot_3.omschrijving}:</label>',
+            f'<label for="id_iotype-1-existing">{catalogus} - {iot_2.omschrijving}:</label>',
+            f'<label for="id_iotype-2-existing">{catalogus} - {iot_1.omschrijving}:</label>',
+            f'<label for="id_iotype-3-existing">{catalogus} - {iot_4.omschrijving}:</label>',
+            f'<label for="id_besluittype-0-existing">{catalogus} - {besluittype1.omschrijving}:</label>',
+            f'<label for="id_besluittype-1-existing">{catalogus} - {besluittype2.omschrijving}:</label>',
+            f'<label for="id_besluittype-2-existing">{catalogus} - {besluittype4.omschrijving}:</label>',
+            f'<label for="id_besluittype-3-existing">{catalogus} - {besluittype3.omschrijving}:</label>',
+        ]
+
+        self.assertEqual(returned_labels, expected_labels)
+
+        response = response.form.submit("_select")
+        self.assertEqual(response.status_code, 200)
+        # labels should be correct on form validation failure
+        self.assertEqual(returned_labels, expected_labels)
+
     def test_import_zaaktype_saved_selected_on_error(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
