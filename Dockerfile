@@ -52,6 +52,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install pip -U
+
 WORKDIR /app
 COPY ./cache /app/cache
 COPY ./bin/docker_start.sh /start.sh
