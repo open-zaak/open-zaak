@@ -1,6 +1,18 @@
 Changelog
 =========
 
+1.10.1 (2023-11-28)
+-------------------
+
+Open Zaak 1.10.1 is a patch release focused on security.
+
+* [#1493] Preselected related informatieobjecttypen when importing zaaktypen in the Admin
+* [#1506] Changed default for `LOG_REQUESTS` setting to `False`
+* [#1507] Added Trivy into the CI as an docker image scaner
+* [#1512] Moved the project from Python 3.9 to Python 3.10
+* [#1512] Removed Boostrap and jQuery from the web interface
+* [#1512] Switched to Debian 12 as a base for the docker image
+
 1.10.0 (2023-11-01)
 -------------------
 
