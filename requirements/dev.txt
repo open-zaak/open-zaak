@@ -107,7 +107,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
-commonground-api-common==1.11.0
+commonground-api-common==1.12.0
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
@@ -304,7 +304,7 @@ faker==19.11.0
     #   zgw-consumers
 flake8==3.8.3
     # via -r requirements/ci.txt
-flower==1.2.0
+flower==2.0.1
     # via -r requirements/ci.txt
 freezegun==1.2.1
     # via -r requirements/ci.txt

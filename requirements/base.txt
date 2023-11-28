@@ -57,7 +57,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==1.11.0
+commonground-api-common==1.12.0
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -203,7 +203,7 @@ face==20.1.1
     # via glom
 faker==19.11.0
     # via zgw-consumers
-flower==1.2.0
+flower==2.0.1
     # via -r requirements/base.in
 furl==2.1.3
     # via drc-cmis

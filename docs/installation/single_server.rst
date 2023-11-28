@@ -63,7 +63,7 @@ for deployment.
 
 Currently the following OS flavours are supported:
 
-- Debian: bullseye (11), buster (10, actively supported), stretch (9)
+- Debian: bookworm (12), bullseye (11), buster (10, actively supported), stretch (9)
 - Ubuntu: bionic (18.04 LTS) - focal (20.04 LTS) and jammy (22.04 LTS) are not tested
   yet
 - SUSE Enterprise Linux: 15 (actively supported)

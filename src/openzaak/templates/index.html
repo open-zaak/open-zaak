@@ -4,90 +4,71 @@
 
 {% block content %}
 
-  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">{{ settings.PROJECT_NAME }} startpunt</h1>
-    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  <div class="header">
+    <h1 class="header__title">{{ settings.PROJECT_NAME }} startpunt</h1>
+    <p class="header__description">{{ settings.SITE_TITLE }}</p>
   </div>
 
-  <div class="container text-center">
+  <div class="container container--center">
 
     {% block docs %}
+      <h2>{{ component|capfirst }}</h2>
 
-  <h2>{{ component|capfirst }}</h2>
-
-      <div class="row justify-content-md-center">
+      <div class="cardlist">
 
         {% block docs_oas %}
-          <div class="col-sm-4">
-
+          <div class="cardlist__item">
             <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-wifi"></i> API specificatie</h5>
-                <p class="card-text">Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
-                <a href="{% url "schema-redoc-"|add:component version=1 %}" class="btn btn-primary">API specificaties</a>
-              </div>
+              <h5 class="card__title"><i class="fas fa-wifi"></i> API specificatie</h5>
+              <p>Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
+              <a href="{% url "schema-redoc-"|add:component version=1 %}" class="button button--primary">API specificaties</a>
             </div>
-
           </div>
         {% endblock %}
 
         {% block docs_scopes %}
-          <div class="col-sm-4">
-
+          <div class="cardlist__item">
             <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-shield-alt"></i> API scopes</h5>
-                <p class="card-text">Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
-                <a href="{% url 'vng_api_common:scopes' %}" class="btn btn-primary">API scopes</a>
-              </div>
+              <h5 class="card__title"><i class="fas fa-shield-alt"></i> API scopes</h5>
+              <p>Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
+              <a href="{% url 'vng_api_common:scopes' %}" class="button button--primary">API scopes</a>
             </div>
-
           </div>
         {% endblock %}
 
         {% block extra_docs %}
-            <div class="col-sm-4">
-
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="fas fa-bullhorn"></i> Notificaties</h5>
-                        <p class="card-text">Gebeurtenissen waarover dit component notificaties verstuurt.</p>
-                        <a href="https://github.com/VNG-Realisatie/{{ component }}-api/blob/{{ github_ref }}/src/notificaties.md" class="btn btn-primary">Notificaties</a>
-                    </div>
-                </div>
-
+          <div class="cardlist__item">
+            <div class="card">
+              <h5 class="card__title"><i class="fas fa-bullhorn"></i> Notificaties</h5>
+              <p>Gebeurtenissen waarover dit component notificaties verstuurt.</p>
+              <a href="https://github.com/VNG-Realisatie/{{ component }}-api/blob/{{ github_ref }}/src/notificaties.md" class="button button--primary">Notificaties</a>
             </div>
+          </div>
         {% endblock %}
 
      </div>
-     <p></p>
 
     {% endblock %}
 
     {% block extra_content %}
-      <div class="row justify-content-md-center">
-        <div class="col-sm-4 .col-sm-offset-4">
-
+      <div class="cardlist">
+        <div class="cardlist__item">
           <div class="card">
-            <div class="card-body">
-              <h5 class="card-title"><i class="fas fa-cogs"></i> Runtime gedrag</h5>
-              <p class="card-text">Beschrijving van de business logica (VNG Standaard).</p>
-              <a href="https://vng-realisatie.github.io/gemma-zaken/standaard/{{ component }}/" class="btn btn-primary">
+              <h5 class="card__title"><i class="fas fa-cogs"></i> Runtime gedrag</h5>
+              <p>Beschrijving van de business logica (VNG Standaard).</p>
+              <a href="https://vng-realisatie.github.io/gemma-zaken/standaard/{{ component }}/" class="button button--primary">
                 {{ component|capfirst }} API
                 &nbsp;&nbsp;
                 <i class="fas fa-external-link-alt"></i>
             </a>
-            </div>
           </div>
-
         </div>
       </div>
     {% endblock %}
 
     {% block admin_link %}
-      <p></p>
       <p>
-        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-danger"><i class="fas fa-lock"></i> Beheer</a>
+        <a href="{% url 'admin:index' %}" class="button button--alert"><i class="fas fa-lock"></i> Beheer</a>
       </p>
     {% endblock %}
 

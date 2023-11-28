@@ -4,89 +4,74 @@
 
 {% block content %}
 
-  <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">{{ settings.PROJECT_NAME }} startpunt</h1>
-    <p class="lead">{{ settings.SITE_TITLE }}</p>
+  <div class="header">
+    <h1 class="header__title">{{ settings.PROJECT_NAME }} startpunt</h1>
+    <p class="header__description">{{ settings.SITE_TITLE }}</p>
   </div>
 
-  <div class="container text-center">
+  <div class="container container--center">
 
     {% block components %}
 
       <h2>Components</h2>
 
-      <div class="row justify-content-md-center">
+      <div class="cardlist">
 
-        <div class="col-sm-4">
+        <div class="cardlist__item">
           <div class="card">
-            <div class="card-body">
-              <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> Zaken</h5>
-              <p class="card-text">Zaak Registratie Component (ZRC)</p>
-              <a href="{% url 'index-zaken' %}" class="btn btn-primary">Zaken</a>
-            </div>
+            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Zaken</h5>
+            <p>Zaak Registratie Component (ZRC)</p>
+            <a href="{% url 'index-zaken' %}" class="button button--primary">Zaken</a>
           </div>
         </div>
-        <div class="col-sm-4">
-        <div class="card">
-           <div class="card-body">
-             <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> Besluiten</h5>
-             <p class="card-text">Besluit Registratie Component (BRC)</p>
-             <a href="{% url 'index-besluiten' %}" class="btn btn-primary">Besluiten</a>
-           </div>
-        </div>
-        </div>
-        <div class="col-sm-4">
+        <div class="cardlist__item">
           <div class="card">
-            <div class="card-body">
-              <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> Documenten</h5>
-              <p class="card-text">Documenten Registratie Component (DRC)</p>
-              <a href="{% url 'index-documenten' %}" class="btn btn-primary">Documenten</a>
-            </div>
+           <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Besluiten</h5>
+           <p>Besluit Registratie Component (BRC)</p>
+           <a href="{% url 'index-besluiten' %}" class="button button--primary">Besluiten</a>
+          </div>
+        </div>
+        <div class="cardlist__item">
+          <div class="card">
+            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Documenten</h5>
+            <p>Documenten Registratie Component (DRC)</p>
+            <a href="{% url 'index-documenten' %}" class="button button--primary">Documenten</a>
           </div>
        </div>
 
       </div>
 
-      <p></p>
+      <div class="cardlist">
 
-      <div class="row justify-content-md-center">
-
-        <div class="col-sm-4">
+        <div class="cardlist__item">
           <div class="card">
-            <div class="card-body">
-              <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> Catalogi</h5>
-              <p class="card-text">Zaaktype Catalogus (ZTC)</p>
-              <a href="{% url 'index-catalogi' %}" class="btn btn-primary">Catalogi</a>
-            </div>
+            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Catalogi</h5>
+            <p>Zaaktype Catalogus (ZTC)</p>
+            <a href="{% url 'index-catalogi' %}" class="button button--primary">Catalogi</a>
           </div>
         </div>
 
-         <div class="col-sm-4">
+         <div class="cardlist__item">
            <div class="card">
-             <div class="card-body">
-               <h5 class="card-title"><i class="fas fa-pencil-ruler"></i> Autorisaties</h5>
-               <p class="card-text">Autorisatie Component (AC)</p>
-               <a href="{% url 'index-autorisaties'  %}" class="btn btn-primary">Autorisaties</a>
-             </div>
+             <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Autorisaties</h5>
+             <p>Autorisatie Component (AC)</p>
+             <a href="{% url 'index-autorisaties'  %}" class="button button--primary">Autorisaties</a>
            </div>
         </div>
      </div>
-     <p></p>
 
     {% endblock %}
 
     {% block admin_link %}
       <p></p>
       <p>
-        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-danger"><i class="fas fa-lock"></i> Beheer</a>
+        <a href="{% url 'admin:index' %}" class="button button--alert"><i class="fas fa-lock"></i> Beheer</a>
       </p>
     {% endblock %}
 
     <p>
-        <a href="{% url 'view-config' %}" class="btn btn-sm btn-secondary">
-            <i class="fa fa-info-circle"></i>
-            Bekijk configuratie
-        </a>
+      <a href="{% url 'view-config' %}" class="button button--secondary">
+        <i class="fa fa-info-circle"></i> Bekijk configuratie</a>
     </p>
   </div>
 
