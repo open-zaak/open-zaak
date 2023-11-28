@@ -279,26 +279,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-image
-      - name: Determine tag/commit hash
-        id: vars
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name (if present at all)
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
-      - name: Load image
-        run: |
-          docker image load -i image.tar
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
+          input: /github/workspace/image.tar  # from download-artifact
           format: 'sarif'
           output: 'trivy-results-docker.sarif'
           ignore-unfixed: true
