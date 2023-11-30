@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
 from copy import copy
 from datetime import date, datetime
 
@@ -692,6 +693,29 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.json()["results"][0]["identificatie"], "ZAAK2")
             self.assertEqual(response.json()["results"][1]["identificatie"], "ZAAK1")
+
+    @tag("gh-1511")
+    def test_create_zaak_with_incorrect_local_zaaktype(self):
+        url = reverse(Zaak)
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": uuid.uuid4()})
+
+        zaak_data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "517439943",
+            "registratiedatum": "2018-12-24",
+            "startdatum": "2018-12-24",
+            "processobjectaard": "test object",
+            "resultaattoelichting": "test result",
+            "startdatumBewaartermijn": "2019-08-24",
+        }
+
+        response = self.client.post(url, zaak_data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(error["code"], "does_not_exist")
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
