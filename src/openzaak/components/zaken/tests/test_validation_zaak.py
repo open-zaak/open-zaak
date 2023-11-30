@@ -188,7 +188,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             url,
             {
-                "zaaktype": "https://example.com/foo/bar",
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-06-11",
@@ -318,7 +318,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
             url,
             {
                 "selectielijstklasse": "https://some-bad-url.com/bla",
-                "zaaktype": "https://example.com/foo/bar",
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-06-11",
@@ -365,7 +365,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             url,
             {
-                "zaaktype": "https://example.com/foo/bar",
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-06-11",

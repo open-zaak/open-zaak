@@ -163,7 +163,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     @temp_private_root()
     def test_inhoud_incorrect_padding(self):
-        iotype = InformatieObjectTypeFactory.create()
+        iotype = InformatieObjectTypeFactory.create(concept=False)
         iotype_url = reverse(iotype)
 
         url = reverse("enkelvoudiginformatieobject-list")
@@ -180,7 +180,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
             "inhoud": b64encode(b"some file content").decode("utf-8")[:-1],
             "link": "http://een.link",
             "beschrijving": "test_beschrijving",
-            "informatieobjecttype": iotype_url,
+            "informatieobjecttype": f"http://testserver{iotype_url}",
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 
