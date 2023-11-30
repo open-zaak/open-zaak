@@ -122,6 +122,18 @@ class AuthRequired(permissions.BasePermission):
         if view.action == "create":
             if view.__class__ is main_resource:
                 main_object_data = request.data
+                fields = self.get_fields(main_object_data)
+                # validate fields, since it's a user input
+                non_empty_fields = {
+                    name: value for name, value in fields.items() if value
+                }
+                if non_empty_fields:
+                    serializer = view.get_serializer(
+                        data=non_empty_fields,
+                        partial=True,
+                        context={"request": request},
+                    )
+                    serializer.is_valid(raise_exception=True)
 
             else:
                 main_object_url = request.data[view.permission_main_object]
@@ -144,8 +156,8 @@ class AuthRequired(permissions.BasePermission):
                     raise ValidationError(err_dict)
 
                 main_object_data = self.format_data(main_object, request)
+                fields = self.get_fields(main_object_data)
 
-            fields = self.get_fields(main_object_data)
             return request.jwt_auth.has_auth(scopes_required, component, **fields)
 
         # detect if this is an unsupported method - if it's a viewset and the
