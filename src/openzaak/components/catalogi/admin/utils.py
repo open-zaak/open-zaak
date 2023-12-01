@@ -22,6 +22,25 @@ setattr(REQUEST, "versioning_scheme", URLPathVersioning())
 setattr(REQUEST, "version", "1")
 
 
+def format_serializer_errors(errors, related=False):
+    """
+    Formats a DRF serializer's validation errors to a single string
+    :param errors: standard DRF error dict returned from a serializer
+    :param related: whether an error dict is from a related serializer
+    :returns: errors formatted as a string
+    """
+
+    # if list of errors
+    if isinstance(errors, list):
+        return ",".join([f"{error.title()}" for error in errors])
+
+    seperator = ", " if related else "\n"
+    # otherwise nested error list
+    return seperator.join(
+        [f"{k}: {format_serializer_errors(v, True)}" for k, v in errors.items()]
+    )
+
+
 def retrieve_iotypen(catalogus_pk, import_file_content):
     catalogus = Catalogus.objects.get(pk=catalogus_pk)
     catalogus_uuid = str(catalogus.uuid)
@@ -77,9 +96,9 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
     return besluittypen
 
 
-def construct_iotypen(iotypen, iotype_form_data):
+def construct_iotypen(iotypen, iotype_form_data, iot_formset):
     iotypen_uuid_mapping = {}
-    for imported, form_data in zip(iotypen, iotype_form_data):
+    for imported, form_data, form in zip(iotypen, iotype_form_data, iot_formset.forms):
         uuid = imported["url"].split("/")[-1]
         if form_data["existing"]:
             iotypen_uuid_mapping[uuid] = form_data["existing"]
@@ -94,20 +113,24 @@ def construct_iotypen(iotypen, iotype_form_data):
                 instance = InformatieObjectType(**data)
                 instance.omschrijving_generiek = omschrijving_generiek
             else:
+                error_message = format_serializer_errors(deserialized.errors)
+                form.add_error("existing", error_message)
                 raise CommandError(
                     _(
                         "A validation error occurred while deserializing a {}\n{}"
-                    ).format("InformatieObjectType", deserialized.errors)
+                    ).format("InformatieObjectType", error_message)
                 )
             instance.save()
             iotypen_uuid_mapping[uuid] = instance
     return iotypen_uuid_mapping
 
 
-def construct_besluittypen(besluittypen, besluittype_form_data, iotypen_uuid_mapping):
+def construct_besluittypen(
+    besluittypen, besluittype_form_data, iotypen_uuid_mapping, besluittype_formset
+):
     besluittypen_uuid_mapping = {}
-    for (imported, related_iotypen_uuids,), form_data in zip(
-        besluittypen, besluittype_form_data
+    for (imported, related_iotypen_uuids,), form_data, form in zip(
+        besluittypen, besluittype_form_data, besluittype_formset
     ):
         uuid = imported["url"].split("/")[-1]
         if form_data["existing"]:
@@ -122,10 +145,12 @@ def construct_besluittypen(besluittypen, besluittype_form_data, iotypen_uuid_map
 
                 instance = BesluitType(**deserialized.validated_data)
             else:
+                error_message = format_serializer_errors(deserialized.errors)
+                form.add_error("existing", error_message)
                 raise CommandError(
                     _(
                         "A validation error occurred while deserializing a {}\n{}"
-                    ).format("BesluitType", deserialized.errors)
+                    ).format("BesluitType", error_message)
                 )
             instance.save()
             chosen_object = instance

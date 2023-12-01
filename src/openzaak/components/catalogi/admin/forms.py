@@ -508,7 +508,9 @@ class ExistingTypeForm(forms.Form):
 
 class ExistingInformatieObjectTypeForm(ExistingTypeForm):
     existing = forms.ModelChoiceField(
-        queryset=InformatieObjectType.objects.all(),
+        queryset=InformatieObjectType.objects.all().order_by(
+            "omschrijving", "datum_begin_geldigheid"
+        ),
         required=False,
         empty_label=_("Create new"),
     )
@@ -516,7 +518,11 @@ class ExistingInformatieObjectTypeForm(ExistingTypeForm):
 
 class ExistingBesluitTypeForm(ExistingTypeForm):
     existing = forms.ModelChoiceField(
-        queryset=BesluitType.objects.all(), required=False, empty_label=_("Create new")
+        queryset=BesluitType.objects.all().order_by(
+            "omschrijving", "datum_begin_geldigheid"
+        ),
+        required=False,
+        empty_label=_("Create new"),
     )
 
 

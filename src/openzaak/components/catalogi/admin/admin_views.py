@@ -41,12 +41,18 @@ class CatalogusZaakTypeImportUploadView(
             request.session["file_content"] = import_file.read()
 
             iotypen = retrieve_iotypen(catalogus_pk, request.session["file_content"])
-            request.session["iotypen"] = iotypen
+            request.session["iotypen"] = (
+                sorted(iotypen, key=lambda x: x["omschrijving"]) if iotypen else iotypen
+            )
 
             besluittypen = retrieve_besluittypen(
                 catalogus_pk, request.session["file_content"]
             )
-            request.session["besluittypen"] = besluittypen
+            request.session["besluittypen"] = (
+                sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
+                if besluittypen
+                else besluittypen
+            )
 
             if besluittypen or iotypen:
                 return HttpResponseRedirect(
@@ -88,52 +94,65 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
-            iot_dict = {
-                obj.omschrijving: obj.pk
-                for obj in InformatieObjectType.objects.filter(catalogus=catalogus)
-                .order_by("omschrijving", "-datum_begin_geldigheid")
-                .distinct("omschrijving")
-            }
 
-            iotypen = sorted(iotypen, key=lambda x: x["omschrijving"])
-            iotype_forms = InformatieObjectTypeFormSet(
-                initial=[
-                    {"existing": iot_dict.get(instance["omschrijving"])}
-                    for instance in iotypen
-                ],
-                form_kwargs={
-                    "catalogus_pk": catalogus_pk,
-                    "labels": [
-                        str(catalogus) + " - " + i["omschrijving"] for i in iotypen
+            form_kwargs = {
+                "catalogus_pk": catalogus_pk,
+                "labels": [str(catalogus) + " - " + i["omschrijving"] for i in iotypen],
+            }
+            prefix = "iotype"
+
+            if self.request.POST:
+                iotype_forms = InformatieObjectTypeFormSet(
+                    self.request.POST, form_kwargs=form_kwargs, prefix=prefix
+                )
+            else:
+                iot_dict = {
+                    obj.omschrijving: obj.pk
+                    for obj in InformatieObjectType.objects.filter(catalogus=catalogus)
+                    .order_by("omschrijving", "-datum_begin_geldigheid")
+                    .distinct("omschrijving")
+                }
+                iotype_forms = InformatieObjectTypeFormSet(
+                    initial=[
+                        {"existing": iot_dict.get(instance["omschrijving"])}
+                        for instance in iotypen
                     ],
-                },
-                prefix="iotype",
-            )
+                    form_kwargs=form_kwargs,
+                    prefix=prefix,
+                )
+
             context["iotype_forms"] = iotype_forms
 
         besluittypen = self.request.session.get("besluittypen")
         if besluittypen:
-            besluittypen_dict = {
-                obj.omschrijving: obj.pk
-                for obj in BesluitType.objects.filter(catalogus=catalogus)
-                .order_by("omschrijving", "-datum_begin_geldigheid")
-                .distinct("omschrijving")
-            }
-            besluittypen = sorted(besluittypen, key=lambda x: x[0]["omschrijving"])
-            besluittype_forms = BesluitTypeFormSet(
-                initial=[
-                    {"existing": besluittypen_dict.get(instance["omschrijving"])}
-                    for instance, uuids in besluittypen
+            form_kwargs = {
+                "catalogus_pk": catalogus_pk,
+                "labels": [
+                    str(catalogus) + " - " + i["omschrijving"]
+                    for i, uuids in besluittypen
                 ],
-                form_kwargs={
-                    "catalogus_pk": catalogus_pk,
-                    "labels": [
-                        str(catalogus) + " - " + i["omschrijving"]
-                        for i, uuids in besluittypen
+            }
+            prefix = "besluittype"
+
+            if self.request.POST:
+                besluittype_forms = BesluitTypeFormSet(
+                    self.request.POST, form_kwargs=form_kwargs, prefix=prefix
+                )
+            else:
+                besluittypen_dict = {
+                    obj.omschrijving: obj.pk
+                    for obj in BesluitType.objects.filter(catalogus=catalogus)
+                    .order_by("omschrijving", "-datum_begin_geldigheid")
+                    .distinct("omschrijving")
+                }
+                besluittype_forms = BesluitTypeFormSet(
+                    initial=[
+                        {"existing": besluittypen_dict.get(instance["omschrijving"])}
+                        for instance, uuids in besluittypen
                     ],
-                },
-                prefix="besluittype",
-            )
+                    form_kwargs=form_kwargs,
+                    prefix=prefix,
+                )
             context["besluittype_forms"] = besluittype_forms
         return context
 
@@ -148,28 +167,31 @@ class CatalogusZaakTypeImportSelectView(
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+
+        context = self.get_context_data(**kwargs)
+
         try:
-            with transaction.atomic():
+            with (transaction.atomic()):
                 iotypen_uuid_mapping = {}
-                if "iotype-TOTAL_FORMS" in request.POST:
-                    iotype_forms = InformatieObjectTypeFormSet(
-                        request.POST, prefix="iotype"
-                    )
+
+                if context.get("iotype_forms"):
+                    iotype_forms = context["iotype_forms"]
                     if iotype_forms.is_valid():
                         iotypen_uuid_mapping = construct_iotypen(
-                            request.session["iotypen"], iotype_forms.cleaned_data
+                            request.session["iotypen"],
+                            iotype_forms.cleaned_data,
+                            iotype_forms,
                         )
 
                 besluittypen_uuid_mapping = {}
-                if "besluittype-TOTAL_FORMS" in request.POST:
-                    besluittype_forms = BesluitTypeFormSet(
-                        request.POST, prefix="besluittype"
-                    )
+                if context.get("besluittype_forms"):
+                    besluittype_forms = context["besluittype_forms"]
                     if besluittype_forms.is_valid():
                         besluittypen_uuid_mapping = construct_besluittypen(
                             request.session["besluittypen"],
                             besluittype_forms.cleaned_data,
                             iotypen_uuid_mapping,
+                            besluittype_forms,
                         )
 
                 import_zaaktype_for_catalogus(
@@ -185,5 +207,5 @@ class CatalogusZaakTypeImportSelectView(
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
         except (CommandError, IntegrityError) as exc:
             messages.add_message(request, messages.ERROR, exc)
-        context = self.get_context_data(**kwargs)
+
         return TemplateResponse(request, self.template_name, context)
