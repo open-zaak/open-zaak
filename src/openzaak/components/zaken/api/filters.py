@@ -12,7 +12,11 @@ from django_loose_fk.utils import get_resource_for_path
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_field_attribute, get_help_text
 
-from openzaak.utils.filters import MaximaleVertrouwelijkheidaanduidingFilter
+from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
+from openzaak.utils.filters import (
+    ExpandFilter,
+    MaximaleVertrouwelijkheidaanduidingFilter,
+)
 
 from ..models import (
     KlantContact,
@@ -96,6 +100,13 @@ class ZaakFilter(FilterSet):
             "identificatie",
         ),
         help_text=_("Het veld waarop de resultaten geordend worden."),
+    )
+
+    expand = ExpandFilter(
+        serializer_class=ZaakSerializer,
+        help_text=_(
+            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
+        ),
     )
 
     class Meta:

@@ -47,6 +47,7 @@ SWAGGER_SETTINGS.update(
             "vng_api_common.inspectors.files.FileFieldInspector",
             "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
             "django_loose_fk.inspectors.fields.LooseFkFieldInspector",
+            "openzaak.utils.inspectors.ExpandSerializerInspector",
         )
         + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
         "DEFAULT_FILTER_INSPECTORS": (
@@ -137,6 +138,12 @@ VRC_API_STANDARD = APIStandard(
     ),
     is_standardized=False,
 )
+EXTERNAL_API_MAPPING = {
+    "besluiten": BRC_API_STANDARD,
+    "catalogi": ZTC_API_STANDARD,
+    "documenten": DRC_API_STANDARD,
+    "zaken": ZRC_API_STANDARD,
+}
 
 SPEC_CACHE_TIMEOUT = 60 * 60 * 24  # 24 hours
 

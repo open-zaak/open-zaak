@@ -4,8 +4,11 @@ from dictdiffer import diff
 from drc_cmis import client_builder
 from drc_cmis.connections import use_cmis_connection_pool
 from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.models import APIMixin as _APIMixin
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
+
+from .expansion import ExpandJSONRenderer
 
 
 def format_dict_diff(changes):
@@ -75,3 +78,23 @@ class CMISConnectionPoolMixin:
     def dispatch(self, request, *args, **kwargs):
         with use_cmis_connection_pool():
             return super().dispatch(request, *args, **kwargs)
+
+
+class APIMixin(_APIMixin):
+    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+        kwargs["version"] = "1"
+        return super().get_absolute_api_url(request=request, **kwargs)
+
+
+class ExpandMixin:
+    renderer_classes = (ExpandJSONRenderer,)
+    expand_param = "expand"
+
+    def include_allowed(self):
+        return self.action in ["list", "_zoek"]
+
+    def get_requested_inclusions(self, request):
+        # Pull expand parameter from request body in case of _zoek operation
+        if request.method == "POST":
+            return ",".join(request.data.get(self.expand_param, []))
+        return request.GET.get(self.expand_param)

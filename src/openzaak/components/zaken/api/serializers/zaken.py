@@ -192,11 +192,11 @@ class ZaakSerializer(
         help_text=_("URL-referenties naar ROLLen."),
     )
     status = serializers.HyperlinkedRelatedField(
-        source="current_status_uuid",
+        source="current_status",
         read_only=True,
         allow_null=True,
         view_name="status-detail",
-        lookup_url_kwarg="uuid",
+        lookup_field="uuid",
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
     )
     zaakinformatieobjecten = NestedHyperlinkedRelatedField(
@@ -279,6 +279,43 @@ class ZaakSerializer(
             "bepalend is voor de start van de archiefactietermijn."
         ),
     )
+
+    inclusion_serializers = {
+        # 1 level
+        "zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "hoofdzaak": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "deelzaken": "openzaak.components.zaken.api.serializers.ZaakSerializer",
+        "eigenschappen": "openzaak.components.zaken.api.serializers.ZaakEigenschapSerializer",
+        "status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "resultaat": "openzaak.components.zaken.api.serializers.ResultaatSerializer",
+        "rollen": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "zaakobjecten": "openzaak.components.zaken.api.serializers.ZaakObjectSerializer",
+        # 2 and 3 level
+        "hoofdzaak.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "hoofdzaak.status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "hoofdzaak.status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "hoofdzaak.resultaat": "openzaak.components.zaken.api.serializers.ResultaatSerializer",
+        "hoofdzaak.resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+        "hoofdzaak.rollen": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "hoofdzaak.rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "hoofdzaak.zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "hoofdzaak.zaakobjecten": "openzaak.components.zaken.api.serializers.ZaakObjectSerializer",
+        "deelzaken.zaaktype": "openzaak.components.catalogi.api.serializers.ZaakTypeSerializer",
+        "deelzaken.status": "openzaak.components.zaken.api.serializers.StatusSerializer",
+        "deelzaken.status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "deelzaken.resultaat": "openzaak.components.zaken.api.serializers.ResultaatSerializer",
+        "deelzaken.resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+        "deelzaken.rollen": "openzaak.components.zaken.api.serializers.RolSerializer",
+        "deelzaken.rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        "deelzaken.zaakinformatieobjecten": "openzaak.components.zaken.api.serializers.ZaakInformatieObjectSerializer",
+        "deelzaken.zaakobjecten": "openzaak.components.zaken.api.serializers.ZaakObjectSerializer",
+        "eigenschappen.eigenschap": "openzaak.components.catalogi.api.serializers.EigenschapSerializer",
+        "status.statustype": "openzaak.components.catalogi.api.serializers.StatusTypeSerializer",
+        "resultaat.resultaattype": "openzaak.components.catalogi.api.serializers.ResultaatTypeSerializer",
+        "rollen.roltype": "openzaak.components.catalogi.api.serializers.RolTypeSerializer",
+        # we can't show 'zaakinformatieobjecten.informatieobject' because it's the resource from another API
+    }
 
     class Meta:
         model = Zaak

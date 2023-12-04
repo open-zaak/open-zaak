@@ -6,10 +6,10 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
-from vng_api_common.models import APIMixin
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
+from openzaak.utils.mixins import APIMixin
 
 from ..managers import SyncAutorisatieManager
 from ..query import GeldigheidQuerySet
@@ -148,7 +148,3 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
         if not self.pk:
             transaction.on_commit(AutorisatieSpec.sync)
         super().save(*args, **kwargs)
-
-    def get_absolute_api_url(self, request=None, **kwargs) -> str:
-        kwargs["version"] = "1"
-        return super().get_absolute_api_url(request=request, **kwargs)

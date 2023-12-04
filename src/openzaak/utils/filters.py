@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-
 from django_filters import filters
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+
+from .expansion import get_expand_options_for_serializer
 
 
 class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
@@ -24,3 +25,17 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
         qs = qs.annotate(**{self.field_name: order_expression})
         numeric_value = VertrouwelijkheidsAanduiding.get_choice_order(value)
         return super().filter(qs, numeric_value)
+
+
+class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
+    def __init__(self, *args, **kwargs):
+        serializer_class = kwargs.pop("serializer_class")
+
+        kwargs.setdefault(
+            "choices", get_expand_options_for_serializer(serializer_class)
+        )
+
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        return qs

@@ -166,6 +166,7 @@ django==3.2.23
     #   django-sniplates
     #   django-solo
     #   djangorestframework
+    #   djangorestframework-inclusions
     #   drc-cmis
     #   drf-extra-fields
     #   drf-nested-routers
@@ -258,6 +259,7 @@ djangorestframework==3.12.4
     #   commonground-api-common
     #   django-loose-fk
     #   djangorestframework-gis
+    #   djangorestframework-inclusions
     #   drf-extra-fields
     #   drf-nested-routers
     #   drf-yasg
@@ -268,6 +270,8 @@ djangorestframework-camel-case==1.2.0
     #   commonground-api-common
     #   notifications-api-common
 djangorestframework-gis==0.18
+    # via -r requirements/ci.txt
+djangorestframework-inclusions==1.2.0
     # via -r requirements/ci.txt
 docutils==0.17.1
     # via
