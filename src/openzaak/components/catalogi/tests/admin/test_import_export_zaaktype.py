@@ -1327,6 +1327,58 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         old_bt = new_zaaktype.besluittypen.all().get(omschrijving="Apple")
         self.assertEqual(old_bt, besluittype2)
 
+    def test_import_iotype_without_omschrijving_generiek(self, *mocks):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1509
+        """
+        catalogus_old = CatalogusFactory.create(rsin="000000000", domein="OLD")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus_old,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving_generiek_informatieobjecttype="",
+            omschrijving_generiek_definitie="",
+            omschrijving_generiek_herkomst="",
+            omschrijving_generiek_hierarchie="",
+        )
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+        catalogus_new = CatalogusFactory.create(domein="NEW")
+
+        # export
+        zaaktype_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(zaaktype_url)
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_export")
+
+        export_data = response.content
+
+        # import to the new catalogus
+        import_url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(catalogus_new.pk,)
+        )
+
+        response = self.app.get(import_url)
+
+        form = response.form
+        f = io.BytesIO(export_data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 302)
+
 
 @patch(
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",

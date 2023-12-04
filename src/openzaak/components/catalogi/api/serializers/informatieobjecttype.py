@@ -1,14 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.serializers import (
-    GegevensGroepSerializer,
-    NestedGegevensGroepMixin,
-    add_choice_values_help_text,
-)
+from vng_api_common.serializers import add_choice_values_help_text
 
 from ...models import InformatieObjectType
 from ..validators import (
@@ -19,16 +16,42 @@ from ..validators import (
 )
 
 
-class OmschrijvingGeneriekSerializer(GegevensGroepSerializer):
+class OmschrijvingGeneriekSerializer(serializers.ModelSerializer):
     class Meta:
         model = InformatieObjectType
-        gegevensgroep = "omschrijving_generiek"
+        fields = (
+            "informatieobjecttype_omschrijving_generiek",
+            "definitie_informatieobjecttype_omschrijving_generiek",
+            "herkomst_informatieobjecttype_omschrijving_generiek",
+            "hierarchie_informatieobjecttype_omschrijving_generiek",
+            "opmerking_informatieobjecttype_omschrijving_generiek",
+        )
+        extra_kwargs = {
+            "informatieobjecttype_omschrijving_generiek": {
+                "source": "omschrijving_generiek_informatieobjecttype",
+                "required": True,
+            },
+            "definitie_informatieobjecttype_omschrijving_generiek": {
+                "source": "omschrijving_generiek_definitie",
+                "required": True,
+            },
+            "herkomst_informatieobjecttype_omschrijving_generiek": {
+                "source": "omschrijving_generiek_herkomst",
+                "required": True,
+            },
+            "hierarchie_informatieobjecttype_omschrijving_generiek": {
+                "source": "omschrijving_generiek_hierarchie",
+                "required": True,
+            },
+            "opmerking_informatieobjecttype_omschrijving_generiek": {
+                "source": "omschrijving_generiek_opmerking"
+            },
+        }
 
 
-class InformatieObjectTypeSerializer(
-    NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer
-):
+class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
     omschrijving_generiek = OmschrijvingGeneriekSerializer(
+        source="*",
         required=False,
         help_text=_("Algemeen gehanteerde omschrijving van het informatieobjecttype."),
     )
@@ -96,3 +119,22 @@ class InformatieObjectTypeSerializer(
         ].help_text += f"\n\n{value_display_mapping}"
 
         return fields
+
+    @transaction.atomic()
+    def create(self, validated_data):
+        omschrijving_generiek_data = validated_data.pop("omschrijving_generiek", None)
+
+        iotype = super().create(validated_data)
+        if omschrijving_generiek_data:
+            OmschrijvingGeneriekSerializer().update(iotype, omschrijving_generiek_data)
+
+        return iotype
+
+    @transaction.atomic()
+    def update(self, instance, validated_data):
+        omschrijving_generiek_data = validated_data.pop("omschrijving_generiek", None)
+
+        iotype = super().update(instance, validated_data)
+        if omschrijving_generiek_data:
+            OmschrijvingGeneriekSerializer().update(iotype, omschrijving_generiek_data)
+        return iotype

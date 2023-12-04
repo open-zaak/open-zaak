@@ -5216,26 +5216,22 @@ components:
           description: Algemeen gehanteerde omschrijving van het type informatieobject.
           type: string
           maxLength: 80
-          minLength: 1
         definitieInformatieobjecttypeOmschrijvingGeneriek:
           title: Definitie
           description: Nauwkeurige beschrijving van het generieke type informatieobject
           type: string
           maxLength: 255
-          minLength: 1
         herkomstInformatieobjecttypeOmschrijvingGeneriek:
           title: Herkomst
           description: De naam van de waardenverzameling, of van de beherende organisatie
             daarvan, waaruit de waarde is overgenomen.
           type: string
           maxLength: 12
-          minLength: 1
         hierarchieInformatieobjecttypeOmschrijvingGeneriek:
           title: Hierarchie
           description: De plaats in de rangorde van het informatieobjecttype.
           type: string
           maxLength: 80
-          minLength: 1
         opmerkingInformatieobjecttypeOmschrijvingGeneriek:
           title: Opmerking
           description: Zinvolle toelichting bij het informatieobjecttype
