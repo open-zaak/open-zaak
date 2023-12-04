@@ -148,14 +148,14 @@ class ExpandLoader(InclusionLoader):
         request = serializer.context["request"]
 
         # add parent nodes to the tree
-        zaken = (
+        instances = (
             serializer.instance
             if isinstance(serializer.instance, list)
             else [serializer.instance]
         )
-        for zaak in zaken:
+        for instance in instances:
             tree.add_node(
-                id=zaak.get_absolute_api_url(request=request),
+                id=instance.get_absolute_api_url(request=request),
                 label="",
                 value={},
                 many=False,
