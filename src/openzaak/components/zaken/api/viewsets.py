@@ -39,6 +39,7 @@ from openzaak.utils.api import (
     delete_remote_oio,
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.mixins import ExpandMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 
@@ -70,7 +71,7 @@ from .filters import (
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin, ExpandMixin
+from .mixins import ClosedZaakMixin
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,

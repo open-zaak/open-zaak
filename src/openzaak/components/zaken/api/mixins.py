@@ -8,7 +8,6 @@ from rest_framework import serializers
 
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.models import Zaak
-from openzaak.utils.expansion import ExpandJSONRenderer
 
 from .exceptions import ZaakClosed
 from .serializers import ZaakSerializer
@@ -75,17 +74,3 @@ class ClosedZaakMixin:
         zaak = instance.zaak
         self._check_zaak_closed(zaak)
         super().perform_destroy(instance)
-
-
-class ExpandMixin:
-    renderer_classes = (ExpandJSONRenderer,)
-    expand_param = "expand"
-
-    def include_allowed(self):
-        return self.action in ["list", "_zoek"]
-
-    def get_requested_inclusions(self, request):
-        # Pull expand parameter from request body in case of _zoek operation
-        if request.method == "POST":
-            return ",".join(request.data.get(self.expand_param, []))
-        return request.GET.get(self.expand_param)
