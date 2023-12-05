@@ -179,23 +179,6 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     store the uuid
     """
 
-    def get_url(self, obj, view_name, request, format):
-        # obj is a EIOCanonical. If CMIS is enabled, it can't be used to retrieve the EIO latest version.
-        if settings.CMIS_ENABLED:
-            # self.parent is a serialiser, with instance Oio/Gebruiksrechten. These can be used to retrieve the EIO
-            if isinstance(self.parent.instance, Gebruiksrechten) or isinstance(
-                self.parent.instance, ObjectInformatieObject
-            ):
-                eio_latest_version = self.parent.instance.get_informatieobject()
-            # If self.parent.parent is a ListSerializer, self.parent.instance is a queryset rather than a
-            # gebruiksrechten/oio. The informatieobject URL cannot be retrieved. See issue #791
-            elif isinstance(self.parent.instance, InformatieobjectRelatedQuerySet):
-                return ""
-        else:
-            eio_latest_version = obj.latest_version
-
-        return super().get_url(eio_latest_version, view_name, request, format)
-
     def get_object(self, view_name, view_args, view_kwargs):
         lookup_value = view_kwargs[self.lookup_url_kwarg]
         lookup_kwargs = {self.lookup_field: lookup_value}
@@ -209,6 +192,9 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
             )
         except (TypeError, AttributeError):
             self.fail("does_not_exist")
+
+    def get_attribute(self, instance):
+        return instance.get_informatieobject()
 
 
 class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
