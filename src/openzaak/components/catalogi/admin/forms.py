@@ -180,6 +180,11 @@ class ZaakTypeForm(forms.ModelForm):
         if "_publish" in self.data:
             self._clean_all_data_present_for_publish()
 
+        if "catalogus" in self.data:
+            self._clean_catalogus()
+
+    def _clean_catalogus(self):
+
         if not Catalogus.objects.filter(pk=self.data["catalogus"]).exists():
             msg = _("Catalogus provided does not exist")
             self.add_error(
