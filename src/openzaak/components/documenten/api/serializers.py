@@ -17,7 +17,6 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -33,7 +32,10 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+from openzaak.utils.serializer_fields import (
+    FKOrServiceUrlField,
+    LengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
     IsImmutableValidator,
@@ -56,7 +58,6 @@ from ..models import (
     Verzending,
 )
 from ..query.cmis import flatten_gegevens_groep
-from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
 from .scopes import SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN
@@ -275,7 +276,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
     )
-    informatieobjecttype = FKOrURLField(
+    informatieobjecttype = FKOrServiceUrlField(
         lookup_field="uuid",
         max_length=200,
         min_length=1,
@@ -856,6 +857,11 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
         queryset=EnkelvoudigInformatieObject.objects,
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
     )
+
+    inclusion_serializers = {
+        "informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = Gebruiksrechten

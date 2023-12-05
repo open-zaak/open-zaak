@@ -27,7 +27,11 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
-from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
+from openzaak.utils.mixins import (
+    CMISConnectionPoolMixin,
+    ConvertCMISAdapterExceptions,
+    ExpandMixin,
+)
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
@@ -406,6 +410,7 @@ class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,

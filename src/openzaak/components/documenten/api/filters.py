@@ -11,6 +11,8 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.filters import ExpandFilter
+
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -18,6 +20,7 @@ from ..models import (
     ObjectInformatieObject,
     Verzending,
 )
+from .serializers import GebruiksrechtenSerializer
 from .utils import check_path
 
 logger = logging.getLogger(__name__)
@@ -41,6 +44,12 @@ class GebruiksrechtenFilter(FilterSet):
         queryset=EnkelvoudigInformatieObjectCanonical.objects.all(),
         instance_path="canonical",
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
+    )
+    expand = ExpandFilter(
+        serializer_class=GebruiksrechtenSerializer,
+        help_text=_(
+            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
+        ),
     )
 
     class Meta:
