@@ -971,7 +971,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(CMISETagMixin, models.Model):
+class Verzending(APIMixin, CMISETagMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,

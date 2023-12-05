@@ -69,6 +69,8 @@ from .validators import (
     VerzendingAddressValidator,
 )
 
+oz = "openzaak.components"
+
 
 class AnyFileType:
     def __contains__(self, item):
@@ -859,8 +861,8 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     inclusion_serializers = {
-        "informatieobject": "openzaak.components.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
-        "informatieobject.informatieobjecttype": "openzaak.components.catalogi.api.serializers.InformatieObjectTypeSerializer",
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
     }
 
     class Meta:
@@ -1050,6 +1052,11 @@ class VerzendingSerializer(
             " afwijkt van de reguliere correspondentiegegevens van BETROKKENE."
         ),
     )
+
+    inclusion_serializers = {
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = Verzending

@@ -20,7 +20,7 @@ from ..models import (
     ObjectInformatieObject,
     Verzending,
 )
-from .serializers import GebruiksrechtenSerializer
+from .serializers import GebruiksrechtenSerializer, VerzendingSerializer
 from .utils import check_path
 
 logger = logging.getLogger(__name__)
@@ -45,12 +45,7 @@ class GebruiksrechtenFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
     )
-    expand = ExpandFilter(
-        serializer_class=GebruiksrechtenSerializer,
-        help_text=_(
-            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
-        ),
-    )
+    expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
 
     class Meta:
         model = Gebruiksrechten
@@ -121,6 +116,7 @@ class VerzendingFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Verzending", "informatieobject"),
     )
+    expand = ExpandFilter(serializer_class=VerzendingSerializer)
 
     class Meta:
         model = Verzending

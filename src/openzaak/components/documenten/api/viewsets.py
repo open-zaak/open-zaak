@@ -648,6 +648,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
 @cmis_conditional_retrieve()
 class VerzendingViewSet(
     CheckQueryParamsMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     # in the OAS there are no additional audittrail endpoints for verzending
