@@ -181,9 +181,11 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         gebruiksrechten = GebruiksrechtenFactory.create()
 
         gebruiksrechten_data = self.client.get(reverse(gebruiksrechten)).json()
-        io_data = self.client.get(reverse(gebruiksrechten.informatieobject)).json()
+        io_data = self.client.get(
+            reverse(gebruiksrechten.get_informatieobject())
+        ).json()
         iotype_data = self.client.get(
-            reverse(gebruiksrechten.informatieobject.informatieobjecttype.resultaattype)
+            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
         ).json()
 
         response = self.client.get(
