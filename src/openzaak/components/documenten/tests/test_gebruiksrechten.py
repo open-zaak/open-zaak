@@ -4,7 +4,7 @@ import datetime
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -171,3 +171,38 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
             "Aangepaste omschrijving voorwaarden",
             updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
         )
+
+
+class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    url = reverse_lazy("gebruiksrechten-list")
+
+    def test_list_expand(self):
+        gebruiksrechten = GebruiksrechtenFactory.create()
+
+        gebruiksrechten_data = self.client.get(reverse(gebruiksrechten)).json()
+        io_data = self.client.get(reverse(gebruiksrechten.informatieobject)).json()
+        iotype_data = self.client.get(
+            reverse(gebruiksrechten.informatieobject.informatieobjecttype.resultaattype)
+        ).json()
+
+        response = self.client.get(
+            self.url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_results = [
+            {
+                **gebruiksrechten_data,
+                "_expand": {
+                    "informatieobject": {
+                        **io_data,
+                        "_expand": {"informatieobjecttype": iotype_data},
+                    }
+                },
+            }
+        ]
+        self.assertEqual(data, expected_results)
