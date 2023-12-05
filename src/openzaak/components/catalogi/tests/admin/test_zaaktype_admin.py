@@ -625,6 +625,24 @@ class ZaaktypeAdminTests(
             "f4603775-5a08-4829-85c8-28017dfeee1f",
         )
 
+    def test_submit_zaaktype_fail(self, m):
+        """
+        Test that a bad catalogus ID causes a validation error and not an exception.
+        Fixes #1474
+        """
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["catalogus"] = 16
+        response = form.submit()
+
+        form = response.context["adminform"].form
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(_("Catalogus provided does not exist"), form.errors["catalogus"])
+
 
 class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @classmethod

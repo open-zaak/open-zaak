@@ -30,6 +30,7 @@ from openzaak.utils.validators import ResourceValidator
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import (
     BesluitType,
+    Catalogus,
     InformatieObjectType,
     ResultaatType,
     ZaakType,
@@ -178,6 +179,12 @@ class ZaakTypeForm(forms.ModelForm):
 
         if "_publish" in self.data:
             self._clean_all_data_present_for_publish()
+
+        if not Catalogus.objects.filter(pk=self.data["catalogus"]).exists():
+            msg = _("Catalogus provided does not exist")
+            self.add_error(
+                "catalogus", forms.ValidationError(msg, code="invalid"),
+            )
 
     def _clean_datum_einde_geldigheid(self):
         datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")

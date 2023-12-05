@@ -58,21 +58,23 @@ class GeldigheidMixin(models.Model):
                         "onder Datum begin geldigheid."
                     )
                 )
-
-        if has_overlapping_objects(
-            model_manager=self._meta.default_manager,
-            catalogus=self.catalogus,
-            omschrijving_query={
-                self.omschrijving_field: getattr(self, self.omschrijving_field)
-            },
-            begin_geldigheid=self.datum_begin_geldigheid,
-            einde_geldigheid=self.datum_einde_geldigheid,
-            instance=self,
-        ):
-            raise ValidationError(
-                f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
-                "overlappende geldigheid hebben."
-            )
+        try:
+            if has_overlapping_objects(
+                model_manager=self._meta.default_manager,
+                catalogus=self.catalogus,
+                omschrijving_query={
+                    self.omschrijving_field: getattr(self, self.omschrijving_field)
+                },
+                begin_geldigheid=self.datum_begin_geldigheid,
+                einde_geldigheid=self.datum_einde_geldigheid,
+                instance=self,
+            ):
+                raise ValidationError(
+                    f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
+                    "overlappende geldigheid hebben."
+                )
+        except self.__class__.catalogus.RelatedObjectDoesNotExist:
+            raise ValidationError(_("Catalogus provided does not exist"))
 
     def _clean_geldigheid(self, zaaktype):
         """
