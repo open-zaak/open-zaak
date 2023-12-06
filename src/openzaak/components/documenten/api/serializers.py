@@ -313,6 +313,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         many=True, source="get_bestandsdelen", read_only=True,
     )
 
+    inclusion_serializers = {
+        "informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
+
     class Meta:
         model = EnkelvoudigInformatieObject
         fields = (

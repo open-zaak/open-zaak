@@ -101,6 +101,7 @@ class EnkelvoudigInformatieObjectViewSet(
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     SearchMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,

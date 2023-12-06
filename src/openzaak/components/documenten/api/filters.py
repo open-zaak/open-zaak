@@ -20,13 +20,19 @@ from ..models import (
     ObjectInformatieObject,
     Verzending,
 )
-from .serializers import GebruiksrechtenSerializer, VerzendingSerializer
+from .serializers import (
+    EnkelvoudigInformatieObjectSerializer,
+    GebruiksrechtenSerializer,
+    VerzendingSerializer,
+)
 from .utils import check_path
 
 logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
+
     class Meta:
         model = EnkelvoudigInformatieObject
         fields = ("identificatie", "bronorganisatie")
