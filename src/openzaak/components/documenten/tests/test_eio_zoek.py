@@ -9,7 +9,7 @@ from openzaak.tests.utils import JWTAuthMixin
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
-class ZaakZoekTests(JWTAuthMixin, APITestCase):
+class EIOZoekTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     url = reverse_lazy("enkelvoudiginformatieobject--zoek")
 
@@ -48,3 +48,21 @@ class ZaakZoekTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio1)}")
+
+    def test_zoek_with_expand(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        EnkelvoudigInformatieObjectFactory.create()
+        data = {"uuid__in": [eio.uuid], "expand": ["informatieobjecttype"]}
+
+        eio_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        expected_results = [
+            {**eio_data, "_expand": {"informatieobjecttype": iotype_data}}
+        ]
+        self.assertEqual(data, expected_results)

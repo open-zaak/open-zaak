@@ -1032,3 +1032,24 @@ class InformatieobjectCreateExternalURLsTests(
 
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "not-published")
+
+
+class EIOFilterTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    url = reverse_lazy(EnkelvoudigInformatieObject)
+
+    def test_expand(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+
+        eio_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(self.url, {"expand": "informatieobjecttype"},)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        expected_results = [
+            {**eio_data, "_expand": {"informatieobjecttype": iotype_data}}
+        ]
+        self.assertEqual(data, expected_results)
