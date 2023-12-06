@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.10.2 (2023-12-06)
+-------------------
+
+Open Zaak 1.10.2 is a patch release
+
+* [#1527] Added missing CSS styles for the dashboard
+
 1.10.1 (2023-11-28)
 -------------------
 
