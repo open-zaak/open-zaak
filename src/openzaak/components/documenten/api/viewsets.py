@@ -395,6 +395,10 @@ class EnkelvoudigInformatieObjectViewSet(
             )
             raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
+        expand_param = self.get_requested_inclusions(request)
+        if settings.CMIS_ENABLED and expand_param:
+            raise CMISNotSupportedException()
+
         search_input = self.get_search_input()
         queryset = self.filter_queryset(self.get_queryset())
 
