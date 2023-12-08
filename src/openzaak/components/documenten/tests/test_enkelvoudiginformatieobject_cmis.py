@@ -1053,3 +1053,16 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
         error = get_validation_errors(response, "informatieobjecttype")
         self.assertEqual(error["code"], "not-published")
+
+
+@require_cmis
+@override_settings(CMIS_ENABLED=True)
+class EIOFilterCMISTests(JWTAuthMixin, APICMISTestCase):
+    heeft_alle_autorisaties = True
+    url = reverse_lazy(EnkelvoudigInformatieObject)
+
+    def test_list_expand(self):
+        response = self.client.get(self.url, {"expand": "informatieobjecttype"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["code"], "CMIS not supported")
