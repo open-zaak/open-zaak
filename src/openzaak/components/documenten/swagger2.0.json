@@ -162,6 +162,24 @@
                         "type": "string"
                     },
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -195,7 +213,24 @@
                                 "results": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                        "type": "object",
+                                        "allOf": [
+                                            {
+                                                "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "_expand": {
+                                                        "description": "Display details of the linked resources requested in the `expand` parameter",
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "informatieobjecttype": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/InformatieObjectType"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -1451,6 +1486,25 @@
                         "description": "Einddatum van de periode waarin de gebruiksrechtvoorwaarden van toepassing zijn.",
                         "required": false,
                         "type": "string"
+                    },
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobject",
+                                    "informatieobject.informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     }
                 ],
                 "responses": {
@@ -1459,7 +1513,26 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Gebruiksrechten"
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/Gebruiksrechten"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "_expand": {
+                                                "description": "Display details of the linked resources requested in the `expand` parameter",
+                                                "type": "object",
+                                                "properties": {
+                                                    "informatieobject": {
+                                                        "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         },
                         "headers": {
@@ -2621,6 +2694,25 @@
                         "format": "uri"
                     },
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobject",
+                                    "informatieobject.informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -2654,7 +2746,26 @@
                                 "results": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/Verzending"
+                                        "type": "object",
+                                        "allOf": [
+                                            {
+                                                "$ref": "#/definitions/Verzending"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "_expand": {
+                                                        "description": "Display details of the linked resources requested in the `expand` parameter",
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "informatieobject": {
+                                                                "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -3843,6 +3954,14 @@
                     "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
                     "type": "string",
                     "minLength": 1
+                },
+                "expand": {
+                    "title": "Expand",
+                    "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. \n\nUitleg bij mogelijke waarden:\n\n* `informatieobjecttype` - informatieobjecttype",
+                    "type": "string",
+                    "enum": [
+                        "informatieobjecttype"
+                    ]
                 }
             }
         },

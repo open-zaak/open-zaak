@@ -160,6 +160,18 @@ paths:
         required: false
         schema:
           type: string
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobjecttype
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -196,7 +208,17 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                      type: object
+                      allOf:
+                      - $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                      - type: object
+                        properties:
+                          _expand:
+                            description: Display details of the linked resources requested
+                              in the `expand` parameter
+                            type: object
+                            properties:
+                              informatieobjecttype: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/InformatieObjectType
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -1135,6 +1157,19 @@ paths:
         required: false
         schema:
           type: string
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        style: form
+        explode: false
       responses:
         '200':
           description: OK
@@ -1149,7 +1184,18 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Gebruiksrechten'
+                  type: object
+                  allOf:
+                  - $ref: '#/components/schemas/Gebruiksrechten'
+                  - type: object
+                    properties:
+                      _expand:
+                        description: Display details of the linked resources requested
+                          in the `expand` parameter
+                        type: object
+                        properties:
+                          informatieobject:
+                            $ref: '#/components/schemas/EnkelvoudigInformatieObject'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -1974,6 +2020,19 @@ paths:
         schema:
           type: string
           format: uri
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -2010,7 +2069,18 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Verzending'
+                      type: object
+                      allOf:
+                      - $ref: '#/components/schemas/Verzending'
+                      - type: object
+                        properties:
+                          _expand:
+                            description: Display details of the linked resources requested
+                              in the `expand` parameter
+                            type: object
+                            properties:
+                              informatieobject:
+                                $ref: '#/components/schemas/EnkelvoudigInformatieObject'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -3262,6 +3332,13 @@ components:
             \ eerste in een samenwerkingsketen heeft vastgelegd."
           type: string
           minLength: 1
+        expand:
+          title: Expand
+          description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
+            \ \n\nUitleg bij mogelijke waarden:\n\n* `informatieobjecttype` - informatieobjecttype"
+          type: string
+          enum:
+          - informatieobjecttype
     EnkelvoudigInformatieObjectData:
       required:
       - bronorganisatie
