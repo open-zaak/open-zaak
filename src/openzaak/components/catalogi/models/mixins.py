@@ -58,10 +58,14 @@ class GeldigheidMixin(models.Model):
                         "onder Datum begin geldigheid."
                     )
                 )
+        try:
+            catalogus = self.catalogus
+        except self.__class__.catalogus.RelatedObjectDoesNotExist:
+            return
 
         if has_overlapping_objects(
             model_manager=self._meta.default_manager,
-            catalogus=self.catalogus,
+            catalogus=catalogus,
             omschrijving_query={
                 self.omschrijving_field: getattr(self, self.omschrijving_field)
             },

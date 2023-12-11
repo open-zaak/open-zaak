@@ -625,6 +625,44 @@ class ZaaktypeAdminTests(
             "f4603775-5a08-4829-85c8-28017dfeee1f",
         )
 
+    def test_submit_zaaktype_with_no_catalogus(self, m):
+        """
+        Test that no catalogus ID provided causes a validation error and not an exception.
+        Fixes #1474
+        """
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        response = form.submit()
+
+        form = response.context["adminform"].form
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Dit veld is vereist.", form.errors["catalogus"])
+
+    def test_submit_zaaktype_with_bad_catalogus(self, m):
+        """
+        Test that a bad catalogus ID causes a validation error and not an exception.
+        Fixes #1474
+        """
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["catalogus"] = 16
+        response = form.submit()
+
+        form = response.context["adminform"].form
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Selecteer een geldige keuze. Deze keuze is niet beschikbaar.",
+            form.errors["catalogus"],
+        )
+
 
 class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @classmethod
