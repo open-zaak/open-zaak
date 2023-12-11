@@ -47,6 +47,7 @@ notifications-api-common
 humanize
 drc-cmis
 djangorestframework-inclusions
+drf-spectacular
 
 # WSGI servers & monitoring - production oriented
 uwsgi

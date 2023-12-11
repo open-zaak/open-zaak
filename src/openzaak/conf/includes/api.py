@@ -20,9 +20,20 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = REST_FRAMEWORK[
     "DEFAULT_RENDERER_CLASSES"
 ] + ("openzaak.utils.renderers.ProblemJSONRenderer",)
 
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Open Zaak API",
+}
+
+
+# todo REMOVE
 SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
 SWAGGER_SETTINGS.update(
     {
