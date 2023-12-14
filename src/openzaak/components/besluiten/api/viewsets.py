@@ -4,6 +4,12 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationDestroyMixin,
@@ -41,6 +47,69 @@ from .scopes import (
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle BESLUITen opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifiek BESLUIT opvragen.",
+        description="Een specifiek BESLUIT opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een BESLUIT aan.",
+        description=(
+            "Indien geen identificatie gegeven is, dan wordt deze automatisch "
+            "gegenereerd.\n"
+            "\n"
+            "Er wordt gevalideerd op:\n"
+            "- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n"
+            "- geldigheid `verantwoorlijkeOrganisatie` RSIN\n"
+            "- geldigheid `besluittype` URL - de resource moet opgevraagd kunnen "
+            "worden uit de Catalogi API en de vorm van een BESLUITTYPE hebben.\n"
+            "- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden "
+            "uit de Zaken API en de vorm van een ZAAK hebben.\n"
+            "- `datum` in het verleden of nu\n"
+            "- publicatie `besluittype` - `concept` moet `false` zijn"
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een BESLUIT in zijn geheel bij.",
+        description=(
+            "Er wordt gevalideerd op:\n"
+            "- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n"
+            "- geldigheid `verantwoorlijkeOrganisatie` RSIN\n"
+            "- het `besluittype` mag niet gewijzigd worden\n"
+            "- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden "
+            "uit de Zaken API en de vorm van een ZAAK hebben.\n"
+            "- `datum` in het verleden of nu\n"
+            "- publicatie `besluittype` - `concept` moet `false` zijn"
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een BESLUIT deels bij.",
+        description=(
+            "Er wordt gevalideerd op:\n"
+            "- uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`\n"
+            "- geldigheid `verantwoorlijkeOrganisatie` RSIN\n"
+            "- het `besluittype` mag niet gewijzigd worden\n"
+            "- geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden "
+            "uit de Zaken API en de vorm van een ZAAK hebben.\n"
+            "- `datum` in het verleden of nu\n"
+            "- publicatie `besluittype` - `concept` moet `false` zijn"
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een BESLUIT",
+        description=(
+            "Verwijder een BESLUIT samen met alle gerelateerde resources binnen deze API.\n"
+            "\n"
+            "**De gerelateerde resources zijn**\n"
+            "- `BESLUITINFORMATIEOBJECT`\n"
+            "- audit trail regels\n"
+        ),
+    ),
+)
 @conditional_retrieve()
 class BesluitViewSet(
     CheckQueryParamsMixin,
@@ -50,68 +119,7 @@ class BesluitViewSet(
     ClosedZaakMixin,
     viewsets.ModelViewSet,
 ):
-    """
-    Opvragen en bewerken van BESLUITen.
-
-    create:
-    Maak een BESLUIT aan.
-
-    Indien geen identificatie gegeven is, dan wordt deze automatisch
-    gegenereerd.
-
-    Er wordt gevalideerd op:
-    - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-    - geldigheid `verantwoorlijkeOrganisatie` RSIN
-    - geldigheid `besluittype` URL - de resource moet opgevraagd kunnen
-      worden uit de Catalogi API en de vorm van een BESLUITTYPE hebben.
-    - geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden
-      uit de Zaken API en de vorm van een ZAAK hebben.
-    - `datum` in het verleden of nu
-    - publicatie `besluittype` - `concept` moet `false` zijn
-
-    list:
-    Alle BESLUITen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifiek BESLUIT opvragen.
-
-    Een specifiek BESLUIT opvragen.
-
-    update:
-    Werk een BESLUIT in zijn geheel bij.
-
-    Er wordt gevalideerd op:
-    - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-    - geldigheid `verantwoorlijkeOrganisatie` RSIN
-    - het `besluittype` mag niet gewijzigd worden
-    - geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden
-      uit de Zaken API en de vorm van een ZAAK hebben.
-    - `datum` in het verleden of nu
-    - publicatie `besluittype` - `concept` moet `false` zijn
-
-    partial_update:
-    Werk een BESLUIT deels bij.
-
-    Er wordt gevalideerd op:
-    - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
-    - geldigheid `verantwoorlijkeOrganisatie` RSIN
-    - het `besluittype` mag niet gewijzigd worden
-    - geldigheid `zaak` URL - de resource moet opgevraagd kunnen worden
-      uit de Zaken API en de vorm van een ZAAK hebben.
-    - `datum` in het verleden of nu
-    - publicatie `besluittype` - `concept` moet `false` zijn
-
-    destroy:
-    Verwijder een BESLUIT.
-
-    Verwijder een BESLUIT samen met alle gerelateerde resources binnen deze API.
-
-    **De gerelateerde resources zijn**
-    - `BESLUITINFORMATIEOBJECT`
-    - audit trail regels
-    """
+    """Opvragen en bewerken van BESLUITen."""
 
     queryset = Besluit.objects.select_related("_besluittype").order_by("-pk")
     serializer_class = BesluitSerializer
@@ -148,6 +156,58 @@ class BesluitViewSet(
                 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle BESLUIT-INFORMATIEOBJECT relaties opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.",
+        description="Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een BESLUIT-INFORMATIEOBJECT relatie aan.",
+        description=(
+            "Registreer een INFORMATIEOBJECT bij een BESLUIT. Er worden twee types van "
+            "relaties met andere objecten gerealiseerd:\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- geldigheid `besluit` URL\n"
+            "- geldigheid `informatieobject` URL\n"
+            "- de combinatie `informatieobject` en `besluit` moet uniek zijn\n"
+            "\n"
+            "**Opmerkingen**\n"
+            "- De `registratiedatum` wordt door het systeem op 'NU' gezet. De "
+            "`aardRelatie` wordt ook door het systeem gezet.\n"
+            "- Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie "
+            "aangemaakt, echter zonder de relatie-informatie."
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een BESLUIT-INFORMATIEOBJECT relatie in zijn geheel bij.",
+        description=(
+            "Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf "
+            "aanpassen.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- `informatieobject` URL en `besluit` URL mogen niet veranderen"
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een BESLUIT-INFORMATIEOBJECT relatie deels bij.",
+        description=(
+            "Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf "
+            "aanpassen.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- `informatieobject` URL en `besluit` URL mogen niet veranderen"
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een BESLUIT-INFORMATIEOBJECT relatie.",
+        description="Verwijder een BESLUIT-INFORMATIEOBJECT relatie.",
+    ),
+)
 @conditional_retrieve()
 class BesluitInformatieObjectViewSet(
     NotificationCreateMixin,
@@ -160,59 +220,7 @@ class BesluitInformatieObjectViewSet(
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
-    """
-    Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties.
-
-    create:
-    Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
-
-    Registreer een INFORMATIEOBJECT bij een BESLUIT. Er worden twee types van
-    relaties met andere objecten gerealiseerd:
-
-    **Er wordt gevalideerd op**
-    - geldigheid `besluit` URL
-    - geldigheid `informatieobject` URL
-    - de combinatie `informatieobject` en `besluit` moet uniek zijn
-
-    **Opmerkingen**
-    - De `registratiedatum` wordt door het systeem op 'NU' gezet. De
-      `aardRelatie` wordt ook door het systeem gezet.
-    - Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie
-      aangemaakt, echter zonder de relatie-informatie.
-
-    list:
-    Alle BESLUIT-INFORMATIEOBJECT relaties opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
-
-    Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
-
-    update:
-    Werk een BESLUIT-INFORMATIEOBJECT relatie in zijn geheel bij.
-
-    Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf
-    aanpassen.
-
-    **Er wordt gevalideerd op**
-    - `informatieobject` URL en `besluit` URL mogen niet veranderen
-
-    partial_update:
-    Werk een BESLUIT-INFORMATIEOBJECT relatie deels bij.
-
-    Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf
-    aanpassen.
-
-    **Er wordt gevalideerd op**
-    - `informatieobject` URL en `besluit` URL mogen niet veranderen
-
-    destroy:
-    Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
-
-    Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
-    """
+    """Opvragen en bewerken van BESLUIT-INFORMATIEOBJECT relaties."""
 
     queryset = (
         BesluitInformatieObject.objects.select_related("besluit", "_informatieobject")
@@ -271,20 +279,30 @@ class BesluitInformatieObjectViewSet(
                 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle audit trail regels behorend bij het BESLUIT.",
+        description="Alle audit trail regels behorend bij het BESLUIT.",
+        parameters=[
+            OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
+        ],
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke audit trail regel opvragen.",
+        description="Een specifieke audit trail",
+        parameters=[
+            OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
+        ],
+    ),
+)
 class BesluitAuditTrailViewSet(AuditTrailViewSet):
-    """
-    Opvragen van de audit trail regels.
-
-    list:
-    Alle audit trail regels behorend bij het BESLUIT.
-
-    Alle audit trail regels behorend bij het BESLUIT.
-
-    retrieve:
-    Een specifieke audit trail regel opvragen.
-
-    Een specifieke audit trail regel opvragen.
-    """
+    """Opvragen van de audit trail regels."""
 
     main_resource_lookup_field = "besluit_uuid"
     permission_classes = (AuthRequired,)
+
+    def initialize_request(self, request, *args, **kwargs):
+        # workaround for drf-nested-viewset injecting the URL kwarg into request.data
+        return super(viewsets.GenericViewSet, self).initialize_request(
+            request, *args, **kwargs
+        )

@@ -713,8 +713,7 @@ LOG_OUTGOING_REQUESTS_DB_SAVE = config("LOG_OUTGOING_REQUESTS_DB_SAVE", default=
 # OpenZaak configuration
 #
 
-OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
-OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
+
 STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT
