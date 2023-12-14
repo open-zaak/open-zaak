@@ -183,26 +183,6 @@ class BesluitViewSet(
             "aangemaakt, echter zonder de relatie-informatie."
         ),
     ),
-    update=extend_schema(
-        summary="Werk een BESLUIT-INFORMATIEOBJECT relatie in zijn geheel bij.",
-        description=(
-            "Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf "
-            "aanpassen.\n"
-            "\n"
-            "**Er wordt gevalideerd op**\n"
-            "- `informatieobject` URL en `besluit` URL mogen niet veranderen"
-        ),
-    ),
-    partial_update=extend_schema(
-        summary="Werk een BESLUIT-INFORMATIEOBJECT relatie deels bij.",
-        description=(
-            "Je mag enkel de gegevens van de relatie bewerken, en niet de relatie zelf "
-            "aanpassen.\n"
-            "\n"
-            "**Er wordt gevalideerd op**\n"
-            "- `informatieobject` URL en `besluit` URL mogen niet veranderen"
-        ),
-    ),
     destroy=extend_schema(
         summary="Verwijder een BESLUIT-INFORMATIEOBJECT relatie.",
         description="Verwijder een BESLUIT-INFORMATIEOBJECT relatie.",
@@ -237,8 +217,6 @@ class BesluitInformatieObjectViewSet(
         "retrieve": SCOPE_BESLUITEN_ALLES_LEZEN,
         "create": SCOPE_BESLUITEN_AANMAKEN,
         "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
-        "update": SCOPE_BESLUITEN_BIJWERKEN,
-        "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_BESLUITEN
     notifications_main_resource_key = "besluit"
