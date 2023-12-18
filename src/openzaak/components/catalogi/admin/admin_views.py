@@ -9,6 +9,8 @@ from django.db.utils import IntegrityError
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
@@ -69,17 +71,41 @@ class CatalogusZaakTypeImportUploadView(
             else:
                 try:
                     with transaction.atomic():
-                        import_zaaktype_for_catalogus(
+                        (
+                            files_found,
+                            files_not_found,
+                            files_received,
+                        ) = import_zaaktype_for_catalogus(
                             request.session["identificatie_prefix"],
                             catalogus_pk,
                             request.session["file_content"],
                             {},
                             {},
                         )
-
-                    messages.add_message(
-                        request, messages.SUCCESS, _("ZaakType successfully imported")
-                    )
+                    if len(files_found) < 1:
+                        messages.add_message(
+                            request,
+                            messages.WARNING,
+                            mark_safe(
+                                _(
+                                    "No files found. Expected: {} but received:<br>{}"
+                                ).format(
+                                    ", ".join(files_not_found),
+                                    ", ".join(
+                                        [
+                                            f"<b>{escape(file)}</b>"
+                                            for file in files_received
+                                        ]
+                                    ),
+                                ),
+                            ),
+                        )
+                    else:
+                        messages.add_message(
+                            request,
+                            messages.SUCCESS,
+                            _("ZaakType successfully imported"),
+                        )
                     return HttpResponseRedirect(
                         reverse("admin:catalogi_catalogus_changelist")
                     )

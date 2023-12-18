@@ -178,7 +178,12 @@ def import_zaaktype_for_catalogus(
 
     uuid_mapping = {}
 
+    files_not_found = []
+    files_found = []
+
     with zipfile.ZipFile(import_file, "r") as zip_file:
+
+        files_received = zip_file.namelist()
         for resource in [
             "ZaakType",
             "ZaakTypeInformatieObjectType",
@@ -187,8 +192,9 @@ def import_zaaktype_for_catalogus(
             "StatusType",
             "Eigenschap",
         ]:
-            if f"{resource}.json" in zip_file.namelist():
+            if f"{resource}.json" in files_received:
                 data = zip_file.read(f"{resource}.json").decode()
+                files_found.append(f"{resource}.json")
 
                 if resource == "ZaakTypeInformatieObjectType":
                     for old, new in iotypen_uuid_mapping.items():
@@ -239,6 +245,10 @@ def import_zaaktype_for_catalogus(
                                 "A validation error occurred while deserializing a {}\n{}"
                             ).format(resource, deserialized.errors)
                         )
+            else:
+                files_not_found.append(f"{resource}.json")
+
+    return files_found, files_not_found, files_received
 
 
 def format_duration(rel_delta: relativedelta) -> str:
