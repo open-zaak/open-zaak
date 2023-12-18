@@ -46,7 +46,7 @@ Deze API is afhankelijk van:
 * [Open Zaak GitHub]({settings.OPENZAAK_GITHUB_URL})
 """
 
-SPECTACULAR_SETTINGS_BESLUITEN = {
+custom_settings = {
     "TITLE": "Besluiten API",
     "VERSION": settings.BESLUITEN_API_VERSION,
     "DESCRIPTION": description,

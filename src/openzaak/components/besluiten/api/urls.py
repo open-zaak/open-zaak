@@ -8,7 +8,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 from vng_api_common import routers
 from vng_api_common.schema import SchemaView as _SchemaView
 
-from ..api.schema import SPECTACULAR_SETTINGS_BESLUITEN, info
+from ..api.schema import custom_settings, info
 from .viewsets import (
     BesluitAuditTrailViewSet,
     BesluitInformatieObjectViewSet,
@@ -53,7 +53,7 @@ urlpatterns = [
                     "schema/openapi.yaml",
                     SpectacularAPIView.as_view(
                         urlconf="openzaak.components.besluiten.api.urls",
-                        custom_settings=SPECTACULAR_SETTINGS_BESLUITEN,
+                        custom_settings=custom_settings,
                     ),
                     name="schema-besluiten",
                 ),
