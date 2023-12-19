@@ -66,7 +66,6 @@ urlpatterns = [
                 url(r"^", include(router.urls)),
                 # should not be picked up by drf-yasg
                 path("", router.APIRootView.as_view(), name="api-root-besluiten"),
-                path("", include("vng_api_common.api.urls")),
             ]
         ),
     )
