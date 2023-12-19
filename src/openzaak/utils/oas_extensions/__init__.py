@@ -1,1 +1,1 @@
-from .serializer import GegevensGroepSerializerExtension
+from .serializer import GegevensGroepSerializerExtension  # noqa

@@ -2,19 +2,24 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from django.conf import settings
 
-from drf_spectacular.openapi import AutoSchema as _AutoSchema
+from drf_spectacular.openapi import AutoSchema as _AutoSchema, OpenApiResponse
 from drf_yasg import openapi
-from rest_framework import status
+from rest_framework import exceptions, status
+from vng_api_common.exceptions import PreconditionFailed
+from vng_api_common.geo import GeoMixin
 from vng_api_common.inspectors.view import (
+    DEFAULT_ACTION_ERRORS,
+    HTTP_STATUS_CODE_TITLES,
     AutoSchema as _OldAutoSchema,
     ResponseRef,
     response_header,
 )
 from vng_api_common.permissions import get_required_scopes
+from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
 from vng_api_common.views import ERROR_CONTENT_TYPE
 
 from .middleware import WARNING_HEADER
@@ -155,3 +160,77 @@ class AutoSchema(_AutoSchema):
             return []
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
+
+    def get_error_responses(self) -> OrderedDict[Tuple[int, str], OpenApiResponse]:
+        """
+        return dictionary of error codes and correspondent error serializers
+        - define status codes based on exceptions for each endpoint
+        - define error serialzers based on status code
+        """
+
+        # only supports viewsets
+        if not hasattr(self.view, "action"):
+            return OrderedDict()
+
+        action = self.view.action
+        # treat _zoek endpoints like create one
+        if getattr(action, "is_search_action", False):
+            action = "create"
+
+        # define status codes for the action based on potential exceptions
+        # general errors
+        general_klasses = DEFAULT_ACTION_ERRORS.get(action)
+        if general_klasses is None:
+            logger.debug("Unknown action %s, no default error responses added")
+            return OrderedDict()
+
+        exception_klasses = general_klasses[:]
+        # add geo and validation errors
+        has_validation_errors = action == "list" or any(
+            issubclass(klass, exceptions.ValidationError) for klass in exception_klasses
+        )
+        if has_validation_errors:
+            exception_klasses.append(exceptions.ValidationError)
+
+        if isinstance(self.view, GeoMixin):
+            exception_klasses.append(PreconditionFailed)
+
+        status_codes = sorted({e.status_code for e in exception_klasses})
+
+        # choose serializer based on the status code
+        responses = OrderedDict()
+        for status_code in status_codes:
+            error_serializer = (
+                ValidatieFoutSerializer
+                if status_code == exceptions.ValidationError.status_code
+                else FoutSerializer
+            )
+            response = OpenApiResponse(
+                response=error_serializer,
+                description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+            )
+            responses[(status_code, ERROR_CONTENT_TYPE)] = response
+
+        return responses
+
+    def get_response_serializers(self) -> OrderedDict[Tuple[int, str], OpenApiResponse]:
+        """append error serializers"""
+        response_serializers = super().get_response_serializers()
+        responses = OrderedDict()
+
+        if self.method == "DELETE":
+            status_code = 204
+            serializer = None
+        elif self._is_create_operation():
+            status_code = 201
+            serializer = response_serializers
+        else:
+            status_code = 200
+            serializer = response_serializers
+
+        responses[(status_code, "application/json")] = OpenApiResponse(
+            response=serializer,
+            description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+        )
+        responses.update(self.get_error_responses())
+        return responses
