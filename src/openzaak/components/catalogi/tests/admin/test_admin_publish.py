@@ -29,7 +29,6 @@ from ..factories import (
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
-    ZaakTypeInformatieObjectTypeFactory,
 )
 
 
@@ -189,13 +188,14 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNotNone(publish_button)
 
-    def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
+    def test_publish_zaaktype_related_to_concept_besluittype_succeeds(self, m):
         mock_selectielijst_oas_get(m)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
@@ -211,7 +211,7 @@ class ZaaktypeAdminTests(
             selectielijst_procestype=procestype_url,
             verlenging_mogelijk=False,
         )
-        BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
+        besluit_type = BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
         StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
         ResultaatTypeFactory.create(
@@ -235,29 +235,24 @@ class ZaaktypeAdminTests(
         response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
-        self.assertTrue(zaaktype.concept)
+        self.assertFalse(zaaktype.concept)
+        besluit_type.refresh_from_db()
+        self.assertFalse(besluit_type.concept)
 
-        # Check that the error is shown on the page
-        error_message = response.html.find("li", {"class": "error"})
-        self.assertIn(
-            _("All related resources should be published"), error_message.text
-        )
-
-        # Verify that the publish button is still visible and enabled.
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNotNone(publish_button)
+        # Verify that the publish button is disabled.
         publish_button = response.html.find(
             "input", {"name": "_publish", "disabled": "disabled"}
         )
-        self.assertIsNone(publish_button)
+        self.assertIsNotNone(publish_button)
 
-    def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
+    def test_publish_zaaktype_related_to_concept_informatieobjecttype_succeeds(self, m):
         mock_selectielijst_oas_get(m)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
@@ -279,8 +274,9 @@ class ZaaktypeAdminTests(
             zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
         )
         RolTypeFactory.create(zaaktype=zaaktype)
-        ZaakTypeInformatieObjectTypeFactory.create(
-            informatieobjecttype__concept=True, zaaktype=zaaktype
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=zaaktype.catalogus, zaaktypen__zaaktype=zaaktype, concept=True,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
@@ -299,21 +295,15 @@ class ZaaktypeAdminTests(
         response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
-        self.assertTrue(zaaktype.concept)
+        self.assertFalse(zaaktype.concept)
+        informatieobjecttype.refresh_from_db()
+        self.assertFalse(informatieobjecttype.concept)
 
-        # Check that the error is shown on the page
-        error_message = response.html.find("li", {"class": "error"})
-        self.assertIn(
-            _("All related resources should be published"), error_message.text
-        )
-
-        # Verify that the publish button is still visible and enabled.
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNotNone(publish_button)
+        # Verify that the publish button is disabled.
         publish_button = response.html.find(
             "input", {"name": "_publish", "disabled": "disabled"}
         )
-        self.assertIsNone(publish_button)
+        self.assertIsNotNone(publish_button)
 
 
 @tag("readonly-user")
