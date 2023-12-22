@@ -22,9 +22,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
-from vng_api_common.audittrails.viewsets import (
-    AuditTrailViewsetMixin,
-)
+from vng_api_common.audittrails.viewsets import AuditTrailViewsetMixin
 from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -41,7 +39,6 @@ from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
     COMMON_ERROR_RESPONSES,
     FILE_ERROR_RESPONSES,
-    JSON_CONTENT_TYPE,
     VALIDATION_ERROR_RESPONSES,
 )
 from openzaak.utils.views import AuditTrailViewSet
@@ -139,10 +136,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
         ),
         responses={
-            (
-                status.HTTP_201_CREATED,
-                JSON_CONTENT_TYPE,
-            ): EnkelvoudigInformatieObjectSerializer,
+            status.HTTP_201_CREATED: EnkelvoudigInformatieObjectSerializer,
             **COMMON_ERROR_RESPONSES,
             **VALIDATION_ERROR_RESPONSES,
             **FILE_ERROR_RESPONSES,
@@ -161,10 +155,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- status NIET `definitief`"
         ),
         responses={
-            (
-                status.HTTP_200_OK,
-                JSON_CONTENT_TYPE,
-            ): EnkelvoudigInformatieObjectSerializer,
+            status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
             **COMMON_ERROR_RESPONSES,
             **VALIDATION_ERROR_RESPONSES,
             **FILE_ERROR_RESPONSES,
@@ -183,10 +174,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- status NIET `definitief`"
         ),
         responses={
-            (
-                status.HTTP_200_OK,
-                JSON_CONTENT_TYPE,
-            ): EnkelvoudigInformatieObjectSerializer,
+            status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
             **COMMON_ERROR_RESPONSES,
             **VALIDATION_ERROR_RESPONSES,
             **FILE_ERROR_RESPONSES,
@@ -341,10 +329,7 @@ class EnkelvoudigInformatieObjectViewSet(
         ),
         request=LockEnkelvoudigInformatieObjectSerializer,
         responses={
-            (
-                status.HTTP_200_OK,
-                JSON_CONTENT_TYPE,
-            ): LockEnkelvoudigInformatieObjectSerializer,
+            status.HTTP_200_OK: LockEnkelvoudigInformatieObjectSerializer,
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
@@ -371,7 +356,7 @@ class EnkelvoudigInformatieObjectViewSet(
         ),
         request=UnlockEnkelvoudigInformatieObjectSerializer,
         responses={
-            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="No content"),
+            status.HTTP_204_NO_CONTENT: None,
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
@@ -414,7 +399,6 @@ class EnkelvoudigInformatieObjectViewSet(
         request=EIOZoekSerializer,
     )
     @action(methods=["post"], detail=False, name="enkelvoudiginformatieobject__zoek")
-    @action(methods=["post"], detail=False)
     def _zoek(self, request, *args, **kwargs):
         """
         Voer een zoekopdracht uit op (ENKELVOUDIG) INFORMATIEOBJECTen .

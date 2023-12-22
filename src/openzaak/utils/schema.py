@@ -2,13 +2,13 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 from collections import OrderedDict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Type
 
 from django.conf import settings
 
-from drf_spectacular.openapi import AutoSchema as _AutoSchema, OpenApiResponse
+from drf_spectacular.openapi import AutoSchema as _AutoSchema
 from drf_yasg import openapi
-from rest_framework import exceptions, status
+from rest_framework import exceptions, serializers, status
 from vng_api_common.exceptions import PreconditionFailed
 from vng_api_common.geo import GeoMixin
 from vng_api_common.inspectors.view import (
@@ -50,25 +50,9 @@ OLD_COMMON_ERROR_RESPONSES = {
 }
 
 COMMON_ERROR_STATUSES = [e.status_code for e in COMMON_ERRORS]
-COMMON_ERROR_RESPONSES = {
-    (status, ERROR_CONTENT_TYPE): OpenApiResponse(
-        description=HTTP_STATUS_CODE_TITLES.get(status, ""), response=FoutSerializer,
-    )
-    for status in COMMON_ERROR_STATUSES
-}
-VALIDATION_ERROR_RESPONSES = {
-    (status.HTTP_400_BAD_REQUEST, ERROR_CONTENT_TYPE): OpenApiResponse(
-        description=HTTP_STATUS_CODE_TITLES[status.HTTP_400_BAD_REQUEST],
-        response=ValidatieFoutSerializer,
-    )
-}
-FILE_ERROR_RESPONSES = {
-    (status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, ERROR_CONTENT_TYPE): OpenApiResponse(
-        description=HTTP_STATUS_CODE_TITLES[status.HTTP_413_REQUEST_ENTITY_TOO_LARGE],
-        response=ValidatieFoutSerializer,
-    )
-}
-JSON_CONTENT_TYPE = "application/json"
+COMMON_ERROR_RESPONSES = {status: FoutSerializer for status in COMMON_ERROR_STATUSES}
+VALIDATION_ERROR_RESPONSES = {status.HTTP_400_BAD_REQUEST: ValidatieFoutSerializer}
+FILE_ERROR_RESPONSES = {status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: FoutSerializer}
 
 
 class OldAutoSchema(_OldAutoSchema):
@@ -183,7 +167,7 @@ class AutoSchema(_AutoSchema):
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
 
-    def get_error_responses(self) -> Dict[Tuple[int, str], OpenApiResponse]:
+    def get_error_responses(self) -> Dict[int, Type[serializers.Serializer]]:
         """
         return dictionary of error codes and correspondent error serializers
         - define status codes based on exceptions for each endpoint
@@ -196,7 +180,7 @@ class AutoSchema(_AutoSchema):
 
         action = self.view.action
         # treat _zoek endpoints like create one
-        if getattr(action, "is_search_action", False):
+        if getattr(getattr(self.view, action, ""), "is_search_action", False):
             action = "create"
 
         # define status codes for the action based on potential exceptions
@@ -227,15 +211,11 @@ class AutoSchema(_AutoSchema):
                 if status_code == exceptions.ValidationError.status_code
                 else FoutSerializer
             )
-            response = OpenApiResponse(
-                response=error_serializer,
-                description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-            )
-            responses[(status_code, ERROR_CONTENT_TYPE)] = response
+            responses[status_code] = error_serializer
 
         return responses
 
-    def get_response_serializers(self) -> Dict[Tuple[int, str], OpenApiResponse]:
+    def get_response_serializers(self) -> Dict[int, Type[serializers.Serializer]]:
         """append error serializers"""
         response_serializers = super().get_response_serializers()
 
@@ -250,10 +230,26 @@ class AutoSchema(_AutoSchema):
             serializer = response_serializers
 
         responses = {
-            (status_code, JSON_CONTENT_TYPE): OpenApiResponse(
-                response=serializer,
-                description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-            ),
+            status_code: serializer,
             **self.get_error_responses(),
         }
         return responses
+
+    def _get_response_for_code(
+        self, serializer, status_code, media_types=None, direction="response"
+    ):
+        """choose media types and set descriptions"""
+        if not media_types:
+            if int(status_code) >= 400:
+                media_types = [ERROR_CONTENT_TYPE]
+            else:
+                media_types = ["application/json"]
+
+        response = super()._get_response_for_code(
+            serializer, status_code, media_types, direction="response"
+        )
+
+        # add description based on the status code
+        if not response.get("description"):
+            response["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code), "")
+        return response
