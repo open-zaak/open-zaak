@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
+import typing
 from collections import OrderedDict
 from typing import Dict, List, Type
 
@@ -175,20 +176,16 @@ class AutoSchema(_AutoSchema):
         """
 
         # only supports viewsets
-        if not hasattr(self.view, "action"):
-            return OrderedDict()
-
-        action = self.view.action
-        # treat _zoek endpoints like create one
-        if getattr(getattr(self.view, action, ""), "is_search_action", False):
-            action = "create"
+        action = getattr(self.view, "action")
+        if not action:
+            return {}
 
         # define status codes for the action based on potential exceptions
         # general errors
         general_klasses = DEFAULT_ACTION_ERRORS.get(action)
         if general_klasses is None:
             logger.debug("Unknown action %s, no default error responses added")
-            return OrderedDict()
+            return {}
 
         exception_klasses = general_klasses[:]
         # add geo and validation errors
@@ -253,3 +250,25 @@ class AutoSchema(_AutoSchema):
         if not response.get("description"):
             response["description"] = HTTP_STATUS_CODE_TITLES.get(int(status_code), "")
         return response
+
+    def get_request_serializer(self) -> typing.Any:
+        """Build custom request serializer for Search endpoints"""
+        request_serializer = super().get_request_serializer()
+
+        action = getattr(self.view, "action")
+        if not action:
+            return request_serializer
+
+        if not getattr(getattr(self.view, action, ""), "is_search_action", False):
+            return request_serializer
+
+        filter_params = self._get_filter_parameters()
+        search_input_serializer = self.view.search_input_serializer_class
+        schema = self._map_serializer(search_input_serializer, "request")
+        # add query params to request body schema
+        for filter_param in filter_params:
+            property = filter_param["schema"]
+            property["description"] = filter_param["description"]
+            schema["properties"][filter_param["name"]] = property
+
+        return {"application/json": schema}
