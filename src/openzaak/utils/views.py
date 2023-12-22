@@ -8,8 +8,9 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
-from rest_framework import exceptions
+from rest_framework import exceptions, viewsets
 from rest_framework.views import APIView
+from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zds_client import ClientError
 
@@ -104,3 +105,11 @@ class ErrorDocumentView(APIView):
 
     def get(self, request):
         raise self.exception_cls()
+
+
+class AuditTrailViewSet(_AuditTrailViewSet):
+    def initialize_request(self, request, *args, **kwargs):
+        # workaround for drf-nested-viewset injecting the URL kwarg into request.data
+        return super(viewsets.GenericViewSet, self).initialize_request(
+            request, *args, **kwargs
+        )

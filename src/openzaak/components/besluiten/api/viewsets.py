@@ -20,7 +20,6 @@ from rest_framework.exceptions import ValidationError
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
-    AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
@@ -32,6 +31,7 @@ from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.views import AuditTrailViewSet
 
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
@@ -278,9 +278,3 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
 
     main_resource_lookup_field = "besluit_uuid"
     permission_classes = (AuthRequired,)
-
-    def initialize_request(self, request, *args, **kwargs):
-        # workaround for drf-nested-viewset injecting the URL kwarg into request.data
-        return super(viewsets.GenericViewSet, self).initialize_request(
-            request, *args, **kwargs
-        )

@@ -7,8 +7,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -18,7 +23,6 @@ from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
 from vng_api_common.filters import Backend
@@ -34,7 +38,13 @@ from openzaak.utils.mixins import (
 )
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
-from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
+from openzaak.utils.schema import (
+    COMMON_ERROR_RESPONSES,
+    FILE_ERROR_RESPONSES,
+    JSON_CONTENT_TYPE,
+    VALIDATION_ERROR_RESPONSES,
+)
+from openzaak.utils.views import AuditTrailViewSet
 
 from ..caching import cmis_conditional_retrieve
 from ..models import (
@@ -81,21 +91,121 @@ from .serializers import (
 from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
 
 # Openapi query parameters for version querying
-VERSIE_QUERY_PARAM = openapi.Parameter(
+VERSIE_QUERY_PARAM = OpenApiParameter(
     "versie",
-    openapi.IN_QUERY,
+    type=OpenApiTypes.INT,
+    location=OpenApiParameter.QUERY,
     description="Het (automatische) versienummer van het INFORMATIEOBJECT.",
-    type=openapi.TYPE_INTEGER,
 )
-REGISTRATIE_QUERY_PARAM = openapi.Parameter(
+REGISTRATIE_QUERY_PARAM = OpenApiParameter(
     "registratieOp",
-    openapi.IN_QUERY,
-    description="Een datumtijd in ISO8601 formaat. De versie van het INFORMATIEOBJECT die qua `begin_registratie` het "
-    "kortst hiervoor zit wordt opgehaald.",
-    type=openapi.TYPE_STRING,
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.QUERY,
+    description=(
+        "Een datumtijd in ISO8601 formaat. De versie van het INFORMATIEOBJECT die qua `begin_registratie` het "
+        "kortst hiervoor zit wordt opgehaald."
+    ),
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.",
+        description=(
+            "Deze lijst kan gefilterd wordt met query-string parameters.\n"
+            "\n"
+            "De objecten bevatten metadata over de documenten en de downloadlink "
+            "(`inhoud`) naar de binary data. Alleen de laatste versie van elk "
+            "(ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen "
+            "alleen"
+        ),
+    ),
+    retrieve=extend_schema(
+        summary="Een specifiek (ENKELVOUDIG) INFORMATIEOBJECT opvragen.",
+        description=(
+            "Het object bevat metadata over het document en de downloadlink (`inhoud`) "
+            "naar de binary data. Dit geeft standaard de laatste versie van het "
+            "(ENKELVOUDIG) INFORMATIEOBJECT. Specifieke versies kunnen middels "
+            "query-string parameters worden opgevraagd."
+        ),
+        parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
+    ),
+    create=extend_schema(
+        summary="Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.",
+        description=(
+            "**Er wordt gevalideerd op**\n"
+            "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
+            "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
+        ),
+        responses={
+            (
+                status.HTTP_201_CREATED,
+                JSON_CONTENT_TYPE,
+            ): EnkelvoudigInformatieObjectSerializer,
+            **COMMON_ERROR_RESPONSES,
+            **VALIDATION_ERROR_RESPONSES,
+            **FILE_ERROR_RESPONSES,
+        },
+    ),
+    update=extend_schema(
+        summary="Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.",
+        description=(
+            "Dit creëert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- correcte `lock` waarde\n"
+            "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
+            "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
+            "- status NIET `definitief`"
+        ),
+        responses={
+            (
+                status.HTTP_200_OK,
+                JSON_CONTENT_TYPE,
+            ): EnkelvoudigInformatieObjectSerializer,
+            **COMMON_ERROR_RESPONSES,
+            **VALIDATION_ERROR_RESPONSES,
+            **FILE_ERROR_RESPONSES,
+        },
+    ),
+    partial_update=extend_schema(
+        summary="Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.",
+        description=(
+            "Dit creëert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- correcte `lock` waarde\n"
+            "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
+            "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
+            "- status NIET `definitief`"
+        ),
+        responses={
+            (
+                status.HTTP_200_OK,
+                JSON_CONTENT_TYPE,
+            ): EnkelvoudigInformatieObjectSerializer,
+            **COMMON_ERROR_RESPONSES,
+            **VALIDATION_ERROR_RESPONSES,
+            **FILE_ERROR_RESPONSES,
+        },
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.",
+        description=(
+            "Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies, "
+            "samen met alle gerelateerde resources binnen deze API. Dit is alleen mogelijk "
+            "als er geen OBJECTINFORMATIEOBJECTen relateerd zijn aan het (ENKELVOUDIG) "
+            "INFORMATIEOBJECT.\n"
+            "\n"
+            "**Gerelateerde resources**\n"
+            "- GEBRUIKSRECHTen\n"
+            "- audit trail regels\n"
+        ),
+    ),
+)
 @cmis_conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CMISConnectionPoolMixin,
@@ -110,93 +220,6 @@ class EnkelvoudigInformatieObjectViewSet(
 ):
     """
     Opvragen en bewerken van (ENKELVOUDIG) INFORMATIEOBJECTen (documenten).
-
-    create:
-    Maak een (ENKELVOUDIG) INFORMATIEOBJECT aan.
-
-    **Er wordt gevalideerd op**
-    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
-      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
-    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-
-    list:
-    Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    De objecten bevatten metadata over de documenten en de downloadlink
-    (`inhoud`) naar de binary data. Alleen de laatste versie van elk
-    (ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen
-    alleen
-
-    retrieve:
-    Een specifiek (ENKELVOUDIG) INFORMATIEOBJECT opvragen.
-
-    Het object bevat metadata over het document en de downloadlink (`inhoud`)
-    naar de binary data. Dit geeft standaard de laatste versie van het
-    (ENKELVOUDIG) INFORMATIEOBJECT. Specifieke versies kunnen middels
-    query-string parameters worden opgevraagd.
-
-    update:
-    Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
-
-    Dit creëert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    **Er wordt gevalideerd op**
-    - correcte `lock` waarde
-    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
-      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
-    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-    - status NIET `definitief`
-
-    *TODO*
-    - valideer immutable attributes
-
-    partial_update:
-    Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
-
-    Dit creëert altijd een nieuwe versie van het (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    **Er wordt gevalideerd op**
-    - correcte `lock` waarde
-    - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen
-      worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
-    - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-    - status NIET `definitief`
-
-    *TODO*
-    - valideer immutable attributes
-
-    destroy:
-    Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies,
-    samen met alle gerelateerde resources binnen deze API. Dit is alleen mogelijk
-    als er geen OBJECTINFORMATIEOBJECTen relateerd zijn aan het (ENKELVOUDIG)
-    INFORMATIEOBJECT.
-
-    **Gerelateerde resources**
-    - GEBRUIKSRECHTen
-    - audit trail regels
-
-    download:
-    Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    lock:
-    Vergrendel een (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    Voert een "checkout" uit waardoor het (ENKELVOUDIG) INFORMATIEOBJECT
-    vergrendeld wordt met een `lock` waarde. Alleen met deze waarde kan het
-    (ENKELVOUDIG) INFORMATIEOBJECT bijgewerkt (`PUT`, `PATCH`) en weer
-    ontgrendeld worden.
-
-    unlock:
-    Ontgrendel een (ENKELVOUDIG) INFORMATIEOBJECT.
-
-    Heft de "checkout" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT
-    ontgrendeld wordt.
     """
 
     queryset = (
@@ -226,14 +249,6 @@ class EnkelvoudigInformatieObjectViewSet(
     }
     notifications_kanaal = KANAAL_DOCUMENTEN
     audit = AUDIT_DRC
-
-    @property
-    def swagger_schema(self):
-        # Ensure that schema is not imported at module level, needed to
-        # properly generate notification documentation for API schema
-        from .schema import EIOAutoSchema
-
-        return EIOAutoSchema
 
     def get_renderers(self):
         if self.action == "download":
@@ -290,26 +305,17 @@ class EnkelvoudigInformatieObjectViewSet(
             return PageNumberPagination
         return OptimizedPagination
 
-    @swagger_auto_schema(
-        manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM]
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        method="get",
-        # see https://swagger.io/docs/specification/2-0/describing-responses/ and
-        # https://swagger.io/docs/specification/2-0/mime-types/
-        # OAS 3 has a better mechanism: https://swagger.io/docs/specification/describing-responses/
-        produces=["application/octet-stream"],
+    @extend_schema(
+        "enkelvoudiginformatieobject_download",
+        summary="Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.",
+        description="Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.",
+        parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
         responses={
-            status.HTTP_200_OK: openapi.Response(
-                "De binaire bestandsinhoud",
-                schema=openapi.Schema(type=openapi.TYPE_FILE),
+            (status.HTTP_200_OK, "application/octet-stream"): OpenApiResponse(
+                description="De binaire bestandsinhoud", response=OpenApiTypes.BINARY,
             ),
             **COMMON_ERROR_RESPONSES,
         },
-        manual_parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
     )
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
@@ -324,15 +330,26 @@ class EnkelvoudigInformatieObjectViewSet(
                 mimetype="application/octet-stream",
             )
 
-    @swagger_auto_schema(
-        request_body=LockEnkelvoudigInformatieObjectSerializer,
+    @extend_schema(
+        "enkelvoudiginformatieobject_lock",
+        summary="Vergrendel een (ENKELVOUDIG) INFORMATIEOBJECT.",
+        description=(
+            'Voert een "checkout" uit waardoor het (ENKELVOUDIG) INFORMATIEOBJECT '
+            "vergrendeld wordt met een `lock` waarde. Alleen met deze waarde kan het "
+            "(ENKELVOUDIG) INFORMATIEOBJECT bijgewerkt (`PUT`, `PATCH`) en weer "
+            "ontgrendeld worden."
+        ),
+        request=LockEnkelvoudigInformatieObjectSerializer,
         responses={
-            status.HTTP_200_OK: LockEnkelvoudigInformatieObjectSerializer,
-            status.HTTP_400_BAD_REQUEST: use_ref,
+            (
+                status.HTTP_200_OK,
+                JSON_CONTENT_TYPE,
+            ): LockEnkelvoudigInformatieObjectSerializer,
+            **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
     )
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], name="enkelvoudiginformatieobject_lock")
     def lock(self, request, *args, **kwargs):
         eio = self.get_object()
         canonical = eio.canonical
@@ -345,15 +362,21 @@ class EnkelvoudigInformatieObjectViewSet(
         lock_serializer.save()
         return Response(lock_serializer.data)
 
-    @swagger_auto_schema(
-        request_body=UnlockEnkelvoudigInformatieObjectSerializer,
+    @extend_schema(
+        "enkelvoudiginformatieobject_unlock",
+        summary="Ontgrendel een (ENKELVOUDIG) INFORMATIEOBJECT.",
+        description=(
+            'Heft de "checkout" op waardoor het (ENKELVOUDIG) INFORMATIEOBJECT '
+            "ontgrendeld wordt."
+        ),
+        request=UnlockEnkelvoudigInformatieObjectSerializer,
         responses={
-            status.HTTP_204_NO_CONTENT: openapi.Response("No content"),
-            status.HTTP_400_BAD_REQUEST: use_ref,
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="No content"),
+            **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
     )
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], name="enkelvoudiginformatieobject_unlock")
     def unlock(self, request, *args, **kwargs):
         eio = self.get_object()
         eio_data = self.get_serializer(eio).data
@@ -381,6 +404,16 @@ class EnkelvoudigInformatieObjectViewSet(
         unlock_serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(
+        "enkelvoudiginformatieobject__zoek",
+        summary="Voer een zoekopdracht uit op (ENKELVOUDIG) INFORMATIEOBJECTen.",
+        description=(
+            "Zoeken/filteren gaat normaal via de `list` operatie, deze is echter "
+            "niet geschikt voor zoekopdrachten met UUIDs."
+        ),
+        request=EIOZoekSerializer,
+    )
+    @action(methods=["post"], detail=False, name="enkelvoudiginformatieobject__zoek")
     @action(methods=["post"], detail=False)
     def _zoek(self, request, *args, **kwargs):
         """
@@ -410,6 +443,43 @@ class EnkelvoudigInformatieObjectViewSet(
     _zoek.is_search_action = True
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle GEBRUIKSRECHTen opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke GEBRUIKSRECHT opvragen.",
+        description="Een specifieke GEBRUIKSRECHT opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een GEBRUIKSRECHT aan.",
+        description=(
+            "Voeg GEBRUIKSRECHTen toe voor een INFORMATIEOBJECT.\n"
+            "\n"
+            "**Opmerkingen**\n"
+            "- Het toevoegen van gebruiksrechten zorgt ervoor dat de "
+            "`indicatieGebruiksrecht` op het informatieobject op `true` gezet wordt."
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een GEBRUIKSRECHT in zijn geheel bij.",
+        description="Werk een GEBRUIKSRECHT in zijn geheel bij.",
+    ),
+    partial_update=extend_schema(
+        summary="Werk een GEBRUIKSRECHT relatie deels bij.",
+        description="Werk een GEBRUIKSRECHT relatie deels bij.",
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een GEBRUIKSRECHT.",
+        description=(
+            "**Opmerkingen**\n"
+            "- Indien het laatste GEBRUIKSRECHT van een INFORMATIEOBJECT verwijderd "
+            "wordt, dan wordt de `indicatieGebruiksrecht` van het INFORMATIEOBJECT op "
+            "`null` gezet."
+        ),
+    ),
+)
 @cmis_conditional_retrieve()
 class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
@@ -423,43 +493,6 @@ class GebruiksrechtenViewSet(
 ):
     """
     Opvragen en bewerken van GEBRUIKSRECHTen bij een INFORMATIEOBJECT.
-
-    create:
-    Maak een GEBRUIKSRECHT aan.
-
-    Voeg GEBRUIKSRECHTen toe voor een INFORMATIEOBJECT.
-
-    **Opmerkingen**
-    - Het toevoegen van gebruiksrechten zorgt ervoor dat de
-      `indicatieGebruiksrecht` op het informatieobject op `true` gezet wordt.
-
-    list:
-    Alle GEBRUIKSRECHTen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke GEBRUIKSRECHT opvragen.
-
-    Een specifieke GEBRUIKSRECHT opvragen.
-
-    update:
-    Werk een GEBRUIKSRECHT in zijn geheel bij.
-
-    Werk een GEBRUIKSRECHT in zijn geheel bij.
-
-    partial_update:
-    Werk een GEBRUIKSRECHT relatie deels bij.
-
-    Werk een GEBRUIKSRECHT relatie deels bij.
-
-    destroy:
-    Verwijder een GEBRUIKSRECHT.
-
-    **Opmerkingen**
-    - Indien het laatste GEBRUIKSRECHT van een INFORMATIEOBJECT verwijderd
-      wordt, dan wordt de `indicatieGebruiksrecht` van het INFORMATIEOBJECT op
-      `null` gezet.
     """
 
     queryset = (
@@ -494,27 +527,72 @@ class GebruiksrechtenViewSet(
         return GebruiksrechtenFilter
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle audit trail regels behorend bij het INFORMATIEOBJECT.",
+        description="Alle audit trail regels behorend bij het INFORMATIEOBJECT.",
+        parameters=[
+            OpenApiParameter(
+                "enkelvoudiginformatieobject_uuid",
+                OpenApiTypes.UUID,
+                OpenApiParameter.PATH,
+            )
+        ],
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke audit trail regel opvragen.",
+        description="Een specifieke audit trail regel opvragen.",
+        parameters=[
+            OpenApiParameter(
+                "enkelvoudiginformatieobject_uuid",
+                OpenApiTypes.UUID,
+                OpenApiParameter.PATH,
+            )
+        ],
+    ),
+)
 class EnkelvoudigInformatieObjectAuditTrailViewSet(
     CMISConnectionPoolMixin, AuditTrailViewSet
 ):
-    """
-    Opvragen van de audit trail regels.
-
-    list:
-    Alle audit trail regels behorend bij het INFORMATIEOBJECT.
-
-    Alle audit trail regels behorend bij het INFORMATIEOBJECT.
-
-    retrieve:
-    Een specifieke audit trail regel opvragen.
-
-    Een specifieke audit trail regel opvragen.
-    """
+    """Opvragen van de audit trail regels."""
 
     main_resource_lookup_field = "enkelvoudiginformatieobject_uuid"
     permission_classes = (AuthRequired,)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle OBJECT-INFORMATIEOBJECT relaties opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.",
+        description="Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een OBJECT-INFORMATIEOBJECT relatie aan.",
+        description=(
+            "**LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**\n"
+            "\n"
+            "Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit "
+            "endpoint bij het synchroniseren van relaties.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "- geldigheid `informatieobject` URL\n"
+            "- de combinatie `informatieobject` en `object` moet uniek zijn\n"
+            "- bestaan van `object` URL"
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een OBJECT-INFORMATIEOBJECT relatie.",
+        description=(
+            "**LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**\n"
+            "\n"
+            "Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit "
+            "endpoint bij het synchroniseren van relaties."
+        ),
+    ),
+)
 @cmis_conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CMISConnectionPoolMixin,
@@ -530,37 +608,6 @@ class ObjectInformatieObjectViewSet(
 
     Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
     ZAAK in de Zaken API, en een INFORMATIEOBJECT.
-
-    create:
-    Maak een OBJECT-INFORMATIEOBJECT relatie aan.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
-    endpoint bij het synchroniseren van relaties.
-
-    **Er wordt gevalideerd op**
-    - geldigheid `informatieobject` URL
-    - de combinatie `informatieobject` en `object` moet uniek zijn
-    - bestaan van `object` URL
-
-    list:
-    Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
-
-    Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
-
-    destroy:
-    Verwijder een OBJECT-INFORMATIEOBJECT relatie.
-
-    **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
-
-    Andere API's, zoals de Zaken API en de Besluiten API, gebruiken dit
-    endpoint bij het synchroniseren van relaties.
     """
 
     queryset = (
@@ -640,13 +687,8 @@ class ObjectInformatieObjectViewSet(
             super().perform_destroy(instance)
 
 
+@extend_schema_view(update=extend_schema(summary="Upload een bestandsdeel"))
 class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
-    """
-    update:
-
-    Upload een bestandsdeel
-    """
-
     queryset = BestandsDeel.objects.all()
     serializer_class = BestandsDeelSerializer
     lookup_field = "uuid"
@@ -658,6 +700,31 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     }
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle VERZENDINGen opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke VERZENDING opvragen.",
+        description="Een specifieke VERZENDING opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een VERZENDING aan.",
+        description=" Voeg VERZENDINGen toe voor een INFORMATIEOBJECT en een BETROKKENE.",
+    ),
+    update=extend_schema(
+        summary="Werk een VERZENDING in zijn geheel bij.",
+        description="Werk een VERZENDING in zijn geheel bij.",
+    ),
+    partial_update=extend_schema(
+        summary="Werk een VERZENDING relatie deels bij.",
+        description="Werk een VERZENDING relatie deels bij.",
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
+    ),
+)
 @cmis_conditional_retrieve()
 class VerzendingViewSet(
     CheckQueryParamsMixin,
@@ -668,39 +735,7 @@ class VerzendingViewSet(
     # AuditTrailViewsetMixin,
     viewsets.ModelViewSet,
 ):
-    """
-    Opvragen en bewerken van VERZENDINGen.
-
-    create:
-    Maak een VERZENDING aan.
-
-    Voeg VERZENDINGen toe voor een INFORMATIEOBJECT en een BETROKKENE.
-
-    list:
-    Alle VERZENDINGen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke VERZENDING opvragen.
-
-    Een specifieke VERZENDING opvragen.
-
-    update:
-    Werk een VERZENDING in zijn geheel bij.
-
-    Werk een VERZENDING in zijn geheel bij.
-
-    partial_update:
-    Werk een VERZENDING relatie deels bij.
-
-    Werk een VERZENDING relatie deels bij.
-
-    destroy:
-    Verwijder een VERZENDING.
-
-    Verwijder een VERZENDING.
-    """
+    """Opvragen en bewerken van VERZENDINGen."""
 
     queryset = Verzending.objects.select_related("informatieobject").order_by("-pk")
     serializer_class = VerzendingSerializer

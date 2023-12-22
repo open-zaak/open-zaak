@@ -12,6 +12,7 @@ from rest_framework import exceptions, status
 from vng_api_common.exceptions import PreconditionFailed
 from vng_api_common.geo import GeoMixin
 from vng_api_common.inspectors.view import (
+    COMMON_ERRORS,
     DEFAULT_ACTION_ERRORS,
     HTTP_STATUS_CODE_TITLES,
     AutoSchema as _OldAutoSchema,
@@ -37,7 +38,7 @@ class use_ref:
     pass
 
 
-COMMON_ERROR_RESPONSES = {
+OLD_COMMON_ERROR_RESPONSES = {
     status.HTTP_401_UNAUTHORIZED: use_ref,
     status.HTTP_403_FORBIDDEN: use_ref,
     status.HTTP_404_NOT_FOUND: use_ref,
@@ -47,6 +48,27 @@ COMMON_ERROR_RESPONSES = {
     status.HTTP_429_TOO_MANY_REQUESTS: use_ref,
     status.HTTP_500_INTERNAL_SERVER_ERROR: use_ref,
 }
+
+COMMON_ERROR_STATUSES = [e.status_code for e in COMMON_ERRORS]
+COMMON_ERROR_RESPONSES = {
+    (status, ERROR_CONTENT_TYPE): OpenApiResponse(
+        description=HTTP_STATUS_CODE_TITLES.get(status, ""), response=FoutSerializer,
+    )
+    for status in COMMON_ERROR_STATUSES
+}
+VALIDATION_ERROR_RESPONSES = {
+    (status.HTTP_400_BAD_REQUEST, ERROR_CONTENT_TYPE): OpenApiResponse(
+        description=HTTP_STATUS_CODE_TITLES[status.HTTP_400_BAD_REQUEST],
+        response=ValidatieFoutSerializer,
+    )
+}
+FILE_ERROR_RESPONSES = {
+    (status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, ERROR_CONTENT_TYPE): OpenApiResponse(
+        description=HTTP_STATUS_CODE_TITLES[status.HTTP_413_REQUEST_ENTITY_TOO_LARGE],
+        response=ValidatieFoutSerializer,
+    )
+}
+JSON_CONTENT_TYPE = "application/json"
 
 
 class OldAutoSchema(_OldAutoSchema):
@@ -161,7 +183,7 @@ class AutoSchema(_AutoSchema):
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
 
-    def get_error_responses(self) -> OrderedDict[Tuple[int, str], OpenApiResponse]:
+    def get_error_responses(self) -> Dict[Tuple[int, str], OpenApiResponse]:
         """
         return dictionary of error codes and correspondent error serializers
         - define status codes based on exceptions for each endpoint
@@ -198,7 +220,7 @@ class AutoSchema(_AutoSchema):
         status_codes = sorted({e.status_code for e in exception_klasses})
 
         # choose serializer based on the status code
-        responses = OrderedDict()
+        responses = {}
         for status_code in status_codes:
             error_serializer = (
                 ValidatieFoutSerializer
@@ -213,10 +235,9 @@ class AutoSchema(_AutoSchema):
 
         return responses
 
-    def get_response_serializers(self) -> OrderedDict[Tuple[int, str], OpenApiResponse]:
+    def get_response_serializers(self) -> Dict[Tuple[int, str], OpenApiResponse]:
         """append error serializers"""
         response_serializers = super().get_response_serializers()
-        responses = OrderedDict()
 
         if self.method == "DELETE":
             status_code = 204
@@ -228,9 +249,11 @@ class AutoSchema(_AutoSchema):
             status_code = 200
             serializer = response_serializers
 
-        responses[(status_code, "application/json")] = OpenApiResponse(
-            response=serializer,
-            description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
-        )
-        responses.update(self.get_error_responses())
+        responses = {
+            (status_code, JSON_CONTENT_TYPE): OpenApiResponse(
+                response=serializer,
+                description=HTTP_STATUS_CODE_TITLES.get(status_code, ""),
+            ),
+            **self.get_error_responses(),
+        }
         return responses

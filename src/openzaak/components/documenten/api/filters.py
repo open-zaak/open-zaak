@@ -8,10 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework as filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.filters import URLModelChoiceFilter
-from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
 from openzaak.utils.filters import CharArrayFilter, ExpandFilter
+from openzaak.utils.filterset import FilterSet
 
 from ..models import (
     EnkelvoudigInformatieObject,

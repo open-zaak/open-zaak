@@ -27,6 +27,7 @@ urlpatterns = [
         r"^v(?P<version>\d+)/",
         include(
             [
+                # API documentation
                 path(
                     "schema/openapi.yaml",
                     SpectacularAPIView.as_view(

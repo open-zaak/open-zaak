@@ -1,18 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from collections import OrderedDict
-
 from django.conf import settings
 
-from drf_yasg import openapi
 from humanize import naturalsize
 from notifications_api_common.utils import notification_documentation
-from rest_framework import status
-from vng_api_common.inspectors.view import HTTP_STATUS_CODE_TITLES
-from vng_api_common.serializers import FoutSerializer
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
-from openzaak.utils.schema import AutoSchema
 
 from .kanalen import KANAAL_DOCUMENTEN
 
@@ -65,36 +58,10 @@ Deze API is afhankelijk van:
 * [Open Zaak GitHub]({settings.OPENZAAK_GITHUB_URL})
 """
 
-info = openapi.Info(
-    title="Documenten API",
-    default_version=settings.DOCUMENTEN_API_VERSION,
-    description=description,
-    contact=openapi.Contact(
-        email=settings.OPENZAAK_API_CONTACT_EMAIL, url=settings.OPENZAAK_API_CONTACT_URL
-    ),
-    license=openapi.License(
-        name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"
-    ),
-)
 
-
-class EIOAutoSchema(AutoSchema):
-    """
-    Add the HTTP 413 error response to the schema.
-
-    This is only relevant for endpoints that support file uploads.
-    """
-
-    def _get_error_responses(self) -> OrderedDict:
-        responses = super()._get_error_responses()
-
-        if self.method not in ["POST", "PUT", "PATCH"]:
-            return responses
-
-        status_code = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
-        fout_schema = self.serializer_to_schema(FoutSerializer())
-        responses[status_code] = openapi.Response(
-            description=HTTP_STATUS_CODE_TITLES.get(status_code, ""), schema=fout_schema
-        )
-
-        return responses
+custom_settings = {
+    "TITLE": "Documenten API",
+    "VERSION": settings.DOCUMENTEN_API_VERSION,
+    "DESCRIPTION": description,
+    "SCHEMA_PATH_PREFIX_INSERT": "/documenten/api/v1",
+}
