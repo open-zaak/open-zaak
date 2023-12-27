@@ -3,6 +3,7 @@
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from vng_api_common.caching import conditional_retrieve
@@ -10,7 +11,6 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
-from openzaak.utils.schema import AutoSchema
 
 from ...models import ZaakTypeInformatieObjectType
 from ..filters import ZaakTypeInformatieObjectTypeFilter
@@ -24,11 +24,56 @@ from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
 
 
-class ZaakTypeInformatieObjectTypeSchema(AutoSchema):
-    def get_operation_id(self, operation_keys=None):
-        return f"zaakinformatieobjecttype_{operation_keys[-1]}"
-
-
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle ZAAKTYPE-INFORMATIEOBJECTTYPE relaties opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.",
+        description="Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan.",
+        description=(
+            "Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan. Dit kan alleen als het "
+            "bijbehorende ZAAKTYPE een concept betreft.\n"
+            "\n"
+            "Er wordt gevalideerd op:\n"
+            "- `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`"
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij.",
+        description=(
+            "Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij. Dit kan "
+            "alleen als het bijbehorende ZAAKTYPE een concept betreft.\n"
+            "\n"
+            "Er wordt gevalideerd op:\n"
+            "- `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`"
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.",
+        description=(
+            "Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij. Dit kan alleen "
+            "als het bijbehorende ZAAKTYPE een concept betreft.\n"
+            "\n"
+            "Er wordt gevalideerd op:\n"
+            "- `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`"
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.",
+        description=(
+            "Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen als "
+            "het bijbehorende ZAAKTYPE een concept betreft.\n"
+            "\n"
+            "Er wordt gevalideerd op:\n"
+            "- `zaaktype` of `informatieobjecttype` is nog niet gepubliceerd"
+        ),
+    ),
+)
 @conditional_retrieve()
 class ZaakTypeInformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
@@ -41,52 +86,6 @@ class ZaakTypeInformatieObjectTypeViewSet(
 
     Geeft aan welke INFORMATIEOBJECTTYPEn binnen een ZAAKTYPE mogelijk zijn en
     hoe de richting is.
-
-    create:
-    Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan.
-
-    Maak een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie aan. Dit kan alleen als het
-    bijbehorende ZAAKTYPE een concept betreft.
-
-    Er wordt gevalideerd op:
-    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
-
-    list:
-    Alle ZAAKTYPE-INFORMATIEOBJECTTYPE relaties opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
-
-    Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
-
-    update:
-    Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij.
-
-    Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie in zijn geheel bij. Dit kan
-    alleen als het bijbehorende ZAAKTYPE een concept betreft.
-
-    Er wordt gevalideerd op:
-    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
-
-    partial_update:
-    Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij.
-
-    Werk een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie deels bij. Dit kan alleen
-    als het bijbehorende ZAAKTYPE een concept betreft.
-
-    Er wordt gevalideerd op:
-    - `zaaktype` en `informatieobjecttype` behoren tot dezelfde `catalogus`
-
-    destroy:
-    Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie.
-
-    Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen als
-    het bijbehorende ZAAKTYPE een concept betreft.
-
-    Er wordt gevalideerd op:
-    - `zaaktype` of `informatieobjecttype` is nog niet gepubliceerd
     """
 
     queryset = (
@@ -107,7 +106,6 @@ class ZaakTypeInformatieObjectTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
-    swagger_schema = ZaakTypeInformatieObjectTypeSchema
 
     def get_concept(self, instance):
         ziot = self.get_object()
