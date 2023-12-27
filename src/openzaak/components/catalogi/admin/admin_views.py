@@ -40,6 +40,8 @@ class CatalogusZaakTypeImportUploadView(
             import_file = form.cleaned_data["file"]
             request.session["file_content"] = import_file.read()
 
+            request.session["identificatie"] = request.POST.get("identificatie")
+
             iotypen = retrieve_iotypen(catalogus_pk, request.session["file_content"])
             request.session["iotypen"] = (
                 sorted(iotypen, key=lambda x: x["omschrijving"]) if iotypen else iotypen
@@ -65,7 +67,11 @@ class CatalogusZaakTypeImportUploadView(
                 try:
                     with transaction.atomic():
                         import_zaaktype_for_catalogus(
-                            catalogus_pk, request.session["file_content"], {}, {}
+                            request.session["identificatie"],
+                            catalogus_pk,
+                            request.session["file_content"],
+                            {},
+                            {},
                         )
 
                     messages.add_message(
@@ -195,6 +201,7 @@ class CatalogusZaakTypeImportSelectView(
                         )
 
                 import_zaaktype_for_catalogus(
+                    request.session["identificatie"],
                     kwargs["catalogus_pk"],
                     request.session["file_content"],
                     iotypen_uuid_mapping,

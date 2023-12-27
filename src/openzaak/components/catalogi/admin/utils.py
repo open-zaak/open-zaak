@@ -164,7 +164,11 @@ def construct_besluittypen(
 
 @requests_cache_enabled("import", backend=DjangoRequestsCache())
 def import_zaaktype_for_catalogus(
-    catalogus_pk, import_file_content, iotypen_uuid_mapping, besluittypen_uuid_mapping
+    identificatie,
+    catalogus_pk,
+    import_file_content,
+    iotypen_uuid_mapping,
+    besluittypen_uuid_mapping,
 ):
     catalogus = Catalogus.objects.get(pk=catalogus_pk)
     catalogus_uuid = str(catalogus.uuid)
@@ -201,6 +205,7 @@ def import_zaaktype_for_catalogus(
 
                 for entry in data:
                     if resource == "ZaakType":
+                        entry["identificatie"] = identificatie or entry["identificatie"]
                         entry["informatieobjecttypen"] = []
                         old_catalogus_uuid = entry["catalogus"].split("/")[-1]
                         entry["catalogus"] = entry["catalogus"].replace(
