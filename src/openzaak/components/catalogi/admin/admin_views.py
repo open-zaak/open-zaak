@@ -9,8 +9,7 @@ from django.db.utils import IntegrityError
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
@@ -83,22 +82,15 @@ class CatalogusZaakTypeImportUploadView(
                             {},
                         )
                     if len(files_found) < 1:
+                        msg = _(
+                            "No files found. Expected: {files_not_found} but received:<br> {files_received}"
+                        )
+                        msg_dict = {
+                            "files_not_found": ", ".join(files_not_found),
+                            "files_received": ", ".join(files_received),
+                        }
                         messages.add_message(
-                            request,
-                            messages.WARNING,
-                            mark_safe(
-                                _(
-                                    "No files found. Expected: {} but received:<br>{}"
-                                ).format(
-                                    ", ".join(files_not_found),
-                                    ", ".join(
-                                        [
-                                            f"<b>{escape(file)}</b>"
-                                            for file in files_received
-                                        ]
-                                    ),
-                                ),
-                            ),
+                            request, messages.WARNING, format_html(msg, **msg_dict)
                         )
                     else:
                         messages.add_message(
