@@ -487,10 +487,10 @@ class CatalogusImportForm(forms.Form):
 
 class ZaakTypeImportForm(forms.Form):
 
-    identificatie = forms.CharField(
-        label=_("identificatie"),
+    identificatie_prefix = forms.CharField(
+        label=_("identificatie prefix"),
         required=False,
-        help_text=_("Zaaktype name. Leave blank to use imported."),
+        help_text=_("Zaaktype identification prefix. Leave blank to use imported."),
         validators=[alphanumeric_excluding_diacritic,],
     )
 
