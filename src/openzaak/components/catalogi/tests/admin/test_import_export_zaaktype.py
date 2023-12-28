@@ -1505,6 +1505,67 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             ZaakType.objects.filter(identificatie="PREFIX_ZAAKTYPE_1").exists()
         )
 
+    def test_import_zaaktype_with_different_identification_excedes_max_length(
+        self, *mocks
+    ):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            identificatie="Identification_that_is_fifty_characters_long_00000",
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            datum_begin_geldigheid="2023-01-01",
+        )
+
+        InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=zaaktype,
+            datum_begin_geldigheid="2023-01-01",
+            datum_einde_geldigheid="2023-03-31",
+        )
+
+        BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="Apple",
+            zaaktypen=[zaaktype],
+            datum_begin_geldigheid="2023-01-01",
+            datum_einde_geldigheid="2023-03-31",
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        form["identificatie_prefix"] = "PREFIX"
+        response = form.submit("_import_zaaktype").follow()
+
+        response = response.form.submit("_select")
+        # succeeds as it is imported under a different name
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.all().count(), 2)
+        self.assertTrue(
+            ZaakType.objects.filter(
+                identificatie="PREFIX_Identification_that_is_fifty_characters_lon"
+            ).exists()
+        )
+
 
 @patch(
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",

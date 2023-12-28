@@ -208,7 +208,7 @@ def import_zaaktype_for_catalogus(
                         if identificatie_prefix:
                             entry[
                                 "identificatie"
-                            ] = f"{identificatie_prefix}_{entry['identificatie']}"
+                            ] = f"{identificatie_prefix}_{entry['identificatie']}"[:50]
                         entry["informatieobjecttypen"] = []
                         old_catalogus_uuid = entry["catalogus"].split("/")[-1]
                         entry["catalogus"] = entry["catalogus"].replace(
