@@ -51,9 +51,11 @@ OLD_COMMON_ERROR_RESPONSES = {
 }
 
 COMMON_ERROR_STATUSES = [e.status_code for e in COMMON_ERRORS]
+# error responses
 COMMON_ERROR_RESPONSES = {status: FoutSerializer for status in COMMON_ERROR_STATUSES}
 VALIDATION_ERROR_RESPONSES = {status.HTTP_400_BAD_REQUEST: ValidatieFoutSerializer}
 FILE_ERROR_RESPONSES = {status.HTTP_413_REQUEST_ENTITY_TOO_LARGE: FoutSerializer}
+PRECONDITION_ERROR_RESPONSES = {status.HTTP_412_PRECONDITION_FAILED: FoutSerializer}
 
 
 class OldAutoSchema(_OldAutoSchema):
@@ -268,7 +270,16 @@ class AutoSchema(_AutoSchema):
         # add query params to request body schema
         for filter_param in filter_params:
             property = filter_param["schema"]
-            property["description"] = filter_param["description"]
+            property["description"] = filter_param.get("description")
             schema["properties"][filter_param["name"]] = property
 
         return {"application/json": schema}
+
+    def _get_paginator(self):
+        """
+        support dynamic pagination_class in view.paginator method
+        """
+        if hasattr(self.view, "paginator"):
+            return self.view.paginator
+
+        return super()._get_paginator()
