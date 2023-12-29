@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.conf import settings
 
-from drf_yasg import openapi
 from notifications_api_common.utils import notification_documentation
 
 from openzaak.utils.apidoc import DOC_AUTH_JWT
@@ -39,14 +38,10 @@ Deze API is afhankelijk van:
 * [Open Zaak GitHub]({settings.OPENZAAK_GITHUB_URL})
 """
 
-info = openapi.Info(
-    title="Zaken API",
-    default_version=settings.ZAKEN_API_VERSION,
-    description=description,
-    contact=openapi.Contact(
-        email=settings.OPENZAAK_API_CONTACT_EMAIL, url=settings.OPENZAAK_API_CONTACT_URL
-    ),
-    license=openapi.License(
-        name="EUPL 1.2", url="https://opensource.org/licenses/EUPL-1.2"
-    ),
-)
+
+custom_settings = {
+    "TITLE": "Zaken API",
+    "VERSION": settings.ZAKEN_API_VERSION,
+    "DESCRIPTION": description,
+    "SCHEMA_PATH_PREFIX_INSERT": "/zaken/api/v1",
+}
