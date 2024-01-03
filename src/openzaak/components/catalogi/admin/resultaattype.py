@@ -55,6 +55,7 @@ class ResultaatTypeAdmin(
                     "zaaktype",
                     "omschrijving",
                     "omschrijving_generiek",
+                    "resultaattypeomschrijving",
                     "toelichting",
                     "datum_begin_geldigheid",
                     "datum_einde_geldigheid",
@@ -66,7 +67,6 @@ class ResultaatTypeAdmin(
             {
                 "fields": (
                     "get_zaaktype_procestype",
-                    "resultaattypeomschrijving",
                     "selectielijstklasse",
                 )
             },
