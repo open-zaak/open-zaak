@@ -33,7 +33,10 @@ SPECTACULAR_SETTINGS = {
     "LICENSE": {"name": "EUPL 1.2", "url": "https://opensource.org/licenses/EUPL-1.2"},
     "CONTACT": {"email": OPENZAAK_API_CONTACT_EMAIL, "url": OPENZAAK_API_CONTACT_URL},
     "SERVE_INCLUDE_SCHEMA": False,
-    # "POSTPROCESSING_HOOKS": ["drf_spectacular.hooks.postprocess_schema_enums"],
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
     "SCHEMA_PATH_PREFIX": "/v1",
     "SCHEMA_PATH_PREFIX_TRIM": True,
     "APPEND_COMPONENTS": {

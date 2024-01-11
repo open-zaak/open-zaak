@@ -50,7 +50,7 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(url_name="schema-catalogi"),
-                    name="schema-catalogi-redoc",
+                    name="schema-redoc-catalogi",
                 ),
                 # actual API
                 url(r"^", include(router.urls)),
