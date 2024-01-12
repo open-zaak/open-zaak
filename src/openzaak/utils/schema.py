@@ -17,17 +17,21 @@ from drf_spectacular.openapi import (
     build_object_type,
     is_list_serializer,
 )
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter
 from drf_yasg import openapi
 from furl import furl
 from rest_framework import exceptions, serializers, status
+from vng_api_common.caching.introspection import has_cache_header
+from vng_api_common.constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
 from vng_api_common.exceptions import PreconditionFailed
-from vng_api_common.geo import GeoMixin
+from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
 from vng_api_common.inspectors.view import (
     COMMON_ERRORS,
     DEFAULT_ACTION_ERRORS,
     HTTP_STATUS_CODE_TITLES,
     AutoSchema as _OldAutoSchema,
     ResponseRef,
+    _view_supports_audittrail,
     response_header,
 )
 from vng_api_common.permissions import get_required_scopes
@@ -405,3 +409,173 @@ class AutoSchema(_AutoSchema):
         response["content"]["application/json"]["schema"] = expand_schema
 
         return response
+
+    def get_override_parameters(self):
+        """Add request and response headers"""
+        version_headers = self.get_version_headers()
+        content_type_headers = self.get_content_type_headers()
+        cache_headers = self.get_cache_headers()
+        log_headers = self.get_log_headers()
+        geo_headers = self.get_geo_headers()
+        return (
+            version_headers
+            + content_type_headers
+            + cache_headers
+            + log_headers
+            + geo_headers
+        )
+
+    def get_version_headers(self) -> List[OpenApiParameter]:
+        return [
+            OpenApiParameter(
+                name=VERSION_HEADER,
+                type=str,
+                location=OpenApiParameter.HEADER,
+                description=_(
+                    "Geeft een specifieke API-versie aan in de context van "
+                    "een specifieke aanroep. Voorbeeld: 1.2.1."
+                ),
+                response=True,
+            )
+        ]
+
+    def get_content_type_headers(self) -> List[OpenApiParameter]:
+        if self.method not in ["POST", "PUT", "PATCH"]:
+            return []
+
+        return [
+            OpenApiParameter(
+                name="Content-Type",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                description=_("Content type of the request body."),
+                enum=["application/json"],
+                required=True,
+            )
+        ]
+
+    def get_cache_headers(self) -> List[OpenApiParameter]:
+        """
+        support ETag headers
+        """
+        if not has_cache_header(self.view):
+            return []
+
+        return [
+            OpenApiParameter(
+                name="If-None-Match",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=False,
+                description=_(
+                    "Perform conditional requests. This header should contain one or "
+                    "multiple ETag values of resources the client has cached. If the "
+                    "current resource ETag value is in this set, then an HTTP 304 "
+                    "empty body will be returned. See "
+                    "[MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) "
+                    "for details."
+                ),
+                examples=[
+                    OpenApiExample(
+                        name="oneValue",
+                        summary=_("One ETag value"),
+                        value='"79054025255fb1a26e4bc422aef54eb4"',
+                    ),
+                    OpenApiExample(
+                        name="multipleValues",
+                        summary=_("Multiple ETag values"),
+                        value='"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"',
+                    ),
+                ],
+            ),
+            OpenApiParameter(
+                name="ETag",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                response=(200,),
+                description=_(
+                    "De ETag berekend op de response body JSON. "
+                    "Indien twee resources exact dezelfde ETag hebben, dan zijn "
+                    "deze resources identiek aan elkaar. Je kan de ETag gebruiken "
+                    "om caching te implementeren."
+                ),
+            ),
+        ]
+
+    def get_log_headers(self) -> List[OpenApiParameter]:
+        if not _view_supports_audittrail(self.view):
+            return []
+
+        return [
+            OpenApiParameter(
+                name=HEADER_LOGRECORD_ID,
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=False,
+                description=_(
+                    "Identifier of the request, traceable throughout the network"
+                ),
+            ),
+            OpenApiParameter(
+                name=HEADER_AUDIT,
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=False,
+                description=_("Explanation why the request is done"),
+            ),
+        ]
+
+    def get_geo_headers(self) -> List[OpenApiParameter]:
+        if not isinstance(self.view, GeoMixin):
+            return []
+
+        request_headers = []
+        if self.method != "DELETE":
+            request_headers.append(
+                OpenApiParameter(
+                    name=HEADER_ACCEPT,
+                    type=str,
+                    location=OpenApiParameter.HEADER,
+                    required=False,
+                    description=_(
+                        "The desired 'Coordinate Reference System' (CRS) of the response data. "
+                        "According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 "
+                        "is the same as WGS84)."
+                    ),
+                    enum=[DEFAULT_CRS],
+                )
+            )
+
+        if self.method in ("POST", "PUT", "PATCH"):
+            request_headers.append(
+                OpenApiParameter(
+                    name=HEADER_CONTENT,
+                    type=str,
+                    location=OpenApiParameter.HEADER,
+                    required=True,
+                    description=_(
+                        "The 'Coordinate Reference System' (CRS) of the request data. "
+                        "According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 "
+                        "is the same as WGS84)."
+                    ),
+                    enum=[DEFAULT_CRS],
+                ),
+            )
+
+        response_headers = [
+            OpenApiParameter(
+                name=HEADER_CONTENT,
+                type=str,
+                location=OpenApiParameter.HEADER,
+                required=True,
+                description=_(
+                    "The 'Coordinate Reference System' (CRS) of the request data. "
+                    "According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 "
+                    "is the same as WGS84)."
+                ),
+                enum=[DEFAULT_CRS],
+                response=[200, 201],
+            )
+        ]
+
+        return request_headers + response_headers
