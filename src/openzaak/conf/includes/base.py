@@ -148,6 +148,7 @@ INSTALLED_APPS = [
     "sniplates",
     "privates",
     "django_better_admin_arrayfield",
+    "django_jsonform",
     "django_loose_fk",
     "simple_certmanager",
     "zgw_consumers",
