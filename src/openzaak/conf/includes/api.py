@@ -48,6 +48,7 @@ SPECTACULAR_SETTINGS = {
             }
         }
     },
+    "ENUM_GENERATE_CHOICE_DESCRIPTION": False,
 }
 
 
