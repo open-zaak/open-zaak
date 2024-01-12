@@ -49,5 +49,5 @@ custom_settings = {
     "TITLE": "Catalogi API",
     "VERSION": settings.CATALOGI_API_VERSION,
     "DESCRIPTION": description,
-    "SCHEMA_PATH_PREFIX_INSERT": "/catalogi/api/v1",
+    "SERVERS": [{"url": "/catalogi/api/v1"}],
 }

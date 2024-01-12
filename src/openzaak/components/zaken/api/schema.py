@@ -43,5 +43,5 @@ custom_settings = {
     "TITLE": "Zaken API",
     "VERSION": settings.ZAKEN_API_VERSION,
     "DESCRIPTION": description,
-    "SCHEMA_PATH_PREFIX_INSERT": "/zaken/api/v1",
+    "SERVERS": [{"url": "/zaken/api/v1"}],
 }

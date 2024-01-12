@@ -33,7 +33,7 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
         components = {}
         # resolve sub components and components
         for resource_type, sub_serializer in discriminator.mapping.items():
-            if not sub_serializer:
+            if not sub_serializer or not sub_serializer.fields:
                 schema = {"allOf": [base_component.ref]}
             else:
                 sub_component = auto_schema.resolve_serializer(

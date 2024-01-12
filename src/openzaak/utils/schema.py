@@ -17,7 +17,7 @@ from drf_spectacular.openapi import (
     build_object_type,
     is_list_serializer,
 )
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
 from drf_yasg import openapi
 from furl import furl
 from rest_framework import exceptions, serializers, status
@@ -202,6 +202,15 @@ class AutoSchema(_AutoSchema):
             return []
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
+
+    def get_operation_id(self):
+        """
+        Use view basename as a base for operation_id
+        """
+        if hasattr(self.view, "basename"):
+            basename = self.view.basename
+            return f"{basename}_{self.view.action}"
+        return super().get_operation_id()
 
     def get_error_responses(self) -> Dict[int, Type[serializers.Serializer]]:
         """
@@ -416,12 +425,14 @@ class AutoSchema(_AutoSchema):
         content_type_headers = self.get_content_type_headers()
         cache_headers = self.get_cache_headers()
         log_headers = self.get_log_headers()
+        location_headers = self.get_location_headers()
         geo_headers = self.get_geo_headers()
         return (
             version_headers
             + content_type_headers
             + cache_headers
             + log_headers
+            + location_headers
             + geo_headers
         )
 
@@ -492,7 +503,7 @@ class AutoSchema(_AutoSchema):
                 name="ETag",
                 type=str,
                 location=OpenApiParameter.HEADER,
-                response=(200,),
+                response=[200],
                 description=_(
                     "De ETag berekend op de response body JSON. "
                     "Indien twee resources exact dezelfde ETag hebben, dan zijn "
@@ -522,6 +533,17 @@ class AutoSchema(_AutoSchema):
                 location=OpenApiParameter.HEADER,
                 required=False,
                 description=_("Explanation why the request is done"),
+            ),
+        ]
+
+    def get_location_headers(self) -> List[OpenApiParameter]:
+        return [
+            OpenApiParameter(
+                name="Location",
+                type=OpenApiTypes.URI,
+                location=OpenApiParameter.HEADER,
+                description=_("URL waar de resource leeft."),
+                response=[201],
             ),
         ]
 

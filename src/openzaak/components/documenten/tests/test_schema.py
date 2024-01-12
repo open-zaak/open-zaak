@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
-from ..api.schema import info
+from ..api.schema import custom_settings
 
 
 class DocumentenSchemaTests(WebTest):
@@ -12,4 +12,4 @@ class DocumentenSchemaTests(WebTest):
         response = self.app.get(
             reverse("schema-redoc-documenten", kwargs={"version": 1})
         )
-        self.assertEqual(response.html.find("title").text, info.title)
+        self.assertEqual(response.html.find("title").text, custom_settings["TITLE"])

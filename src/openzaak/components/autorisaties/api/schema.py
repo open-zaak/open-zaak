@@ -43,5 +43,5 @@ custom_settings = {
     "TITLE": "Autorisaties API",
     "VERSION": settings.AUTORISATIES_API_VERSION,
     "DESCRIPTION": description,
-    "SCHEMA_PATH_PREFIX_INSERT": "/autorisaties/api/v1",
+    "SERVERS": [{"url": "/autorisaties/api/v1"}],
 }

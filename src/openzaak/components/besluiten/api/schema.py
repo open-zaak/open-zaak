@@ -49,5 +49,5 @@ custom_settings = {
     "TITLE": "Besluiten API",
     "VERSION": settings.BESLUITEN_API_VERSION,
     "DESCRIPTION": description,
-    "SCHEMA_PATH_PREFIX_INSERT": "/besluiten/api/v1",
+    "SERVERS": [{"url": "/besluiten/api/v1"}],
 }

@@ -63,5 +63,5 @@ custom_settings = {
     "TITLE": "Documenten API",
     "VERSION": settings.DOCUMENTEN_API_VERSION,
     "DESCRIPTION": description,
-    "SCHEMA_PATH_PREFIX_INSERT": "/documenten/api/v1",
+    "SERVERS": [{"url": "/documenten/api/v1"}],
 }

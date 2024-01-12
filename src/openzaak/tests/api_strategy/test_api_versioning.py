@@ -21,22 +21,24 @@ class APIVersioningTests(APITestCase):
     def test_api_19_documentation_version_json(self):
         for component, _ in EXPECTED_VERSIONS:
             with self.subTest(component=component):
-                url = reverse(f"schema-json-{component}", kwargs={"format": ".json"})
+                url = reverse(f"schema-{component}")
 
-                response = self.client.get(url)
+                response = self.client.get(f"{url}?format=json")
 
-                self.assertIn("application/json", response["Content-Type"])
+                self.assertIn(
+                    "application/vnd.oai.openapi+json", response["Content-Type"]
+                )
                 doc = response.json()
                 self.assertGreaterEqual(doc["openapi"], "3.0.0")
 
     def test_api_19_documentation_version_yaml(self):
         for component, _ in EXPECTED_VERSIONS:
             with self.subTest(component=component):
-                url = reverse(f"schema-json-{component}", kwargs={"format": ".yaml"})
+                url = reverse(f"schema-{component}")
 
                 response = self.client.get(url)
 
-                self.assertIn("application/yaml", response["Content-Type"])
+                self.assertIn("application/vnd.oai.openapi", response["Content-Type"])
                 doc = yaml.safe_load(response.content)
                 self.assertGreaterEqual(doc["openapi"], "3.0.0")
 

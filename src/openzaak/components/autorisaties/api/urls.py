@@ -29,7 +29,9 @@ urlpatterns = [
                 ),
                 path(
                     "schema/",
-                    SpectacularRedocView.as_view(url_name="schema-autorisaties"),
+                    SpectacularRedocView.as_view(
+                        url_name="schema-autorisaties", title=custom_settings["TITLE"]
+                    ),
                     name="schema-redoc-autorisaties",
                 ),
                 # actual API
