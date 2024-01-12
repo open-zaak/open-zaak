@@ -53,41 +53,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-# todo REMOVE
-SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
-SWAGGER_SETTINGS.update(
-    {
-        "DEFAULT_INFO": "openzaak.components.autorisaties.api.schema.info",  # TODO: fix it as parameter
-        "DEFAULT_AUTO_SCHEMA_CLASS": "openzaak.utils.schema.AutoSchema",
-        "SECURITY_DEFINITIONS": {
-            SECURITY_DEFINITION_NAME: {
-                # OAS 3.0
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT",
-                # not official...
-                # 'scopes': {},  # TODO: set up registry that's filled in later...
-                # Swagger 2.0
-                # 'name': 'Authorization',
-                # 'in': 'header'
-                # 'type': 'apiKey',
-            }
-        },
-        "DEFAULT_FIELD_INSPECTORS": (
-            "vng_api_common.inspectors.geojson.GeometryFieldInspector",
-            "vng_api_common.inspectors.files.FileFieldInspector",
-            "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
-            "django_loose_fk.inspectors.fields.LooseFkFieldInspector",
-            "openzaak.utils.inspectors.ExpandSerializerInspector",
-        )
-        + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
-        "DEFAULT_FILTER_INSPECTORS": (
-            "django_loose_fk.inspectors.query.FilterInspector",
-        )
-        + BASE_SWAGGER_SETTINGS["DEFAULT_FILTER_INSPECTORS"],
-    }
-)
-
 GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
 COMMONGROUND_API_COMMON_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"

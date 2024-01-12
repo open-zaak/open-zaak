@@ -135,12 +135,11 @@ INSTALLED_APPS = [
     "django_db_logger",
     "corsheaders",
     "extra_views",
-    "vng_api_common",  # before drf_yasg to override the management command
+    "vng_api_common",
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
     "vng_api_common.notifications",
     "notifications_api_common",
-    "drf_yasg",
     "drf_spectacular",
     "rest_framework",
     "rest_framework_gis",

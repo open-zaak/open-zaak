@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import typing
-from collections import OrderedDict
 from typing import Dict, List, Type
 
 from django.conf import settings
@@ -18,7 +17,6 @@ from drf_spectacular.openapi import (
     is_list_serializer,
 )
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
-from drf_yasg import openapi
 from furl import furl
 from rest_framework import exceptions, serializers, status
 from vng_api_common.caching.introspection import has_cache_header
@@ -29,42 +27,18 @@ from vng_api_common.inspectors.view import (
     COMMON_ERRORS,
     DEFAULT_ACTION_ERRORS,
     HTTP_STATUS_CODE_TITLES,
-    AutoSchema as _OldAutoSchema,
-    ResponseRef,
     _view_supports_audittrail,
-    response_header,
 )
 from vng_api_common.permissions import get_required_scopes
 from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
 from vng_api_common.views import ERROR_CONTENT_TYPE
 
 from .expansion import EXPAND_KEY
-from .middleware import WARNING_HEADER
 from .mixins import ExpandMixin
 from .permissions import AuthRequired
 
 logger = logging.getLogger(__name__)
 
-warning_header = response_header(
-    "Geeft een endpoint-specifieke waarschuwing, zoals het uitfaseren van functionaliteit.",
-    type=openapi.TYPE_STRING,
-)
-
-
-class use_ref:
-    pass
-
-
-OLD_COMMON_ERROR_RESPONSES = {
-    status.HTTP_401_UNAUTHORIZED: use_ref,
-    status.HTTP_403_FORBIDDEN: use_ref,
-    status.HTTP_404_NOT_FOUND: use_ref,
-    status.HTTP_406_NOT_ACCEPTABLE: use_ref,
-    status.HTTP_410_GONE: use_ref,
-    status.HTTP_415_UNSUPPORTED_MEDIA_TYPE: use_ref,
-    status.HTTP_429_TOO_MANY_REQUESTS: use_ref,
-    status.HTTP_500_INTERNAL_SERVER_ERROR: use_ref,
-}
 
 COMMON_ERROR_STATUSES = [e.status_code for e in COMMON_ERRORS]
 # error responses
