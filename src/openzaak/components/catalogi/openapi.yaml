@@ -453,7 +453,7 @@ paths:
           description: Internal server error
   /besluittypen/{uuid}:
     get:
-      operationId: besluittype_retrieve
+      operationId: besluittype_read
       description: Een specifieke BESLUITTYPE opvragen.
       summary: Een specifieke BESLUITTYPE opvragen.
       parameters:
@@ -942,7 +942,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: besluittype_destroy
+      operationId: besluittype_delete
       description: Verwijder een BESLUITTYPE. Dit kan alleen als het een concept betreft.
       summary: Verwijder een BESLUITTYPE.
       parameters:
@@ -1740,7 +1740,7 @@ paths:
           description: Internal server error
   /catalogussen/{uuid}:
     get:
-      operationId: catalogus_retrieve
+      operationId: catalogus_read
       description: Een specifieke CATALOGUS opvragen.
       summary: Een specifieke CATALOGUS opvragen.
       parameters:
@@ -2271,7 +2271,7 @@ paths:
           description: Internal server error
   /eigenschappen/{uuid}:
     get:
-      operationId: eigenschap_retrieve
+      operationId: eigenschap_read
       description: Een specifieke EIGENSCHAP opvragen.
       summary: Een specifieke EIGENSCHAP opvragen.
       parameters:
@@ -2760,7 +2760,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: eigenschap_destroy
+      operationId: eigenschap_delete
       description: Verwijder een EIGENSCHAP. Dit kan alleen als het bijbehorende ZAAKTYPE
         een concept betreft.
       summary: Verwijder een EIGENSCHAP.
@@ -3264,7 +3264,7 @@ paths:
           description: Internal server error
   /informatieobjecttypen/{uuid}:
     get:
-      operationId: informatieobjecttype_retrieve
+      operationId: informatieobjecttype_read
       description: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       summary: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       parameters:
@@ -3753,7 +3753,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: informatieobjecttype_destroy
+      operationId: informatieobjecttype_delete
       description: Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een
         concept betreft.
       summary: Verwijder een INFORMATIEOBJECTTYPE.
@@ -4409,7 +4409,7 @@ paths:
           description: Internal server error
   /resultaattypen/{uuid}:
     get:
-      operationId: resultaattype_retrieve
+      operationId: resultaattype_read
       description: Een specifieke RESULTAATTYPE opvragen.
       summary: Een specifieke RESULTAATTYPE opvragen.
       parameters:
@@ -4898,7 +4898,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: resultaattype_destroy
+      operationId: resultaattype_delete
       description: Verwijder een RESULTAATTYPE. Dit kan alleen als het bijbehorende
         ZAAKTYPE een concept betreft.
       summary: Verwijder een RESULTAATTYPE.
@@ -5420,7 +5420,7 @@ paths:
           description: Internal server error
   /roltypen/{uuid}:
     get:
-      operationId: roltype_retrieve
+      operationId: roltype_read
       description: Een specifieke ROLTYPE opvragen.
       summary: Een specifieke ROLTYPE opvragen.
       parameters:
@@ -5906,7 +5906,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: roltype_destroy
+      operationId: roltype_delete
       description: Verwijder een ROLTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE
         een concept betreft.
       summary: Verwijder een ROLTYPE.
@@ -6410,7 +6410,7 @@ paths:
           description: Internal server error
   /statustypen/{uuid}:
     get:
-      operationId: statustype_retrieve
+      operationId: statustype_read
       description: Een specifieke STATUSTYPE opvragen.
       summary: Een specifieke STATUSTYPE opvragen.
       parameters:
@@ -6899,7 +6899,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: statustype_destroy
+      operationId: statustype_delete
       description: Verwijder een STATUSTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE
         een concept betreft.
       summary: Verwijder een STATUSTYPE.
@@ -7423,7 +7423,7 @@ paths:
           description: Internal server error
   /zaakobjecttypen/{uuid}:
     get:
-      operationId: zaakobjecttype_retrieve
+      operationId: zaakobjecttype_read
       description: Een specifieke ZAAKOBJECTTYPE opvragen.
       summary: Een specifieke ZAAKOBJECTTYPE opvragen.
       parameters:
@@ -7910,7 +7910,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakobjecttype_destroy
+      operationId: zaakobjecttype_delete
       description: Verwijder een ZAAKOBJECTTYPE.
       summary: Verwijder een ZAAKOBJECTTYPE.
       parameters:
@@ -8415,7 +8415,7 @@ paths:
           description: Internal server error
   /zaaktype-informatieobjecttypen/{uuid}:
     get:
-      operationId: zaaktypeinformatieobjecttype_retrieve
+      operationId: zaaktypeinformatieobjecttype_read
       description: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       summary: Een specifieke ZAAKTYPE-INFORMATIEOBJECTTYPE relatie opvragen.
       parameters:
@@ -8910,7 +8910,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaaktypeinformatieobjecttype_destroy
+      operationId: zaaktypeinformatieobjecttype_delete
       description: |-
         Verwijder een ZAAKTYPE-INFORMATIEOBJECTTYPE relatie. Dit kan alleen als het bijbehorende ZAAKTYPE een concept betreft.
 
@@ -9432,7 +9432,7 @@ paths:
           description: Internal server error
   /zaaktypen/{uuid}:
     get:
-      operationId: zaaktype_retrieve
+      operationId: zaaktype_read
       description: Een specifieke ZAAKTYPE opvragen.
       summary: Een specifieke ZAAKTYPE opvragen.
       parameters:
@@ -9927,7 +9927,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaaktype_destroy
+      operationId: zaaktype_delete
       description: Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
       summary: Verwijder een ZAAKTYPE.
       parameters:

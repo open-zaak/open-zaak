@@ -395,7 +395,7 @@ paths:
           description: Internal server error
   /applicaties/{uuid}:
     get:
-      operationId: applicatie_retrieve
+      operationId: applicatie_read
       description: |-
         De autorisaties zijn gedefinieerd op een specifieke component, bijvoorbeeld het ZRC, en geven aan welke scopes van toepassing zijn voor dit component. De waarde van de `component` bepaalt ook welke verdere informatie ingesloten is, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.
 
@@ -875,7 +875,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: applicatie_destroy
+      operationId: applicatie_delete
       description: Na het verwijderen wordt een notificatie verstuurd.
       summary: Verwijder een applicatie met de bijhorende autorisaties.
       parameters:
@@ -1010,7 +1010,7 @@ paths:
           description: Internal server error
   /applicaties/consumer:
     get:
-      operationId: applicaties_consumer
+      operationId: applicatie_consumer
       description: Gegeven een `clientId`, via de query string, zoek de bijbehorende
         applicatie op. Het antwoord bevat de applicatie met ingesloten autorisaties.
       summary: Vraag een applicatie op, op basis van clientId

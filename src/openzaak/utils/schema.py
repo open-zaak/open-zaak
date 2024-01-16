@@ -184,6 +184,12 @@ class AutoSchema(_AutoSchema):
         if hasattr(self.view, "basename"):
             basename = self.view.basename
             action = "head" if self.method == "HEAD" else self.view.action
+            # make compatible with old OAS
+            if action == "destroy":
+                action = "delete"
+            elif action == "retrieve":
+                action = "read"
+
             return f"{basename}_{action}"
         return super().get_operation_id()
 
@@ -191,7 +197,7 @@ class AutoSchema(_AutoSchema):
         """
         return dictionary of error codes and correspondent error serializers
         - define status codes based on exceptions for each endpoint
-        - define error serialzers based on status code
+        - define error serializers based on status code
         """
 
         # only supports viewsets

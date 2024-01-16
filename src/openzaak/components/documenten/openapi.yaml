@@ -914,7 +914,7 @@ paths:
           description: Internal server error
   /enkelvoudiginformatieobjecten/{enkelvoudiginformatieobject_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_retrieve
+      operationId: audittrail_read
       description: Een specifieke audit trail regel opvragen.
       summary: Een specifieke audit trail regel opvragen.
       parameters:
@@ -1059,7 +1059,7 @@ paths:
           description: Internal server error
   /enkelvoudiginformatieobjecten/{uuid}:
     get:
-      operationId: enkelvoudiginformatieobject_retrieve
+      operationId: enkelvoudiginformatieobject_read
       description: Het object bevat metadata over het document en de downloadlink
         (`inhoud`) naar de binary data. Dit geeft standaard de laatste versie van
         het (ENKELVOUDIG) INFORMATIEOBJECT. Specifieke versies kunnen middels query-string
@@ -1594,7 +1594,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Request entity too large
     delete:
-      operationId: enkelvoudiginformatieobject_destroy
+      operationId: enkelvoudiginformatieobject_delete
       description: |
         Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT en alle bijbehorende versies, samen met alle gerelateerde resources binnen deze API. Dit is alleen mogelijk als er geen OBJECTINFORMATIEOBJECTen relateerd zijn aan het (ENKELVOUDIG) INFORMATIEOBJECT.
 
@@ -2822,7 +2822,7 @@ paths:
           description: Internal server error
   /gebruiksrechten/{uuid}:
     get:
-      operationId: gebruiksrechten_retrieve
+      operationId: gebruiksrechten_read
       description: Een specifieke GEBRUIKSRECHT opvragen.
       summary: Een specifieke GEBRUIKSRECHT opvragen.
       parameters:
@@ -3329,7 +3329,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: gebruiksrechten_destroy
+      operationId: gebruiksrechten_delete
       description: |-
         **Opmerkingen**
         - Indien het laatste GEBRUIKSRECHT van een INFORMATIEOBJECT verwijderd wordt, dan wordt de `indicatieGebruiksrecht` van het INFORMATIEOBJECT op `null` gezet.
@@ -3827,7 +3827,7 @@ paths:
           description: Internal server error
   /objectinformatieobjecten/{uuid}:
     get:
-      operationId: objectinformatieobject_retrieve
+      operationId: objectinformatieobject_read
       description: Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
       summary: Een specifieke OBJECT-INFORMATIEOBJECT relatie opvragen.
       parameters:
@@ -4320,7 +4320,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: objectinformatieobject_destroy
+      operationId: objectinformatieobject_delete
       description: |-
         **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
 
@@ -4829,7 +4829,7 @@ paths:
           description: Internal server error
   /verzendingen/{uuid}:
     get:
-      operationId: verzending_retrieve
+      operationId: verzending_read
       description: Een specifieke VERZENDING opvragen.
       summary: Een specifieke VERZENDING opvragen.
       parameters:
@@ -5316,7 +5316,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: verzending_destroy
+      operationId: verzending_delete
       description: Verwijder een VERZENDING.
       summary: Verwijder een VERZENDING.
       parameters:

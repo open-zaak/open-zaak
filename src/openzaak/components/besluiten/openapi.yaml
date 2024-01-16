@@ -565,7 +565,7 @@ paths:
           description: Internal server error
   /besluiten/{besluit_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_retrieve
+      operationId: audittrail_read
       description: Een specifieke audit trail
       summary: Een specifieke audit trail regel opvragen.
       parameters:
@@ -710,7 +710,7 @@ paths:
           description: Internal server error
   /besluiten/{uuid}:
     get:
-      operationId: besluit_retrieve
+      operationId: besluit_read
       description: Een specifiek BESLUIT opvragen.
       summary: Een specifiek BESLUIT opvragen.
       parameters:
@@ -1231,7 +1231,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: besluit_destroy
+      operationId: besluit_delete
       description: |
         Verwijder een BESLUIT samen met alle gerelateerde resources binnen deze API.
 
@@ -1744,7 +1744,7 @@ paths:
           description: Internal server error
   /besluitinformatieobjecten/{uuid}:
     get:
-      operationId: besluitinformatieobject_retrieve
+      operationId: besluitinformatieobject_read
       description: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       summary: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       parameters:
@@ -1904,7 +1904,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: besluitinformatieobject_destroy
+      operationId: besluitinformatieobject_delete
       description: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
       summary: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
       parameters:

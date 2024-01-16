@@ -151,7 +151,7 @@ class ApplicatieViewSet(
         return super().paginator
 
     @extend_schema(
-        "applicaties_consumer",
+        "applicatie_consumer",
         summary="Vraag een applicatie op, op basis van clientId",
         description=(
             "Gegeven een `clientId`, via de query string, zoek de bijbehorende applicatie "
@@ -162,7 +162,7 @@ class ApplicatieViewSet(
             **COMMON_ERROR_RESPONSES,
         },
     )
-    @action(methods=("get",), detail=False, name="applicaties_consumer")
+    @action(methods=("get",), detail=False, name="applicatie_consumer")
     def consumer(self, request, *args, **kwargs):
         """
         Vraag een applicatie op, op basis van clientId

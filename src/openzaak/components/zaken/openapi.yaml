@@ -558,7 +558,7 @@ paths:
           description: Internal server error
   /klantcontacten/{uuid}:
     get:
-      operationId: klantcontact_retrieve
+      operationId: klantcontact_read
       description: |-
         Een specifiek KLANTCONTACT bij een ZAAK opvragen.
 
@@ -1012,7 +1012,7 @@ paths:
           description: Internal server error
   /resultaten/{uuid}:
     get:
-      operationId: resultaat_retrieve
+      operationId: resultaat_read
       description: Een specifiek RESULTAAT opvragen.
       summary: Een specifiek RESULTAAT opvragen.
       parameters:
@@ -1525,7 +1525,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: resultaat_destroy
+      operationId: resultaat_delete
       description: Verwijder een RESULTAAT van een ZAAK.
       summary: Verwijder een RESULTAAT van een ZAAK.
       parameters:
@@ -2108,7 +2108,7 @@ paths:
           description: Internal server error
   /rollen/{uuid}:
     get:
-      operationId: rol_retrieve
+      operationId: rol_read
       description: Een specifieke ROL bij een ZAAK opvragen.
       summary: Een specifieke ROL bij een ZAAK opvragen.
       parameters:
@@ -2268,7 +2268,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: rol_destroy
+      operationId: rol_delete
       description: Verwijder een ROL van een ZAAK.
       summary: Verwijder een ROL van een ZAAK.
       parameters:
@@ -2782,7 +2782,7 @@ paths:
           description: Internal server error
   /statussen/{uuid}:
     get:
-      operationId: status_retrieve
+      operationId: status_read
       description: Een specifieke STATUS van een ZAAK opvragen.
       summary: Een specifieke STATUS van een ZAAK opvragen.
       parameters:
@@ -3297,7 +3297,7 @@ paths:
           description: Internal server error
   /zaakcontactmomenten/{uuid}:
     get:
-      operationId: zaakcontactmoment_retrieve
+      operationId: zaakcontactmoment_read
       description: Een specifiek ZAAKCONTACTMOMENT opvragen.
       summary: Een specifiek ZAAKCONTACTMOMENT opvragen.
       parameters:
@@ -3435,7 +3435,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakcontactmoment_destroy
+      operationId: zaakcontactmoment_delete
       description: Verwijder een ZAAKCONTACTMOMENT.
       summary: Verwijder een ZAAKCONTACTMOMENT.
       parameters:
@@ -3901,7 +3901,7 @@ paths:
           description: Internal server error
   /zaakinformatieobjecten/{uuid}:
     get:
-      operationId: zaakinformatieobject_retrieve
+      operationId: zaakinformatieobject_read
       description: Een specifieke ZAAK-INFORMATIEOBJECT relatie opvragen.
       summary: Een specifieke ZAAK-INFORMATIEOBJECT relatie opvragen.
       parameters:
@@ -4416,7 +4416,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakinformatieobject_destroy
+      operationId: zaakinformatieobject_delete
       description: De gespiegelde relatie in de Documenten API wordt door de Zaken
         API verwijderd. Consumers kunnen dit niet handmatig doen.
       summary: Verwijder een ZAAK-INFORMATIEOBJECT relatie.
@@ -4962,7 +4962,7 @@ paths:
           description: Internal server error
   /zaakobjecten/{uuid}:
     get:
-      operationId: zaakobject_retrieve
+      operationId: zaakobject_read
       description: Een specifiek ZAAKOBJECT opvragen.
       summary: Een specifiek ZAAKOBJECT opvragen.
       parameters:
@@ -5434,7 +5434,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakobject_destroy
+      operationId: zaakobject_delete
       description: Verbreek de relatie tussen een ZAAK en een OBJECT door de ZAAKOBJECT
         resource te verwijderen.
       summary: Verwijder een ZAAKOBJECT.
@@ -5876,7 +5876,7 @@ paths:
           description: Internal server error
   /zaakverzoeken/{uuid}:
     get:
-      operationId: zaakverzoek_retrieve
+      operationId: zaakverzoek_read
       description: Een specifiek ZAAK-VERZOEK opvragen.
       summary: Een specifiek ZAAK-VERZOEK opvragen.
       parameters:
@@ -6014,7 +6014,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakverzoek_destroy
+      operationId: zaakverzoek_delete
       description: Verwijder een ZAAK-VERZOEK.
       summary: Verwijder een ZAAK-VERZOEK.
       parameters:
@@ -6923,7 +6923,7 @@ paths:
           description: Internal server error
   /zaken/{uuid}:
     get:
-      operationId: zaak_retrieve
+      operationId: zaak_read
       description: Een specifieke ZAAK opvragen.
       summary: Een specifieke ZAAK opvragen.
       parameters:
@@ -7564,7 +7564,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaak_destroy
+      operationId: zaak_delete
       description: |
         **De gerelateerde resources zijn hierbij**
         - `zaak` - de deelzaken van de verwijderde hoofzaak
@@ -7938,7 +7938,7 @@ paths:
           description: Internal server error
   /zaken/{zaak_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_retrieve
+      operationId: audittrail_read
       description: Een specifieke audit trail regel opvragen.
       summary: Een specifieke audit trail regel opvragen.
       parameters:
@@ -8398,7 +8398,7 @@ paths:
           description: Internal server error
   /zaken/{zaak_uuid}/besluiten/{uuid}:
     get:
-      operationId: zaakbesluit_retrieve
+      operationId: zaakbesluit_read
       description: Een specifiek ZAAKBESLUIT opvragen.
       summary: Een specifiek ZAAKBESLUIT opvragen.
       parameters:
@@ -8543,7 +8543,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakbesluit_destroy
+      operationId: zaakbesluit_delete
       description: |-
         **LET OP: Dit endpoint hoor je als consumer niet zelf aan te spreken.**
 
@@ -9006,7 +9006,7 @@ paths:
           description: Internal server error
   /zaken/{zaak_uuid}/zaakeigenschappen/{uuid}:
     get:
-      operationId: zaakeigenschap_retrieve
+      operationId: zaakeigenschap_read
       description: Een specifieke ZAAKEIGENSCHAP opvragen.
       summary: Een specifieke ZAAKEIGENSCHAP opvragen.
       parameters:
@@ -9520,7 +9520,7 @@ paths:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
     delete:
-      operationId: zaakeigenschap_destroy
+      operationId: zaakeigenschap_delete
       description: Verwijder een ZAAKEIGENSCHAP.
       summary: Verwijder een ZAAKEIGENSCHAP.
       parameters:
