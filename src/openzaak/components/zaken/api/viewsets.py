@@ -755,21 +755,19 @@ class ZaakInformatieObjectViewSet(
                 )
 
 
+@extend_schema(parameters=[ZAAK_UUID_PARAMETER])
 @extend_schema_view(
     list=extend_schema(
         summary="Alle ZAAKEIGENSCHAPpen opvragen.",
         description="Alle ZAAKEIGENSCHAPpen opvragen.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     retrieve=extend_schema(
         summary="Een specifieke ZAAKEIGENSCHAP opvragen.",
         description="Een specifieke ZAAKEIGENSCHAP opvragen.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     create=extend_schema(
         summary="Maak een ZAAKEIGENSCHAP aan.",
         description="Maak een ZAAKEIGENSCHAP aan.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
@@ -778,7 +776,6 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "- Alleen de WAARDE mag gewijzigd worden"
         ),
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP deels bij.",
@@ -787,12 +784,10 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "- Alleen de WAARDE mag gewijzigd worden"
         ),
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKEIGENSCHAP.",
         description="Verwijder een ZAAKEIGENSCHAP.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
 )
 @conditional_retrieve()
@@ -1044,16 +1039,15 @@ class ResultaatViewSet(
     audit = AUDIT_ZRC
 
 
+@extend_schema(parameters=[ZAAK_UUID_PARAMETER])
 @extend_schema_view(
     list=extend_schema(
         summary="Alle audit trail regels behorend bij de ZAAK.",
         description="Alle audit trail regels behorend bij de ZAAK.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     retrieve=extend_schema(
         summary="Een specifieke audit trail regel opvragen.",
         description="Een specifieke audit trail regel opvragen.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
 )
 class ZaakAuditTrailViewSet(AuditTrailViewSet):
@@ -1065,16 +1059,15 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     permission_classes = (AuthRequired,)
 
 
+@extend_schema(parameters=[ZAAK_UUID_PARAMETER])
 @extend_schema_view(
     list=extend_schema(
         summary="Alle ZAAKBESLUITen opvragen.",
         description="Alle ZAAKBESLUITen opvragen.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     retrieve=extend_schema(
         summary="Een specifiek ZAAKBESLUIT opvragen.",
         description="Een specifiek ZAAKBESLUIT opvragen.",
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     create=extend_schema(
         summary="Maak een ZAAKBESLUIT aan.",
@@ -1087,7 +1080,6 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "**Er wordt gevalideerd op**\n"
             "- geldigheid URL naar de ZAAK"
         ),
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKBESLUIT.",
@@ -1097,7 +1089,6 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "De Besluiten API gebruikt dit endpoint om relaties te synchroniseren, "
             "daarom is dit endpoint in de Zaken API geimplementeerd."
         ),
-        parameters=[ZAAK_UUID_PARAMETER],
     ),
 )
 class ZaakBesluitViewSet(

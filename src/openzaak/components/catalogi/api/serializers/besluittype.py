@@ -2,10 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.text import gettext_lazy as _
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
-from ...models import BesluitType, InformatieObjectType
+from ...models import BesluitType, InformatieObjectType, ResultaatType, ZaakType
 from ..validators import (
     ConceptUpdateValidator,
     GeldigheidValidator,

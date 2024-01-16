@@ -26,21 +26,6 @@ from ..serializers import CatalogusSerializer
     create=extend_schema(
         summary="Maak een CATALOGUS aan.", description="Maak een CATALOGUS aan."
     ),
-    update=extend_schema(
-        summary="Werk een CATALOGUS in zijn geheel bij.",
-        description="Werk een CATALOGUS in zijn geheel bij.",
-    ),
-    partial_update=extend_schema(
-        summary="Werk een CATALOGUS deels bij.",
-        description="Werk een CATALOGUS deels bij.",
-    ),
-    destroy=extend_schema(
-        summary="Verwijder een CATALOGUS.",
-        description=(
-            "Verwijder een CATALOGUS. Dit kan alleen als er geen onderliggende "
-            "ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn zijn."
-        ),
-    ),
 )
 @conditional_retrieve()
 class CatalogusViewSet(
@@ -64,5 +49,4 @@ class CatalogusViewSet(
         "list": SCOPE_CATALOGI_READ,
         "retrieve": SCOPE_CATALOGI_READ,
         "create": SCOPE_CATALOGI_WRITE,
-        "destroy": SCOPE_CATALOGI_WRITE,
     }
