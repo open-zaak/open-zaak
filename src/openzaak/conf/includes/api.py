@@ -50,6 +50,7 @@ SPECTACULAR_SETTINGS = {
     },
     "ENUM_GENERATE_CHOICE_DESCRIPTION": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    "DEFAULT_GENERATOR_CLASS": "openzaak.utils.generators.SchemaGenerator",
 }
 
 

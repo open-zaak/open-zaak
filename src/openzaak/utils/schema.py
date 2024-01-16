@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import typing
-from typing import Dict, List, Type
+from typing import Dict, List, Optional, Type
 
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -183,7 +183,8 @@ class AutoSchema(_AutoSchema):
         """
         if hasattr(self.view, "basename"):
             basename = self.view.basename
-            return f"{basename}_{self.view.action}"
+            action = "head" if self.method == "HEAD" else self.view.action
+            return f"{basename}_{action}"
         return super().get_operation_id()
 
     def get_error_responses(self) -> Dict[int, Type[serializers.Serializer]]:
@@ -230,9 +231,14 @@ class AutoSchema(_AutoSchema):
 
         return responses
 
-    def get_response_serializers(self) -> Dict[int, Type[serializers.Serializer]]:
+    def get_response_serializers(
+        self,
+    ) -> Dict[int, Optional[Type[serializers.Serializer]]]:
         """append error serializers"""
         response_serializers = super().get_response_serializers()
+
+        if self.method == "HEAD":
+            return {200: None}
 
         if self.method == "DELETE":
             status_code = 204
@@ -575,3 +581,15 @@ class AutoSchema(_AutoSchema):
         ]
 
         return request_headers + response_headers
+
+    def get_summary(self):
+        if self.method == "HEAD":
+            return _("De headers voor een specifiek(e) %(model)s opvragen ") % {
+                "model": self.view.queryset.model._meta.verbose_name.upper()
+            }
+        return super().get_summary()
+
+    def get_description(self):
+        if self.method == "HEAD":
+            return _("Vraag de headers op die je bij een GET request zou krijgen.")
+        return super().get_description()
