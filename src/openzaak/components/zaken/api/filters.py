@@ -125,6 +125,10 @@ class ZaakFilter(FilterSet):
         }
 
 
+class ZaakDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=ZaakSerializer)
+
+
 class RolFilter(FilterSet):
     betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
         field_name="natuurlijkpersoon__inp_bsn",
