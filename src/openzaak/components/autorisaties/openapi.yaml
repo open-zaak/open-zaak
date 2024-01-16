@@ -1,84 +1,124 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Autorisaties API
-  description: "Een API om een autorisatiecomponent (AC) te benaderen.\n\nDe `AUTORISATIE`\
-    \ is het kernobject in deze API. Autorisaties worden toegekend\naan applicaties.\
-    \ Een applicatie is een representatie van een (web) app die\ncommuniceert met\
-    \ de API van (andere) componenten, zoals het ZRC, DRC, ZTC en\nBRC.\n\nDeze API\
-    \ laat toe om autorisaties van een (taak)applicatie te beheren en uit\nte lezen.\n\
-    \n**Afhankelijkheden**\n\nDeze API is afhankelijk van:\n\n* Notificaties API\n\
-    \n\n### Autorisatie\n\nDeze API vereist autorisatie.\n\n_Zelf een token genereren_\n\
-    \nDe tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io)\
-    \ (JSON web\ntoken). In de API calls moeten deze gebruikt worden in de `Authorization`\n\
-    header:\n\n```\nAuthorization: Bearer <token>\n```\n\nOm een JWT te genereren\
-    \ heb je een `client ID` en een `secret` nodig. Het JWT\nmoet gebouwd worden volgens\
-    \ het `HS256` algoritme. De vereiste payload is:\n\n```json\n{\n    \"iss\": \"\
-    <client ID>\",\n    \"iat\": 1572863906,\n    \"client_id\": \"<client ID>\",\n\
-    \    \"user_id\": \"<user identifier>\",\n    \"user_representation\": \"<user\
-    \ representation>\"\n}\n```\n\nAls `issuer` gebruik je dus je eigen client ID.\
-    \ De `iat` timestamp is een\nUNIX-timestamp die aangeeft op welk moment het token\
-    \ gegenereerd is.\n\n`user_id` en `user_representation` zijn nodig voor de audit\
-    \ trails. Het zijn\nvrije velden met als enige beperking dat de lengte maximaal\
-    \ de lengte van\nde overeenkomstige velden in de audit trail resources is (zie\
-    \ rest API spec).\n\n\n### Notificaties\n\nDeze API publiceert notificaties op\
-    \ het kanaal `autorisaties`.\n\n**Main resource**\n\n`applicatie`\n\n\n\n**Kenmerken**\n\
-    \n\n\n**Resources en acties**\n- `applicatie`: create, update, destroy\n\n\n**Handige\
-    \ links**\n\n* [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)\n\
-    * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)\n* [Zaakgericht\
-    \ werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)\n\
-    * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)\n"
+  version: 1.0.0
+  description: |
+    Een API om een autorisatiecomponent (AC) te benaderen.
+
+    De `AUTORISATIE` is het kernobject in deze API. Autorisaties worden toegekend
+    aan applicaties. Een applicatie is een representatie van een (web) app die
+    communiceert met de API van (andere) componenten, zoals het ZRC, DRC, ZTC en
+    BRC.
+
+    Deze API laat toe om autorisaties van een (taak)applicatie te beheren en uit
+    te lezen.
+
+    **Afhankelijkheden**
+
+    Deze API is afhankelijk van:
+
+    * Notificaties API
+
+
+    ### Autorisatie
+
+    Deze API vereist autorisatie.
+
+    _Zelf een token genereren_
+
+    De tokens die gebruikt worden voor autorisatie zijn [JWT's](https://jwt.io) (JSON web
+    token). In de API calls moeten deze gebruikt worden in de `Authorization`
+    header:
+
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    Om een JWT te genereren heb je een `client ID` en een `secret` nodig. Het JWT
+    moet gebouwd worden volgens het `HS256` algoritme. De vereiste payload is:
+
+    ```json
+    {
+        "iss": "<client ID>",
+        "iat": 1572863906,
+        "client_id": "<client ID>",
+        "user_id": "<user identifier>",
+        "user_representation": "<user representation>"
+    }
+    ```
+
+    Als `issuer` gebruik je dus je eigen client ID. De `iat` timestamp is een
+    UNIX-timestamp die aangeeft op welk moment het token gegenereerd is.
+
+    `user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn
+    vrije velden met als enige beperking dat de lengte maximaal de lengte van
+    de overeenkomstige velden in de audit trail resources is (zie rest API spec).
+
+
+    ### Notificaties
+
+    Deze API publiceert notificaties op het kanaal `autorisaties`.
+
+    **Main resource**
+
+    `applicatie`
+
+
+
+    **Kenmerken**
+
+
+
+    **Resources en acties**
+    - `applicatie`: create, update, destroy
+
+
+    **Handige links**
+
+    * [API-documentatie](https://vng-realisatie.github.io/gemma-zaken/standaard/)
+    * [Open Zaak documentatie](https://open-zaak.readthedocs.io/en/latest/)
+    * [Zaakgericht werken](https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken)
+    * [Open Zaak GitHub](https://github.com/open-zaak/open-zaak)
   contact:
-    url: https://www.maykinmedia.nl
     email: support@maykinmedia.nl
+    url: https://www.maykinmedia.nl
   license:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
-  version: 1.0.0
-security:
-- JWT-Claims: []
 paths:
   /applicaties:
     get:
       operationId: applicatie_list
+      description: |-
+        De autorisaties zijn gedefinieerd op een specifieke component, bijvoorbeeld het ZRC, en geven aan welke scopes van toepassing zijn voor dit component. De waarde van de `component` bepaalt ook welke verdere informatie ingesloten is, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.
+
+        In dit voorbeeld gelden er dus zaaktype-specifieke scopes en mogen zaken van het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding dan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.
+
+        De collectie kan doorzocht worden met de ``clientIds`` query parameter.
       summary: Geef een collectie van applicaties, met ingesloten autorisaties.
-      description: 'De autorisaties zijn gedefinieerd op een specifieke component,
-        bijvoorbeeld
-
-        het ZRC, en geven aan welke scopes van toepassing zijn voor dit component.
-
-        De waarde van de `component` bepaalt ook welke verdere informatie ingesloten
-
-        is, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.
-
-
-        In dit voorbeeld gelden er dus zaaktype-specifieke scopes en mogen zaken
-
-        van het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding
-
-        dan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.
-
-
-        De collectie kan doorzocht worden met de ``clientIds`` query parameter.'
       parameters:
-      - name: clientIds
-        in: query
-        description: Multiple values may be separated by commas.
-        required: false
+      - in: query
+        name: clientIds
         schema:
           type: array
           items:
             type: string
-        style: form
+        description: Multiple values may be separated by commas.
         explode: false
+        style: form
       - name: page
+        required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
-        required: false
         schema:
           type: integer
+      tags:
+      - applicaties
+      security:
+      - JWT-Claims:
+        - autorisaties.lezen
       responses:
         '200':
-          description: OK
           headers:
             API-version:
               schema:
@@ -88,76 +128,147 @@ paths:
           content:
             application/json:
               schema:
-                required:
-                - count
-                - results
-                type: object
-                properties:
-                  count:
-                    type: integer
-                  next:
-                    type: string
-                    format: uri
-                    nullable: true
-                  previous:
-                    type: string
-                    format: uri
-                    nullable: true
-                  results:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Applicatie'
+                $ref: '#/components/schemas/PaginatedApplicatieList'
+          description: OK
         '400':
-          $ref: '#/components/responses/400'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
         '401':
-          $ref: '#/components/responses/401'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/403'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
         '406':
-          $ref: '#/components/responses/406'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
         '409':
-          $ref: '#/components/responses/409'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
         '410':
-          $ref: '#/components/responses/410'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
         '415':
-          $ref: '#/components/responses/415'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
         '429':
-          $ref: '#/components/responses/429'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
         '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.lezen
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
     post:
       operationId: applicatie_create
+      description: |-
+        Indien `heeftAlleAutorisaties` gezet is, dan moet je `autorisaties` leeg (of weg) laten.
+
+        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de waarde `false` hebben of weggelaten worden.
+
+        Na het aanmaken wordt een notificatie verstuurd.
       summary: Registreer een applicatie met een bepaalde set van autorisaties.
-      description: 'Indien `heeftAlleAutorisaties` gezet is, dan moet je
-
-        `autorisaties` leeg (of weg) laten.
-
-
-        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de
-
-        waarde `false` hebben of weggelaten worden.
-
-
-        Na het aanmaken wordt een notificatie verstuurd.'
       parameters:
-      - name: Content-Type
-        in: header
-        description: Content type van de verzoekinhoud.
-        required: true
+      - in: header
+        name: Content-Type
         schema:
           type: string
           enum:
           - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - applicaties
       requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicatieRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - autorisaties.bijwerken
       responses:
         '201':
-          description: Created
           headers:
             API-version:
               schema:
@@ -173,52 +284,754 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Applicatie'
+          description: Created
         '400':
-          $ref: '#/components/responses/400'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
         '401':
-          $ref: '#/components/responses/401'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/403'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
         '406':
-          $ref: '#/components/responses/406'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
         '409':
-          $ref: '#/components/responses/409'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
         '410':
-          $ref: '#/components/responses/410'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
         '415':
-          $ref: '#/components/responses/415'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
         '429':
-          $ref: '#/components/responses/429'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
         '500':
-          $ref: '#/components/responses/500'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+  /applicaties/{uuid}:
+    get:
+      operationId: applicatie_retrieve
+      description: |-
+        De autorisaties zijn gedefinieerd op een specifieke component, bijvoorbeeld het ZRC, en geven aan welke scopes van toepassing zijn voor dit component. De waarde van de `component` bepaalt ook welke verdere informatie ingesloten is, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.
+
+        In dit voorbeeld gelden er dus zaaktype-specifieke scopes en mogen zaken van het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding dan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.
+      summary: Vraag een applicatie op, met ingesloten autorisaties.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique resource identifier (UUID4)
+        required: true
+      tags:
+      - applicaties
+      security:
+      - JWT-Claims:
+        - autorisaties.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicatie'
+          description: OK
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    put:
+      operationId: applicatie_update
+      description: |-
+        Indien `heeftAlleAutorisaties` gezet is, dan moet je `autorisaties` leeg (of weg) laten.
+
+        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de waarde `false` hebben of weggelaten worden.
+
+        Na het bijwerken wordt een notificatie verstuurd.
+      summary: Werk de applicatie bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique resource identifier (UUID4)
+        required: true
+      tags:
+      - applicaties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicatieRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - autorisaties.bijwerken
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicatie'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    patch:
+      operationId: applicatie_partial_update
+      description: |-
+        Indien `autorisaties` meegegeven is, dan worden de bestaande `autorisaties` vervangen met de nieuwe set van `autorisaties`.
+
+        Indien `heeftAlleAutorisaties` gezet is, dan moet je `autorisaties` leeg (of weg) laten.
+
+        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de waarde `false` hebben of weggelaten worden.
+
+        Na het bijwerken wordt een notificatie verstuurd.
+      summary: Werk (een deel van) de applicatie bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique resource identifier (UUID4)
+        required: true
+      tags:
+      - applicaties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicatieRequest'
+      security:
+      - JWT-Claims:
+        - autorisaties.bijwerken
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicatie'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    delete:
+      operationId: applicatie_destroy
+      description: Na het verwijderen wordt een notificatie verstuurd.
+      summary: Verwijder een applicatie met de bijhorende autorisaties.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unique resource identifier (UUID4)
+        required: true
       tags:
       - applicaties
       security:
       - JWT-Claims:
         - autorisaties.bijwerken
-    parameters: []
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /applicaties/consumer:
     get:
-      operationId: applicatie_consumer
+      operationId: applicaties_consumer
+      description: Gegeven een `clientId`, via de query string, zoek de bijbehorende
+        applicatie op. Het antwoord bevat de applicatie met ingesloten autorisaties.
       summary: Vraag een applicatie op, op basis van clientId
-      description: 'Gegeven een `clientId`, via de query string, zoek de bijbehorende
-        applicatie
-
-        op. Het antwoord bevat de applicatie met ingesloten autorisaties.'
       parameters:
-      - name: clientId
-        in: query
-        description: Geef het client ID op waarvoor je de applicatie wil opvragen.
-        required: true
+      - in: query
+        name: clientId
         schema:
           type: array
           items:
             type: string
-        style: form
+        description: Geef het client ID op waarvoor je de applicatie wil opvragen.
+        required: true
         explode: false
+        style: form
+      tags:
+      - applicaties
+      security:
+      - JWT-Claims:
+        - autorisaties.lezen
       responses:
         '200':
-          description: OK
           headers:
             API-version:
               schema:
@@ -231,52 +1044,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Applicatie'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '406':
-          $ref: '#/components/responses/406'
-        '409':
-          $ref: '#/components/responses/409'
-        '410':
-          $ref: '#/components/responses/410'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.lezen
-    parameters: []
-  /applicaties/{uuid}:
-    get:
-      operationId: applicatie_read
-      summary: Vraag een applicatie op, met ingesloten autorisaties.
-      description: 'De autorisaties zijn gedefinieerd op een specifieke component,
-        bijvoorbeeld
-
-        het ZRC, en geven aan welke scopes van toepassing zijn voor dit component.
-
-        De waarde van de `component` bepaalt ook welke verdere informatie ingesloten
-
-        is, zoals `zaaktype` en `maxVertrouwelijkheidaanduiding` voor het ZRC.
-
-
-        In dit voorbeeld gelden er dus zaaktype-specifieke scopes en mogen zaken
-
-        van het betreffende zaaktype met een striktere vertrouwelijkheidaanduiding
-
-        dan `maxVertrouwelijkheidaanduiding` niet ontsloten worden.'
-      responses:
-        '200':
           description: OK
+        '401':
           headers:
             API-version:
               schema:
@@ -284,60 +1053,11 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/Applicatie'
-        '401':
-          $ref: '#/components/responses/401'
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
         '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '406':
-          $ref: '#/components/responses/406'
-        '409':
-          $ref: '#/components/responses/409'
-        '410':
-          $ref: '#/components/responses/410'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.lezen
-    put:
-      operationId: applicatie_update
-      summary: Werk de applicatie bij.
-      description: 'Indien `heeftAlleAutorisaties` gezet is, dan moet je
-
-        `autorisaties` leeg (of weg) laten.
-
-
-        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de
-
-        waarde `false` hebben of weggelaten worden.
-
-
-        Na het bijwerken wordt een notificatie verstuurd.'
-      parameters:
-      - name: Content-Type
-        in: header
-        description: Content type van de verzoekinhoud.
-        required: true
-        schema:
-          type: string
-          enum:
-          - application/json
-      requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
-      responses:
-        '200':
-          description: OK
           headers:
             API-version:
               schema:
@@ -345,67 +1065,11 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/Applicatie'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
         '406':
-          $ref: '#/components/responses/406'
-        '409':
-          $ref: '#/components/responses/409'
-        '410':
-          $ref: '#/components/responses/410'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.bijwerken
-    patch:
-      operationId: applicatie_partial_update
-      summary: Werk (een deel van) de applicatie bij.
-      description: 'Indien `autorisaties` meegegeven is, dan worden de bestaande `autorisaties`
-
-        vervangen met de nieuwe set van `autorisaties`.
-
-
-        Indien `heeftAlleAutorisaties` gezet is, dan moet je
-
-        `autorisaties` leeg (of weg) laten.
-
-
-        Indien je `autorisaties` meegeeft, dan moet `heeftAlleAutorisaties` de
-
-        waarde `false` hebben of weggelaten worden.
-
-
-        Na het bijwerken wordt een notificatie verstuurd.'
-      parameters:
-      - name: Content-Type
-        in: header
-        description: Content type van de verzoekinhoud.
-        required: true
-        schema:
-          type: string
-          enum:
-          - application/json
-      requestBody:
-        $ref: '#/components/requestBodies/Applicatie'
-      responses:
-        '200':
-          description: OK
           headers:
             API-version:
               schema:
@@ -413,526 +1077,452 @@ paths:
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/Applicatie'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '406':
-          $ref: '#/components/responses/406'
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
         '409':
-          $ref: '#/components/responses/409'
-        '410':
-          $ref: '#/components/responses/410'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.bijwerken
-    delete:
-      operationId: applicatie_delete
-      summary: Verwijder een applicatie met de bijhorende autorisaties.
-      description: Na het verwijderen wordt een notificatie verstuurd.
-      responses:
-        '204':
-          description: No content
           headers:
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '406':
-          $ref: '#/components/responses/406'
-        '409':
-          $ref: '#/components/responses/409'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
         '410':
-          $ref: '#/components/responses/410'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
         '415':
-          $ref: '#/components/responses/415'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
         '429':
-          $ref: '#/components/responses/429'
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
         '500':
-          $ref: '#/components/responses/500'
-      tags:
-      - applicaties
-      security:
-      - JWT-Claims:
-        - autorisaties.bijwerken
-    parameters:
-    - name: uuid
-      in: path
-      description: Unique resource identifier (UUID4)
-      required: true
-      schema:
-        type: string
-        format: uuid
-tags:
-- name: applicaties
-  description: ''
-- name: consumer
-  description: ''
-servers:
-- url: /autorisaties/api/v1
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
 components:
-  responses:
-    '400':
-      description: Bad request
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/ValidatieFout'
-    '401':
-      description: Unauthorized
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '403':
-      description: Forbidden
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '404':
-      description: Not found
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '406':
-      description: Not acceptable
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '409':
-      description: Conflict
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '410':
-      description: Gone
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '412':
-      description: Precondition failed
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '415':
-      description: Unsupported media type
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '429':
-      description: Too many requests
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-    '500':
-      description: Internal server error
-      headers:
-        API-version:
-          schema:
-            type: string
-          description: 'Geeft een specifieke API-versie aan in de context van een
-            specifieke aanroep. Voorbeeld: 1.2.1.'
-      content:
-        application/problem+json:
-          schema:
-            $ref: '#/components/schemas/Fout'
-  requestBodies:
+  schemas:
     Applicatie:
-      content:
-        application/json:
-          schema:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+          min_length: 1
+          max_length: 1000
+        clientIds:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+          description: Lijst van consumer identifiers (hun 'client_id'). Een `client_id`
+            mag slechts bij één applicatie-object voorkomen.
+        label:
+          type: string
+          description: Een leesbare representatie van de applicatie, voor eindgebruikers.
+          maxLength: 100
+        heeftAlleAutorisaties:
+          type: boolean
+          description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
+            individueel opgegeven te worden. Gebruik dit alleen als je de consumer
+            helemaal vertrouwt.
+        autorisaties:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutorisatieBase'
+      required:
+      - clientIds
+      - label
+    ApplicatieRequest:
+      type: object
+      properties:
+        clientIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Lijst van consumer identifiers (hun 'client_id'). Een `client_id`
+            mag slechts bij één applicatie-object voorkomen.
+        label:
+          type: string
+          minLength: 1
+          description: Een leesbare representatie van de applicatie, voor eindgebruikers.
+          maxLength: 100
+        heeftAlleAutorisaties:
+          type: boolean
+          description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
+            individueel opgegeven te worden. Gebruik dit alleen als je de consumer
+            helemaal vertrouwt.
+        autorisaties:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutorisatieBaseRequest'
+      required:
+      - clientIds
+      - label
+    AutorisatieBase:
+      oneOf:
+      - $ref: '#/components/schemas/zrc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/drc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/brc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/nrc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/ztc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/ac_AutorisatieBaseSerializer'
+      discriminator:
+        propertyName: component
+        mapping:
+          zrc: '#/components/schemas/zrc_AutorisatieBaseSerializer'
+          drc: '#/components/schemas/drc_AutorisatieBaseSerializer'
+          brc: '#/components/schemas/brc_AutorisatieBaseSerializer'
+          nrc: '#/components/schemas/nrc_AutorisatieBaseSerializer'
+          ztc: '#/components/schemas/ztc_AutorisatieBaseSerializer'
+          ac: '#/components/schemas/ac_AutorisatieBaseSerializer'
+    AutorisatieBaseRequest:
+      oneOf:
+      - $ref: '#/components/schemas/zrc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/drc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/brc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/nrc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/ztc_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/ac_AutorisatieBaseSerializer'
+      discriminator:
+        propertyName: component
+        mapping:
+          zrc: '#/components/schemas/zrc_AutorisatieBaseSerializer'
+          drc: '#/components/schemas/drc_AutorisatieBaseSerializer'
+          brc: '#/components/schemas/brc_AutorisatieBaseSerializer'
+          nrc: '#/components/schemas/nrc_AutorisatieBaseSerializer'
+          ztc: '#/components/schemas/ztc_AutorisatieBaseSerializer'
+          ac: '#/components/schemas/ac_AutorisatieBaseSerializer'
+    Base_AutorisatieBaseSerializer:
+      type: object
+      properties:
+        component:
+          allOf:
+          - $ref: '#/components/schemas/ComponentEnum'
+          description: |-
+            Component waarop autorisatie van toepassing is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `ac` - Autorisaties API
+            * `nrc` - Notificaties API
+            * `zrc` - Zaken API
+            * `ztc` - Catalogi API
+            * `drc` - Documenten API
+            * `brc` - Besluiten API
+            * `cmc` - Contactmomenten API
+            * `kc` - Klanten API
+            * `vrc` - Verzoeken API
+        componentWeergave:
+          type: string
+          readOnly: true
+          description: Omschrijving van `component`.
+        scopes:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          description: Lijst van scope labels. Elke scope geeft toegang tot een set
+            van acties/operaties, zoals gedocumenteerd bij de betreffende component.
+      required:
+      - component
+      - scopes
+    BlankEnum:
+      enum:
+      - ''
+    ComponentEnum:
+      enum:
+      - ac
+      - nrc
+      - zrc
+      - ztc
+      - drc
+      - brc
+      - cmc
+      - kc
+      - vrc
+      type: string
+    FieldValidationError:
+      type: object
+      description: Formaat van validatiefouten.
+      properties:
+        name:
+          type: string
+          description: Naam van het veld met ongeldige gegevens
+        code:
+          type: string
+          description: Systeemcode die het type fout aangeeft
+        reason:
+          type: string
+          description: Uitleg wat er precies fout is met de gegevens
+      required:
+      - code
+      - name
+      - reason
+    Fout:
+      type: object
+      description: Formaat van HTTP 4xx en 5xx fouten.
+      properties:
+        type:
+          type: string
+          description: URI referentie naar het type fout, bedoeld voor developers
+        code:
+          type: string
+          description: Systeemcode die het type fout aangeeft
+        title:
+          type: string
+          description: Generieke titel voor het type fout
+        status:
+          type: integer
+          description: De HTTP status code
+        detail:
+          type: string
+          description: Extra informatie bij de fout, indien beschikbaar
+        instance:
+          type: string
+          description: URI met referentie naar dit specifiek voorkomen van de fout.
+            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+      required:
+      - code
+      - detail
+      - instance
+      - status
+      - title
+    MaxVertrouwelijkheidaanduidingEnum:
+      enum:
+      - openbaar
+      - beperkt_openbaar
+      - intern
+      - zaakvertrouwelijk
+      - vertrouwelijk
+      - confidentieel
+      - geheim
+      - zeer_geheim
+      type: string
+    PaginatedApplicatieList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
             $ref: '#/components/schemas/Applicatie'
-      required: true
+    PatchedApplicatieRequest:
+      type: object
+      properties:
+        clientIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          description: Lijst van consumer identifiers (hun 'client_id'). Een `client_id`
+            mag slechts bij één applicatie-object voorkomen.
+        label:
+          type: string
+          minLength: 1
+          description: Een leesbare representatie van de applicatie, voor eindgebruikers.
+          maxLength: 100
+        heeftAlleAutorisaties:
+          type: boolean
+          description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
+            individueel opgegeven te worden. Gebruik dit alleen als je de consumer
+            helemaal vertrouwt.
+        autorisaties:
+          type: array
+          items:
+            $ref: '#/components/schemas/AutorisatieBaseRequest'
+    ValidatieFout:
+      type: object
+      description: Formaat van HTTP 4xx en 5xx fouten.
+      properties:
+        type:
+          type: string
+          description: URI referentie naar het type fout, bedoeld voor developers
+        code:
+          type: string
+          description: Systeemcode die het type fout aangeeft
+        title:
+          type: string
+          description: Generieke titel voor het type fout
+        status:
+          type: integer
+          description: De HTTP status code
+        detail:
+          type: string
+          description: Extra informatie bij de fout, indien beschikbaar
+        instance:
+          type: string
+          description: URI met referentie naar dit specifiek voorkomen van de fout.
+            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldValidationError'
+      required:
+      - code
+      - detail
+      - instance
+      - invalidParams
+      - status
+      - title
+    ac_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+    brcAutorisatie:
+      type: object
+      properties:
+        besluittype:
+          type: string
+          format: uri
+          description: URL naar het besluittype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+    brcAutorisatieRequest:
+      type: object
+      properties:
+        besluittype:
+          type: string
+          format: uri
+          description: URL naar het besluittype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+    brc_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/brcAutorisatie'
+    drcAutorisatie:
+      type: object
+      properties:
+        informatieobjecttype:
+          type: string
+          format: uri
+          description: URL naar het informatieobjecttype waarop de autorisatie van
+            toepassing is.
+          maxLength: 1000
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    drcAutorisatieRequest:
+      type: object
+      properties:
+        informatieobjecttype:
+          type: string
+          format: uri
+          description: URL naar het informatieobjecttype waarop de autorisatie van
+            toepassing is.
+          maxLength: 1000
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    drc_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/drcAutorisatie'
+    nrc_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+    zrcAutorisatie:
+      type: object
+      properties:
+        zaaktype:
+          type: string
+          format: uri
+          description: URL naar het zaaktype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    zrcAutorisatieRequest:
+      type: object
+      properties:
+        zaaktype:
+          type: string
+          format: uri
+          description: URL naar het zaaktype waarop de autorisatie van toepassing
+            is.
+          maxLength: 1000
+        maxVertrouwelijkheidaanduiding:
+          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
+          oneOf:
+          - $ref: '#/components/schemas/MaxVertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+    zrc_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/zrcAutorisatie'
+    ztc_AutorisatieBaseSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
   securitySchemes:
     JWT-Claims:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  schemas:
-    AutorisatieBase:
-      required:
-      - component
-      - scopes
-      type: object
-      properties:
-        component:
-          title: Component
-          description: 'Component waarop autorisatie van toepassing is.
-
-
-            Uitleg bij mogelijke waarden:
-
-
-            * `ac` - Autorisaties API
-
-            * `nrc` - Notificaties API
-
-            * `zrc` - Zaken API
-
-            * `ztc` - Catalogi API
-
-            * `drc` - Documenten API
-
-            * `brc` - Besluiten API
-
-            * `cmc` - Contactmomenten API
-
-            * `kc` - Klanten API
-
-            * `vrc` - Verzoeken API'
-          type: string
-          enum:
-          - ac
-          - nrc
-          - zrc
-          - ztc
-          - drc
-          - brc
-          - cmc
-          - kc
-          - vrc
-        componentWeergave:
-          title: Component weergave
-          description: Omschrijving van `component`.
-          type: string
-          readOnly: true
-          minLength: 1
-        scopes:
-          description: Lijst van scope labels. Elke scope geeft toegang tot een set
-            van acties/operaties, zoals gedocumenteerd bij de betreffende component.
-          type: array
-          items:
-            title: Scopes
-            type: string
-            maxLength: 100
-            minLength: 1
-      discriminator:
-        propertyName: component
-    zrcAutorisatie:
-      type: object
-      properties:
-        zaaktype:
-          title: Zaaktype
-          description: URL naar het zaaktype waarop de autorisatie van toepassing
-            is.
-          type: string
-          format: uri
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          title: Max vertrouwelijkheidaanduiding
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          type: string
-          enum:
-          - openbaar
-          - beperkt_openbaar
-          - intern
-          - zaakvertrouwelijk
-          - vertrouwelijk
-          - confidentieel
-          - geheim
-          - zeer_geheim
-    zrc:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/zrcAutorisatie'
-    drcAutorisatie:
-      type: object
-      properties:
-        informatieobjecttype:
-          title: Informatieobjecttype
-          description: URL naar het informatieobjecttype waarop de autorisatie van
-            toepassing is.
-          type: string
-          format: uri
-          maxLength: 1000
-        maxVertrouwelijkheidaanduiding:
-          title: Max vertrouwelijkheidaanduiding
-          description: Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).
-          type: string
-          enum:
-          - openbaar
-          - beperkt_openbaar
-          - intern
-          - zaakvertrouwelijk
-          - vertrouwelijk
-          - confidentieel
-          - geheim
-          - zeer_geheim
-    drc:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/drcAutorisatie'
-    brcAutorisatie:
-      type: object
-      properties:
-        besluittype:
-          title: Besluittype
-          description: URL naar het besluittype waarop de autorisatie van toepassing
-            is.
-          type: string
-          format: uri
-          maxLength: 1000
-    brc:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/brcAutorisatie'
-    nrcAutorisatie:
-      type: object
-      properties: {}
-    nrc:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/nrcAutorisatie'
-    ztcAutorisatie:
-      type: object
-      properties: {}
-    ztc:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/ztcAutorisatie'
-    acAutorisatie:
-      type: object
-      properties: {}
-    ac:
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/AutorisatieBase'
-      - $ref: '#/components/schemas/acAutorisatie'
-    Applicatie:
-      required:
-      - clientIds
-      - label
-      type: object
-      properties:
-        url:
-          title: Url
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
-          type: string
-          format: uri
-          readOnly: true
-          maxLength: 1000
-          minLength: 1
-        clientIds:
-          description: "Lijst van consumer identifiers (hun 'client_id'). Een `client_id`\
-            \ mag slechts bij \xE9\xE9n applicatie-object voorkomen."
-          type: array
-          items:
-            title: Client ids
-            type: string
-            maxLength: 50
-            minLength: 1
-        label:
-          title: Label
-          description: Een leesbare representatie van de applicatie, voor eindgebruikers.
-          type: string
-          maxLength: 100
-          minLength: 1
-        heeftAlleAutorisaties:
-          title: Heeft alle autorisaties
-          description: Indien alle autorisaties gegeven zijn, dan hoeven deze niet
-            individueel opgegeven te worden. Gebruik dit alleen als je de consumer
-            helemaal vertrouwt.
-          type: boolean
-        autorisaties:
-          type: array
-          items:
-            $ref: '#/components/schemas/AutorisatieBase'
-    Fout:
-      required:
-      - code
-      - title
-      - status
-      - detail
-      - instance
-      type: object
-      properties:
-        type:
-          title: Type
-          description: URI referentie naar het type fout, bedoeld voor developers
-          type: string
-        code:
-          title: Code
-          description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
-        title:
-          title: Title
-          description: Generieke titel voor het type fout
-          type: string
-          minLength: 1
-        status:
-          title: Status
-          description: De HTTP status code
-          type: integer
-        detail:
-          title: Detail
-          description: Extra informatie bij de fout, indien beschikbaar
-          type: string
-          minLength: 1
-        instance:
-          title: Instance
-          description: URI met referentie naar dit specifiek voorkomen van de fout.
-            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
-          type: string
-          minLength: 1
-    FieldValidationError:
-      required:
-      - name
-      - code
-      - reason
-      type: object
-      properties:
-        name:
-          title: Name
-          description: Naam van het veld met ongeldige gegevens
-          type: string
-          minLength: 1
-        code:
-          title: Code
-          description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
-        reason:
-          title: Reason
-          description: Uitleg wat er precies fout is met de gegevens
-          type: string
-          minLength: 1
-    ValidatieFout:
-      required:
-      - code
-      - title
-      - status
-      - detail
-      - instance
-      - invalidParams
-      type: object
-      properties:
-        type:
-          title: Type
-          description: URI referentie naar het type fout, bedoeld voor developers
-          type: string
-        code:
-          title: Code
-          description: Systeemcode die het type fout aangeeft
-          type: string
-          minLength: 1
-        title:
-          title: Title
-          description: Generieke titel voor het type fout
-          type: string
-          minLength: 1
-        status:
-          title: Status
-          description: De HTTP status code
-          type: integer
-        detail:
-          title: Detail
-          description: Extra informatie bij de fout, indien beschikbaar
-          type: string
-          minLength: 1
-        instance:
-          title: Instance
-          description: URI met referentie naar dit specifiek voorkomen van de fout.
-            Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
-          type: string
-          minLength: 1
-        invalidParams:
-          type: array
-          items:
-            $ref: '#/components/schemas/FieldValidationError'
+servers:
+- url: /autorisaties/api/v1
