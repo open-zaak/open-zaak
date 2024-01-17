@@ -15,12 +15,13 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
     AuditTrailViewSet,
     AuditTrailViewsetMixin,
 )
+from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -203,6 +204,7 @@ class EnkelvoudigInformatieObjectViewSet(
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
     search_input_serializer_class = EIOZoekSerializer
+    filter_backends = (Backend,)
     permission_classes = (InformationObjectAuthRequired,)
     required_scopes = {
         "list": SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -374,7 +376,6 @@ class EnkelvoudigInformatieObjectViewSet(
         unlock_serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @swagger_auto_schema(request_body=EIOZoekSerializer)
     @action(methods=["post"], detail=False)
     def _zoek(self, request, *args, **kwargs):
         """
@@ -383,23 +384,21 @@ class EnkelvoudigInformatieObjectViewSet(
         Zoeken/filteren gaat normaal via de `list` operatie, deze is echter
         niet geschikt voor zoekopdrachten met UUIDs.
         """
-
-        # this method is not marked as is_search_action, because the DRC standard
-        # doesn't include LIST query params as possible request data attributes here
-        # The related issue which highlights it https://github.com/VNG-Realisatie/gemma-zaken/issues/2294
-        #
-        # For now we support only 'uuid__in' input parameter here to adhere to the standard OAS
-        # Even if the DRC reference implementation doesn't do it
+        if not request.data:
+            err = ErrorDetail(
+                _("Search parameters must be specified"), code="empty_search_body"
+            )
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
         search_input = self.get_search_input()
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
 
         for name, value in search_input.items():
             queryset = queryset.filter(**{name: value})
 
         return self.get_search_output(queryset)
 
-    _zoek.is_page_action = True
+    _zoek.is_search_action = True
 
 
 @cmis_conditional_retrieve()

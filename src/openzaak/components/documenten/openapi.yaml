@@ -338,7 +338,7 @@ paths:
         required: true
       responses:
         '200':
-          description: ''
+          description: OK
           headers:
             API-version:
               schema:
@@ -367,6 +367,36 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/EnkelvoudigInformatieObjectData'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '406':
+          $ref: '#/components/responses/406'
+        '409':
+          $ref: '#/components/responses/409'
+        '410':
+          $ref: '#/components/responses/410'
+        '413':
+          description: Request entity too large
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
       tags:
       - enkelvoudiginformatieobjecten
       security:
@@ -3219,6 +3249,19 @@ components:
           items:
             type: string
             format: uuid
+        identificatie:
+          title: Identificatie
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+          type: string
+          minLength: 1
+        bronorganisatie:
+          title: Bronorganisatie
+          description: "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie\
+            \ die het informatieobject heeft gecre\xEBerd of heeft ontvangen en als\
+            \ eerste in een samenwerkingsketen heeft vastgelegd."
+          type: string
+          minLength: 1
     EnkelvoudigInformatieObjectData:
       required:
       - bronorganisatie
