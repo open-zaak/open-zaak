@@ -27,7 +27,11 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
-from openzaak.utils.mixins import CMISConnectionPoolMixin, ConvertCMISAdapterExceptions
+from openzaak.utils.mixins import (
+    CMISConnectionPoolMixin,
+    ConvertCMISAdapterExceptions,
+    ExpandMixin,
+)
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
@@ -97,6 +101,7 @@ class EnkelvoudigInformatieObjectViewSet(
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     SearchMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
@@ -390,6 +395,10 @@ class EnkelvoudigInformatieObjectViewSet(
             )
             raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
+        expand_param = self.get_requested_inclusions(request)
+        if settings.CMIS_ENABLED and expand_param:
+            raise CMISNotSupportedException()
+
         search_input = self.get_search_input()
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -406,6 +415,7 @@ class GebruiksrechtenViewSet(
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailViewsetMixin,
@@ -643,6 +653,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
 @cmis_conditional_retrieve()
 class VerzendingViewSet(
     CheckQueryParamsMixin,
+    ExpandMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     # in the OAS there are no additional audittrail endpoints for verzending

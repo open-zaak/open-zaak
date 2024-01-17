@@ -570,6 +570,36 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unknown-parameters")
 
+    def test_list_expand(self):
+        verzending = VerzendingFactory.create()
+
+        verzending_data = self.client.get(reverse(verzending)).json()
+        io_data = self.client.get(reverse(verzending.get_informatieobject())).json()
+        iotype_data = self.client.get(
+            reverse(verzending.get_informatieobject().informatieobjecttype)
+        ).json()
+
+        response = self.client.get(
+            self.url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **verzending_data,
+                "_expand": {
+                    "informatieobject": {
+                        **io_data,
+                        "_expand": {"informatieobjecttype": iotype_data},
+                    }
+                },
+            }
+        ]
+        self.assertEqual(data, expected_results)
+
 
 @require_cmis
 @override_settings(CMIS_ENABLED=True)

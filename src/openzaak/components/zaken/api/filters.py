@@ -102,12 +102,7 @@ class ZaakFilter(FilterSet):
         help_text=_("Het veld waarop de resultaten geordend worden."),
     )
 
-    expand = ExpandFilter(
-        serializer_class=ZaakSerializer,
-        help_text=_(
-            "Sluit de gespecifieerde gerelateerde resources in in het antwoord. "
-        ),
-    )
+    expand = ExpandFilter(serializer_class=ZaakSerializer)
 
     class Meta:
         model = Zaak

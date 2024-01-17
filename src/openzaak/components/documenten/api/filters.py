@@ -11,6 +11,8 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.filters import ExpandFilter
+
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -18,12 +20,19 @@ from ..models import (
     ObjectInformatieObject,
     Verzending,
 )
+from .serializers import (
+    EnkelvoudigInformatieObjectSerializer,
+    GebruiksrechtenSerializer,
+    VerzendingSerializer,
+)
 from .utils import check_path
 
 logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
+
     class Meta:
         model = EnkelvoudigInformatieObject
         fields = ("identificatie", "bronorganisatie")
@@ -42,6 +51,7 @@ class GebruiksrechtenFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
     )
+    expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
 
     class Meta:
         model = Gebruiksrechten
@@ -112,6 +122,7 @@ class VerzendingFilter(FilterSet):
         instance_path="canonical",
         help_text=get_help_text("documenten.Verzending", "informatieobject"),
     )
+    expand = ExpandFilter(serializer_class=VerzendingSerializer)
 
     class Meta:
         model = Verzending

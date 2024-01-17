@@ -17,7 +17,6 @@ from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zgw_consumers.models import ServiceUrlField
@@ -29,7 +28,7 @@ from openzaak.utils.fields import (
     RelativeURLField,
     ServiceFkField,
 )
-from openzaak.utils.mixins import AuditTrailMixin, CMISClientMixin
+from openzaak.utils.mixins import APIMixin, AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
@@ -636,7 +635,7 @@ class BestandsDeel(models.Model):
         return self.inhoud.size == self.omvang
 
 
-class Gebruiksrechten(CMISETagMixin, models.Model, CMISClientMixin):
+class Gebruiksrechten(APIMixin, CMISETagMixin, models.Model, CMISClientMixin):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -972,7 +971,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(CMISETagMixin, models.Model):
+class Verzending(APIMixin, CMISETagMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,

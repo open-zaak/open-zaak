@@ -150,7 +150,7 @@ class ExpandLoader(InclusionLoader):
         # add parent nodes to the tree
         instances = (
             serializer.instance
-            if isinstance(serializer.instance, list)
+            if isinstance(serializer.instance, (list, models.QuerySet))
             else [serializer.instance]
         )
         for instance in instances:
@@ -331,10 +331,11 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 
         if render_data and "results" in render_data:
             serializer_data = render_data["results"]
+            serializer = getattr(serializer_data, "serializer", None)
         else:
             serializer_data = render_data
+            serializer = getattr(data, "serializer", None)
 
-        serializer = getattr(serializer_data, "serializer", None)
         # if there is no serializer (like for a viewset action())
         # we just pass the data through as-is
         if serializer is None:

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.utils.translation import gettext_lazy as _
+
 from django_filters import filters
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
@@ -33,6 +35,10 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
 
         kwargs.setdefault(
             "choices", get_expand_options_for_serializer(serializer_class)
+        )
+        kwargs.setdefault(
+            "help_text",
+            _("Sluit de gespecifieerde gerelateerde resources in in het antwoord. "),
         )
 
         super().__init__(*args, **kwargs)

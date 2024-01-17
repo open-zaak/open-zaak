@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.conf import settings
+
 from dictdiffer import diff
 from drc_cmis import client_builder
 from drc_cmis.connections import use_cmis_connection_pool
@@ -8,6 +10,7 @@ from vng_api_common.models import APIMixin as _APIMixin
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
+from .exceptions import CMISNotSupportedException
 from .expansion import ExpandJSONRenderer
 
 
@@ -98,3 +101,10 @@ class ExpandMixin:
         if request.method == "POST":
             return ",".join(request.data.get(self.expand_param, []))
         return request.GET.get(self.expand_param)
+
+    def list(self, request, *args, **kwargs):
+        expand_param = self.get_requested_inclusions(request)
+        if settings.CMIS_ENABLED and expand_param:
+            raise CMISNotSupportedException()
+
+        return super().list(request, *args, **kwargs)

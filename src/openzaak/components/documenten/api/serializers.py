@@ -17,7 +17,6 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
-from django_loose_fk.drf import FKOrURLField
 from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
@@ -33,7 +32,10 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
+from openzaak.utils.serializer_fields import (
+    FKOrServiceUrlField,
+    LengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 from openzaak.utils.validators import (
     IsImmutableValidator,
@@ -56,7 +58,6 @@ from ..models import (
     Verzending,
 )
 from ..query.cmis import flatten_gegevens_groep
-from ..query.django import InformatieobjectRelatedQuerySet
 from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
 from .scopes import SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN
@@ -67,6 +68,8 @@ from .validators import (
     UniekeIdentificatieValidator,
     VerzendingAddressValidator,
 )
+
+oz = "openzaak.components"
 
 
 class AnyFileType:
@@ -179,23 +182,6 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
     store the uuid
     """
 
-    def get_url(self, obj, view_name, request, format):
-        # obj is a EIOCanonical. If CMIS is enabled, it can't be used to retrieve the EIO latest version.
-        if settings.CMIS_ENABLED:
-            # self.parent is a serialiser, with instance Oio/Gebruiksrechten. These can be used to retrieve the EIO
-            if isinstance(self.parent.instance, Gebruiksrechten) or isinstance(
-                self.parent.instance, ObjectInformatieObject
-            ):
-                eio_latest_version = self.parent.instance.get_informatieobject()
-            # If self.parent.parent is a ListSerializer, self.parent.instance is a queryset rather than a
-            # gebruiksrechten/oio. The informatieobject URL cannot be retrieved. See issue #791
-            elif isinstance(self.parent.instance, InformatieobjectRelatedQuerySet):
-                return ""
-        else:
-            eio_latest_version = obj.latest_version
-
-        return super().get_url(eio_latest_version, view_name, request, format)
-
     def get_object(self, view_name, view_args, view_kwargs):
         lookup_value = view_kwargs[self.lookup_url_kwarg]
         lookup_kwargs = {self.lookup_field: lookup_value}
@@ -209,6 +195,9 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
             )
         except (TypeError, AttributeError):
             self.fail("does_not_exist")
+
+    def get_attribute(self, instance):
+        return instance.get_informatieobject()
 
 
 class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
@@ -289,7 +278,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
     )
-    informatieobjecttype = FKOrURLField(
+    informatieobjecttype = FKOrServiceUrlField(
         lookup_field="uuid",
         max_length=200,
         min_length=1,
@@ -323,6 +312,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     bestandsdelen = BestandsDeelSerializer(
         many=True, source="get_bestandsdelen", read_only=True,
     )
+
+    inclusion_serializers = {
+        "informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = EnkelvoudigInformatieObject
@@ -871,6 +864,11 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
     )
 
+    inclusion_serializers = {
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
+
     class Meta:
         model = Gebruiksrechten
         fields = (
@@ -1058,6 +1056,11 @@ class VerzendingSerializer(
             " afwijkt van de reguliere correspondentiegegevens van BETROKKENE."
         ),
     )
+
+    inclusion_serializers = {
+        "informatieobject": f"{oz}.documenten.api.serializers.EnkelvoudigInformatieObjectSerializer",
+        "informatieobject.informatieobjecttype": f"{oz}.catalogi.api.serializers.InformatieObjectTypeSerializer",
+    }
 
     class Meta:
         model = Verzending

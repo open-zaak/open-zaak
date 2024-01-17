@@ -5,7 +5,7 @@ import datetime
 from django.test import override_settings
 
 from rest_framework import status
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
@@ -205,3 +205,16 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
             "Aangepaste omschrijving voorwaarden",
             updated_gebruiksrechten_data["omschrijvingVoorwaarden"],
         )
+
+
+@require_cmis
+@override_settings(CMIS_ENABLED=True)
+class GebruiksrechtenFilterCMISTests(JWTAuthMixin, APICMISTestCase):
+    heeft_alle_autorisaties = True
+    url = reverse_lazy("gebruiksrechten-list")
+
+    def test_list_expand(self):
+        response = self.client.get(self.url, {"expand": "informatieobject"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["code"], "CMIS not supported")
