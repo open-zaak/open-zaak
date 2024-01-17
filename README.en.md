@@ -6,7 +6,7 @@
 
 | | | |
 |-|-|-|
-| **Version:** | 1.10.2 |
+| **Version:** | 1.10.3 |
 | **Source:** | https://github.com/open-zaak/open-zaak |
 | **Keywords:** | zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api |
 | **PythonVersion:** | 3.10 |
