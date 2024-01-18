@@ -1038,7 +1038,7 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     url = reverse_lazy(EnkelvoudigInformatieObject)
 
-    def test_expand(self):
+    def test_list_expand(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
         eio_data = self.client.get(reverse(eio)).json()
@@ -1052,4 +1052,23 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         expected_results = [
             {**eio_data, "_expand": {"informatieobjecttype": iotype_data}}
         ]
+        self.assertEqual(data, expected_results)
+
+    def test_retrieve_expand(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        url = reverse(eio)
+
+        eio_data = self.client.get(reverse(eio)).json()
+        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+
+        response = self.client.get(url, {"expand": "informatieobjecttype"},)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_results = {
+            **eio_data,
+            "_expand": {"informatieobjecttype": iotype_data},
+        }
+
         self.assertEqual(data, expected_results)
