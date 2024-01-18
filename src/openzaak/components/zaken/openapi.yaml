@@ -1426,21 +1426,6 @@ paths:
       operationId: zaakcontactmoment_list
       summary: Alle ZAAKCONTACTMOMENTen opvragen.
       description: Alle ZAAKCONTACTMOMENTen opvragen.
-      parameters:
-      - name: zaak
-        in: query
-        description: URL-referentie naar de ZAAK.
-        required: false
-        schema:
-          type: string
-          format: uri
-      - name: contactmoment
-        in: query
-        description: URL-referentie naar het CONTACTMOMENT (in de CMC API)
-        required: false
-        schema:
-          type: string
-          format: uri
       responses:
         '200':
           description: OK
@@ -1456,8 +1441,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ZaakContactMoment'
-        '400':
-          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1656,22 +1639,6 @@ paths:
       operationId: zaakinformatieobject_list
       summary: Alle ZAAK-INFORMATIEOBJECT relaties opvragen.
       description: Deze lijst kan gefilterd wordt met querystringparameters.
-      parameters:
-      - name: zaak
-        in: query
-        description: URL-referentie naar de ZAAK.
-        required: false
-        schema:
-          type: string
-          format: uri
-      - name: informatieobject
-        in: query
-        description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten API),
-          waar ook de relatieinformatie opgevraagd kan worden.
-        required: false
-        schema:
-          type: string
-          format: uri
       responses:
         '200':
           description: OK
@@ -1687,8 +1654,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ZaakInformatieObject'
-        '400':
-          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -2493,21 +2458,6 @@ paths:
       operationId: zaakverzoek_list
       summary: Alle ZAAK-VERZOEK opvragen.
       description: Alle ZAAK-VERZOEK opvragen.
-      parameters:
-      - name: zaak
-        in: query
-        description: URL-referentie naar de ZAAK.
-        required: false
-        schema:
-          type: string
-          format: uri
-      - name: verzoek
-        in: query
-        description: URL-referentie naar het VERZOEK (in de Klantinteractie API)
-        required: false
-        schema:
-          type: string
-          format: uri
       responses:
         '200':
           description: OK
@@ -2523,8 +2473,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ZaakVerzoek'
-        '400':
-          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -3375,6 +3323,410 @@ paths:
           type: string
           enum:
           - application/json
+      - name: identificatie
+        in: query
+        description: De unieke identificatie van de ZAAK binnen de organisatie die
+          verantwoordelijk is voor de behandeling van de ZAAK.
+        required: false
+        schema:
+          type: string
+      - name: bronorganisatie
+        in: query
+        description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+          die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
+          en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+        required: false
+        schema:
+          type: string
+      - name: bronorganisatie__in
+        in: query
+        description: Multiple values may be separated by commas.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+      - name: zaaktype
+        in: query
+        description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: archiefnominatie
+        in: query
+        description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
+          termijn vernietigd moet worden.
+        required: false
+        schema:
+          type: string
+          enum:
+          - blijvend_bewaren
+          - vernietigen
+      - name: archiefnominatie__in
+        in: query
+        description: Multiple values may be separated by commas.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+      - name: archiefactiedatum
+        in: query
+        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
+          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
+          deze ZAAK indien nog leeg.
+        required: false
+        schema:
+          type: string
+      - name: archiefactiedatum__lt
+        in: query
+        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
+          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
+          deze ZAAK indien nog leeg.
+        required: false
+        schema:
+          type: string
+      - name: archiefactiedatum__gt
+        in: query
+        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
+          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
+          deze ZAAK indien nog leeg.
+        required: false
+        schema:
+          type: string
+      - name: archiefactiedatum__isnull
+        in: query
+        description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+          worden dan wel overgebracht moet worden naar een archiefbewaarplaats. Wordt
+          automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT aan
+          deze ZAAK indien nog leeg.
+        required: false
+        schema:
+          type: string
+      - name: archiefstatus
+        in: query
+        description: Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde
+          termijn vernietigd moet worden.
+        required: false
+        schema:
+          type: string
+          enum:
+          - nog_te_archiveren
+          - gearchiveerd
+          - gearchiveerd_procestermijn_onbekend
+          - overgedragen
+      - name: archiefstatus__in
+        in: query
+        description: Multiple values may be separated by commas.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
+      - name: startdatum
+        in: query
+        description: De datum waarop met de uitvoering van de zaak is gestart
+        required: false
+        schema:
+          type: string
+      - name: startdatum__gt
+        in: query
+        description: De datum waarop met de uitvoering van de zaak is gestart
+        required: false
+        schema:
+          type: string
+      - name: startdatum__gte
+        in: query
+        description: De datum waarop met de uitvoering van de zaak is gestart
+        required: false
+        schema:
+          type: string
+      - name: startdatum__lt
+        in: query
+        description: De datum waarop met de uitvoering van de zaak is gestart
+        required: false
+        schema:
+          type: string
+      - name: startdatum__lte
+        in: query
+        description: De datum waarop met de uitvoering van de zaak is gestart
+        required: false
+        schema:
+          type: string
+      - name: registratiedatum
+        in: query
+        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+          gebruikt.
+        required: false
+        schema:
+          type: string
+      - name: registratiedatum__gt
+        in: query
+        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+          gebruikt.
+        required: false
+        schema:
+          type: string
+      - name: registratiedatum__lt
+        in: query
+        description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+          geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+          gebruikt.
+        required: false
+        schema:
+          type: string
+      - name: einddatum
+        in: query
+        description: De datum waarop de uitvoering van de zaak afgerond is.
+        required: false
+        schema:
+          type: string
+      - name: einddatum__gt
+        in: query
+        description: De datum waarop de uitvoering van de zaak afgerond is.
+        required: false
+        schema:
+          type: string
+      - name: einddatum__lt
+        in: query
+        description: De datum waarop de uitvoering van de zaak afgerond is.
+        required: false
+        schema:
+          type: string
+      - name: einddatum__isnull
+        in: query
+        description: De datum waarop de uitvoering van de zaak afgerond is.
+        required: false
+        schema:
+          type: string
+      - name: einddatumGepland
+        in: query
+        description: De datum waarop volgens de planning verwacht wordt dat de zaak
+          afgerond wordt.
+        required: false
+        schema:
+          type: string
+      - name: einddatumGepland__gt
+        in: query
+        description: De datum waarop volgens de planning verwacht wordt dat de zaak
+          afgerond wordt.
+        required: false
+        schema:
+          type: string
+      - name: einddatumGepland__lt
+        in: query
+        description: De datum waarop volgens de planning verwacht wordt dat de zaak
+          afgerond wordt.
+        required: false
+        schema:
+          type: string
+      - name: uiterlijkeEinddatumAfdoening
+        in: query
+        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
+          dient te zijn.
+        required: false
+        schema:
+          type: string
+      - name: uiterlijkeEinddatumAfdoening__gt
+        in: query
+        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
+          dient te zijn.
+        required: false
+        schema:
+          type: string
+      - name: uiterlijkeEinddatumAfdoening__lt
+        in: query
+        description: De laatste datum waarop volgens wet- en regelgeving de zaak afgerond
+          dient te zijn.
+        required: false
+        schema:
+          type: string
+      - name: rol__betrokkeneType
+        in: query
+        description: Type van de `betrokkene`.
+        required: false
+        schema:
+          type: string
+          enum:
+          - natuurlijk_persoon
+          - niet_natuurlijk_persoon
+          - vestiging
+          - organisatorische_eenheid
+          - medewerker
+      - name: rol__betrokkene
+        in: query
+        description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+        required: false
+        schema:
+          type: string
+          format: uri
+      - name: rol__omschrijvingGeneriek
+        in: query
+        description: Algemeen gehanteerde benaming van de aard van de ROL, afgeleid
+          uit het ROLTYPE.
+        required: false
+        schema:
+          type: string
+          enum:
+          - adviseur
+          - behandelaar
+          - belanghebbende
+          - beslisser
+          - initiator
+          - klantcontacter
+          - zaakcoordinator
+          - mede_initiator
+      - name: maximaleVertrouwelijkheidaanduiding
+        in: query
+        description: Zaken met een vertrouwelijkheidaanduiding die beperkter is dan
+          de aangegeven aanduiding worden uit de resultaten gefiltered.
+        required: false
+        schema:
+          type: string
+          enum:
+          - openbaar
+          - beperkt_openbaar
+          - intern
+          - zaakvertrouwelijk
+          - vertrouwelijk
+          - confidentieel
+          - geheim
+          - zeer_geheim
+      - name: rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn
+        in: query
+        description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet algemene
+          bepalingen burgerservicenummer.
+        required: false
+        schema:
+          type: string
+          maxLength: 9
+      - name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
+        in: query
+        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+          NATUURLIJK PERSOON
+        required: false
+        schema:
+          type: string
+          maxLength: 17
+      - name: rol__betrokkeneIdentificatie__natuurlijkPersoon__inpA_nummer
+        in: query
+        description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+        required: false
+        schema:
+          type: string
+          maxLength: 10
+      - name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
+        in: query
+        description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+          NIET-NATUURLIJK PERSOON
+        required: false
+        schema:
+          type: string
+      - name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie
+        in: query
+        description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+          NIET-NATUURLIJK PERSOON
+        required: false
+        schema:
+          type: string
+          maxLength: 17
+      - name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
+        in: query
+        description: Een korte unieke aanduiding van de Vestiging.
+        required: false
+        schema:
+          type: string
+          maxLength: 24
+      - name: rol__betrokkeneIdentificatie__medewerker__identificatie
+        in: query
+        description: Een korte unieke aanduiding van de MEDEWERKER.
+        required: false
+        schema:
+          type: string
+          maxLength: 24
+      - name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
+        in: query
+        description: Een korte identificatie van de organisatorische eenheid.
+        required: false
+        schema:
+          type: string
+      - name: ordering
+        in: query
+        description: Het veld waarop de resultaten geordend worden.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - startdatum
+            - -startdatum
+            - einddatum
+            - -einddatum
+            - publicatiedatum
+            - -publicatiedatum
+            - archiefactiedatum
+            - -archiefactiedatum
+            - registratiedatum
+            - -registratiedatum
+            - identificatie
+            - -identificatie
+        style: form
+        explode: false
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - zaaktype
+            - hoofdzaak
+            - deelzaken
+            - eigenschappen
+            - status
+            - resultaat
+            - rollen
+            - zaakinformatieobjecten
+            - zaakobjecten
+            - hoofdzaak.zaaktype
+            - hoofdzaak.status
+            - hoofdzaak.status.statustype
+            - hoofdzaak.resultaat
+            - hoofdzaak.resultaat.resultaattype
+            - hoofdzaak.rollen
+            - hoofdzaak.rollen.roltype
+            - hoofdzaak.zaakinformatieobjecten
+            - hoofdzaak.zaakobjecten
+            - deelzaken.zaaktype
+            - deelzaken.status
+            - deelzaken.status.statustype
+            - deelzaken.resultaat
+            - deelzaken.resultaat.resultaattype
+            - deelzaken.rollen
+            - deelzaken.rollen.roltype
+            - deelzaken.zaakinformatieobjecten
+            - deelzaken.zaakobjecten
+            - eigenschappen.eigenschap
+            - status.statustype
+            - resultaat.resultaattype
+            - rollen.roltype
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -3514,6 +3866,48 @@ paths:
       summary: Een specifieke ZAAK opvragen.
       description: Een specifieke ZAAK opvragen.
       parameters:
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - zaaktype
+            - hoofdzaak
+            - deelzaken
+            - eigenschappen
+            - status
+            - resultaat
+            - rollen
+            - zaakinformatieobjecten
+            - zaakobjecten
+            - hoofdzaak.zaaktype
+            - hoofdzaak.status
+            - hoofdzaak.status.statustype
+            - hoofdzaak.resultaat
+            - hoofdzaak.resultaat.resultaattype
+            - hoofdzaak.rollen
+            - hoofdzaak.rollen.roltype
+            - hoofdzaak.zaakinformatieobjecten
+            - hoofdzaak.zaakobjecten
+            - deelzaken.zaaktype
+            - deelzaken.status
+            - deelzaken.status.statustype
+            - deelzaken.resultaat
+            - deelzaken.resultaat.resultaattype
+            - deelzaken.rollen
+            - deelzaken.rollen.roltype
+            - deelzaken.zaakinformatieobjecten
+            - deelzaken.zaakobjecten
+            - eigenschappen.eigenschap
+            - status.statustype
+            - resultaat.resultaattype
+            - rollen.roltype
+        style: form
+        explode: false
       - name: Accept-Crs
         in: header
         description: Het gewenste 'Coordinate Reference System' (CRS) van de geometrie
@@ -3578,7 +3972,45 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Zaak'
+                type: object
+                allOf:
+                - $ref: '#/components/schemas/Zaak'
+                - type: object
+                  properties:
+                    _expand:
+                      description: Display details of the linked resources requested
+                        in the `expand` parameter
+                      type: object
+                      properties:
+                        zaaktype: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/ZaakType
+                        hoofdzaak:
+                          $ref: '#/components/schemas/Zaak'
+                        deelzaken:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Zaak'
+                        eigenschappen:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/ZaakEigenschap'
+                        status:
+                          $ref: '#/components/schemas/Status'
+                        resultaat:
+                          $ref: '#/components/schemas/Resultaat'
+                        rollen:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Rol'
+                        zaakinformatieobjecten:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/ZaakInformatieObject'
+                        zaakobjecten:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/ZaakObject'
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':

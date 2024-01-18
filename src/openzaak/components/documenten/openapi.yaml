@@ -346,6 +346,33 @@ paths:
           type: string
           enum:
           - application/json
+      - name: identificatie
+        in: query
+        description: Een binnen een gegeven context ondubbelzinnige referentie naar
+          het INFORMATIEOBJECT.
+        required: false
+        schema:
+          type: string
+      - name: bronorganisatie
+        in: query
+        description: "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie\
+          \ die het informatieobject heeft gecre\xEBerd of heeft ontvangen en als\
+          \ eerste in een samenwerkingsketen heeft vastgelegd."
+        required: false
+        schema:
+          type: string
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobjecttype
+        style: form
+        explode: false
       - name: page
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
@@ -554,6 +581,18 @@ paths:
           die qua `begin_registratie` het kortst hiervoor zit wordt opgehaald.
         schema:
           type: string
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobjecttype
+        style: form
+        explode: false
       - name: If-None-Match
         in: header
         description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
@@ -590,7 +629,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                type: object
+                allOf:
+                - $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+                - type: object
+                  properties:
+                    _expand:
+                      description: Display details of the linked resources requested
+                        in the `expand` parameter
+                      type: object
+                      properties:
+                        informatieobjecttype: https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/InformatieObjectType
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1296,6 +1347,19 @@ paths:
       summary: Een specifieke GEBRUIKSRECHT opvragen.
       description: Een specifieke GEBRUIKSRECHT opvragen.
       parameters:
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        style: form
+        explode: false
       - name: If-None-Match
         in: header
         description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
@@ -1332,7 +1396,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Gebruiksrechten'
+                type: object
+                allOf:
+                - $ref: '#/components/schemas/Gebruiksrechten'
+                - type: object
+                  properties:
+                    _expand:
+                      description: Display details of the linked resources requested
+                        in the `expand` parameter
+                      type: object
+                      properties:
+                        informatieobject:
+                          $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1593,22 +1670,6 @@ paths:
       operationId: objectinformatieobject_list
       summary: Alle OBJECT-INFORMATIEOBJECT relaties opvragen.
       description: Deze lijst kan gefilterd wordt met query-string parameters.
-      parameters:
-      - name: object
-        in: query
-        description: URL-referentie naar het gerelateerde OBJECT (in deze of een andere
-          API).
-        required: false
-        schema:
-          type: string
-          format: uri
-      - name: informatieobject
-        in: query
-        description: URL-referentie naar het INFORMATIEOBJECT.
-        required: false
-        schema:
-          type: string
-          format: uri
       responses:
         '200':
           description: OK
@@ -1624,8 +1685,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ObjectInformatieObject'
-        '400':
-          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -2167,6 +2226,19 @@ paths:
       summary: Een specifieke VERZENDING opvragen.
       description: Een specifieke VERZENDING opvragen.
       parameters:
+      - name: expand
+        in: query
+        description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - informatieobject
+            - informatieobject.informatieobjecttype
+        style: form
+        explode: false
       - name: If-None-Match
         in: header
         description: "Voer een voorwaardelijk verzoek uit. Deze header moet \xE9\xE9\
@@ -2203,7 +2275,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Verzending'
+                type: object
+                allOf:
+                - $ref: '#/components/schemas/Verzending'
+                - type: object
+                  properties:
+                    _expand:
+                      description: Display details of the linked resources requested
+                        in the `expand` parameter
+                      type: object
+                      properties:
+                        informatieobject:
+                          $ref: '#/components/schemas/EnkelvoudigInformatieObject'
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
