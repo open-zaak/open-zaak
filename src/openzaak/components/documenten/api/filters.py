@@ -43,6 +43,7 @@ class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
     registratie_op = filters.IsoDateTimeFilter(
         field_name="begin_registratie", lookup_expr="lte", label="begin_registratie"
     )
+    expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
 
 
 class GebruiksrechtenFilter(FilterSet):
@@ -60,6 +61,10 @@ class GebruiksrechtenFilter(FilterSet):
             "startdatum": ["lt", "lte", "gt", "gte"],
             "einddatum": ["lt", "lte", "gt", "gte"],
         }
+
+
+class GebruiksrechtenDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
 
 
 class ObjectFilter(FkOrUrlFieldFilter):
@@ -131,3 +136,7 @@ class VerzendingFilter(FilterSet):
             "informatieobject": ["exact"],
             "betrokkene": ["exact"],
         }
+
+
+class VerzendingDetailFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=VerzendingSerializer)

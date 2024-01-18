@@ -48,8 +48,10 @@ from .audits import AUDIT_DRC
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter,
+    GebruiksrechtenDetailFilter,
     GebruiksrechtenFilter,
     ObjectInformatieObjectFilter,
+    VerzendingDetailFilter,
     VerzendingFilter,
 )
 from .kanalen import KANAAL_DOCUMENTEN
@@ -468,7 +470,6 @@ class GebruiksrechtenViewSet(
         .all()
     )
     serializer_class = GebruiksrechtenSerializer
-    filterset_class = GebruiksrechtenFilter
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
     notifications_main_resource_key = "informatieobject"
@@ -484,6 +485,15 @@ class GebruiksrechtenViewSet(
     }
     audit = AUDIT_DRC
     audittrail_main_resource_key = "informatieobject"
+
+    @property
+    def filterset_class(self):
+        """
+        To support expand
+        """
+        if self.detail:
+            return GebruiksrechtenDetailFilter
+        return GebruiksrechtenFilter
 
 
 class EnkelvoudigInformatieObjectAuditTrailViewSet(
@@ -697,7 +707,6 @@ class VerzendingViewSet(
     queryset = Verzending.objects.select_related("informatieobject").order_by("-pk")
     serializer_class = VerzendingSerializer
     pagination_class = PageNumberPagination
-    filterset_class = VerzendingFilter
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
     notifications_main_resource_key = "informatieobject"
@@ -711,6 +720,15 @@ class VerzendingViewSet(
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
         "partial_update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    @property
+    def filterset_class(self):
+        """
+        To support expand
+        """
+        if self.detail:
+            return VerzendingDetailFilter
+        return VerzendingFilter
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:

@@ -108,3 +108,10 @@ class ExpandMixin:
             raise CMISNotSupportedException()
 
         return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        expand_param = self.get_requested_inclusions(request)
+        if settings.CMIS_ENABLED and expand_param:
+            raise CMISNotSupportedException()
+
+        return super().retrieve(request, *args, **kwargs)
