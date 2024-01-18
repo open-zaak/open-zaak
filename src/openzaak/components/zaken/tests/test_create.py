@@ -91,10 +91,13 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.zaakgeometrie.y, 52.37240093589432)
 
     def test_create_zaak_zonder_bronorganisatie(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         url = get_operation_url("zaak_create")
-        data = {"zaaktype": zaaktype_url, "registratiedatum": "2018-06-11"}
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "registratiedatum": "2018-06-11",
+        }
 
         response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
@@ -103,11 +106,11 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "required")
 
     def test_create_zaak_invalide_rsin(self):
-        zaaktype = ZaakTypeFactory.create()
+        zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         url = get_operation_url("zaak_create")
         data = {
-            "zaaktype": zaaktype_url,
+            "zaaktype": f"http://testserver{zaaktype_url}",
             "bronorganisatie": "123456789",
             "registratiedatum": "2018-06-11",
         }
@@ -511,45 +514,47 @@ class PerformanceTests(
          1 - 4: OpenIDConnectConfig (savepoint, SELECT, INSERT and savepoint release)
              5: Consult own internal service config (SELECT FROM config_internalservice)
              6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
-         7 - 8: Application/Autorisatie lookup for permission checks
-             9: Begin transaction (savepoint) (from NotificationsCreateMixin)
-            10: Savepoint for zaakidentificatie generation
-            11: advisory lock for zaakidentificatie generation
-            12: Query highest zaakidentificatie number at the moment
-            13: insert new zaakidentificatie
-            14: release savepoint
-            15: release savepoint (commit zaakidentificatie transaction)
-
-            16: savepoint for zaak creation
-         17-18: Lookup zaaktype for validation and cache it in serializer context
-         19-22: Check feature flag config (PublishValidator) (savepoint, select, insert
+           7-8: Lookup zaaktype, done by AuthRequired check of authorization fields
+          9-12: Check feature flag config (PublishValidator) (savepoint, select, insert
                 and savepoint release)
-            23: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            24: update zaakidentificatie record (from serializer context and earlier
+            13: Lookup zaaktype for permission checks
+         14-15: Application/Autorisatie lookup for permission checks
+             16: Begin transaction (savepoint) (from NotificationsCreateMixin)
+            17: Savepoint for zaakidentificatie generation
+            18: advisory lock for zaakidentificatie generation
+            19: Query highest zaakidentificatie number at the  moment
+            20: insert new zaakidentificatie
+            21: release savepoint
+            22: release savepoint (commit zaakidentificatie transaction)
+            23: savepoint for zaak creation
+         24-25: Lookup zaaktype for validation and cache it in serializer context
+            26: Select feature flag config (PublishValidator)
+            27: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            28: update zaakidentificatie record (from serializer context and earlier
                 generation)
-            25: insert zaken_zaak record
-         26-31: query related objects for etag update that may be affected (should be
+            29: insert zaken_zaak record
+         30-35: query related objects for etag update that may be affected (should be
                 skipped, it's create of root resource!) vng_api_common.caching.signals
-            32: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            33: select zaak rollen
-            34: select zaak statussen
-            35: select zaak zaakinformatieobjecten
-            36: select zaak zaakobjecten
-            37: select zaak kenmerken (nested inline create, can't avoid this)
-            38: insert audit trail
-         39-40: notifications, select created zaak (?), notifs config
-            41: release savepoint (from NotificationsCreateMixin)
-            42: select zaak relevantezaakrelatie (nested inline create)
-            43: select zaak kenmerken (nested inline create)
-            44: savepoint create transaction.on_commit ETag handler (start new transaction)
-            45: update ETag column of zaak
-            46: release savepoint (commit transaction)
+            36: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            37: select zaak rollen
+            38: select zaak status
+            39: select zaak zaakinformatieobjecten
+            40: select zaak zaakobjecten
+            41: select zaak kenmerken (nested inline create, can't avoid this)
+            42: insert audit trail
+         43-44: notifications, select created zaak (?), notifs config
+            45: release savepoint (from NotificationsCreateMixin)
+            46: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            47: select zaak kenmerken (nested inline create, can't avoid this)
+            48: savepoint create transaction.on_commit ETag handler (start new transaction)
+            49: update ETag column of zaak
+            50: release savepoint (commit transaction)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 46
+        EXPECTED_NUM_QUERIES = 50
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
