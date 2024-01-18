@@ -120,3 +120,13 @@ class AutoSchema(_AutoSchema):
     def is_deprecated(self):
         deprecation_message = getattr(self.view, "deprecation_message", None)
         return bool(deprecation_message) or super().is_deprecated()
+
+    def should_filter(self) -> bool:
+        """
+        support expand for detail views
+        """
+        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
+        if self.method == "GET" and include_allowed:
+            return True
+
+        return super().should_page()
