@@ -372,13 +372,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         ),
     )
 
-    resultaattoelichting = models.TextField(
-        _("resultaattoelichting"),
-        max_length=1000,
-        blank=True,
-        help_text=_("Een toelichting op wat het resultaat van de zaak inhoudt."),
-    )
-
     startdatum_bewaartermijn = models.DateField(
         _("startdatum bewaartermijn"),
         null=True,

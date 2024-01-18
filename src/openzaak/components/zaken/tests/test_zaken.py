@@ -591,7 +591,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "registratiedatum": "2018-12-24",
             "startdatum": "2018-12-24",
             "processobjectaard": "test object",
-            "resultaattoelichting": "test result",
             "startdatumBewaartermijn": "2019-08-24",
             "processobject": {
                 "datumkenmerk": "test data",
@@ -608,7 +607,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = Zaak.objects.get()
 
         self.assertEqual(zaak.processobjectaard, "test object")
-        self.assertEqual(zaak.resultaattoelichting, "test result")
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2019, 8, 24))
         self.assertEqual(zaak.processobject_datumkenmerk, "test data")
         self.assertEqual(zaak.processobject_identificatie, "12345")
@@ -706,7 +704,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "registratiedatum": "2018-12-24",
             "startdatum": "2018-12-24",
             "processobjectaard": "test object",
-            "resultaattoelichting": "test result",
             "startdatumBewaartermijn": "2019-08-24",
         }
 
