@@ -208,3 +208,33 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
             }
         ]
         self.assertEqual(data, expected_results)
+
+    def test_retreive_expand(self):
+        gebruiksrechten = GebruiksrechtenFactory.create()
+        url = reverse(gebruiksrechten)
+
+        gebruiksrechten_data = self.client.get(url).json()
+        io_data = self.client.get(
+            reverse(gebruiksrechten.get_informatieobject())
+        ).json()
+        iotype_data = self.client.get(
+            reverse(gebruiksrechten.get_informatieobject().informatieobjecttype)
+        ).json()
+
+        response = self.client.get(
+            url, {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        expected_results = {
+            **gebruiksrechten_data,
+            "_expand": {
+                "informatieobject": {
+                    **io_data,
+                    "_expand": {"informatieobjecttype": iotype_data},
+                }
+            },
+        }
+        self.assertEqual(data, expected_results)

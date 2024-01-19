@@ -94,7 +94,7 @@ class ExpandMixin:
     expand_param = "expand"
 
     def include_allowed(self):
-        return self.action in ["list", "_zoek"]
+        return self.action in ["list", "_zoek", "retrieve"]
 
     def get_requested_inclusions(self, request):
         # Pull expand parameter from request body in case of _zoek operation
@@ -108,3 +108,10 @@ class ExpandMixin:
             raise CMISNotSupportedException()
 
         return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        expand_param = self.get_requested_inclusions(request)
+        if settings.CMIS_ENABLED and expand_param:
+            raise CMISNotSupportedException()
+
+        return super().retrieve(request, *args, **kwargs)

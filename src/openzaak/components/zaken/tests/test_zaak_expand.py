@@ -187,6 +187,46 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         ]
         self.assertEqual(data, expected_results)
 
+    def test_zaak_retrieve_include(self):
+        """
+        Test for detail view
+        """
+        hoofdzaak = ZaakFactory(zaaktype=self.zaaktype)
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype, hoofdzaak=hoofdzaak)
+        zaak_status = StatusFactory(zaak=zaak)
+        resultaat = ResultaatFactory(zaak=zaak)
+        eigenschap = ZaakEigenschapFactory(zaak=zaak)
+
+        zaak_url = reverse(zaak)
+
+        zaak_data = self.client.get(zaak_url, **ZAAK_READ_KWARGS).json()
+        hoofdzaak_data = self.client.get(reverse(hoofdzaak), **ZAAK_READ_KWARGS).json()
+        zaaktype_data = self.client.get(reverse(self.zaaktype)).json()
+        status_data = self.client.get(reverse(zaak_status)).json()
+        resultaat_data = self.client.get(reverse(resultaat)).json()
+        eigenschap_data = self.client.get(
+            reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
+        ).json()
+
+        response = self.client.get(
+            zaak_url,
+            {"expand": "hoofdzaak,zaaktype,status,resultaat,eigenschappen"},
+            **ZAAK_READ_KWARGS,
+        )
+
+        data = response.json()
+        expected_results = {
+            **zaak_data,
+            "_expand": {
+                "zaaktype": zaaktype_data,
+                "hoofdzaak": hoofdzaak_data,
+                "eigenschappen": [eigenschap_data],
+                "status": status_data,
+                "resultaat": resultaat_data,
+            },
+        }
+        self.assertEqual(data, expected_results)
+
 
 @tag("external-urls", "expand")
 class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):

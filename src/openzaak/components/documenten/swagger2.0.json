@@ -429,6 +429,38 @@
                         }
                     },
                     {
+                        "name": "identificatie",
+                        "in": "query",
+                        "description": "Een binnen een gegeven context ondubbelzinnige referentie naar het INFORMATIEOBJECT.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "bronorganisatie",
+                        "in": "query",
+                        "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "description": "Een pagina binnen de gepagineerde set resultaten.",
@@ -709,6 +741,24 @@
                         "type": "string"
                     },
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "If-None-Match",
                         "in": "header",
                         "description": "Voer een voorwaardelijk verzoek uit. Deze header moet \u00e9\u00e9n of meerdere ETag-waardes bevatten van resources die de consumer gecached heeft. Indien de waarde van de ETag van de huidige resource voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer informatie.",
@@ -730,7 +780,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "_expand": {
+                                            "description": "Display details of the linked resources requested in the `expand` parameter",
+                                            "type": "object",
+                                            "properties": {
+                                                "informatieobjecttype": "https://raw.githubusercontent.com/vng-Realisatie/catalogi-api/1.2.0/src/openapi.yaml#/components/schemas/InformatieObjectType"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         },
                         "headers": {
                             "ETag": {
@@ -744,6 +811,9 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
                     },
                     "401": {
                         "$ref": "#/responses/401"
@@ -1697,6 +1767,25 @@
                 "description": "Een specifieke GEBRUIKSRECHT opvragen.",
                 "parameters": [
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobject",
+                                    "informatieobject.informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "If-None-Match",
                         "in": "header",
                         "description": "Voer een voorwaardelijk verzoek uit. Deze header moet \u00e9\u00e9n of meerdere ETag-waardes bevatten van resources die de consumer gecached heeft. Indien de waarde van de ETag van de huidige resource voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer informatie.",
@@ -1718,7 +1807,26 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Gebruiksrechten"
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/Gebruiksrechten"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "_expand": {
+                                            "description": "Display details of the linked resources requested in the `expand` parameter",
+                                            "type": "object",
+                                            "properties": {
+                                                "informatieobject": {
+                                                    "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         },
                         "headers": {
                             "ETag": {
@@ -1732,6 +1840,9 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
                     },
                     "401": {
                         "$ref": "#/responses/401"
@@ -2115,24 +2226,7 @@
                 "operationId": "objectinformatieobject_list",
                 "summary": "Alle OBJECT-INFORMATIEOBJECT relaties opvragen.",
                 "description": "Deze lijst kan gefilterd wordt met query-string parameters.",
-                "parameters": [
-                    {
-                        "name": "object",
-                        "in": "query",
-                        "description": "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API).",
-                        "required": false,
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    {
-                        "name": "informatieobject",
-                        "in": "query",
-                        "description": "URL-referentie naar het INFORMATIEOBJECT.",
-                        "required": false,
-                        "type": "string",
-                        "format": "uri"
-                    }
-                ],
+                "parameters": [],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2150,9 +2244,6 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
-                    },
-                    "400": {
-                        "$ref": "#/responses/400"
                     },
                     "401": {
                         "$ref": "#/responses/401"
@@ -2918,6 +3009,25 @@
                 "description": "Een specifieke VERZENDING opvragen.",
                 "parameters": [
                     {
+                        "name": "expand",
+                        "in": "query",
+                        "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "informatieobject",
+                                    "informatieobject.informatieobjecttype"
+                                ]
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "If-None-Match",
                         "in": "header",
                         "description": "Voer een voorwaardelijk verzoek uit. Deze header moet \u00e9\u00e9n of meerdere ETag-waardes bevatten van resources die de consumer gecached heeft. Indien de waarde van de ETag van de huidige resource voorkomt in deze set, dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) voor meer informatie.",
@@ -2939,7 +3049,26 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Verzending"
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/Verzending"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "_expand": {
+                                            "description": "Display details of the linked resources requested in the `expand` parameter",
+                                            "type": "object",
+                                            "properties": {
+                                                "informatieobject": {
+                                                    "$ref": "#/definitions/EnkelvoudigInformatieObject"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         },
                         "headers": {
                             "ETag": {
@@ -2953,6 +3082,9 @@
                                 "description": "Geeft een specifieke API-versie aan in de context van een specifieke aanroep. Voorbeeld: 1.2.1."
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/responses/400"
                     },
                     "401": {
                         "$ref": "#/responses/401"

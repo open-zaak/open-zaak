@@ -65,6 +65,7 @@ from .filters import (
     RolFilter,
     StatusFilter,
     ZaakContactMomentFilter,
+    ZaakDetailFilter,
     ZaakFilter,
     ZaakInformatieObjectFilter,
     ZaakObjectFilter,
@@ -243,7 +244,6 @@ class ZaakViewSet(
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend,)
-    filterset_class = ZaakFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
 
@@ -273,6 +273,15 @@ class ZaakViewSet(
             # of queries will be the same.
             qs = qs.prefetch_related(None)
         return qs
+
+    @property
+    def filterset_class(self):
+        """
+        support expand in the detail endpoint
+        """
+        if self.detail:
+            return ZaakDetailFilter
+        return ZaakFilter
 
     @action(methods=("post",), detail=False)
     def _zoek(self, request, *args, **kwargs):
