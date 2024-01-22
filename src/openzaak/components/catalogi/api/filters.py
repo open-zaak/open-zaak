@@ -12,6 +12,8 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
+from openzaak.utils.filters import CharArrayFilter
+
 from ..models import (
     BesluitType,
     Catalogus,
@@ -65,10 +67,6 @@ def geldigheid_filter(queryset, name, value):
         models.Q(datum_einde_geldigheid__gte=value)
         | models.Q(datum_einde_geldigheid__isnull=True)
     )
-
-
-class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
 
 
 class RolTypeFilter(FilterSet):

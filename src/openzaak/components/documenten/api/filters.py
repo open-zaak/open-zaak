@@ -11,7 +11,7 @@ from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
-from openzaak.utils.filters import ExpandFilter
+from openzaak.utils.filters import CharArrayFilter, ExpandFilter
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -31,11 +31,12 @@ logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
+    trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
     expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
 
     class Meta:
         model = EnkelvoudigInformatieObject
-        fields = ("identificatie", "bronorganisatie")
+        fields = ("identificatie", "bronorganisatie", "trefwoorden")
 
 
 class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
