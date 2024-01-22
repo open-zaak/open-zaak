@@ -124,6 +124,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
                 "locked": False,
                 "lock": "",
                 "verschijningsvorm": "",
+                "trefwoorden": [],
             }
         )
 
@@ -306,6 +307,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
             "verschijningsvorm": "",
+            "trefwoorden": [],
         }
 
         response_data = response.json()

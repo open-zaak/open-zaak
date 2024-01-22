@@ -61,6 +61,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
+            "trefwoorden": ["some", "other"],
         }
 
         # Send to the API
@@ -89,6 +90,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
+        self.assertEqual(stored_object.trefwoorden, ["some", "other"])
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -263,6 +265,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "informatieobjecttype": f"http://testserver{reverse(test_object.informatieobjecttype)}",
             "locked": False,
             "verschijningsvorm": "",
+            "trefwoorden": [],
         }
 
         response_data = response.json()
@@ -1072,3 +1075,16 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         }
 
         self.assertEqual(data, expected_results)
+
+    def test_trefwoorden(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(trefwoorden=["some", "other"])
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=[])
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["dummy"])
+
+        response = self.client.get(self.url, {"trefwoorden": "some"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio)}")
