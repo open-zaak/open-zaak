@@ -65,6 +65,7 @@ Uitleg bij mogelijke waarden:
 | informatieobjecttype | URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API). | string | ja | C​R​U​D |
 | locked | Geeft aan of het document gelocked is. Alleen als een document gelocked is, mogen er aanpassingen gemaakt worden. | boolean | nee | ~~C~~​R​~~U~~​~~D~~ |
 | bestandsdelen |  | array | nee | ~~C~~​R​~~U~~​~~D~~ |
+| trefwoorden | Een lijst van trefwoorden gescheiden door comma&#x27;s. | array | nee | C​R​U​D |
 
 ## AuditTrail
 
