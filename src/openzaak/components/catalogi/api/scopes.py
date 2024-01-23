@@ -44,3 +44,22 @@ SCOPE_CATALOGI_FORCED_DELETE = Scope(
 * Gepubliceerde types geforceerd te verwijderen. Alle resources zijn beschikbaar.
 """,
 )
+
+
+SCOPE_DOCUMENTEN_READ = Scope(
+    "documenten.lezen",
+    description="""
+**Laat toe om**:
+
+* leesoperaties uit te voeren vanaf de Documenten API. Alle resources zijn beschikbaar.
+""",
+)
+
+SCOPE_ZAKEN_READ = Scope(
+    "zaken.lezen",
+    description="""
+**Laat toe om**:
+
+* leesoperaties uit te voeren vanaf de Zaken API. Alle resources zijn beschikbaar.
+""",
+)

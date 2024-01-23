@@ -4070,7 +4070,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - catalogi.lezen
+        - (catalogi.lezen | documenten.lezen | zaken.lezen)
     post:
       operationId: zaaktype_create
       summary: Maak een ZAAKTYPE aan.
@@ -4198,7 +4198,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - catalogi.lezen
+        - (catalogi.lezen | documenten.lezen | zaken.lezen)
     head:
       operationId: zaaktype_headers
       summary: De headers voor een specifiek(e) ZAAKTYPE opvragen
@@ -4241,7 +4241,7 @@ paths:
       - zaaktypen
       security:
       - JWT-Claims:
-        - catalogi.lezen
+        - (catalogi.lezen | documenten.lezen | zaken.lezen)
     put:
       operationId: zaaktype_update
       summary: Werk een ZAAKTYPE in zijn geheel bij.
@@ -6604,6 +6604,7 @@ components:
               bij ZAAKen van dit ZAAKTYPE.
             type: string
             format: uri
+            nullable: true
           uniqueItems: true
         gerelateerdeZaaktypen:
           description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit

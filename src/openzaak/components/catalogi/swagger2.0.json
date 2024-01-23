@@ -5563,7 +5563,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.lezen"
+                            "(catalogi.lezen | documenten.lezen | zaken.lezen)"
                         ]
                     }
                 ]
@@ -5738,7 +5738,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.lezen"
+                            "(catalogi.lezen | documenten.lezen | zaken.lezen)"
                         ]
                     }
                 ]
@@ -5792,7 +5792,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "catalogi.lezen"
+                            "(catalogi.lezen | documenten.lezen | zaken.lezen)"
                         ]
                     }
                 ]
@@ -7986,7 +7986,8 @@
                     "items": {
                         "description": "De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.",
                         "type": "string",
-                        "format": "uri"
+                        "format": "uri",
+                        "x-nullable": true
                     },
                     "uniqueItems": true
                 },
