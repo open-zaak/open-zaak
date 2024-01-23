@@ -21,7 +21,12 @@ from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
-from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
+from ..api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
+    SCOPE_DOCUMENTEN_READ,
+    SCOPE_ZAKEN_READ,
+)
 from ..api.validators import (
     ConceptUpdateValidator,
     M2MConceptCreateValidator,
@@ -1738,3 +1743,41 @@ class ZaaktypeDeleteAutorisatieTests(TestCase):
         zaaktype.delete()
 
         self.assertEqual(Autorisatie.objects.all().count(), 0)
+
+
+class ZaaktypeScopeTests(APITestCase):
+    heeft_alle_autorisaties = False
+    component = ComponentTypes.ztc
+
+    def test_list_scopes(self):
+        """
+        test that any of allowed scopes can be used to list zaaktypen
+        """
+        ZaakTypeFactory.create(concept=False)
+        url = reverse(ZaakType)
+
+        for scope in [SCOPE_CATALOGI_READ, SCOPE_DOCUMENTEN_READ, SCOPE_ZAKEN_READ]:
+            self.autorisatie.scopes = [scope]
+            self.autorisatie.save()
+
+            with self.subTest(scope):
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(len(response.json()["results"]), 1)
+
+    def test_retrieve_scopes(self):
+        """
+        test that any of allowed scopes can be used to retrieve zaaktypen
+        """
+        zaaktype = ZaakTypeFactory.create()
+        url = reverse(zaaktype)
+
+        for scope in [SCOPE_CATALOGI_READ, SCOPE_DOCUMENTEN_READ, SCOPE_ZAKEN_READ]:
+            self.autorisatie.scopes = [scope]
+            self.autorisatie.save()
+
+            with self.subTest(scope):
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
