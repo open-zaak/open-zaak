@@ -601,6 +601,7 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.json()["lock"], self.canonical.lock)
 
             part.refresh_from_db()
 
@@ -742,6 +743,63 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
 
         self.assertNotEqual(part.inhoud, "")
         self.assertEqual(part.voltooid, True)
+
+    def test_upload_part_without_lock(self):
+        """
+        Test the upload of the part file without lock
+
+        Input:
+        * part file
+
+        Expected result:
+        * 400 status
+        """
+        self._create_metadata()
+
+        # upload one of parts again
+        self.file_content.seek(0)
+        part_files = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )
+        part = self.bestandsdelen[0]
+        part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
+
+        response = self.client.put(
+            part_url, {"inhoud": part_files[0],}, format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "lock")
+        self.assertEqual(error["code"], "required")
+
+    def test_upload_part_with_incorrect_lock(self):
+        """
+        Test the upload of the part file without lock
+
+        Input:
+        * part file
+        * lock (incorrect)
+
+        Expected result:
+        * 400 status
+        """
+        self._create_metadata()
+
+        # upload one of parts again
+        self.file_content.seek(0)
+        part_files = split_file(
+            self.file_content, settings.DOCUMENTEN_UPLOAD_CHUNK_SIZE
+        )
+        part = self.bestandsdelen[0]
+        part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
+
+        response = self.client.put(
+            part_url, {"inhoud": part_files[0], "lock": "12345"}, format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_unlock_without_uploading(self):
         """
