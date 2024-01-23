@@ -3102,24 +3102,28 @@ components:
           maxLength: 1000
         ontvangstdatum:
           title: Ontvangstdatum
-          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
-            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
-            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
-            aan documenten die van of naar andere personen ontvangen of verzonden
-            zijn waarbij die personen niet deel uit maken van de behandeling van de
-            zaak waarin het document een rol speelt.
+          description: "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\
+            \n De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren\
+            \ voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s)\
+            \ ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten\
+            \ die van of naar andere personen ontvangen of verzonden zijn waarbij\
+            \ die personen niet deel uit maken van de behandeling van de zaak waarin\
+            \ het document een rol speelt."
           type: string
           format: date
           nullable: true
         verzenddatum:
           title: Verzenddatum
-          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
-            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
-            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
-            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
-            documenten die van of naar andere personen ontvangen of verzonden zijn
-            waarbij die personen niet deel uit maken van de behandeling van de zaak
-            waarin het document een rol speelt.
+          description: '**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT
+            vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen.
+            Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn.
+            Ontvangst en verzending is voorbehouden aan documenten die van of naar
+            andere personen ontvangen of verzonden zijn waarbij die personen niet
+            deel uit maken van de behandeling van de zaak waarin het document een
+            rol speelt.'
           type: string
           format: date
           nullable: true
@@ -3328,24 +3332,28 @@ components:
           maxLength: 1000
         ontvangstdatum:
           title: Ontvangstdatum
-          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
-            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
-            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
-            aan documenten die van of naar andere personen ontvangen of verzonden
-            zijn waarbij die personen niet deel uit maken van de behandeling van de
-            zaak waarin het document een rol speelt.
+          description: "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\
+            \n De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren\
+            \ voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s)\
+            \ ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten\
+            \ die van of naar andere personen ontvangen of verzonden zijn waarbij\
+            \ die personen niet deel uit maken van de behandeling van de zaak waarin\
+            \ het document een rol speelt."
           type: string
           format: date
           nullable: true
         verzenddatum:
           title: Verzenddatum
-          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
-            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
-            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
-            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
-            documenten die van of naar andere personen ontvangen of verzonden zijn
-            waarbij die personen niet deel uit maken van de behandeling van de zaak
-            waarin het document een rol speelt.
+          description: '**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT
+            vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen.
+            Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn.
+            Ontvangst en verzending is voorbehouden aan documenten die van of naar
+            andere personen ontvangen of verzonden zijn waarbij die personen niet
+            deel uit maken van de behandeling van de zaak waarin het document een
+            rol speelt.'
           type: string
           format: date
           nullable: true
@@ -3593,24 +3601,28 @@ components:
           maxLength: 1000
         ontvangstdatum:
           title: Ontvangstdatum
-          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
-            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
-            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
-            aan documenten die van of naar andere personen ontvangen of verzonden
-            zijn waarbij die personen niet deel uit maken van de behandeling van de
-            zaak waarin het document een rol speelt.
+          description: "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\
+            \n De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren\
+            \ voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s)\
+            \ ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten\
+            \ die van of naar andere personen ontvangen of verzonden zijn waarbij\
+            \ die personen niet deel uit maken van de behandeling van de zaak waarin\
+            \ het document een rol speelt."
           type: string
           format: date
           nullable: true
         verzenddatum:
           title: Verzenddatum
-          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
-            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
-            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
-            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
-            documenten die van of naar andere personen ontvangen of verzonden zijn
-            waarbij die personen niet deel uit maken van de behandeling van de zaak
-            waarin het document een rol speelt.
+          description: '**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT
+            vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen.
+            Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn.
+            Ontvangst en verzending is voorbehouden aan documenten die van of naar
+            andere personen ontvangen of verzonden zijn waarbij die personen niet
+            deel uit maken van de behandeling van de zaak waarin het document een
+            rol speelt.'
           type: string
           format: date
           nullable: true
@@ -3981,24 +3993,28 @@ components:
           maxLength: 1000
         ontvangstdatum:
           title: Ontvangstdatum
-          description: De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht
-            te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende
-            organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden
-            aan documenten die van of naar andere personen ontvangen of verzonden
-            zijn waarbij die personen niet deel uit maken van de behandeling van de
-            zaak waarin het document een rol speelt.
+          description: "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\
+            \n De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren\
+            \ voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s)\
+            \ ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten\
+            \ die van of naar andere personen ontvangen of verzonden zijn waarbij\
+            \ die personen niet deel uit maken van de behandeling van de zaak waarin\
+            \ het document een rol speelt."
           type: string
           format: date
           nullable: true
         verzenddatum:
           title: Verzenddatum
-          description: De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze
-            op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als
-            uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk
-            inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan
-            documenten die van of naar andere personen ontvangen of verzonden zijn
-            waarbij die personen niet deel uit maken van de behandeling van de zaak
-            waarin het document een rol speelt.
+          description: '**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT
+            vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen.
+            Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn.
+            Ontvangst en verzending is voorbehouden aan documenten die van of naar
+            andere personen ontvangen of verzonden zijn waarbij die personen niet
+            deel uit maken van de behandeling van de zaak waarin het document een
+            rol speelt.'
           type: string
           format: date
           nullable: true
