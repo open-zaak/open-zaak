@@ -6109,11 +6109,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           type: string
           format: uri
-        informatieobjecttypeOmschrijving:
-          title: Informatieobjecttype omschrijving
-          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
-          type: string
-          readOnly: true
         volgnummer:
           title: Volgnummer
           description: Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het
@@ -6604,6 +6599,7 @@ components:
               bij ZAAKen van dit ZAAKTYPE.
             type: string
             format: uri
+            nullable: true
           uniqueItems: true
         gerelateerdeZaaktypen:
           description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit
