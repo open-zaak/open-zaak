@@ -6125,7 +6125,6 @@
         "BesluitType": {
             "required": [
                 "catalogus",
-                "zaaktypen",
                 "publicatieIndicatie",
                 "informatieobjecttypen",
                 "beginGeldigheid"
@@ -6155,6 +6154,7 @@
                         "type": "string",
                         "format": "uri"
                     },
+                    "readOnly": true,
                     "uniqueItems": true
                 },
                 "omschrijving": {
@@ -7986,7 +7986,8 @@
                     "items": {
                         "description": "De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.",
                         "type": "string",
-                        "format": "uri"
+                        "format": "uri",
+                        "x-nullable": true
                     },
                     "uniqueItems": true
                 },

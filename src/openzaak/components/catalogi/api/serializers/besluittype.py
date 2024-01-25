@@ -5,7 +5,7 @@ from django.utils.text import gettext_lazy as _
 from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
-from ...models import BesluitType, InformatieObjectType, ZaakType
+from ...models import BesluitType, InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
     GeldigheidValidator,
@@ -28,7 +28,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         view_name="zaaktype-detail",
         lookup_field="uuid",
-        queryset=ZaakType.objects.all(),
+        read_only=True,
         help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
@@ -103,8 +103,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         validators = [
             GeldigheidValidator(),
             RelationCatalogValidator("informatieobjecttypen"),
-            RelationCatalogValidator("zaaktypen"),
             ConceptUpdateValidator(),
-            M2MConceptCreateValidator(["zaaktypen", "informatieobjecttypen"]),
-            M2MConceptUpdateValidator(["zaaktypen", "informatieobjecttypen"]),
+            M2MConceptCreateValidator(["informatieobjecttypen"]),
+            M2MConceptUpdateValidator(["informatieobjecttypen"]),
         ]

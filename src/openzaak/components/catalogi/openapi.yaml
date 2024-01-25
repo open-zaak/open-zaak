@@ -4715,7 +4715,6 @@ components:
     BesluitType:
       required:
       - catalogus
-      - zaaktypen
       - publicatieIndicatie
       - informatieobjecttypen
       - beginGeldigheid
@@ -4742,6 +4741,7 @@ components:
             description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
             type: string
             format: uri
+          readOnly: true
           uniqueItems: true
         omschrijving:
           title: Omschrijving
@@ -6604,6 +6604,7 @@ components:
               bij ZAAKen van dit ZAAKTYPE.
             type: string
             format: uri
+            nullable: true
           uniqueItems: true
         gerelateerdeZaaktypen:
           description: De ZAAKTYPEn van zaken die relevant zijn voor zaken van dit
