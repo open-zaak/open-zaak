@@ -35,14 +35,6 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    informatieobjecttype_omschrijving = serializers.SlugRelatedField(
-        source="informatieobjecttype",
-        read_only=True,
-        slug_field="omschrijving",
-        help_text=_(
-            "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE."
-        ),
-    )
 
     class Meta:
         model = ZaakTypeInformatieObjectType
@@ -51,7 +43,6 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "zaaktype",
             "zaaktype_identificatie",
             "informatieobjecttype",
-            "informatieobjecttype_omschrijving",
             "volgnummer",
             "richting",
             "statustype",

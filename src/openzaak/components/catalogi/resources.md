@@ -248,7 +248,6 @@ Objecttype op [GEMMA Online](https://www.gemmaonline.nl/index.php/Rgbz_1.0/doc/o
 | zaaktype | URL-referentie naar het ZAAKTYPE. | string | ja | C​R​U​D |
 | zaaktypeIdentificatie | Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | informatieobjecttype | URL-referentie naar het INFORMATIEOBJECTTYPE. | string | ja | C​R​U​D |
-| informatieobjecttypeOmschrijving | Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE. | string | nee | ~~C~~​R​~~U~~​~~D~~ |
 | volgnummer | Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het ZAAKTYPE. | integer | ja | C​R​U​D |
 | richting | Aanduiding van de richting van informatieobjecten van het gerelateerde INFORMATIEOBJECTTYPE bij zaken van het gerelateerde ZAAKTYPE.
 

@@ -7506,12 +7506,6 @@
                     "type": "string",
                     "format": "uri"
                 },
-                "informatieobjecttypeOmschrijving": {
-                    "title": "Informatieobjecttype omschrijving",
-                    "description": "Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.",
-                    "type": "string",
-                    "readOnly": true
-                },
                 "volgnummer": {
                     "title": "Volgnummer",
                     "description": "Uniek volgnummer van het ZAAK-INFORMATIEOBJECTTYPE binnen het ZAAKTYPE.",
@@ -7986,7 +7980,8 @@
                     "items": {
                         "description": "De ZAAKTYPE(n) waaronder ZAAKen als deelzaak kunnen voorkomen bij ZAAKen van dit ZAAKTYPE.",
                         "type": "string",
-                        "format": "uri"
+                        "format": "uri",
+                        "x-nullable": true
                     },
                     "uniqueItems": true
                 },

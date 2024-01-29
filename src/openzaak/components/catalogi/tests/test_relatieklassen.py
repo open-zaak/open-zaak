@@ -62,7 +62,6 @@ class ZaakTypeInformatieObjectTypeAPITests(APITestCase):
             "zaaktype": f"http://testserver{zaaktype_url}",
             "zaaktypeIdentificatie": ztiot.zaaktype.identificatie,
             "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
-            "informatieobjecttypeOmschrijving": ztiot.informatieobjecttype.omschrijving,
             "volgnummer": ztiot.volgnummer,
             "richting": ztiot.richting,
             "statustype": None,
