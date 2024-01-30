@@ -60,7 +60,6 @@ from ..models import (
 from ..query.cmis import flatten_gegevens_groep
 from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
-from .scopes import SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN
 from .utils import create_filename, merge_files
 from .validators import (
     InformatieObjectUniqueValidator,
@@ -653,31 +652,6 @@ class EnkelvoudigInformatieObjectWithLockSerializer(
         if lock != self.instance.canonical.lock:
             raise serializers.ValidationError(
                 _("Lock id is not correct"), code="incorrect-lock-id"
-            )
-
-        # for CMIS just use this instance
-        request = self.context["request"]
-        latest_version = (
-            self.instance
-            if settings.CMIS_ENABLED
-            else self.instance.canonical.latest_version
-        )
-        if (
-            not request.jwt_auth.has_auth(
-                scopes=SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
-                informatieobjecttype=request.build_absolute_uri(
-                    self.instance.informatieobjecttype.get_absolute_api_url()
-                ),
-                vertrouwelijkheidaanduiding=self.instance.vertrouwelijkheidaanduiding,
-                init_component=self.Meta.model._meta.app_label,
-            )
-            and latest_version.status == Statussen.definitief
-        ):
-            raise serializers.ValidationError(
-                _(
-                    "Het bijwerken van Informatieobjecten met status `definitief` is niet toegestaan"
-                ),
-                code="modify-status-definitief",
             )
 
         return valid_attrs

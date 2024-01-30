@@ -61,11 +61,3 @@ SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK = Scope(
 * to unlock documents without lock key
 """,
 )
-
-SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN = Scope(
-    "documenten.geforceerd-bijwerken",
-    description="""
-**Allows**:
-* changes meta data of all documents including "definitief" ones
-""",
-)
