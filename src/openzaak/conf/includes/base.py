@@ -13,7 +13,7 @@ from notifications_api_common.settings import *  # noqa
 
 from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
-from .environ import config, get_sentry_integrations
+from .environ import config, get_sentry_integrations, strip_protocol_from_origin
 from .plugins import PLUGIN_INSTALLED_APPS
 
 # Build paths inside the project, so further paths can be defined relative to
@@ -604,7 +604,16 @@ CORS_EXPOSE_HEADERS = [
 # Django's SESSION_COOKIE_SAMESITE = "Lax" prevents session cookies from being sent
 # cross-domain. There is no need for these cookies to be sent, since the API itself
 # uses Bearer Authentication.
-
+# we can't easily derive this from django-cors-headers, see also
+# https://pypi.org/project/django-cors-headers/#csrf-integration
+#
+# So we do a best effort attempt at re-using configuration parameters, with an escape
+# hatch to override it.
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    split=True,
+    default=[strip_protocol_from_origin(origin) for origin in CORS_ALLOWED_ORIGINS],
+)
 #
 # DJANGO-PRIVATES -- safely serve files after authorization
 #
