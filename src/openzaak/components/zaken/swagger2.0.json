@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.4.0"
+        "version": "1.5.1"
     },
     "basePath": "/zaken/api/v1",
     "consumes": [
@@ -9864,12 +9864,6 @@
                     "description": "Omschrijving van het object, subject of gebeurtenis waarop, vanuit archiveringsoptiek, de zaak betrekking heeft.",
                     "type": "string",
                     "maxLength": 200
-                },
-                "resultaattoelichting": {
-                    "title": "Resultaattoelichting",
-                    "description": "Een toelichting op wat het resultaat van de zaak inhoudt.",
-                    "type": "string",
-                    "maxLength": 1000
                 },
                 "startdatumBewaartermijn": {
                     "title": "Startdatum bewaartermijn",
