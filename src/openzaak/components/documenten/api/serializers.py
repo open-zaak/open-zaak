@@ -200,9 +200,14 @@ class EnkelvoudigInformatieObjectHyperlinkedRelatedField(LengthHyperlinkedRelate
         return instance.get_informatieobject()
 
 
+class LockField(serializers.CharField):
+    def get_attribute(self, instance):
+        return instance.get_current_lock_value()
+
+
 class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
-    lock = serializers.CharField(
-        write_only=True,
+    lock = LockField(
+        required=True,
         help_text="Hash string, which represents id of the lock of related informatieobject",
     )
 
