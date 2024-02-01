@@ -361,6 +361,29 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     PublishValidator(),
                 ],
             },
+            # todo mark 'deprecated' in OAS after moving to drf-spectacular
+            "verzenddatum": {
+                "help_text": _(
+                    "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\n"
+                    "De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het "
+                    "INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande "
+                    "INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend "
+                    "en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten "
+                    "die van of naar andere personen ontvangen of verzonden zijn waarbij die "
+                    "personen niet deel uit maken van de behandeling van de zaak waarin het "
+                    "document een rol speelt."
+                )
+            },
+            "ontvangstdatum": {
+                "help_text": _(
+                    "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n\n "
+                    "De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren "
+                    "voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) "
+                    "ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die "
+                    "van of naar andere personen ontvangen of verzonden zijn waarbij die personen "
+                    "niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt."
+                )
+            },
         }
         read_only_fields = ["versie", "begin_registratie"]
         validators = [
