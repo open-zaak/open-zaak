@@ -140,7 +140,6 @@ def construct_besluittypen(
                 data=imported, context={"request": REQUEST}
             )
             if deserialized.is_valid():
-                deserialized.validated_data.pop("zaaktypen")
                 deserialized.validated_data.pop("informatieobjecttypen")
 
                 instance = BesluitType(**deserialized.validated_data)

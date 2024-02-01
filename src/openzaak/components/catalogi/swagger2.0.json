@@ -6125,7 +6125,6 @@
         "BesluitType": {
             "required": [
                 "catalogus",
-                "zaaktypen",
                 "publicatieIndicatie",
                 "informatieobjecttypen",
                 "beginGeldigheid"
@@ -6155,6 +6154,7 @@
                         "type": "string",
                         "format": "uri"
                     },
+                    "readOnly": true,
                     "uniqueItems": true
                 },
                 "omschrijving": {
