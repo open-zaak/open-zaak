@@ -39,7 +39,7 @@ of the error are sent to the Sentry project, with context.
     the request context.
 
 For documentation on how to set up a project in Sentry, please refer to the official
-`documentation`_ (make sure to follow the instructions for the platform Python > Django).
+documentation (make sure to follow the instructions for the platform Python > Django).
 
 After setting up the project, you will receive a **DSN**, which is the URL to which
 exceptions will be sent (e.g. https://e95a42137e6042c59d19376e566f027a@sentry.openzaak.nl/104).
@@ -48,7 +48,6 @@ The created Sentry project can be linked to Open Zaak by setting the environment
 variable ``SENTRY_DSN`` equal to this DSN.
 
 .. _`Sentry`: https://sentry.io/
-.. _`documentation`: https://docs.sentry.io/guides/getting-started/
 
 
 Viewing nginx logs
