@@ -382,6 +382,7 @@ class EnkelvoudigInformatieObjectAdmin(
                     "link",
                     "indicatie_gebruiksrecht",
                     "verschijningsvorm",
+                    "trefwoorden",
                 )
             },
         ),

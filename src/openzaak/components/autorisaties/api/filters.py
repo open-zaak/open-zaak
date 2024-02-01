@@ -2,13 +2,10 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import ugettext_lazy as _
 
-from django_filters.rest_framework import filters
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.filtersets import FilterSet
 
-
-class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
+from openzaak.utils.filters import CharArrayFilter
 
 
 class ApplicatieFilter(FilterSet):

@@ -160,6 +160,16 @@ paths:
         required: false
         schema:
           type: string
+      - name: trefwoorden
+        in: query
+        description: Multiple values may be separated by commas.
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: false
       - name: expand
         in: query
         description: 'Sluit de gespecifieerde gerelateerde resources in in het antwoord. '
@@ -3159,6 +3169,14 @@ components:
           items:
             $ref: '#/components/schemas/BestandsDeel'
           readOnly: true
+        trefwoorden:
+          description: Een lijst van trefwoorden gescheiden door comma's.
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 100
+            minLength: 1
     EnkelvoudigInformatieObjectCreateLockData:
       required:
       - bronorganisatie
@@ -3385,6 +3403,14 @@ components:
           items:
             $ref: '#/components/schemas/BestandsDeel'
           readOnly: true
+        trefwoorden:
+          description: Een lijst van trefwoorden gescheiden door comma's.
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 100
+            minLength: 1
         lock:
           title: Lock
           description: Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt
@@ -3417,6 +3443,12 @@ components:
             \ eerste in een samenwerkingsketen heeft vastgelegd."
           type: string
           minLength: 1
+        trefwoorden:
+          description: Multiple values may be separated by commas.
+          type: array
+          items:
+            type: string
+            nullable: true
         expand:
           title: Expand
           description: "Sluit de gespecifieerde gerelateerde resources in in het antwoord.\
@@ -3650,6 +3682,14 @@ components:
           items:
             $ref: '#/components/schemas/BestandsDeel'
           readOnly: true
+        trefwoorden:
+          description: Een lijst van trefwoorden gescheiden door comma's.
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 100
+            minLength: 1
     Wijzigingen:
       type: object
       properties:
@@ -4038,6 +4078,14 @@ components:
           items:
             $ref: '#/components/schemas/BestandsDeel'
           readOnly: true
+        trefwoorden:
+          description: Een lijst van trefwoorden gescheiden door comma's.
+          type: array
+          items:
+            title: Trefwoord
+            type: string
+            maxLength: 100
+            minLength: 1
         lock:
           title: Lock
           description: Tijdens het updaten van een document (PATCH, PUT) moet het

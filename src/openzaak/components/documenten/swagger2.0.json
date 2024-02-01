@@ -162,6 +162,21 @@
                         "type": "string"
                     },
                     {
+                        "name": "trefwoorden",
+                        "in": "query",
+                        "description": "Multiple values may be separated by commas.",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
+                    },
+                    {
                         "name": "expand",
                         "in": "query",
                         "description": "Sluit de gespecifieerde gerelateerde resources in in het antwoord. ",
@@ -3859,6 +3874,16 @@
                         "$ref": "#/definitions/BestandsDeel"
                     },
                     "readOnly": true
+                },
+                "trefwoorden": {
+                    "description": "Een lijst van trefwoorden gescheiden door comma's.",
+                    "type": "array",
+                    "items": {
+                        "title": "Trefwoord",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    }
                 }
             }
         },
@@ -4052,6 +4077,16 @@
                     },
                     "readOnly": true
                 },
+                "trefwoorden": {
+                    "description": "Een lijst van trefwoorden gescheiden door comma's.",
+                    "type": "array",
+                    "items": {
+                        "title": "Trefwoord",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    }
+                },
                 "lock": {
                     "title": "Lock",
                     "description": "Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt moet worden bij document updates. Documenten met base64-encoded bestandsdata worden zonder lock aangemaakt.",
@@ -4086,6 +4121,14 @@
                     "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
                     "type": "string",
                     "minLength": 1
+                },
+                "trefwoorden": {
+                    "description": "Multiple values may be separated by commas.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "x-nullable": true
+                    }
                 },
                 "expand": {
                     "title": "Expand",
@@ -4286,6 +4329,16 @@
                         "$ref": "#/definitions/BestandsDeel"
                     },
                     "readOnly": true
+                },
+                "trefwoorden": {
+                    "description": "Een lijst van trefwoorden gescheiden door comma's.",
+                    "type": "array",
+                    "items": {
+                        "title": "Trefwoord",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    }
                 }
             }
         },
@@ -4620,6 +4673,16 @@
                         "$ref": "#/definitions/BestandsDeel"
                     },
                     "readOnly": true
+                },
+                "trefwoorden": {
+                    "description": "Een lijst van trefwoorden gescheiden door comma's.",
+                    "type": "array",
+                    "items": {
+                        "title": "Trefwoord",
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 1
+                    }
                 },
                 "lock": {
                     "title": "Lock",

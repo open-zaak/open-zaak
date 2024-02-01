@@ -346,6 +346,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "informatieobjecttype",  # van-relatie,
             "locked",
             "bestandsdelen",
+            "trefwoorden",
         )
         extra_kwargs = {
             "taal": {"min_length": 3},

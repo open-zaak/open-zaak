@@ -5,6 +5,7 @@ import uuid as _uuid
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
@@ -415,6 +416,14 @@ class EnkelvoudigInformatieObject(
     verschijningsvorm = models.TextField(
         blank=True,
         help_text=_("De essentiële opmaakaspecten van een INFORMATIEOBJECT."),
+    )
+
+    trefwoorden = ArrayField(
+        models.CharField(_("trefwoord"), max_length=100),
+        blank=True,
+        default=list,
+        help_text=_("Een lijst van trefwoorden gescheiden door comma's."),
+        db_index=True,
     )
 
     # When dealing with remote EIO, there is no pk or canonical instance to derive

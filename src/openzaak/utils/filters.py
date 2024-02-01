@@ -8,6 +8,10 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from .expansion import get_expand_options_for_serializer
 
 
+class CharArrayFilter(filters.BaseInFilter, filters.CharFilter):
+    pass
+
+
 class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("choices", VertrouwelijkheidsAanduiding.choices)
