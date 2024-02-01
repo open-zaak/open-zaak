@@ -799,7 +799,7 @@ paths:
       - enkelvoudiginformatieobjecten
       security:
       - JWT-Claims:
-        - (documenten.bijwerken | documenten.geforceerd-bijwerken)
+        - documenten.bijwerken
     patch:
       operationId: enkelvoudiginformatieobject_partial_update
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
@@ -881,7 +881,7 @@ paths:
       - enkelvoudiginformatieobjecten
       security:
       - JWT-Claims:
-        - (documenten.bijwerken | documenten.geforceerd-bijwerken)
+        - documenten.bijwerken
     delete:
       operationId: enkelvoudiginformatieobject_delete
       summary: Verwijder een (ENKELVOUDIG) INFORMATIEOBJECT.

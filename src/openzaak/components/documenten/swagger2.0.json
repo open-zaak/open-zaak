@@ -1033,7 +1033,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(documenten.bijwerken | documenten.geforceerd-bijwerken)"
+                            "documenten.bijwerken"
                         ]
                     }
                 ]
@@ -1145,7 +1145,7 @@
                 "security": [
                     {
                         "JWT-Claims": [
-                            "(documenten.bijwerken | documenten.geforceerd-bijwerken)"
+                            "documenten.bijwerken"
                         ]
                     }
                 ]

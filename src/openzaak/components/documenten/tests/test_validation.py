@@ -22,7 +22,6 @@ from openzaak.tests.utils import JWTAuthMixin
 from ..api.scopes import (
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
     SCOPE_DOCUMENTEN_BIJWERKEN,
-    SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
     SCOPE_DOCUMENTEN_LOCK,
 )
 from ..constants import OndertekeningSoorten, Statussen
@@ -307,59 +306,10 @@ class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
         site.save()
         super().setUpTestData()
 
-    def test_update_definitief_status_fail(self):
+    def test_update_definitief_status_success(self):
         self.autorisatie.scopes = [
             SCOPE_DOCUMENTEN_ALLES_LEZEN,
             SCOPE_DOCUMENTEN_BIJWERKEN,
-            SCOPE_DOCUMENTEN_LOCK,
-        ]
-        self.autorisatie.save()
-        eio = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
-        )
-        eio_url = reverse(eio)
-
-        eio_response = self.client.get(eio_url)
-        eio_data = eio_response.data
-
-        lock = self.client.post(f"{eio_url}/lock").data["lock"]
-        eio_data.update(
-            {"inhoud": b64encode(b"aaaaa"), "bestandsomvang": 5, "lock": lock,}
-        )
-        for i in ["integriteit", "ondertekening"]:
-            eio_data.pop(i)
-
-        response = self.client.put(eio_url, eio_data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "modify-status-definitief")
-
-    def test_patch_definitief_status_fail(self):
-        self.autorisatie.scopes = [
-            SCOPE_DOCUMENTEN_ALLES_LEZEN,
-            SCOPE_DOCUMENTEN_BIJWERKEN,
-            SCOPE_DOCUMENTEN_LOCK,
-        ]
-        self.autorisatie.save()
-        eio = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype, status=Statussen.definitief
-        )
-        eio_url = reverse(eio)
-        lock = self.client.post(f"{eio_url}/lock").data["lock"]
-
-        response = self.client.patch(
-            eio_url, {"lock": lock, "beschrijving": "updated",}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "modify-status-definitief")
-
-    def test_update_definitief_status_force(self):
-        self.autorisatie.scopes = [
-            SCOPE_DOCUMENTEN_ALLES_LEZEN,
-            SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
             SCOPE_DOCUMENTEN_LOCK,
         ]
         self.autorisatie.save()
@@ -382,10 +332,10 @@ class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_patch_definitief_status_force(self):
+    def test_patch_definitief_status_success(self):
         self.autorisatie.scopes = [
             SCOPE_DOCUMENTEN_ALLES_LEZEN,
-            SCOPE_DOCUMENTEN_GEFORCEERD_BIJWERKEN,
+            SCOPE_DOCUMENTEN_BIJWERKEN,
             SCOPE_DOCUMENTEN_LOCK,
         ]
         self.autorisatie.save()
