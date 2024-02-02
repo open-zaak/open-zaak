@@ -1,6 +1,65 @@
 Changelog
 =========
 
+1.11.0 (2024-02-01)
+-------------------
+
+Open Zaak 1.11.0 is a release focused on supporting the latest versions of the ZGW API standards.
+
+Open Zaak now supports:
+
+  * Catalogi API 1.3
+  * Documenten API 1.4
+  * Zaken API 1.5
+
+**New features**
+
+* [#1466] `Catalogi API 1.3 <https://github.com/VNG-Realisatie/catalogi-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1555] Removed `informatieobjecttypeOmschrijving` property from `ZaakTypeInformatieObjectType` resource
+    - [#1558] Changed `besluittype.zaaktypen` property to read-only
+
+* [#1464] `Documenten API 1.4 <https://github.com/VNG-Realisatie/documenten-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1545] Added `trefwoorden` property to `Enkelvoudiginformatieobject` resource, also add it as query param (**NOTE** this change is not supported when CMIS is enabled)
+    - [#1522] Added `expand` query param to `enkelvoudiginformatieobjecten`, `gebruiksrechten`, `verzendingen` list and detail endpoints (**NOTE** this change is not supported when CMIS is enabled)
+    - [#1522] Added `expand query param to enkelvoudiginformatieobjecten `zoek` endpoint (**NOTE** this change is not supported when CMIS is enabled)
+    - [#1548] Removed validation `status!='definitief'` from update/patch for enkelvoudiginformatieobjecten
+    - [#1547] Added 'DEPRECATED' mark for `verzenddatum` and `ontvangstdatum` properties of `Enkelvoudiginformatieobject` resource
+    - [#1550] Added `lock` field to `BestandsDeel` response
+    - [#1525] Added 'enkelvoudiginformatieobjecten' list query params to `zoek` endpoint
+
+* [#1465] `Zaken API 1.5 <https://github.com/VNG-Realisatie/zaken-api/blob/master/CHANGELOG.rst>`_
+  features implemented:
+
+    - [#1152, #1537] Added `expand` query param into zaken list and detail endpoints
+    - [#1152] Add `expand` query param into zaken `_zoek` endpoint
+    - [#1543] Removed `resultaattoelichting` from Zaak
+
+**Bugfixes and QOL**
+
+* [#1474] Fixed creating zaaktypen without catalogus in the Admin
+* [#1481] Changed error code from 403 to 400 when creating zaak with incorrect zaaktype
+* [#1509] Fixed importing informatieobjecttypen with empty `omschrijving_generiek` in the Admin
+* [#1518] Improved Trivy configuration
+* [#1497] Improved importing zaaktypen in the Admin: added sorting in the dropdown
+* [#1561] Added `CSRF_TRUSTED_ORIGINS` environment variable
+
+
+1.10.3 (2024-01-15)
+-------------------
+
+* [#1540] Upgraded mozilla-django-oidc-db to 0.14.1
+
+1.10.2 (2023-12-06)
+-------------------
+
+Open Zaak 1.10.2 is a patch release
+
+* [#1527] Added missing CSS styles for the dashboard
+
 1.10.1 (2023-11-28)
 -------------------
 

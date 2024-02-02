@@ -11,7 +11,7 @@
             "name": "EUPL 1.2",
             "url": "https://opensource.org/licenses/EUPL-1.2"
         },
-        "version": "1.3.0"
+        "version": "1.4.2"
     },
     "basePath": "/documenten/api/v1",
     "consumes": [
@@ -456,6 +456,21 @@
                         "description": "Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecre\u00eberd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.",
                         "required": false,
                         "type": "string"
+                    },
+                    {
+                        "name": "trefwoorden",
+                        "in": "query",
+                        "description": "Multiple values may be separated by commas.",
+                        "required": false,
+                        "type": "array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "style": "form",
+                        "explode": false
                     },
                     {
                         "name": "expand",
