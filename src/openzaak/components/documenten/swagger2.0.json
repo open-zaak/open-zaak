@@ -3769,7 +3769,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -3972,7 +3972,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -4225,7 +4225,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
                     "type": "string",
                     "enum": [
                         "in_bewerking",
@@ -4569,7 +4569,7 @@
                 },
                 "status": {
                     "title": "Status",
-                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - In bewerking\n* `ter_vaststelling` - Ter vaststelling\n* `definitief` - Definitief\n* `gearchiveerd` - Gearchiveerd",
+                    "description": "Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.\n\nUitleg bij mogelijke waarden:\n\n* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.\n* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.\n* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.\n* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.",
                     "type": "string",
                     "enum": [
                         "in_bewerking",

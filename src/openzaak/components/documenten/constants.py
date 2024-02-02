@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from typing import Dict
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from vng_api_common import constants
+from vng_api_common.choices import TextChoicesWithDescriptions
 
 
-class Statussen(models.TextChoices):
+class Statussen(TextChoicesWithDescriptions):
     in_bewerking = "in_bewerking", _("In bewerking")
     ter_vaststelling = "ter_vaststelling", _("Ter vaststelling")
     definitief = "definitief", _("Definitief")
@@ -15,6 +18,21 @@ class Statussen(models.TextChoices):
     @classmethod
     def invalid_for_received(cls) -> tuple:
         return cls.in_bewerking, cls.ter_vaststelling
+
+    @classmethod
+    def descriptions(cls) -> Dict[str, str]:
+        return {
+            cls.in_bewerking: _("Aan het informatieobject wordt nog gewerkt."),
+            cls.ter_vaststelling: _(
+                "Informatieobject gereed maar moet nog vastgesteld " "worden."
+            ),
+            cls.definitief: _(
+                "Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen."
+            ),
+            cls.gearchiveerd: _(
+                "Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element."
+            ),
+        }
 
 
 class ChecksumAlgoritmes(models.TextChoices):

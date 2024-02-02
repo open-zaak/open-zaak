@@ -45,10 +45,10 @@ Uitleg bij mogelijke waarden:
 
 Uitleg bij mogelijke waarden:
 
-* `in_bewerking` - In bewerking
-* `ter_vaststelling` - Ter vaststelling
-* `definitief` - Definitief
-* `gearchiveerd` - Gearchiveerd | string | nee | C​R​U​D |
+* `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+* `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+* `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+* `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element. | string | nee | C​R​U​D |
 | formaat | Het &quot;Media Type&quot; (voorheen &quot;MIME type&quot;) voor de wijze waaropde inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand. Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml | string | nee | C​R​U​D |
 | taal | Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html | string | ja | C​R​U​D |
 | versie | Het (automatische) versienummer van het INFORMATIEOBJECT. Deze begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt. | integer | nee | ~~C~~​R​~~U~~​~~D~~ |
