@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -214,7 +215,7 @@ class CatalogusZaakTypeImportSelectView(
                 request, messages.SUCCESS, _("ZaakType successfully imported")
             )
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
-        except (CommandError, IntegrityError) as exc:
+        except (CommandError, IntegrityError, ValidationError) as exc:
             messages.add_message(request, messages.ERROR, exc)
 
         return TemplateResponse(request, self.template_name, context)

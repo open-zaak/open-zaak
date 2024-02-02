@@ -1505,7 +1505,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             ZaakType.objects.filter(identificatie="PREFIX_ZAAKTYPE_1").exists()
         )
 
-    def test_import_zaaktype_with_different_identification_excedes_max_length(
+    def test_import_zaaktype_with_different_identification_exceeds_max_length(
         self, *mocks
     ):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -1557,13 +1557,14 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_import_zaaktype").follow()
 
         response = response.form.submit("_select")
-        # succeeds as it is imported under a different name
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(ZaakType.objects.all().count(), 2)
-        self.assertTrue(
-            ZaakType.objects.filter(
-                identificatie="PREFIX_Identification_that_is_fifty_characters_lon"
-            ).exists()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ZaakType.objects.all().count(), 1)
+
+        self.assertIn(
+            _("Identification {} is too long with prefix. Max 50 characters.").format(
+                "PREFIX_" + "Identification_that_is_fifty_characters_long_00000"
+            ),
+            response.text,
         )
 
 

@@ -4,6 +4,7 @@ import io
 import json
 import zipfile
 
+from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.utils.translation import ngettext, ugettext_lazy as _
 
@@ -206,9 +207,20 @@ def import_zaaktype_for_catalogus(
                 for entry in data:
                     if resource == "ZaakType":
                         if identificatie_prefix:
-                            entry[
-                                "identificatie"
-                            ] = f"{identificatie_prefix}_{entry['identificatie']}"[:50]
+
+                            new_identification = (
+                                f"{identificatie_prefix}_{entry['identificatie']}"
+                            )
+
+                            if len(new_identification) > 50:
+                                raise ValidationError(
+                                    _(
+                                        "Identification {} is too long with prefix. Max 50 characters."
+                                    ).format(new_identification)
+                                )
+
+                            entry["identificatie"] = new_identification
+
                         entry["informatieobjecttypen"] = []
                         old_catalogus_uuid = entry["catalogus"].split("/")[-1]
                         entry["catalogus"] = entry["catalogus"].replace(
