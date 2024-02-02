@@ -308,13 +308,20 @@ class ZaakTypeAdmin(
         return resource_list, id_list
 
     def response_post_save_change(self, request, obj):
-        if "_publish" in request.POST:
+        if "_publish" in request.POST and "_auto-publish" in request.POST:
             # publish related types
             for besluittype in obj.besluittypen.filter(concept=True):
                 besluittype.publish()
 
             for iot in obj.informatieobjecttypen.filter(concept=True):
                 iot.publish()
+            self.message_user(
+                request,
+                _("Published related zaaktype objects"),
+                messages.INFO,
+                "autopublish",
+            )
+
         return super().response_post_save_change(request, obj)
 
     def _publish_validation_errors(self, obj):

@@ -29,6 +29,7 @@ from ..factories import (
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 
 
@@ -188,6 +189,68 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNotNone(publish_button)
 
+    def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
+        mock_selectielijst_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
+        )
+        BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        # Verify that the publish button is visible and enabled
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
+
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_publish").follow()
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
+
+        # Check that the error is shown on the page
+        error_message = response.html.find("li", {"class": "error"})
+        self.assertIn(
+            _("All related resources should be published"), error_message.text
+        )
+
+        # Verify that the publish button is still visible and enabled.
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
+
     def test_publish_zaaktype_related_to_concept_besluittype_succeeds(self, m):
         mock_selectielijst_oas_get(m)
         procestype_url = (
@@ -232,6 +295,7 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
+        form["_auto-publish"] = True
         response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
@@ -244,6 +308,70 @@ class ZaaktypeAdminTests(
             "input", {"name": "_publish", "disabled": "disabled"}
         )
         self.assertIsNotNone(publish_button)
+
+    def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
+        mock_selectielijst_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_resource_list(m, "procestypen")
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+        ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype__concept=True, zaaktype=zaaktype
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        # Verify that the publish button is visible and enabled
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
+
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_publish").follow()
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
+
+        # Check that the error is shown on the page
+        error_message = response.html.find("li", {"class": "error"})
+        self.assertIn(
+            _("All related resources should be published"), error_message.text
+        )
+
+        # Verify that the publish button is still visible and enabled.
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_informatieobjecttype_succeeds(self, m):
         mock_selectielijst_oas_get(m)
@@ -292,6 +420,7 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
+        form["_auto-publish"] = True
         response = form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()

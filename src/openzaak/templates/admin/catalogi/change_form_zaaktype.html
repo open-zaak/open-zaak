@@ -6,6 +6,10 @@
 {% block extra_submit_buttons %}
     {{ block.super }}
 
+    {% if original.concept == True %}
+    <label for="_auto-publish">{% translate "Auto-publish related objects" %}</label>
+    <input type="checkbox" name="_auto-publish" id="_auto-publish">
+    {% endif %}
     <input type="submit" value="{% trans 'Nieuwe versie toevoegen' %}" name="_addversion" {% if not original.pk or original.concept == True %}disabled="disabled"{% endif %}>
     {% if original %}<input type="submit" value="{% trans 'Export' %}" name="_export"/>{% endif %}
 {% endblock %}
