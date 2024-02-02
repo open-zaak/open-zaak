@@ -45,6 +45,7 @@ Open Zaak now supports:
 * [#1509] Fixed importing informatieobjecttypen with empty `omschrijving_generiek` in the Admin
 * [#1518] Improved Trivy configuration
 * [#1497] Improved importing zaaktypen in the Admin: added sorting in the dropdown
+* [#1561] Added `CSRF_TRUSTED_ORIGINS` environment variable
 
 
 1.10.3 (2024-01-15)
