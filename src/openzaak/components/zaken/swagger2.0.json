@@ -6252,7 +6252,7 @@
             "post": {
                 "operationId": "zaakeigenschap_create",
                 "summary": "Maak een ZAAKEIGENSCHAP aan.",
-                "description": "Maak een ZAAKEIGENSCHAP aan.\n\n**Er wordt gevalideerd op**\n- `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.",
+                "description": "Maak een ZAAKEIGENSCHAP aan.\n\n**Er wordt gevalideerd op**\n- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.",
                 "parameters": [
                     {
                         "name": "Content-Type",

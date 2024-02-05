@@ -8887,7 +8887,7 @@ paths:
 
         **Er wordt gevalideerd op**
 
-        - `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.'
+        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.'
       parameters:
       - in: header
         name: Content-Type
