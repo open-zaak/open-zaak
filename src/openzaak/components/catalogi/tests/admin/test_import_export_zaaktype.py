@@ -9,6 +9,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext as _
 
 import requests_mock
@@ -1565,6 +1566,65 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
                 "PREFIX_" + "Identification_that_is_fifty_characters_long_00000"
             ),
             response.text,
+        )
+
+    def test_import_zaaktype_with_bad_filenames(self, *mocks):
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            datum_begin_geldigheid="2023-01-01",
+        )
+
+        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO()
+        f.name = "test.zip"
+        f.seek(0)
+
+        with zipfile.ZipFile(f, "w") as zip_file:
+            # zip_file.mkdir("some_dir")
+            zip_file.writestr("some_dir/ZaakType.json", '[{"incorrect": "data"}]')
+            zip_file.writestr(
+                "some_dir/ZaakTypeInformatieObjectType.json", '[{"incorrect": "data"}]'
+            )
+            zip_file.writestr("some_dir/ResultaatType.json", '[{"incorrect": "data"}]')
+            zip_file.writestr("some_dir/RolType.json", '[{"incorrect": "data"}]')
+            zip_file.writestr("some_dir/StatusType.json", '[{"incorrect": "data"}]')
+            zip_file.writestr("some_dir/Eigenschap.json", '[{"incorrect": "data"}]')
+
+        f.seek(0)
+
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+
+        response = form.submit("_import_zaaktype")
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context["messages"])
+
+        msg = _(
+            "No files found. Expected: {files_not_found} but received:<br> {files_received}"
+        )
+
+        files_not_found = (
+            "ZaakType.json, ZaakTypeInformatieObjectType.json, ResultaatType.json, RolType.json, "
+            "StatusType.json, Eigenschap.json"
+        )
+        files_received = (
+            "some_dir/ZaakType.json, some_dir/ZaakTypeInformatieObjectType.json, some_dir/ResultaatType.json, "
+            "some_dir/RolType.json, some_dir/StatusType.json, some_dir/Eigenschap.json"
+        )
+
+        self.assertEqual(
+            str(messages[0]),
+            format_html(
+                msg, files_not_found=files_not_found, files_received=files_received
+            ),
         )
 
 

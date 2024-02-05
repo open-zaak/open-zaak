@@ -3,7 +3,6 @@
 import io
 import json
 import zipfile
-from os.path import isfile
 
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError
