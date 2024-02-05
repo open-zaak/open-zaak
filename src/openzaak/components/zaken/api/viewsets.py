@@ -767,7 +767,7 @@ class ZaakInformatieObjectViewSet(
                 "Een specifieke ZAAKEIGENSCHAP opvragen.\n"
                 "** Er wordt gevalideerd op**\n"
                 "\n"
-                "- `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`."
+                "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`."
         ),
     ),
     create=extend_schema(
