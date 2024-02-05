@@ -3,9 +3,11 @@
 import io
 import json
 import zipfile
+from os.path import isfile
 
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError
+from django.utils.html import format_html
 from django.utils.translation import ngettext, ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
@@ -248,7 +250,16 @@ def import_zaaktype_for_catalogus(
             else:
                 files_not_found.append(f"{resource}.json")
 
-    return files_found, files_not_found, files_received
+    if len(files_found) < 1:
+        msg = _(
+            "No files found. Expected: {files_not_found} but received:<br> {files_received}"
+        )
+        msg_dict = {
+            "files_not_found": ", ".join(files_not_found),
+            "files_received": ", ".join(files_received),
+        }
+
+        raise ValueError(format_html(msg, **msg_dict))
 
 
 def format_duration(rel_delta: relativedelta) -> str:
