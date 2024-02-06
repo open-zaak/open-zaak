@@ -258,7 +258,7 @@ def import_zaaktype_for_catalogus(
             "files_received": ", ".join(files_received),
         }
 
-        raise ValueError(format_html(msg, **msg_dict))
+        raise CommandError(format_html(msg, **msg_dict))
 
 
 def format_duration(rel_delta: relativedelta) -> str:

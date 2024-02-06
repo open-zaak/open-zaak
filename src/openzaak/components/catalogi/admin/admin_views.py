@@ -86,10 +86,6 @@ class CatalogusZaakTypeImportUploadView(
                 except CommandError as exc:
                     messages.add_message(request, messages.ERROR, exc)
 
-                except ValueError as exc:
-
-                    messages.add_message(request, messages.WARNING, exc)
-
         return TemplateResponse(request, self.template_name, context)
 
 
