@@ -23,6 +23,7 @@
             <div>
                 <fieldset class="module aligned ">
                     {% csrf_token %}
+                    {{ form.errors }}
                     {% for field in form %}
                         {{ field.label.capitalize }}: {{ field }}<br/>
                         {{ field.help_text }}<br/><br/>

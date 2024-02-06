@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -40,6 +41,10 @@ class CatalogusZaakTypeImportUploadView(
             import_file = form.cleaned_data["file"]
             request.session["file_content"] = import_file.read()
 
+            request.session["identificatie_prefix"] = request.POST.get(
+                "identificatie_prefix"
+            )
+
             iotypen = retrieve_iotypen(catalogus_pk, request.session["file_content"])
             request.session["iotypen"] = (
                 sorted(iotypen, key=lambda x: x["omschrijving"]) if iotypen else iotypen
@@ -65,7 +70,11 @@ class CatalogusZaakTypeImportUploadView(
                 try:
                     with transaction.atomic():
                         import_zaaktype_for_catalogus(
-                            catalogus_pk, request.session["file_content"], {}, {}
+                            request.session["identificatie_prefix"],
+                            catalogus_pk,
+                            request.session["file_content"],
+                            {},
+                            {},
                         )
 
                     messages.add_message(
@@ -195,6 +204,7 @@ class CatalogusZaakTypeImportSelectView(
                         )
 
                 import_zaaktype_for_catalogus(
+                    request.session["identificatie_prefix"],
                     kwargs["catalogus_pk"],
                     request.session["file_content"],
                     iotypen_uuid_mapping,
@@ -205,7 +215,7 @@ class CatalogusZaakTypeImportSelectView(
                 request, messages.SUCCESS, _("ZaakType successfully imported")
             )
             return HttpResponseRedirect(reverse("admin:catalogi_catalogus_changelist"))
-        except (CommandError, IntegrityError) as exc:
+        except (CommandError, IntegrityError, ValidationError) as exc:
             messages.add_message(request, messages.ERROR, exc)
 
         return TemplateResponse(request, self.template_name, context)

@@ -18,6 +18,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.tests import reverse as _reverse
+from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zds_client import ClientError
 from zgw_consumers.models import Service
 
@@ -485,6 +486,14 @@ class CatalogusImportForm(forms.Form):
 
 
 class ZaakTypeImportForm(forms.Form):
+
+    identificatie_prefix = forms.CharField(
+        label=_("identificatie prefix"),
+        required=False,
+        help_text=_("Zaaktype identification prefix. Leave blank to use imported."),
+        validators=[alphanumeric_excluding_diacritic,],
+    )
+
     file = forms.FileField(
         label=_("bestand"),
         required=True,
