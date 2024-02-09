@@ -2,13 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from ...admin.forms import ZaakTypeForm
 from ...constants import InternExtern
-from ..factories import ZaakTypeFactory
+from ...models.zaaktype import ZaakType
+from ..factories import CatalogusFactory, ZaakTypeFactory
 
 
 class ZaaktypeValidationTests(TestCase):
@@ -59,6 +61,7 @@ class ZaaktypeValidationTests(TestCase):
             identificatie=1,
             datum_begin_geldigheid="2018-01-01",
             datum_einde_geldigheid="2018-12-31",
+            concept=False,
         )
         catalogus = zaaktype.catalogus
 
@@ -101,6 +104,7 @@ class ZaaktypeValidationTests(TestCase):
             zaaktype_omschrijving="test",
             identificatie=1,
             datum_begin_geldigheid="2018-01-01",
+            concept=False,
         )
         catalogus = zaaktype.catalogus
 
@@ -137,3 +141,73 @@ class ZaaktypeValidationTests(TestCase):
             error.message,
             "Zaaktype versies (dezelfde omschrijving) mogen geen overlappende geldigheid hebben.",
         )
+
+    def test_assertion_raised_when_dates_overlap(self):
+        catalogus = CatalogusFactory.create()
+
+        ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=False,
+        )
+
+        instance = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=False,
+        )
+
+        with self.assertRaises(ValidationError):
+            instance.clean()
+
+    def test_assertion_not_raised_when_concept_dates_overlap(self):
+        catalogus = CatalogusFactory.create()
+
+        ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=True,
+        )
+
+        instance = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=False,
+        )
+        instance.clean()
+        self.assertEqual(ZaakType.objects.all().count(), 2)
+
+    def test_assertion_not_raised_when_concept_dates_overlap_reverse(self):
+        catalogus = CatalogusFactory.create()
+
+        ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=False,
+        )
+
+        instance = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            zaaktype_omschrijving="test",
+            identificatie=1,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid="2018-12-31",
+            concept=True,
+        )
+        instance.clean()
+        self.assertEqual(ZaakType.objects.all().count(), 2)
