@@ -21,6 +21,35 @@ def has_overlapping_objects(
     begin_geldigheid: date,
     einde_geldigheid: Optional[date] = None,
     instance: Optional[models.Model] = None,
+) -> bool:
+
+    if catalogus and begin_geldigheid:
+        query = model_manager.filter(
+            Q(catalogus=catalogus),
+            Q(**omschrijving_query),
+            Q(datum_einde_geldigheid=None)
+            | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
+        )
+
+        if einde_geldigheid is not None:
+            query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
+
+        if instance:
+            query = query.exclude(pk=instance.pk)
+
+        if query.exists():
+            return True
+
+    return False
+
+
+def has_overlapping_objects_with_concepts(
+    model_manager: models.Manager,
+    catalogus: Catalogus,
+    omschrijving_query: dict,
+    begin_geldigheid: date,
+    einde_geldigheid: Optional[date] = None,
+    instance: Optional[models.Model] = None,
     concept: bool = None,
 ) -> bool:
     if concept:
@@ -30,6 +59,7 @@ def has_overlapping_objects(
         query = model_manager.filter(
             Q(catalogus=catalogus),
             Q(**omschrijving_query),
+            Q(concept=False),
             Q(datum_einde_geldigheid=None)
             | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
         )

@@ -47,7 +47,10 @@ class GeldigheidMixin(models.Model):
             en is gelijk aan of ligt voor de Datum einde geldigheid zaaktype
 
         """
-        from openzaak.components.catalogi.utils import has_overlapping_objects
+        from openzaak.components.catalogi.utils import (
+            has_overlapping_objects,
+            has_overlapping_objects_with_concepts,
+        )
 
         super().clean()
 
@@ -65,21 +68,30 @@ class GeldigheidMixin(models.Model):
             return
 
         if hasattr(self, "concept"):
-            concept = self.concept
+            has_overlap = has_overlapping_objects_with_concepts(
+                model_manager=self._meta.default_manager,
+                catalogus=catalogus,
+                omschrijving_query={
+                    self.omschrijving_field: getattr(self, self.omschrijving_field)
+                },
+                begin_geldigheid=self.datum_begin_geldigheid,
+                einde_geldigheid=self.datum_einde_geldigheid,
+                instance=self,
+                concept=self.concept,
+            )
         else:
-            concept = None
+            has_overlap = has_overlapping_objects(
+                model_manager=self._meta.default_manager,
+                catalogus=catalogus,
+                omschrijving_query={
+                    self.omschrijving_field: getattr(self, self.omschrijving_field)
+                },
+                begin_geldigheid=self.datum_begin_geldigheid,
+                einde_geldigheid=self.datum_einde_geldigheid,
+                instance=self,
+            )
 
-        if has_overlapping_objects(
-            model_manager=self._meta.default_manager,
-            catalogus=catalogus,
-            omschrijving_query={
-                self.omschrijving_field: getattr(self, self.omschrijving_field)
-            },
-            begin_geldigheid=self.datum_begin_geldigheid,
-            einde_geldigheid=self.datum_einde_geldigheid,
-            instance=self,
-            concept=concept,
-        ):
+        if has_overlap:
             raise ValidationError(
                 f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
                 "overlappende geldigheid hebben."
