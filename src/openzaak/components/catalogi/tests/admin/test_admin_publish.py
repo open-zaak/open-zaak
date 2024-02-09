@@ -303,6 +303,14 @@ class ZaaktypeAdminTests(
         besluit_type.refresh_from_db()
         self.assertFalse(besluit_type.concept)
 
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[1]),
+            _("Auto-published related besluittypen: {besluittypen}").format(
+                besluittypen=besluit_type.omschrijving
+            ),
+        )
+
         # Verify that the publish button is disabled.
         publish_button = response.html.find(
             "input", {"name": "_publish", "disabled": "disabled"}
@@ -427,6 +435,14 @@ class ZaaktypeAdminTests(
         self.assertFalse(zaaktype.concept)
         informatieobjecttype.refresh_from_db()
         self.assertFalse(informatieobjecttype.concept)
+
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[1]),
+            _("Auto-published related informatieobjecttypen: {iots}").format(
+                iots=informatieobjecttype.omschrijving
+            ),
+        )
 
         # Verify that the publish button is disabled.
         publish_button = response.html.find(
