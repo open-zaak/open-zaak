@@ -6,6 +6,7 @@ import zipfile
 
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError
+from django.utils.html import format_html
 from django.utils.translation import ngettext, ugettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
@@ -178,7 +179,12 @@ def import_zaaktype_for_catalogus(
 
     uuid_mapping = {}
 
+    files_not_found = []
+    files_found = []
+
     with zipfile.ZipFile(import_file, "r") as zip_file:
+
+        files_received = zip_file.namelist()
         for resource in [
             "ZaakType",
             "ZaakTypeInformatieObjectType",
@@ -187,8 +193,9 @@ def import_zaaktype_for_catalogus(
             "StatusType",
             "Eigenschap",
         ]:
-            if f"{resource}.json" in zip_file.namelist():
+            if f"{resource}.json" in files_received:
                 data = zip_file.read(f"{resource}.json").decode()
+                files_found.append(f"{resource}.json")
 
                 if resource == "ZaakTypeInformatieObjectType":
                     for old, new in iotypen_uuid_mapping.items():
@@ -239,6 +246,19 @@ def import_zaaktype_for_catalogus(
                                 "A validation error occurred while deserializing a {}\n{}"
                             ).format(resource, deserialized.errors)
                         )
+            else:
+                files_not_found.append(f"{resource}.json")
+
+    if len(files_found) < 1:
+        msg = _(
+            "No files found. Expected: {files_not_found} but received:<br> {files_received}"
+        )
+        msg_dict = {
+            "files_not_found": ", ".join(files_not_found),
+            "files_received": ", ".join(files_received),
+        }
+
+        raise CommandError(format_html(msg, **msg_dict))
 
 
 def format_duration(rel_delta: relativedelta) -> str:

@@ -85,6 +85,7 @@ class CatalogusZaakTypeImportUploadView(
                     )
                 except CommandError as exc:
                     messages.add_message(request, messages.ERROR, exc)
+
         return TemplateResponse(request, self.template_name, context)
 
 
