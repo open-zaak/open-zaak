@@ -21,7 +21,10 @@ def has_overlapping_objects(
     begin_geldigheid: date,
     einde_geldigheid: Optional[date] = None,
     instance: Optional[models.Model] = None,
+    concept: bool = None,
 ) -> bool:
+    if concept:
+        return False
 
     if catalogus and begin_geldigheid:
         query = model_manager.filter(

@@ -64,6 +64,11 @@ class GeldigheidMixin(models.Model):
         except self.__class__.catalogus.RelatedObjectDoesNotExist:
             return
 
+        if hasattr(self, "concept"):
+            concept = self.concept
+        else:
+            concept = None
+
         if has_overlapping_objects(
             model_manager=self._meta.default_manager,
             catalogus=catalogus,
@@ -73,6 +78,7 @@ class GeldigheidMixin(models.Model):
             begin_geldigheid=self.datum_begin_geldigheid,
             einde_geldigheid=self.datum_einde_geldigheid,
             instance=self,
+            concept=concept,
         ):
             raise ValidationError(
                 f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
