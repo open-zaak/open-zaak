@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
+    "django_setup_configuration"
     # Project applications.
     "openzaak",
     "openzaak.accounts",

@@ -47,6 +47,7 @@ humanize
 drc-cmis
 djangorestframework-inclusions
 drf-spectacular
+git+https://github.com/maykinmedia/django-setup-configuration.git@feature/1-config-command
 
 # WSGI servers & monitoring - production oriented
 uwsgi

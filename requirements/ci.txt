@@ -140,6 +140,7 @@ django==3.2.23
     #   django-relativedelta
     #   django-rest-framework-condition
     #   django-sendfile2
+    #   django-setup-configuration
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
@@ -211,6 +212,8 @@ django-sendfile2==0.7.0
     # via
     #   -r requirements/base.txt
     #   django-privates
+django_setup_configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@feature/1-config-command
+    # via -r requirements/base.txt
 django-simple-certmanager==1.3.0
     # via
     #   -r requirements/base.txt
