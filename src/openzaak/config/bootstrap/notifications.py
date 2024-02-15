@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from dataclasses import dataclass, field
-from typing import List
-
+from django.conf import settings
+from django.core.management import CommandError, call_command
 from django.urls import reverse
-from django.utils.crypto import get_random_string
 
 import requests
+from django_setup_configuration.configuration import BaseConfigurationStep
+from django_setup_configuration.exceptions import SelfTestFailed
 from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
@@ -21,58 +21,54 @@ from zgw_consumers.models import Service
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 from openzaak.utils import build_absolute_url
 
-from .datastructures import Output
-from .exceptions import SelfTestFailure
 
-
-def generate_jwt_secret(prefix="oz"):
-    random_bit = get_random_string(length=20)
-    return f"{prefix}-{random_bit}"
-
-
-@dataclass
-class AutorisatiesAPIClientConfiguration:
+class AuthNotificationStep(BaseConfigurationStep):
     """
-    Configure the client for Notifications API to consume Autorisaties API.
+    Create an application record for the Notifications API in Open Zaak's autorisaties API.
+    This application is required if the Notifications API uses the Open Zaak autorisaties API
+    to check permissions of notification publishers/consumers.
+
+    Normal mode doesn't change the secret after its initial creation.
+    If the secret is changed, run this command with 'overwrite' flag
     """
 
-    org_name: str
-    client_id: str
-    secret: str
-    secret_provided: bool = field(init=False)
+    verbose_name = "Notification Autorisaties API Configuration"
+    required_settings = ["NOTIF_OPENZAAK_CLIENT_ID", "NOTIF_OPENZAAK_SECRET"]
+    enable_setting = "NOTIF_OPENZAAK_CONFIG_ENABLE"
 
-    def __post_init__(self):
-        self.secret_provided = bool(self.secret)
-
-        if not self.client_id:
-            self.client_id = f"notificaties-api-{self.normalized_org_name}"
-
-        if not self.secret:
-            self.secret = generate_jwt_secret()
-
-    @property
-    def normalized_org_name(self) -> str:
-        return self.org_name.lower().replace(" ", "-") or "ac"
-
-    def configure(self) -> List[Output]:
-        # check if there's an existing application/secret
-        jwt_secret, _ = JWTSecret.objects.get_or_create(
-            identifier=self.client_id, defaults={"secret": self.secret},
+    def is_configured(self) -> bool:
+        return (
+            JWTSecret.objects.filter(
+                identifier=settings.NOTIF_OPENZAAK_CLIENT_ID
+            ).exists()
+            and Applicatie.objects.filter(
+                client_ids__contains=[settings.NOTIF_OPENZAAK_CLIENT_ID]
+            ).exists()
         )
-        if self.secret_provided and jwt_secret.secret != self.secret:
-            jwt_secret.secret = self.secret
-            jwt_secret.save(update_fields=["secret"])
+
+    def configure(self) -> None:
+        # store client_id and secret
+        JWTSecret.objects.get_or_create(
+            identifier=settings.NOTIF_OPENZAAK_CLIENT_ID,
+            defaults={"secret": settings.NOTIF_OPENZAAK_SECRET},
+        )
 
         # check for the application
         try:
-            applicatie = Applicatie.objects.get(client_ids__contains=[self.client_id])
+            applicatie = Applicatie.objects.get(
+                client_ids__contains=[settings.NOTIF_OPENZAAK_CLIENT_ID]
+            )
         except Applicatie.DoesNotExist:
+            organization = (
+                settings.OPENZAAK_ORGANIZATION or settings.NOTIF_OPENZAAK_CLIENT_ID
+            )
             applicatie = Applicatie.objects.create(
-                client_ids=[self.client_id],
-                label=f"Notificaties API {self.org_name}".strip(),
+                client_ids=[settings.NOTIF_OPENZAAK_CLIENT_ID],
+                label=f"Notificaties API {organization}".strip(),
             )
 
         # finally, set up the appropriate permission(s)
+        # 1. Notification API should check permission scopes of requests
         ac_permission, _ = Autorisatie.objects.get_or_create(
             applicatie=applicatie,
             component=ComponentTypes.ac,
@@ -82,36 +78,28 @@ class AutorisatiesAPIClientConfiguration:
             ac_permission.scopes.append(SCOPE_AUTORISATIES_LEZEN)
             ac_permission.save(update_fields=["scopes"])
 
-        # Notifications API should subscribe to authorizations channel to invalidate
+        # 2. Notifications API should subscribe to authorizations channel to invalidate
         # applications/authorization caches
-        required_scopes = {
+        nrc_scopes = {
             SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
             SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
         }
         nrc_permission, _ = Autorisatie.objects.get_or_create(
             applicatie=applicatie,
             component=ComponentTypes.nrc,
-            defaults={"scopes": list(required_scopes)},
+            defaults={"scopes": list(nrc_scopes)},
         )
-        if not required_scopes.issubset(
-            (existing_scopes := set(nrc_permission.scopes))
-        ):
-            nrc_permission.scopes = sorted(required_scopes.union(existing_scopes))
+        if not nrc_scopes.issubset((existing_scopes := set(nrc_permission.scopes))):
+            nrc_permission.scopes = sorted(nrc_scopes.union(existing_scopes))
             nrc_permission.save(update_fields=["scopes"])
 
-        return [
-            Output(
-                id="autorisatiesAPIClientCredentials",
-                title="Notificaties API credentials for Open Zaak Autorisaties API",
-                data={"client_id": self.client_id, "secret": jwt_secret.secret,},
-            )
-        ]
-
-    def test_configuration(self) -> List[Output]:
-        # self test by listing the applications in the Autorisaties API
+    def test_configuration(self) -> None:
         endpoint = reverse("applicatie-list", kwargs={"version": "1"})
         full_url = build_absolute_url(endpoint, request=None)
-        auth = ClientAuth(client_id=self.client_id, secret=self.secret)
+        auth = ClientAuth(
+            client_id=settings.OPENZAAK_NOTIF_AUTH_CLIENT_ID,
+            secret=settings.NOTIF_OPENZAAK_SECRET,
+        )
 
         try:
             response = requests.get(
@@ -119,111 +107,97 @@ class AutorisatiesAPIClientConfiguration:
             )
             response.raise_for_status()
         except requests.RequestException as exc:
-            raise SelfTestFailure(
-                "Could not list applications from Autorisaties API"
+            raise SelfTestFailed(
+                f"Could not list applications from Autorisaties API for {settings.OPENZAAK_NOTIF_AUTH_CLIENT_ID}"
             ) from exc
 
-        return [
-            Output(
-                id="autorisatiesAPIClientSelfTest",
-                title="Autorisaties API client credentials are valid",
-                data={"success": True},
-            )
-        ]
 
-
-@dataclass
-class NotificationsAPIConfiguration:
+class NotificationsAPIConfigurationStep(BaseConfigurationStep):
     """
     Configure the Open Zaak client to publish notifications.
 
     1. Create application with permissions to publish notifications
     2. Create service for Notifications API
     3. Set up configuration to point to this service
+
+    Normal mode doesn't change the secret after its initial creation.
+    If the secret is changed, run this command with 'overwrite' flag
     """
 
-    org_name: str
-    uses_autorisaties_api: bool
-    api_root: str
-    client_id: str
-    client_id_provided: bool = field(init=False)
-    secret: str
-    secret_provided: bool = field(init=False)
+    verbose_name = "Notification API Configuration"
+    required_settings = [
+        "NOTIF_API_ROOT",
+        "OPENZAAK_NOTIF_CLIENT_ID",
+        "OPENZAAK_NOTIF_SECRET",
+    ]
+    enable_setting = "OPENZAAK_NOTIF_CONFIG_ENABLE"
 
-    def __post_init__(self):
-        self.secret_provided = bool(self.secret)
-        self.client_id_provided = bool(self.client_id)
+    def is_enabled(self) -> bool:
+        result = super().is_enabled()
 
-        if not self.api_root.endswith("/"):
-            self.api_root = f"{self.api_root}/"
+        if result is False:
+            return result
 
-        if not self.client_id:
-            self.client_id = f"open-zaak-{self.normalized_org_name}"
+        # extra check if notifications are enabled
+        return not settings.NOTIFICATIONS_DISABLED
 
-        if not self.secret:
-            self.secret = generate_jwt_secret()
+    def is_configured(self) -> bool:
+        application = Applicatie.objects.filter(
+            client_ids__contains=[settings.OPENZAAK_NOTIF_CLIENT_ID]
+        )
+        service = Service.objects.filter(api_root=settings.NOTIF_API_ROOT)
+        notif_config = NotificationsConfig.get_solo()
 
-    @property
-    def normalized_org_name(self) -> str:
-        return self.org_name.lower().replace(" ", "-") or "ac"
+        return (
+            application.exists()
+            and service.exists()
+            and bool(notif_config.notifications_api_service)
+        )
 
-    def configure(self) -> List[Output]:
-        org_label = f"Open Zaak {self.org_name}".strip()
+    def configure(self):
+        organization = (
+            settings.OPENZAAK_ORGANIZATION or settings.OPENZAAK_NOTIF_CLIENT_ID
+        )
+        org_label = f"Open Zaak {organization}".strip()
 
         # 1. set up application and permission (to be returned by Autorisaties API)
-        if self.uses_autorisaties_api:
-            try:
-                applicatie = Applicatie.objects.get(
-                    client_ids__contains=[self.client_id]
-                )
-            except Applicatie.DoesNotExist:
-                applicatie = Applicatie.objects.create(
-                    client_ids=[self.client_id], label=org_label
-                )
-            required_scopes = {
-                SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
-                SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,  # TODO: figure out why this is needed!
-            }
-            permission, _ = Autorisatie.objects.get_or_create(
-                applicatie=applicatie,
-                component=ComponentTypes.nrc,
-                defaults={"scopes": list(required_scopes)},
+        try:
+            applicatie = Applicatie.objects.get(
+                client_ids__contains=[settings.OPENZAAK_NOTIF_CLIENT_ID]
             )
-            if not required_scopes.issubset(
-                (existing_scopes := set(permission.scopes))
-            ):
-                permission.scopes = sorted(required_scopes.union(existing_scopes))
-                permission.save(update_fields=["scopes"])
+        except Applicatie.DoesNotExist:
+            applicatie = Applicatie.objects.create(
+                client_ids=[settings.OPENZAAK_NOTIF_CLIENT_ID], label=org_label
+            )
+
+        nrc_scopes = {
+            SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
+            SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
+        }
+        nrc_permission, _ = Autorisatie.objects.get_or_create(
+            applicatie=applicatie,
+            component=ComponentTypes.nrc,
+            defaults={"scopes": list(nrc_scopes)},
+        )
+        if not nrc_scopes.issubset((existing_scopes := set(nrc_permission.scopes))):
+            nrc_permission.scopes = sorted(nrc_scopes.union(existing_scopes))
+            nrc_permission.save(update_fields=["scopes"])
 
         # 2. Set up a service and credentials for the notifications API so Open Zaak
         #    can consume it (read: publish notifications)
         service, created = Service.objects.update_or_create(
-            api_root=self.api_root,
+            api_root=settings.NOTIF_API_ROOT,
             defaults={
+                "label": "Notificaties API",
                 "api_type": APITypes.nrc,
-                "oas": f"{self.api_root}schema/openapi.yaml",
+                "oas": settings.NOTIF_API_OAS,
                 "auth_type": AuthTypes.zgw,
+                "client_id": settings.OPENZAAK_NOTIF_CLIENT_ID,
+                "secret": settings.OPENZAAK_NOTIF_SECRET,
+                "user_id": settings.OPENZAAK_NOTIF_CLIENT_ID,
+                "user_representation": org_label,
             },
         )
-        if created:
-            # this values should only be set initially, but can be edited in the admin
-            # afterwards without any problems
-            service.label = "Notificaties API"
-            service.secret = self.secret
-            service.client_id = self.client_id
-            service.user_id = self.client_id
-            service.user_representation = org_label
-            service.save()
-        else:
-            update_fields = []
-            if self.client_id_provided and service.client_id != self.client_id:
-                service.client_id = self.client_id
-                update_fields.append("client_id")
-            if self.secret_provided and service.secret != self.secret:
-                service.secret = self.secret
-                update_fields.append("secret")
-            if update_fields:
-                service.save(update_fields=update_fields)
 
         # 3. Set up configuration
         config = NotificationsConfig.get_solo()
@@ -231,30 +205,23 @@ class NotificationsAPIConfiguration:
             config.notifications_api_service = service
             config.save(update_fields=["notifications_api_service"])
 
-        return [
-            Output(
-                id="notificationsAPIConfiguration",
-                title="Notifications API configured",
-                data={"client_id": service.client_id, "secret": service.secret,},
-            )
-        ]
-
-    def test_configuration(self) -> List[Output]:
-        # do self-test - check if we can fetch list of kanalen
-        service = Service.objects.get(api_root=self.api_root)
+    def test_configuration(self):
+        """
+        1. fetch kanalen
+        2. send test notification
+        """
+        # check if we can fetch list of kanalen
+        service = Service.objects.get(api_root=settings.NOTIF_API_ROOT)
         client = service.build_client()
         try:
-            channels = client.list("kanaal")
+            client.list("kanaal")
         except (ClientError, requests.RequestException) as exc:
-            raise SelfTestFailure(
+            raise SelfTestFailed(
                 "Could not retrieve list of kanalen from Notificaties API."
             ) from exc
 
-        channel_names = [channel["naam"] for channel in channels] or ["(none)"]
-        return [
-            Output(
-                id="notificationsApiChannels",
-                title="Channels present in notifications API",
-                data={"channels": ", ".join(channel_names)},
-            )
-        ]
+        # todo add env var to test it?
+        try:
+            call_command("send_test_notification")
+        except CommandError as exc:
+            raise SelfTestFailed("Could not sent test notification") from exc
