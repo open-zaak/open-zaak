@@ -135,12 +135,12 @@ INSTALLED_APPS = [
     "django_db_logger",
     "corsheaders",
     "extra_views",
-    "vng_api_common",  # before drf_yasg to override the management command
+    "vng_api_common",
     "vng_api_common.authorizations",
     "vng_api_common.audittrails",
     "vng_api_common.notifications",
     "notifications_api_common",
-    "drf_yasg",
+    "drf_spectacular",
     "rest_framework",
     "rest_framework_gis",
     "django_markup",
@@ -712,8 +712,7 @@ LOG_OUTGOING_REQUESTS_DB_SAVE = config("LOG_OUTGOING_REQUESTS_DB_SAVE", default=
 # OpenZaak configuration
 #
 
-OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
-OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
+
 STORE_FAILED_NOTIFS = True
 
 # Expiry time in seconds for JWT

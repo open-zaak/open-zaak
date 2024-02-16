@@ -20,42 +20,40 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = REST_FRAMEWORK[
     "DEFAULT_RENDERER_CLASSES"
 ] + ("openzaak.utils.renderers.ProblemJSONRenderer",)
 
+REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
+
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
+OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
+OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 
-SWAGGER_SETTINGS = BASE_SWAGGER_SETTINGS.copy()
-SWAGGER_SETTINGS.update(
-    {
-        "DEFAULT_INFO": "openzaak.components.zaken.api.schema.info",  # TODO: fix it as parameter
-        "DEFAULT_AUTO_SCHEMA_CLASS": "openzaak.utils.schema.AutoSchema",
-        "SECURITY_DEFINITIONS": {
+SPECTACULAR_SETTINGS = {
+    # info object
+    "TITLE": "Open Zaak API",
+    "LICENSE": {"name": "EUPL 1.2", "url": "https://opensource.org/licenses/EUPL-1.2"},
+    "CONTACT": {"email": OPENZAAK_API_CONTACT_EMAIL, "url": OPENZAAK_API_CONTACT_URL},
+    "SERVE_INCLUDE_SCHEMA": False,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+    ],
+    "SCHEMA_PATH_PREFIX": "/v1",
+    "SCHEMA_PATH_PREFIX_TRIM": True,
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
             SECURITY_DEFINITION_NAME: {
-                # OAS 3.0
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT",
-                # not official...
-                # 'scopes': {},  # TODO: set up registry that's filled in later...
-                # Swagger 2.0
-                # 'name': 'Authorization',
-                # 'in': 'header'
-                # 'type': 'apiKey',
             }
-        },
-        "DEFAULT_FIELD_INSPECTORS": (
-            "vng_api_common.inspectors.geojson.GeometryFieldInspector",
-            "vng_api_common.inspectors.files.FileFieldInspector",
-            "openzaak.utils.inspectors.LengthHyperlinkedRelatedFieldInspector",
-            "django_loose_fk.inspectors.fields.LooseFkFieldInspector",
-            "openzaak.utils.inspectors.ExpandSerializerInspector",
-        )
-        + BASE_SWAGGER_SETTINGS["DEFAULT_FIELD_INSPECTORS"],
-        "DEFAULT_FILTER_INSPECTORS": (
-            "django_loose_fk.inspectors.query.FilterInspector",
-        )
-        + BASE_SWAGGER_SETTINGS["DEFAULT_FILTER_INSPECTORS"],
-    }
-)
+        }
+    },
+    "ENUM_GENERATE_CHOICE_DESCRIPTION": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "COMPONENT_NO_READ_ONLY_REQUIRED": True,
+    "DEFAULT_GENERATOR_CLASS": "openzaak.utils.generators.SchemaGenerator",
+}
+
 
 GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 

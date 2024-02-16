@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from drf_yasg.utils import no_body, swagger_auto_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -9,7 +9,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
-from openzaak.utils.schema import COMMON_ERROR_RESPONSES, use_ref
+from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import InformatieObjectType
 from ..filters import InformatieObjectTypeFilter
@@ -24,6 +24,41 @@ from ..serializers import InformatieObjectTypeSerializer
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle INFORMATIEOBJECTTYPEn opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke INFORMATIEOBJECTTYPE opvragen.",
+        description="Een specifieke INFORMATIEOBJECTTYPE opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een INFORMATIEOBJECTTYPE aan.",
+        description="Maak een INFORMATIEOBJECTTYPE aan.",
+    ),
+    update=extend_schema(
+        summary="Werk een INFORMATIEOBJECTTYPE in zijn geheel bij.",
+        description=(
+            "Werk een INFORMATIEOBJECTTYPE in zijn geheel bij. Dit kan alleen als het een "
+            "concept betreft."
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een INFORMATIEOBJECTTYPE deels bij.",
+        description=(
+            "Werk een INFORMATIEOBJECTTYPE deels bij. Dit kan alleen als het een concept "
+            "betreft."
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een INFORMATIEOBJECTTYPE.",
+        description=(
+            "Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een concept "
+            "betreft."
+        ),
+    ),
+)
 @conditional_retrieve()
 class InformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
@@ -38,39 +73,6 @@ class InformatieObjectTypeViewSet(
 
     Een INFORMATIEOBJECTTYPE beschijft de karakteristieken van een document of
     ander object dat informatie bevat.
-
-    create:
-    Maak een INFORMATIEOBJECTTYPE aan.
-
-    Maak een INFORMATIEOBJECTTYPE aan.
-
-    list:
-    Alle INFORMATIEOBJECTTYPEn opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke INFORMATIEOBJECTTYPE opvragen.
-
-    Een specifieke INFORMATIEOBJECTTYPE opvragen.
-
-    update:
-    Werk een INFORMATIEOBJECTTYPE in zijn geheel bij.
-
-    Werk een INFORMATIEOBJECTTYPE in zijn geheel bij. Dit kan alleen als het een
-    concept betreft.
-
-    partial_update:
-    Werk een INFORMATIEOBJECTTYPE deels bij.
-
-    Werk een INFORMATIEOBJECTTYPE deels bij. Dit kan alleen als het een concept
-    betreft.
-
-    destroy:
-    Verwijder een INFORMATIEOBJECTTYPE.
-
-    Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een concept
-    betreft.
 
     publish:
     Publiceer het concept INFORMATIEOBJECTTYPE.
@@ -104,14 +106,22 @@ class InformatieObjectTypeViewSet(
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
 
-    @swagger_auto_schema(
-        request_body=no_body,
+    @extend_schema(
+        "informatieobjecttype_publish",
+        summary="Publiceer het concept INFORMATIEOBJECTTYPE.",
+        description=(
+            "Publiceren van het informatieobjecttype zorgt ervoor dat dit in een Documenten API "
+            "kan gebruikt worden. Na het publiceren van een informatieobjecttype zijn geen "
+            "inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren nog wat "
+            "gewijzigd moet worden, dan moet je een nieuwe versie aanmaken."
+        ),
+        request=None,
         responses={
-            status.HTTP_200_OK: serializer_class,
-            status.HTTP_400_BAD_REQUEST: use_ref,
+            status.HTTP_200_OK: InformatieObjectTypeSerializer,
+            **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
     )
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], name="informatieobjecttype_publish")
     def publish(self, *args, **kwargs):
         return super()._publish(*args, **kwargs)

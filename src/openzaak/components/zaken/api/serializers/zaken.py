@@ -182,6 +182,7 @@ class ZaakSerializer(
         view_name="zaakeigenschap-detail",
         parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
         source="zaakeigenschap_set",
+        help_text=_("URL-referenties naar ZAAK-EIGENSCHAPPen."),
     )
     rollen = NestedHyperlinkedRelatedField(
         many=True,

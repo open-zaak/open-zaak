@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -19,42 +20,38 @@ from ..serializers import ZaakObjectTypeSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle ZAAKOBJECTTYPEn opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke ZAAKOBJECTTYPE opvragen.",
+        description="Een specifieke ZAAKOBJECTTYPE opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een ZAAKOBJECTTYPE aan.",
+        description="Maak een ZAAKOBJECTTYPE aan.",
+    ),
+    update=extend_schema(
+        summary="Werk een ZAAKOBJECTTYPE in zijn geheel bij.",
+        description="Werk een ZAAKOBJECTTYPE in zijn geheel bij.",
+    ),
+    partial_update=extend_schema(
+        summary="Werk een ZAAKOBJECTTYPE deels bij.",
+        description="Werk een ZAAKOBJECTTYPE deels bij.",
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een ZAAKOBJECTTYPE.",
+        description="Verwijder een ZAAKOBJECTTYPE.",
+    ),
+)
 @conditional_retrieve()
 class ZaakObjectTypeViewSet(
     CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
 ):
     """
     Opvragen en bewerken van ZAAKOBJECTTYPEn.
-
-    create:
-    Maak een ZAAKOBJECTTYPE aan.
-
-    Maak een ZAAKOBJECTTYPE aan.
-
-    list:
-    Alle ZAAKOBJECTTYPEn opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke ZAAKOBJECTTYPE opvragen.
-
-    Een specifieke ZAAKOBJECTTYPE opvragen.
-
-    update:
-    Werk een ZAAKOBJECTTYPE in zijn geheel bij.
-
-    Werk een ZAAKOBJECTTYPE in zijn geheel bij.
-
-    partial_update:
-    Werk een ZAAKOBJECTTYPE deels bij.
-
-    Werk een ZAAKOBJECTTYPE deels bij.
-
-    destroy:
-    Verwijder een ZAAKOBJECTTYPE.
-
-    Verwijder een ZAAKOBJECTTYPE.
     """
 
     queryset = (

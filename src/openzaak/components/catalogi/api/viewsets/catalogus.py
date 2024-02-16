@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -13,46 +14,25 @@ from ..scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..serializers import CatalogusSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle CATALOGUSsen opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke CATALOGUS opvragen.",
+        description="Een specifieke CATALOGUS opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een CATALOGUS aan.", description="Maak een CATALOGUS aan."
+    ),
+)
 @conditional_retrieve()
 class CatalogusViewSet(
     CheckQueryParamsMixin, mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet
 ):
     """
     Opvragen en bewerken van CATALOGUSsen.
-
-    De verzameling van ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn voor
-    een domein die als één geheel beheerd wordt.
-
-    create:
-    Maak een CATALOGUS aan.
-
-    Maak een CATALOGUS aan.
-
-    list:
-    Alle CATALOGUSsen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke CATALOGUS opvragen.
-
-    Een specifieke CATALOGUS opvragen.
-
-    update:
-    Werk een CATALOGUS in zijn geheel bij.
-
-    Werk een CATALOGUS in zijn geheel bij.
-
-    partial_update:
-    Werk een CATALOGUS deels bij.
-
-    Werk een CATALOGUS deels bij.
-
-    destroy:
-    Verwijder een CATALOGUS.
-
-    Verwijder een CATALOGUS. Dit kan alleen als er geen onderliggende
-    ZAAKTYPEn, INFORMATIEOBJECTTYPEn en BESLUITTYPEn zijn.
     """
 
     queryset = (
@@ -69,5 +49,4 @@ class CatalogusViewSet(
         "list": SCOPE_CATALOGI_READ,
         "retrieve": SCOPE_CATALOGI_READ,
         "create": SCOPE_CATALOGI_WRITE,
-        "destroy": SCOPE_CATALOGI_WRITE,
     }

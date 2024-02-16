@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -19,6 +20,44 @@ from ..serializers import EigenschapSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle EIGENSCHAPpen opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke EIGENSCHAP opvragen.",
+        description="Een specifieke EIGENSCHAP opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een EIGENSCHAP aan.",
+        description=(
+            "Maak een EIGENSCHAP aan. Dit kan alleen als het bijbehorende ZAAKTYPE een "
+            "concept betreft."
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een EIGENSCHAP in zijn geheel bij.",
+        description=(
+            "Werk een EIGENSCHAP in zijn geheel bij. Dit kan alleen als het "
+            "bijbehorende ZAAKTYPE een concept betreft."
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een EIGENSCHAP deels bij.",
+        description=(
+            "Werk een EIGENSCHAP deels bij. Dit kan alleen als het bijbehorende "
+            "ZAAKTYPE een concept betreft."
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een EIGENSCHAP.",
+        description=(
+            "Verwijder een EIGENSCHAP. Dit kan alleen als het bijbehorende ZAAKTYPE een "
+            "concept betreft."
+        ),
+    ),
+)
 @conditional_retrieve()
 class EigenschapViewSet(
     CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
@@ -28,40 +67,6 @@ class EigenschapViewSet(
 
     Een relevant inhoudelijk gegeven dat bij ZAAKen van dit ZAAKTYPE
     geregistreerd moet kunnen worden en geen standaard kenmerk is van een zaak.
-
-    create:
-    Maak een EIGENSCHAP aan.
-
-    Maak een EIGENSCHAP aan. Dit kan alleen als het bijbehorende ZAAKTYPE een
-    concept betreft.
-
-    list:
-    Alle EIGENSCHAPpen opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke EIGENSCHAP opvragen.
-
-    Een specifieke EIGENSCHAP opvragen.
-
-    update:
-    Werk een EIGENSCHAP in zijn geheel bij.
-
-    Werk een EIGENSCHAP in zijn geheel bij. Dit kan alleen als het
-    bijbehorende ZAAKTYPE een concept betreft.
-
-    partial_update:
-    Werk een EIGENSCHAP deels bij.
-
-    Werk een EIGENSCHAP deels bij. Dit kan alleen als het bijbehorende
-    ZAAKTYPE een concept betreft.
-
-    destroy:
-    Verwijder een EIGENSCHAP.
-
-    Verwijder een EIGENSCHAP. Dit kan alleen als het bijbehorende ZAAKTYPE een
-    concept betreft.
     """
 
     queryset = (

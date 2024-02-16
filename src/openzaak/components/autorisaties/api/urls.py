@@ -1,23 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.conf import settings
 from django.conf.urls import url
 from django.urls import include, path
 
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 from vng_api_common import routers
-from vng_api_common.schema import SchemaView as _SchemaView
 
-from ..api.schema import info
+from ..api.schema import custom_settings
 from .viewsets import ApplicatieViewSet
 
 router = routers.DefaultRouter()
 router.register("applicaties", ApplicatieViewSet)
-
-
-# set the path to schema file
-class SchemaView(_SchemaView):
-    schema_path = settings.SPEC_URL["autorisaties"]
-    info = info
 
 
 urlpatterns = [
@@ -26,15 +19,18 @@ urlpatterns = [
         include(
             [
                 # API documentation
-                url(
-                    r"^schema/openapi(?P<format>\.json|\.yaml)$",
-                    SchemaView.without_ui(cache_timeout=settings.SPEC_CACHE_TIMEOUT),
-                    name="schema-json-autorisaties",
+                path(
+                    "schema/openapi.yaml",
+                    SpectacularAPIView.as_view(
+                        urlconf="openzaak.components.autorisaties.api.urls",
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-autorisaties",
                 ),
-                url(
-                    r"^schema/$",
-                    SchemaView.with_ui(
-                        "redoc", cache_timeout=settings.SPEC_CACHE_TIMEOUT
+                path(
+                    "schema/",
+                    SpectacularRedocView.as_view(
+                        url_name="schema-autorisaties", title=custom_settings["TITLE"]
                     ),
                     name="schema-redoc-autorisaties",
                 ),
@@ -42,7 +38,6 @@ urlpatterns = [
                 url(r"^", include(router.urls)),
                 # should not be picked up by drf-yasg
                 path("", router.APIRootView.as_view(), name="api-root-autorisaties"),
-                path("", include("vng_api_common.api.urls")),
             ]
         ),
     )

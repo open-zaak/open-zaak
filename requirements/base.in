@@ -40,13 +40,13 @@ djangorestframework-gis
 drf-extra-fields
 django-filter
 djangorestframework-camel-case~=1.2.0
-drf-yasg
 drf-writable-nested
 commonground-api-common
 notifications-api-common
 humanize
 drc-cmis
 djangorestframework-inclusions
+drf-spectacular
 
 # WSGI servers & monitoring - production oriented
 uwsgi

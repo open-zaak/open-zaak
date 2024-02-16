@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -19,6 +20,44 @@ from ..serializers import ResultaatTypeSerializer
 from .mixins import ZaakTypeConceptMixin
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle RESULTAATTYPEn opvragen.",
+        description="Deze lijst kan gefilterd wordt met query-string parameters.",
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke RESULTAATTYPE opvragen.",
+        description="Een specifieke RESULTAATTYPE opvragen.",
+    ),
+    create=extend_schema(
+        summary="Maak een RESULTAATTYPE aan.",
+        description=(
+            "Maak een RESULTAATTYPE aan. Dit kan alleen als het bijbehorende ZAAKTYPE een "
+            "concept betreft."
+        ),
+    ),
+    update=extend_schema(
+        summary="Werk een RESULTAATTYPE in zijn geheel bij.",
+        description=(
+            "Werk een RESULTAATTYPE in zijn geheel bij. Dit kan alleen als het "
+            "bijbehorende ZAAKTYPE een concept betreft."
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Werk een RESULTAATTYPE deels bij.",
+        description=(
+            "Werk een RESULTAATTYPE deels bij. Dit kan alleen als het bijbehorende "
+            "ZAAKTYPE een concept betreft."
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een RESULTAATTYPE.",
+        description=(
+            "Verwijder een RESULTAATTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE "
+            "een concept betreft."
+        ),
+    ),
+)
 @conditional_retrieve()
 class ResultaatTypeViewSet(
     CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
@@ -28,40 +67,6 @@ class ResultaatTypeViewSet(
 
     Het betreft de indeling of groepering van resultaten van zaken van hetzelfde
     ZAAKTYPE naar hun aard, zoals 'verleend', 'geweigerd', 'verwerkt', etc.
-
-    create:
-    Maak een RESULTAATTYPE aan.
-
-    Maak een RESULTAATTYPE aan. Dit kan alleen als het bijbehorende ZAAKTYPE een
-    concept betreft.
-
-    list:
-    Alle RESULTAATTYPEn opvragen.
-
-    Deze lijst kan gefilterd wordt met query-string parameters.
-
-    retrieve:
-    Een specifieke RESULTAATTYPE opvragen.
-
-    Een specifieke RESULTAATTYPE opvragen.
-
-    update:
-    Werk een RESULTAATTYPE in zijn geheel bij.
-
-    Werk een RESULTAATTYPE in zijn geheel bij. Dit kan alleen als het
-    bijbehorende ZAAKTYPE een concept betreft.
-
-    partial_update:
-    Werk een RESULTAATTYPE deels bij.
-
-    Werk een RESULTAATTYPE deels bij. Dit kan alleen als het bijbehorende
-    ZAAKTYPE een concept betreft.
-
-    destroy:
-    Verwijder een RESULTAATTYPE.
-
-    Verwijder een RESULTAATTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE
-    een concept betreft.
     """
 
     queryset = (
