@@ -4,17 +4,6 @@
 {% load i18n admin_urls %}
 {% load static %}
 
-{% block extrahead %}
-    {{ block.super }}
-    <script src="{% static 'vng_api_common/libs/jquery/jquery-3.3.1.slim.min.js' %}"></script>
-    <script src="{% static 'vng_api_common/libs/bootstrap/js/bootstrap.min.js' %}"></script>
-{% endblock %}
-
-{% block extrastyle %}
-    <link rel="stylesheet" href="{% static 'vng_api_common/libs/bootstrap/css/bootstrap.min.css' %}">
-    {{ block.super }}
-{% endblock %}
-
 {% block content %}
 {% if object.audittrail %}
 <div id="content-main-audittrail">

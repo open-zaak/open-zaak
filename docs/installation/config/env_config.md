@@ -164,9 +164,9 @@ on Docker, since `localhost` is contained within the container:
   disabling SSL certificate verification. Example:
   `EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt`.
 
-* `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate verification.
-    More information about why can be found [here](https://stackoverflow.com/a/48391751/7146757). Even calls from Open
-    Zaak to other services such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
+* `CURL_CA_BUNDLE`: if this variable is set to an empty string, it disables SSL/TLS certificate 
+    verification. Even calls from Open Zaak to other services 
+    such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
     variable should be used with care to prevent unwanted side-effects.
 
 * `NOTIFICATIONS_DISABLED`: if this variable is set to `true`, `yes` or `1`, the notification mechanism will be
