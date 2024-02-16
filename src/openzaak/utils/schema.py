@@ -65,96 +65,6 @@ def get_external_schema_ref(serializer: serializers.Serializer) -> str:
     return f.url
 
 
-class OldAutoSchema(_OldAutoSchema):
-    def get_response_schemas(self, response_serializers):
-        # parent class doesn't support the `use_ref` singleton - we convert them to
-        # ResponseRef instances
-        for status_code, serializer in response_serializers.items():
-            if serializer is use_ref:
-                response_serializers[status_code] = ResponseRef(
-                    self.components, str(status_code)
-                )
-
-        responses = super().get_response_schemas(response_serializers)
-
-        if not hasattr(self.view, "deprecation_message"):
-            return responses
-
-        for status_code, response in responses.items():
-            if not isinstance(response, ResponseRef):
-                response.setdefault("headers", OrderedDict())
-                response["headers"][WARNING_HEADER] = warning_header
-
-        return responses
-
-    def get_security(self):
-        """Return a list of security requirements for this operation.
-
-        Returning an empty list marks the endpoint as unauthenticated (i.e. removes all accepted
-        authentication schemes). Returning ``None`` will inherit the top-level secuirty requirements.
-
-        :return: security requirements
-        :rtype: list[dict[str,list[str]]]"""
-        permissions = self.view.get_permissions()
-        scope_permissions = [
-            perm for perm in permissions if isinstance(perm, AuthRequired)
-        ]
-
-        if not scope_permissions:
-            return super().get_security()
-
-        if len(permissions) != len(scope_permissions):
-            logger.warning(
-                "Can't represent all permissions in OAS for path %s and method %s",
-                self.path,
-                self.method,
-            )
-
-        required_scopes = []
-        for perm in scope_permissions:
-            scopes = get_required_scopes(None, self.view)
-            if scopes is None:
-                continue
-            required_scopes.append(scopes)
-
-        if not required_scopes:
-            return None  # use global security
-
-        scopes = [str(scope) for scope in sorted(required_scopes)]
-
-        # operation level security
-        return [{settings.SECURITY_DEFINITION_NAME: scopes}]
-
-    def get_produces(self):
-        """
-        Remove the application/problem+json content type.
-
-        Workaround - these are patched in afterwards. The produce values depends on the
-        context, which is not supported in OpenAPI 2.0.x.
-        """
-        produces = super().get_produces()
-
-        # patched in after the conversion of OAS 2.0 -> OAS 3.0
-        if ERROR_CONTENT_TYPE in produces:
-            produces.remove(ERROR_CONTENT_TYPE)
-
-        return produces
-
-    def is_deprecated(self):
-        deprecation_message = getattr(self.view, "deprecation_message", None)
-        return bool(deprecation_message) or super().is_deprecated()
-
-    def should_filter(self) -> bool:
-        """
-        support expand for detail views
-        """
-        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
-        if self.method == "GET" and include_allowed:
-            return True
-
-        return super().should_page()
-
-
 class AutoSchema(_AutoSchema):
     def get_auth(self) -> List[Dict[str, List[str]]]:
         """
@@ -599,3 +509,11 @@ class AutoSchema(_AutoSchema):
         if self.method == "HEAD":
             return _("Vraag de headers op die je bij een GET request zou krijgen.")
         return super().get_description()
+
+    def get_filter_backends(self):
+        """ support expand for detail views """
+        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
+        if self.method == "GET" and include_allowed:
+            return getattr(self.view, "filter_backends", [])
+
+        return super().get_filter_backends()

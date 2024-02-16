@@ -5,7 +5,7 @@ from django.utils.text import gettext_lazy as _
 from rest_framework import serializers
 from vng_api_common.utils import get_help_text
 
-from ...models import BesluitType, InformatieObjectType, ZaakType
+from ...models import BesluitType, InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
     GeldigheidValidator,
