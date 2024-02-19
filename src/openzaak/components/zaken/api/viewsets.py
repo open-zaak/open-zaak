@@ -763,16 +763,17 @@ class ZaakInformatieObjectViewSet(
     ),
     retrieve=extend_schema(
         summary="Een specifieke ZAAKEIGENSCHAP opvragen.",
-        description=(
-                "Een specifieke ZAAKEIGENSCHAP opvragen.\n"
-                "** Er wordt gevalideerd op**\n"
-                "\n"
-                "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`."
-        ),
+        description="Een specifieke ZAAKEIGENSCHAP opvragen.",
     ),
     create=extend_schema(
         summary="Maak een ZAAKEIGENSCHAP aan.",
-        description="Maak een ZAAKEIGENSCHAP aan.",
+        description=(
+            "Maak een ZAAKEIGENSCHAP aan.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "\n"
+            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`."
+        ),
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
