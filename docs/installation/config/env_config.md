@@ -179,6 +179,10 @@ on Docker, since `localhost` is contained within the container:
   Example:
   `LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/`
 
+* `ZAAK_EIGENSCHAP_WAARDE_VALIDATION`: if this variable is set to `true`, `yes` or `1`, `ZaakEignschap.waarde` 
+  property would be validated against the related `Eigenschap.specificatie`. Defaults to `False`.
+
+
 ### Initial superuser creation
 
 A clean installation of Open Zaak comes without pre-installed or pre-configured admin

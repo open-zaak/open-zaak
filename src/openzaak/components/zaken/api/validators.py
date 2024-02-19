@@ -578,6 +578,9 @@ class ZaakEigenschapValueValidator:
     requires_context = True
 
     def __call__(self, attrs, serializer):
+        if not settings.ZAAK_EIGENSCHAP_WAARDE_VALIDATION:
+            return
+
         eigenschap = get_from_serializer_data_or_instance(
             "eigenschap", attrs, serializer
         )
