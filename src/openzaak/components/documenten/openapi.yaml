@@ -5985,10 +5985,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - In bewerking
-            * `ter_vaststelling` - Ter vaststelling
-            * `definitief` - Definitief
-            * `gearchiveerd` - Gearchiveerd
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
           oneOf:
           - $ref: '#/components/schemas/StatusEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -6169,10 +6169,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - In bewerking
-            * `ter_vaststelling` - Ter vaststelling
-            * `definitief` - Definitief
-            * `gearchiveerd` - Gearchiveerd
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
           oneOf:
           - $ref: '#/components/schemas/StatusEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -6332,10 +6332,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - In bewerking
-            * `ter_vaststelling` - Ter vaststelling
-            * `definitief` - Definitief
-            * `gearchiveerd` - Gearchiveerd
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
           oneOf:
           - $ref: '#/components/schemas/StatusEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -7038,10 +7038,10 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `in_bewerking` - In bewerking
-            * `ter_vaststelling` - Ter vaststelling
-            * `definitief` - Definitief
-            * `gearchiveerd` - Gearchiveerd
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
           oneOf:
           - $ref: '#/components/schemas/StatusEnum'
           - $ref: '#/components/schemas/BlankEnum'

@@ -10823,19 +10823,20 @@ components:
         omschrijvingGeneriek:
           type: string
           readOnly: true
-          description: |-
-            Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
-
-            Uitleg bij mogelijke waarden:
-
-            * `adviseur` - Adviseur
-            * `behandelaar` - Behandelaar
-            * `belanghebbende` - Belanghebbende
-            * `beslisser` - Beslisser
-            * `initiator` - Initiator
-            * `klantcontacter` - Klantcontacter
-            * `zaakcoordinator` - Zaakcoördinator
-            * `mede_initiator` - Mede-initiator
+          description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
+            \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
+            \ (Adviseur) Kennis in dienst stellen van de behandeling van (een deel\
+            \ van) een zaak.\n* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling\
+            \ doen van (een deel van) een zaak.\n* `belanghebbende` - (Belanghebbende)\
+            \ Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de\
+            \ behandeling en/of de uitkomst van een zaak.\n* `beslisser` - (Beslisser)\
+            \ Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.\n\
+            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak\
+            \ ..\n* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn\
+            \ voor vragen van burgers en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator)\
+            \ Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd\
+            \ wordt conform de daarover gemaakte afspraken.\n* `mede_initiator` -\
+            \ (Mede-initiator) "
         roltoelichting:
           type: string
           maxLength: 1000
