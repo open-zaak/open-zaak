@@ -172,6 +172,9 @@ on Docker, since `localhost` is contained within the container:
 * `NOTIFICATIONS_DISABLED`: if this variable is set to `true`, `yes` or `1`, the notification mechanism will be
     disabled. Defaults to `False`.
 
+* `ZAAK_EIGENSCHAP_WAARDE_VALIDATION`: if this variable is set to `true`, `yes` or `1`, `ZaakEignschap.waarde` 
+  property would be validated against the related `Eigenschap.specificatie`. Defaults to `False`.
+
 ### Initial superuser creation
 
 A clean installation of Open Zaak comes without pre-installed or pre-configured admin

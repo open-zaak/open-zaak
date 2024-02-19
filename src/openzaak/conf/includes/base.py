@@ -730,3 +730,7 @@ CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
 
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")
+
+ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
+    "ZAAK_EIGENSCHAP_WAARDE_VALIDATION", default=False
+)

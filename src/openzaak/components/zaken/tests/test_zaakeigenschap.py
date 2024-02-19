@@ -463,6 +463,7 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "jwt-expired")
 
 
+@override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=True)
 class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
     """
     test that `waarde` is validated against `eigenschap.specificatie`
@@ -697,3 +698,20 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    @override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=False)
+    def test_incorrect_but_env_var_false(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__lengte="4",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
