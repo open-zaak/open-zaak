@@ -10553,20 +10553,35 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: |-
-            Wijze van bepalen van de brondatum.
-
-            Uitleg bij mogelijke waarden:
-
-            * `afgehandeld` - Afgehandeld
-            * `ander_datumkenmerk` - Ander datumkenmerk
-            * `eigenschap` - Eigenschap
-            * `gerelateerde_zaak` - Gerelateerde zaak
-            * `hoofdzaak` - Hoofdzaak
-            * `ingangsdatum_besluit` - Ingangsdatum besluit
-            * `termijn` - Termijn
-            * `vervaldatum_besluit` - Vervaldatum besluit
-            * `zaakobject` - Zaakobject
+          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
+            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
+            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+            \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
+            \ in een ander datumveld dan de datumvelden waarop de overige waarden\
+            \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
+            \ en `Datumkenmerk` zijn niet leeg.\n* `eigenschap` - (Eigenschap) De\
+            \ termijn start op de datum die is vastgelegd in een ander datumveld dan\
+            \ de datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking\
+            \ hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg.\n\
+            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
+            \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
+            \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
+            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
+            \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
+            \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
+            \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\
+            \ termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
+            \ in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitType\n*\
+            \ `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum\
+            \ waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).\n* `vervaldatum_besluit`\
+            \ - (Vervaldatum besluit) De termijn start op de dag na de datum waarop\
+            \ het besluit vervalt (`BESLUIT.Vervaldatum` in het RGBZ). ResultaatType.ZaakType\
+            \ heeft relevant BesluitType\n* `zaakobject` - (Zaakobject) De termijn\
+            \ start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking\
+            \ heeft (bijvoorbeeld de overlijdendatum van een Persoon). M.b.v. de attribuutsoort\
+            \ `Objecttype` wordt vastgelegd om welke zaakobjecttype het gaat; m.b.v.\
+            \ de attribuutsoort `Datumkenmerk` wordt vastgelegd welke datum-attribuutsoort\
+            \ van het zaakobjecttype het betreft."
         datumkenmerk:
           type: string
           description: Naam van de attribuutsoort van het procesobject dat bepalend
@@ -10639,20 +10654,35 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: |-
-            Wijze van bepalen van de brondatum.
-
-            Uitleg bij mogelijke waarden:
-
-            * `afgehandeld` - Afgehandeld
-            * `ander_datumkenmerk` - Ander datumkenmerk
-            * `eigenschap` - Eigenschap
-            * `gerelateerde_zaak` - Gerelateerde zaak
-            * `hoofdzaak` - Hoofdzaak
-            * `ingangsdatum_besluit` - Ingangsdatum besluit
-            * `termijn` - Termijn
-            * `vervaldatum_besluit` - Vervaldatum besluit
-            * `zaakobject` - Zaakobject
+          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
+            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
+            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+            \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
+            \ in een ander datumveld dan de datumvelden waarop de overige waarden\
+            \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
+            \ en `Datumkenmerk` zijn niet leeg.\n* `eigenschap` - (Eigenschap) De\
+            \ termijn start op de datum die is vastgelegd in een ander datumveld dan\
+            \ de datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking\
+            \ hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg.\n\
+            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
+            \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
+            \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
+            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
+            \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
+            \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
+            \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\
+            \ termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
+            \ in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitType\n*\
+            \ `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum\
+            \ waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).\n* `vervaldatum_besluit`\
+            \ - (Vervaldatum besluit) De termijn start op de dag na de datum waarop\
+            \ het besluit vervalt (`BESLUIT.Vervaldatum` in het RGBZ). ResultaatType.ZaakType\
+            \ heeft relevant BesluitType\n* `zaakobject` - (Zaakobject) De termijn\
+            \ start op de einddatum geldigheid van het zaakobject waarop de zaak betrekking\
+            \ heeft (bijvoorbeeld de overlijdendatum van een Persoon). M.b.v. de attribuutsoort\
+            \ `Objecttype` wordt vastgelegd om welke zaakobjecttype het gaat; m.b.v.\
+            \ de attribuutsoort `Datumkenmerk` wordt vastgelegd welke datum-attribuutsoort\
+            \ van het zaakobjecttype het betreft."
         datumkenmerk:
           type: string
           description: Naam van de attribuutsoort van het procesobject dat bepalend
@@ -12020,19 +12050,19 @@ components:
         omschrijvingGeneriek:
           allOf:
           - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
-          description: |-
-            Algemeen gehanteerde omschrijving van de aard van de ROL.
-
-            Uitleg bij mogelijke waarden:
-
-            * `adviseur` - Adviseur
-            * `behandelaar` - Behandelaar
-            * `belanghebbende` - Belanghebbende
-            * `beslisser` - Beslisser
-            * `initiator` - Initiator
-            * `klantcontacter` - Klantcontacter
-            * `zaakcoordinator` - Zaakcoördinator
-            * `mede_initiator` - Mede-initiator
+          description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
+            \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
+            \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
+            \ - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van)\
+            \ een zaak.\n* `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief\
+            \ belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst\
+            \ van een zaak.\n* `beslisser` - (Beslisser) Nemen van besluiten die voor\
+            \ de uitkomst van een zaak noodzakelijk zijn.\n* `initiator` - (Initiator)\
+            \ Aanleiding geven tot de start van een zaak ..\n* `klantcontacter` -\
+            \ (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers\
+            \ en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator) Er voor zorg\
+            \ dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt\
+            \ conform de daarover gemaakte afspraken.\n* `mede_initiator` - (Mede-initiator) "
         beginGeldigheid:
           type: string
           format: date
@@ -12735,19 +12765,19 @@ components:
         omschrijvingGeneriek:
           allOf:
           - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
-          description: |-
-            Algemeen gehanteerde omschrijving van de aard van de ROL.
-
-            Uitleg bij mogelijke waarden:
-
-            * `adviseur` - Adviseur
-            * `behandelaar` - Behandelaar
-            * `belanghebbende` - Belanghebbende
-            * `beslisser` - Beslisser
-            * `initiator` - Initiator
-            * `klantcontacter` - Klantcontacter
-            * `zaakcoordinator` - Zaakcoördinator
-            * `mede_initiator` - Mede-initiator
+          description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
+            \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
+            \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
+            \ - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van)\
+            \ een zaak.\n* `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief\
+            \ belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst\
+            \ van een zaak.\n* `beslisser` - (Beslisser) Nemen van besluiten die voor\
+            \ de uitkomst van een zaak noodzakelijk zijn.\n* `initiator` - (Initiator)\
+            \ Aanleiding geven tot de start van een zaak ..\n* `klantcontacter` -\
+            \ (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers\
+            \ en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator) Er voor zorg\
+            \ dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt\
+            \ conform de daarover gemaakte afspraken.\n* `mede_initiator` - (Mede-initiator) "
         catalogus:
           type: string
           format: uri
@@ -12794,19 +12824,19 @@ components:
         omschrijvingGeneriek:
           allOf:
           - $ref: '#/components/schemas/OmschrijvingGeneriekEnum'
-          description: |-
-            Algemeen gehanteerde omschrijving van de aard van de ROL.
-
-            Uitleg bij mogelijke waarden:
-
-            * `adviseur` - Adviseur
-            * `behandelaar` - Behandelaar
-            * `belanghebbende` - Belanghebbende
-            * `beslisser` - Beslisser
-            * `initiator` - Initiator
-            * `klantcontacter` - Klantcontacter
-            * `zaakcoordinator` - Zaakcoördinator
-            * `mede_initiator` - Mede-initiator
+          description: "Algemeen gehanteerde omschrijving van de aard van de ROL.\n\
+            \nUitleg bij mogelijke waarden:\n\n* `adviseur` - (Adviseur) Kennis in\
+            \ dienst stellen van de behandeling van (een deel van) een zaak.\n* `behandelaar`\
+            \ - (Behandelaar) De vakinhoudelijke behandeling doen van (een deel van)\
+            \ een zaak.\n* `belanghebbende` - (Belanghebbende) Vanuit eigen en objectief\
+            \ belang rechtstreeks betrokken zijn bij de behandeling en/of de uitkomst\
+            \ van een zaak.\n* `beslisser` - (Beslisser) Nemen van besluiten die voor\
+            \ de uitkomst van een zaak noodzakelijk zijn.\n* `initiator` - (Initiator)\
+            \ Aanleiding geven tot de start van een zaak ..\n* `klantcontacter` -\
+            \ (Klantcontacter) Het eerste aanspreekpunt zijn voor vragen van burgers\
+            \ en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator) Er voor zorg\
+            \ dragen dat de behandeling van de zaak in samenhang uitgevoerd wordt\
+            \ conform de daarover gemaakte afspraken.\n* `mede_initiator` - (Mede-initiator) "
         beginGeldigheid:
           type: string
           format: date
