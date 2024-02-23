@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from unittest.mock import patch
-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 import requests
 import requests_mock
+from django_setup_configuration.exceptions import SelfTestFailed
+from notifications_api_common.kanalen import KANAAL_REGISTRY
 from notifications_api_common.models import NotificationsConfig
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -13,50 +13,36 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from zgw_consumers.constants import AuthTypes
 from zgw_consumers.models import Service
 
+from openzaak.management.commands.send_test_notification import TEST_CHANNEL_NAME
 from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.tests.utils.auth import JWTAuthMixin
 
-from ...bootstrap.exceptions import SelfTestFailure
-from ...bootstrap.notifications import NotificationsAPIConfiguration
+from ...bootstrap.notifications import NotificationsAPIConfigurationStep
 
 
+@override_settings(
+    NOTIF_API_ROOT="https://notifs.example.com/api/v1/",
+    NOTIF_API_OAS="https://notifs.example.com/api/v1/schema/openapi.yaml",
+    OPENZAAK_NOTIF_CLIENT_ID="a-client-id",
+    OPENZAAK_NOTIF_SECRET="a-secret",
+)
 class NotificationsAPIConfigurationTests(TestCase):
-    @patch(
-        "openzaak.config.bootstrap.notifications.generate_jwt_secret",
-        return_value="not-so-random",
-    )
-    def test_create_missing_configuration(self, mock_generate):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="",
-            secret="",
-        )
+    @classmethod
+    def tearDownClass(cls):
+        """
+        remove kanaal created during self tests
+        """
+        super().tearDownClass()
 
-        output = configuration.configure()
+        kanalen = KANAAL_REGISTRY.copy()
+        for kanaal in kanalen:
+            if kanaal.label == TEST_CHANNEL_NAME:
+                KANAAL_REGISTRY.remove(kanaal)
 
-        service = NotificationsConfig.get_solo().notifications_api_service
-        self.assertIsNotNone(service)
-        self.assertEqual(service.api_root, "https://notifs.example.com/api/v1/")
-        self.assertEqual(service.client_id, "open-zaak-acme")
-        self.assertEqual(service.secret, "not-so-random")
+    def test_create_configuration(self):
+        configuration = NotificationsAPIConfigurationStep()
 
-        self.assertEqual(output[0].id, "notificationsAPIConfiguration")
-        self.assertEqual(
-            output[0].data, {"client_id": "open-zaak-acme", "secret": "not-so-random",}
-        )
-
-    def test_create_missing_configuration_explicit_credentials(self):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1/",
-            client_id="a-client-id",
-            secret="a-secret",
-        )
-
-        output = configuration.configure()
+        configuration.configure()
 
         service = NotificationsConfig.get_solo().notifications_api_service
         self.assertIsNotNone(service)
@@ -64,19 +50,7 @@ class NotificationsAPIConfigurationTests(TestCase):
         self.assertEqual(service.client_id, "a-client-id")
         self.assertEqual(service.secret, "a-secret")
 
-        self.assertEqual(output[0].id, "notificationsAPIConfiguration")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "a-secret",}
-        )
-
     def test_update_existing_configuration(self):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="a-client-id",
-            secret="new-secret",
-        )
         # set up service to be replaced
         old_service = Service.objects.create(
             api_root="http://old-notifs.example.com/api/v1", api_type="nrc"
@@ -85,28 +59,17 @@ class NotificationsAPIConfigurationTests(TestCase):
         config.notifications_api_service = old_service
         config.save()
 
-        output = configuration.configure()
+        configuration = NotificationsAPIConfigurationStep()
+        configuration.configure()
 
         service = NotificationsConfig.get_solo().notifications_api_service
         self.assertIsNotNone(service)
         self.assertNotEqual(service, old_service)
         self.assertEqual(service.api_root, "https://notifs.example.com/api/v1/")
         self.assertEqual(service.client_id, "a-client-id")
-        self.assertEqual(service.secret, "new-secret")
-
-        self.assertEqual(output[0].id, "notificationsAPIConfiguration")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "new-secret",}
-        )
+        self.assertEqual(service.secret, "a-secret")
 
     def test_update_existing_configuration_no_new_service(self):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="a-client-id",
-            secret="new-secret",
-        )
         # set up service to be replaced
         old_service = Service.objects.create(
             api_root="https://notifs.example.com/api/v1",
@@ -119,69 +82,43 @@ class NotificationsAPIConfigurationTests(TestCase):
         config.notifications_api_service = old_service
         config.save()
 
-        output = configuration.configure()
+        configuration = NotificationsAPIConfigurationStep()
+        configuration.configure()
 
         service = NotificationsConfig.get_solo().notifications_api_service
         self.assertEqual(service, old_service)
         self.assertEqual(service.api_root, "https://notifs.example.com/api/v1/")
         self.assertEqual(service.client_id, "a-client-id")
-        self.assertEqual(service.secret, "new-secret")
-
-        self.assertEqual(output[0].id, "notificationsAPIConfiguration")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "new-secret",}
-        )
-
-    def test_update_no_changes_without_credentials(self):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="a-client-id",
-            secret="a-secret",
-        )
-        configuration.configure()
-
-        configuration2 = NotificationsAPIConfiguration(
-            org_name="",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="",
-            secret="",
-        )
-        output = configuration2.configure()
-        self.assertEqual(output[0].id, "notificationsAPIConfiguration")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "a-secret",}
-        )
+        self.assertEqual(service.secret, "a-secret")
 
     @requests_mock.Mocker()
     def test_configuration_check_ok(self, m):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="",
-            secret="",
-        )
+        configuration = NotificationsAPIConfigurationStep()
         configuration.configure()
         mock_nrc_oas_get(m)
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
+        m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
 
-        output = configuration.test_configuration()
+        configuration.test_configuration()
 
-        self.assertEqual(output[0].id, "notificationsApiChannels")
-        self.assertEqual(output[0].data, {"channels": "test"})
+        req_get_kanaal = [
+            req
+            for req in m.request_history
+            if req.method == "GET"
+            and req.url == "https://notifs.example.com/api/v1/kanaal"
+        ]
+        req_post_notif = [
+            req
+            for req in m.request_history
+            if req.method == "POST"
+            and req.url == "https://notifs.example.com/api/v1/notificaties"
+        ]
+        self.assertEqual(len(req_get_kanaal), 1)
+        self.assertEqual(len(req_post_notif), 1)
 
     @requests_mock.Mocker()
     def test_configuration_check_failures(self, m):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=False,
-            api_root="https://notifs.example.com/api/v1",
-            client_id="",
-            secret="",
-        )
+        configuration = NotificationsAPIConfigurationStep()
         configuration.configure()
         mock_nrc_oas_get(m)
 
@@ -196,10 +133,16 @@ class NotificationsAPIConfigurationTests(TestCase):
             with self.subTest(mock=mock_config):
                 m.get("https://notifs.example.com/api/v1/kanaal", **mock_config)
 
-                with self.assertRaises(SelfTestFailure):
+                with self.assertRaises(SelfTestFailed):
                     configuration.test_configuration()
 
 
+@override_settings(
+    NOTIF_API_ROOT="https://notifs.example.com/api/v1/",
+    NOTIF_API_OAS="https://notifs.example.com/api/v1/schema/openapi.yaml",
+    OPENZAAK_NOTIF_CLIENT_ID="a-client-id",
+    OPENZAAK_NOTIF_SECRET="a-secret",
+)
 class APIStateTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -228,13 +171,7 @@ class APIStateTests(JWTAuthMixin, APITestCase):
         )
 
     def test_correct_permissions(self):
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=True,
-            api_root="https://notifs.example.com/api/v1/",
-            client_id="a-client-id",
-            secret="a-secret",
-        )
+        configuration = NotificationsAPIConfigurationStep()
         configuration.configure()
 
         self.assertApplicationHasPermissions("a-client-id")
@@ -247,13 +184,7 @@ class APIStateTests(JWTAuthMixin, APITestCase):
             applicatie=app, component="nrc", scopes=["notificaties.consumeren"]
         )
 
-        configuration = NotificationsAPIConfiguration(
-            org_name="ACME",
-            uses_autorisaties_api=True,
-            api_root="https://notifs.example.com/api/v1/",
-            client_id="a-client-id",
-            secret="a-secret",
-        )
+        configuration = NotificationsAPIConfigurationStep()
         configuration.configure()
 
         self.assertApplicationHasPermissions("a-client-id")

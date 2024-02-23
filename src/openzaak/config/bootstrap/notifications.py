@@ -48,10 +48,13 @@ class AuthNotificationStep(BaseConfigurationStep):
 
     def configure(self) -> None:
         # store client_id and secret
-        JWTSecret.objects.get_or_create(
+        jwt_secret, created = JWTSecret.objects.get_or_create(
             identifier=settings.NOTIF_OPENZAAK_CLIENT_ID,
             defaults={"secret": settings.NOTIF_OPENZAAK_SECRET},
         )
+        if jwt_secret.secret != settings.NOTIF_OPENZAAK_SECRET:
+            jwt_secret.secret = settings.NOTIF_OPENZAAK_SECRET
+            jwt_secret.save(update_fields=["secret"])
 
         # check for the application
         try:
@@ -97,18 +100,18 @@ class AuthNotificationStep(BaseConfigurationStep):
         endpoint = reverse("applicatie-list", kwargs={"version": "1"})
         full_url = build_absolute_url(endpoint, request=None)
         auth = ClientAuth(
-            client_id=settings.OPENZAAK_NOTIF_AUTH_CLIENT_ID,
+            client_id=settings.NOTIF_OPENZAAK_CLIENT_ID,
             secret=settings.NOTIF_OPENZAAK_SECRET,
         )
 
         try:
             response = requests.get(
-                full_url, headers={**auth.credentials(), "Accept": "application/json",}
+                full_url, headers={**auth.credentials(), "Accept": "application/json"}
             )
             response.raise_for_status()
         except requests.RequestException as exc:
             raise SelfTestFailed(
-                f"Could not list applications from Autorisaties API for {settings.OPENZAAK_NOTIF_AUTH_CLIENT_ID}"
+                f"Could not list applications from Autorisaties API for {settings.NOTIF_OPENZAAK_CLIENT_ID}"
             ) from exc
 
 
