@@ -5,6 +5,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         pkg-config \
         build-essential \
         libpq-dev \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -65,6 +66,7 @@ COPY ./bin/uninstall_adfs.sh \
     ./bin/uninstall_django_auth_adfs_db.sql \
     ./bin/dump_configuration.sh \
     /app/bin/
+COPY ./bin/setup_configuration.sh /setup_configuration.sh
 
 RUN mkdir /app/log /app/config /app/media /app/private-media
 # prevent writing to the container layer, which would degrade performance.
