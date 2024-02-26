@@ -22,7 +22,7 @@ class SiteConfigurationStep(BaseConfigurationStep):
 
     verbose_name = "Site Configuration"
     required_settings = ["OPENZAAK_DOMAIN", "OPENZAAK_ORGANIZATION"]
-    enable_setting = "OPENZAAK_SITES_CONFIG_ENABLE"
+    enable_setting = "SITES_CONFIG_ENABLE"
 
     def is_configured(self) -> bool:
         site = Site.objects.get_current()

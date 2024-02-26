@@ -718,6 +718,7 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.notifications.AuthNotificationStep",
     "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
     "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
+    "openzaak.config.bootstrap.demo.DemoUserStep",
 ]
 
 #
@@ -745,7 +746,7 @@ IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_reques
 
 # Settings for setup_configuration command
 # sites config
-OPENZAAK_SITES_CONFIG_ENABLE = config("OPENZAAK_SITES_CONFIG_ENABLE", default=True)
+SITES_CONFIG_ENABLE = config("SITES_CONFIG_ENABLE", default=True)
 OPENZAAK_ORGANIZATION = config("OPENZAAK_ORGANIZATION", "")
 # notif -> OZ config
 NOTIF_OPENZAAK_CONFIG_ENABLE = config("NOTIF_OPENZAAK_CONFIG_ENABLE", default=True)
@@ -775,3 +776,7 @@ SELECTIELIJST_ALLOWED_YEARS = config(
     "SELECTIELIJST_ALLOWED_YEARS", default=[2017, 2020]
 )
 SELECTIELIJST_DEFAULT_YEAR = config("SELECTIELIJST_DEFAULT_YEAR", default=2020)
+# Demo user config
+DEMO_CONFIG_ENABLE = config("DEMO_CONFIG_ENABLE", default=DEBUG)
+DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "")
+DEMO_SECRET = config("DEMO_SECRET", "")

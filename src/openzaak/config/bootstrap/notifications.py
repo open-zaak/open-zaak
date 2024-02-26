@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from django.conf import settings
-from django.core.management import CommandError, call_command
 from django.urls import reverse
 
 import requests
@@ -210,8 +209,7 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
 
     def test_configuration(self):
         """
-        1. fetch kanalen
-        2. send test notification
+        fetch kanalen
         """
         # check if we can fetch list of kanalen
         service = Service.objects.get(api_root=settings.NOTIF_API_ROOT)
@@ -222,9 +220,3 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
             raise SelfTestFailed(
                 "Could not retrieve list of kanalen from Notificaties API."
             ) from exc
-
-        # todo add env var to test it?
-        try:
-            call_command("send_test_notification")
-        except CommandError as exc:
-            raise SelfTestFailed("Could not sent test notification") from exc

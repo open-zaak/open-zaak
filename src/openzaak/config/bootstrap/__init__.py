@@ -36,7 +36,12 @@ Configuration aspects:
       scopes so that the Notifications API can query the applications/permissions of
       a given client ID. (SCOPE_AUTORISATIES_LEZEN)
 
-- [ ] Create a demo API token and make a test request?
+- [x] Selectielijst API
+     - Open Zaak uses Selectielijst API for the Catalogi component. Specify the API
+       root of the Selectielijst API and default and allowed years to use. The API
+       is expected not to require any authentication.
 
-- [ ] Configure NLX
+- [x] Create a demo API token
+
+
 """
