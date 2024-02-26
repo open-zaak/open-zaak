@@ -16,6 +16,7 @@ from rest_framework.test import APITestCase
 from zds_client import ClientAuth
 from zgw_consumers.test import mock_service_oas_get
 
+from openzaak.config.bootstrap.demo import DemoUserStep
 from openzaak.config.bootstrap.notifications import (
     AuthNotificationStep,
     NotificationsAPIConfigurationStep,
@@ -34,6 +35,9 @@ from openzaak.config.bootstrap.site import SiteConfigurationStep
     OPENZAAK_NOTIF_SECRET="oz-secret",
     NOTIF_OPENZAAK_CLIENT_ID="notif-client-id",
     NOTIF_OPENZAAK_SECRET="notif-secret",
+    DEMO_CONFIG_ENABLE=True,
+    DEMO_CLIENT_ID="demo-client-id",
+    DEMO_SECRET="demo-secret",
 )
 class SetupConfigurationTests(APITestCase):
     def setUp(self):
@@ -48,6 +52,7 @@ class SetupConfigurationTests(APITestCase):
         # mocks
         m.get("http://open-zaak.example.com/", status_code=200)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
+        m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
@@ -62,7 +67,8 @@ class SetupConfigurationTests(APITestCase):
             expected_output = [
                 "Configuration would be set up with following steps: "
                 f"[{SiteConfigurationStep()}, {AuthNotificationStep()}, "
-                f"{NotificationsAPIConfigurationStep()}, {SelectielijstAPIConfigurationStep()}]",
+                f"{NotificationsAPIConfigurationStep()}, {SelectielijstAPIConfigurationStep()}, "
+                f"{DemoUserStep()}]",
                 f"Configuring {SiteConfigurationStep()}...",
                 f"{SiteConfigurationStep()} is successfully configured",
                 f"Configuring {AuthNotificationStep()}...",
@@ -70,6 +76,8 @@ class SetupConfigurationTests(APITestCase):
                 f"Configuring {NotificationsAPIConfigurationStep()}...",
                 f"{NotificationsAPIConfigurationStep()} is successfully configured",
                 f"Step {SelectielijstAPIConfigurationStep()} is skipped, because the configuration already exists.",
+                f"Configuring {DemoUserStep()}...",
+                f"{DemoUserStep()} is successfully configured",
                 "Instance configuration completed.",
             ]
             self.assertEqual(command_output, expected_output)
@@ -108,6 +116,7 @@ class SetupConfigurationTests(APITestCase):
     def test_setup_configuration_selftest_fails(self, m):
         m.get("http://open-zaak.example.com/", exc=requests.ConnectionError)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
+        m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)

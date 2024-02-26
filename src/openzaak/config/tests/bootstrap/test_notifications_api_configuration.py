@@ -97,7 +97,6 @@ class NotificationsAPIConfigurationTests(TestCase):
         configuration.configure()
         mock_nrc_oas_get(m)
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
-        m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
 
         configuration.test_configuration()
 
@@ -107,14 +106,7 @@ class NotificationsAPIConfigurationTests(TestCase):
             if req.method == "GET"
             and req.url == "https://notifs.example.com/api/v1/kanaal"
         ]
-        req_post_notif = [
-            req
-            for req in m.request_history
-            if req.method == "POST"
-            and req.url == "https://notifs.example.com/api/v1/notificaties"
-        ]
         self.assertEqual(len(req_get_kanaal), 1)
-        self.assertEqual(len(req_post_notif), 1)
 
     @requests_mock.Mocker()
     def test_configuration_check_failures(self, m):
