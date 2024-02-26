@@ -1,0 +1,181 @@
+# Inspired by https://docs.docker.com/compose/django/
+version: '3.4'
+
+services:
+
+#OPEN NOTIFICATIES
+  db_notifications:
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./docker/notifications/docker-init-db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - db_notifications:/var/lib/postgresql/data
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
+
+  rabbitmq:
+    image: rabbitmq:3.9-alpine
+
+  notifications:
+#    image: openzaak/open-notificaties
+    build: ../open-notificaties
+    environment: &notifications-env
+      - DJANGO_SETTINGS_MODULE=nrc.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-y8=ynp!*&3z6!0ujpg$$0nry%j#1z2@%hq9+1doh1bl+86w)730}
+      - DB_HOST=db_notifications
+      - IS_HTTPS=no
+      - ALLOWED_HOSTS=*
+      - CACHE_DEFAULT=redis:6379/1
+      - CACHE_AXES=redis:6379/1
+      - RABBITMQ_HOST=rabbitmq
+      - PUBLISH_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-2}
+      - DEBUG=yes
+      - LOG_REQUESTS=yes
+      - LOG_NOTIFICATIONS_IN_DB=yes
+      # setup_configuration env vars
+      - OPENNOTIFICATIES_DOMAIN=notifications:8000
+      - OPENNOTIFICATIES_ORGANIZATION=ON
+      - AUTORISATIES_API_ROOT=http://openzaak:8000/autorisaties/api/v1/
+      - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
+      - NOTIF_OPENZAAK_SECRET=notif-secret
+      - OPENZAAK_NOTIF_CLIENT_ID=oz-client-id
+      - OPENZAAK_NOTIF_SECRET=oz-secret
+    ports:
+      - 8001:8000
+    depends_on:
+      notifications-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: curl --fail http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  notifications-init:
+    build: ../open-notificaties
+    environment: *notifications-env
+    command: /setup_configuration.sh
+    depends_on:
+      - db_notifications
+      - rabbitmq
+      - redis
+
+  celery_notifications:
+    build: ../open-notificaties
+#    image: openzaak/open-notificaties
+    environment: *notifications-env
+    command: /celery_worker.sh
+    depends_on:
+      - db_notifications
+      - rabbitmq
+      - redis
+
+#OPEN ZAAK
+  db:
+    image: mdillon/postgis
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    command: postgres -c max_connections=300 -c log_min_messages=LOG
+    volumes:
+      - ./docker/postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - db:/var/lib/postgresql/data
+    ports:
+      - "11234:5432"
+
+  redis:
+    image: redis
+
+  openzaak.nl:
+    build: .
+    environment: &openzaak-env
+      - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
+      - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
+      - IS_HTTPS=no
+      - ALLOWED_HOSTS=localhost,openzaak,openzaak.nl
+      - CACHE_DEFAULT=redis:6379/0
+      - CACHE_AXES=redis:6379/0
+      - SENDFILE_BACKEND=django_sendfile.backends.simple
+      - DEBUG=yes
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_LOGLEVEL=DEBUG
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
+      - OPENZAAK_SUPERUSER_USERNAME=demo
+      - OPENZAAK_SUPERUSER_EMAIL=demo@demo.nl
+      - DJANGO_SUPERUSER_PASSWORD=demo
+      - LOG_REQUESTS=yes
+      # setup_configuration env vars
+      - OPENZAAK_DOMAIN=openzaak.nl:8000
+      - OPENZAAK_ORGANIZATION=OZ
+      - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
+      - NOTIF_OPENZAAK_SECRET=notif-secret
+      - NOTIF_API_ROOT=http://notifications:8000/api/v1/
+      - OPENZAAK_NOTIF_CLIENT_ID=oz-client-id
+      - OPENZAAK_NOTIF_SECRET=oz-secret
+      - DEMO_CLIENT_ID=demo-client-id
+      - DEMO_SECRET=demo-secret
+    volumes: &app-volumes
+      - media:/app/media  # Shared media volume to get access to saved OAS files
+      - private-media:/app/private-media
+    ports:
+      - 8000:8000
+    depends_on:
+      openzaak-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: curl --fail http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  openzaak-init:
+    build: .
+    environment: *openzaak-env
+    command: /setup_configuration.sh
+    volumes: *app-volumes
+    depends_on:
+      - db
+      - redis
+
+  kanalen-init:
+    build: .
+    environment: *openzaak-env
+    command: src/manage.py register_kanalen
+    volumes: *app-volumes
+    depends_on:
+      openzaak.nl:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy
+
+  celery:
+    build: .
+    environment: *openzaak-env
+    command: /celery_worker.sh
+    volumes: *app-volumes
+    depends_on:
+      - db
+      - redis
+
+  celery-flower:
+    build: .
+    environment: *openzaak-env
+    command: /celery_flower.sh
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery
+
+
+volumes:
+  db_notifications:
+  db:
+  media:
+  private-media:
