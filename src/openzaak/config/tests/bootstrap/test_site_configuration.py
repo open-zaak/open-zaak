@@ -54,3 +54,12 @@ class SiteConfigurationTests(TestCase):
 
                 with self.assertRaises(SelfTestFailed):
                     configuration.test_configuration()
+
+    def test_is_configured(self):
+        configuration = SiteConfigurationStep()
+
+        self.assertFalse(configuration.is_configured())
+
+        configuration.configure()
+
+        self.assertTrue(configuration.is_configured())

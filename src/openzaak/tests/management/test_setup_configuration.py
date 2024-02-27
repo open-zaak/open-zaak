@@ -16,6 +16,7 @@ from rest_framework.test import APITestCase
 from zds_client import ClientAuth
 from zgw_consumers.test import mock_service_oas_get
 
+from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.bootstrap.demo import DemoUserStep
 from openzaak.config.bootstrap.notifications import (
     AuthNotificationStep,
@@ -43,7 +44,6 @@ class SetupConfigurationTests(APITestCase):
     def setUp(self):
         super().setUp()
 
-        # todo add cleanup for kanaal
         self.addCleanup(Site.objects.clear_cache)
 
     @requests_mock.Mocker()
@@ -65,7 +65,7 @@ class SetupConfigurationTests(APITestCase):
         with self.subTest("Command output"):
             command_output = stdout.getvalue().splitlines()
             expected_output = [
-                "Configuration would be set up with following steps: "
+                "Configuration will be set up with following steps: "
                 f"[{SiteConfigurationStep()}, {AuthNotificationStep()}, "
                 f"{NotificationsAPIConfigurationStep()}, {SelectielijstAPIConfigurationStep()}, "
                 f"{DemoUserStep()}]",
@@ -112,6 +112,17 @@ class SetupConfigurationTests(APITestCase):
             decoded_jwt = decode(header_jwt, options={"verify_signature": False})
             self.assertEqual(decoded_jwt["client_id"], "oz-client-id")
 
+        with self.subTest("Demo user configured correctly"):
+            auth = ClientAuth("demo-client-id", "demo-secret")
+
+            response = self.client.get(
+                reverse("zaak-list", kwargs={"version": 1}),
+                **ZAAK_READ_KWARGS,
+                HTTP_AUTHORIZATION=auth.credentials()["Authorization"],
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     @requests_mock.Mocker()
     def test_setup_configuration_selftest_fails(self, m):
         m.get("http://open-zaak.example.com/", exc=requests.ConnectionError)
@@ -126,3 +137,13 @@ class SetupConfigurationTests(APITestCase):
             "Could not access home page at 'http://open-zaak.example.com/'",
         ):
             call_command("setup_configuration")
+
+    @requests_mock.Mocker()
+    def test_setup_configuration_without_selftest(self, m):
+        stdout = StringIO()
+
+        call_command("setup_configuration", no_selftest=True, stdout=stdout)
+        command_output = stdout.getvalue()
+
+        self.assertEqual(len(m.request_history), 0)
+        self.assertTrue("Selftest is skipped" in command_output)

@@ -5,7 +5,6 @@ from django.test import TestCase, override_settings
 import requests
 import requests_mock
 from django_setup_configuration.exceptions import SelfTestFailed
-from notifications_api_common.kanalen import KANAAL_REGISTRY
 from notifications_api_common.models import NotificationsConfig
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -13,7 +12,6 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from zgw_consumers.constants import AuthTypes
 from zgw_consumers.models import Service
 
-from openzaak.management.commands.send_test_notification import TEST_CHANNEL_NAME
 from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.tests.utils.auth import JWTAuthMixin
 
@@ -27,18 +25,6 @@ from ...bootstrap.notifications import NotificationsAPIConfigurationStep
     OPENZAAK_NOTIF_SECRET="a-secret",
 )
 class NotificationsAPIConfigurationTests(TestCase):
-    @classmethod
-    def tearDownClass(cls):
-        """
-        remove kanaal created during self tests
-        """
-        super().tearDownClass()
-
-        kanalen = KANAAL_REGISTRY.copy()
-        for kanaal in kanalen:
-            if kanaal.label == TEST_CHANNEL_NAME:
-                KANAAL_REGISTRY.remove(kanaal)
-
     def test_create_configuration(self):
         configuration = NotificationsAPIConfigurationStep()
 
@@ -127,6 +113,15 @@ class NotificationsAPIConfigurationTests(TestCase):
 
                 with self.assertRaises(SelfTestFailed):
                     configuration.test_configuration()
+
+    def test_is_configured(self):
+        configuration = NotificationsAPIConfigurationStep()
+
+        self.assertFalse(configuration.is_configured())
+
+        configuration.configure()
+
+        self.assertTrue(configuration.is_configured())
 
 
 @override_settings(
