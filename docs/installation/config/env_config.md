@@ -223,6 +223,13 @@ The following parameters control the CORS policy.
   included. The value of this variable is added to these already included headers.
   Defaults to an empty list.
 
+### Initial configuration
+
+Open Zaak supports `setup_configuration` management command, which allows configuration via
+environment variables. 
+All these environment variables are described at :ref:`command line <installation_configuration_cli>`.
+
+
 ## Specifying the environment variables
 
 There are two strategies to specify the environment variables:

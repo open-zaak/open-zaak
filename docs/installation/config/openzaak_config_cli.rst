@@ -7,9 +7,8 @@ Open Zaak configuration (CLI)
 After deploying Open Zaak, it needs to be configured to be fully functional. The
 command line tool ``setup_configuration`` assist with this configuration:
 
-* It favours explicit configuration via options - you can integrate this with your
-  infrastructure tooling such as init containers and/or Kubernetes Jobs
-* In interactive mode, you receive prompts to fill out the requested information
+* It uses environment variables for all configuration choices, therefore you can integrate this with your
+  infrastructure tooling such as init containers and/or Kubernetes Jobs.
 * The command can self-test the configuration to detect problems early on
 
 You can get the full command documentation with:
@@ -18,15 +17,6 @@ You can get the full command documentation with:
 
     src/manage.py setup_configuration --help
 
-.. note::
-
-    For more explanation/feedback, run the command with increased verbosity:
-
-    .. code-block:: bash
-
-        src/manage.py setup_configuration --verbosity 2
-
-
 .. warning:: This command is declarative - if configuration is manually changed after
    running the command and you then run the exact same command again, the manual
    changes will be reverted.
@@ -34,15 +24,68 @@ You can get the full command documentation with:
 Preparation
 ===========
 
-You should prepare the following information:
+The command executes the list of pluggable configuration steps, and each step
+required specific environent variables, that should be prepared.
+Here is the description of all available configuration steps and the environment variables, 
+use by each step. 
 
-* organization name, e.g. ``ACME``
-* domain name where Open Zaak is deployed, e.g. ``open-zaak.gemeente.local``
-* Notifications API root, e.g. ``https://notificaties.gemeente.local/api/v1/``
-* A Client ID for Open Zaak to the Notifications API, e.g. ``open-zaak-acme``
-* A Client Secret for Open Zaak to the Notifications API, e.g. ``insecure-nrc-secret``
-* A Client ID for the Notifications API to Open Zaak, e.g. ``notificaties-api-acme``
-* A Client Secret for the Notifications API to Open Zaak, e.g. ``insecure-oz-secret``
+Sites configuration
+------------------------
+
+Configure the domain where Open Zaak is hosted
+
+* ``SITES_CONFIG_ENABLE``: enable Site configuration. Defaults to ``True``.
+* ``OPENZAAK_DOMAIN``:  a ``[host]:[port]`` or ``[host]`` value. Required.
+* ``OPENZAAK_ORGANIZATION``: name of Open Zaak organization. Required.
+
+Notification authorization configuration
+----------------------------------------
+
+Open Notificaties uses Open Zaak Authorisaties API to check authorizations
+of its consumers, therefore Open Notificaties should be able to request Open Zaak
+
+* ``NOTIF_OPENZAAK_CONFIG_ENABLE``: enable Notification credentials configuration. Defaults
+  to ``True``.
+* ``NOTIF_OPENZAAK_CLIENT_ID``: a client id, which Open Notificaties uses to request
+  Open Zaak, for example, ``open-notificaties``. Required.
+* ``NOTIF_OPENZAAK_SECRET``: some random string. Required.
+
+Notification configuration
+--------------------------
+
+Open Zaak published notifications to the Open Notificaties.
+
+* ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``True``.
+* ``NOTIF_API_ROOT``: full URL to the Notificaties API root, for example
+  ``https://notificaties.gemeente.local/api/v1/``. Required.
+* ``NOTIF_API_OAS``: full URL to the Notificaties OpenAPI specification.
+* ``OPENZAAK_NOTIF_CLIENT_ID``: a client id, which Open Zaak uses to request Open Notificaties,
+  for example, ``open-zaak``. Required.
+* ``OPENZAAK_NOTIF_SECRET``: some random string. Required.
+
+Selectielijst configuration
+---------------------------
+
+Open Zaak requests Selectielijst API in the Catalogi API component.
+The Selectielijst API is not expected to require any authentication.
+
+* ``OPENZAAK_SELECTIELIJST_CONFIG_ENABLE``: enable Selectielijst configuration. Defaults to ``True``.
+* ``SELECTIELIJST_API_ROOT``: full url to the Selectielijst API root. Defaults to
+  ``https://selectielijst.openzaak.nl/api/v1/``
+* ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification. Defaults to 
+  ``https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml``
+* ``SELECTIELIJST_ALLOWED_YEARS``: years, for which process types can be used. Defaults to ``[2017, 2020]``.
+* ``SELECTIELIJST_DEFAULT_YEAR`` = config("SELECTIELIJST_DEFAULT_YEAR", default=2020)
+
+Demo user configuration
+-----------------------
+
+Demo user can be created to check if Open Zaak APIs work. It has superuser permissions, 
+so its creation is not recommended on production environment.
+
+* ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to the value of the ``DEBUG`` setting. 
+* ``DEMO_CLIENT_ID``: demo client id. Required.
+* ``DEMO_SECRET``: edmo secret. Required.
 
 .. note:: You can generate these Client IDs and Secrets using any password generation
    tool, as long as you configure the same values in the Notifications API.
@@ -58,41 +101,29 @@ tested. For all the self-tests to succeed, it's important that the
 :ref:`Notifications API is configured <installation_configuration_notificaties_api>`
 correctly before calling this command.
 
-Alternatively, you can skip the self-tests by using the ``--no-self-test`` flag.
+.. code-block:: bash
 
-The example command uses the example values from the preparation above:
+    src/manage.py setup_configuration
+
+
+Alternatively, you can skip the self-tests by using the ``--no-selftest`` flag.
 
 .. code-block:: bash
 
-    src/manage.py setup_configuration \
-        -v 2 \
-        --organization ACME \
-        --domain open-zaak.gemeente.local \
-        --create-notifications-api-app \
-        --notifications-api-app-client-id notificaties-api-acme \
-        --notifications-api-app-secret insecure-oz-secret \
-        --notifications-api-root https://notificaties.gemeente.local/api/v1/ \
-        --notifications-api-client-id open-zaak-acme \
-        --notifications-api-secret insecure-nrc-secret \
-        --self-test \
-        --send-test-notification
+    src/manage.py setup_configuration --no-self-test
+
+
+``setup_configuration`` command checks if the configuration already exists before changing it.
+If you want to change some of the values of the existing configuration you can use ``--overwrite`` flag.
+
+.. code-block:: bash
+
+    src/manage.py setup_configuration --overwrite
+
 
 .. note:: Due to a cache-bug in the underlying framework, you need to restart all
    replicas for part of this change to take effect everywhere.
 
-.. note:: You can output the results as JSON which your configuration management can
-   then pick up and process:
-
-   .. code-block:: bash
-
-      export LOG_LEVEL=CRITICAL
-      src/manage.py setup_configuration \
-        ...\
-        --skip-checks \
-        --json
-
-   The ``LOG_LEVEL`` environment variable ensures your output is not cluttered with
-   logs, while ``--skip-checks`` prevents system check output from appearing.
 
 Register notification channels
 ------------------------------
