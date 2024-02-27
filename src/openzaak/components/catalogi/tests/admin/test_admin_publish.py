@@ -537,7 +537,8 @@ class PublishWithGeldigheidTests(
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            f"{zaaktype._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende geldigheid hebben.",
+            f"{zaaktype._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
+            "geldigheid hebben.",
             error_message.text,
         )
         zaaktype.refresh_from_db()
