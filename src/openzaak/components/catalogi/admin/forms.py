@@ -177,7 +177,7 @@ class ZaakTypeForm(forms.ModelForm):
         if "_publish" in self.data:
             self._clean_all_data_present_for_publish()
 
-    def _clean_datum_einde_geldigheid(self):
+    def _clean_datum_einde_geldigheiGenresd(self):
         datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")
 
         if not datum_einde_geldigheid:
@@ -224,6 +224,28 @@ class ZaakTypeForm(forms.ModelForm):
                 _(
                     "Publishing a zaaktype requires at least two statustypes to be defined."
                 ),
+            )
+
+        from ..utils import has_overlapping_objects
+
+        if has_overlapping_objects(
+            model_manager=self.instance._meta.default_manager,
+            catalogus=self.instance.catalogus,
+            omschrijving_query={
+                self.instance.omschrijving_field: getattr(
+                    self.instance, self.instance.omschrijving_field
+                )
+            },
+            begin_geldigheid=self.instance.datum_begin_geldigheid,
+            einde_geldigheid=self.instance.datum_einde_geldigheid,
+            instance=self.instance,
+            concept=False,
+        ):
+
+            self.add_error(
+                None,
+                f"{self.instance._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben.",
             )
 
 
