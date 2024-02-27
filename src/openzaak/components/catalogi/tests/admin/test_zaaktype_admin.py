@@ -191,14 +191,9 @@ class ZaaktypeAdminTests(
         get_response = self.app.get(url)
 
         form = get_response.form
-        form["datum_einde_geldigheid"] = "2019-01-01"
 
         with self.captureOnCommitCallbacks(execute=True):
             post_response = form.submit("_addversion")
-
-        zaaktype_old.refresh_from_db()
-
-        self.assertEqual(zaaktype_old.datum_einde_geldigheid, date(2019, 1, 1))
 
         zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
 
@@ -282,12 +277,7 @@ class ZaaktypeAdminTests(
         post_response = form.submit("_addversion")
 
         error_message = post_response.html.find(class_="errorlist")
-        self.assertEqual(
-            error_message.text,
-            gettext(
-                "datum_einde_geldigheid is required if the new version is being created"
-            ),
-        )
+        self.assertIsNone(error_message)
 
     def test_submit_zaaktype_validate_doorlooptijd_servicenorm(self, m):
         catalogus = CatalogusFactory.create()

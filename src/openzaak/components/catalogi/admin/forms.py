@@ -174,9 +174,6 @@ class ZaakTypeForm(forms.ModelForm):
     def clean(self):
         super().clean()
 
-        if "_addversion" in self.data:
-            self._clean_datum_einde_geldigheid()
-
         if "_publish" in self.data:
             self._clean_all_data_present_for_publish()
 
