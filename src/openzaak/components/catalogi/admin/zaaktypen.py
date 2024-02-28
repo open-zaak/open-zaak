@@ -7,7 +7,8 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import Field
 from django.forms import ChoiceField, model_to_dict
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
+from django.urls import path, reverse
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
@@ -33,6 +34,7 @@ from ..models import (
     ZaakType,
     ZaakTypenRelatie,
 )
+from .admin_views import ZaaktypePublishView
 from .eigenschap import EigenschapAdmin
 from .filters import GeldigheidFilter
 from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
@@ -269,6 +271,20 @@ class ZaakTypeAdmin(
     # For export mixin
     resource_name = "zaaktype"
 
+    def get_urls(self):
+        urls = super().get_urls()
+
+        my_urls = [
+            path(
+                "<int:pk>/publish/",
+                self.admin_site.admin_view(
+                    ZaaktypePublishView.as_view(admin_site=self.admin_site)
+                ),
+                name="catalogi_zaaktype_publish",
+            ),
+        ]
+        return my_urls + urls
+
     def get_related_objects(self, obj):
         resources = {}
 
@@ -309,39 +325,11 @@ class ZaakTypeAdmin(
 
     def response_post_save_change(self, request, obj):
 
-        if "_publish" in request.POST and "_auto-publish" in request.POST:
-            published_besluittypen = []
-            published_informatieobjecttypen = []
-            # publish related types
-            for besluittype in obj.besluittypen.filter(concept=True):
-                besluittype.publish()
-                published_besluittypen.append(besluittype.omschrijving)
+        if "_publish" in request.POST:
+            return HttpResponseRedirect(
+                reverse("admin:catalogi_zaaktype_publish", args=(obj.pk,))
+            )
 
-            for iot in obj.informatieobjecttypen.filter(concept=True):
-                iot.publish()
-                published_informatieobjecttypen.append(iot.omschrijving)
-
-            response = super().response_post_save_change(request, obj)
-
-            if len(published_besluittypen) > 0:
-                self.message_user(
-                    request,
-                    _("Auto-published related besluittypen: {besluittypen}").format(
-                        besluittypen=", ".join(published_besluittypen)
-                    ),
-                    messages.INFO,
-                    "autopublish",
-                )
-            if len(published_informatieobjecttypen) > 0:
-                self.message_user(
-                    request,
-                    _("Auto-published related informatieobjecttypen: {iots}").format(
-                        iots=", ".join(published_informatieobjecttypen)
-                    ),
-                    messages.INFO,
-                    "autopublish",
-                )
-            return response
         return super().response_post_save_change(request, obj)
 
     def _publish_validation_errors(self, obj):

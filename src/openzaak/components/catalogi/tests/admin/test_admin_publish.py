@@ -102,7 +102,8 @@ class ZaaktypeAdminTests(
         form = response.forms["zaaktype_form"]
 
         with self.captureOnCommitCallbacks(execute=True):
-            response = form.submit("_publish").follow()
+            publish_page = form.submit("_publish").follow()
+            response = publish_page.form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -232,7 +233,10 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
-        response = form.submit("_publish").follow()
+        publish_page = form.submit("_publish").follow()
+        response = publish_page.form.submit("_publish")
+        # returns same page on fail
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
@@ -295,8 +299,11 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
-        form["_auto-publish"] = True
-        response = form.submit("_publish").follow()
+        publish_page = form.submit("_publish").follow()
+        publish_page.form["_auto-publish"] = True
+        response = publish_page.form.submit().follow()
+        # redirects on success
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -305,7 +312,7 @@ class ZaaktypeAdminTests(
 
         messages = list(response.context["messages"])
         self.assertEqual(
-            str(messages[1]),
+            str(messages[0]),
             _("Auto-published related besluittypen: {besluittypen}").format(
                 besluittypen=besluit_type.omschrijving
             ),
@@ -362,7 +369,10 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
-        response = form.submit("_publish").follow()
+        publish_page = form.submit("_publish").follow()
+        response = publish_page.form.submit("_publish")
+        # returns same page on fail
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
@@ -428,8 +438,11 @@ class ZaaktypeAdminTests(
 
         form = response.forms["zaaktype_form"]
 
-        form["_auto-publish"] = True
-        response = form.submit("_publish").follow()
+        publish_page = form.submit("_publish").follow()
+        publish_page.form["_auto-publish"] = True
+        response = publish_page.form.submit().follow()
+        # redirects on success
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -438,7 +451,7 @@ class ZaaktypeAdminTests(
 
         messages = list(response.context["messages"])
         self.assertEqual(
-            str(messages[1]),
+            str(messages[0]),
             _("Auto-published related informatieobjecttypen: {iots}").format(
                 iots=informatieobjecttype.omschrijving
             ),

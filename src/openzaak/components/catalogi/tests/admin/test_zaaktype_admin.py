@@ -1066,7 +1066,8 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
         admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
         change_page = self.app.get(admin_url)
-        response = change_page.form.submit("_publish").follow()
+        publish_page = change_page.form.submit("_publish").follow()
+        response = publish_page.form.submit().follow()
         zaaktype.refresh_from_db()
         self.assertNotContains(
             response,
