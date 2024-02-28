@@ -77,14 +77,14 @@ class PublishAdminMixin:
         else:
             return super().response_post_save_change(request, obj)
 
-    def is_published(self, obj):
+    def _is_published(self, obj):
         """
         Helper to show publish status in admin list views.
 
         :param obj: The model instance.
         :return: `True` if the instance was published.
         """
-        return not obj.concept
+        return obj.is_published
 
     @admin.action(description=_("Publish selected %(verbose_name_plural)s"))
     def publish_selected(self, request, queryset):
@@ -131,8 +131,8 @@ class PublishAdminMixin:
         actions["publish_selected"] = self.get_action("publish_selected")
         return actions
 
-    is_published.short_description = _("gepubliceerd")
-    is_published.boolean = True
+    _is_published.short_description = _("gepubliceerd")
+    _is_published.boolean = True
 
 
 class SideEffectsMixin:

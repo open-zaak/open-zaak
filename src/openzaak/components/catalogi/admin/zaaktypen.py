@@ -135,7 +135,7 @@ class ZaakTypeAdmin(
         "zaaktype_omschrijving",
         "identificatie",
         "versiedatum",
-        "is_published",
+        "_is_published",
         "datum_begin_geldigheid",
         "datum_einde_geldigheid",
     )

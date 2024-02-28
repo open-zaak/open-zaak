@@ -28,7 +28,7 @@ class BesluitTypeAdmin(
     admin.ModelAdmin,
 ):
     # List
-    list_display = ("omschrijving", "besluitcategorie", "catalogus", "is_published")
+    list_display = ("omschrijving", "besluitcategorie", "catalogus", "_is_published")
     list_filter = (
         GeldigheidFilter,
         "concept",

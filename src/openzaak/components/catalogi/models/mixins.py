@@ -191,3 +191,7 @@ class ConceptMixin(models.Model):
     def publish(self):
         self.concept = False
         self.save()
+
+    @property
+    def is_published(self):
+        return not self.concept
