@@ -83,7 +83,7 @@ class InformatieObjectTypeAdmin(
         "catalogus",
         "vertrouwelijkheidaanduiding",
         "num_zaaktypen",
-        "_is_published",
+        "is_published",
     )
     list_filter = (
         GeldigheidFilter,

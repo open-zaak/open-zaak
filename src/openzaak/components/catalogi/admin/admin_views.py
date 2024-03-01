@@ -215,7 +215,10 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
     template_name = "admin/catalogi/publish_zaaktype.html"
     permission_required = "catalogi.change_zaaktype"
 
-    queryset = ZaakType.objects.all()
+    queryset = ZaakType.objects.all().prefetch_related(
+        "besluittypen", "informatieobjecttypen"
+    )
+    pk_url_kwarg = "zaaktype_pk"
 
     def post(self, request, *args, **kwargs):
 
@@ -270,6 +273,11 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 return self.render_to_response(context)
 
             self.object.publish()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("The resource has been published successfully!"),
+            )
         else:
             messages.add_message(
                 request, messages.WARNING, _("Zaaktype object is already published")
