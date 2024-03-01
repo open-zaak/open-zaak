@@ -1,7 +1,7 @@
 {% extends "admin/index.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2024 Dimpact {% endcomment %}
-{% load i18n %}
+{% load i18n config %}
 
 {% block title %} {% trans "Publish zaaktype" %} {{ block.super }} {% endblock %}
 
@@ -25,7 +25,7 @@
     <table class="module aligned ">
         <tr><th>{% trans 'Informatieobjecttypen' %}</th> <th>{% trans 'Gepubliceerd' %}</th></tr>
         {% for iot in zaaktype.informatieobjecttypen.all %}
-        <tr><td>{{iot}}</td> <td>{{iot.is_published | yesno}}</td></tr>
+        <tr><td>{{iot}}</td> <td>{{iot.is_published | boolean_icon}}</td></tr>
         {% endfor %}
     </table>
 {% endif %}
@@ -35,7 +35,7 @@
     <table class="module aligned ">
         <tr><th>{% trans 'Besluittypen' %}</th> <th>{% trans 'Gepubliceerd' %}</th></tr>
         {% for besluittypen in zaaktype.besluittypen.all %}
-        <tr><td>{{besluittypen}}</td> <td>{{besluittypen.is_published | yesno}}</td></tr>
+        <tr><td>{{besluittypen}}</td> <td>{{besluittypen.is_published | boolean_icon}}</td></tr>
         {% endfor %}
     </table>
 {% endif %}
