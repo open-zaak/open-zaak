@@ -7,8 +7,8 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import Field
 from django.forms import ChoiceField, model_to_dict
-from django.http import HttpRequest, HttpResponseRedirect
-from django.urls import path, reverse
+from django.http import HttpRequest
+from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
@@ -322,15 +322,6 @@ class ZaakTypeAdmin(
                 id_list.append(ids)
 
         return resource_list, id_list
-
-    def response_post_save_change(self, request, obj):
-
-        if "_publish" in request.POST:
-            return HttpResponseRedirect(
-                reverse("admin:catalogi_zaaktype_publish", args=(obj.pk,))
-            )
-
-        return super().response_post_save_change(request, obj)
 
     def _publish_validation_errors(self, obj):
         errors = []

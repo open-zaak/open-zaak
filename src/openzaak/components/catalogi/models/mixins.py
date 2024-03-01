@@ -3,6 +3,7 @@
 from datetime import date, timedelta
 from typing import Optional
 
+from django.contrib.admin import display
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -192,6 +193,6 @@ class ConceptMixin(models.Model):
         self.concept = False
         self.save()
 
-    @property
+    @display(boolean=True, description=_("gepubliceerd"))
     def is_published(self):
         return not self.concept

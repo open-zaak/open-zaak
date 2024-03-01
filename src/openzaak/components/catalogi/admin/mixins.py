@@ -77,16 +77,6 @@ class PublishAdminMixin:
         else:
             return super().response_post_save_change(request, obj)
 
-    @admin.display(boolean=True, description=_("gepubliceerd"))
-    def is_published(self, obj):
-        """
-        Helper to show publish status in admin list views.
-
-        :param obj: The model instance.
-        :return: `True` if the instance was published.
-        """
-        return obj.is_published
-
     @admin.action(description=_("Publish selected %(verbose_name_plural)s"))
     def publish_selected(self, request, queryset):
         published = 0
