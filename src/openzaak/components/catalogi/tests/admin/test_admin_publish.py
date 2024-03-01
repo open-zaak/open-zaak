@@ -99,10 +99,10 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
 
         with self.captureOnCommitCallbacks(execute=True):
-            publish_page = form.submit("_publish").follow()
             response = publish_page.form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
@@ -231,9 +231,8 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        publish_page = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
         response = publish_page.form.submit("_publish")
         # returns same page on fail
         self.assertEqual(response.status_code, 200)
@@ -297,9 +296,8 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        publish_page = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
         publish_page.form["_auto-publish"] = True
         response = publish_page.form.submit().follow()
         # redirects on success
@@ -367,9 +365,8 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        publish_page = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
         response = publish_page.form.submit("_publish")
         # returns same page on fail
         self.assertEqual(response.status_code, 200)
@@ -436,9 +433,8 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        publish_page = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
         publish_page.form["_auto-publish"] = True
         response = publish_page.form.submit().follow()
         # redirects on success

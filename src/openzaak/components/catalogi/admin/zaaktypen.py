@@ -323,25 +323,6 @@ class ZaakTypeAdmin(
 
         return resource_list, id_list
 
-    def _publish_validation_errors(self, obj):
-        errors = []
-        if (
-            obj.besluittypen.filter(concept=True).exists()
-            or obj.informatieobjecttypen.filter(concept=True).exists()
-        ):
-            errors.append(_("All related resources should be published"))
-
-        form = self.form(instance=obj, data={**model_to_dict(obj), "_publish": "1"})
-        if not form.is_valid():
-            for field_name, error_list in form.errors.items():
-                if field_name != "__all__":
-                    form_field = form.fields[field_name]
-                    errors += [f"{form_field.label}: {err}" for err in error_list]
-                else:
-                    errors += error_list
-
-        return errors
-
     def get_object_actions(self, obj):
         return (
             link_to_related_objects(StatusType, obj),
