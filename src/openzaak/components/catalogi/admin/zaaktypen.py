@@ -276,7 +276,7 @@ class ZaakTypeAdmin(
 
         my_urls = [
             path(
-                "<int:pk>/publish/",
+                "<path:zaaktype_pk>/publish/",
                 self.admin_site.admin_view(
                     ZaaktypePublishView.as_view(admin_site=self.admin_site)
                 ),

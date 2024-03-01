@@ -3,7 +3,7 @@
 {% comment %} Copyright (C) 2019 - 2024 Dimpact {% endcomment %}
 {% load i18n %}
 
-{% block title %} {% trans "Import zaaktype" %} {{ block.super }} {% endblock %}
+{% block title %} {% trans "Publish zaaktype" %} {{ block.super }} {% endblock %}
 
 {% block content_title %}{% endblock %}
 {% block sidebar %}{% endblock %}
@@ -45,10 +45,12 @@
     <div id="content-main">
         <form action="" method="POST" enctype="multipart/form-data">
             <div>
+<fieldset class="module aligned ">
                 {% csrf_token %}
 
                 <label for="_auto-publish">{% translate "Auto-publish related objects" %}</label>
                 <input type="checkbox" name="_auto-publish" id="_auto-publish" {% if zaaktype.concept == False %}disabled="disabled"{% endif %}>
+</fieldset>
                 <div class="submit-row">
                     <input type="submit" value="{% trans 'Publiceren' %}" name="_publish" {% if zaaktype.concept == False %}disabled="disabled"{% endif %}>
                 </div>
