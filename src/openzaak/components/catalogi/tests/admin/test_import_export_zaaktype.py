@@ -1716,6 +1716,145 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             ),
         )
 
+    def test_export_import_zaaktype_maintains_iot_volgnummer(self, *mocks):
+        """
+        Regression test that imported volgnummer is the same as in the export
+        """
+        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST1")
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        )
+
+        informatieobjecttype_1 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktypen=None,
+            omschrijving="Apple",
+        )
+        ziot_1a = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_1, volgnummer=1
+        )
+        informatieobjecttype_2 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktypen=None,
+            omschrijving="Banana",
+        )
+        ziot_2a = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_2, volgnummer=2
+        )
+        ziot_1b = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_1, volgnummer=3
+        )
+        ziot_2b = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_2, volgnummer=4
+        )
+        informatieobjecttype_3 = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktypen=None,
+            omschrijving="Chair",
+        )
+        ziot_3a = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_3, volgnummer=5
+        )
+        ziot_2c = ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_2, volgnummer=6
+        )
+
+        # create zip
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        # import into a different catalog
+        catalogus_2 = CatalogusFactory.create(rsin="111222333", domein="TEST2")
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(catalogus_2.pk,)
+        )
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        response = form.submit("_import_zaaktype").follow()
+        response.form.submit("_select")
+
+        self.assertEqual(ZaakType.objects.filter(catalogus=catalogus_2).count(), 1)
+        new_zaaktype = ZaakType.objects.get(catalogus=catalogus_2)
+        self.assertEqual(
+            InformatieObjectType.objects.filter(catalogus=catalogus_2).count(), 3
+        )
+        self.assertEqual(
+            ZaakTypeInformatieObjectType.objects.filter(zaaktype=new_zaaktype).count(),
+            6,
+        )
+        # verify ZaakTypeInformatieObjectType are imported correctly
+        new_iot_1 = InformatieObjectType.objects.get(
+            catalogus=catalogus_2, omschrijving="Apple"
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_1,
+                volgnummer=ziot_1a.volgnummer,
+            ).exists()
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_1,
+                volgnummer=ziot_1b.volgnummer,
+            ).exists()
+        )
+
+        new_iot_2 = InformatieObjectType.objects.get(
+            catalogus=catalogus_2, omschrijving="Banana"
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_2,
+                volgnummer=ziot_2a.volgnummer,
+            ).exists()
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_2,
+                volgnummer=ziot_2b.volgnummer,
+            ).exists()
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_2,
+                volgnummer=ziot_2c.volgnummer,
+            ).exists()
+        )
+
+        new_iot_2 = InformatieObjectType.objects.get(
+            catalogus=catalogus_2, omschrijving="Chair"
+        )
+        self.assertTrue(
+            ZaakTypeInformatieObjectType.objects.filter(
+                zaaktype=new_zaaktype,
+                informatieobjecttype=new_iot_2,
+                volgnummer=ziot_3a.volgnummer,
+            ).exists()
+        )
+
 
 @patch(
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
