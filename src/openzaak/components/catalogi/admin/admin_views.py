@@ -13,6 +13,7 @@ from django.views.generic import DetailView, FormView, TemplateView
 
 from openzaak.utils.admin import AdminContextMixin
 
+from ..api.viewsets import ZaakTypeViewSet
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
@@ -278,6 +279,8 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 messages.SUCCESS,
                 _("The resource has been published successfully!"),
             )
+            self.send_notification(request)
+
         else:
             messages.add_message(
                 request, messages.WARNING, _("Zaaktype object is already published")
@@ -286,3 +289,22 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
         return HttpResponseRedirect(
             reverse("admin:catalogi_zaaktype_change", args=(self.object.pk,))
         )
+
+    def send_notification(self, context_request):
+
+        viewset = ZaakTypeViewSet()
+        viewset.action = "update"
+
+        reference_object = self.object
+
+        # set versioning to context_request
+        (
+            context_request.version,
+            context_request.versioning_scheme,
+        ) = viewset.determine_version(context_request)
+
+        data = viewset.serializer_class(
+            reference_object, context={"request": context_request}
+        ).data
+
+        viewset.notify(status_code=200, data=data, instance=reference_object)
