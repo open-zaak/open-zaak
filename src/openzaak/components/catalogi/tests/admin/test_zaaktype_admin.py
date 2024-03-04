@@ -1064,9 +1064,8 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         )
         mock_resource_get(m, "procestypen", url=procestype)
 
-        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-        change_page = self.app.get(admin_url)
-        publish_page = change_page.form.submit("_publish").follow()
+        publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(publish_url)
         response = publish_page.form.submit().follow()
         zaaktype.refresh_from_db()
         self.assertNotContains(
