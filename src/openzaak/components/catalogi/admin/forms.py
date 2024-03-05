@@ -177,17 +177,6 @@ class ZaakTypeForm(forms.ModelForm):
         if "_publish" in self.data:
             self._clean_all_data_present_for_publish()
 
-    def _clean_datum_einde_geldigheiGenresd(self):
-        datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")
-
-        if not datum_einde_geldigheid:
-            msg = _(
-                "datum_einde_geldigheid is required if the new version is being created"
-            )
-            self.add_error(
-                "datum_einde_geldigheid", forms.ValidationError(msg, code="invalid"),
-            )
-
     def _clean_all_data_present_for_publish(self):
         has_invalid_resultaattypen = self.instance.resultaattypen.filter(
             selectielijstklasse=""
