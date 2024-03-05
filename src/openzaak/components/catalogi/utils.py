@@ -47,17 +47,17 @@ def has_overlapping_objects(
             Q(datum_einde_geldigheid=None)
             | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
         )
-    if concept is not None:
-        query = query.filter(concept=False)
+        if concept is not None:
+            query = query.filter(concept=False)
 
-    if einde_geldigheid is not None:
-        query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
+        if einde_geldigheid is not None:
+            query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
 
-    if instance:
-        query = query.exclude(pk=instance.pk)
+        if instance:
+            query = query.exclude(pk=instance.pk)
 
-    if query.exists():
-        return True
+        if query.exists():
+            return True
 
     return False
 
