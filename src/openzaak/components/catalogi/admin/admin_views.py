@@ -245,12 +245,18 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 published_informatieobjecttypen = []
                 # publish related types
                 for besluittype in self.object.besluittypen.filter(concept=True):
-                    besluittype.publish()
-                    published_besluittypen.append(besluittype.omschrijving)
+                    try:
+                        besluittype.publish()
+                        published_besluittypen.append(besluittype.omschrijving)
+                    except ValidationError as e:
+                        errors.append(e.message)
 
                 for iot in self.object.informatieobjecttypen.filter(concept=True):
-                    iot.publish()
-                    published_informatieobjecttypen.append(iot.omschrijving)
+                    try:
+                        iot.publish()
+                        published_informatieobjecttypen.append(iot.omschrijving)
+                    except ValidationError as e:
+                        errors.append(e.message)
 
                 if len(published_besluittypen) > 0:
                     messages.add_message(
@@ -276,7 +282,7 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 or self.object.informatieobjecttypen.filter(concept=True).exists()
             ):
                 errors.append(_("All related resources should be published"))
-
+            # if any errors
             if len(errors) > 0:
                 messages.add_message(
                     request, messages.ERROR, ". ".join([str(e) for e in errors])
@@ -284,13 +290,18 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 context = self.get_context_data()
                 return self.render_to_response(context)
 
-            self.object.publish()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                _("The resource has been published successfully!"),
-            )
-            self.send_notification(request)
+            try:
+                self.object.publish()
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    _("The resource has been published successfully!"),
+                )
+                self.send_notification(request)
+            except ValidationError as e:
+                messages.add_message(request, messages.ERROR, e.message)
+                context = self.get_context_data()
+                return self.render_to_response(context)
 
         else:
             messages.add_message(

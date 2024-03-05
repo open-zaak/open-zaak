@@ -469,23 +469,23 @@ class PublishWithGeldigheidTests(
         self.user = SuperUserFactory.create()
         self.app.set_user(self.user)
 
-    def test_publish_zaaktype_with_existing_overlap_fails(self, m):
-        mock_selectielijst_oas_get(m)
+    def setUpData(self, mock):
+        mock_selectielijst_oas_get(mock)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_resource_list(m, "procestypen")
+        mock_resource_list(mock, "procestypen")
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
-        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+        mock_resource_get(mock, "resultaten", url=selectielijst_resultaat)
 
-        catalogus = CatalogusFactory()
+        self.catalogus = CatalogusFactory()
 
-        old_zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+        self.old_zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
             concept=False,
             identificatie="Justin-Case",
             zaaktype_omschrijving="test",
@@ -498,8 +498,8 @@ class PublishWithGeldigheidTests(
             datum_einde_geldigheid=None,
         )
 
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+        self.zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
             concept=True,
             identificatie="Justin-Case",
             zaaktype_omschrijving="test",
@@ -511,14 +511,19 @@ class PublishWithGeldigheidTests(
             datum_begin_geldigheid="2018-01-10",
             datum_einde_geldigheid=None,
         )
-        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
-        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        # TODO: make these mandatory
+        StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=2)
         ResultaatTypeFactory.create(
-            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+            zaaktype=self.zaaktype, selectielijstklasse=selectielijst_resultaat
         )
-        RolTypeFactory.create(zaaktype=zaaktype)
+        RolTypeFactory.create(zaaktype=self.zaaktype)
 
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+    def test_publish_zaaktype_with_existing_overlap_fails(self, m):
+
+        self.setUpData(m)
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
 
@@ -530,28 +535,46 @@ class PublishWithGeldigheidTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
+        url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
+        publish_page = self.app.get(url)
+        response = publish_page.form.submit()
 
-        response = form.submit("_publish")
-        error_message = response.html.find(class_="errorlist")
+        messages = list(response.context["messages"])
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            f"{zaaktype._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
+        self.assertEqual(
+            str(messages[0]),
+            f"{self.zaaktype._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
             "geldigheid hebben.",
-            error_message.text,
         )
-        zaaktype.refresh_from_db()
-        self.assertTrue(zaaktype.concept)
+        self.zaaktype.refresh_from_db()
+        self.assertTrue(self.zaaktype.concept)
 
-        old_zaaktype.datum_einde_geldigheid = "2018-01-09"
-        old_zaaktype.save()
+        self.old_zaaktype.datum_einde_geldigheid = "2018-01-09"
+        self.old_zaaktype.save()
 
-        response = form.submit("_publish")
+        response = publish_page.form.submit()
 
         self.assertEqual(response.status_code, 302)
-        zaaktype.refresh_from_db()
-        self.assertFalse(zaaktype.concept)
+        self.zaaktype.refresh_from_db()
+        self.assertFalse(self.zaaktype.concept)
+
+    def test_publish_action(self, m):
+        pass
+        # form = response.forms["changelist-form"]
+        # form["action"] = "publish_selected"
+        # form["_selected_action"] = [zaaktype1.pk]
+        #
+        # response = form.submit()
+
+    def test_failure_to_publish_related_IOT(self, m):
+        # TODO: related zaaktypes
+        pass
+        # form = response.forms["changelist-form"]
+        # form["action"] = "publish_selected"
+        # form["_selected_action"] = [zaaktype1.pk]
+        #
+        # response = form.submit()
 
 
 @tag("readonly-user")

@@ -195,6 +195,7 @@ class ConceptMixin(models.Model):
 
     def publish(self):
         self.concept = False
+        self.clean()
         self.save()
 
     @display(boolean=True, description=_("gepubliceerd"))
