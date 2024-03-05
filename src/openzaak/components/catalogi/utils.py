@@ -41,22 +41,14 @@ def has_overlapping_objects(
 
     if catalogus and begin_geldigheid:
 
-        if concept is None:
-
-            query = model_manager.filter(
+        query = model_manager.filter(
                 Q(catalogus=catalogus),
                 Q(**omschrijving_query),
                 Q(datum_einde_geldigheid=None)
                 | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
             )
-        else:
-            query = model_manager.filter(
-                Q(catalogus=catalogus),
-                Q(**omschrijving_query),
-                Q(concept=False),
-                Q(datum_einde_geldigheid=None)
-                | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
-            )
+    if concept is not None:
+      query = query.filter(concept=False)
 
         if einde_geldigheid is not None:
             query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)
