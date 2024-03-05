@@ -1,0 +1,60 @@
+{% extends "admin/index.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2019 - 2024 Dimpact {% endcomment %}
+{% load i18n config %}
+
+{% block title %} {% trans "Publish zaaktype" %} {{ block.super }} {% endblock %}
+
+{% block content_title %}{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:catalogi_zaaktype_changelist' %}">{% trans 'Zaaktype' %}</a>
+&rsaquo; {% trans 'Publiceren zaaktype' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans 'Publiceren zaaktype' %}</h1>
+
+    <h2>{{ zaaktype }}</h2>
+
+{% if zaaktype.informatieobjecttypen.all %}
+    <table class="module aligned ">
+        <tr><th>{% trans 'Informatieobjecttypen' %}</th> <th>{% trans 'Gepubliceerd' %}</th></tr>
+        {% for iot in zaaktype.informatieobjecttypen.all %}
+        <tr><td>{{iot}}</td> <td>{{iot.is_published | boolean_icon}}</td></tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+
+{% if zaaktype.besluittypen.all %}
+    <table class="module aligned ">
+        <tr><th>{% trans 'Besluittypen' %}</th> <th>{% trans 'Gepubliceerd' %}</th></tr>
+        {% for besluittypen in zaaktype.besluittypen.all %}
+        <tr><td>{{besluittypen}}</td> <td>{{besluittypen.is_published | boolean_icon}}</td></tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+
+
+    <div id="content-main">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div>
+<fieldset class="module aligned ">
+                {% csrf_token %}
+
+                <label for="_auto-publish">{% translate "Auto-publish related objects" %}</label>
+                <input type="checkbox" name="_auto-publish" id="_auto-publish" {% if zaaktype.concept == False %}disabled="disabled"{% endif %}>
+</fieldset>
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Publiceren' %}" name="_publish" {% if zaaktype.concept == False %}disabled="disabled"{% endif %}>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -10,11 +10,12 @@ from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import FormView, TemplateView
+from django.views.generic import DetailView, FormView, TemplateView
 
 from openzaak.utils.admin import AdminContextMixin
 
-from ..models import BesluitType, Catalogus, InformatieObjectType
+from ..api.viewsets import ZaakTypeViewSet
+from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
     construct_besluittypen,
@@ -220,3 +221,101 @@ class CatalogusZaakTypeImportSelectView(
             messages.add_message(request, messages.ERROR, exc)
 
         return TemplateResponse(request, self.template_name, context)
+
+
+class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView):
+    template_name = "admin/catalogi/publish_zaaktype.html"
+    permission_required = "catalogi.change_zaaktype"
+
+    queryset = ZaakType.objects.all().prefetch_related(
+        "besluittypen", "informatieobjecttypen"
+    )
+    pk_url_kwarg = "zaaktype_pk"
+
+    def post(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+
+        if self.object.concept:
+            errors = []
+
+            if "_auto-publish" in request.POST:
+
+                published_besluittypen = []
+                published_informatieobjecttypen = []
+                # publish related types
+                for besluittype in self.object.besluittypen.filter(concept=True):
+                    besluittype.publish()
+                    published_besluittypen.append(besluittype.omschrijving)
+
+                for iot in self.object.informatieobjecttypen.filter(concept=True):
+                    iot.publish()
+                    published_informatieobjecttypen.append(iot.omschrijving)
+
+                if len(published_besluittypen) > 0:
+                    messages.add_message(
+                        request,
+                        messages.INFO,
+                        _("Auto-published related besluittypen: {besluittypen}").format(
+                            besluittypen=", ".join(published_besluittypen)
+                        ),
+                        "autopublish",
+                    )
+                if len(published_informatieobjecttypen) > 0:
+                    messages.add_message(
+                        request,
+                        messages.INFO,
+                        _(
+                            "Auto-published related informatieobjecttypen: {iots}"
+                        ).format(iots=", ".join(published_informatieobjecttypen)),
+                        "autopublish",
+                    )
+
+            if (
+                self.object.besluittypen.filter(concept=True).exists()
+                or self.object.informatieobjecttypen.filter(concept=True).exists()
+            ):
+                errors.append(_("All related resources should be published"))
+
+            if len(errors) > 0:
+                messages.add_message(
+                    request, messages.ERROR, ". ".join([str(e) for e in errors])
+                )
+                context = self.get_context_data()
+                return self.render_to_response(context)
+
+            self.object.publish()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("The resource has been published successfully!"),
+            )
+            self.send_notification(request)
+
+        else:
+            messages.add_message(
+                request, messages.WARNING, _("Zaaktype object is already published")
+            )
+
+        return HttpResponseRedirect(
+            reverse("admin:catalogi_zaaktype_change", args=(self.object.pk,))
+        )
+
+    def send_notification(self, context_request):
+
+        viewset = ZaakTypeViewSet()
+        viewset.action = "update"
+
+        reference_object = self.object
+
+        # set versioning to context_request
+        (
+            context_request.version,
+            context_request.versioning_scheme,
+        ) = viewset.determine_version(context_request)
+
+        data = viewset.serializer_class(
+            reference_object, context={"request": context_request}
+        ).data
+
+        viewset.notify(status_code=200, data=data, instance=reference_object)

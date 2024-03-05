@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Field
 from django.forms import ChoiceField, model_to_dict
 from django.http import HttpRequest
+from django.urls import path
 from django.utils.translation import ugettext_lazy as _
 
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
@@ -33,6 +34,7 @@ from ..models import (
     ZaakType,
     ZaakTypenRelatie,
 )
+from .admin_views import ZaaktypePublishView
 from .eigenschap import EigenschapAdmin
 from .filters import GeldigheidFilter
 from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
@@ -268,6 +270,20 @@ class ZaakTypeAdmin(
 
     # For export mixin
     resource_name = "zaaktype"
+
+    def get_urls(self):
+        urls = super().get_urls()
+
+        my_urls = [
+            path(
+                "<path:zaaktype_pk>/publish/",
+                self.admin_site.admin_view(
+                    ZaaktypePublishView.as_view(admin_site=self.admin_site)
+                ),
+                name="catalogi_zaaktype_publish",
+            ),
+        ]
+        return my_urls + urls
 
     def get_related_objects(self, obj):
         resources = {}

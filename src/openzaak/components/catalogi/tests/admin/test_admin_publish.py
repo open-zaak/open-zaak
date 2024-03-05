@@ -99,10 +99,11 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
 
         with self.captureOnCommitCallbacks(execute=True):
-            response = form.submit("_publish").follow()
+            response = publish_page.form.submit("_publish").follow()
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -230,9 +231,11 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
+        response = publish_page.form.submit("_publish")
+        # returns same page on fail
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
@@ -250,6 +253,74 @@ class ZaaktypeAdminTests(
             "input", {"name": "_publish", "disabled": "disabled"}
         )
         self.assertIsNone(publish_button)
+
+    def test_publish_zaaktype_related_to_concept_besluittype_succeeds(self, m):
+        mock_selectielijst_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
+        )
+        besluit_type = BesluitTypeFactory.create(concept=True, zaaktypen=[zaaktype])
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        # Verify that the publish button is visible and enabled
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
+
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
+        publish_page.form["_auto-publish"] = True
+        response = publish_page.form.submit().follow()
+        # redirects on success
+        self.assertEqual(response.status_code, 200)
+
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+        besluit_type.refresh_from_db()
+        self.assertFalse(besluit_type.concept)
+
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            _("Auto-published related besluittypen: {besluittypen}").format(
+                besluittypen=besluit_type.omschrijving
+            ),
+        )
+
+        # Verify that the publish button is disabled.
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNotNone(publish_button)
 
     def test_publish_zaaktype_related_to_concept_informatieobjecttype_fails(self, m):
         mock_selectielijst_oas_get(m)
@@ -294,9 +365,11 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNone(publish_button)
 
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_publish").follow()
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
+        response = publish_page.form.submit("_publish")
+        # returns same page on fail
+        self.assertEqual(response.status_code, 200)
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
@@ -314,6 +387,77 @@ class ZaaktypeAdminTests(
             "input", {"name": "_publish", "disabled": "disabled"}
         )
         self.assertIsNone(publish_button)
+
+    def test_publish_zaaktype_related_to_concept_informatieobjecttype_succeeds(self, m):
+        mock_selectielijst_oas_get(m)
+        procestype_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        mock_resource_list(m, "procestypen")
+        mock_resource_get(m, "procestypen", procestype_url)
+        selectielijst_resultaat = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(m, "resultaten", url=selectielijst_resultaat)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=True,
+            zaaktype_omschrijving="test",
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=["test"],
+            verantwoordingsrelatie=["bla"],
+            selectielijst_procestype=procestype_url,
+            verlenging_mogelijk=False,
+        )
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype, selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=zaaktype.catalogus, zaaktypen__zaaktype=zaaktype, concept=True,
+        )
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        # Verify that the publish button is visible and enabled
+        publish_button = response.html.find("input", {"name": "_publish"})
+        self.assertIsNotNone(publish_button)
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNone(publish_button)
+
+        url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(url)
+        publish_page.form["_auto-publish"] = True
+        response = publish_page.form.submit().follow()
+        # redirects on success
+        self.assertEqual(response.status_code, 200)
+
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+        informatieobjecttype.refresh_from_db()
+        self.assertFalse(informatieobjecttype.concept)
+
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            _("Auto-published related informatieobjecttypen: {iots}").format(
+                iots=informatieobjecttype.omschrijving
+            ),
+        )
+
+        # Verify that the publish button is disabled.
+        publish_button = response.html.find(
+            "input", {"name": "_publish", "disabled": "disabled"}
+        )
+        self.assertIsNotNone(publish_button)
 
 
 @tag("readonly-user")
