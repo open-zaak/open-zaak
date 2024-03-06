@@ -215,28 +215,6 @@ class ZaakTypeForm(forms.ModelForm):
                 ),
             )
 
-        from ..utils import has_overlapping_objects
-
-        if has_overlapping_objects(
-            model_manager=self.instance._meta.default_manager,
-            catalogus=self.instance.catalogus,
-            omschrijving_query={
-                self.instance.omschrijving_field: getattr(
-                    self.instance, self.instance.omschrijving_field
-                )
-            },
-            begin_geldigheid=self.instance.datum_begin_geldigheid,
-            einde_geldigheid=self.instance.datum_einde_geldigheid,
-            instance=self.instance,
-            concept=False,
-        ):
-
-            self.add_error(
-                None,
-                f"{self.instance._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
-                "overlappende geldigheid hebben.",
-            )
-
 
 class ResultaatTypeForm(forms.ModelForm):
     # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute

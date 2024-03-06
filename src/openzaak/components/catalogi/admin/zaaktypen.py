@@ -331,7 +331,9 @@ class ZaakTypeAdmin(
         ):
             errors.append(_("All related resources should be published"))
 
-        form = self.form(instance=obj, data={**model_to_dict(obj), "_publish": "1"})
+        form = self.form(
+            instance=obj, data={**model_to_dict(obj), "_publish": "1", "concept": False}
+        )
         if not form.is_valid():
             for field_name, error_list in form.errors.items():
                 if field_name != "__all__":
@@ -339,7 +341,8 @@ class ZaakTypeAdmin(
                     errors += [f"{form_field.label}: {err}" for err in error_list]
                 else:
                     errors += error_list
-
+        # reset concept for __str__ to display properly
+        obj.concept = True
         return errors
 
     def get_object_actions(self, obj):

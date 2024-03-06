@@ -815,18 +815,18 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         see that there MUST be an initiator type.
         """
         zaaktype = ZaakTypeFactory.create(concept=True)
-        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-        change_page = self.app.get(admin_url)
+        publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(publish_url)
 
-        response = change_page.form.submit("_publish")
+        response = publish_page.form.submit()
 
         self.assertEqual(
             response.status_code, 200
         )  # no redirect because validation errors
-        validation_errors = response.context["adminform"].errors
+        messages = list(response.context["messages"])
 
         error = _("Publishing a zaaktype requires at least one roltype to be defined.")
-        self.assertIn(error, validation_errors["__all__"])
+        self.assertIn(str(error), str(messages[0]))
 
     @tag("gh-1085")
     def test_publish_requires_at_least_two_statustypes(self):
@@ -842,34 +842,34 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         final status, thus we require at least 2 statustypen for a zaaktype.
         """
         zaaktype = ZaakTypeFactory.create(concept=True)
-        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-        change_page = self.app.get(admin_url)
+        publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(publish_url)
 
         error = _(
             "Publishing a zaaktype requires at least two statustypes to be defined."
         )
 
         with self.subTest("no statustypen"):
-            response = change_page.form.submit("_publish")
+            response = publish_page.form.submit("_publish")
 
             self.assertEqual(
                 response.status_code, 200
             )  # no redirect because validation errors
-            validation_errors = response.context["adminform"].errors
+            messages = list(response.context["messages"])
 
-            self.assertIn(error, validation_errors["__all__"])
+            self.assertIn(str(error), str(messages[0]))
 
         with self.subTest("one statustype"):
             StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
 
-            response = change_page.form.submit("_publish")
+            response = publish_page.form.submit("_publish")
 
             self.assertEqual(
                 response.status_code, 200
             )  # no redirect because validation errors
-            validation_errors = response.context["adminform"].errors
+            messages = list(response.context["messages"])
 
-            self.assertIn(error, validation_errors["__all__"])
+            self.assertIn(str(error), str(messages[0]))
 
     @tag("gh-1085")
     def test_publish_requires_at_least_once_resultaattype(self):
@@ -877,20 +877,23 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         Assert that at least one resultaattype must exist before publishing a zaaktype.
         """
         zaaktype = ZaakTypeFactory.create(concept=True)
-        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-        change_page = self.app.get(admin_url)
+        # StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=1)
+        # StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=2)
+        # RolTypeFactory.create(zaaktype=self.zaaktype)
+        publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(publish_url)
 
-        response = change_page.form.submit("_publish")
+        response = publish_page.form.submit()
 
         self.assertEqual(
             response.status_code, 200
         )  # no redirect because validation errors
-        validation_errors = response.context["adminform"].errors
+        messages = list(response.context["messages"])
 
         error = _(
             "Publishing a zaaktype requires at least one resultaattype to be defined."
         )
-        self.assertIn(error, validation_errors["__all__"])
+        self.assertIn(str(error), str(messages[0]))
 
     @tag("gh-1085")
     @requests_mock.Mocker()
@@ -918,10 +921,9 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         )
         RolTypeFactory.create(zaaktype=zaaktype)
 
-        admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-        change_page = self.app.get(admin_url)
-
-        response = change_page.form.submit("_publish")
+        publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
+        publish_page = self.app.get(publish_url)
+        response = publish_page.form.submit()
 
         self.assertEqual(response.status_code, 302)
 
@@ -1068,7 +1070,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_published_zaaktype_with_empty_durations(self, m):
-        """ Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging """
+        """ Regression test where a user is not able to publish a concept-zaaktype with a verlenging """
 
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")

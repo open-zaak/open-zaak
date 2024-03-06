@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
+from django.forms import model_to_dict
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -16,7 +17,12 @@ from openzaak.utils.admin import AdminContextMixin
 
 from ..api.viewsets import ZaakTypeViewSet
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
-from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
+from .forms import (
+    BesluitTypeFormSet,
+    InformatieObjectTypeFormSet,
+    ZaakTypeForm,
+    ZaakTypeImportForm,
+)
 from .utils import (
     construct_besluittypen,
     construct_iotypen,
@@ -239,7 +245,20 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
         if self.object.concept:
             errors = []
 
-            if "_auto-publish" in request.POST:
+            model_dict = model_to_dict(self.object)
+            model_dict["concept"] = False
+            form = ZaakTypeForm(
+                instance=self.object, data={**model_dict, "_publish": "1"}
+            )
+
+            if not form.is_valid():
+                for field_name, error_list in form.errors.items():
+                    if field_name != "__all__":
+                        form_field = form.fields[field_name]
+                        errors += [f"{form_field.label}: {err}" for err in error_list]
+                    else:
+                        errors += error_list
+            elif "_auto-publish" in request.POST:
 
                 published_besluittypen = []
                 published_informatieobjecttypen = []
@@ -290,19 +309,13 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 context = self.get_context_data()
                 return self.render_to_response(context)
 
-            try:
-                self.object.publish()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    _("The resource has been published successfully!"),
-                )
-                self.send_notification(request)
-            except ValidationError as e:
-                messages.add_message(request, messages.ERROR, e.message)
-                context = self.get_context_data()
-                return self.render_to_response(context)
-
+            self.object.publish()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _("The resource has been published successfully!"),
+            )
+            self.send_notification(request)
         else:
             messages.add_message(
                 request, messages.WARNING, _("Zaaktype object is already published")
