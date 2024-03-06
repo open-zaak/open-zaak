@@ -255,7 +255,7 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 for field_name, error_list in form.errors.items():
                     if field_name != "__all__":
                         form_field = form.fields[field_name]
-                        errors += [f"{form_field.label}: {err}" for err in error_list]
+                        errors += [f"{form_field.label}: {err}." for err in error_list]
                     else:
                         errors += error_list
             elif "_auto-publish" in request.POST:
@@ -268,14 +268,14 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                         besluittype.publish()
                         published_besluittypen.append(besluittype.omschrijving)
                     except ValidationError as e:
-                        errors.append(e.message)
+                        errors.append(f"{besluittype.omschrijving} – {e.message}")
 
                 for iot in self.object.informatieobjecttypen.filter(concept=True):
                     try:
                         iot.publish()
                         published_informatieobjecttypen.append(iot.omschrijving)
                     except ValidationError as e:
-                        errors.append(e.message)
+                        errors.append(f"{iot.omschrijving} – {e.message}")
 
                 if len(published_besluittypen) > 0:
                     messages.add_message(
@@ -300,15 +300,15 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 self.object.besluittypen.filter(concept=True).exists()
                 or self.object.informatieobjecttypen.filter(concept=True).exists()
             ):
-                errors.append(_("All related resources should be published"))
+                errors.append(_("All related resources should be published") + ".")
             # if any errors
             if len(errors) > 0:
+                self.object.concept = True
                 messages.add_message(
-                    request, messages.ERROR, ". ".join([str(e) for e in errors])
+                    request, messages.ERROR, " ".join([str(e) for e in errors])
                 )
                 context = self.get_context_data()
                 return self.render_to_response(context)
-
             self.object.publish()
             messages.add_message(
                 request,

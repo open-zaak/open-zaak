@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import Permission
 from django.test import override_settings, tag
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext_lazy
 
 import requests_mock
 from django_webtest import WebTest
@@ -469,18 +469,19 @@ class PublishWithGeldigheidTests(
         self.user = SuperUserFactory.create()
         self.app.set_user(self.user)
 
-    def setUpData(self, mock):
-        mock_selectielijst_oas_get(mock)
+    def setUpData(self, request_mock):
+        mock_selectielijst_oas_get(request_mock)
         procestype_url = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
-        mock_resource_list(mock, "procestypen")
+        mock_resource_list(request_mock, "procestypen")
+        mock_resource_get(request_mock, "procestypen", procestype_url)
         selectielijst_resultaat = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
-        mock_resource_get(mock, "resultaten", url=selectielijst_resultaat)
+        mock_resource_get(request_mock, "resultaten", url=selectielijst_resultaat)
 
         self.catalogus = CatalogusFactory()
 
@@ -511,7 +512,6 @@ class PublishWithGeldigheidTests(
             datum_begin_geldigheid="2018-01-10",
             datum_einde_geldigheid=None,
         )
-        # TODO: make these mandatory
         StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=1)
         StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=2)
         ResultaatTypeFactory.create(
@@ -519,9 +519,9 @@ class PublishWithGeldigheidTests(
         )
         RolTypeFactory.create(zaaktype=self.zaaktype)
 
-    def test_publish_zaaktype_with_existing_overlap_fails(self, m):
+    def test_publish_zaaktype_with_existing_overlap_fails(self, request_mock):
 
-        self.setUpData(m)
+        self.setUpData(request_mock)
 
         url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
@@ -559,22 +559,143 @@ class PublishWithGeldigheidTests(
         self.zaaktype.refresh_from_db()
         self.assertFalse(self.zaaktype.concept)
 
-    def test_publish_action(self, m):
-        pass
-        # form = response.forms["changelist-form"]
-        # form["action"] = "publish_selected"
-        # form["_selected_action"] = [zaaktype1.pk]
-        #
-        # response = form.submit()
+    def test_publish_action_with_existing_overlap(self, request_mock):
+        self.setUpData(request_mock)
 
-    def test_failure_to_publish_related_IOT(self, m):
-        # TODO: related zaaktypes
-        pass
-        # form = response.forms["changelist-form"]
-        # form["action"] = "publish_selected"
-        # form["_selected_action"] = [zaaktype1.pk]
-        #
-        # response = form.submit()
+        url = reverse("admin:catalogi_zaaktype_changelist")
+        response = self.app.get(url)
+
+        form = response.forms["changelist-form"]
+        form["action"] = "publish_selected"
+        form["_selected_action"] = [self.zaaktype.pk]
+
+        response = form.submit()
+        self.assertEqual(response.status_code, 302)
+
+        self.zaaktype.refresh_from_db()
+        self.assertTrue(self.zaaktype.concept)
+
+        messages = list(response.follow().context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            _("%(obj)s can't be published: %(error)s")
+            % {
+                "obj": self.zaaktype,
+                "error": f"{self.zaaktype._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
+                "geldigheid hebben.",
+            },
+        )
+
+        self.old_zaaktype.datum_einde_geldigheid = "2018-01-09"
+        self.old_zaaktype.save()
+
+        response = form.submit().follow()
+
+        self.zaaktype.refresh_from_db()
+        self.assertFalse(self.zaaktype.concept)
+
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            ngettext_lazy(
+                "%d object has been published successfully",
+                "%d objects has been published successfully",
+                1,
+            )
+            % 1,
+        )
+
+    def test_failure_to_publish_related_IOT(self, request_mock):
+        self.setUpData(request_mock)
+
+        self.old_zaaktype.datum_einde_geldigheid = "2018-01-09"
+        self.old_zaaktype.save()
+
+        old_iot = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=self.zaaktype,
+            datum_begin_geldigheid="2023-01-01",
+            concept=False,
+        )
+        new_iot = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            omschrijving="Alpha",
+            zaaktypen__zaaktype=self.zaaktype,
+            datum_begin_geldigheid="2023-04-01",
+            concept=True,
+        )
+
+        url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
+        publish_page = self.app.get(url)
+        form = publish_page.form
+        form["_auto-publish"] = "value"
+        response = publish_page.form.submit()
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            "{} {}".format(
+                f"{new_iot.omschrijving} – "
+                + f"{new_iot._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
+                "geldigheid hebben.",
+                _("All related resources should be published") + ".",
+            ),
+        )
+        old_iot.datum_einde_geldigheid = "2023-03-31"
+        old_iot.save()
+
+        form = response.form
+        form["_auto-publish"] = "value"
+        response = publish_page.form.submit()
+        self.assertEqual(response.status_code, 302)
+
+    def test_failure_to_publish_related_besluit_type(self, request_mock):
+        self.setUpData(request_mock)
+
+        self.old_zaaktype.datum_einde_geldigheid = "2018-01-09"
+        self.old_zaaktype.save()
+
+        old_besluit_type = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            omschrijving="Apple",
+            zaaktypen=[self.zaaktype],
+            datum_begin_geldigheid="2023-01-01",
+            concept=False,
+        )
+        new_besluit_type = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            omschrijving="Apple",
+            zaaktypen=[self.zaaktype],
+            datum_begin_geldigheid="2023-04-01",
+            concept=True,
+        )
+
+        url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
+        publish_page = self.app.get(url)
+        form = publish_page.form
+        form["_auto-publish"] = "value"
+        response = publish_page.form.submit()
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context["messages"])
+        self.assertEqual(
+            str(messages[0]),
+            "{} {}".format(
+                f"{new_besluit_type.omschrijving} – "
+                + f"{new_besluit_type._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
+                "geldigheid hebben.",
+                _("All related resources should be published") + ".",
+            ),
+        )
+        old_besluit_type.datum_einde_geldigheid = "2023-03-31"
+        old_besluit_type.save()
+
+        form = response.form
+        form["_auto-publish"] = "value"
+        response = publish_page.form.submit()
+        self.assertEqual(response.status_code, 302)
 
 
 @tag("readonly-user")
