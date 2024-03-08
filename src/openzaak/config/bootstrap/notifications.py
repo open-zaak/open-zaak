@@ -200,6 +200,13 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
                 "user_representation": org_label,
             },
         )
+        if not created:
+            service.oas = settings.NOTIF_API_OAS
+            service.client_id = settings.OPENZAAK_NOTIF_CLIENT_ID
+            service.secret = settings.OPENZAAK_NOTIF_SECRET
+            service.user_id = settings.OPENZAAK_NOTIF_CLIENT_ID
+            service.user_representation = org_label
+            service.save()
 
         # 3. Set up configuration
         config = NotificationsConfig.get_solo()

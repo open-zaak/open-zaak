@@ -37,7 +37,7 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
 
     def configure(self):
         # 1. Set up a service for the Selectielijst API so Open Zaak can request it
-        Service.objects.update_or_create(
+        service, created = Service.objects.update_or_create(
             api_root=settings.SELECTIELIJST_API_ROOT,
             defaults={
                 "label": "Selectielijst API",
@@ -46,6 +46,9 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
                 "auth_type": AuthTypes.no_auth,
             },
         )
+        if not created:
+            service.oas = settings.SELECTIELIJST_API_OAS
+            service.save(update_fields=["oas"])
 
         # 2. Set up configuration
         config = ReferentieLijstConfig.get_solo()
