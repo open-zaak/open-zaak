@@ -17,6 +17,7 @@ from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import ZaakType
+from ...utils import has_overlapping_objects
 from ..filters import ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
@@ -172,6 +173,8 @@ class ZaakTypeViewSet(
     def publish(self, request, *args, **kwargs):
         instance = self.get_object()
 
+        related_errors = dict()
+
         # check related objects
         if (
             instance.besluittypen.filter(concept=True).exists()
@@ -179,8 +182,57 @@ class ZaakTypeViewSet(
             or instance.deelzaaktypen.filter(concept=True).exists()
         ):
             msg = _("All related resources should be published")
+            related_errors[api_settings.NON_FIELD_ERRORS_KEY] = [msg]
+
+        has_invalid_resultaattypen = instance.resultaattypen.filter(
+            selectielijstklasse=""
+        ).exists()
+        if has_invalid_resultaattypen:
+            msg = _(
+                "This zaaktype has resultaattypen without a selectielijstklasse. "
+                "Please specify those before publishing the zaaktype."
+            )
+            related_errors["resultaattypen"] = [msg]
+
+        num_roltypen = instance.roltype_set.count()
+        if not num_roltypen >= 1:
+            msg = _(
+                "Publishing a zaaktype requires at least one roltype to be defined."
+            )
+            related_errors["roltypen"] = [msg]
+
+        num_resultaattypen = instance.resultaattypen.count()
+        if not num_resultaattypen >= 1:
+            msg = _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            )
+            error_list = related_errors.get("resultaattypen", [])
+            error_list.append(msg)
+            related_errors["resultaattypen"] = error_list
+
+        num_statustypen = instance.statustypen.count()
+        if not num_statustypen >= 2:
+            msg = _(
+                "Publishing a zaaktype requires at least two statustypes to be defined."
+            )
+            related_errors["statustypen"] = [msg]
+
+        if len(related_errors) > 0:
+            print(related_errors)
+            raise ValidationError(related_errors, code="concept-relation")
+
+        if has_overlapping_objects(
+            model_manager=ZaakType._default_manager,
+            catalogus=instance.catalogus,
+            omschrijving_query={instance.omschrijving_field: instance.identificatie},
+            begin_geldigheid=instance.datum_begin_geldigheid,
+            einde_geldigheid=instance.datum_einde_geldigheid,
+            instance=instance,
+            concept=False,
+        ):
+            msg = _("All related resources should be published")
             raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="concept-relation"
+                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="overlapped_types"
             )
 
         instance.concept = False
