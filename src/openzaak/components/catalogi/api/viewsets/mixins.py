@@ -7,13 +7,37 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
+from rest_framework.settings import api_settings
 
+from ...utils import has_overlapping_objects
 from ..scopes import SCOPE_CATALOGI_FORCED_DELETE
 
 
 class ConceptPublishMixin:
     def _publish(self, request, *args, **kwargs):
         instance = self.get_object()
+        base_model = self.serializer_class.Meta.model
+
+        if has_overlapping_objects(
+            model_manager=base_model._default_manager,
+            catalogus=instance.catalogus,
+            omschrijving_query={
+                instance.omschrijving_field: getattr(
+                    instance, instance.omschrijving_field
+                )
+            },
+            begin_geldigheid=instance.datum_begin_geldigheid,
+            einde_geldigheid=instance.datum_einde_geldigheid,
+            instance=instance,
+            concept=False,
+        ):
+            msg = _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            ).format(base_model._meta.verbose_name)
+            raise ValidationError(
+                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="overlapped_types"
+            )
+
         instance.concept = False
         instance.save()
 

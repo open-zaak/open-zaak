@@ -6,7 +6,6 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.caching import conditional_retrieve
@@ -17,7 +16,6 @@ from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
 from ...models import ZaakType
-from ...utils import has_overlapping_objects
 from ..filters import ZaakTypeFilter
 from ..kanalen import KANAAL_ZAAKTYPEN
 from ..scopes import (
@@ -221,23 +219,4 @@ class ZaakTypeViewSet(
             print(related_errors)
             raise ValidationError(related_errors, code="concept-relation")
 
-        if has_overlapping_objects(
-            model_manager=ZaakType._default_manager,
-            catalogus=instance.catalogus,
-            omschrijving_query={instance.omschrijving_field: instance.identificatie},
-            begin_geldigheid=instance.datum_begin_geldigheid,
-            einde_geldigheid=instance.datum_einde_geldigheid,
-            instance=instance,
-            concept=False,
-        ):
-            msg = _("All related resources should be published")
-            raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="overlapped_types"
-            )
-
-        instance.concept = False
-        instance.save()
-
-        serializer = self.get_serializer(instance)
-
-        return Response(serializer.data)
+        return super()._publish(request, *args, **kwargs)

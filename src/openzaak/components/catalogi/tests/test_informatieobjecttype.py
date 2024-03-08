@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -212,6 +214,49 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         informatieobjecttype.refresh_from_db()
 
+        self.assertEqual(informatieobjecttype.concept, False)
+
+    def test_publish_besluittype_with_overlapping_besluittype(self):
+
+        catalogus = CatalogusFactory.create()
+        old_informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-01-01",
+            concept=False,
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-10-10",
+            concept=True,
+        )
+        informatieobjecttypee_url = get_operation_url(
+            "informatieobjecttype_publish", uuid=informatieobjecttype.uuid
+        )
+
+        response = self.client.post(informatieobjecttypee_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        informatieobjecttype.refresh_from_db()
+        self.assertEqual(informatieobjecttype.concept, True)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "overlapped_types")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            ).format(InformatieObjectType._meta.verbose_name),
+        )
+
+        old_informatieobjecttype.datum_einde_geldigheid = "2018-01-09"
+        old_informatieobjecttype.save()
+
+        response = self.client.post(informatieobjecttypee_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        informatieobjecttype.refresh_from_db()
         self.assertEqual(informatieobjecttype.concept, False)
 
     def test_delete_informatieobjecttype(self):

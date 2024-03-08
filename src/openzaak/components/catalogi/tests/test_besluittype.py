@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -243,6 +245,49 @@ class BesluitTypeAPITests(APITestCase):
 
         besluittype.refresh_from_db()
 
+        self.assertEqual(besluittype.concept, False)
+
+    def test_publish_besluittype_with_overlapping_besluittype(self):
+
+        catalogus = CatalogusFactory.create()
+        old_besluittype = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-01-01",
+            concept=False,
+        )
+        besluittype = BesluitTypeFactory.create(
+            catalogus=catalogus,
+            omschrijving="test",
+            datum_begin_geldigheid="2018-10-10",
+            concept=True,
+        )
+        besluittype_url = reverse(
+            "besluittype-publish", kwargs={"uuid": besluittype.uuid}
+        )
+
+        response = self.client.post(besluittype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        besluittype.refresh_from_db()
+        self.assertEqual(besluittype.concept, True)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "overlapped_types")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            ).format(BesluitType._meta.verbose_name),
+        )
+
+        old_besluittype.datum_einde_geldigheid = "2018-01-09"
+        old_besluittype.save()
+
+        response = self.client.post(besluittype_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        besluittype.refresh_from_db()
         self.assertEqual(besluittype.concept, False)
 
     def test_delete_besluittype(self):

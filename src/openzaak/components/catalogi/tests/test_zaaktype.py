@@ -1400,8 +1400,16 @@ class ZaakTypePublishTests(APITestCase):
         zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
 
         response = self.client.post(zaaktype_url)
-        print(response)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "overlapped_types")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            ).format(ZaakType._meta.verbose_name),
+        )
 
         zaaktype.refresh_from_db()
         self.assertTrue(zaaktype.concept)
