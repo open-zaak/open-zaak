@@ -768,6 +768,9 @@ class BesluitTypeValidationTests(APITestCase):
     maxDiff = None
 
     def test_besluittype_unique_catalogus_omschrijving_combination(self):
+        """
+        Always imported as a concept, should succeed
+        """
         BesluitTypeFactory(catalogus=self.catalogus, omschrijving="test")
         besluittype_list_url = reverse("besluittype-list")
         data = {
@@ -787,7 +790,4 @@ class BesluitTypeValidationTests(APITestCase):
 
         response = self.client.post(besluittype_list_url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "beginGeldigheid")
-        self.assertEqual(error["code"], "overlap")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

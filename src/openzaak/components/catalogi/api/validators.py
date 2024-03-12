@@ -51,6 +51,10 @@ class GeldigheidValidator:
             self.omschrijving_field, attrs, serializer
         )
 
+        concept = get_from_serializer_data_or_instance("concept", attrs, serializer)
+        if concept is None:
+            concept = True
+
         if has_overlapping_objects(
             model_manager=base_model._default_manager,
             catalogus=catalogus,
@@ -58,6 +62,7 @@ class GeldigheidValidator:
             begin_geldigheid=begin_geldigheid,
             einde_geldigheid=einde_geldigheid,
             instance=instance,
+            concept=concept,
         ):
             # are we patching eindeGeldigheid?
             changing_published_geldigheid = serializer.partial and list(attrs) == [
