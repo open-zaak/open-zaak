@@ -39,7 +39,7 @@ services:
       # setup_configuration env vars
       - OPENNOTIFICATIES_DOMAIN=notifications:8000
       - OPENNOTIFICATIES_ORGANIZATION=ON
-      - AUTORISATIES_API_ROOT=http://openzaak:8000/autorisaties/api/v1/
+      - AUTORISATIES_API_ROOT=http://openzaak.local:8000/autorisaties/api/v1/
       - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
       - NOTIF_OPENZAAK_SECRET=notif-secret
       - OPENZAAK_NOTIF_CLIENT_ID=oz-client-id
@@ -90,13 +90,13 @@ services:
   redis:
     image: redis
 
-  openzaak.nl:
+  openzaak.local:
     build: .
     environment: &openzaak-env
       - DJANGO_SETTINGS_MODULE=openzaak.conf.docker
       - SECRET_KEY=${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
       - IS_HTTPS=no
-      - ALLOWED_HOSTS=localhost,openzaak,openzaak.nl
+      - ALLOWED_HOSTS=localhost,openzaak,openzaak.local
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - SENDFILE_BACKEND=django_sendfile.backends.simple
@@ -110,7 +110,7 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=demo
       - LOG_REQUESTS=yes
       # setup_configuration env vars
-      - OPENZAAK_DOMAIN=openzaak.nl:8000
+      - OPENZAAK_DOMAIN=openzaak.local:8000
       - OPENZAAK_ORGANIZATION=OZ
       - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
       - NOTIF_OPENZAAK_SECRET=notif-secret
@@ -149,7 +149,7 @@ services:
     command: src/manage.py register_kanalen
     volumes: *app-volumes
     depends_on:
-      openzaak.nl:
+      openzaak.local:
         condition: service_healthy
       notifications:
         condition: service_healthy
