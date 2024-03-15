@@ -6,7 +6,7 @@ from django.apps import apps
 from django.contrib import admin, messages
 from django.db import transaction
 from django.db.models import Field
-from django.forms import ChoiceField, model_to_dict
+from django.forms import ChoiceField
 from django.http import HttpRequest
 from django.urls import path
 from django.utils.translation import ugettext_lazy as _

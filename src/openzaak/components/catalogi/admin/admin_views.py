@@ -6,14 +6,12 @@ from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.forms import model_to_dict
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, FormView, TemplateView
 
-from openzaak.components.catalogi.utils import has_overlapping_objects
 from openzaak.utils.admin import AdminContextMixin
 
 from ..api.viewsets import ZaakTypeViewSet

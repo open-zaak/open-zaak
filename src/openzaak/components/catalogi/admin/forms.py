@@ -37,10 +37,7 @@ from ..models import (
     ZaakTypeInformatieObjectType,
     ZaakTypenRelatie,
 )
-from ..validators import (
-    validate_brondatumarchiefprocedure,
-    validate_zaaktype_for_publish,
-)
+from ..validators import validate_brondatumarchiefprocedure
 from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 EMPTY_SELECTIELIJSTKLASSE_CHOICES = (
