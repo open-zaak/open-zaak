@@ -272,8 +272,8 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.refresh_from_db()
         self.assertEqual(besluittype.concept, True)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "overlapped_types")
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")
         self.assertEqual(
             error["reason"],
             _(

@@ -20,7 +20,7 @@ from ..scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import BesluitTypeSerializer
+from ..serializers import BesluitTypePublishSerializer, BesluitTypeSerializer
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
@@ -84,6 +84,7 @@ class BesluitTypeViewSet(
         .order_by("-pk")
     )
     serializer_class = BesluitTypeSerializer
+    publish_serializer = BesluitTypePublishSerializer
     filterset_class = BesluitTypeFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination

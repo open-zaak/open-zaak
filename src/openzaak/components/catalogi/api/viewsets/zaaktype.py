@@ -24,7 +24,7 @@ from ..scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import ZaakTypeSerializer
+from ..serializers import ZaakTypePublishSerializer, ZaakTypeSerializer
 from .mixins import (
     ConceptDestroyMixin,
     ConceptFilterMixin,
@@ -169,54 +169,4 @@ class ZaakTypeViewSet(
     )
     @action(detail=True, methods=["post"], name="zaaktype_publish")
     def publish(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        related_errors = dict()
-
-        # check related objects
-        if (
-            instance.besluittypen.filter(concept=True).exists()
-            or instance.informatieobjecttypen.filter(concept=True).exists()
-            or instance.deelzaaktypen.filter(concept=True).exists()
-        ):
-            msg = _("All related resources should be published")
-            related_errors[api_settings.NON_FIELD_ERRORS_KEY] = [msg]
-
-        has_invalid_resultaattypen = instance.resultaattypen.filter(
-            selectielijstklasse=""
-        ).exists()
-        if has_invalid_resultaattypen:
-            msg = _(
-                "This zaaktype has resultaattypen without a selectielijstklasse. "
-                "Please specify those before publishing the zaaktype."
-            )
-            related_errors["resultaattypen"] = [msg]
-
-        num_roltypen = instance.roltype_set.count()
-        if not num_roltypen >= 1:
-            msg = _(
-                "Publishing a zaaktype requires at least one roltype to be defined."
-            )
-            related_errors["roltypen"] = [msg]
-
-        num_resultaattypen = instance.resultaattypen.count()
-        if not num_resultaattypen >= 1:
-            msg = _(
-                "Publishing a zaaktype requires at least one resultaattype to be defined."
-            )
-            error_list = related_errors.get("resultaattypen", [])
-            error_list.append(msg)
-            related_errors["resultaattypen"] = error_list
-
-        num_statustypen = instance.statustypen.count()
-        if not num_statustypen >= 2:
-            msg = _(
-                "Publishing a zaaktype requires at least two statustypes to be defined."
-            )
-            related_errors["statustypen"] = [msg]
-
-        if len(related_errors) > 0:
-            print(related_errors)
-            raise ValidationError(related_errors, code="concept-relation")
-
         return super()._publish(request, *args, **kwargs)

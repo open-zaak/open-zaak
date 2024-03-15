@@ -107,3 +107,23 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
             M2MConceptCreateValidator(["informatieobjecttypen"]),
             M2MConceptUpdateValidator(["informatieobjecttypen"]),
         ]
+
+
+class BesluitTypePublishSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = BesluitType
+        extra_kwargs = {
+            "catalogus": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+        }
+        fields = (
+            "catalogus",
+            "omschrijving",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "concept",
+        )
+        validators = [
+            GeldigheidValidator(),
+        ]

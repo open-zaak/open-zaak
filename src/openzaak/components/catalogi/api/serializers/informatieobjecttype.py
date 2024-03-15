@@ -138,3 +138,23 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         if omschrijving_generiek_data:
             OmschrijvingGeneriekSerializer().update(iotype, omschrijving_generiek_data)
         return iotype
+
+
+class InformatieObjectPublishTypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = InformatieObjectType
+        extra_kwargs = {
+            "catalogus": {"lookup_field": "uuid"},
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+        }
+        fields = (
+            "catalogus",
+            "omschrijving",
+            "begin_geldigheid",
+            "einde_geldigheid",
+            "concept",
+        )
+        validators = [
+            GeldigheidValidator(),
+        ]

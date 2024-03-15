@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import Serializer, ValidationError
+from rest_framework.settings import api_settings
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -545,3 +546,66 @@ class StartBeforeEndValidator:
                 self.message.format(self.start_date_field, self.end_date_field),
                 code=self.code,
             )
+
+
+class ZaakTypeRelationsPublishValidator:
+    """
+        Validate that the ZaakType object has the correct relations for publishing
+        """
+
+    code = "overlap"
+    message = _(
+        "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+    )
+
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        instance = getattr(serializer, "instance", None)
+
+        related_errors = dict()
+
+        # check related objects
+        if (
+            instance.besluittypen.filter(concept=True).exists()
+            or instance.informatieobjecttypen.filter(concept=True).exists()
+            or instance.deelzaaktypen.filter(concept=True).exists()
+        ):
+            msg = _("All related resources should be published")
+            related_errors[api_settings.NON_FIELD_ERRORS_KEY] = [msg]
+
+        has_invalid_resultaattypen = instance.resultaattypen.filter(
+            selectielijstklasse=""
+        ).exists()
+        if has_invalid_resultaattypen:
+            msg = _(
+                "This zaaktype has resultaattypen without a selectielijstklasse. "
+                "Please specify those before publishing the zaaktype."
+            )
+            related_errors["resultaattypen"] = [msg]
+
+        num_roltypen = instance.roltype_set.count()
+        if not num_roltypen >= 1:
+            msg = _(
+                "Publishing a zaaktype requires at least one roltype to be defined."
+            )
+            related_errors["roltypen"] = [msg]
+
+        num_resultaattypen = instance.resultaattypen.count()
+        if not num_resultaattypen >= 1:
+            msg = _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            )
+            error_list = related_errors.get("resultaattypen", [])
+            error_list.append(msg)
+            related_errors["resultaattypen"] = error_list
+
+        num_statustypen = instance.statustypen.count()
+        if not num_statustypen >= 2:
+            msg = _(
+                "Publishing a zaaktype requires at least two statustypes to be defined."
+            )
+            related_errors["statustypen"] = [msg]
+
+        if len(related_errors) > 0:
+            raise ValidationError(related_errors, code="concept-relation")

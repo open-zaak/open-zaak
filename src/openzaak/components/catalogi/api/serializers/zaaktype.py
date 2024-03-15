@@ -31,6 +31,7 @@ from ..validators import (
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
     VerlengingsValidator,
+    ZaakTypeRelationsPublishValidator,
 )
 
 
@@ -307,3 +308,28 @@ class ZaakTypeSerializer(
         if bronzaaktype_data:
             BronZaaktypeSerializer().update(zaaktype, bronzaaktype_data)
         return zaaktype
+
+
+class ZaakTypePublishSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakType
+        fields = (
+            "identificatie",
+            "concept",
+            # dates
+            "begin_geldigheid",
+            "einde_geldigheid",
+            # relations
+            "catalogus",
+        )
+
+        extra_kwargs = {
+            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
+            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
+            "catalogus": {"lookup_field": "uuid"},
+        }
+
+        validators = [
+            ZaakTypeRelationsPublishValidator(),
+            GeldigheidValidator("identificatie"),
+        ]

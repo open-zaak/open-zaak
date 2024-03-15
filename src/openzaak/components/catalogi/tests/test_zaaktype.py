@@ -1402,8 +1402,8 @@ class ZaakTypePublishTests(APITestCase):
         response = self.client.post(zaaktype_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "overlapped_types")
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")
         self.assertEqual(
             error["reason"],
             _(

@@ -214,7 +214,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
         self.assertEqual(informatieobjecttype.concept, False)
 
-    def test_publish_besluittype_with_overlapping_besluittype(self):
+    def test_publish_informatieobjecttype_with_overlapping_informatieobjecttype(self):
 
         catalogus = CatalogusFactory.create()
         old_informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -239,8 +239,8 @@ class InformatieObjectTypeAPITests(APITestCase):
         informatieobjecttype.refresh_from_db()
         self.assertEqual(informatieobjecttype.concept, True)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "overlapped_types")
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")
         self.assertEqual(
             error["reason"],
             _(
