@@ -34,6 +34,7 @@ from ..models import (
     ZaakType,
     ZaakTypenRelatie,
 )
+from ..validators import validate_zaaktype_for_publish
 from .admin_views import ZaaktypePublishView
 from .eigenschap import EigenschapAdmin
 from .filters import GeldigheidFilter
@@ -325,24 +326,16 @@ class ZaakTypeAdmin(
 
     def _publish_validation_errors(self, obj):
         errors = []
+
+        # verify correct related objects
+        for field, error in validate_zaaktype_for_publish(obj):
+            errors.append(error)
+
         if (
             obj.besluittypen.filter(concept=True).exists()
             or obj.informatieobjecttypen.filter(concept=True).exists()
         ):
             errors.append(_("All related resources should be published"))
-
-        form = self.form(
-            instance=obj, data={**model_to_dict(obj), "_publish": "1", "concept": False}
-        )
-        if not form.is_valid():
-            for field_name, error_list in form.errors.items():
-                if field_name != "__all__":
-                    form_field = form.fields[field_name]
-                    errors += [f"{form_field.label}: {err}" for err in error_list]
-                else:
-                    errors += error_list
-        # reset concept for __str__ to display properly
-        obj.concept = True
         return errors
 
     def get_object_actions(self, obj):

@@ -174,18 +174,6 @@ class ZaakTypeForm(forms.ModelForm):
 
         return procestype_url
 
-    def clean(self):
-        super().clean()
-
-        if "_publish" in self.data:
-            self._clean_all_data_present_for_publish()
-
-    def _clean_all_data_present_for_publish(self):
-
-        errors = validate_zaaktype_for_publish(self.instance)
-        for field, error in errors:
-            self.add_error(None, error)
-
 
 class ResultaatTypeForm(forms.ModelForm):
     # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute
