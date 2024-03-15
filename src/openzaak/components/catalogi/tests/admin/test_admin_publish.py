@@ -637,11 +637,11 @@ class PublishWithGeldigheidTests(
         messages = list(response.context["messages"])
         self.assertEqual(
             str(messages[0]),
-            "{} {}".format(
+            "{} | {}".format(
                 f"{new_iot.omschrijving} – "
                 + f"{new_iot._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
                 "geldigheid hebben.",
-                _("All related resources should be published") + ".",
+                _("All related resources should be published"),
             ),
         )
         old_iot.datum_einde_geldigheid = "2023-03-31"
@@ -682,11 +682,11 @@ class PublishWithGeldigheidTests(
         messages = list(response.context["messages"])
         self.assertEqual(
             str(messages[0]),
-            "{} {}".format(
+            "{} | {}".format(
                 f"{new_besluit_type.omschrijving} – "
                 + f"{new_besluit_type._meta.verbose_name} versies (dezelfde omschrijving) mogen geen overlappende "
                 "geldigheid hebben.",
-                _("All related resources should be published") + ".",
+                _("All related resources should be published"),
             ),
         )
         old_besluit_type.datum_einde_geldigheid = "2023-03-31"

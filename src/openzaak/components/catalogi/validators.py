@@ -2,9 +2,13 @@
 # Copyright (C) 2022 Dimpact
 from typing import List, Tuple, TypedDict
 
+from django.utils.translation import ugettext_lazy as _
+
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
+
+from .models import ZaakType
 
 
 class ArchiefProcedure(TypedDict):
@@ -91,3 +95,60 @@ def validate_brondatumarchiefprocedure(
             else:
                 empty.append(key)
     return error, empty, required
+
+
+def validate_zaaktype_for_publish(zaaktype: ZaakType) -> List[Tuple[str, str]]:
+    """
+    Validates that a ZaakType has the correct number of related object
+    :param zaaktype: ZaakType object
+    :return: list of tuples containing field name and error text
+    """
+
+    errors = []
+
+    has_invalid_resultaattypen = zaaktype.resultaattypen.filter(
+        selectielijstklasse=""
+    ).exists()
+    if has_invalid_resultaattypen:
+        errors.append(
+            (
+                "resultaattypen",
+                _(
+                    "This zaaktype has resultaattypen without a selectielijstklasse. "
+                    "Please specify those before publishing the zaaktype."
+                ),
+            )
+        )
+
+    num_roltypen = zaaktype.roltype_set.count()
+    if not num_roltypen >= 1:
+        errors.append(
+            (
+                "roltypen",
+                _("Publishing a zaaktype requires at least one roltype to be defined."),
+            )
+        )
+
+    num_resultaattypen = zaaktype.resultaattypen.count()
+    if not num_resultaattypen >= 1:
+        errors.append(
+            (
+                "resultaattypen",
+                _(
+                    "Publishing a zaaktype requires at least one resultaattype to be defined."
+                ),
+            )
+        )
+
+    num_statustypen = zaaktype.statustypen.count()
+    if not num_statustypen >= 2:
+        errors.append(
+            (
+                "statustypen",
+                _(
+                    "Publishing a zaaktype requires at least two statustypes to be defined."
+                ),
+            )
+        )
+
+    return errors
