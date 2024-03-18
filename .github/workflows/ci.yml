@@ -169,9 +169,6 @@ jobs:
             libgdal-dev \
             gdal-bin
 
-      - name: Bring up mock endpoints for SSL verification
-        run: docker-compose -f docker-compose.ci.yml up -d mock-endpoints.local
-
       - name: Bring up Alfresco
         run: |
           docker-compose -f docker-compose.ci.cmis.yml up -d
