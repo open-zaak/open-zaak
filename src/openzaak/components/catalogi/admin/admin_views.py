@@ -285,19 +285,20 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
         published_informatieobjecttypen = []
 
         # publish related types
-        for besluittype in self.object.besluittypen.filter(concept=True):
-            try:
-                besluittype.publish()
-                published_besluittypen.append(besluittype.omschrijving)
-            except ValidationError as e:
-                self.errors.append(f"{besluittype.omschrijving} – {e.message}")
+        with transaction.atomic():
+            for besluittype in self.object.besluittypen.filter(concept=True):
+                try:
+                    besluittype.publish()
+                    published_besluittypen.append(besluittype.omschrijving)
+                except ValidationError as e:
+                    self.errors.append(f"{besluittype.omschrijving} – {e.message}")
 
-        for iot in self.object.informatieobjecttypen.filter(concept=True):
-            try:
-                iot.publish()
-                published_informatieobjecttypen.append(iot.omschrijving)
-            except ValidationError as e:
-                self.errors.append(f"{iot.omschrijving} – {e.message}")
+            for iot in self.object.informatieobjecttypen.filter(concept=True):
+                try:
+                    iot.publish()
+                    published_informatieobjecttypen.append(iot.omschrijving)
+                except ValidationError as e:
+                    self.errors.append(f"{iot.omschrijving} – {e.message}")
 
         if len(published_besluittypen) > 0:
             messages.add_message(
