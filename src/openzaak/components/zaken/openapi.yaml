@@ -8881,7 +8881,12 @@ paths:
           description: Internal server error
     post:
       operationId: zaakeigenschap_create
-      description: Maak een ZAAKEIGENSCHAP aan.
+      description: |-
+        Maak een ZAAKEIGENSCHAP aan.
+
+        **Er wordt gevalideerd op**
+
+        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.
       summary: Maak een ZAAKEIGENSCHAP aan.
       parameters:
       - in: header

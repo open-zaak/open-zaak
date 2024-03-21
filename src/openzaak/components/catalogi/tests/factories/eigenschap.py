@@ -2,14 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import factory
 
+from ...constants import FormaatChoices
 from ...models import Eigenschap, EigenschapSpecificatie
 from .zaaktype import ZaakTypeFactory
 
 
 class EigenschapSpecificatieFactory(factory.django.DjangoModelFactory):
     groep = "groep"
-    formaat = "datum"
-    lengte = "8"
+    formaat = FormaatChoices.tekst
+    lengte = "20"
     kardinaliteit = "1"
     waardenverzameling = []  # ArrayField has blank=True but not null=True
 
