@@ -26,6 +26,7 @@ from ..validators import (
     BronZaakTypeValidator,
     ConceptUpdateValidator,
     DeelzaaktypeCatalogusValidator,
+    GeldigheidPublishValidator,
     GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
@@ -313,21 +314,8 @@ class ZaakTypeSerializer(
 class ZaakTypePublishSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = ZaakType
-        fields = (
-            "identificatie",
-            "concept",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "catalogus",
-        )
-
-        extra_kwargs = {
-            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
-            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
-            "catalogus": {"lookup_field": "uuid"},
-        }
-
+        fields = ("concept",)
         validators = [
             ZaakTypeRelationsPublishValidator(),
-            GeldigheidValidator("identificatie"),
+            GeldigheidPublishValidator("identificatie"),
         ]

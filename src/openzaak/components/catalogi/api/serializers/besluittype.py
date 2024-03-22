@@ -8,6 +8,7 @@ from vng_api_common.utils import get_help_text
 from ...models import BesluitType, InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
+    GeldigheidPublishValidator,
     GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
@@ -112,18 +113,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
 class BesluitTypePublishSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BesluitType
-        extra_kwargs = {
-            "catalogus": {"lookup_field": "uuid"},
-            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
-            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
-        }
-        fields = (
-            "catalogus",
-            "omschrijving",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "concept",
-        )
+        fields = ("concept",)
         validators = [
-            GeldigheidValidator(),
+            GeldigheidPublishValidator(),
         ]

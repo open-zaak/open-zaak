@@ -39,10 +39,7 @@ class GeldigheidValidator:
     def __init__(self, omschrijving_field="omschrijving"):
         self.omschrijving_field = omschrijving_field
 
-    def __call__(self, attrs, serializer):
-        # Determine the existing instance, if this is an update operation.
-        instance = getattr(serializer, "instance", None)
-        base_model = getattr(serializer.Meta, "model", None)
+    def get_field_data(self, attrs, serializer):
 
         catalogus = get_from_serializer_data_or_instance("catalogus", attrs, serializer)
         begin_geldigheid = get_from_serializer_data_or_instance(
@@ -58,6 +55,21 @@ class GeldigheidValidator:
         concept = get_from_serializer_data_or_instance("concept", attrs, serializer)
         if concept is None:
             concept = True
+
+        return catalogus, begin_geldigheid, einde_geldigheid, omschrijving, concept
+
+    def __call__(self, attrs, serializer):
+        # Determine the existing instance, if this is an update operation.
+        instance = getattr(serializer, "instance", None)
+        base_model = getattr(serializer.Meta, "model", None)
+
+        (
+            catalogus,
+            begin_geldigheid,
+            einde_geldigheid,
+            omschrijving,
+            concept,
+        ) = self.get_field_data(attrs, serializer)
 
         if has_overlapping_objects(
             model_manager=base_model._default_manager,
@@ -81,6 +93,17 @@ class GeldigheidValidator:
                 {error_field: self.message.format(base_model._meta.verbose_name)},
                 code=self.code,
             )
+
+
+class GeldigheidPublishValidator(GeldigheidValidator):
+    def get_field_data(self, attrs, serializer):
+        begin_geldigheid = serializer.instance.datum_begin_geldigheid
+        einde_geldigheid = serializer.instance.datum_einde_geldigheid
+        catalogus = serializer.instance.catalogus
+        omschrijving = getattr(serializer.instance, self.omschrijving_field)
+
+        concept = attrs["concept"]
+        return catalogus, begin_geldigheid, einde_geldigheid, omschrijving, concept
 
 
 def get_by_source(obj, path: str):

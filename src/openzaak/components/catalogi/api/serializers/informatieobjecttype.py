@@ -10,6 +10,7 @@ from vng_api_common.serializers import add_choice_values_help_text
 from ...models import InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
+    GeldigheidPublishValidator,
     GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
@@ -140,21 +141,10 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         return iotype
 
 
-class InformatieObjectPublishTypeSerializer(serializers.HyperlinkedModelSerializer):
+class InformatieObjectTypePublishSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InformatieObjectType
-        extra_kwargs = {
-            "catalogus": {"lookup_field": "uuid"},
-            "begin_geldigheid": {"source": "datum_begin_geldigheid"},
-            "einde_geldigheid": {"source": "datum_einde_geldigheid"},
-        }
-        fields = (
-            "catalogus",
-            "omschrijving",
-            "begin_geldigheid",
-            "einde_geldigheid",
-            "concept",
-        )
+        fields = ("concept",)
         validators = [
-            GeldigheidValidator(),
+            GeldigheidPublishValidator(),
         ]
