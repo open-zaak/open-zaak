@@ -243,24 +243,27 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 request, messages.WARNING, _("Zaaktype object is already published.")
             )
         else:
-            if "_auto-publish" in request.POST:
-                self.auto_publish(request)
+            with transaction.atomic():
+                if "_auto-publish" in request.POST:
+                    self.auto_publish(request)
 
-            for field, error in validate_zaaktype_for_publish(self.object):
-                self.errors.append(error)
+                for field, error in validate_zaaktype_for_publish(self.object):
+                    self.errors.append(error)
 
-            # if any errors
-            if len(self.errors) > 0:
-                messages.add_message(
-                    request, messages.ERROR, " | ".join([str(e) for e in self.errors])
-                )
-                return self.render_to_response(self.get_context_data())
+                # if any errors
+                if len(self.errors) > 0:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        " | ".join([str(e) for e in self.errors]),
+                    )
+                    return self.render_to_response(self.get_context_data())
 
-            try:
-                self.object.publish()
-            except ValidationError as e:
-                messages.add_message(request, messages.ERROR, e.message)
-                return self.render_to_response(self.get_context_data())
+                try:
+                    self.object.publish()
+                except ValidationError as e:
+                    messages.add_message(request, messages.ERROR, e.message)
+                    return self.render_to_response(self.get_context_data())
 
             messages.add_message(
                 request,
@@ -278,20 +281,19 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
         published_informatieobjecttypen = []
 
         # publish related types
-        with transaction.atomic():
-            for besluittype in self.object.besluittypen.filter(concept=True):
-                try:
-                    besluittype.publish()
-                    published_besluittypen.append(besluittype.omschrijving)
-                except ValidationError as e:
-                    self.errors.append(f"{besluittype.omschrijving} – {e.message}")
+        for besluittype in self.object.besluittypen.filter(concept=True):
+            try:
+                besluittype.publish()
+                published_besluittypen.append(besluittype.omschrijving)
+            except ValidationError as e:
+                self.errors.append(f"{besluittype.omschrijving} – {e.message}")
 
-            for iot in self.object.informatieobjecttypen.filter(concept=True):
-                try:
-                    iot.publish()
-                    published_informatieobjecttypen.append(iot.omschrijving)
-                except ValidationError as e:
-                    self.errors.append(f"{iot.omschrijving} – {e.message}")
+        for iot in self.object.informatieobjecttypen.filter(concept=True):
+            try:
+                iot.publish()
+                published_informatieobjecttypen.append(iot.omschrijving)
+            except ValidationError as e:
+                self.errors.append(f"{iot.omschrijving} – {e.message}")
 
         if len(published_besluittypen) > 0:
             messages.add_message(
