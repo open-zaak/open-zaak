@@ -24,6 +24,30 @@ WARNING_HEADER = "Warning"
 DEPRECATION_WARNING_CODE = 299
 
 
+def is_api_request(request: HttpRequest) -> bool:
+    return request.path.startswith(
+        tuple(f"/{component}/api" for component in COMPONENT_MAPPING.keys())
+    )
+
+
+def override_request_host(request: HttpRequest) -> None:
+    if settings.OPENZAAK_REWRITE_HOST and settings.OPENZAAK_DOMAIN:
+        # keep track of the original host
+        assert not hasattr(
+            request, "_raw_host"
+        ), "You are overwriting an existing attribute!"
+
+        if settings.USE_X_FORWARDED_HOST:
+            logger.warning("Ignoring X-Forwarded-Host because OPENZAAK_DOMAIN is set.")
+            del request.META["HTTP_X_FORWARDED_HOST"]
+
+        # for logging/debugging purposes: track the original host
+        request._raw_host = request._get_raw_host()
+        request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
+        # overwrite with our own host information
+        request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
+
+
 class OverrideHostMiddleware:
     """
     When enabled, override the raw request host information.
@@ -40,23 +64,8 @@ class OverrideHostMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if settings.OPENZAAK_REWRITE_HOST and settings.OPENZAAK_DOMAIN:
-            # keep track of the original host
-            assert not hasattr(
-                request, "_raw_host"
-            ), "You are overwriting an existing attribute!"
-
-            if settings.USE_X_FORWARDED_HOST:
-                logger.warning(
-                    "Ignoring X-Forwarded-Host because OPENZAAK_DOMAIN is set."
-                )
-                del request.META["HTTP_X_FORWARDED_HOST"]
-
-            # for logging/debugging purposes: track the original host
-            request._raw_host = request._get_raw_host()
-            request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
-            # overwrite with our own host information
-            request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
+        if is_api_request(request):
+            override_request_host(request)
         return self.get_response(request)
 
 

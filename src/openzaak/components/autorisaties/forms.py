@@ -25,6 +25,7 @@ from openzaak.components.catalogi.models import (
     ZaakType,
 )
 from openzaak.utils.auth import get_auth
+from openzaak.utils.middleware import override_request_host
 from openzaak.utils.validators import ResourceValidator
 
 from .constants import RelatedTypeSelectionMethods
@@ -427,6 +428,10 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
     @transaction.atomic
     def save(self, commit=True):
         # use the API representation to figure out if there were any changes
+        # we have to explicitly override the request host (because this is not an API request)
+        # to ensure the notification has the right URLs
+        override_request_host(self.request)
+
         old_version = get_applicatie_serializer(
             self.applicatie, request=self.request
         ).data
