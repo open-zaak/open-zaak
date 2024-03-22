@@ -106,6 +106,12 @@ def validate_zaaktype_for_publish(zaaktype: ZaakType) -> List[Tuple[str, str]]:
 
     errors = []
 
+    if (
+        zaaktype.besluittypen.filter(concept=True).exists()
+        or zaaktype.informatieobjecttypen.filter(concept=True).exists()
+    ):
+        errors.append((None, _("All related resources should be published")))
+
     has_invalid_resultaattypen = zaaktype.resultaattypen.filter(
         selectielijstklasse=""
     ).exists()

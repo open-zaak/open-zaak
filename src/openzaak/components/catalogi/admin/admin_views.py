@@ -243,21 +243,14 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
                 request, messages.WARNING, _("Zaaktype object is already published.")
             )
         else:
-            for field, error in validate_zaaktype_for_publish(self.object):
-                self.errors.append(error)
-
             if "_auto-publish" in request.POST:
                 self.auto_publish(request)
 
-            if (
-                self.object.besluittypen.filter(concept=True).exists()
-                or self.object.informatieobjecttypen.filter(concept=True).exists()
-            ):
-                self.errors.append(_("All related resources should be published"))
+            for field, error in validate_zaaktype_for_publish(self.object):
+                self.errors.append(error)
 
             # if any errors
             if len(self.errors) > 0:
-                self.object.concept = True
                 messages.add_message(
                     request, messages.ERROR, " | ".join([str(e) for e in self.errors])
                 )

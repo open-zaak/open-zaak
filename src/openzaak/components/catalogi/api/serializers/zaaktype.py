@@ -316,10 +316,8 @@ class ZaakTypePublishSerializer(HyperlinkedModelSerializer):
         fields = (
             "identificatie",
             "concept",
-            # dates
             "begin_geldigheid",
             "einde_geldigheid",
-            # relations
             "catalogus",
         )
 

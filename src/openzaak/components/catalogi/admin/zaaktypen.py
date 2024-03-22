@@ -330,12 +330,6 @@ class ZaakTypeAdmin(
         # verify correct related objects
         for field, error in validate_zaaktype_for_publish(obj):
             errors.append(error)
-
-        if (
-            obj.besluittypen.filter(concept=True).exists()
-            or obj.informatieobjecttypen.filter(concept=True).exists()
-        ):
-            errors.append(_("All related resources should be published"))
         return errors
 
     def get_object_actions(self, obj):
