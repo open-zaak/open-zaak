@@ -25,9 +25,9 @@ Preparation
 ===========
 
 The command executes the list of pluggable configuration steps, and each step
-required specific environent variables, that should be prepared.
+has required specific environment variables, that should be prepared.
 Here is the description of all available configuration steps and the environment variables, 
-use by each step. 
+used by each step. 
 
 Sites configuration
 ------------------------
@@ -41,7 +41,7 @@ Configure the domain where Open Zaak is hosted
 Notification authorization configuration
 ----------------------------------------
 
-Open Notificaties uses Open Zaak Authorisaties API to check authorizations
+Open Notificaties uses Open Zaak Autorisaties API to check authorizations
 of its consumers, therefore Open Notificaties should be able to request Open Zaak
 
 * ``NOTIF_OPENZAAK_CONFIG_ENABLE``: enable Notification credentials configuration. Defaults
@@ -53,7 +53,7 @@ of its consumers, therefore Open Notificaties should be able to request Open Zaa
 Notification configuration
 --------------------------
 
-Open Zaak published notifications to the Open Notificaties.
+Open Zaak publishes notifications to the Open Notificaties.
 
 * ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``True``.
 * ``NOTIF_API_ROOT``: full URL to the Notificaties API root, for example
@@ -75,7 +75,7 @@ The Selectielijst API is not expected to require any authentication.
 * ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification. Defaults to 
   ``https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml``
 * ``SELECTIELIJST_ALLOWED_YEARS``: years, for which process types can be used. Defaults to ``[2017, 2020]``.
-* ``SELECTIELIJST_DEFAULT_YEAR`` = config("SELECTIELIJST_DEFAULT_YEAR", default=2020)
+* ``SELECTIELIJST_DEFAULT_YEAR`` = the default year from which process types will be used. Defaults to `2020`.
 
 Demo user configuration
 -----------------------

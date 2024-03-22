@@ -77,7 +77,7 @@ class AuthNotificationStep(BaseConfigurationStep):
             defaults={"scopes": [SCOPE_AUTORISATIES_LEZEN]},
         )
         if SCOPE_AUTORISATIES_LEZEN not in ac_permission.scopes:
-            ac_permission.scopes.append(SCOPE_AUTORISATIES_LEZEN)
+            ac_permission.scopes.append(SCOPE_AUTORISATIES_LEZEN.label)
             ac_permission.save(update_fields=["scopes"])
 
         # 2. Notifications API should subscribe to authorizations channel to invalidate

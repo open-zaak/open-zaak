@@ -20,7 +20,7 @@ class DemoUserStep(BaseConfigurationStep):
     **NOTE** For now demo user has all permissions.
 
     Normal mode doesn't change the secret after its initial creation.
-    If the secret is changed, run this command with 'overwrite' flag
+    Run this command with the 'overwrite' flag to change the secret
     """
 
     # todo load permissions with yaml file and env var?
