@@ -58,7 +58,7 @@ Open Zaak publishes notifications to the Open Notificaties.
 * ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``True``.
 * ``NOTIF_API_ROOT``: full URL to the Notificaties API root, for example
   ``https://notificaties.gemeente.local/api/v1/``. Required.
-* ``NOTIF_API_OAS``: full URL to the Notificaties OpenAPI specification.
+* ``NOTIF_API_OAS``: full URL to the Notificaties OpenAPI specification in YAML format.
 * ``OPENZAAK_NOTIF_CLIENT_ID``: a client id, which Open Zaak uses to request Open Notificaties,
   for example, ``open-zaak``. Required.
 * ``OPENZAAK_NOTIF_SECRET``: some random string. Required.
@@ -72,7 +72,7 @@ The Selectielijst API is not expected to require any authentication.
 * ``OPENZAAK_SELECTIELIJST_CONFIG_ENABLE``: enable Selectielijst configuration. Defaults to ``True``.
 * ``SELECTIELIJST_API_ROOT``: full url to the Selectielijst API root. Defaults to
   ``https://selectielijst.openzaak.nl/api/v1/``
-* ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification. Defaults to 
+* ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification in YAML format. Defaults to
   ``https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml``
 * ``SELECTIELIJST_ALLOWED_YEARS``: years, for which process types can be used. Defaults to ``[2017, 2020]``.
 * ``SELECTIELIJST_DEFAULT_YEAR`` = the default year from which process types will be used. Defaults to `2020`.
@@ -85,7 +85,7 @@ so its creation is not recommended on production environment.
 
 * ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to the value of the ``DEBUG`` setting. 
 * ``DEMO_CLIENT_ID``: demo client id. Required.
-* ``DEMO_SECRET``: edmo secret. Required.
+* ``DEMO_SECRET``: demo secret. Required.
 
 .. note:: You can generate these Client IDs and Secrets using any password generation
    tool, as long as you configure the same values in the Notifications API.

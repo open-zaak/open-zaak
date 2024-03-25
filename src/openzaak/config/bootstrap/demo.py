@@ -26,7 +26,7 @@ class DemoUserStep(BaseConfigurationStep):
     # todo load permissions with yaml file and env var?
 
     verbose_name = "Demo User Configuration"
-    required_settings = ["DEMO_CLIENT_ID", "DEMO_SECRET"]
+    required_settings = ["DEMO_CLIENT_ID", "DEMO_SECRET", "OPENZAAK_DOMAIN"]
     enable_setting = "DEMO_CONFIG_ENABLE"
 
     def is_configured(self) -> bool:

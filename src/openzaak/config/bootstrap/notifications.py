@@ -29,6 +29,9 @@ class AuthNotificationStep(BaseConfigurationStep):
 
     Normal mode doesn't change the secret after its initial creation.
     If the secret is changed, run this command with 'overwrite' flag
+
+    From: https://open-zaak.readthedocs.io/en/stable/installation/config/openzaak_config.html#open-zaak
+    (part "The Notificaties API consumes Open Zaak’s Autorisaties API")
     """
 
     verbose_name = "Notification Autorisaties API Configuration"
@@ -121,6 +124,9 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
     1. Create application with permissions to publish notifications
     2. Create service for Notifications API
     3. Set up configuration to point to this service
+
+    From: https://open-zaak.readthedocs.io/en/stable/installation/config/openzaak_config.html#open-zaak
+    (part "Open Zaak consuming the Notificaties API")
 
     Normal mode doesn't change the secret after its initial creation.
     If the secret is changed, run this command with 'overwrite' flag
