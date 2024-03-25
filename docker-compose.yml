@@ -40,11 +40,31 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - CELERY_LOGLEVEL=DEBUG
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
+      # setup_configuration env vars
+      - OPENZAAK_DOMAIN=web:8000
+      - OPENZAAK_ORGANIZATION=OZ
+      - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
+      - NOTIF_OPENZAAK_SECRET=notif-secret
+      - NOTIF_API_ROOT=http://notifications:8000/api/v1/
+      - OPENZAAK_NOTIF_CLIENT_ID=oz-client-id
+      - OPENZAAK_NOTIF_SECRET=oz-secret
+      - DEMO_CONFIG_ENABLE=yes
+      - DEMO_CLIENT_ID=demo-client-id
+      - DEMO_SECRET=demo-secret
     ports:
       - 8000:8000
     volumes: &app-volumes
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
+    depends_on:
+      web-init:
+        condition: service_completed_successfully
+
+  web-init:
+    build: .
+    environment: *app-env
+    command: /setup_configuration.sh
+    volumes: *app-volumes
     depends_on:
       - db
       - redis

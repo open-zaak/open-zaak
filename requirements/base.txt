@@ -100,6 +100,7 @@ django==3.2.23
     #   django-relativedelta
     #   django-rest-framework-condition
     #   django-sendfile2
+    #   django-setup-configuration
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
@@ -159,6 +160,8 @@ django-rest-framework-condition==0.1.1
     # via commonground-api-common
 django-sendfile2==0.7.0
     # via django-privates
+django-setup-configuration==0.1.0
+    # via -r requirements/base.in
 django-simple-certmanager==1.3.0
     # via zgw-consumers
 django-sniplates==0.7.0

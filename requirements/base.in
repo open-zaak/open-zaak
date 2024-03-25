@@ -47,6 +47,7 @@ humanize
 drc-cmis
 djangorestframework-inclusions
 drf-spectacular
+django-setup-configuration
 
 # WSGI servers & monitoring - production oriented
 uwsgi

@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
+    "django_setup_configuration",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
@@ -708,6 +709,18 @@ else:
 #
 LOG_OUTGOING_REQUESTS_DB_SAVE = config("LOG_OUTGOING_REQUESTS_DB_SAVE", default=False)
 
+
+#
+# Django setup configuration
+#
+SETUP_CONFIGURATION_STEPS = [
+    "openzaak.config.bootstrap.site.SiteConfigurationStep",
+    "openzaak.config.bootstrap.notifications.AuthNotificationStep",
+    "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
+    "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
+    "openzaak.config.bootstrap.demo.DemoUserStep",
+]
+
 #
 # OpenZaak configuration
 #
@@ -730,3 +743,40 @@ CMIS_URL_MAPPING_ENABLED = config("CMIS_URL_MAPPING_ENABLED", default=False)
 
 # Name of the cache used to store responses for requests made when importing catalogi
 IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_requests")
+
+# Settings for setup_configuration command
+# sites config
+SITES_CONFIG_ENABLE = config("SITES_CONFIG_ENABLE", default=True)
+OPENZAAK_ORGANIZATION = config("OPENZAAK_ORGANIZATION", "")
+# notif -> OZ config
+NOTIF_OPENZAAK_CONFIG_ENABLE = config("NOTIF_OPENZAAK_CONFIG_ENABLE", default=True)
+NOTIF_OPENZAAK_CLIENT_ID = config("NOTIF_OPENZAAK_CLIENT_ID", "")
+NOTIF_OPENZAAK_SECRET = config("NOTIF_OPENZAAK_SECRET", "")
+# OZ -> notif config
+OPENZAAK_NOTIF_CONFIG_ENABLE = config("OPENZAAK_NOTIF_CONFIG_ENABLE", default=True)
+NOTIF_API_ROOT = config("NOTIF_API_ROOT", "")
+if NOTIF_API_ROOT and not NOTIF_API_ROOT.endswith("/"):
+    NOTIF_API_ROOT = f"{NOTIF_API_ROOT.strip()}/"
+NOTIF_API_OAS = config("NOTIF_API_OAS", default=f"{NOTIF_API_ROOT}schema/openapi.yaml")
+OPENZAAK_NOTIF_CLIENT_ID = config("OPENZAAK_NOTIF_CLIENT_ID", "")
+OPENZAAK_NOTIF_SECRET = config("OPENZAAK_NOTIF_SECRET", "")
+# Selectielijst config
+OPENZAAK_SELECTIELIJST_CONFIG_ENABLE = config(
+    "OPENZAAK_SELECTIELIJST_CONFIG_ENABLE", default=True
+)
+SELECTIELIJST_API_ROOT = config(
+    "SELECTIELIJST_API_ROOT", default="https://selectielijst.openzaak.nl/api/v1/"
+)
+if SELECTIELIJST_API_ROOT and not SELECTIELIJST_API_ROOT.endswith("/"):
+    SELECTIELIJST_API_ROOT = f"{SELECTIELIJST_API_ROOT.strip()}/"
+SELECTIELIJST_API_OAS = config(
+    "SELECTIELIJST_API_OAS", default=f"{SELECTIELIJST_API_ROOT}schema/openapi.yaml"
+)
+SELECTIELIJST_ALLOWED_YEARS = config(
+    "SELECTIELIJST_ALLOWED_YEARS", default=[2017, 2020]
+)
+SELECTIELIJST_DEFAULT_YEAR = config("SELECTIELIJST_DEFAULT_YEAR", default=2020)
+# Demo user config
+DEMO_CONFIG_ENABLE = config("DEMO_CONFIG_ENABLE", default=DEBUG)
+DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "")
+DEMO_SECRET = config("DEMO_SECRET", "")

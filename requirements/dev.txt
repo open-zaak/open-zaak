@@ -162,6 +162,7 @@ django==3.2.23
     #   django-relativedelta
     #   django-rest-framework-condition
     #   django-sendfile2
+    #   django-setup-configuration
     #   django-silk
     #   django-simple-certmanager
     #   django-sniplates
@@ -238,6 +239,8 @@ django-sendfile2==0.7.0
     # via
     #   -r requirements/ci.txt
     #   django-privates
+django-setup-configuration==0.1.0
+    # via -r requirements/ci.txt
 django-silk==4.3.0
     # via -r requirements/dev.in
 django-simple-certmanager==1.3.0

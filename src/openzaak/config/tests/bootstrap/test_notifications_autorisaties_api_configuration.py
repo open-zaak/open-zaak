@@ -2,10 +2,11 @@
 # Copyright (C) 2022 Dimpact
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 import requests
 import requests_mock
+from django_setup_configuration.exceptions import SelfTestFailed
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -13,53 +14,22 @@ from vng_api_common.models import JWTSecret
 
 from openzaak.tests.utils.auth import JWTAuthMixin
 
-from ...bootstrap.exceptions import SelfTestFailure
-from ...bootstrap.notifications import AutorisatiesAPIClientConfiguration
+from ...bootstrap.notifications import AuthNotificationStep
 
 
+@override_settings(
+    NOTIF_OPENZAAK_CLIENT_ID="a-client-id", NOTIF_OPENZAAK_SECRET="a-secret",
+)
 class AutorisatiesAPIClientConfigurationTests(TestCase):
-    @patch(
-        "openzaak.config.bootstrap.notifications.generate_jwt_secret",
-        return_value="not-so-random",
-    )
-    def test_create_missing_configuration(self, mock_generate):
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="", secret=""
-        )
+    def test_create_configuration(self):
+        configuration = AuthNotificationStep()
 
-        output = configuration.configure()
+        configuration.configure()
 
         app = Applicatie.objects.get()
-        # client ID generated
-        self.assertEqual(len(app.client_ids), 1)
-        client_id = app.client_ids[0]
-        self.assertTrue(
-            JWTSecret.objects.filter(
-                identifier=client_id, secret="not-so-random"
-            ).exists()
-        )
-
-        self.assertEqual(output[0].id, "autorisatiesAPIClientCredentials")
-        self.assertEqual(
-            output[0].data, {"client_id": client_id, "secret": "not-so-random",}
-        )
-
-    def test_create_missing_configuration_explicit_credentials(self):
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="a-client-id", secret="a-secret"
-        )
-
-        output = configuration.configure()
-
-        app = Applicatie.objects.get()
-        # client ID generated
         self.assertEqual(app.client_ids, ["a-client-id"])
         jwt_secret = JWTSecret.objects.get(identifier="a-client-id")
         self.assertEqual(jwt_secret.secret, "a-secret")
-        self.assertEqual(output[0].id, "autorisatiesAPIClientCredentials")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "a-secret",}
-        )
 
     def test_update_existing_configuration(self):
         app = Applicatie.objects.create(
@@ -68,20 +38,14 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
         jwt_secret = JWTSecret.objects.create(
             identifier="a-client-id", secret="old-secret"
         )
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="a-client-id", secret="new-secret"
-        )
+        configuration = AuthNotificationStep()
 
-        output = configuration.configure()
+        configuration.configure()
 
         jwt_secret.refresh_from_db()
-        self.assertEqual(jwt_secret.secret, "new-secret")
+        self.assertEqual(jwt_secret.secret, "a-secret")
         app.refresh_from_db()
         self.assertEqual(app.label, "A label")
-        self.assertEqual(output[0].id, "autorisatiesAPIClientCredentials")
-        self.assertEqual(
-            output[0].data, {"client_id": "a-client-id", "secret": "new-secret",}
-        )
 
     @requests_mock.Mocker()
     @patch(
@@ -89,16 +53,14 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
         return_value="http://testserver/applicaties",
     )
     def test_configuration_check_ok(self, m, *mocks):
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="", secret=""
-        )
+        configuration = AuthNotificationStep()
         configuration.configure()
         m.get("http://testserver/applicaties", json=[])
 
-        output = configuration.test_configuration()
+        configuration.test_configuration()
 
-        self.assertEqual(output[0].id, "autorisatiesAPIClientSelfTest")
-        self.assertEqual(output[0].data, {"success": True})
+        self.assertEqual(m.last_request.url, "http://testserver/applicaties")
+        self.assertEqual(m.last_request.method, "GET")
 
     @requests_mock.Mocker()
     @patch(
@@ -106,9 +68,7 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
         return_value="http://testserver/applicaties",
     )
     def test_configuration_check_failures(self, m, *mocks):
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="", secret=""
-        )
+        configuration = AuthNotificationStep()
         configuration.configure()
 
         mock_kwargs = (
@@ -122,10 +82,22 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
             with self.subTest(mock=mock_config):
                 m.get("http://testserver/applicaties", **mock_config)
 
-                with self.assertRaises(SelfTestFailure):
+                with self.assertRaises(SelfTestFailed):
                     configuration.test_configuration()
 
+    def test_is_configured(self):
+        configuration = AuthNotificationStep()
 
+        self.assertFalse(configuration.is_configured())
+
+        configuration.configure()
+
+        self.assertTrue(configuration.is_configured())
+
+
+@override_settings(
+    NOTIF_OPENZAAK_CLIENT_ID="a-client-id", NOTIF_OPENZAAK_SECRET="a-secret",
+)
 class APIStateTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -161,9 +133,7 @@ class APIStateTests(JWTAuthMixin, APITestCase):
         )
 
     def test_correct_permissions(self):
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="a-client-id", secret="a-secret"
-        )
+        configuration = AuthNotificationStep()
         configuration.configure()
 
         self.assertApplicationHasPermissions("a-client-id")
@@ -177,9 +147,7 @@ class APIStateTests(JWTAuthMixin, APITestCase):
             applicatie=app, component="nrc", scopes=["notificaties.consumeren"]
         )
 
-        configuration = AutorisatiesAPIClientConfiguration(
-            org_name="ACME", client_id="a-client-id", secret="a-secret"
-        )
+        configuration = AuthNotificationStep()
         configuration.configure()
 
         self.assertApplicationHasPermissions("a-client-id")
