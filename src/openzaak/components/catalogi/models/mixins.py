@@ -198,12 +198,7 @@ class ConceptMixin(models.Model):
 
     def publish(self):
         self.concept = False
-        if getattr(self, "_has_overlap", False):
-            self.concept = True  # So it displays concept instead of the date
-            raise ValidationError(
-                f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
-                "overlappende geldigheid hebben."
-            )
+        self.clean()
         self.save()
 
     @display(boolean=True, description=_("gepubliceerd"))

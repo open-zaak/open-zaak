@@ -877,9 +877,6 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         Assert that at least one resultaattype must exist before publishing a zaaktype.
         """
         zaaktype = ZaakTypeFactory.create(concept=True)
-        # StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=1)
-        # StatusTypeFactory.create(zaaktype=self.zaaktype, statustypevolgnummer=2)
-        # RolTypeFactory.create(zaaktype=self.zaaktype)
         publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(publish_url)
 

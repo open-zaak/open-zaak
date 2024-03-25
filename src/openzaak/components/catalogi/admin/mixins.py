@@ -107,6 +107,7 @@ class PublishAdminMixin:
                     obj.publish()
                     published += 1
                 except ValidationError as e:
+                    obj.concept = True  # change to true so __str__ shows (CONCEPT)
                     msg = _("%(obj)s can't be published: %(error)s") % {
                         "obj": obj,
                         "error": e.message,

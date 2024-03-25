@@ -580,10 +580,6 @@ class ZaakTypeRelationsPublishValidator:
         """
 
     code = "concept-relation"
-    message = _(
-        "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
-    )
-
     requires_context = True
 
     def __call__(self, attrs, serializer):

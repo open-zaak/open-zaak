@@ -27,8 +27,7 @@ class ConceptPublishMixin:
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        instance.refresh_from_db()
-        return Response(self.get_serializer(instance).data)
+        return Response(self.get_serializer(serializer.instance).data)
 
 
 class ConceptDestroyMixin:
