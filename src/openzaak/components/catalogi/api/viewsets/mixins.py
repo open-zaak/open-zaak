@@ -12,14 +12,22 @@ from ..scopes import SCOPE_CATALOGI_FORCED_DELETE
 
 
 class ConceptPublishMixin:
+
+    publish_serializer = None
+
     def _publish(self, request, *args, **kwargs):
+
         instance = self.get_object()
-        instance.concept = False
-        instance.save()
+        serializer = self.publish_serializer(
+            instance,
+            data={"concept": False},
+            context={"request": request},
+            partial=True,
+        )
 
-        serializer = self.get_serializer(instance)
-
-        return Response(serializer.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(self.get_serializer(serializer.instance).data)
 
 
 class ConceptDestroyMixin:

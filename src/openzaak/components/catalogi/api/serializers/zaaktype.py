@@ -26,11 +26,13 @@ from ..validators import (
     BronZaakTypeValidator,
     ConceptUpdateValidator,
     DeelzaaktypeCatalogusValidator,
+    GeldigheidPublishValidator,
     GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
     RelationCatalogValidator,
     VerlengingsValidator,
+    ZaakTypeRelationsPublishValidator,
 )
 
 
@@ -307,3 +309,13 @@ class ZaakTypeSerializer(
         if bronzaaktype_data:
             BronZaaktypeSerializer().update(zaaktype, bronzaaktype_data)
         return zaaktype
+
+
+class ZaakTypePublishSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakType
+        fields = ("concept",)
+        validators = [
+            ZaakTypeRelationsPublishValidator(),
+            GeldigheidPublishValidator("identificatie"),
+        ]

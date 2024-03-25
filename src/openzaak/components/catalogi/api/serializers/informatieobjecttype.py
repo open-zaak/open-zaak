@@ -10,6 +10,7 @@ from vng_api_common.serializers import add_choice_values_help_text
 from ...models import InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
+    GeldigheidPublishValidator,
     GeldigheidValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
@@ -138,3 +139,12 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         if omschrijving_generiek_data:
             OmschrijvingGeneriekSerializer().update(iotype, omschrijving_generiek_data)
         return iotype
+
+
+class InformatieObjectTypePublishSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = InformatieObjectType
+        fields = ("concept",)
+        validators = [
+            GeldigheidPublishValidator(),
+        ]

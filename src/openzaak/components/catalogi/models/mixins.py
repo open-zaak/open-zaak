@@ -47,7 +47,6 @@ class GeldigheidMixin(models.Model):
             en is gelijk aan of ligt voor de Datum einde geldigheid zaaktype
 
         """
-        from openzaak.components.catalogi.utils import has_overlapping_objects
 
         super().clean()
 
@@ -59,12 +58,23 @@ class GeldigheidMixin(models.Model):
                         "onder Datum begin geldigheid."
                     )
                 )
+        if self._has_overlap:
+            raise ValidationError(
+                f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben."
+            )
+
+    @property
+    def _has_overlap(self):
+        from openzaak.components.catalogi.utils import has_overlapping_objects
+
         try:
             catalogus = self.catalogus
         except self.__class__.catalogus.RelatedObjectDoesNotExist:
-            return
+            return False
+        concept = getattr(self, "concept", None)
 
-        if has_overlapping_objects(
+        return has_overlapping_objects(
             model_manager=self._meta.default_manager,
             catalogus=catalogus,
             omschrijving_query={
@@ -73,11 +83,8 @@ class GeldigheidMixin(models.Model):
             begin_geldigheid=self.datum_begin_geldigheid,
             einde_geldigheid=self.datum_einde_geldigheid,
             instance=self,
-        ):
-            raise ValidationError(
-                f"{self._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
-                "overlappende geldigheid hebben."
-            )
+            concept=concept,
+        )
 
     def _clean_geldigheid(self, zaaktype):
         """
@@ -191,6 +198,7 @@ class ConceptMixin(models.Model):
 
     def publish(self):
         self.concept = False
+        self.clean()
         self.save()
 
     @display(boolean=True, description=_("gepubliceerd"))

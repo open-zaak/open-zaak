@@ -20,7 +20,10 @@ from ..scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import InformatieObjectTypeSerializer
+from ..serializers import (
+    InformatieObjectTypePublishSerializer,
+    InformatieObjectTypeSerializer,
+)
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
 
 
@@ -90,6 +93,7 @@ class InformatieObjectTypeViewSet(
         .order_by("-pk")
     )
     serializer_class = InformatieObjectTypeSerializer
+    publish_serializer = InformatieObjectTypePublishSerializer
     filterset_class = InformatieObjectTypeFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination

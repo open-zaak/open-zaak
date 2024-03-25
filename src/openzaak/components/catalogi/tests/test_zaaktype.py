@@ -5,6 +5,7 @@ from datetime import date
 
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse as django_reverse
+from django.utils.translation import ugettext_lazy as _
 
 import requests_mock
 from rest_framework import status
@@ -35,6 +36,9 @@ from .factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
     ZaakTypenRelatieFactory,
@@ -508,53 +512,6 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "invalid-bronzaaktype-for-broncatalogus")
-
-    def test_publish_zaaktype(self):
-        zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
-
-        response = self.client.post(zaaktype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        zaaktype.refresh_from_db()
-
-        self.assertEqual(zaaktype.concept, False)
-
-    def test_publish_zaaktype_fail_not_concept_besluittype(self):
-        zaaktype = ZaakTypeFactory.create()
-        besluittype = BesluitTypeFactory.create()
-        zaaktype.besluittypen.add(besluittype)
-
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
-
-        response = self.client.post(zaaktype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "concept-relation")
-
-    def test_publish_zaaktype_fail_not_concept_iotype(self):
-        zaaktype = ZaakTypeFactory.create()
-        ZaakTypeInformatieObjectTypeFactory.create(zaaktype=zaaktype)
-
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
-
-        response = self.client.post(zaaktype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "concept-relation")
-
-    def test_publish_zaaktype_method_not_allowed(self):
-        zaaktype = ZaakTypeFactory.create()
-        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
-
-        response = self.client.get(zaaktype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete_zaaktype(self):
         zaaktype = ZaakTypeFactory.create()
@@ -1396,6 +1353,228 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype.delete()
 
 
+class ZaakTypePublishTests(APITestCase):
+    def set_realted_items(self, zaaktype):
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(
+            zaaktype=zaaktype,  # selectielijstklasse=selectielijst_resultaat
+        )
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+    def test_publish_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        self.set_realted_items(zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaaktype.refresh_from_db()
+
+        self.assertEqual(zaaktype.concept, False)
+
+    def test_publish_zaaktype_with_overlapping_zaaktype(self):
+        old_zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+            identificatie="Justin-Case",
+            vertrouwelijkheidaanduiding="openbaar",
+            verlenging_mogelijk=False,
+            datum_begin_geldigheid="2018-01-01",
+            datum_einde_geldigheid=None,
+        )
+
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=True,
+            identificatie="Justin-Case",
+            vertrouwelijkheidaanduiding="openbaar",
+            verlenging_mogelijk=False,
+            datum_begin_geldigheid="2018-01-10",
+            datum_einde_geldigheid=None,
+        )
+        self.set_realted_items(zaaktype)
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "beginGeldigheid")
+        self.assertEqual(error["code"], "overlap")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
+            ).format(ZaakType._meta.verbose_name),
+        )
+
+        zaaktype.refresh_from_db()
+        self.assertTrue(zaaktype.concept)
+
+        old_zaaktype.datum_einde_geldigheid = "2018-01-09"
+        old_zaaktype.save()
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+
+    def test_publish_zaaktype_fail_not_concept_besluittype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        besluittype = BesluitTypeFactory.create()
+        zaaktype.besluittypen.add(besluittype)
+        self.set_realted_items(zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
+
+    def test_publish_zaaktype_fail_not_concept_iotype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        ZaakTypeInformatieObjectTypeFactory.create(zaaktype=zaaktype)
+        self.set_realted_items(zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "concept-relation")
+
+    def test_publish_zaaktype_method_not_allowed(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.get(zaaktype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_publish_requires_at_least_two_statustypes(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        ResultaatTypeFactory.create(zaaktype=zaaktype)
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        error_text = _(
+            "Publishing a zaaktype requires at least two statustypes to be defined."
+        )
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        with self.subTest("no statustypen"):
+            response = self.client.post(zaaktype_url)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "statustypen")
+            self.assertEqual(error["code"], "concept-relation")
+            self.assertEqual(error["reason"], error_text)
+
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+
+        with self.subTest("one statustype"):
+            response = self.client.post(zaaktype_url)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "statustypen")
+            self.assertEqual(error["code"], "concept-relation")
+            self.assertEqual(error["reason"], error_text)
+
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+
+        with self.subTest("two statustype"):
+            response = self.client.post(zaaktype_url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            zaaktype.refresh_from_db()
+            self.assertFalse(zaaktype.concept)
+
+    def test_publish_requires_at_least_one_resultaattype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "resultaattypen")
+        self.assertEqual(error["code"], "concept-relation")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            ),
+        )
+
+        ResultaatTypeFactory.create(zaaktype=zaaktype)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+
+    def test_publish_requires_at_least_one_roltype(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
+        StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=2)
+        ResultaatTypeFactory.create(zaaktype=zaaktype)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "roltypen")
+        self.assertEqual(error["code"], "concept-relation")
+        self.assertEqual(
+            error["reason"],
+            _("Publishing a zaaktype requires at least one roltype to be defined."),
+        )
+
+        RolTypeFactory.create(zaaktype=zaaktype)
+
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaaktype.refresh_from_db()
+        self.assertFalse(zaaktype.concept)
+
+    def test_publish_multiple_errors(self):
+        zaaktype = ZaakTypeFactory.create(concept=True)
+
+        zaaktype_url = get_operation_url("zaaktype_publish", uuid=zaaktype.uuid)
+        response = self.client.post(zaaktype_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        roltypen_error = get_validation_errors(response, "roltypen")
+        self.assertEqual(roltypen_error["code"], "concept-relation")
+        self.assertEqual(
+            roltypen_error["reason"],
+            _("Publishing a zaaktype requires at least one roltype to be defined."),
+        )
+
+        resultaattypen_error = get_validation_errors(response, "resultaattypen")
+        self.assertEqual(resultaattypen_error["code"], "concept-relation")
+        self.assertEqual(
+            resultaattypen_error["reason"],
+            _(
+                "Publishing a zaaktype requires at least one resultaattype to be defined."
+            ),
+        )
+
+        statustypen_error = get_validation_errors(response, "statustypen")
+        self.assertEqual(statustypen_error["code"], "concept-relation")
+        self.assertEqual(
+            statustypen_error["reason"],
+            _("Publishing a zaaktype requires at least two statustypes to be defined."),
+        )
+
+
 class ZaakTypeCreateDuplicateTests(APITestCase):
     """
     Test the creation business rules w/r to duplicates.
@@ -1415,6 +1594,9 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
         cls.url = get_operation_url("zaaktype_list")
 
     def test_overlap_specified_dates(self):
+        """
+        Always creates concept, should not overlap
+        """
         ZaakTypeFactory.create(
             catalogus=self.catalogus,
             identificatie=1,
@@ -1449,12 +1631,12 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
 
         response = self.client.post(self.url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "beginGeldigheid")
-        self.assertEqual(error["code"], "overlap")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_overlap_open_end_date(self):
+        """
+        Always creates concept, should not overlap
+        """
         ZaakTypeFactory.create(
             catalogus=self.catalogus,
             identificatie=1,
@@ -1488,11 +1670,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
         }
 
         response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "beginGeldigheid")
-        self.assertEqual(error["code"], "overlap")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_no_overlap(self):
         ZaakTypeFactory.create(

@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import Serializer, ValidationError
+from rest_framework.settings import api_settings
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -15,7 +16,10 @@ from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..utils import has_overlapping_objects
-from ..validators import validate_brondatumarchiefprocedure
+from ..validators import (
+    validate_brondatumarchiefprocedure,
+    validate_zaaktype_for_publish,
+)
 
 
 class GeldigheidValidator:
@@ -35,10 +39,7 @@ class GeldigheidValidator:
     def __init__(self, omschrijving_field="omschrijving"):
         self.omschrijving_field = omschrijving_field
 
-    def __call__(self, attrs, serializer):
-        # Determine the existing instance, if this is an update operation.
-        instance = getattr(serializer, "instance", None)
-        base_model = getattr(serializer.Meta, "model", None)
+    def get_field_data(self, attrs, serializer):
 
         catalogus = get_from_serializer_data_or_instance("catalogus", attrs, serializer)
         begin_geldigheid = get_from_serializer_data_or_instance(
@@ -51,6 +52,25 @@ class GeldigheidValidator:
             self.omschrijving_field, attrs, serializer
         )
 
+        concept = get_from_serializer_data_or_instance("concept", attrs, serializer)
+        if concept is None:
+            concept = True
+
+        return catalogus, begin_geldigheid, einde_geldigheid, omschrijving, concept
+
+    def __call__(self, attrs, serializer):
+        # Determine the existing instance, if this is an update operation.
+        instance = getattr(serializer, "instance", None)
+        base_model = getattr(serializer.Meta, "model", None)
+
+        (
+            catalogus,
+            begin_geldigheid,
+            einde_geldigheid,
+            omschrijving,
+            concept,
+        ) = self.get_field_data(attrs, serializer)
+
         if has_overlapping_objects(
             model_manager=base_model._default_manager,
             catalogus=catalogus,
@@ -58,6 +78,7 @@ class GeldigheidValidator:
             begin_geldigheid=begin_geldigheid,
             einde_geldigheid=einde_geldigheid,
             instance=instance,
+            concept=concept,
         ):
             # are we patching eindeGeldigheid?
             changing_published_geldigheid = serializer.partial and list(attrs) == [
@@ -72,6 +93,17 @@ class GeldigheidValidator:
                 {error_field: self.message.format(base_model._meta.verbose_name)},
                 code=self.code,
             )
+
+
+class GeldigheidPublishValidator(GeldigheidValidator):
+    def get_field_data(self, attrs, serializer):
+        begin_geldigheid = serializer.instance.datum_begin_geldigheid
+        einde_geldigheid = serializer.instance.datum_einde_geldigheid
+        catalogus = serializer.instance.catalogus
+        omschrijving = getattr(serializer.instance, self.omschrijving_field)
+
+        concept = attrs["concept"]
+        return catalogus, begin_geldigheid, einde_geldigheid, omschrijving, concept
 
 
 def get_by_source(obj, path: str):
@@ -540,3 +572,29 @@ class StartBeforeEndValidator:
                 self.message.format(self.start_date_field, self.end_date_field),
                 code=self.code,
             )
+
+
+class ZaakTypeRelationsPublishValidator:
+    """
+        Validate that the ZaakType object has the correct relations for publishing
+        """
+
+    code = "concept-relation"
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        instance = getattr(serializer, "instance", None)
+
+        validation_errors = validate_zaaktype_for_publish(instance)
+        serializer_errors = dict()
+
+        for field, error in validation_errors:
+            if field is None:
+                field = api_settings.NON_FIELD_ERRORS_KEY
+
+            field_errors = serializer_errors.get(field, [])
+            field_errors.append(error)
+            serializer_errors[field] = field_errors
+
+        if len(serializer_errors) > 0:
+            raise ValidationError(serializer_errors, code=self.code)

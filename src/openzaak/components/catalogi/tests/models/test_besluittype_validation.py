@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2024 Dimpact
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from ...models.informatieobjecttype import InformatieObjectType
-from ..factories import CatalogusFactory, InformatieObjectTypeFactory
+from ...models import BesluitType
+from ..factories import BesluitTypeFactory, CatalogusFactory
 
 
-class InformatieobjecttypeValidationTests(TestCase):
+class BesluitTypeValidationTests(TestCase):
     """
-    Test the validation on Informatieobjecttype
+    Test the validation on BesluitType
     """
 
     def test_assertion_raised_when_dates_overlap(self):
         catalogus = CatalogusFactory.create()
 
-        InformatieObjectTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-01-01",
@@ -23,7 +23,7 @@ class InformatieobjecttypeValidationTests(TestCase):
             concept=False,
         )
 
-        instance = InformatieObjectTypeFactory.create(
+        instance = BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-10-10",
@@ -36,7 +36,7 @@ class InformatieobjecttypeValidationTests(TestCase):
     def test_assertion_not_raised_when_concept_dates_overlap(self):
         catalogus = CatalogusFactory.create()
 
-        InformatieObjectTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-01-01",
@@ -44,19 +44,19 @@ class InformatieobjecttypeValidationTests(TestCase):
             concept=False,
         )
 
-        instance = InformatieObjectTypeFactory.create(
+        instance = BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-10-10",
             concept=True,
         )
         instance.clean()
-        self.assertEqual(InformatieObjectType.objects.all().count(), 2)
+        self.assertEqual(BesluitType.objects.all().count(), 2)
 
     def test_assertion_not_raised_when_concept_dates_overlap_reverse(self):
         catalogus = CatalogusFactory.create()
 
-        InformatieObjectTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-01-01",
@@ -64,11 +64,11 @@ class InformatieobjecttypeValidationTests(TestCase):
             concept=True,
         )
 
-        instance = InformatieObjectTypeFactory.create(
+        instance = BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="test",
             datum_begin_geldigheid="2018-10-10",
             concept=False,
         )
         instance.clean()
-        self.assertEqual(InformatieObjectType.objects.all().count(), 2)
+        self.assertEqual(BesluitType.objects.all().count(), 2)

@@ -524,22 +524,21 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             self.assertEqual(resultaat.selectielijstklasse, "")
 
         with self.subTest("Publishing blocked"):
-            zaaktype_url = reverse(
-                "admin:catalogi_zaaktype_change", args=(zaaktype.id,)
+            zaaktype_publish_url = reverse(
+                "admin:catalogi_zaaktype_publish", args=(zaaktype.pk,)
             )
-            zaaktype_change_page = self.app.get(zaaktype_url)
+            publish_page = self.app.get(zaaktype_publish_url)
 
             # save and publish
-            response = zaaktype_change_page.form.submit("_publish")
+            response = publish_page.form.submit()
 
             self.assertEqual(response.status_code, 200)
-            errors = response.context["adminform"].errors
-
+            messages = list(response.context["messages"])
             error = _(
                 "This zaaktype has resultaattypen without a selectielijstklasse. "
                 "Please specify those before publishing the zaaktype."
             )
-            self.assertIn(error, errors["__all__"])
+            self.assertIn(error, str(messages[0]))
 
     @tag("gh-1042")
     def test_create_resultaattype_for_published_zaaktype_not_allowed(self, m):

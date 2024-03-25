@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
+from django.core.management import CommandError
 from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.html import format_html
@@ -892,7 +893,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         iot_1 = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="Brave",
+            omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-17",
         )
@@ -977,7 +978,11 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.assertEqual(returned_labels, expected_labels)
 
-        response = response.form.submit("_select")
+        with patch(
+            "openzaak.components.catalogi.admin.admin_views.construct_iotypen",
+            side_effect=CommandError("some error"),
+        ):
+            response = response.form.submit("_select")
         self.assertEqual(response.status_code, 200)
         # labels should be correct on form validation failure
         self.assertEqual(returned_labels, expected_labels)
@@ -1046,7 +1051,12 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response.form["besluittype-0-existing"].value = besluittype3.pk
         response.form["besluittype-1-existing"].value = besluittype1.pk
         response.form["besluittype-2-existing"].value = besluittype2.pk
-        response = response.form.submit("_select")
+
+        with patch(
+            "openzaak.components.catalogi.admin.admin_views.construct_iotypen",
+            side_effect=CommandError("some error"),
+        ):
+            response = response.form.submit("_select")
 
         # should fail as it imports overlapping IOTs and besluit types
         self.assertEqual(response.status_code, 200)
@@ -1475,21 +1485,6 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         form = response.form
         f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
-        # fails (dues to a overlap error)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(ZaakType.objects.all().count(), 1)
-
-        response = self.app.get(url)
-        form = response.form
         f.seek(0)
         form["file"] = (
             "test.zip",
@@ -1499,7 +1494,6 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_import_zaaktype").follow()
 
         response = response.form.submit("_select")
-        # succeeds as it is imported under a different name
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.all().count(), 2)
         self.assertTrue(
@@ -1905,14 +1899,8 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         )
 
         response = form.submit("_import_zaaktype")
-
-        self.assertIn(
-            _("A validation error occurred while deserializing a {}\n{}").format(
-                "ZaakType", ""
-            ),
-            response.text,
-        )
-        self.assertEqual(ZaakType.objects.count(), 1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.count(), 2)
 
     def test_import_zaaktype_already_exists_with_besluittype(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -1952,15 +1940,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
 
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
-
-        self.assertIn(
-            _("A validation error occurred while deserializing a {}\n{}").format(
-                "ZaakType", ""
-            ),
-            response.text,
-        )
-        self.assertEqual(ZaakType.objects.count(), 1)
-        self.assertEqual(BesluitType.objects.count(), 0)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.count(), 2)
+        self.assertEqual(BesluitType.objects.count(), 1)
 
     def test_import_zaaktype_besluittype_already_exists(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -2004,14 +1986,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form["besluittype-0-existing"].value = ""
         response = form.submit("_select")
 
-        self.assertIn(
-            _("A validation error occurred while deserializing a {}\n{}").format(
-                "BesluitType", ""
-            ),
-            response.text,
-        )
-        self.assertEqual(BesluitType.objects.count(), 1)
-        self.assertEqual(ZaakType.objects.count(), 0)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(BesluitType.objects.count(), 2)
+        self.assertEqual(ZaakType.objects.count(), 1)
 
     def test_import_zaaktype_informatieobjectype_already_exists(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -2059,14 +2036,9 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form["iotype-0-existing"].value = ""
         response = form.submit("_select")
 
-        self.assertIn(
-            _("A validation error occurred while deserializing a {}\n{}").format(
-                "InformatieObjectType", ""
-            ),
-            response.text,
-        )
-        self.assertEqual(InformatieObjectType.objects.count(), 1)
-        self.assertEqual(ZaakType.objects.count(), 0)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(InformatieObjectType.objects.count(), 2)
+        self.assertEqual(ZaakType.objects.count(), 1)
 
     def test_import_zaaktype_besluittype_invalid_eigenschap(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -2183,7 +2155,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             datum_begin_geldigheid="2023-01-01",
         )
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(
+        InformatieObjectTypeFactory.create(
             catalogus=catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
@@ -2219,31 +2191,6 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form["iotype-0-existing"].value = ""
         response = form.submit("_select")
 
-        self.assertEqual(response.status_code, 200)
-
-        error_text = (
-            _(
-                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
-            )
-            .format(informatieobjecttype._meta.verbose_name)
-            .title()
-        )
-
-        expected_error = {"existing": [f"begin_geldigheid: {error_text}"]}
-        iotype_forms = response.context["iotype_forms"]
-        self.assertEqual(
-            iotype_forms.errors, [expected_error],
-        )
-
-        informatieobjecttype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
-        informatieobjecttype.datum_einde_geldigheid = datetime(2022, 12, 31).date()
-        informatieobjecttype.save()
-
-        self.assertEqual(InformatieObjectType.objects.all().count(), 1)
-        form = response.form
-        form["iotype-0-existing"].value = ""
-        response = form.submit("_select")
-
         # ensure form submits correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(InformatieObjectType.objects.all().count(), 2)
@@ -2256,7 +2203,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             zaaktype_omschrijving="bla",
             datum_begin_geldigheid="2023-01-01",
         )
-        besluittype1 = BesluitTypeFactory.create(
+        BesluitTypeFactory.create(
             catalogus=catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
@@ -2290,28 +2237,6 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form["besluittype-0-existing"].value = ""
         response = form.submit("_select")
 
-        self.assertEqual(response.status_code, 200)
-
-        error_text = (
-            _(
-                "Dit {} komt al voor binnen de catalogus en opgegeven geldigheidsperiode."
-            )
-            .format(besluittype1._meta.verbose_name)
-            .title()
-        )
-
-        expected_error = {"existing": [f"begin_geldigheid: {error_text}"]}
-        besluittype_forms = response.context["besluittype_forms"]
-        self.assertEqual(
-            besluittype_forms.errors, [expected_error],
-        )
-
-        besluittype1.datum_begin_geldigheid = datetime(2022, 1, 1).date()
-        besluittype1.datum_einde_geldigheid = datetime(2022, 12, 31).date()
-        besluittype1.save()
-
-        self.assertEqual(BesluitType.objects.all().count(), 1)
-        response = response.form.submit("_select")
         # ensure form submits correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(BesluitType.objects.all().count(), 2)

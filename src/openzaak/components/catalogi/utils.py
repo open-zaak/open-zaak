@@ -21,15 +21,34 @@ def has_overlapping_objects(
     begin_geldigheid: date,
     einde_geldigheid: Optional[date] = None,
     instance: Optional[models.Model] = None,
+    concept: bool = None,
 ) -> bool:
+    """
+    Tests if an object has an overlapping start and end date with another object.
+    Is aware of published status if concept is provided
+
+    :param model_manager: manger of the model the class belongs to
+    :param catalogus: catalogus of the object
+    :param omschrijving_query: {field: value} which must not overlap
+    :param begin_geldigheid: start date of the object
+    :param einde_geldigheid: end date of the object
+    :param instance: the instance of the object being compared
+    :param concept: if an object is not published
+    :return: if an object has another overlapping object
+    """
+    if concept:
+        return False
 
     if catalogus and begin_geldigheid:
+
         query = model_manager.filter(
             Q(catalogus=catalogus),
             Q(**omschrijving_query),
             Q(datum_einde_geldigheid=None)
             | Q(datum_einde_geldigheid__gt=begin_geldigheid),  # noqa
         )
+        if concept is not None:
+            query = query.filter(concept=False)
 
         if einde_geldigheid is not None:
             query = query.filter(datum_begin_geldigheid__lt=einde_geldigheid)

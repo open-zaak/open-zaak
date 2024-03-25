@@ -6,7 +6,7 @@ from urllib.parse import parse_qsl, quote as urlquote
 from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_urls import add_preserved_filters
 from django.contrib.admin.utils import flatten_fieldsets
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.management import CommandError, call_command
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -103,8 +103,16 @@ class PublishAdminMixin:
                     }
                     self.message_user(request, msg, level=messages.ERROR)
             else:
-                obj.publish()
-                published += 1
+                try:
+                    obj.publish()
+                    published += 1
+                except ValidationError as e:
+                    obj.concept = True  # change to true so __str__ shows (CONCEPT)
+                    msg = _("%(obj)s can't be published: %(error)s") % {
+                        "obj": obj,
+                        "error": e.message,
+                    }
+                    self.message_user(request, msg, level=messages.ERROR)
 
         if published:
             msg = (

@@ -16,6 +16,7 @@ from openzaak.utils.admin import AdminContextMixin
 
 from ..api.viewsets import ZaakTypeViewSet
 from ..models import BesluitType, Catalogus, InformatieObjectType, ZaakType
+from ..validators import validate_zaaktype_for_publish
 from .forms import BesluitTypeFormSet, InformatieObjectTypeFormSet, ZaakTypeImportForm
 from .utils import (
     construct_besluittypen,
@@ -235,56 +236,35 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
     def post(self, request, *args, **kwargs):
 
         self.object = self.get_object()
+        self.errors = []
 
-        if self.object.concept:
-            errors = []
+        if not self.object.concept:
+            messages.add_message(
+                request, messages.WARNING, _("Zaaktype object is already published.")
+            )
+        else:
+            with transaction.atomic():
+                if "_auto-publish" in request.POST:
+                    self.auto_publish(request)
 
-            if "_auto-publish" in request.POST:
+                for field, error in validate_zaaktype_for_publish(self.object):
+                    self.errors.append(error)
 
-                published_besluittypen = []
-                published_informatieobjecttypen = []
-                # publish related types
-                for besluittype in self.object.besluittypen.filter(concept=True):
-                    besluittype.publish()
-                    published_besluittypen.append(besluittype.omschrijving)
-
-                for iot in self.object.informatieobjecttypen.filter(concept=True):
-                    iot.publish()
-                    published_informatieobjecttypen.append(iot.omschrijving)
-
-                if len(published_besluittypen) > 0:
+                # if any errors
+                if len(self.errors) > 0:
                     messages.add_message(
                         request,
-                        messages.INFO,
-                        _("Auto-published related besluittypen: {besluittypen}").format(
-                            besluittypen=", ".join(published_besluittypen)
-                        ),
-                        "autopublish",
+                        messages.ERROR,
+                        " | ".join([str(e) for e in self.errors]),
                     )
-                if len(published_informatieobjecttypen) > 0:
-                    messages.add_message(
-                        request,
-                        messages.INFO,
-                        _(
-                            "Auto-published related informatieobjecttypen: {iots}"
-                        ).format(iots=", ".join(published_informatieobjecttypen)),
-                        "autopublish",
-                    )
+                    return self.render_to_response(self.get_context_data())
 
-            if (
-                self.object.besluittypen.filter(concept=True).exists()
-                or self.object.informatieobjecttypen.filter(concept=True).exists()
-            ):
-                errors.append(_("All related resources should be published"))
+                try:
+                    self.object.publish()
+                except ValidationError as e:
+                    messages.add_message(request, messages.ERROR, e.message)
+                    return self.render_to_response(self.get_context_data())
 
-            if len(errors) > 0:
-                messages.add_message(
-                    request, messages.ERROR, ". ".join([str(e) for e in errors])
-                )
-                context = self.get_context_data()
-                return self.render_to_response(context)
-
-            self.object.publish()
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -292,14 +272,47 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
             )
             self.send_notification(request)
 
-        else:
-            messages.add_message(
-                request, messages.WARNING, _("Zaaktype object is already published")
-            )
-
         return HttpResponseRedirect(
             reverse("admin:catalogi_zaaktype_change", args=(self.object.pk,))
         )
+
+    def auto_publish(self, request):
+        published_besluittypen = []
+        published_informatieobjecttypen = []
+
+        # publish related types
+        for besluittype in self.object.besluittypen.filter(concept=True):
+            try:
+                besluittype.publish()
+                published_besluittypen.append(besluittype.omschrijving)
+            except ValidationError as e:
+                self.errors.append(f"{besluittype.omschrijving} – {e.message}")
+
+        for iot in self.object.informatieobjecttypen.filter(concept=True):
+            try:
+                iot.publish()
+                published_informatieobjecttypen.append(iot.omschrijving)
+            except ValidationError as e:
+                self.errors.append(f"{iot.omschrijving} – {e.message}")
+
+        if len(published_besluittypen) > 0:
+            messages.add_message(
+                request,
+                messages.INFO,
+                _("Auto-published related besluittypen: {besluittypen}").format(
+                    besluittypen=", ".join(published_besluittypen)
+                ),
+                "autopublish",
+            )
+        if len(published_informatieobjecttypen) > 0:
+            messages.add_message(
+                request,
+                messages.INFO,
+                _("Auto-published related informatieobjecttypen: {iots}").format(
+                    iots=", ".join(published_informatieobjecttypen)
+                ),
+                "autopublish",
+            )
 
     def send_notification(self, context_request):
 

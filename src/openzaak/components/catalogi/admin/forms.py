@@ -171,64 +171,6 @@ class ZaakTypeForm(forms.ModelForm):
 
         return procestype_url
 
-    def clean(self):
-        super().clean()
-
-        if "_addversion" in self.data:
-            self._clean_datum_einde_geldigheid()
-
-        if "_publish" in self.data:
-            self._clean_all_data_present_for_publish()
-
-    def _clean_datum_einde_geldigheid(self):
-        datum_einde_geldigheid = self.cleaned_data.get("datum_einde_geldigheid")
-
-        if not datum_einde_geldigheid:
-            msg = _(
-                "datum_einde_geldigheid is required if the new version is being created"
-            )
-            self.add_error(
-                "datum_einde_geldigheid", forms.ValidationError(msg, code="invalid"),
-            )
-
-    def _clean_all_data_present_for_publish(self):
-        has_invalid_resultaattypen = self.instance.resultaattypen.filter(
-            selectielijstklasse=""
-        ).exists()
-        if has_invalid_resultaattypen:
-            self.add_error(
-                None,
-                _(
-                    "This zaaktype has resultaattypen without a selectielijstklasse. "
-                    "Please specify those before publishing the zaaktype."
-                ),
-            )
-
-        num_roltypen = self.instance.roltype_set.count()
-        if not num_roltypen >= 1:
-            self.add_error(
-                None,
-                _("Publishing a zaaktype requires at least one roltype to be defined."),
-            )
-
-        num_resultaattypen = self.instance.resultaattypen.count()
-        if not num_resultaattypen >= 1:
-            self.add_error(
-                None,
-                _(
-                    "Publishing a zaaktype requires at least one resultaattype to be defined."
-                ),
-            )
-
-        num_statustypen = self.instance.statustypen.count()
-        if not num_statustypen >= 2:
-            self.add_error(
-                None,
-                _(
-                    "Publishing a zaaktype requires at least two statustypes to be defined."
-                ),
-            )
-
 
 class ResultaatTypeForm(forms.ModelForm):
     # set by filthy admin voodoo in ResultaatTypeAdmin.get_form as a class attribute

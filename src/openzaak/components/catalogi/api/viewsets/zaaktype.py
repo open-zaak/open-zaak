@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.utils.translation import ugettext_lazy as _
 
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
-from rest_framework.settings import api_settings
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
@@ -25,7 +21,7 @@ from ..scopes import (
     SCOPE_CATALOGI_READ,
     SCOPE_CATALOGI_WRITE,
 )
-from ..serializers import ZaakTypeSerializer
+from ..serializers import ZaakTypePublishSerializer, ZaakTypeSerializer
 from .mixins import (
     ConceptDestroyMixin,
     ConceptFilterMixin,
@@ -114,6 +110,7 @@ class ZaakTypeViewSet(
         .order_by("-pk")
     )
     serializer_class = ZaakTypeSerializer
+    publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
     filterset_class = ZaakTypeFilter
     pagination_class = OptimizedPagination
@@ -170,22 +167,4 @@ class ZaakTypeViewSet(
     )
     @action(detail=True, methods=["post"], name="zaaktype_publish")
     def publish(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        # check related objects
-        if (
-            instance.besluittypen.filter(concept=True).exists()
-            or instance.informatieobjecttypen.filter(concept=True).exists()
-            or instance.deelzaaktypen.filter(concept=True).exists()
-        ):
-            msg = _("All related resources should be published")
-            raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: msg}, code="concept-relation"
-            )
-
-        instance.concept = False
-        instance.save()
-
-        serializer = self.get_serializer(instance)
-
-        return Response(serializer.data)
+        return super()._publish(request, *args, **kwargs)
