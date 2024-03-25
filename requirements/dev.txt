@@ -239,7 +239,7 @@ django-sendfile2==0.7.0
     # via
     #   -r requirements/ci.txt
     #   django-privates
-django_setup_configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@feature/1-config-command
+django-setup-configuration==0.1.0
     # via -r requirements/ci.txt
 django-silk==4.3.0
     # via -r requirements/dev.in
