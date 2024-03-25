@@ -1,6 +1,33 @@
 Changelog
 =========
 
+1.12.0 (2023-03-25)
+-------------------
+
+**New features**
+
+* [#1531] Supported user-defined prefixes for Zaaktype.identificatie during zaaktype import.
+* [#1533] Added a checkbox in the Catalogi admin page to auto-publish resources related to zaaktypen.
+* [#1535] Refactored validation of overlapping dates for concept objects in Catalogi component.
+  Now concept objects are allowed to be added without specifying an end date for the published objects.
+  The validation for overlapping dates is restricted only for published objects.
+* [#1572] Refactored management command ``setup_configuration`` and added support of environment variables there
+
+**Bugfixes and QOL**
+
+* [#1571] Fixed access to the history pages in the Admin
+* [#1579] Added a unittest to ensure that ``ZaakTypeInformatieObjectType.volgnummer`` is imported correctly
+* [#1504] Showed warnings to the user if no zaaktype was imported during the import process
+
+**Documentation**
+
+* [#1517] Restore full descriptions of enum fields in the OAS
+
+**Project maintenance**
+
+* [#1510] Replaced ``drf-yasg`` library to generate OAS with ``drf-spectacular``
+
+
 1.11.0 (2024-02-01)
 -------------------
 
