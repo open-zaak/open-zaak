@@ -17,8 +17,6 @@ The OpenZaak community adheres to the following principles:
 
 The maintainers of OpenZaak have two steering teams, a technical one and a core group (kern groep).
 
-Through codebase stewardship the Foundation for Public Code supports the governance of OpenZaak, the product and technical steering teams, and its community.
-
 ## Technical steering team
 
 The OpenZaak technical steering team members are active contributors. As a team, they

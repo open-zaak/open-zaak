@@ -11,11 +11,8 @@ and `npm packages`_ under the hood.
 Public Code
 -----------
 
-The Open Zaak project benefits from the expertise of the `Foundation for Public
-Code`_ who helps to scale our codebase, community and development proces. With
-their codebase stewardship program, we are working on becomming fully
-compliant.
-
+The Open Zaak project benefited from the expertise of the `Foundation for Public
+Code`_ who helped to scale our codebase, community and development process.
 
 .. _`EUPL license`: https://github.com/open-zaak/open-zaak/blob/master/LICENSE.md
 .. _`Python libraries`: https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt

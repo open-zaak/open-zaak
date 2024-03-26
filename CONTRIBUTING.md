@@ -33,16 +33,4 @@ If all changes have been committed, you can push the branch to your fork of the 
 
 ### Reviews on releases
 
-All pull requests will be reviewed before they are merged to a release branch. As well as being reviewed for functionality and following the code style they will be checked against the [Standard for Public Code](https://standard.publiccode.net) by a [codebase steward](https://publiccode.net/codebase-stewardship/) from the [Foundation for Public Code](https://publiccode.net). Reviews will usually start within two business days of a submitted pull request.
-
-## Under Foundation for Public Code incubating codebase stewardship
-
-Open Zaak is in incubation [codebase stewardship](https://publiccode.net/codebase-stewardship/) with the [Foundation for Public Code](https://publiccode.net).
-
-The [codebase stewardship activities](https://about.publiccode.net/activities/codebase-stewardship/activities.html) by the Foundation for Public Code on this codebase include:
-
-* facilitating the community and its members
-* help all contributors contribute in line with the contributing guidelines and the [Standard for Public Code](https://standard.publiccode.net/)
-* work with the community to tell their stories, create their brand and market their products
-* support the technical steering team
-
+All pull requests will be reviewed before they are merged to a release branch.
