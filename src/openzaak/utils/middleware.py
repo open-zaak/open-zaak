@@ -24,6 +24,12 @@ WARNING_HEADER = "Warning"
 DEPRECATION_WARNING_CODE = 299
 
 
+def is_api_request(request: HttpRequest) -> bool:
+    return request.path.startswith(
+        tuple(f"/{component}/api" for component in COMPONENT_MAPPING.keys())
+    )
+
+
 class OverrideHostMiddleware:
     """
     When enabled, override the raw request host information.
@@ -40,7 +46,11 @@ class OverrideHostMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if settings.OPENZAAK_REWRITE_HOST and settings.OPENZAAK_DOMAIN:
+        if (
+            is_api_request(request)
+            and settings.OPENZAAK_REWRITE_HOST
+            and settings.OPENZAAK_DOMAIN
+        ):
             # keep track of the original host
             assert not hasattr(
                 request, "_raw_host"

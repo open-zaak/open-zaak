@@ -548,52 +548,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             }
         )
 
-    @override_settings(
-        NOTIFICATIONS_DISABLED=False,
-        OPENZAAK_DOMAIN="openzaak.example.com",
-        OPENZAAK_REWRITE_HOST=True,
-        ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
-    )
-    @patch("notifications_api_common.viewsets.send_notification.delay")
-    def test_changes_send_notifications_with_openzaak_domain_setting(self, mock_notif):
-        zt = ZaakTypeFactory.create()
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=["zaken.lezen"],
-            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen", "zaken.bijwerken"],  # modified
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-zaaktypen": [zt.id],
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-
-        mock_notif.assert_called_with(
-            {
-                "kanaal": "autorisaties",
-                "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
-                "resource": "applicatie",
-                "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
-                "actie": "update",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "kenmerken": {},
-            }
-        )
-
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
