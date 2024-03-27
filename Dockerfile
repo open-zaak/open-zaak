@@ -43,6 +43,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         # bare minimum to debug live containers
         procps \
         nano \
+        curl \
         # serve correct Content-Type headers
         mime-support \
         # (geo) django dependencies
