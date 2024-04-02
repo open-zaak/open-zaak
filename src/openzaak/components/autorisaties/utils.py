@@ -27,8 +27,11 @@ def _get_related_object(model: ModelBase, url: str) -> Optional[RelatedTypeObjec
     if url == "":
         return None
     uuid = url.rsplit("/")[-1]
-    obj = model.objects.get(uuid=uuid)
-    return obj
+    try:
+        obj = model.objects.get(uuid=uuid)
+        return obj
+    except model.DoesNotExist:
+        return None
 
 
 def get_related_object(autorisatie: Autorisatie) -> Optional[RelatedTypeObject]:
