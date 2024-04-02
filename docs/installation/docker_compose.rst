@@ -46,7 +46,7 @@ Getting started
       $ unzip main.zip
       $ cd open-zaak-main
 
-2. Start the docker containers with ``docker-compose``. If you want to run the
+2. Start the docker containers with ``docker compose``. If you want to run the
    containers in the background, add the ``-d`` option to the command below:
 
    .. note:: the image build requires Docker BuildKit to be enabled - if this is not
@@ -59,7 +59,7 @@ Getting started
 
    .. code:: bash
 
-      $ docker-compose up
+      $ docker compose up
 
       [+] Running 5/5
        ⠿ Network open-zaak-main_default    Created      0.0s
@@ -77,11 +77,11 @@ Getting started
 
    .. code:: bash
 
-      $ docker-compose stop
+      $ docker compose stop
 
 5. If you want to get newer versions, you need to ``pull`` because the
    ``docker-compose.yml`` contains no explicit versions:
 
    .. code:: bash
 
-      $ docker-compose pull
+      $ docker compose pull
