@@ -138,6 +138,34 @@ class ZaaktypeAdminTests(
         self.assertEqual(zaaktype.verantwoordingsrelatie, [])
         self.assertEqual(zaaktype.producten_of_diensten, [])
 
+    def test_doorlooptijd_behandeling_is_required(self, m):
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+        url = reverse("admin:catalogi_zaaktype_change", args=[zaaktype.pk])
+
+        update_page = self.app.get(url)
+
+        form = update_page.form
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["doorlooptijd_behandeling_days"] = None
+        form["doorlooptijd_behandeling_months"] = None
+        form["doorlooptijd_behandeling_years"] = None
+
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+
+        response_form = response.context["adminform"].form
+        self.assertIn(
+            "Dit veld is vereist.", response_form.errors["doorlooptijd_behandeling"]
+        )
+
+        form["doorlooptijd_behandeling_days"] = 12
+        response = form.submit()
+        self.assertEqual(response.status_code, 302)
+
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2019-11-01")
