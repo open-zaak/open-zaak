@@ -1009,3 +1009,22 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         initial_data = response.context["formdata"]
         self.assertEqual(len(initial_data), 2)  # 1 empty form, 1 unrelated auth spec
+
+    @tag("gh-1584")
+    def test_related_object_does_not_exist(self):
+        """
+        Assert that the autorisaties view does not crash
+        if an autorisatie fails to delete after its related object is deleted.
+        """
+
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            informatieobjecttype="http://testserver/url_to_nowhere/00000000-0000-0000-0000-000000000000",
+        )
+
+        # check that the admin page does not crash
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
