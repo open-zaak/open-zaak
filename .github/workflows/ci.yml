@@ -171,7 +171,7 @@ jobs:
 
       - name: Bring up Alfresco
         run: |
-          docker-compose -f docker-compose.ci.cmis.yml up -d
+          docker compose -f docker-compose.ci.cmis.yml up -d
           docker ps -q | xargs  docker stats --no-stream
 
       - name: Install dependencies
