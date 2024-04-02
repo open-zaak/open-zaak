@@ -10,7 +10,7 @@ expertise.
    production purposes
 2. Deploy on a :ref:`VM, VPS or dedicated server <installation_ansible>` with Docker
    Engine (or Podman) for public testing and production purposes
-3. Run with :ref:`docker-compose <installation_docker_compose>` on your computer for
+3. Run with :ref:`docker compose <installation_docker_compose>` on your computer for
    private testing purposes
 4. Run from :ref:`Python code <development_getting_started>` on your computer for
    development purposes
