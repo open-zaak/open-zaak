@@ -22,7 +22,7 @@ django-cors-headers
 django-db-logger
 django-extra-views
 django-log-outgoing-requests
-git+https://github.com/maykinmedia/django-loose-fk.git@feature/28-local-base-urls
+django-loose-fk
 django-markup
 django-redis
 django-privates
