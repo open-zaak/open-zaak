@@ -186,7 +186,7 @@ django-jsonform==2.21.2
     #   mozilla-django-oidc-db
 django-log-outgoing-requests==0.5.2
     # via -r requirements/base.txt
-django-loose-fk==1.0.3
+django-loose-fk==1.0.4
     # via -r requirements/base.txt
 django-markup==1.5
     # via -r requirements/base.txt

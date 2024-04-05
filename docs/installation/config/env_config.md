@@ -172,6 +172,13 @@ on Docker, since `localhost` is contained within the container:
 * `NOTIFICATIONS_DISABLED`: if this variable is set to `true`, `yes` or `1`, the notification mechanism will be
     disabled. Defaults to `False`.
 
+* `LOOSE_FK_LOCAL_BASE_URLS`: explicitly list the allowed prefixes of local urls.
+  Defaults to an empty list. This setting can be used to separate local and external urls, when
+  Open Zaak and other services are deployed within the same domain or API Gateway.
+  If this setting is not defined, all urls with the same host as in the request are considered local. 
+  Example:
+  `LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/`
+
 ### Initial superuser creation
 
 A clean installation of Open Zaak comes without pre-installed or pre-configured admin

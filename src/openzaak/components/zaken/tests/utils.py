@@ -55,6 +55,7 @@ def get_zaaktype_response(catalogus: str, zaaktype: str, **overrides) -> dict:
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         ),
+        "verantwoordelijke": "063308836",
         "referentieproces": {},
         "statustypen": [],
         "resultaattypen": [],

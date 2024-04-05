@@ -645,6 +645,7 @@ NOTIFICATIONS_DISABLED = config("NOTIFICATIONS_DISABLED", default=False)
 # DJANGO-LOOSE-FK -- handle internal and external API resources
 #
 DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"
+LOOSE_FK_LOCAL_BASE_URLS = config("LOOSE_FK_LOCAL_BASE_URLS", split=True, default=[])
 
 #
 # RAVEN/SENTRY - error monitoring
