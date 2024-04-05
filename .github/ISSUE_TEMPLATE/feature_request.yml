@@ -1,0 +1,41 @@
+name: Verzoek tot verbetering / Feature request
+description: Stel een idee voor om het product beter te maken / Suggest an idea for this product
+title: "Title here"
+labels: ["enhancement", "triage"]
+assignees: []
+body:
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Thema / Theme
+      options:
+        - "Zaken API"
+        - "Documenten API"
+        - "Besluiten API"
+        - "Catalogi API"
+        - "Autorisaties API"
+        - "Admin"
+        - "Other"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Omschrijving / Description
+      description: Omschrijf duidelijk het idee of de behoefte, eventueel aangevuld met een bepaalde oplossingsrichting / Clearly describe the idea or need, possibly supplemented with a specific solution direction
+    validations:
+      required: true
+  - type: textarea
+    id: added-value
+    attributes:
+      label: Toegevoegde waarde / Added value
+      description: Omschrijf de toegevoegde waarde voor de bedrijfsvoering of dienstverlening / Describe the added value for business operations or services
+    validations:
+      required: false
+  - type: textarea
+    id: remarks
+    attributes:
+      label: Aanvullende opmerkingen / Additional context
+      description: Voeg aanvullingen of mockups toe voor deze verbetering / Add any other context or screenshots about the feature request
+    validations:
+      required: false
