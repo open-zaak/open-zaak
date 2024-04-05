@@ -1,6 +1,19 @@
 Changelog
 =========
 
+1.12.1 (2024-04-05)
+-------------------
+
+**Bugfixes and QOL**
+
+* [#1592] Added environment variable ``LOOSE_FK_LOCAL_BASE_URLS``, which
+  explicitly list allowed prefixes for local urls to fine-tune resolving
+  local and remote urls, now they can be hosted within the same domain
+* [#1602] Replaced `docker-compose` with `docker compose` in the CI and docs
+* [#1599] Restored Nginx config for ``docker-compose.yml``.
+* [#1609] Changed GH issue templates from .md to .yml
+
+
 1.12.0 (2024-03-25)
 -------------------
 
