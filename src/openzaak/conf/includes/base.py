@@ -408,6 +408,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
+        "django_loose_fk": {
+            "handlers": _root_handlers,
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
     },
 }
 
