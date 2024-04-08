@@ -213,7 +213,7 @@ django-jsonform==2.21.2
     #   mozilla-django-oidc-db
 django-log-outgoing-requests==0.5.2
     # via -r requirements/ci.txt
-django-loose-fk==1.0.4
+django-loose-fk @ git+https://github.com/maykinmedia/django-loose-fk.git@debug/add_logging
     # via -r requirements/ci.txt
 django-markup==1.5
     # via -r requirements/ci.txt
