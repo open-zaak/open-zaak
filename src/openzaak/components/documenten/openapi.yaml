@@ -432,6 +432,30 @@ paths:
       summary: Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
       parameters:
       - in: query
+        name: aanmaakdatum__gte
+        schema:
+          type: string
+          format: date
+        description: 'The creation date of this information object (greater or equal
+          to the given date): EXPERIMENTAL.'
+      - in: query
+        name: aanmaakdatum__lte
+        schema:
+          type: string
+          format: date
+        description: 'The creation date of this information object (lesser or equal
+          to the given date): EXPERIMENTAL.'
+      - in: query
+        name: auteur
+        schema:
+          type: string
+        description: 'The person or organisation that created this object: EXPERIMENTAL.'
+      - in: query
+        name: beschrijving
+        schema:
+          type: string
+        description: 'The description of the Information Object: EXPERIMENTAL.'
+      - in: query
         name: bronorganisatie
         schema:
           type: string
@@ -456,6 +480,37 @@ paths:
           type: string
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
+      - in: query
+        name: locked
+        schema:
+          type: boolean
+        description: 'Indication of the Information Object being locked or not: EXPERIMENTAL.'
+      - in: query
+        name: ordering
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -auteur
+            - -bestandsomvang
+            - -bestandstype
+            - -creatiedatum
+            - -status
+            - -title
+            - -vertrouwelijkheidaanduiding
+            - auteur
+            - bestandsomvang
+            - bestandstype
+            - creatiedatum
+            - status
+            - title
+            - vertrouwelijkheidaanduiding
+        description: |+
+          sort on: EXPERIMENTAL.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -463,14 +518,42 @@ paths:
         schema:
           type: integer
       - in: query
+        name: titel
+        schema:
+          type: string
+        description: 'Titel van het Information Object: EXPERIMENTAL.'
+      - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: 'Filter on a set of keywords that contain in the Information
+          Objects: EXPERIMENTAL.'
         explode: false
         style: form
+      - in: query
+        name: vertrouwelijkheidaanduiding
+        schema:
+          type: string
+          enum:
+          - beperkt_openbaar
+          - confidentieel
+          - geheim
+          - intern
+          - openbaar
+          - vertrouwelijk
+          - zaakvertrouwelijk
+          - zeer_geheim
+        description: |+
+          The confidentiality indication of this Information object: EXPERIMENTAL.
+
+      - in: query
+        name: zaak
+        schema:
+          type: string
+        description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT (in deze
+          of een andere API): EXPERIMENTAL.'
       tags:
       - enkelvoudiginformatieobjecten
       security:
@@ -2255,6 +2338,30 @@ paths:
         description: Content type van de verzoekinhoud.
         required: true
       - in: query
+        name: aanmaakdatum__gte
+        schema:
+          type: string
+          format: date
+        description: 'The creation date of this information object (greater or equal
+          to the given date): EXPERIMENTAL.'
+      - in: query
+        name: aanmaakdatum__lte
+        schema:
+          type: string
+          format: date
+        description: 'The creation date of this information object (lesser or equal
+          to the given date): EXPERIMENTAL.'
+      - in: query
+        name: auteur
+        schema:
+          type: string
+        description: 'The person or organisation that created this object: EXPERIMENTAL.'
+      - in: query
+        name: beschrijving
+        schema:
+          type: string
+        description: 'The description of the Information Object: EXPERIMENTAL.'
+      - in: query
         name: bronorganisatie
         schema:
           type: string
@@ -2279,6 +2386,37 @@ paths:
           type: string
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
+      - in: query
+        name: locked
+        schema:
+          type: boolean
+        description: 'Indication of the Information Object being locked or not: EXPERIMENTAL.'
+      - in: query
+        name: ordering
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -auteur
+            - -bestandsomvang
+            - -bestandstype
+            - -creatiedatum
+            - -status
+            - -title
+            - -vertrouwelijkheidaanduiding
+            - auteur
+            - bestandsomvang
+            - bestandstype
+            - creatiedatum
+            - status
+            - title
+            - vertrouwelijkheidaanduiding
+        description: |+
+          sort on: EXPERIMENTAL.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -2286,14 +2424,42 @@ paths:
         schema:
           type: integer
       - in: query
+        name: titel
+        schema:
+          type: string
+        description: 'Titel van het Information Object: EXPERIMENTAL.'
+      - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: 'Filter on a set of keywords that contain in the Information
+          Objects: EXPERIMENTAL.'
         explode: false
         style: form
+      - in: query
+        name: vertrouwelijkheidaanduiding
+        schema:
+          type: string
+          enum:
+          - beperkt_openbaar
+          - confidentieel
+          - geheim
+          - intern
+          - openbaar
+          - vertrouwelijk
+          - zaakvertrouwelijk
+          - zeer_geheim
+        description: |+
+          The confidentiality indication of this Information object: EXPERIMENTAL.
+
+      - in: query
+        name: zaak
+        schema:
+          type: string
+        description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT (in deze
+          of een andere API): EXPERIMENTAL.'
       tags:
       - enkelvoudiginformatieobjecten
       requestBody:
@@ -2308,20 +2474,85 @@ paths:
                     type: string
                     format: uuid
                   description: Lijst van unieke resource identifiers (UUID4)
-                identificatie:
+                aanmaakdatum__gte:
                   type: string
-                  description: Een binnen een gegeven context ondubbelzinnige referentie
-                    naar het INFORMATIEOBJECT.
+                  format: date
+                  description: 'The creation date of this information object (greater
+                    or equal to the given date): EXPERIMENTAL.'
+                aanmaakdatum__lte:
+                  type: string
+                  format: date
+                  description: 'The creation date of this information object (lesser
+                    or equal to the given date): EXPERIMENTAL.'
+                auteur:
+                  type: string
+                  description: 'The person or organisation that created this object:
+                    EXPERIMENTAL.'
+                beschrijving:
+                  type: string
+                  description: 'The description of the Information Object: EXPERIMENTAL.'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
                     die het informatieobject heeft gecreëerd of heeft ontvangen en
                     als eerste in een samenwerkingsketen heeft vastgelegd.
+                identificatie:
+                  type: string
+                  description: Een binnen een gegeven context ondubbelzinnige referentie
+                    naar het INFORMATIEOBJECT.
+                locked:
+                  type: boolean
+                  description: 'Indication of the Information Object being locked
+                    or not: EXPERIMENTAL.'
+                titel:
+                  type: string
+                  description: 'Titel van het Information Object: EXPERIMENTAL.'
                 trefwoorden:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: 'Filter on a set of keywords that contain in the Information
+                    Objects: EXPERIMENTAL.'
+                vertrouwelijkheidaanduiding:
+                  type: string
+                  enum:
+                  - beperkt_openbaar
+                  - confidentieel
+                  - geheim
+                  - intern
+                  - openbaar
+                  - vertrouwelijk
+                  - zaakvertrouwelijk
+                  - zeer_geheim
+                  description: |+
+                    The confidentiality indication of this Information object: EXPERIMENTAL.
+
+                zaak:
+                  type: string
+                  description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT
+                    (in deze of een andere API): EXPERIMENTAL.'
+                ordering:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - -auteur
+                    - -bestandsomvang
+                    - -bestandstype
+                    - -creatiedatum
+                    - -status
+                    - -title
+                    - -vertrouwelijkheidaanduiding
+                    - auteur
+                    - bestandsomvang
+                    - bestandstype
+                    - creatiedatum
+                    - status
+                    - title
+                    - vertrouwelijkheidaanduiding
+                  description: |+
+                    sort on: EXPERIMENTAL.
+
                 expand:
                   type: array
                   items:

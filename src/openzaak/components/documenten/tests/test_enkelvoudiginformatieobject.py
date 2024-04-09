@@ -1079,12 +1079,23 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
     def test_trefwoorden(self):
         eio = EnkelvoudigInformatieObjectFactory.create(trefwoorden=["some", "other"])
         EnkelvoudigInformatieObjectFactory.create(trefwoorden=[])
-        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["dummy"])
+        eio3 = EnkelvoudigInformatieObjectFactory.create(trefwoorden=["dummy"])
 
-        response = self.client.get(self.url, {"trefwoorden": "some"})
+        with self.subTest("single_trefwoord"):
+            response = self.client.get(self.url, {"trefwoorden": "some"})
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        data = response.json()["results"]
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio)}")
+            data = response.json()["results"]
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio)}")
+
+        with self.subTest("multiple_trefwooren"):
+            response = self.client.get(self.url, {"trefwoorden": "some,dummy"})
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            data = response.json()["results"]
+            self.assertEqual(len(data), 2)
+            self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio)}")
+            self.assertEqual(data[1]["url"], f"http://testserver{reverse(eio3)}")

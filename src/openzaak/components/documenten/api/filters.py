@@ -3,15 +3,19 @@
 import logging
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from django_filters import rest_framework as filters
+from django_filters import OrderingFilter, rest_framework as filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.filters import URLModelChoiceFilter
 from vng_api_common.utils import get_help_text
 
+from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.utils.filters import CharArrayFilter, ExpandFilter
-from openzaak.utils.filterset import FilterSet
+from openzaak.utils.filterset import FilterSet, NestedFkOrUrlFieldFilter
+from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
     EnkelvoudigInformatieObject,
@@ -31,12 +35,100 @@ logger = logging.getLogger(__name__)
 
 
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
-    trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
+    creatiedatum__gte = filters.DateFilter(
+        help_text=mark_experimental(
+            "The creation date of this information object (greater or equal to the given date)."
+        ),
+        field_name="creatiedatum",
+        lookup_expr="gte",
+    )
+    creatiedatum__lte = filters.DateFilter(
+        help_text=mark_experimental(
+            "The creation date of this information object (lesser or equal to the given date)."
+        ),
+        field_name="creatiedatum",
+        lookup_expr="lte",
+    )
+    auteur = filters.CharFilter(
+        help_text=mark_experimental(
+            "The person or organisation that created this object."
+        ),
+        lookup_expr="icontains",
+    )
+    beschrijving = filters.CharFilter(
+        help_text=mark_experimental("The description of the Information Object."),
+        lookup_expr="icontains",
+    )
+    locked = filters.BooleanFilter(
+        help_text=mark_experimental(
+            "Indication of the Information Object being locked or not."
+        ),
+        method="locked_filter",
+    )
+    titel = filters.CharFilter(
+        help_text=mark_experimental("Titel of the Information Object."),
+        lookup_expr="icontains",
+    )
+    trefwoorden = CharArrayFilter(
+        help_text=mark_experimental(
+            "Filter on a set of keywords that contain in the Information Objects."
+        ),
+        lookup_expr="overlap",
+    )
+    vertrouwelijkheidaanduiding = filters.ChoiceFilter(
+        help_text=mark_experimental(
+            "The confidentiality indication of this Information object."
+        ),
+        choices=VertrouwelijkheidsAanduiding.choices,
+    )
+
+    zaak = NestedFkOrUrlFieldFilter(
+        help_text=mark_experimental(
+            "URL-referentie to the related ZAAK (in this or another API)."
+        ),
+        queryset=EnkelvoudigInformatieObject.objects.filter(
+            Q(
+                canonical__objectinformatieobject__object_type=ObjectInformatieObjectTypes.zaak
+            )
+        ),
+        field_name="canonical__objectinformatieobject__zaak",
+    )
+
+    ordering = OrderingFilter(
+        help_text=mark_experimental("sort on."),
+        fields=(
+            "auteur",
+            "bestandsomvang",
+            "bestandstype",
+            "creatiedatum",
+            "status",
+            "titel",
+            "vertrouwelijkheidaanduiding",
+        ),
+    )
+
     expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
 
     class Meta:
         model = EnkelvoudigInformatieObject
-        fields = ("identificatie", "bronorganisatie", "trefwoorden")
+        fields = (
+            "creatiedatum__gte",
+            "creatiedatum__lte",
+            "auteur",
+            "beschrijving",
+            "bronorganisatie",
+            "identificatie",
+            "locked",
+            "titel",
+            "trefwoorden",
+            "vertrouwelijkheidaanduiding",
+            "zaak",
+        )
+
+    def locked_filter(self, queryset, name, value):
+        if value:
+            return queryset.exclude(canonical__lock__exact="")
+        return queryset.filter(canonical__lock__exact="")
 
 
 class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
