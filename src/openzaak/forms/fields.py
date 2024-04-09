@@ -16,3 +16,8 @@ class RelativeDeltaField(RelativeDeltaFormField):
         assert "empty_value" not in kwargs, "empty_value may not be provided"
         kwargs["empty_value"] = None
         super().__init__(*args, **kwargs)
+
+    def clean(self, value):
+        self.validate(value)  # must be first to check for empty value
+        value = super().clean(value)
+        return value
