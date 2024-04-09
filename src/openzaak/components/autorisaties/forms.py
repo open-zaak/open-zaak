@@ -438,8 +438,18 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
             send_applicatie_changed_notification(self.applicatie, new_version)
 
     def clean(self):
+        self._validate_authorizations_have_scopes()
         # validate overlap zaaktypen between different auths
         self._validate_overlapping_types()
+
+    def _validate_authorizations_have_scopes(self):
+        for form in self.forms:
+            if form.cleaned_data:
+                if "scopes" not in form.cleaned_data:
+                    raise ValidationError(
+                        _("One or more authorizations are missing scopes."),
+                        code="missing_scopes",
+                    )
 
     def _validate_overlapping_types(self):
         scope_types = {}
