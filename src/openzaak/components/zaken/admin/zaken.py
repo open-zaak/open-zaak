@@ -616,6 +616,7 @@ class ZaakAdmin(
     list_display = (
         "identificatie",
         "registratiedatum",
+        "created_on",
         "startdatum",
         "einddatum",
         "archiefstatus",
@@ -627,6 +628,7 @@ class ZaakAdmin(
         "zaaktype_url",
         "_zaaktype__identificatie",
     )
+    readonly_fields = ("created_on",)
     form = ZaakForm
     date_hierarchy = "registratiedatum"
     list_filter = ("startdatum", "archiefstatus", "vertrouwelijkheidaanduiding")
