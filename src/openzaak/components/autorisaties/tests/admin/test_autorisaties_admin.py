@@ -894,6 +894,37 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             _("Scopes in {component} may not be duplicated.").format(component="ztc"),
         )
 
+    @tag("gh-1594")
+    def test_add_autorisaties_without_scopes(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.ztc,
+            "form-0-scopes": [],
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": [],
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+        self.assertEqual(
+            response.context_data["formset"]._non_form_errors[0],
+            _("One or more authorizations are missing scopes."),
+        )
+        self.assertEqual(
+            response.context_data["formset"][0].errors["scopes"],
+            [_("This field is required.")],
+        )
+        self.assertEqual(
+            response.context_data["formset"][1].errors["scopes"],
+            [_("This field is required.")],
+        )
+
     @tag("gh-1080")
     def test_autorisaties_visible_even_if_only_a_spec_exists_brc(self):
         """
