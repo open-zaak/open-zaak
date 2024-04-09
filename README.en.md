@@ -70,8 +70,6 @@ This repository contains the source code for the APIs. In order to use the APIs,
 
 These APIs have been developed by Maykin Media B.V. on behalf of Amsterdam, Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, SED, Delft and Hoorn under the direction of Dimpact.
 
-OpenZaak is in incubation [codebase stewardship](https://publiccode.net/codebase-stewardship/) with the [Foundation for Public Code](https://publiccode.net).
-
 ## License
 
 Licensed under the [EUPL](LICENSE.md).
