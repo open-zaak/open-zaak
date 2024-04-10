@@ -420,6 +420,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         },
     )
 
+    created_on = models.DateTimeField(_("created on"), auto_now_add=True,)
+
     objects = ZaakQuerySet.as_manager()
 
     _current_status_uuid: Optional[UUID]
