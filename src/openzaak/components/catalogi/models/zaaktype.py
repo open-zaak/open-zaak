@@ -257,7 +257,10 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
     referentieproces_naam = models.CharField(
         _("referentieprocesnaam"),
         max_length=80,
-        help_text=_("De naam van het Referentieproces."),
+        help_text=_(
+            "De naam van het Referentieproces. Zie ook de Procesarchitectuur Referentieprocessen op "
+            "https://www.gemmaonline.nl/index.php/Procesarchitectuur_Referentieprocessen"
+        ),
     )
     referentieproces_link = models.URLField(
         _("referentieproceslink"),
