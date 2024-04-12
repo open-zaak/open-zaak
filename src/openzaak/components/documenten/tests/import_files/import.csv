@@ -1,0 +1,3 @@
+/tmp/foobar.txt,111222333,2019-08-24,document XYZ,organisatie-123,dut,http://testserver/catalogi/api/v1/informatieobjecttypen/2eefe81d-8638-4306-b079-74e4e41f557b
+/tmp/foobar.pdf,111222333,2019-08-24,document YZX,organisatie-123,eng,http://testserver/catalogi/api/v1/informatieobjecttypen/2eefe81d-8638-4306-b079-74e4e41f557b
+/tmp/foobar.docx,111222333,2019-08-24,document ZXY,organisatie-123,dut,http://testserver/catalogi/api/v1/informatieobjecttypen/2eefe81d-8638-4306-b079-74e4e41f557b,d8ebc179-6de7-4400-a0bb-6f9e336d692e,identificatie-123,intern,definitief,application/pdf,foobar.doc,zeer mooi bestand,verschijningsvorm
