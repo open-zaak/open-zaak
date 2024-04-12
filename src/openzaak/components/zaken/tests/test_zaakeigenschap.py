@@ -652,7 +652,7 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         data = {
             "zaak": self.zaak_url,
             "eigenschap": f"http://testserver{reverse(eigenschap)}",
-            "waarde": "qwerty",
+            "waarde": "2020-12-01",
         }
 
         response = self.client.post(self.url, data)
@@ -688,7 +688,7 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         data = {
             "zaak": self.zaak_url,
             "eigenschap": f"http://testserver{reverse(eigenschap)}",
-            "waarde": "qwerty",
+            "waarde": "2020-12-01T15:55:55",
         }
 
         response = self.client.post(self.url, data)

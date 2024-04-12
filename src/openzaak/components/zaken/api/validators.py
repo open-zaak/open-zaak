@@ -574,7 +574,9 @@ def match_eigenschap_specificatie(spec, value: str) -> bool:
 
 class ZaakEigenschapValueValidator:
     code = "waarde-incorrect-format"
-    message = _("The 'waarde' value doesn't match the related eigenschap.specificatie")
+    message = _(
+        "The 'waarde' value doesn't match the related eigenschap.specificatie '{spec}'"
+    )
     requires_context = True
 
     def __call__(self, attrs, serializer):
@@ -594,4 +596,6 @@ class ZaakEigenschapValueValidator:
             return
 
         if not match_eigenschap_specificatie(spec, waarde):
-            raise serializers.ValidationError(self.message, code=self.code)
+            raise serializers.ValidationError(
+                self.message.format(spec=spec), code=self.code
+            )

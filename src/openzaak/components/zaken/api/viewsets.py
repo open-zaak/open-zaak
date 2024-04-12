@@ -772,7 +772,9 @@ class ZaakInformatieObjectViewSet(
             "\n"
             "**Er wordt gevalideerd op**\n"
             "\n"
-            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat."
+            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen "
+            "`eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` "
+            "op `True` staat."
         ),
     ),
     update=extend_schema(
