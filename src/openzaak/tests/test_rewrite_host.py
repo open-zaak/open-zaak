@@ -14,7 +14,7 @@ def test_view(request):
     return HttpResponse(request.get_host())
 
 
-urlpatterns = [path("", test_view)]
+urlpatterns = [path("", test_view), path("zaken/api/v1/zaken", test_view)]
 
 
 @override_settings(ROOT_URLCONF=__name__, OPENZAAK_REWRITE_HOST=True)
@@ -28,14 +28,20 @@ class RewriteHostTests(TestCase):
         self.addCleanup(mocker.stop)
 
     @override_settings(OPENZAAK_DOMAIN="openzaak.example.com", ALLOWED_HOSTS=["*"])
-    def test_overridden_host(self):
+    def test_non_api_view_not_overridden(self):
         response = self.client.get("")
+
+        self.assertEqual(response.content, b"testserver")
+
+    @override_settings(OPENZAAK_DOMAIN="openzaak.example.com", ALLOWED_HOSTS=["*"])
+    def test_overridden_host(self):
+        response = self.client.get("/zaken/api/v1/zaken")
 
         self.assertEqual(response.content, b"openzaak.example.com")
 
     @override_settings(OPENZAAK_DOMAIN="openzaak.example.com:8443", ALLOWED_HOSTS=["*"])
     def test_overridden_host_with_port(self):
-        response = self.client.get("")
+        response = self.client.get("/zaken/api/v1/zaken")
 
         self.assertEqual(response.content, b"openzaak.example.com:8443")
 
@@ -68,7 +74,9 @@ class RewriteHostTests(TestCase):
         System checks check also prevent USE_X_FORWARDED_HOST and OPENZAAK_DOMAIN
         combined usage.
         """
-        response = self.client.get("", HTTP_X_FORWARDED_HOST="upstream.proxy")
+        response = self.client.get(
+            "/zaken/api/v1/zaken", HTTP_X_FORWARDED_HOST="upstream.proxy"
+        )
 
         self.assertEqual(response.content, b"kekw")
 
