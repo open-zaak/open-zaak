@@ -81,6 +81,7 @@ from ..validators import (
     UniekeIdentificatieValidator,
     ZaakArchiefStatusValidator,
     ZaakArchiveIOsArchivedValidator,
+    ZaakEigenschapValueValidator,
 )
 from .betrokkenen import (
     RolMedewerkerSerializer,
@@ -845,6 +846,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
         validators = [
             CorrectZaaktypeValidator("eigenschap"),
             ZaakArchiefStatusValidator(),
+            ZaakEigenschapValueValidator(),
         ]
 
     def validate(self, attrs):

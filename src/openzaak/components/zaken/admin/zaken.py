@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
+from django.utils.translation import gettext_lazy as _
 
 from openzaak.forms.widgets import AuthorityAxisOrderOLWidget
 from openzaak.utils.admin import (
@@ -15,6 +16,7 @@ from openzaak.utils.admin import (
     link_to_related_objects,
 )
 
+from ..api.validators import match_eigenschap_specificatie
 from ..models import (
     KlantContact,
     RelevanteZaakRelatie,
@@ -180,6 +182,22 @@ class ZaakEigenschapForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Je moet een eigenschap opgeven: "
                 "selecteer een eigenschap uit de catalogus of vul een externe URL in."
+            )
+
+        # for now check waarde only for local eigenschap
+        eigenschap = cleaned_data.get("_eigenschap")
+        waarde = cleaned_data.get("waarde")
+
+        if not eigenschap or not waarde:
+            return cleaned_data
+
+        if not match_eigenschap_specificatie(
+            eigenschap.specificatie_van_eigenschap, waarde
+        ):
+            raise forms.ValidationError(
+                _(
+                    "The 'waarde' value doesn't match the related eigenschap.specificatie"
+                )
             )
 
         return cleaned_data

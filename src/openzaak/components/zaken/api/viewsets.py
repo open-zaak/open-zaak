@@ -767,7 +767,15 @@ class ZaakInformatieObjectViewSet(
     ),
     create=extend_schema(
         summary="Maak een ZAAKEIGENSCHAP aan.",
-        description="Maak een ZAAKEIGENSCHAP aan.",
+        description=(
+            "Maak een ZAAKEIGENSCHAP aan.\n"
+            "\n"
+            "**Er wordt gevalideerd op**\n"
+            "\n"
+            "- **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen "
+            "`eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` "
+            "op `True` staat."
+        ),
     ),
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",

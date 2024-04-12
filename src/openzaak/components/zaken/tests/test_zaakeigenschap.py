@@ -17,7 +17,11 @@ from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
-from openzaak.components.catalogi.tests.factories import EigenschapFactory
+from openzaak.components.catalogi.constants import FormaatChoices
+from openzaak.components.catalogi.tests.factories import (
+    EigenschapFactory,
+    ZaakTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_ztc_oas_get
 
 from ..models import ZaakEigenschap
@@ -109,7 +113,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_update(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
@@ -132,7 +138,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_partial_update(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
@@ -155,7 +163,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zaak_eigenschappen_partial_update_without_eigenschap(self):
         zaak = ZaakFactory.create()
         zaakeigenschap = ZaakEigenschapFactory.create(
-            zaak=zaak, waarde="This is a value"
+            zaak=zaak,
+            waarde="This is a value",
+            eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
         zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
@@ -451,3 +461,257 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["code"], "jwt-expired")
+
+
+@override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=True)
+class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
+    """
+    test that `waarde` is validated against `eigenschap.specificatie`
+    """
+
+    heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
+
+    def setUp(self):
+        super().setUp()
+
+        self.url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid})
+        self.zaak_url = f"http://testserver{reverse(self.zaak)}"
+
+    def test_string_valid(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__lengte="10",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_string_incorrect_length(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__lengte="4",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    def test_string_in_enum(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__waardenverzameling=["some", "other"],
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_string_not_in_enum(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__waardenverzameling=["some", "other"],
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    def test_number_valid(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.getal,
+            specificatie_van_eigenschap__lengte="3",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "4",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_number_with_fractional_valid(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.getal,
+            specificatie_van_eigenschap__lengte="3,1",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "14,5",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_number_incorrect_format(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.getal,
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "aaaa",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    def test_number_incorrect_length(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.getal,
+            specificatie_van_eigenschap__lengte="3",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "4444",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    def test_date_valid(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.datum,
+            specificatie_van_eigenschap__lengte="8",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "20201201",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_date_incorrect_format(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.datum,
+            specificatie_van_eigenschap__lengte="8",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "2020-12-01",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    def test_datetime_valid(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.datum_tijd,
+            specificatie_van_eigenschap__lengte="14",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "20201201155555",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_datetime_incorrect_format(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.datum_tijd,
+            specificatie_van_eigenschap__lengte="14",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "2020-12-01T15:55:55",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "waarde-incorrect-format")
+
+    @override_settings(ZAAK_EIGENSCHAP_WAARDE_VALIDATION=False)
+    def test_incorrect_but_env_var_false(self):
+        eigenschap = EigenschapFactory.create(
+            zaaktype=self.zaaktype,
+            specificatie_van_eigenschap__formaat=FormaatChoices.tekst,
+            specificatie_van_eigenschap__lengte="4",
+        )
+        data = {
+            "zaak": self.zaak_url,
+            "eigenschap": f"http://testserver{reverse(eigenschap)}",
+            "waarde": "some text",
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

@@ -150,7 +150,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         specificatie = EigenschapSpecificatieFactory.create(
-            kardinaliteit="1", lengte="1", groep="groep"
+            kardinaliteit="1", lengte="1", groep="groep", formaat=FormaatChoices.datum
         )
         eigenschap = EigenschapFactory.create(
             eigenschapnaam="Beoogd product",
