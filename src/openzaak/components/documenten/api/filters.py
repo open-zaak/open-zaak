@@ -3,10 +3,9 @@
 import logging
 
 from django.conf import settings
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from django_filters import OrderingFilter, rest_framework as filters
+from django_filters import rest_framework as filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.filters import URLModelChoiceFilter
@@ -14,7 +13,7 @@ from vng_api_common.utils import get_help_text
 
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.utils.filters import CharArrayFilter, ExpandFilter
-from openzaak.utils.filterset import FilterSet, NestedFkOrUrlFieldFilter
+from openzaak.utils.filterset import FilterSet, OrderingFilter
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
@@ -34,72 +33,88 @@ from .utils import check_path
 logger = logging.getLogger(__name__)
 
 
+class ZaakFilter(FkOrUrlFieldFilter):
+    def filter(self, qs, value):
+        if not value:
+            return qs
+
+        if not check_path(value, "zaken"):
+            logger.debug(
+                "URL (%s) is not a zaak, filtering to empty result set.", value
+            )
+            return qs.none()
+
+        return super().filter(qs, value)
+
+
 class EnkelvoudigInformatieObjectListFilter(FilterSet):
     creatiedatum__gte = filters.DateFilter(
         help_text=mark_experimental(
-            "The creation date of this information object (greater or equal to the given date)."
+            "De aanmakings datum van dit informatie object (groter of gelijk aan de gegeven datum)."
         ),
         field_name="creatiedatum",
         lookup_expr="gte",
     )
     creatiedatum__lte = filters.DateFilter(
         help_text=mark_experimental(
-            "The creation date of this information object (lesser or equal to the given date)."
+            "De aanmakings datum van dit informatie object (kleiner of gelijk aan de gegeven datum)."
         ),
         field_name="creatiedatum",
         lookup_expr="lte",
     )
     auteur = filters.CharFilter(
         help_text=mark_experimental(
-            "The person or organisation that created this object."
+            "De persoon of organisatie die dit informatie object heeft aangemaakt."
         ),
         lookup_expr="icontains",
     )
     beschrijving = filters.CharFilter(
-        help_text=mark_experimental("The description of the Information Object."),
+        help_text=mark_experimental("De bescrijving van dit informatie object."),
         lookup_expr="icontains",
     )
     locked = filters.BooleanFilter(
         help_text=mark_experimental(
-            "Indication of the Information Object being locked or not."
+            "De indicatie of dit informatie object gelocked is of niet."
         ),
         method="locked_filter",
     )
     titel = filters.CharFilter(
-        help_text=mark_experimental("Titel of the Information Object."),
+        help_text=mark_experimental("De titel van het informatie object."),
         lookup_expr="icontains",
     )
     trefwoorden = CharArrayFilter(
         help_text=mark_experimental(
-            "Filter on a set of keywords that contain in the Information Objects."
+            "Filter op de trefwoorden die eventueel gelinkt zijn aan het informatie object."
         ),
         lookup_expr="overlap",
     )
     vertrouwelijkheidaanduiding = filters.ChoiceFilter(
         help_text=mark_experimental(
-            "The confidentiality indication of this Information object."
+            "De vertrouwelijkheidaanduiding van het informatie object"
         ),
         choices=VertrouwelijkheidsAanduiding.choices,
     )
+    object_type = filters.ChoiceFilter(
+        help_text=mark_experimental("Het type van het gerelateerde OBJECT."),
+        field_name="canonical__objectinformatieobject__object_type",
+        lookup_expr="exact",
+        choices=ObjectInformatieObjectTypes.choices,
+    )
 
-    zaak = NestedFkOrUrlFieldFilter(
+    zaak = ZaakFilter(
         help_text=mark_experimental(
-            "URL-referentie to the related ZAAK (in this or another API)."
+            "URL-referentie naar de gerelateerde ZAAK (in deze of een andere API)."
         ),
-        queryset=EnkelvoudigInformatieObject.objects.filter(
-            Q(
-                canonical__objectinformatieobject__object_type=ObjectInformatieObjectTypes.zaak
-            )
-        ),
+        queryset=EnkelvoudigInformatieObject.objects.all(),
         field_name="canonical__objectinformatieobject__zaak",
     )
 
     ordering = OrderingFilter(
-        help_text=mark_experimental("sort on."),
+        help_text=mark_experimental("Sorteer op."),
         fields=(
             "auteur",
             "bestandsomvang",
-            "bestandstype",
+            "formaat",
             "creatiedatum",
             "status",
             "titel",
@@ -112,13 +127,15 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
     class Meta:
         model = EnkelvoudigInformatieObject
         fields = (
-            "creatiedatum__gte",
-            "creatiedatum__lte",
             "auteur",
             "beschrijving",
             "bronorganisatie",
+            "creatiedatum__gte",
+            "creatiedatum__lte",
             "identificatie",
             "locked",
+            "object_type",
+            "ordering",
             "titel",
             "trefwoorden",
             "vertrouwelijkheidaanduiding",

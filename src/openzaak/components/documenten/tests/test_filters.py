@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -32,6 +35,177 @@ from .factories import (
 class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    def test_createdatum(self):
+        EnkelvoudigInformatieObjectFactory(creatiedatum="2000-01-01")
+        EnkelvoudigInformatieObjectFactory(creatiedatum="2010-01-01")
+        EnkelvoudigInformatieObjectFactory(creatiedatum="2020-01-01")
+
+        with self.subTest("gte"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"creatiedatum__gte": "2010-01-01"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["creatiedatum"], "2010-01-01")
+            self.assertEqual(data["results"][1]["creatiedatum"], "2020-01-01")
+
+        with self.subTest("lte"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"creatiedatum__lte": "2010-01-01"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["creatiedatum"], "2000-01-01")
+            self.assertEqual(data["results"][1]["creatiedatum"], "2010-01-01")
+
+    def test_auteur(self):
+        EnkelvoudigInformatieObjectFactory.create(auteur="Alex")
+        EnkelvoudigInformatieObjectFactory.create(auteur="Bernard")
+        EnkelvoudigInformatieObjectFactory.create(auteur="Bert")
+
+        with self.subTest("exact"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"auteur": "Bernard"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["auteur"], "Bernard")
+
+        with self.subTest("contains"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"auteur": "Ber"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["auteur"], "Bernard")
+            self.assertEqual(data["results"][1]["auteur"], "Bert")
+
+    def test_beschrijving(self):
+        EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="Random Item that won't be retrieved"
+        )
+        EnkelvoudigInformatieObjectFactory.create(beschrijving="Lorem Ipsum")
+        EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        )
+
+        with self.subTest("exact"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {
+                    "beschrijving": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(
+                data["results"][0]["beschrijving"],
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            )
+
+        with self.subTest("contains"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"beschrijving": "Lorem ipsum"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["beschrijving"], "Lorem Ipsum")
+            self.assertEqual(
+                data["results"][1]["beschrijving"],
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            )
+
+    def test_titel(self):
+        EnkelvoudigInformatieObjectFactory.create(titel="A...")
+        EnkelvoudigInformatieObjectFactory.create(titel="Lorem")
+        EnkelvoudigInformatieObjectFactory.create(titel="Lorem Ipsum")
+
+        with self.subTest("exact"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"titel": "Lorem Ipsum"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "Lorem Ipsum")
+
+        with self.subTest("contains"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"titel": "Lorem"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["titel"], "Lorem")
+            self.assertEqual(data["results"][1]["titel"], "Lorem Ipsum")
+
+    def test_trefwoorden(self):
+        EnkelvoudigInformatieObjectFactory.create(titel="a", trefwoorden=["a", "b"])
+        EnkelvoudigInformatieObjectFactory.create(titel="b", trefwoorden=["a", "c"])
+        EnkelvoudigInformatieObjectFactory.create(titel="c", trefwoorden=["a"])
+
+        with self.subTest("one_trefwoord"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"trefwoorden": "b"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "a")
+
+        with self.subTest("multiple_trefwoorden"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"trefwoorden": "b,c"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(data["results"][0]["titel"], "a")
+            self.assertEqual(data["results"][1]["titel"], "b")
+
+    def test_vertrouwelijkheidaanduiding(self):
+        choice_names = VertrouwelijkheidsAanduiding.names
+        for choice in choice_names:
+            EnkelvoudigInformatieObjectFactory.create(
+                vertrouwelijkheidaanduiding=choice
+            )
+
+        for choice in choice_names:
+            with self.subTest(choice):
+                response = self.client.get(
+                    reverse(EnkelvoudigInformatieObject),
+                    {"vertrouwelijkheidaanduiding": choice},
+                )
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                data = response.json()
+                self.assertEqual(data["count"], 1)
+                self.assertEqual(
+                    data["results"][0]["vertrouwelijkheidaanduiding"], choice
+                )
+
+    def test_object_type(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio2 = EnkelvoudigInformatieObjectFactory.create()
+
+        ZaakInformatieObjectFactory.create(informatieobject=eio.canonical)
+        BesluitInformatieObjectFactory.create(informatieobject=eio2.canonical)
+
+        response = self.client.get(
+            reverse(EnkelvoudigInformatieObject), {"objectType": "zaak"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["titel"], eio.titel)
+
     def test_locked_filter(self):
         locked_canonical = EnkelvoudigInformatieObjectCanonicalFactory(lock="locked")
         EnkelvoudigInformatieObjectFactory(canonical=locked_canonical)
@@ -55,11 +229,90 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["count"], 1)
             self.assertEqual(data["results"][0]["locked"], False)
 
-    @override_settings(
-        NOTIFICATIONS_DISABLED=True,
-        ALLOWED_HOSTS=["testserver", "testserver.com"],
-    )
-    def test_zaak_filter(self):
+    def test_ordering_filter(self):
+        first_information_object = EnkelvoudigInformatieObjectFactory.create(
+            auteur="Albert",
+            bestandsomvang=10,
+            formaat="application/json",
+            creatiedatum="2000-01-01",
+            status="definitief",
+            titel="A",
+            vertrouwelijkheidaanduiding="beperkt_openbaar",
+        )
+        second_information_object = EnkelvoudigInformatieObjectFactory.create(
+            auteur="Bernard",
+            bestandsomvang=20,
+            formaat="application/vnd.api+json",
+            creatiedatum="2010-01-01",
+            status="gearchiveerd",
+            titel="B",
+            vertrouwelijkheidaanduiding="confidentieel",
+        )
+        third_information_object = EnkelvoudigInformatieObjectFactory.create(
+            auteur="Calvin",
+            bestandsomvang=30,
+            formaat="application/xml",
+            creatiedatum="2020-01-01",
+            status="in_bewerking",
+            titel="C",
+            vertrouwelijkheidaanduiding="zeer_geheim",
+        )
+
+        order_field_options = [
+            "auteur",
+            "bestandsomvang",
+            "formaat",
+            "creatiedatum",
+            "status",
+            "titel",
+            "vertrouwelijkheidaanduiding",
+        ]
+
+        for order_option in order_field_options:
+            with self.subTest(order_option):
+                # Testing acending order
+                response = self.client.get(
+                    reverse(EnkelvoudigInformatieObject), {"ordering": order_option}
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                data = response.json()["results"]
+                self.assertEqual(
+                    data[0][order_option],
+                    getattr(first_information_object, order_option),
+                )
+                self.assertEqual(
+                    data[1][order_option],
+                    getattr(second_information_object, order_option),
+                )
+                self.assertEqual(
+                    data[2][order_option],
+                    getattr(third_information_object, order_option),
+                )
+
+                # Testing decending order
+                response = self.client.get(
+                    reverse(EnkelvoudigInformatieObject),
+                    {"ordering": f"-{order_option}"},
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                data = response.json()["results"]
+                self.assertEqual(
+                    data[0][order_option],
+                    getattr(third_information_object, order_option),
+                )
+                self.assertEqual(
+                    data[1][order_option],
+                    getattr(second_information_object, order_option),
+                )
+                self.assertEqual(
+                    data[2][order_option],
+                    getattr(first_information_object, order_option),
+                )
+
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_internal_zaak_filter(self):
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
@@ -96,6 +349,29 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
             self.assertEqual(data["count"], 0)
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_external_zaak_filter(self):
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
+        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
+        )
+
+        ZaakInformatieObjectFactory.create_batch(3)
+        response = self.client.get(
+            reverse(EnkelvoudigInformatieObject),
+            {"zaak": zaak},
+            HTTP_HOST="testserver.com",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(data["count"], 1)
 
 
 class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):

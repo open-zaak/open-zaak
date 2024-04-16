@@ -432,29 +432,17 @@ paths:
       summary: Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
       parameters:
       - in: query
-        name: aanmaakdatum__gte
-        schema:
-          type: string
-          format: date
-        description: 'The creation date of this information object (greater or equal
-          to the given date): EXPERIMENTAL.'
-      - in: query
-        name: aanmaakdatum__lte
-        schema:
-          type: string
-          format: date
-        description: 'The creation date of this information object (lesser or equal
-          to the given date): EXPERIMENTAL.'
-      - in: query
         name: auteur
         schema:
           type: string
-        description: 'The person or organisation that created this object: EXPERIMENTAL.'
+        description: 'De persoon of organisatie die dit informatie object heeft aangemaakt.
+          **Warning: this feature is experimental and not part of the API standard**'
       - in: query
         name: beschrijving
         schema:
           type: string
-        description: 'The description of the Information Object: EXPERIMENTAL.'
+        description: 'De bescrijving van dit informatie object. **Warning: this feature
+          is experimental and not part of the API standard**'
       - in: query
         name: bronorganisatie
         schema:
@@ -462,6 +450,22 @@ paths:
         description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
           die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
           in een samenwerkingsketen heeft vastgelegd.
+      - in: query
+        name: creatiedatum__gte
+        schema:
+          type: string
+          format: date
+        description: 'De aanmakings datum van dit informatie object (groter of gelijk
+          aan de gegeven datum). **Warning: this feature is experimental and not part
+          of the API standard**'
+      - in: query
+        name: creatiedatum__lte
+        schema:
+          type: string
+          format: date
+        description: 'De aanmakings datum van dit informatie object (kleiner of gelijk
+          aan de gegeven datum). **Warning: this feature is experimental and not part
+          of the API standard**'
       - in: query
         name: expand
         schema:
@@ -484,7 +488,20 @@ paths:
         name: locked
         schema:
           type: boolean
-        description: 'Indication of the Information Object being locked or not: EXPERIMENTAL.'
+        description: 'De indicatie of dit informatie object gelocked is of niet. **Warning:
+          this feature is experimental and not part of the API standard**'
+      - in: query
+        name: objectType
+        schema:
+          type: string
+          title: Objecttype
+          enum:
+          - besluit
+          - verzoek
+          - zaak
+        description: |+
+          Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
+
       - in: query
         name: ordering
         schema:
@@ -494,20 +511,20 @@ paths:
             enum:
             - -auteur
             - -bestandsomvang
-            - -bestandstype
             - -creatiedatum
+            - -formaat
             - -status
-            - -title
+            - -titel
             - -vertrouwelijkheidaanduiding
             - auteur
             - bestandsomvang
-            - bestandstype
             - creatiedatum
+            - formaat
             - status
-            - title
+            - titel
             - vertrouwelijkheidaanduiding
         description: |+
-          sort on: EXPERIMENTAL.
+          Sorteer op. **Warning: this feature is experimental and not part of the API standard**
 
         explode: false
         style: form
@@ -521,15 +538,17 @@ paths:
         name: titel
         schema:
           type: string
-        description: 'Titel van het Information Object: EXPERIMENTAL.'
+        description: 'De titel van het informatie object. **Warning: this feature
+          is experimental and not part of the API standard**'
       - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: 'Filter on a set of keywords that contain in the Information
-          Objects: EXPERIMENTAL.'
+        description: 'Filter op de trefwoorden die eventueel gelinkt zijn aan het
+          informatie object. **Warning: this feature is experimental and not part
+          of the API standard**'
         explode: false
         style: form
       - in: query
@@ -546,14 +565,14 @@ paths:
           - zaakvertrouwelijk
           - zeer_geheim
         description: |+
-          The confidentiality indication of this Information object: EXPERIMENTAL.
+          De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
 
       - in: query
         name: zaak
         schema:
           type: string
-        description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT (in deze
-          of een andere API): EXPERIMENTAL.'
+        description: 'URL-referentie naar de gerelateerde ZAAK (in deze of een andere
+          API). **Warning: this feature is experimental and not part of the API standard**'
       tags:
       - enkelvoudiginformatieobjecten
       security:
@@ -2338,29 +2357,17 @@ paths:
         description: Content type van de verzoekinhoud.
         required: true
       - in: query
-        name: aanmaakdatum__gte
-        schema:
-          type: string
-          format: date
-        description: 'The creation date of this information object (greater or equal
-          to the given date): EXPERIMENTAL.'
-      - in: query
-        name: aanmaakdatum__lte
-        schema:
-          type: string
-          format: date
-        description: 'The creation date of this information object (lesser or equal
-          to the given date): EXPERIMENTAL.'
-      - in: query
         name: auteur
         schema:
           type: string
-        description: 'The person or organisation that created this object: EXPERIMENTAL.'
+        description: 'De persoon of organisatie die dit informatie object heeft aangemaakt.
+          **Warning: this feature is experimental and not part of the API standard**'
       - in: query
         name: beschrijving
         schema:
           type: string
-        description: 'The description of the Information Object: EXPERIMENTAL.'
+        description: 'De bescrijving van dit informatie object. **Warning: this feature
+          is experimental and not part of the API standard**'
       - in: query
         name: bronorganisatie
         schema:
@@ -2368,6 +2375,22 @@ paths:
         description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
           die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
           in een samenwerkingsketen heeft vastgelegd.
+      - in: query
+        name: creatiedatum__gte
+        schema:
+          type: string
+          format: date
+        description: 'De aanmakings datum van dit informatie object (groter of gelijk
+          aan de gegeven datum). **Warning: this feature is experimental and not part
+          of the API standard**'
+      - in: query
+        name: creatiedatum__lte
+        schema:
+          type: string
+          format: date
+        description: 'De aanmakings datum van dit informatie object (kleiner of gelijk
+          aan de gegeven datum). **Warning: this feature is experimental and not part
+          of the API standard**'
       - in: query
         name: expand
         schema:
@@ -2390,7 +2413,20 @@ paths:
         name: locked
         schema:
           type: boolean
-        description: 'Indication of the Information Object being locked or not: EXPERIMENTAL.'
+        description: 'De indicatie of dit informatie object gelocked is of niet. **Warning:
+          this feature is experimental and not part of the API standard**'
+      - in: query
+        name: objectType
+        schema:
+          type: string
+          title: Objecttype
+          enum:
+          - besluit
+          - verzoek
+          - zaak
+        description: |+
+          Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
+
       - in: query
         name: ordering
         schema:
@@ -2400,20 +2436,20 @@ paths:
             enum:
             - -auteur
             - -bestandsomvang
-            - -bestandstype
             - -creatiedatum
+            - -formaat
             - -status
-            - -title
+            - -titel
             - -vertrouwelijkheidaanduiding
             - auteur
             - bestandsomvang
-            - bestandstype
             - creatiedatum
+            - formaat
             - status
-            - title
+            - titel
             - vertrouwelijkheidaanduiding
         description: |+
-          sort on: EXPERIMENTAL.
+          Sorteer op. **Warning: this feature is experimental and not part of the API standard**
 
         explode: false
         style: form
@@ -2427,15 +2463,17 @@ paths:
         name: titel
         schema:
           type: string
-        description: 'Titel van het Information Object: EXPERIMENTAL.'
+        description: 'De titel van het informatie object. **Warning: this feature
+          is experimental and not part of the API standard**'
       - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: 'Filter on a set of keywords that contain in the Information
-          Objects: EXPERIMENTAL.'
+        description: 'Filter op de trefwoorden die eventueel gelinkt zijn aan het
+          informatie object. **Warning: this feature is experimental and not part
+          of the API standard**'
         explode: false
         style: form
       - in: query
@@ -2452,14 +2490,14 @@ paths:
           - zaakvertrouwelijk
           - zeer_geheim
         description: |+
-          The confidentiality indication of this Information object: EXPERIMENTAL.
+          De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
 
       - in: query
         name: zaak
         schema:
           type: string
-        description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT (in deze
-          of een andere API): EXPERIMENTAL.'
+        description: 'URL-referentie naar de gerelateerde ZAAK (in deze of een andere
+          API). **Warning: this feature is experimental and not part of the API standard**'
       tags:
       - enkelvoudiginformatieobjecten
       requestBody:
@@ -2474,45 +2512,84 @@ paths:
                     type: string
                     format: uuid
                   description: Lijst van unieke resource identifiers (UUID4)
-                aanmaakdatum__gte:
-                  type: string
-                  format: date
-                  description: 'The creation date of this information object (greater
-                    or equal to the given date): EXPERIMENTAL.'
-                aanmaakdatum__lte:
-                  type: string
-                  format: date
-                  description: 'The creation date of this information object (lesser
-                    or equal to the given date): EXPERIMENTAL.'
                 auteur:
                   type: string
-                  description: 'The person or organisation that created this object:
-                    EXPERIMENTAL.'
+                  description: 'De persoon of organisatie die dit informatie object
+                    heeft aangemaakt. **Warning: this feature is experimental and
+                    not part of the API standard**'
                 beschrijving:
                   type: string
-                  description: 'The description of the Information Object: EXPERIMENTAL.'
+                  description: 'De bescrijving van dit informatie object. **Warning:
+                    this feature is experimental and not part of the API standard**'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
                     die het informatieobject heeft gecreëerd of heeft ontvangen en
                     als eerste in een samenwerkingsketen heeft vastgelegd.
+                creatiedatum__gte:
+                  type: string
+                  format: date
+                  description: 'De aanmakings datum van dit informatie object (groter
+                    of gelijk aan de gegeven datum). **Warning: this feature is experimental
+                    and not part of the API standard**'
+                creatiedatum__lte:
+                  type: string
+                  format: date
+                  description: 'De aanmakings datum van dit informatie object (kleiner
+                    of gelijk aan de gegeven datum). **Warning: this feature is experimental
+                    and not part of the API standard**'
                 identificatie:
                   type: string
                   description: Een binnen een gegeven context ondubbelzinnige referentie
                     naar het INFORMATIEOBJECT.
                 locked:
                   type: boolean
-                  description: 'Indication of the Information Object being locked
-                    or not: EXPERIMENTAL.'
+                  description: 'De indicatie of dit informatie object gelocked is
+                    of niet. **Warning: this feature is experimental and not part
+                    of the API standard**'
+                objectType:
+                  type: string
+                  title: Objecttype
+                  enum:
+                  - besluit
+                  - verzoek
+                  - zaak
+                  description: |+
+                    Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
+
+                ordering:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - -auteur
+                    - -bestandsomvang
+                    - -creatiedatum
+                    - -formaat
+                    - -status
+                    - -titel
+                    - -vertrouwelijkheidaanduiding
+                    - auteur
+                    - bestandsomvang
+                    - creatiedatum
+                    - formaat
+                    - status
+                    - titel
+                    - vertrouwelijkheidaanduiding
+                  description: |+
+                    Sorteer op. **Warning: this feature is experimental and not part of the API standard**
+
                 titel:
                   type: string
-                  description: 'Titel van het Information Object: EXPERIMENTAL.'
+                  description: 'De titel van het informatie object. **Warning: this
+                    feature is experimental and not part of the API standard**'
                 trefwoorden:
                   type: array
                   items:
                     type: string
-                  description: 'Filter on a set of keywords that contain in the Information
-                    Objects: EXPERIMENTAL.'
+                  description: 'Filter op de trefwoorden die eventueel gelinkt zijn
+                    aan het informatie object. **Warning: this feature is experimental
+                    and not part of the API standard**'
                 vertrouwelijkheidaanduiding:
                   type: string
                   enum:
@@ -2525,34 +2602,13 @@ paths:
                   - zaakvertrouwelijk
                   - zeer_geheim
                   description: |+
-                    The confidentiality indication of this Information object: EXPERIMENTAL.
+                    De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
 
                 zaak:
                   type: string
-                  description: 'URL-referendeactie naar het gerelateerde ZAAK OBJECT
-                    (in deze of een andere API): EXPERIMENTAL.'
-                ordering:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - -auteur
-                    - -bestandsomvang
-                    - -bestandstype
-                    - -creatiedatum
-                    - -status
-                    - -title
-                    - -vertrouwelijkheidaanduiding
-                    - auteur
-                    - bestandsomvang
-                    - bestandstype
-                    - creatiedatum
-                    - status
-                    - title
-                    - vertrouwelijkheidaanduiding
-                  description: |+
-                    sort on: EXPERIMENTAL.
-
+                  description: 'URL-referentie naar de gerelateerde ZAAK (in deze
+                    of een andere API). **Warning: this feature is experimental and
+                    not part of the API standard**'
                 expand:
                   type: array
                   items:
