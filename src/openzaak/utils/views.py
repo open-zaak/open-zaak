@@ -8,11 +8,17 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
-from rest_framework import exceptions, viewsets
+from rest_framework import exceptions, status, viewsets
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zds_client import ClientError
+
+from openzaak.utils.models import Import, ImportStatusChoices, ImportTypeChoices
+from openzaak.utils.serializers import ImportSerializer
 
 
 @requires_csrf_token
@@ -113,3 +119,88 @@ class AuditTrailViewSet(_AuditTrailViewSet):
         return super(viewsets.GenericViewSet, self).initialize_request(
             request, *args, **kwargs
         )
+
+
+# TODO: add permissions
+class ImportCreateview(CreateAPIView):
+    import_type: ImportTypeChoices
+
+    def get_queryset(self):
+        return Import.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        existing_imports = self.get_queryset()
+        active_imports = existing_imports.filter(
+            import_type=self.import_type, status__in=ImportStatusChoices.started_choices
+        )
+
+        if active_imports:
+            raise ValidationError(
+                {
+                    "__all__": [
+                        _(
+                            "Er is een import process gaande. Probeer het later"
+                            " nogmaals."
+                        )
+                    ]
+                },
+                code="existing-import-started",
+            )
+
+        import_instance = Import.objects.create(
+            status=ImportStatusChoices.pending,
+            import_type=self.import_type,
+            # This should be updated when the import metadata file is parsed
+            total=0,
+        )
+
+        return Response(
+            data={
+                "upload_url": import_instance.get_upload_url(request=request),
+                "status_url": import_instance.get_status_url(request=request),
+                "report_url": import_instance.get_report_url(request=request),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+# TODO: add permissions
+class ImportUploadView(CreateAPIView):
+    import_type: ImportTypeChoices
+    lookup_field = "uuid"
+
+    def get_queryset(self):
+        return Import.objects.all()
+
+    # TODO: start celery task which will kickstart the import proces
+    def create(self, request, *args, **kwargs):
+        raise NotImplementedError
+
+
+# TODO: add permissions
+class ImportStatusView(RetrieveAPIView):
+    import_type: ImportTypeChoices
+    serializer_class = ImportSerializer
+    lookup_field = "uuid"
+
+    def get_queryset(self):
+        return Import.objects.filter(
+            import_type=self.import_type, status__in=ImportStatusChoices.visible_choices
+        )
+
+
+# TODO: add permissions
+class ImportReportView(RetrieveAPIView):
+    import_type: ImportTypeChoices
+    lookup_field = "uuid"
+
+    def get_queryset(self):
+        return Import.objects.filter(
+            import_type=self.import_type,
+            status__in=ImportStatusChoices.report_choices,
+            report_file__isnull=False,
+        )
+
+    # TODO: return csv report
+    def retrieve(self, request, *args, **kwargs):
+        raise NotImplementedError

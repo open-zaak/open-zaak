@@ -3,7 +3,9 @@
 from typing import Any
 
 from rest_framework import fields as drf_fields
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import ModelSerializer, Serializer
+
+from openzaak.utils.models import Import
 
 
 class ConvertNoneMixin:
@@ -48,3 +50,14 @@ def get_from_serializer_data_or_instance(
         return None
 
     return serializer_field.get_attribute(instance)
+
+
+class ImportSerializer(ModelSerializer):
+    class Meta:
+        model = Import
+        fields = (
+            "total",
+            "processed",
+            "processed_succesfully",
+            "processed_invalid",
+        )

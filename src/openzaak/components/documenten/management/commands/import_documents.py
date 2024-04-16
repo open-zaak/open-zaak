@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 # TODO: add import report file
 # TODO: implement batch importing files
-# TODO: wrap around a db transaction?
 class Command(BaseCommand):
     help = "Bulk import documents from a given .csv file"
 

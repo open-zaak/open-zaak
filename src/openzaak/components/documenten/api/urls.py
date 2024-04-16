@@ -9,6 +9,10 @@ from ..api.schema import custom_settings
 from .viewsets import (
     BestandsDeelViewSet,
     EnkelvoudigInformatieObjectAuditTrailViewSet,
+    EnkelvoudigInformatieObjectImportReportView,
+    EnkelvoudigInformatieObjectImportStatusView,
+    EnkelvoudigInformatieObjectImportUploadView,
+    EnkelvoudigInformatieObjectImportView,
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
     ObjectInformatieObjectViewSet,
@@ -27,6 +31,24 @@ router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
 
+import_patterns = [
+    path("start", EnkelvoudigInformatieObjectImportView.as_view(), name="start"),
+    path(
+        "<uuid:uuid>/upload",
+        EnkelvoudigInformatieObjectImportUploadView.as_view(),
+        name="upload",
+    ),
+    path(
+        "<uuid:uuid>/status",
+        EnkelvoudigInformatieObjectImportStatusView.as_view(),
+        name="status",
+    ),
+    path(
+        "<uuid:uuid>/report",
+        EnkelvoudigInformatieObjectImportReportView.as_view(),
+        name="report",
+    ),
+]
 
 urlpatterns = [
     re_path(
@@ -51,6 +73,13 @@ urlpatterns = [
                 ),
                 # actual API
                 path("", include(router.urls)),
+                path(
+                    "import/",
+                    include(
+                        (import_patterns, "openzaak.components.documenten"),
+                        namespace="documenten-import",
+                    ),
+                ),
                 # should not be picked up by drf-yasg
                 path("", router.APIRootView.as_view(), name="api-root-documenten"),
                 path("", include("vng_api_common.notifications.api.urls")),

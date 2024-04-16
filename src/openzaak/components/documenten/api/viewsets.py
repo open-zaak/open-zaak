@@ -34,6 +34,7 @@ from openzaak.utils.mixins import (
     ConvertCMISAdapterExceptions,
     ExpandMixin,
 )
+from openzaak.utils.models import ImportTypeChoices
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
@@ -41,7 +42,13 @@ from openzaak.utils.schema import (
     FILE_ERROR_RESPONSES,
     VALIDATION_ERROR_RESPONSES,
 )
-from openzaak.utils.views import AuditTrailViewSet
+from openzaak.utils.views import (
+    AuditTrailViewSet,
+    ImportCreateview,
+    ImportReportView,
+    ImportStatusView,
+    ImportUploadView,
+)
 
 from ..caching import cmis_conditional_retrieve
 from ..models import (
@@ -429,6 +436,22 @@ class EnkelvoudigInformatieObjectViewSet(
         return self.get_search_output(queryset)
 
     _zoek.is_search_action = True
+
+
+class EnkelvoudigInformatieObjectImportView(ImportCreateview):
+    import_type = ImportTypeChoices.documents
+
+
+class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
+    import_type = ImportTypeChoices.documents
+
+
+class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
+    import_type = ImportTypeChoices.documents
+
+
+class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
+    import_type = ImportTypeChoices.documents
 
 
 @extend_schema_view(

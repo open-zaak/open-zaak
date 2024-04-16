@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 
 from vng_api_common.caching.signals import mark_related_instances_for_etag_update
 
-from openzaak.utils.migrations import temp_disconnect_signal
+from openzaak.utils._migrations import temp_disconnect_signal
 
 
 def forwards(apps, schema_editor):
@@ -69,7 +69,11 @@ class Migration(migrations.Migration):
             model_name="zaak",
             name="identificatie_ptr",
             field=models.OneToOneField(
-                help_text="Zaak identification details are tracked in a separate table so numbers can be generated/reserved before the zaak is actually created.",
+                help_text=(
+                    "Zaak identification details are tracked in a separate "
+                    "table so numbers can be generated/reserved before the zaak "
+                    "is actually created.",
+                ),
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 to="zaken.zaakidentificatie",
