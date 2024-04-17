@@ -25,7 +25,7 @@ def clone_object(instance):
 class ImportStatusChoices(models.TextChoices):
     pending = "pending", _("Openstaand")
     active = "active", _("Actief")
-    finished = "success", _("Voltooid")
+    finished = "finished", _("Voltooid")
     error = "error", _("Onderbroken")
 
     @classproperty
