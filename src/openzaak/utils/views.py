@@ -8,6 +8,7 @@ from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
+from django_sendfile import sendfile
 from rest_framework import exceptions, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
@@ -201,6 +202,9 @@ class ImportReportView(RetrieveAPIView):
             report_file__isnull=False,
         )
 
-    # TODO: return csv report
     def retrieve(self, request, *args, **kwargs):
-        raise NotImplementedError
+        instance = self.get_object()
+
+        return sendfile(
+            request, instance.report_file.path, attachment=True, mimetype="text/csv",
+        )
