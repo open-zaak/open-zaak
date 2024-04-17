@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
+from privates.fields import PrivateMediaFileField
+
 from openzaak.utils import build_absolute_url
 
 
@@ -52,14 +54,14 @@ class Import(models.Model):
         verbose_name=_("Type import"), choices=ImportTypeChoices.choices, max_length=30
     )
 
-    import_file = models.FileField(
+    import_file = PrivateMediaFileField(
         verbose_name=_("Import metadata bestand"),
         upload_to="import/import-files/",
         blank=True,
         null=True,
     )
 
-    report_file = models.FileField(
+    report_file = PrivateMediaFileField(
         verbose_name=_("Reportage bestand"),
         upload_to="import/report-files/",
         blank=True,
