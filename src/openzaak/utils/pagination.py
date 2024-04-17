@@ -21,7 +21,6 @@ class OptimizedPaginator(DjangoPaginator):
 
 # class OptimizedPagination(PageNumberPagination):
 #     django_paginator_class = OptimizedPaginator
-#
 
 
 PAGINATION_COUNT_LIMIT = 500

@@ -54,7 +54,13 @@ class BesluitTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -77,7 +83,14 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
@@ -113,7 +126,14 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
@@ -148,7 +168,14 @@ class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
@@ -180,7 +207,14 @@ class RolTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
@@ -214,7 +248,14 @@ class StatusTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
@@ -258,7 +299,13 @@ class ZaakTypeInformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -283,7 +330,14 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     def test_filter_with_invalid_status_query_param(self):
