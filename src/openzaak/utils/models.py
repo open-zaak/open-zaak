@@ -30,7 +30,7 @@ class ImportStatusChoices(models.TextChoices):
 
     @classproperty
     def visible_choices(cls):
-        return {cls.active, cls.finished, cls.error}
+        return {cls.pending, cls.active, cls.finished, cls.error}
 
     @classproperty
     def started_choices(cls):
@@ -70,6 +70,7 @@ class Import(models.Model):
         verbose_name=_("Niet succesvol verwerkt"), default=0
     )
 
+    # TODO: retrieve API version from request if possible
     def get_upload_url(self, request=None):
         relative_url = reverse(
             "documenten-import:upload", kwargs=dict(uuid=self.uuid, version="1")

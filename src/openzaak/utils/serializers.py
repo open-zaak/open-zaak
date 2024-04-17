@@ -3,9 +3,13 @@
 from typing import Any
 
 from rest_framework import fields as drf_fields
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import (
+    ModelSerializer,
+    Serializer,
+    SerializerMethodField,
+)
 
-from openzaak.utils.models import Import
+from openzaak.utils.models import Import, ImportStatusChoices
 
 
 class ConvertNoneMixin:
@@ -53,6 +57,12 @@ def get_from_serializer_data_or_instance(
 
 
 class ImportSerializer(ModelSerializer):
+    status = SerializerMethodField()
+
+    def get_status(self, instance):
+        status = ImportStatusChoices(instance.status)
+        return status.label
+
     class Meta:
         model = Import
         fields = (
@@ -60,4 +70,5 @@ class ImportSerializer(ModelSerializer):
             "processed",
             "processed_succesfully",
             "processed_invalid",
+            "status",
         )
