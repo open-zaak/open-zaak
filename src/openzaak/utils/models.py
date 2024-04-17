@@ -53,11 +53,17 @@ class Import(models.Model):
     )
 
     import_file = models.FileField(
-        verbose_name=_("Import metadata bestand"), blank=True, null=True
+        verbose_name=_("Import metadata bestand"),
+        upload_to="import/import-files/",
+        blank=True,
+        null=True,
     )
 
     report_file = models.FileField(
-        verbose_name=_("Reportage bestand"), blank=True, null=True
+        verbose_name=_("Reportage bestand"),
+        upload_to="import/report-files/",
+        blank=True,
+        null=True,
     )
 
     # statistics
