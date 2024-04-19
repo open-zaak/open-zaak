@@ -432,12 +432,38 @@ paths:
       summary: Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
       parameters:
       - in: query
+        name: auteur
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De persoon of organisatie die dit informatie
+          object heeft aangemaakt (bevat de auteur de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
+        name: beschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De beschrijving van dit informatie object
+          (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
         name: bronorganisatie
         schema:
           type: string
         description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
           die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
           in een samenwerkingsketen heeft vastgelegd.
+      - in: query
+        name: creatiedatum__gte
+        schema:
+          type: string
+          format: date
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (groter of gelijk aan de gegeven datum).'
+      - in: query
+        name: creatiedatum__lte
+        schema:
+          type: string
+          format: date
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (kleiner of gelijk aan de gegeven datum).'
       - in: query
         name: expand
         schema:
@@ -456,6 +482,62 @@ paths:
           type: string
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
+      - in: query
+        name: informatieobjecttype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
+          (in deze of een andere API).'
+      - in: query
+        name: locked
+        schema:
+          type: boolean
+        description: '**EXPERIMENTEEL** De indicatie of dit informatie object gelocked
+          is of niet.'
+      - in: query
+        name: objectinformatieobjecten__object
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde OBJECT
+          (in deze of een andere API).'
+      - in: query
+        name: objectinformatieobjecten__objectType
+        schema:
+          type: string
+          title: Objecttype
+          enum:
+          - besluit
+          - verzoek
+          - zaak
+        description: |+
+          **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
+
+      - in: query
+        name: ordering
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -auteur
+            - -bestandsomvang
+            - -creatiedatum
+            - -formaat
+            - -status
+            - -titel
+            - -vertrouwelijkheidaanduiding
+            - auteur
+            - bestandsomvang
+            - creatiedatum
+            - formaat
+            - status
+            - titel
+            - vertrouwelijkheidaanduiding
+        description: |+
+          **EXPERIMENTEEL** Sorteer op.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -463,14 +545,36 @@ paths:
         schema:
           type: integer
       - in: query
+        name: titel
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De titel van het informatie object (bevat
+          de titel de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Een lijst van trefwoorden gescheiden door comma's.
         explode: false
         style: form
+      - in: query
+        name: vertrouwelijkheidaanduiding
+        schema:
+          type: string
+          enum:
+          - beperkt_openbaar
+          - confidentieel
+          - geheim
+          - intern
+          - openbaar
+          - vertrouwelijk
+          - zaakvertrouwelijk
+          - zeer_geheim
+        description: |+
+          **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
+
       tags:
       - enkelvoudiginformatieobjecten
       security:
@@ -2255,12 +2359,38 @@ paths:
         description: Content type van de verzoekinhoud.
         required: true
       - in: query
+        name: auteur
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De persoon of organisatie die dit informatie
+          object heeft aangemaakt (bevat de auteur de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
+        name: beschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De beschrijving van dit informatie object
+          (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
         name: bronorganisatie
         schema:
           type: string
         description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
           die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
           in een samenwerkingsketen heeft vastgelegd.
+      - in: query
+        name: creatiedatum__gte
+        schema:
+          type: string
+          format: date
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (groter of gelijk aan de gegeven datum).'
+      - in: query
+        name: creatiedatum__lte
+        schema:
+          type: string
+          format: date
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (kleiner of gelijk aan de gegeven datum).'
       - in: query
         name: expand
         schema:
@@ -2279,6 +2409,62 @@ paths:
           type: string
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
+      - in: query
+        name: informatieobjecttype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
+          (in deze of een andere API).'
+      - in: query
+        name: locked
+        schema:
+          type: boolean
+        description: '**EXPERIMENTEEL** De indicatie of dit informatie object gelocked
+          is of niet.'
+      - in: query
+        name: objectinformatieobjecten__object
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde OBJECT
+          (in deze of een andere API).'
+      - in: query
+        name: objectinformatieobjecten__objectType
+        schema:
+          type: string
+          title: Objecttype
+          enum:
+          - besluit
+          - verzoek
+          - zaak
+        description: |+
+          **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
+
+      - in: query
+        name: ordering
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -auteur
+            - -bestandsomvang
+            - -creatiedatum
+            - -formaat
+            - -status
+            - -titel
+            - -vertrouwelijkheidaanduiding
+            - auteur
+            - bestandsomvang
+            - creatiedatum
+            - formaat
+            - status
+            - titel
+            - vertrouwelijkheidaanduiding
+        description: |+
+          **EXPERIMENTEEL** Sorteer op.
+
+        explode: false
+        style: form
       - name: page
         required: false
         in: query
@@ -2286,14 +2472,36 @@ paths:
         schema:
           type: integer
       - in: query
+        name: titel
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De titel van het informatie object (bevat
+          de titel de gegeven waarden (hoofdletterongevoelig)).'
+      - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Een lijst van trefwoorden gescheiden door comma's.
         explode: false
         style: form
+      - in: query
+        name: vertrouwelijkheidaanduiding
+        schema:
+          type: string
+          enum:
+          - beperkt_openbaar
+          - confidentieel
+          - geheim
+          - intern
+          - openbaar
+          - vertrouwelijk
+          - zaakvertrouwelijk
+          - zeer_geheim
+        description: |+
+          **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
+
       tags:
       - enkelvoudiginformatieobjecten
       requestBody:
@@ -2308,20 +2516,101 @@ paths:
                     type: string
                     format: uuid
                   description: Lijst van unieke resource identifiers (UUID4)
-                identificatie:
+                auteur:
                   type: string
-                  description: Een binnen een gegeven context ondubbelzinnige referentie
-                    naar het INFORMATIEOBJECT.
+                  description: '**EXPERIMENTEEL** De persoon of organisatie die dit
+                    informatie object heeft aangemaakt (bevat de auteur de gegeven
+                    waarden (hoofdletterongevoelig)).'
+                beschrijving:
+                  type: string
+                  description: '**EXPERIMENTEEL** De beschrijving van dit informatie
+                    object (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
                     die het informatieobject heeft gecreëerd of heeft ontvangen en
                     als eerste in een samenwerkingsketen heeft vastgelegd.
+                creatiedatum__gte:
+                  type: string
+                  format: date
+                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
+                    object (groter of gelijk aan de gegeven datum).'
+                creatiedatum__lte:
+                  type: string
+                  format: date
+                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
+                    object (kleiner of gelijk aan de gegeven datum).'
+                identificatie:
+                  type: string
+                  description: Een binnen een gegeven context ondubbelzinnige referentie
+                    naar het INFORMATIEOBJECT.
+                informatieobjecttype:
+                  type: string
+                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
+                    informatieobjecttype (in deze of een andere API).'
+                locked:
+                  type: boolean
+                  description: '**EXPERIMENTEEL** De indicatie of dit informatie object
+                    gelocked is of niet.'
+                ordering:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - -auteur
+                    - -bestandsomvang
+                    - -creatiedatum
+                    - -formaat
+                    - -status
+                    - -titel
+                    - -vertrouwelijkheidaanduiding
+                    - auteur
+                    - bestandsomvang
+                    - creatiedatum
+                    - formaat
+                    - status
+                    - titel
+                    - vertrouwelijkheidaanduiding
+                  description: |+
+                    **EXPERIMENTEEL** Sorteer op.
+
+                titel:
+                  type: string
+                  description: '**EXPERIMENTEEL** De titel van het informatie object
+                    (bevat de titel de gegeven waarden (hoofdletterongevoelig)).'
                 trefwoorden:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Een lijst van trefwoorden gescheiden door comma's.
+                vertrouwelijkheidaanduiding:
+                  type: string
+                  enum:
+                  - beperkt_openbaar
+                  - confidentieel
+                  - geheim
+                  - intern
+                  - openbaar
+                  - vertrouwelijk
+                  - zaakvertrouwelijk
+                  - zeer_geheim
+                  description: |+
+                    **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
+
+                objectinformatieobjecten__object:
+                  type: string
+                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
+                    OBJECT (in deze of een andere API).'
+                objectinformatieobjecten__objectType:
+                  type: string
+                  title: Objecttype
+                  enum:
+                  - besluit
+                  - verzoek
+                  - zaak
+                  description: |+
+                    **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
+
                 expand:
                   type: array
                   items:
