@@ -252,7 +252,7 @@ djangorestframework-gis==0.18
     # via -r requirements/base.txt
 djangorestframework-inclusions==1.2.0
     # via -r requirements/base.txt
-drc-cmis==1.8.0
+drc-cmis==1.9.0
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt

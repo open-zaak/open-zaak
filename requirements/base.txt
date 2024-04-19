@@ -195,7 +195,7 @@ djangorestframework-gis==0.18
     # via -r requirements/base.in
 djangorestframework-inclusions==1.2.0
     # via -r requirements/base.in
-drc-cmis==1.8.0
+drc-cmis==1.9.0
     # via -r requirements/base.in
 drf-extra-fields==3.4.0
     # via -r requirements/base.in
