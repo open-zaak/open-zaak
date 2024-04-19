@@ -4,57 +4,6 @@
 
 from django.db import migrations
 
-from zgw_consumers.constants import APITypes, AuthTypes
-
-
-def move_config_to_service(apps, _):
-    NotificationsConfig = apps.get_model("notifications", "NotificationsConfig")
-    APICredential = apps.get_model("vng_api_common", "APICredential")
-    Service = apps.get_model("zgw_consumers", "Service")
-
-    config, _ = NotificationsConfig.objects.get_or_create()
-
-    svc = Service.objects.filter(api_root=config.api_root).first()
-    # already exists, do nothing
-    if svc is not None:
-        return
-
-    credentials = APICredential.objects.filter(api_root=config.api_root).first()
-    Service.objects.create(
-        label=credentials.label if credentials else "Notificaties API",
-        api_type=APITypes.nrc,
-        api_root=config.api_root,
-        oas=f"{config.api_root}schema/openapi.yaml",
-        client_id=credentials.client_id if credentials else "",
-        secret=credentials.secret if credentials else "",
-        user_id=credentials.user_id if credentials else "",
-        user_representation=credentials.user_representation if credentials else "",
-        auth_type=AuthTypes.zgw if credentials else AuthTypes.no_auth,
-    )
-
-
-def move_config_from_service(apps, _):
-    NotificationsConfig = apps.get_model("notifications", "NotificationsConfig")
-    APICredential = apps.get_model("vng_api_common", "APICredential")
-    Service = apps.get_model("zgw_consumers", "Service")
-
-    config, _ = NotificationsConfig.objects.get_or_create()
-
-    svc = Service.objects.filter(api_root=config.api_root).first()
-    if svc is None:
-        return
-
-    qs = APICredential.objects.filter(api_root=svc.api_root)
-    if svc.auth_type == AuthTypes.zgw and not qs.exists():
-        APICredential.objects.create(
-            label=svc.label,
-            api_root=svc.api_root,
-            secret=svc.secret,
-            user_id=svc.user_id,
-            user_representation=svc.user_representation,
-            auth_type=svc.auth_type,
-        )
-
 
 class Migration(migrations.Migration):
 
@@ -65,6 +14,4 @@ class Migration(migrations.Migration):
         ("zgw_consumers", "0009_auto_20200401_0829"),
     ]
 
-    operations = [
-        migrations.RunPython(move_config_to_service, move_config_from_service),
-    ]
+    operations = []
