@@ -33,14 +33,30 @@ from .utils import check_path
 logger = logging.getLogger(__name__)
 
 
-class ZaakFilter(FkOrUrlFieldFilter):
+class ObjectFilter(FkOrUrlFieldFilter):
+    def __init__(self, *args, **kwargs):
+        self.besluit_field_name = kwargs.pop("besluit_field_name")
+        self.zaak_field_name = kwargs.pop("zaak_field_name")
+        self.verzoek_field_name = kwargs.pop("verzoek_field_name")
+
+        super().__init__(*args, **kwargs)
+
     def filter(self, qs, value):
         if not value:
             return qs
 
-        if not check_path(value, "zaken"):
+        if check_path(value, "besluiten"):
+            self.field_name = self.besluit_field_name
+        elif check_path(value, "zaken"):
+            self.field_name = self.zaak_field_name
+        elif check_path(value, "verzoeken"):
+            # `verzoek` is simply a URLField (alias to _object_url)
+            return qs.filter(**{self.verzoek_field_name: value})
+        else:
             logger.debug(
-                "URL (%s) is not a zaak, filtering to empty result set.", value
+                "Could not determine object type for URL %s, "
+                "filtering to empty result set.",
+                value,
             )
             return qs.none()
 
@@ -64,12 +80,16 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
     )
     auteur = filters.CharFilter(
         help_text=mark_experimental(
-            "De persoon of organisatie die dit informatie object heeft aangemaakt."
+            "De persoon of organisatie die dit informatie object heeft aangemaakt "
+            "(bevat de auteur de gegeven waarden (hoofdletterongevoelig))."
         ),
         lookup_expr="icontains",
     )
     beschrijving = filters.CharFilter(
-        help_text=mark_experimental("De bescrijving van dit informatie object."),
+        help_text=mark_experimental(
+            "De beschrijving van dit informatie object "
+            "(bevat de beschrijving de gegeven waarden (hoofdletterongevoelig))."
+        ),
         lookup_expr="icontains",
     )
     locked = filters.BooleanFilter(
@@ -79,34 +99,41 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
         method="locked_filter",
     )
     titel = filters.CharFilter(
-        help_text=mark_experimental("De titel van het informatie object."),
+        help_text=mark_experimental(
+            "De titel van het informatie object "
+            "(bevat de titel de gegeven waarden (hoofdletterongevoelig))."
+        ),
         lookup_expr="icontains",
     )
-    trefwoorden = CharArrayFilter(
-        help_text=mark_experimental(
-            "Filter op de trefwoorden die eventueel gelinkt zijn aan het informatie object."
-        ),
-        lookup_expr="overlap",
-    )
+    trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
     vertrouwelijkheidaanduiding = filters.ChoiceFilter(
         help_text=mark_experimental(
             "De vertrouwelijkheidaanduiding van het informatie object"
         ),
         choices=VertrouwelijkheidsAanduiding.choices,
     )
-    object_type = filters.ChoiceFilter(
+    objectinformatieobjecten__object_type = filters.ChoiceFilter(
         help_text=mark_experimental("Het type van het gerelateerde OBJECT."),
         field_name="canonical__objectinformatieobject__object_type",
         lookup_expr="exact",
         choices=ObjectInformatieObjectTypes.choices,
     )
 
-    zaak = ZaakFilter(
+    objectinformatieobjecten__object = ObjectFilter(
         help_text=mark_experimental(
             "URL-referentie naar de gerelateerde ZAAK (in deze of een andere API)."
         ),
         queryset=EnkelvoudigInformatieObject.objects.all(),
-        field_name="canonical__objectinformatieobject__zaak",
+        besluit_field_name="canonical__objectinformatieobject__besluit",
+        zaak_field_name="canonical__objectinformatieobject__zaak",
+        verzoek_field_name="canonical__objectinformatieobject__verzoek",
+    )
+
+    informatieobjecttype = FkOrUrlFieldFilter(
+        help_text=mark_experimental(
+            "URL-referentie naar de gerelateerde informatieobjecttype (in deze of een andere API)."
+        ),
+        queryset=EnkelvoudigInformatieObject.objects.all(),
     )
 
     ordering = OrderingFilter(
@@ -133,13 +160,14 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
             "creatiedatum__gte",
             "creatiedatum__lte",
             "identificatie",
+            "informatieobjecttype",
             "locked",
-            "object_type",
             "ordering",
             "titel",
             "trefwoorden",
             "vertrouwelijkheidaanduiding",
-            "zaak",
+            "objectinformatieobjecten__object",
+            "objectinformatieobjecten__object_type",
         )
 
     def locked_filter(self, queryset, name, value):
@@ -177,29 +205,6 @@ class GebruiksrechtenDetailFilter(FilterSet):
     expand = ExpandFilter(serializer_class=GebruiksrechtenSerializer)
 
 
-class ObjectFilter(FkOrUrlFieldFilter):
-    def filter(self, qs, value):
-        if not value:
-            return qs
-
-        if check_path(value, "besluiten"):
-            self.field_name = "besluit"
-        elif check_path(value, "zaken"):
-            self.field_name = "zaak"
-        elif check_path(value, "verzoeken"):
-            # `verzoek` is simply a URLField (alias to _object_url)
-            return qs.filter(verzoek=value)
-        else:
-            logger.debug(
-                "Could not determine object type for URL %s, "
-                "filtering to empty result set.",
-                value,
-            )
-            return qs.none()
-
-        return super().filter(qs, value)
-
-
 class ObjectInformatieObjectFilter(FilterSet):
     informatieobject = URLModelChoiceFilter(
         queryset=EnkelvoudigInformatieObjectCanonical.objects.all(),
@@ -213,6 +218,9 @@ class ObjectInformatieObjectFilter(FilterSet):
         help_text=_(
             "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
         ),
+        besluit_field_name="besluit",
+        zaak_field_name="zaak",
+        verzoek_field_name="verzoek",
     )
 
     class Meta:

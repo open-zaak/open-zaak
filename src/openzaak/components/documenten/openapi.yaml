@@ -435,14 +435,14 @@ paths:
         name: auteur
         schema:
           type: string
-        description: 'De persoon of organisatie die dit informatie object heeft aangemaakt.
-          **Warning: this feature is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De persoon of organisatie die dit informatie
+          object heeft aangemaakt (bevat de auteur de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: beschrijving
         schema:
           type: string
-        description: 'De bescrijving van dit informatie object. **Warning: this feature
-          is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De beschrijving van dit informatie object
+          (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: bronorganisatie
         schema:
@@ -455,17 +455,15 @@ paths:
         schema:
           type: string
           format: date
-        description: 'De aanmakings datum van dit informatie object (groter of gelijk
-          aan de gegeven datum). **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (groter of gelijk aan de gegeven datum).'
       - in: query
         name: creatiedatum__lte
         schema:
           type: string
           format: date
-        description: 'De aanmakings datum van dit informatie object (kleiner of gelijk
-          aan de gegeven datum). **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (kleiner of gelijk aan de gegeven datum).'
       - in: query
         name: expand
         schema:
@@ -485,13 +483,25 @@ paths:
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
       - in: query
+        name: informatieobjecttype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
+          (in deze of een andere API).'
+      - in: query
         name: locked
         schema:
           type: boolean
-        description: 'De indicatie of dit informatie object gelocked is of niet. **Warning:
-          this feature is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De indicatie of dit informatie object gelocked
+          is of niet.'
       - in: query
-        name: objectType
+        name: objectinformatieobjecten__object
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde ZAAK (in
+          deze of een andere API).'
+      - in: query
+        name: objectinformatieobjecten__objectType
         schema:
           type: string
           title: Objecttype
@@ -500,7 +510,7 @@ paths:
           - verzoek
           - zaak
         description: |+
-          Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
 
       - in: query
         name: ordering
@@ -524,7 +534,7 @@ paths:
             - titel
             - vertrouwelijkheidaanduiding
         description: |+
-          Sorteer op. **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** Sorteer op.
 
         explode: false
         style: form
@@ -538,17 +548,15 @@ paths:
         name: titel
         schema:
           type: string
-        description: 'De titel van het informatie object. **Warning: this feature
-          is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De titel van het informatie object (bevat
+          de titel de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: 'Filter op de trefwoorden die eventueel gelinkt zijn aan het
-          informatie object. **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: Multiple values may be separated by commas.
         explode: false
         style: form
       - in: query
@@ -565,14 +573,8 @@ paths:
           - zaakvertrouwelijk
           - zeer_geheim
         description: |+
-          De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
-      - in: query
-        name: zaak
-        schema:
-          type: string
-        description: 'URL-referentie naar de gerelateerde ZAAK (in deze of een andere
-          API). **Warning: this feature is experimental and not part of the API standard**'
       tags:
       - enkelvoudiginformatieobjecten
       security:
@@ -2360,14 +2362,14 @@ paths:
         name: auteur
         schema:
           type: string
-        description: 'De persoon of organisatie die dit informatie object heeft aangemaakt.
-          **Warning: this feature is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De persoon of organisatie die dit informatie
+          object heeft aangemaakt (bevat de auteur de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: beschrijving
         schema:
           type: string
-        description: 'De bescrijving van dit informatie object. **Warning: this feature
-          is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De beschrijving van dit informatie object
+          (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: bronorganisatie
         schema:
@@ -2380,17 +2382,15 @@ paths:
         schema:
           type: string
           format: date
-        description: 'De aanmakings datum van dit informatie object (groter of gelijk
-          aan de gegeven datum). **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (groter of gelijk aan de gegeven datum).'
       - in: query
         name: creatiedatum__lte
         schema:
           type: string
           format: date
-        description: 'De aanmakings datum van dit informatie object (kleiner of gelijk
-          aan de gegeven datum). **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie object
+          (kleiner of gelijk aan de gegeven datum).'
       - in: query
         name: expand
         schema:
@@ -2410,13 +2410,25 @@ paths:
         description: Een binnen een gegeven context ondubbelzinnige referentie naar
           het INFORMATIEOBJECT.
       - in: query
+        name: informatieobjecttype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde informatieobjecttype
+          (in deze of een andere API).'
+      - in: query
         name: locked
         schema:
           type: boolean
-        description: 'De indicatie of dit informatie object gelocked is of niet. **Warning:
-          this feature is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De indicatie of dit informatie object gelocked
+          is of niet.'
       - in: query
-        name: objectType
+        name: objectinformatieobjecten__object
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde ZAAK (in
+          deze of een andere API).'
+      - in: query
+        name: objectinformatieobjecten__objectType
         schema:
           type: string
           title: Objecttype
@@ -2425,7 +2437,7 @@ paths:
           - verzoek
           - zaak
         description: |+
-          Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
 
       - in: query
         name: ordering
@@ -2449,7 +2461,7 @@ paths:
             - titel
             - vertrouwelijkheidaanduiding
         description: |+
-          Sorteer op. **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** Sorteer op.
 
         explode: false
         style: form
@@ -2463,17 +2475,15 @@ paths:
         name: titel
         schema:
           type: string
-        description: 'De titel van het informatie object. **Warning: this feature
-          is experimental and not part of the API standard**'
+        description: '**EXPERIMENTEEL** De titel van het informatie object (bevat
+          de titel de gegeven waarden (hoofdletterongevoelig)).'
       - in: query
         name: trefwoorden
         schema:
           type: array
           items:
             type: string
-        description: 'Filter op de trefwoorden die eventueel gelinkt zijn aan het
-          informatie object. **Warning: this feature is experimental and not part
-          of the API standard**'
+        description: Multiple values may be separated by commas.
         explode: false
         style: form
       - in: query
@@ -2490,14 +2500,8 @@ paths:
           - zaakvertrouwelijk
           - zeer_geheim
         description: |+
-          De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
+          **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
-      - in: query
-        name: zaak
-        schema:
-          type: string
-        description: 'URL-referentie naar de gerelateerde ZAAK (in deze of een andere
-          API). **Warning: this feature is experimental and not part of the API standard**'
       tags:
       - enkelvoudiginformatieobjecten
       requestBody:
@@ -2514,13 +2518,13 @@ paths:
                   description: Lijst van unieke resource identifiers (UUID4)
                 auteur:
                   type: string
-                  description: 'De persoon of organisatie die dit informatie object
-                    heeft aangemaakt. **Warning: this feature is experimental and
-                    not part of the API standard**'
+                  description: '**EXPERIMENTEEL** De persoon of organisatie die dit
+                    informatie object heeft aangemaakt (bevat de auteur de gegeven
+                    waarden (hoofdletterongevoelig)).'
                 beschrijving:
                   type: string
-                  description: 'De bescrijving van dit informatie object. **Warning:
-                    this feature is experimental and not part of the API standard**'
+                  description: '**EXPERIMENTEEL** De beschrijving van dit informatie
+                    object (bevat de beschrijving de gegeven waarden (hoofdletterongevoelig)).'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
@@ -2529,34 +2533,25 @@ paths:
                 creatiedatum__gte:
                   type: string
                   format: date
-                  description: 'De aanmakings datum van dit informatie object (groter
-                    of gelijk aan de gegeven datum). **Warning: this feature is experimental
-                    and not part of the API standard**'
+                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
+                    object (groter of gelijk aan de gegeven datum).'
                 creatiedatum__lte:
                   type: string
                   format: date
-                  description: 'De aanmakings datum van dit informatie object (kleiner
-                    of gelijk aan de gegeven datum). **Warning: this feature is experimental
-                    and not part of the API standard**'
+                  description: '**EXPERIMENTEEL** De aanmakings datum van dit informatie
+                    object (kleiner of gelijk aan de gegeven datum).'
                 identificatie:
                   type: string
                   description: Een binnen een gegeven context ondubbelzinnige referentie
                     naar het INFORMATIEOBJECT.
+                informatieobjecttype:
+                  type: string
+                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
+                    informatieobjecttype (in deze of een andere API).'
                 locked:
                   type: boolean
-                  description: 'De indicatie of dit informatie object gelocked is
-                    of niet. **Warning: this feature is experimental and not part
-                    of the API standard**'
-                objectType:
-                  type: string
-                  title: Objecttype
-                  enum:
-                  - besluit
-                  - verzoek
-                  - zaak
-                  description: |+
-                    Het type van het gerelateerde OBJECT. **Warning: this feature is experimental and not part of the API standard**
-
+                  description: '**EXPERIMENTEEL** De indicatie of dit informatie object
+                    gelocked is of niet.'
                 ordering:
                   type: array
                   items:
@@ -2577,19 +2572,17 @@ paths:
                     - titel
                     - vertrouwelijkheidaanduiding
                   description: |+
-                    Sorteer op. **Warning: this feature is experimental and not part of the API standard**
+                    **EXPERIMENTEEL** Sorteer op.
 
                 titel:
                   type: string
-                  description: 'De titel van het informatie object. **Warning: this
-                    feature is experimental and not part of the API standard**'
+                  description: '**EXPERIMENTEEL** De titel van het informatie object
+                    (bevat de titel de gegeven waarden (hoofdletterongevoelig)).'
                 trefwoorden:
                   type: array
                   items:
                     type: string
-                  description: 'Filter op de trefwoorden die eventueel gelinkt zijn
-                    aan het informatie object. **Warning: this feature is experimental
-                    and not part of the API standard**'
+                  description: Multiple values may be separated by commas.
                 vertrouwelijkheidaanduiding:
                   type: string
                   enum:
@@ -2602,13 +2595,22 @@ paths:
                   - zaakvertrouwelijk
                   - zeer_geheim
                   description: |+
-                    De vertrouwelijkheidaanduiding van het informatie object **Warning: this feature is experimental and not part of the API standard**
+                    **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
-                zaak:
+                objectinformatieobjecten__object:
                   type: string
-                  description: 'URL-referentie naar de gerelateerde ZAAK (in deze
-                    of een andere API). **Warning: this feature is experimental and
-                    not part of the API standard**'
+                  description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
+                    ZAAK (in deze of een andere API).'
+                objectinformatieobjecten__objectType:
+                  type: string
+                  title: Objecttype
+                  enum:
+                  - besluit
+                  - verzoek
+                  - zaak
+                  description: |+
+                    **EXPERIMENTEEL** Het type van het gerelateerde OBJECT.
+
                 expand:
                   type: array
                   items:

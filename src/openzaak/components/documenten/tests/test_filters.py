@@ -14,6 +14,9 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
+from openzaak.components.catalogi.tests.factories.informatie_objecten import (
+    InformatieObjectTypeFactory,
+)
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
     ZaakInformatieObjectFactory,
@@ -147,30 +150,6 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["results"][0]["titel"], "Lorem")
             self.assertEqual(data["results"][1]["titel"], "Lorem Ipsum")
 
-    def test_trefwoorden(self):
-        EnkelvoudigInformatieObjectFactory.create(titel="a", trefwoorden=["a", "b"])
-        EnkelvoudigInformatieObjectFactory.create(titel="b", trefwoorden=["a", "c"])
-        EnkelvoudigInformatieObjectFactory.create(titel="c", trefwoorden=["a"])
-
-        with self.subTest("one_trefwoord"):
-            response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"trefwoorden": "b"},
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            data = response.json()
-            self.assertEqual(data["count"], 1)
-            self.assertEqual(data["results"][0]["titel"], "a")
-
-        with self.subTest("multiple_trefwoorden"):
-            response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"trefwoorden": "b,c"},
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            data = response.json()
-            self.assertEqual(data["count"], 2)
-            self.assertEqual(data["results"][0]["titel"], "a")
-            self.assertEqual(data["results"][1]["titel"], "b")
-
     def test_vertrouwelijkheidaanduiding(self):
         choice_names = VertrouwelijkheidsAanduiding.names
         for choice in choice_names:
@@ -199,7 +178,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         BesluitInformatieObjectFactory.create(informatieobject=eio2.canonical)
 
         response = self.client.get(
-            reverse(EnkelvoudigInformatieObject), {"objectType": "zaak"}
+            reverse(EnkelvoudigInformatieObject),
+            {"objectinformatieobjecten__objectType": "zaak"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -312,66 +292,164 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 )
 
     @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
-    def test_internal_zaak_filter(self):
+    def test_internal_objectinformatieobjecten_object_filter(self):
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
 
+        zaak_eio = EnkelvoudigInformatieObjectFactory.create(titel="zaak")
         zaak = ZaakFactory.create()
-        eio = EnkelvoudigInformatieObjectFactory.create()
-        EnkelvoudigInformatieObjectFactory.create()
-        EnkelvoudigInformatieObjectFactory.create()
-
-        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=eio.canonical)
-        zaak_url = reverse(zaak)
-        ZaakInformatieObjectFactory.create_batch(3)
-        response = self.client.get(
-            reverse(EnkelvoudigInformatieObject),
-            {"zaak": f"http://testserver.com{zaak_url}"},
-            HTTP_HOST="testserver.com",
+        ZaakInformatieObjectFactory.create(
+            zaak=zaak, informatieobject=zaak_eio.canonical
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.json()
-        self.assertEqual(data["count"], 1)
+        zaak_url = reverse(zaak)
 
-        with self.subTest("can_only_filter_on_zaak"):
-            besluit = BesluitFactory.create()
-            BesluitInformatieObjectFactory.create(
-                besluit=besluit, informatieobject=eio.canonical
-            )
-            besluit_url = reverse(besluit)
+        besluit_eio = EnkelvoudigInformatieObjectFactory.create(titel="besluit")
+        besluit = BesluitFactory.create()
+        BesluitInformatieObjectFactory.create(
+            besluit=besluit, informatieobject=besluit_eio.canonical
+        )
+        besluit_url = reverse(besluit)
 
+        EnkelvoudigInformatieObjectFactory.create_batch(3)
+
+        with self.subTest("zaak"):
             response = self.client.get(
                 reverse(EnkelvoudigInformatieObject),
-                {"zaak": f"http://testserver.com{besluit_url}"},
+                {
+                    "objectinformatieobjecten__object": f"http://testserver.com{zaak_url}"
+                },
                 HTTP_HOST="testserver.com",
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
-            self.assertEqual(data["count"], 0)
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "zaak")
+
+        with self.subTest("besluit"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {
+                    "objectinformatieobjecten__object": f"http://testserver.com{besluit_url}"
+                },
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "besluit")
 
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
-    def test_external_zaak_filter(self):
+    def test_external_objectinformatieobjecten_object_filter(self):
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        eio = EnkelvoudigInformatieObjectFactory.create()
+        zaak_eio = EnkelvoudigInformatieObjectFactory.create(titel="zaak")
         ObjectInformatieObject.objects.create(
-            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
+            informatieobject=zaak_eio.canonical, zaak=zaak, object_type="zaak",
         )
 
-        ZaakInformatieObjectFactory.create_batch(3)
+        besluit = "https://externe.catalogus.nl/api/v1/besluiten/bd0788ea-90b6-4c70-8e14-62f327296c12"
+        besluit_eio = EnkelvoudigInformatieObjectFactory.create(titel="besluit")
+        ObjectInformatieObject.objects.create(
+            informatieobject=besluit_eio.canonical,
+            besluit=besluit,
+            object_type="besluit",
+        )
+
+        verzoek = "https://externe.catalogus.nl/api/v1/verzoeken/41460bca-5ffc-4dbe-b205-468bdc5eac6b"
+        verzoek_eio = EnkelvoudigInformatieObjectFactory.create(titel="verzoek")
+        ObjectInformatieObject.objects.create(
+            informatieobject=verzoek_eio.canonical,
+            verzoek=verzoek,
+            object_type="verzoek",
+        )
+
+        EnkelvoudigInformatieObjectFactory.create_batch(3)
+
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"objectinformatieobjecten__object": zaak},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "zaak")
+
+        with self.subTest("besluit"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"objectinformatieobjecten__object": besluit},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "besluit")
+
+        with self.subTest("verzoek"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"objectinformatieobjecten__object": verzoek},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["titel"], "verzoek")
+
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_internal_informatieobjecttype_filter(self):
+        iot = "http://externe.catalogi.com/catalogi/api/v1/informatieobjecttypen/a7a49f9e-3de9-43f0-b2b6-1a59d307f01a"
+        EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iot, titel="one")
+        EnkelvoudigInformatieObjectFactory.create(titel="two")
+        EnkelvoudigInformatieObjectFactory.create(titel="three")
+        EnkelvoudigInformatieObjectFactory.create(titel="four")
+
         response = self.client.get(
             reverse(EnkelvoudigInformatieObject),
-            {"zaak": zaak},
+            {"informatieobjecttype": iot},
             HTTP_HOST="testserver.com",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["titel"], "one")
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_external_informatieobjecttype_filter(self):
+        iot1 = InformatieObjectTypeFactory.create()
+        iot2, iot3, iot4 = InformatieObjectTypeFactory.create_batch(3)
+        iot1_url = f"http://testserver.com{iot1.get_absolute_api_url()}"
+
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iot1, titel="one"
+        )
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iot2, titel="two"
+        )
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iot3, titel="three"
+        )
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iot4, titel="four"
+        )
+
+        response = self.client.get(
+            reverse(EnkelvoudigInformatieObject),
+            {"informatieobjecttype": iot1_url},
+            HTTP_HOST="testserver.com",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["titel"], "one")
 
 
 class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
@@ -425,3 +503,101 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(response.data, [])
+
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_internal_object_filter(self):
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
+        zaak_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        zaak = ZaakFactory.create()
+        ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=zaak_eioc)
+        zaak_url = reverse(zaak)
+
+        besluit_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        besluit = BesluitFactory.create()
+        BesluitInformatieObjectFactory.create(
+            besluit=besluit, informatieobject=besluit_eioc
+        )
+        besluit_url = reverse(besluit)
+
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": f"http://testserver.com{zaak_url}"},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["objectType"], "zaak")
+
+        with self.subTest("besluit"):
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": f"http://testserver.com{besluit_url}"},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["objectType"], "besluit")
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    def test_external_object_filter(self):
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
+        zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaak_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        ObjectInformatieObject.objects.create(
+            informatieobject=zaak_eioc, zaak=zaak, object_type="zaak"
+        )
+
+        besluit = "https://externe.catalogus.nl/api/v1/besluiten/bd0788ea-90b6-4c70-8e14-62f327296c12"
+        besluit_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        ObjectInformatieObject.objects.create(
+            informatieobject=besluit_eioc, besluit=besluit, object_type="besluit",
+        )
+
+        verzoek = "https://externe.catalogus.nl/api/v1/verzoeken/41460bca-5ffc-4dbe-b205-468bdc5eac6b"
+        verzoek_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        ObjectInformatieObject.objects.create(
+            informatieobject=verzoek_eioc, verzoek=verzoek, object_type="verzoek",
+        )
+
+        with self.subTest("zaak"):
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": zaak},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["objectType"], "zaak")
+
+        with self.subTest("besluit"):
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": besluit},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["objectType"], "besluit")
+
+        with self.subTest("verzoek"):
+            response = self.client.get(
+                reverse(ObjectInformatieObject),
+                {"object": verzoek},
+                HTTP_HOST="testserver.com",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["objectType"], "verzoek")
