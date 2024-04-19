@@ -27,6 +27,7 @@ from zds_client import ClientError
 
 from openzaak.utils.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.utils.serializers import ImportSerializer
+from openzaak.utils.tasks import import_documents
 
 
 @requires_csrf_token
@@ -242,8 +243,11 @@ class ImportUploadView(GenericAPIView):
 
         validate_headers(StringIO(request_data), self.get_import_headers())
 
-        # TODO: validate import metadata
-        # TODO: start celery task which will kickstart the import proces
+        import_instance.status = ImportStatusChoices.active
+        import_instance.save(update_fields=["status"])
+
+        import_documents.delay(import_instance.pk)
+
         return Response(status=status.HTTP_200_OK)
 
 

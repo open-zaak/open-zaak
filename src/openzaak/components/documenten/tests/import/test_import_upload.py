@@ -1,4 +1,5 @@
 from pathlib import Path
+from unittest.mock import patch
 from uuid import uuid4
 
 from django.conf import settings
@@ -23,7 +24,8 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
     # TODO: add more in depth testing (assert updated import instance, EIO instance,
     # saved file contents)
-    def test_valid_upload(self):
+    @patch("openzaak.utils.views.import_documents")
+    def test_valid_upload(self, import_document_task_mock):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
@@ -40,6 +42,12 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.active)
+
+        import_document_task_mock.delay.assert_called_once_with(import_instance.pk)
 
     def test_missing_headers(self):
         import_instance = ImportFactory.create(
@@ -63,6 +71,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(validation_error["code"], "missing-import-headers")
 
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
     def test_no_headers(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -85,6 +97,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(validation_error["code"], "missing-import-headers")
 
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
     def test_empty_csv_data(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -105,6 +121,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "__all__")
 
         self.assertEqual(validation_error["code"], "missing-import-headers")
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_no_csv_file(self):
         import_instance = ImportFactory.create(
@@ -128,6 +148,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(error_data["code"], "parse_error")
 
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
     def test_invalid_content_type(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -146,8 +170,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
-    def test_validation_errors(self):
-        raise NotImplementedError
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_unknown_import(self):
         import_uuid = uuid4()
@@ -177,6 +202,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
     def test_active_import(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -201,6 +230,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "__all__")
 
         self.assertEqual(validation_error["code"], "invalid-status")
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.active)
 
     def test_error_import(self):
         import_instance = ImportFactory.create(
@@ -227,6 +260,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(validation_error["code"], "invalid-status")
 
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.error)
+
     def test_finished_import(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -252,5 +289,6 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(validation_error["code"], "invalid-status")
 
-    def test_database_connection_loss(self):
-        raise NotImplementedError
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.finished)
