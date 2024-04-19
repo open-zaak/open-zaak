@@ -23,6 +23,7 @@ asgiref==3.8.1
     # via
     #   -r requirements/ci.txt
     #   django
+    #   django-cors-headers
 attrs==21.4.0
     # via
     #   -r requirements/ci.txt
@@ -180,7 +181,7 @@ django==4.2.11
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
-django-admin-index==2.0.2
+django-admin-index==3.1.1
     # via -r requirements/ci.txt
 django-appconf==1.0.5
     # via
@@ -190,7 +191,7 @@ django-axes==5.31.0
     # via -r requirements/ci.txt
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/ci.txt
-django-cors-headers==3.11.0
+django-cors-headers==4.3.1
     # via -r requirements/ci.txt
 django-db-logger==0.1.12
     # via -r requirements/ci.txt
