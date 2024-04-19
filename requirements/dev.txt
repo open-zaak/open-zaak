@@ -19,7 +19,7 @@ appdirs==1.4.4
     #   -r requirements/ci.txt
     #   black
     #   requests-cache
-asgiref==3.5.0
+asgiref==3.8.1
     # via
     #   -r requirements/ci.txt
     #   django
@@ -142,7 +142,7 @@ deprecated==1.2.13
     #   redis
 dictdiffer==0.9.0
     # via -r requirements/ci.txt
-django==3.2.23
+django==4.2.11
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
@@ -539,7 +539,6 @@ pytz==2022.6
     #   -r requirements/ci.txt
     #   babel
     #   celery
-    #   django
     #   django-silk
     #   flower
 pyyaml==6.0
@@ -676,6 +675,10 @@ typed-ast==1.5.2
     # via
     #   -r requirements/ci.txt
     #   black
+typing-extensions==4.11.0
+    # via
+    #   -r requirements/ci.txt
+    #   asgiref
 uritemplate==4.1.1
     # via
     #   -r requirements/ci.txt
