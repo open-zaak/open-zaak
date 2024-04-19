@@ -445,6 +445,32 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
 
+    import_headers = [
+        "identificatie",
+        "bronorganisatie",
+        "creatiedatum",
+        "titel",
+        "vertrouwelijkheidaanduiding",
+        "auteur",
+        "status",
+        "formaat",
+        "taal",
+        "bestandsnaam",
+        "bestandsomvang",
+        "bestandspad",
+        "beschrijving",
+        "indicatieGebruiksrecht",
+        "verschijningsvorm",
+        "ondertekening.soort",
+        "ondertekening.datum",
+        "integriteit.algoritme",
+        "integriteit.waarde",
+        "integriteit.datum",
+        "informatieobjecttype",
+        "zaakId",
+        "trefwoorden",
+    ]
+
 
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents

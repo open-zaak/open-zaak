@@ -1,17 +1,24 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import csv
+from io import StringIO
+
 from django import http
 from django.apps import apps
+from django.conf import settings
 from django.template import TemplateDoesNotExist, loader
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+from django.utils.encoding import force_str
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
 from django_sendfile import sendfile
 from rest_framework import exceptions, status, viewsets
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveAPIView
+from rest_framework.parsers import BaseParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
@@ -165,17 +172,79 @@ class ImportCreateview(CreateAPIView):
         )
 
 
+class CSVParser(BaseParser):
+    media_type = "text/csv"
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        parser_context = parser_context or {}
+        encoding = parser_context.get("encoding", settings.DEFAULT_CHARSET)
+
+        try:
+            raw_data = stream.read()
+            data = raw_data.decode(encoding)
+            csv_reader = csv.reader(data)
+            len([row for row in csv_reader])
+        except (ValueError, csv.Error) as e:
+            raise ParseError(_("Unable to parse CSV file: %s") % force_str(e))
+
+        return data
+
+
+def validate_headers(import_data: StringIO, expected_headers: list[str]) -> None:
+    csv_reader = csv.reader(import_data, delimiter=",")
+
+    headers = next(csv_reader, [])
+    missing_headers = [
+        expected_header
+        for expected_header in expected_headers
+        if expected_header not in headers
+    ]
+
+    if missing_headers:
+        error_message = _(
+            "The following headers were not found in the CSV file: %s"
+        ) % ",".join(missing_headers)
+
+        raise ValidationError(
+            {"__all__": [error_message]}, code="missing-import-headers"
+        )
+
+
 # TODO: add permissions
-class ImportUploadView(CreateAPIView):
+class ImportUploadView(GenericAPIView):
+    lookup_field: str = "uuid"
+    parser_classes = (CSVParser,)
+
     import_type: ImportTypeChoices
-    lookup_field = "uuid"
+    import_headers: list[str] = []
 
     def get_queryset(self):
-        return Import.objects.all()
+        return Import.objects.filter(import_type=self.import_type)
 
-    # TODO: start celery task which will kickstart the import proces
-    def create(self, request, *args, **kwargs):
-        raise NotImplementedError
+    def get_import_headers(self) -> list[str]:
+        return self.import_headers
+
+    def post(self, request, *args, **kwargs):
+        import_instance = self.get_object()
+
+        if import_instance.status != ImportStatusChoices.pending:
+            import_status = ImportStatusChoices(import_instance.status)
+            error_message = (
+                _(
+                    "Starting an import process is not possible due to the current "
+                    "status of the import: %s"
+                )
+                % import_status.label
+            )
+            raise ValidationError({"__all__": [error_message]}, code="invalid-status")
+
+        request_data = request.data or ""
+
+        validate_headers(StringIO(request_data), self.get_import_headers())
+
+        # TODO: validate import metadata
+        # TODO: start celery task which will kickstart the import proces
+        return Response(status=status.HTTP_200_OK)
 
 
 # TODO: add permissions
