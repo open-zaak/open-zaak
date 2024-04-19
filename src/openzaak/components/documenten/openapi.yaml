@@ -498,8 +498,8 @@ paths:
         name: objectinformatieobjecten__object
         schema:
           type: string
-        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde ZAAK (in
-          deze of een andere API).'
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde OBJECT
+          (in deze of een andere API).'
       - in: query
         name: objectinformatieobjecten__objectType
         schema:
@@ -556,7 +556,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Een lijst van trefwoorden gescheiden door comma's.
         explode: false
         style: form
       - in: query
@@ -2425,8 +2425,8 @@ paths:
         name: objectinformatieobjecten__object
         schema:
           type: string
-        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde ZAAK (in
-          deze of een andere API).'
+        description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde OBJECT
+          (in deze of een andere API).'
       - in: query
         name: objectinformatieobjecten__objectType
         schema:
@@ -2483,7 +2483,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Een lijst van trefwoorden gescheiden door comma's.
         explode: false
         style: form
       - in: query
@@ -2582,7 +2582,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Een lijst van trefwoorden gescheiden door comma's.
                 vertrouwelijkheidaanduiding:
                   type: string
                   enum:
@@ -2600,7 +2600,7 @@ paths:
                 objectinformatieobjecten__object:
                   type: string
                   description: '**EXPERIMENTEEL** URL-referentie naar de gerelateerde
-                    ZAAK (in deze of een andere API).'
+                    OBJECT (in deze of een andere API).'
                 objectinformatieobjecten__objectType:
                   type: string
                   title: Objecttype

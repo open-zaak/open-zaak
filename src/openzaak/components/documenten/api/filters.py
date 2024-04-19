@@ -105,7 +105,11 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
         ),
         lookup_expr="icontains",
     )
-    trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
+    trefwoorden = CharArrayFilter(
+        help_text=_("Een lijst van trefwoorden gescheiden door comma's."),
+        field_name="trefwoorden",
+        lookup_expr="contains",
+    )
     vertrouwelijkheidaanduiding = filters.ChoiceFilter(
         help_text=mark_experimental(
             "De vertrouwelijkheidaanduiding van het informatie object"
@@ -121,7 +125,7 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
 
     objectinformatieobjecten__object = ObjectFilter(
         help_text=mark_experimental(
-            "URL-referentie naar de gerelateerde ZAAK (in deze of een andere API)."
+            "URL-referentie naar de gerelateerde OBJECT (in deze of een andere API)."
         ),
         queryset=EnkelvoudigInformatieObject.objects.all(),
         besluit_field_name="canonical__objectinformatieobject__besluit",
