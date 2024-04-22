@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from django.contrib.auth.models import Permission
 from django.test import tag
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import requests_mock
 from django_webtest import WebTest

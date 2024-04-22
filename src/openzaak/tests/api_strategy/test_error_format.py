@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from rest_framework.test import APIRequestFactory, APITestCase
 
