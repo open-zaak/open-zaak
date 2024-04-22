@@ -6,7 +6,7 @@ from typing import Optional
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import (

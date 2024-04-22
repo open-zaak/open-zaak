@@ -13,7 +13,7 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from dateutil.relativedelta import relativedelta
 
@@ -84,7 +84,7 @@ class PublishAdminMixin:
 
         if already_published:
             msg = (
-                ungettext_lazy(
+                ngettext_lazy(
                     "%d object is already published",
                     "%d objects are already published",
                     already_published,
@@ -116,7 +116,7 @@ class PublishAdminMixin:
 
         if published:
             msg = (
-                ungettext_lazy(
+                ngettext_lazy(
                     "%d object has been published successfully",
                     "%d objects have been published successfully",
                     published,

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from django import forms
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView
 
 from django_loose_fk.loaders import BaseLoader

@@ -6,7 +6,7 @@ import zipfile
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning

@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Max, Subquery
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import jq
 import jsonschema

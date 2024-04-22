@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes

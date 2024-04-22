@@ -5,7 +5,7 @@ from collections import defaultdict
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes

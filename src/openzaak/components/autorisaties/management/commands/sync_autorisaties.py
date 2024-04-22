@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.loaders import BaseLoader
 from vng_api_common.utils import get_resource_for_path

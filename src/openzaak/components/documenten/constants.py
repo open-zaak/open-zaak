@@ -3,7 +3,7 @@
 from typing import Dict
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from vng_api_common import constants
 from vng_api_common.choices import TextChoicesWithDescriptions

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 
