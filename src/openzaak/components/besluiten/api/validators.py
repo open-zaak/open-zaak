@@ -25,13 +25,12 @@ class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
 class BesluittypeZaaktypeValidator:
     code = "zaaktype-mismatch"
     message = _("De referentie hoort niet bij het zaaktype van de zaak.")
+    requires_context = True
 
-    def set_context(self, serializer):
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs):
-        besluittype = attrs.get("besluittype") or self.instance.besluittype
-        zaak = attrs.get("zaak") or getattr(self.instance, "zaak", None)
+    def __call__(self, attrs, serializer):
+        instance = getattr(serializer, "instance", None)
+        besluittype = attrs.get("besluittype") or instance.besluittype
+        zaak = attrs.get("zaak") or getattr(instance, "zaak", None)
 
         if not zaak:
             return

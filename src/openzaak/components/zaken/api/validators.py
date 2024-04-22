@@ -43,20 +43,14 @@ class RolOccurenceValidator:
     """
 
     message = _("There are already {num} `{value}` occurences")
+    requires_context = True
 
     def __init__(self, omschrijving_generiek: str, max_amount: int = 1):
         self.omschrijving_generiek = omschrijving_generiek
         self.max_amount = max_amount
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs):
+    def __call__(self, attrs, serializer):
+        instance = getattr(serializer, "instance", None)
         roltype = attrs["roltype"]
 
         attrs["omschrijving"] = roltype.omschrijving
@@ -66,8 +60,8 @@ class RolOccurenceValidator:
             return
 
         is_noop_update = (
-            self.instance
-            and self.instance.omschrijving_generiek == self.omschrijving_generiek
+            instance
+            and instance.omschrijving_generiek == self.omschrijving_generiek
         )
         if is_noop_update:
             return
@@ -101,19 +95,12 @@ class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
 class NotSelfValidator:
     code = "self-forbidden"
     message = _("The '{field_name}' may not be a self-reference")
+    requires_context = True
 
-    def set_context(self, field):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.field_name = field.field_name
-        self.instance = getattr(field.root, "instance", None)
-
-    def __call__(self, obj: models.Model):
-        if self.instance == obj:
-            message = self.message.format(field_name=self.field_name)
+    def __call__(self, obj: models.Model, serializer_field):
+        instance = getattr(serializer_field.root, "instance", None)
+        if instance == obj:
+            message = self.message.format(field_name=serializer_field.field_name)
             raise serializers.ValidationError(message, code=self.code)
 
 

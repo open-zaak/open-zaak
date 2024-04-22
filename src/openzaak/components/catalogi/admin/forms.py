@@ -631,8 +631,9 @@ class ZaakTypenRelatieAdminForm(forms.ModelForm):
         model = ZaakTypenRelatie
 
     def _get_validation_exclusions(self):
-        extra = ["gerelateerd_zaaktype"]
-        return super()._get_validation_exclusions() + extra
+        exclude = super()._get_validation_exclusions()
+        exclude.add("gerelateerd_zaaktype")
+        return exclude
 
     def normalize_data(self, request, obj):
         bits = urlsplit(obj.gerelateerd_zaaktype)

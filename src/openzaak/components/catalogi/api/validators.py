@@ -120,6 +120,7 @@ def get_by_source(obj, path: str):
 class RelationCatalogValidator:
     code = "relations-incorrect-catalogus"
     message = _("The {} has catalogus different from created object")
+    requires_context = True
 
     def __init__(
         self,
@@ -131,18 +132,11 @@ class RelationCatalogValidator:
         self.catalogus_field = catalogus_field
         self.relation_field_catalogus_path = relation_field_catalogus_path
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
         relations = attrs.get(self.relation_field)
         catalogus = get_by_source(attrs, self.catalogus_field) or get_by_source(
-            self.instance, self.catalogus_field
+            instance, self.catalogus_field
         )
 
         if not relations:
@@ -295,18 +289,13 @@ class BrondatumArchiefprocedureValidator:
 class ZaakTypeInformatieObjectTypeCatalogusValidator:
     code = "relations-incorrect-catalogus"
     message = _("The zaaktype has catalogus different from informatieobjecttype")
+    requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs: dict):
-        zaaktype = attrs.get("zaaktype") or self.instance.zaaktype
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
+        zaaktype = attrs.get("zaaktype") or instance.zaaktype
         informatieobjecttype = (
-            attrs.get("informatieobjecttype") or self.instance.informatieobjecttype
+            attrs.get("informatieobjecttype") or instance.informatieobjecttype
         )
 
         if zaaktype.catalogus != informatieobjecttype.catalogus:
@@ -316,19 +305,14 @@ class ZaakTypeInformatieObjectTypeCatalogusValidator:
 class DeelzaaktypeCatalogusValidator:
     code = "relations-incorrect-catalogus"
     message = _("Hoofd- en deelzaaktypen moeten tot dezelfde catalogus behoren")
+    requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        self.instance = serializer.instance
-
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
         default_deelzaaktypen = (
-            self.instance.deelzaaktypen.all() if self.instance else []
+            instance.deelzaaktypen.all() if instance else []
         )
-        default_catalogus = self.instance.catalogus if self.instance else None
+        default_catalogus = instance.catalogus if instance else None
 
         deelzaaktypen = attrs.get("deelzaaktypen") or default_deelzaaktypen
         catalogus = attrs.get("catalogus") or default_catalogus
@@ -401,21 +385,15 @@ class ZaakTypeConceptValidator:
     code = "non-concept-zaaktype"
     requires_context = True
 
-    def set_context(self, serializer):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer, "instance", None)
-
     def __call__(self, attrs, serializer):
         # New in Catalogi 1.2: allow concept update for a specific scope
         if is_force_write(serializer):
             return
 
-        if self.instance:
-            zaaktype = self.instance.zaaktype
+        instance = getattr(serializer, "instance", None)
+
+        if instance:
+            zaaktype = instance.zaaktype
             if not zaaktype.concept:
                 raise ValidationError(self.message, code=self.code)
 

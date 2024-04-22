@@ -13,20 +13,14 @@ class UniqueClientIDValidator:
     message = _(
         "The clientID(s) {client_id} are already used in application(s) {app_id}"
     )
+    requires_context = True
 
-    def set_context(self, serializer_field):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # Determine the existing instance, if this is an update operation.
-        self.instance = getattr(serializer_field.parent, "instance", None)
-
-    def __call__(self, value: List[str]):
+    def __call__(self, value: List[str], serializer_field):
+        instance = getattr(serializer_field.parent, "instance", None)
         qs = Applicatie.objects.all()
 
-        if self.instance:
-            qs = qs.exclude(id=self.instance.id)
+        if instance:
+            qs = qs.exclude(id=instance.id)
 
         existing = qs.filter(client_ids__overlap=value).values_list(
             "uuid", "client_ids"

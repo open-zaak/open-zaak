@@ -31,16 +31,15 @@ class StatusValidator:
     Wrap around openzaak.components.documenten.models.validate_status to output the errors to the
     correct field.
     """
+    requires_context = True
 
-    def set_context(self, serializer):
-        self.instance = getattr(serializer, "instance", None)
-
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
         try:
             validate_status(
                 status=attrs.get("status"),
                 ontvangstdatum=attrs.get("ontvangstdatum"),
-                instance=self.instance,
+                instance=instance,
             )
         except ValidationError as exc:
             raise serializers.ValidationError(exc.error_dict)
