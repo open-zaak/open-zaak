@@ -60,8 +60,7 @@ class RolOccurenceValidator:
             return
 
         is_noop_update = (
-            instance
-            and instance.omschrijving_generiek == self.omschrijving_generiek
+            instance and instance.omschrijving_generiek == self.omschrijving_generiek
         )
         if is_noop_update:
             return

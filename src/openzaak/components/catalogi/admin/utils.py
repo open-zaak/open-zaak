@@ -7,7 +7,7 @@ import zipfile
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError
 from django.utils.html import format_html
-from django.utils.translation import ngettext, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from dateutil.relativedelta import relativedelta
 from rest_framework.test import APIRequestFactory

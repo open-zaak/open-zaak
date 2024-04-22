@@ -309,9 +309,7 @@ class DeelzaaktypeCatalogusValidator:
 
     def __call__(self, attrs: dict, serializer):
         instance = getattr(serializer, "instance", None)
-        default_deelzaaktypen = (
-            instance.deelzaaktypen.all() if instance else []
-        )
+        default_deelzaaktypen = instance.deelzaaktypen.all() if instance else []
         default_catalogus = instance.catalogus if instance else None
 
         deelzaaktypen = attrs.get("deelzaaktypen") or default_deelzaaktypen

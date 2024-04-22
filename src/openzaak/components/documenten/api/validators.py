@@ -31,6 +31,7 @@ class StatusValidator:
     Wrap around openzaak.components.documenten.models.validate_status to output the errors to the
     correct field.
     """
+
     requires_context = True
 
     def __call__(self, attrs: dict, serializer):
