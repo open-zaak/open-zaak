@@ -35,7 +35,7 @@ django-sniplates
 django-better-admin-arrayfield
 
 # API libraries
-djangorestframework~=3.12.0
+djangorestframework~=3.14.0
 djangorestframework-gis
 drf-extra-fields
 django-filter

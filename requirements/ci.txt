@@ -100,12 +100,10 @@ coreapi==2.3.3
     #   -r requirements/base.txt
     #   commonground-api-common
     #   django-loose-fk
-    #   drf-yasg
 coreschema==0.0.4
     # via
     #   -r requirements/base.txt
     #   coreapi
-    #   drf-yasg
 coverage==6.3.2
     # via -r requirements/test-tools.in
 cryptography==41.0.5
@@ -232,7 +230,7 @@ django-solo==2.0.0
     #   zgw-consumers
 django-webtest==1.9.10
     # via -r requirements/test-tools.in
-djangorestframework==3.12.4
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -265,7 +263,7 @@ drf-spectacular==0.26.5
     # via -r requirements/base.txt
 drf-writable-nested==0.6.3
     # via -r requirements/base.txt
-drf-yasg==1.20.0
+drf-yasg==1.21.7
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -443,11 +441,14 @@ pytz==2022.6
     # via
     #   -r requirements/base.txt
     #   celery
+    #   djangorestframework
+    #   drf-yasg
     #   flower
 pyyaml==6.0
     # via
     #   -r requirements/base.txt
     #   drf-spectacular
+    #   drf-yasg
     #   gemma-zds-client
     #   oyaml
 redis==4.1.4
@@ -474,14 +475,6 @@ requests-mock==1.11.0
     #   -r requirements/base.txt
     #   -r requirements/test-tools.in
     #   zgw-consumers
-ruamel-yaml==0.17.21
-    # via
-    #   -r requirements/base.txt
-    #   drf-yasg
-ruamel-yaml-clib==0.2.6
-    # via
-    #   -r requirements/base.txt
-    #   ruamel-yaml
 self-certifi==1.0.0
     # via -r requirements/base.txt
 sentry-sdk==1.34.0
