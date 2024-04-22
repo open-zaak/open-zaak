@@ -185,7 +185,7 @@ django-appconf==1.0.5
     # via
     #   -r requirements/ci.txt
     #   django-log-outgoing-requests
-django-axes==5.31.0
+django-axes[ipware]==6.4.0
     # via -r requirements/ci.txt
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/ci.txt

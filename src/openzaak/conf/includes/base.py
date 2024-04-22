@@ -546,23 +546,15 @@ NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we
 AXES_CACHE = "axes"  # refers to CACHES setting
 AXES_FAILURE_LIMIT = 5  # Default: 3
 AXES_LOCK_OUT_AT_FAILURE = True  # Default: True
-AXES_USE_USER_AGENT = False  # Default: False
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=5)
-# after testing, the REMOTE_ADDR does not appear to be included with nginx (so single
-# reverse proxy) and the ipware detection didn't properly work. On K8s you typically have
-# ingress (load balancer) and then an additional nginx container for private file serving,
-# bringing the total of reverse proxies to 2 - meaning HTTP_X_FORWARDED_FOR basically
-# looks like ``$realIp,$ingressIp``. -> to get to $realIp, there is only 1 extra reverse
-# proxy included.
-AXES_PROXY_COUNT = NUM_PROXIES - 1 if NUM_PROXIES else None
-AXES_ONLY_USER_FAILURES = (
-    False  # Default: False (you might want to block on username rather than IP)
-)
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = (
-    False  # Default: False (you might want to block on username and IP)
-)
+AXES_LOCKOUT_PARAMETERS = [["ip_address", "user_agent", "username"]]
+# By default, Axes obfuscates values for formfields named "password", but the admin
+# interface login formfield name is "auth-password", so we obfuscate that as well
+AXES_SENSITIVE_PARAMETERS = ["password", "auth-password"]  # nosec
+
+AXES_IPWARE_PROXY_COUNT = NUM_PROXIES - 1 if NUM_PROXIES else None
 # The default meta precedence order
-IPWARE_META_PRECEDENCE_ORDER = (
+AXES_IPWARE_META_PRECEDENCE_ORDER = (
     "HTTP_X_FORWARDED_FOR",
     "X_FORWARDED_FOR",  # <client>, <proxy1>, <proxy2>
     "HTTP_CLIENT_IP",

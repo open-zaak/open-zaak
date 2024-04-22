@@ -17,7 +17,7 @@ bleach
 
 # Framework libraries
 django
-django-axes
+django-axes[ipware]
 django-cors-headers
 django-db-logger
 django-extra-views
