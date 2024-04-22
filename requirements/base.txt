@@ -185,7 +185,7 @@ djangorestframework==3.14.0
     #   drf-spectacular
     #   drf-yasg
     #   notifications-api-common
-djangorestframework-camel-case==1.2.0
+djangorestframework-camel-case==1.4.2
     # via
     #   -r requirements/base.in
     #   commonground-api-common

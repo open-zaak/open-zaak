@@ -39,7 +39,7 @@ djangorestframework~=3.14.0
 djangorestframework-gis
 drf-extra-fields
 django-filter
-djangorestframework-camel-case~=1.2.0
+djangorestframework-camel-case
 drf-writable-nested
 commonground-api-common
 notifications-api-common
