@@ -26,7 +26,7 @@ jobs:
     name: Determine changed files
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -76,7 +76,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -115,7 +115,7 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ['10', '11', '12', '13', '14']
+        postgres: ['12', '13', '14']
         postgis: ['2.5', '3.2']
         binding: ['BROWSER', 'WEBSERVICE']
         cmisurlmapping: ['False', 'True']
@@ -129,10 +129,6 @@ jobs:
           - binding: 'BROWSER'
             cmisurlmapping: 'True'
           # do not run tests for all CMIS bindings on all database versions (we only run on postgres 12)
-          - binding: 'WEBSERVICE'
-            postgres: '10'
-          - binding: 'WEBSERVICE'
-            postgres: '11'
           - binding: 'WEBSERVICE'
             postgres: '13'
           - binding: 'WEBSERVICE'
@@ -152,7 +148,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -192,14 +188,14 @@ jobs:
           CMIS_URL_MAPPING_ENABLED: ${{ matrix.cmisurlmapping }}
 
       - name: Publish coverage report
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
 
   docs:
     runs-on: ubuntu-latest
     name: Documentation build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -219,7 +215,7 @@ jobs:
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - id: files
@@ -235,7 +231,7 @@ jobs:
     name: Docker image build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Determine tag/commit hash
         id: vars
         run: |
@@ -298,7 +294,7 @@ jobs:
     if: github.event_name == 'push' && github.repository_owner == 'open-zaak'  # exclude PRs/forks
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download built image
         uses: actions/download-artifact@v3
         with:
