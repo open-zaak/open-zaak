@@ -49,7 +49,7 @@ handling of security issues.
 
 7. During the patch development process, known service providers are contacted to
    inform them of the vulnerability and coordinate the release date and rollout of the
-   fix. Service providers should subscribe to the `release early notice list`_.
+   fix. Service providers should subscribe to the release early notice list.
 
 8. When the fix is tested and release coordination is done, the fix is merged into the
    primary repository. The security advisory and release are published. Service providers
@@ -63,4 +63,3 @@ handling of security issues.
 .. _CVE identifier: https://cve.mitre.org/cve/identifiers/
 .. _mailing list: https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/
 .. _commonground.nl: https://commonground.nl
-.. _release early notice list: https://odoo.publiccode.net/survey/start/086e0627-8bc0-4b65-8aa9-f6872aba89d0
