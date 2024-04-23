@@ -97,14 +97,10 @@ def send_applicatie_changed_notification(
     applicatie: Applicatie, new_version: Optional[Dict[str, Any]] = None
 ):
     from openzaak.utils import build_fake_request
-    from openzaak.utils.middleware import override_request_host
 
     viewset = ApplicatieViewSet()
     viewset.action = "update"
     if new_version is None:
         request = build_fake_request(method="put")
-        # we have to explicitly override the request host (because this is not an API request)
-        # to ensure the notification has the right URLs
-        override_request_host(request)
         new_version = get_applicatie_serializer(applicatie, request).data
     viewset.notify(status_code=200, data=new_version, instance=applicatie)
