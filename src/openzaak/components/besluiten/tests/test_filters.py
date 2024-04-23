@@ -32,7 +32,7 @@ class ListFilterLocalFKTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             url,
             {"besluittype": f"http://openzaak.nl{type1_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

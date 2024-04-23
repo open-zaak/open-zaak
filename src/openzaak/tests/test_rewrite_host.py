@@ -75,7 +75,7 @@ class RewriteHostTests(TestCase):
         combined usage.
         """
         response = self.client.get(
-            "/zaken/api/v1/zaken", HTTP_X_FORWARDED_HOST="upstream.proxy"
+            "/zaken/api/v1/zaken", headers={"x-forwarded-host": "upstream.proxy"}
         )
 
         self.assertEqual(response.content, b"kekw")

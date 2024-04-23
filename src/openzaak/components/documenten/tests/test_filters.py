@@ -319,7 +319,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 {
                     "objectinformatieobjecten__object": f"http://testserver.com{zaak_url}"
                 },
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -332,7 +332,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 {
                     "objectinformatieobjecten__object": f"http://testserver.com{besluit_url}"
                 },
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -374,7 +374,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(EnkelvoudigInformatieObject),
                 {"objectinformatieobjecten__object": zaak},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -385,7 +385,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(EnkelvoudigInformatieObject),
                 {"objectinformatieobjecten__object": besluit},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -396,7 +396,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(EnkelvoudigInformatieObject),
                 {"objectinformatieobjecten__object": verzoek},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -414,7 +414,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             reverse(EnkelvoudigInformatieObject),
             {"informatieobjecttype": iot},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -444,7 +444,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             reverse(EnkelvoudigInformatieObject),
             {"informatieobjecttype": iot1_url},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -526,7 +526,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
                 {"object": f"http://testserver.com{zaak_url}"},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -537,7 +537,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
                 {"object": f"http://testserver.com{besluit_url}"},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -573,7 +573,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
                 {"object": zaak},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -584,7 +584,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
                 {"object": besluit},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -595,7 +595,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             response = self.client.get(
                 reverse(ObjectInformatieObject),
                 {"object": verzoek},
-                HTTP_HOST="testserver.com",
+                headers={"host": "testserver.com"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()

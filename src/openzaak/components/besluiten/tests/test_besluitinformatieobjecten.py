@@ -118,7 +118,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             bio_list_url,
             {"besluit": f"http://openzaak.nl{besluit_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -135,7 +135,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             bio_list_url,
             {"informatieobject": f"http://openzaak.nl{io_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -277,7 +277,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="bio-list"):
             list_response = self.client.get(
-                self.list_url, {"besluit": besluit_url}, HTTP_HOST="openzaak.nl",
+                self.list_url, {"besluit": besluit_url}, headers={"host": "openzaak.nl"}
             )
 
             self.assertEqual(
@@ -293,7 +293,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         besluit_url = f"http://openzaak.nl{reverse(besluit)}"
         data = {"besluit": besluit_url, "informatieobject": "abcd"}
 
-        response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
+        response = self.client.post(
+            self.list_url, data, headers={"host": "openzaak.nl"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -312,7 +314,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         data = {"besluit": besluit_url, "informatieobject": "http://example.com/"}
         m.get("http://example.com", status_code=200, text="<html></html>")
 
-        response = self.client.post(self.list_url, data, HTTP_HOST="openzaak.nl")
+        response = self.client.post(
+            self.list_url, data, headers={"host": "openzaak.nl"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -476,7 +480,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl",
+                headers={"host": "openbesluit.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -518,7 +522,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl",
+                headers={"host": "openbesluit.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -547,7 +551,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl",
+                headers={"host": "openbesluit.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -582,7 +586,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl",
+                headers={"host": "openbesluit.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -611,7 +615,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"besluit": besluit_url, "informatieobject": self.document},
-                HTTP_HOST="openbesluit.nl",
+                headers={"host": "openbesluit.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -662,7 +666,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             )
             bio_url = reverse(bio)
 
-            response = self.client.delete(bio_url, HTTP_HOST="openzaak.nl")
+            response = self.client.delete(bio_url, headers={"host": "openzaak.nl"})
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -696,7 +700,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             )
             bio_url = reverse(bio)
 
-            response = self.client.delete(bio_url, HTTP_HOST="openzaak.nl")
+            response = self.client.delete(bio_url, headers={"host": "openzaak.nl"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

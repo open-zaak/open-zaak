@@ -92,7 +92,7 @@ class SetupConfigurationTests(APITestCase):
 
             response = self.client.get(
                 reverse("applicatie-list", kwargs={"version": 1}),
-                HTTP_AUTHORIZATION=auth.credentials()["Authorization"],
+                headers={"authorization": auth.credentials()["Authorization"]},
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)

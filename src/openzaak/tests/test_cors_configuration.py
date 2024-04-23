@@ -47,9 +47,11 @@ class DefaultCORSConfigurationTests(CorsMixin, APITestCase):
         """
         response = self.client.options(
             "/cors",
-            HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
-            HTTP_ACCESS_CONTROL_REQUEST_HEADERS="origin, x-requested-with",
-            HTTP_ORIGIN="https://evil.com",
+            headers={
+                "access-control-request-method": "POST",
+                "access-control-request-headers": "origin, x-requested-with",
+                "origin": "https://evil.com",
+            },
         )
 
         self.assertNotIn("Access-Control-Allow-Origin", response)
@@ -59,7 +61,7 @@ class DefaultCORSConfigurationTests(CorsMixin, APITestCase):
         user = SuperUserFactory.create(password="secret")
         self.client.force_login(user=user)
 
-        response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
+        response = self.client.get("/cors", headers={"origin": "https://evil.com"})
 
         self.assertNotIn("Access-Control-Allow-Origin", response)
         self.assertNotIn("Access-Control-Allow-Credentials", response)
@@ -81,9 +83,11 @@ class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
         """
         response = self.client.options(
             "/cors",
-            HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
-            HTTP_ACCESS_CONTROL_REQUEST_HEADERS="origin, x-requested-with",
-            HTTP_ORIGIN="https://evil.com",
+            headers={
+                "access-control-request-method": "POST",
+                "access-control-request-headers": "origin, x-requested-with",
+                "origin": "https://evil.com",
+            },
         )
 
         # wildcard "*" prevents browsers from sending credentials - this is good
@@ -92,7 +96,7 @@ class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
         self.assertNotIn("Access-Control-Allow-Credentials", response)
 
     def test_simple_request(self):
-        response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
+        response = self.client.get("/cors", headers={"origin": "https://evil.com"})
 
         # wildcard "*" prevents browsers from sending credentials - this is good
         self.assertNotEqual(response["Access-Control-Allow-Origin"], "https://evil.com")
@@ -103,7 +107,7 @@ class CORSEnabledWithoutCredentialsTests(CorsMixin, APITestCase):
         user = SuperUserFactory.create(password="secret")
         self.client.force_login(user=user)
 
-        response = self.client.get("/cors", HTTP_ORIGIN="https://evil.com",)
+        response = self.client.get("/cors", headers={"origin": "https://evil.com"})
 
         # wildcard "*" prevents browsers from sending credentials - this is good
         self.assertNotEqual(response["Access-Control-Allow-Origin"], "https://evil.com")
@@ -126,9 +130,11 @@ class CORSEnabledWithAuthHeaderTests(CorsMixin, APITestCase):
         """
         response = self.client.options(
             "/cors",
-            HTTP_ACCESS_CONTROL_REQUEST_METHOD="GET",
-            HTTP_ACCESS_CONTROL_REQUEST_HEADERS="origin, x-requested-with, authorization",
-            HTTP_ORIGIN="https://evil.com",
+            headers={
+                "access-control-request-method": "GET",
+                "access-control-request-headers": "origin, x-requested-with, authorization",
+                "origin": "https://evil.com",
+            },
         )
 
         self.assertEqual(response["Access-Control-Allow-Origin"], "*")
@@ -140,8 +146,10 @@ class CORSEnabledWithAuthHeaderTests(CorsMixin, APITestCase):
     def test_credentialed_request(self):
         response = self.client.get(
             "/cors",
-            HTTP_ORIGIN="http://localhost:3000",
-            HTTP_AUTHORIZATION="Bearer foobarbaz",
+            headers={
+                "origin": "http://localhost:3000",
+                "authorization": "Bearer foobarbaz",
+            },
         )
 
         self.assertEqual(response["Access-Control-Allow-Origin"], "*")

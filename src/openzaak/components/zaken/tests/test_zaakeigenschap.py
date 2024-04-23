@@ -228,7 +228,9 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         }
 
         response = self.client.patch(
-            zaakeigenschap_url, data=zaakeigenschap_data, HTTP_HOST="openzaak.nl"
+            zaakeigenschap_url,
+            data=zaakeigenschap_data,
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)

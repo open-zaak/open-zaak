@@ -372,6 +372,6 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
         for key, value in invalid_filters.items():
             with self.subTest(query_param=key, value=value):
                 response = self.client.get(
-                    url, {key: value}, HTTP_ACCEPT_CRS="EPSG:4326"
+                    url, {key: value}, headers={"accept-crs": "EPSG:4326"}
                 )
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

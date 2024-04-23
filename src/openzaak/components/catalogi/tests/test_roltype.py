@@ -311,7 +311,7 @@ class RolTypeFilterAPITests(APITestCase):
         response = self.client.get(
             roltype_list_url,
             {"zaaktype": f"http://openzaak.nl{zaaktype1_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)

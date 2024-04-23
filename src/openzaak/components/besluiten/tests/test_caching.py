@@ -39,7 +39,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(besluit), HTTP_IF_NONE_MATCH=f'"{besluit._etag}"'
+            reverse(besluit), headers={"if-none-match": f'"{besluit._etag}"'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -47,7 +47,9 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_stale(self):
         besluit = BesluitFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(besluit), HTTP_IF_NONE_MATCH='"not-an-md5"',)
+        response = self.client.get(
+            reverse(besluit), headers={"if-none-match": '"not-an-md5"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -77,13 +79,15 @@ class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         bio = BesluitInformatieObjectFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(bio), HTTP_IF_NONE_MATCH=f'"{bio._etag}"')
+        response = self.client.get(
+            reverse(bio), headers={"if-none-match": f'"{bio._etag}"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         bio = BesluitInformatieObjectFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(bio), HTTP_IF_NONE_MATCH='"old"')
+        response = self.client.get(reverse(bio), headers={"if-none-match": '"old"'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

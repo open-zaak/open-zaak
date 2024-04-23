@@ -1067,7 +1067,7 @@ class ResultaatTypeFilterAPITests(APITestCase):
         list_url = reverse("resultaattype-list")
 
         response = self.client.get(
-            list_url, {"zaaktype": zt1_url}, HTTP_HOST="openzaak.nl"
+            list_url, {"zaaktype": zt1_url}, headers={"host": "openzaak.nl"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

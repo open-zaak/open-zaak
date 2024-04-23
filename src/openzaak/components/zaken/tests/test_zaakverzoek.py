@@ -138,7 +138,7 @@ class ZaakVerzoekFilterTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             list_url,
             {"zaak": f"http://testserver.com{zaak_url}"},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
 
         self.assertEqual(response.status_code, 200)

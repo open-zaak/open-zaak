@@ -237,7 +237,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             self.list_url,
             {"informatieobject": eio_detail_url},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -255,7 +255,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             self.list_url,
             {"object": f"http://openzaak.nl{zaak_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -273,7 +273,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             self.list_url,
             {"object": f"http://openzaak.nl{besluit_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -948,7 +948,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             ],
         )
 
-        response = self.client.delete(url, HTTP_HOST="openzaak.nl")
+        response = self.client.delete(url, headers={"host": "openzaak.nl"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "nonFieldErrors")

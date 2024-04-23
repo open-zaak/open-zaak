@@ -10,8 +10,6 @@ from django.http import HttpRequest
 import dateutil.parser
 from furl import furl
 
-default_app_config = "openzaak.utils.apps.UtilsConfig"
-
 
 def parse_isodatetime(val) -> datetime:
     return dateutil.parser.parse(val)

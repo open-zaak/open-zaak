@@ -476,7 +476,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "enkelvoudiginformatieobject_download", uuid=eio.uuid
         )
 
-        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+        response = self.client.get(
+            eio_url, headers={"accept": "application/octet-stream"}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(list(response.streaming_content)[0], b"inhoud1")
@@ -525,7 +527,9 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        response = self.client.get(eio_url, HTTP_ACCEPT="application/octet-stream")
+        response = self.client.get(
+            eio_url, headers={"accept": "application/octet-stream"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

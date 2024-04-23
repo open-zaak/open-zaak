@@ -45,6 +45,7 @@ class CredentialsInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         return CredentialsFormSet
 
+    @admin.display(description="jwt")
     def get_jwt(self, obj):
         if obj.identifier and obj.secret:
             auth = ClientAuth(obj.identifier, obj.secret)
@@ -55,8 +56,6 @@ class CredentialsInline(admin.TabularInline):
                 hint=_("Gebruik het JWT-token nooit direct in een applicatie."),
             )
         return ""
-
-    get_jwt.short_description = "jwt"
 
 
 @admin.register(Applicatie)
@@ -110,12 +109,13 @@ class ApplicatieAdmin(admin.ModelAdmin):
         secrets.delete()
         super().delete_model(request, obj)
 
+    @admin.display(
+        description=_("Ready?"), boolean=True,
+    )
     def ready(self, obj) -> bool:
         return obj.heeft_alle_autorisaties ^ obj.has_authorizations
 
-    ready.short_description = _("Ready?")
-    ready.boolean = True
-
+    @admin.display(description=_("Hints"))
     def hints(self, obj) -> str:
         if self.ready(obj):
             return ""
@@ -133,8 +133,6 @@ class ApplicatieAdmin(admin.ModelAdmin):
             )
 
         return ""
-
-    hints.short_description = _("Hints")
 
 
 @admin.register(AutorisatieSpec)

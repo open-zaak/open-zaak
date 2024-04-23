@@ -282,7 +282,7 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         response = self.client.get(
             self.url,
             {"catalogus": f"http://testserver.com{self.catalogus_detail_url}"},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -336,7 +336,7 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         response = self.client.get(
             self.url,
             {"zaaktype": f"http://testserver.com{reverse(zaaktype)}"},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
         self.assertEqual(response.status_code, 200)
 

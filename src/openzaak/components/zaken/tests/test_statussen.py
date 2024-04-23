@@ -41,7 +41,9 @@ class StatusTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse("zaak-detail", kwargs={"uuid": status1.zaak.uuid})
 
         response = self.client.get(
-            list_url, {"zaak": f"http://openzaak.nl{zaak_url}"}, HTTP_HOST="openzaak.nl"
+            list_url,
+            {"zaak": f"http://openzaak.nl{zaak_url}"},
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
