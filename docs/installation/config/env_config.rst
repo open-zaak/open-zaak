@@ -15,15 +15,14 @@ Required
 --------
 
 * ``DJANGO_SETTINGS_MODULE``: which environment settings to use. Available options:
-  * ``openzaak.conf.production``
-  * ``openzaak.conf.staging``
-  * ``openzaak.conf.docker``
-  * ``openzaak.conf.dev``
-  * ``openzaak.conf.ci``
+    * ``openzaak.conf.production``
+    * ``openzaak.conf.staging``
+    * ``openzaak.conf.docker``
+    * ``openzaak.conf.dev``
+    * ``openzaak.conf.ci``
 
 * ``SECRET_KEY``: secret key that's used for certain cryptographic utilities. You
-  should generate one via
-  [miniwebtool](https://www.miniwebtool.com/django-secret-key-generator/)
+  should generate one via `miniwebtool`_
 
 * ``ALLOWED_HOSTS``: a comma separated (without spaces!) list of domains that
   serve the installation. Used to protect against ``Host`` header attacks.
@@ -43,7 +42,6 @@ Optional
 * ``ENVIRONMENT``: An identifier for the environment, displayed in the admin depending on
   the settings module used and included in the error monitoring (see ``SENTRY_DSN``).
   The default is set according to ``DJANGO_SETTINGS_MODULE``. Good examples values are:
-
   * ``production``
   * ``test``
   * ``ACME public``
@@ -128,8 +126,7 @@ Optional
 
 * ``SENDFILE_BACKEND``: which backend to use for authorization-secured upload
   downloads. Defaults to ``sendfile.backends.nginx``. See
-  [django-sendfile2](https://pypi.org/project/django-sendfile2/) for available
-  backends.
+  `django-sendfile2`_ for available backends.
 
 * ``SENTRY_DSN``: URL of the sentry project to send error reports to. Default
   empty, i.e. -> no monitoring set up. Highly recommended to configure this.
@@ -159,8 +156,8 @@ Optional
 * ``CMIS_ENABLED``: whether to enable the CMIS adapter. Defaults to ``False``.
 
 * ``CMIS_MAPPER_FILE``: name of the file containing the mapping between the Django and Document Management System names
-    for document properties. See the installation section for more details.
-    Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``.
+  for document properties. See the installation section for more details.
+  Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``.
 
 * ``CMIS_URL_MAPPING_ENABLED``: enable the URL shortener when using the CMIS adapter.
   Defaults to ``False``.
@@ -172,12 +169,12 @@ Optional
   ``EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt``.
 
 * ``CURL_CA_BUNDLE``: if this variable is set to an empty string, it disables SSL/TLS certificate
-    verification. Even calls from Open Zaak to other services 
-    such as the [Selectie Lijst](https://selectielijst.openzaak.nl/) will be disabled, so this
-    variable should be used with care to prevent unwanted side-effects.
+  verification. Even calls from Open Zaak to other services
+  such as the `Selectie Lijst`_ will be disabled, so this
+  variable should be used with care to prevent unwanted side-effects.
 
 * ``NOTIFICATIONS_DISABLED``: if this variable is set to ``true``, ``yes`` or ``1``, the notification mechanism will be
-    disabled. Defaults to ``False``.
+  disabled. Defaults to ``False``.
 
 * ``LOOSE_FK_LOCAL_BASE_URLS``: explicitly list the allowed prefixes of local urls.
   Defaults to an empty list. This setting can be used to separate local and external urls, when
@@ -186,7 +183,7 @@ Optional
   Example:
   ``LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/``
 
-* ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEignschap.waarde``
+* ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde``
   property would be validated against the related ``Eigenschap.specificatie``. Defaults to ``False``.
 
 
@@ -211,7 +208,7 @@ variables. The user will only be created if it doesn't exist yet.
 Advanced application server options
 -----------------------------------
 
-Open Zaak uses [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/Options.html) under
+Open Zaak uses `uWSGI`_ under
 the hood, which can be configured with a myriad of options. Most of these can be
 provided as environment variables as well. The following options below are a
 non-exhaustive list of options you may need with Open Zaak.
@@ -250,8 +247,7 @@ Initial configuration
 
 Open Zaak supports ``setup_configuration`` management command, which allows configuration via
 environment variables. 
-All these environment variables are described at :ref:`command line <installation_configuration_cli>`.
-
+All these environment variables are described at :ref:`installation_configuration_cli`.
 
 Specifying the environment variables
 ====================================
@@ -271,10 +267,10 @@ NOT *in* the ``src`` directory).
 
 The syntax is key-value:
 
-```
-SOME_VAR=some_value
-OTHER_VAR="quoted_value"
-```
+.. code-block::
+
+    SOME_VAR=some_value
+    OTHER_VAR="quoted_value"
 
 Provide the envvars via the process manager
 -------------------------------------------
@@ -282,3 +278,9 @@ Provide the envvars via the process manager
 If you use a process manager (such as supervisor/systemd), use their techniques
 to define the envvars. The Open Zaak implementation will pick them up out of
 the box.
+
+
+.. _miniwebtool: https://www.miniwebtool.com/django-secret-key-generator/
+.. _django-sendfile2: https://pypi.org/project/django-sendfile2/
+.. _Selectie Lijst: https://selectielijst.openzaak.nl/
+.. _uWSGI: https://uwsgi-docs.readthedocs.io/en/latest/Options.html
