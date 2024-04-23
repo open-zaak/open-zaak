@@ -78,6 +78,9 @@ class Import(models.Model):
         verbose_name=_("Niet succesvol verwerkt"), default=0
     )
 
+    def __str__(self):
+        return str(self.uuid)
+
     # TODO: retrieve API version from request if possible
     def get_upload_url(self, request=None):
         relative_url = reverse(
