@@ -102,7 +102,9 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
             eio.vertrouwelijkheidaanduiding, VertrouwelijkheidsAanduiding.openbaar
         )
         self.assertEqual(eio.titel, "detailed summary")
-        self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio.uuid).count(), 0
+        )
         self.assertEqual(eio.inhoud.file.read(), b"some file content")
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=1")
         self.assertEqual(data["locked"], False)
@@ -286,13 +288,17 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(eio_new.versie, 2)
         self.assertEqual(eio_new.titel, "another summary")
         self.assertEqual(eio_new.bestandsomvang, 4)
-        self.assertEqual(eio_new.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio_new.uuid).count(), 0
+        )
         self.assertEqual(eio_new.inhoud.read(), b"1234")
 
         self.assertEqual(eio_old.versie, 1)
         self.assertEqual(eio_old.titel, "some titel")
         self.assertEqual(eio_old.bestandsomvang, 4)
-        self.assertEqual(eio_old.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio_old.uuid).count(), 0
+        )
         self.assertEqual(eio_old.inhoud.read(), b"1234")
 
     def test_update_eio_file(self):
@@ -342,7 +348,9 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
             "enkelvoudiginformatieobject_download", uuid=eio_new.uuid
         )
 
-        self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio.uuid).count(), 0
+        )
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
         self.assertEqual(eio_new.inhoud.file.read(), b"some other file content")
 
@@ -384,7 +392,9 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
             .first()
         )
 
-        self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio.uuid).count(), 0
+        )
         self.assertEqual(eio_new.bestandsomvang, None)
         self.assertEqual(data["inhoud"], None)
 
@@ -512,7 +522,9 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
             "enkelvoudiginformatieobject_download", uuid=eio_new.uuid
         )
 
-        self.assertEqual(eio.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=eio.uuid).count(), 0
+        )
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
         self.assertEqual(eio_new.inhoud.file.read(), b"aaaaa")
         self.assertEqual(eio_new.bestandsomvang, 5)
@@ -1051,7 +1063,9 @@ class LargeFileAPITests(JWTAuthMixin, APICMISTestCase):
         )
 
         self.assertEqual(new_version.bestandsomvang, 0)
-        self.assertEqual(self.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid).count(), 0
+        )
         self.assertEqual(data["inhoud"], f"http://testserver{file_url}?versie=2")
 
     def test_update_metadata_set_size_null(self):
@@ -1087,5 +1101,7 @@ class LargeFileAPITests(JWTAuthMixin, APICMISTestCase):
         self.canonical = new_version.canonical
 
         self.assertEqual(new_version.bestandsomvang, None)
-        self.assertEqual(self.canonical.bestandsdelen.count(), 0)
+        self.assertEqual(
+            BestandsDeel.objects.filter(informatieobject_uuid=self.eio.uuid).count(), 0
+        )
         self.assertEqual(data["inhoud"], None)
