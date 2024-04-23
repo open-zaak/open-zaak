@@ -484,7 +484,7 @@ class Adres(models.Model):
     )
 
     identificatie = models.CharField(
-        max_length=100, help_text="De unieke identificatie van het OBJECT"
+        max_length=100, help_text="De unieke identificatie van het OBJECT", blank=True
     )
     wpl_woonplaats_naam = models.CharField(max_length=80)
     gor_openbare_ruimte_naam = models.CharField(

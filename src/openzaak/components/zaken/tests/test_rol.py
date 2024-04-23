@@ -547,6 +547,40 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(rol.contactpersoon_rol_naam, "test name")
         self.assertEqual(rol.contactpersoon_rol_telefoonnummer, "061234567890")
 
+    def test_create_rol_with_empty_aoaIdentificatie(self):
+        url = get_operation_url("rol_create")
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene_type": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "betrokkeneIdentificatie": {
+                "anpIdentificatie": "12345",
+                "verblijfsadres": {
+                    "aoaIdentificatie": "",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test",
+                    "aoaPostcode": "1111",
+                    "aoaHuisnummer": 1,
+                },
+                "subVerblijfBuitenland": {
+                    "lndLandcode": "UK",
+                    "lndLandnaam": "United Kingdom",
+                    "subAdresBuitenland_1": "some uk adres",
+                },
+            },
+        }
+
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        adres = Adres.objects.get()
+        self.assertEqual(adres.identificatie, "")
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
