@@ -33,5 +33,5 @@ class BlockChangeTestCase(TestCase):
         )
 
     def test_bulk_create(self):
-        zio = ZaakInformatieObjectFactory.build()
+        zio = ZaakInformatieObjectFactory.build(with_etag=False)
         self.assertRaises(QueryBlocked, ZaakInformatieObject.objects.bulk_create, [zio])
