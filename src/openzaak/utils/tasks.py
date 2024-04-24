@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass
 from inspect import getfullargspec
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Iterable, Optional
 
 from django.core.exceptions import ValidationError
 
@@ -75,6 +75,9 @@ class DocumentRow:
     informatieobjecttype: str
     zaak_id: str
     trefwoorden: str
+
+    comment: Optional[str] = None
+    succeeded: bool = False
 
     def get_inhoud(self):
         if not self.bestandspad:
@@ -190,23 +193,116 @@ class DocumentRow:
             "opmerking": self.comment,
         }
 
-    def set_import_comment(self, comment: str):
-        self.comment = comment
 
-
-# TODO: ensure one task is running all the time
-# TODO: make this more generic?
-# TODO: split into seperate function (outside of celery task)
-# TODO: wrap around transaction?
-@celery_app.task
-def import_documents(import_pk: int, batch_size=500) -> None:
-    import_instance = Import.objects.get(pk=import_pk)  # noqa
-
+def import_document_row(
+    row: list[str], row_index: int, zaak_uuids: Iterable[str]
+) -> DocumentRow:
     document_args = getfullargspec(DocumentRow.__init__)
     expected_column_count = len(document_args.args[1:])  # ignore the `self` arg
 
     request_factory = APIRequestFactory()
     request = request_factory.get("/")
+
+    # TODO: is this possible with an invalid row count?
+    document_row = DocumentRow(*row[:expected_column_count])
+
+    logger.debug(f"Validating line {row_index}")
+
+    if len(row) < expected_column_count:
+        error_message = (
+            f"Validation failed for line {row_index}: insufficient row count."
+        )
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+
+        return document_row
+
+    eio_serializer = EnkelvoudigInformatieObjectSerializer(
+        data=document_row.as_serializer_data(), context={"request": request}
+    )
+
+    if not eio_serializer.is_valid():
+        error_message = (
+            "A validation error occurred while deserializing a "
+            "EnkelvoudigInformtatieObject on line %(row_index)s: \n"
+            "%(errors)s"
+        ) % dict(row_index=row_index, errors=eio_serializer.errors)
+
+        logger.debug(error_message)
+        document_row.comment = error_message
+
+        return document_row
+
+    try:
+        import_data = document_row.as_import_data()
+    except Exception as e:
+        error_message = f"Failed importing line {row_index}: \n{e}"
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+
+        return document_row
+
+    if document_row.zaak_id and document_row.zaak_id not in zaak_uuids:
+        error_message = f"Unknown ZAAK uuid for line {row_index}"
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+
+        return document_row
+
+    canonical_eio = EnkelvoudigInformatieObjectCanonical.objects.create()
+    eio_data = {**import_data, "canonical": canonical_eio}
+
+    # No many-to-many relations will be saved during the import for
+    # eio's so creating an instance like this should not cause any
+    # problems.
+    eio = EnkelvoudigInformatieObject.objects.create(**eio_data)
+
+    if document_row.zaak_id:
+        try:
+            zaak = Zaak.objects.get(uuid=document_row.zaak_id)
+        except Zaak.DoesNotExist:
+            error_message = f"Unknown ZAAK uuid for line {row_index}"
+
+            logger.warning(error_message)
+            document_row.comment = error_message
+
+            return document_row
+
+        zaak_informatie_object = ZaakInformatieObject(
+            zaak=zaak,
+            informatieobject=canonical_eio,
+            aard_relatie=RelatieAarden.from_object_type("zaak"),
+        )
+
+        logger.debug(f"Validating ZAAKINFORMATIEOBJECT for eio {eio.uuid}")
+
+        try:
+            zaak_informatie_object.full_clean()
+        except ValidationError as e:
+            error_message = f"Validation for ZAAKINFORMATIEOBJECT failed: {e}"
+
+            logger.warning(error_message)
+            document_row.comment = error_message
+
+            return document_row
+
+        zaak_informatie_object.save()
+
+    document_row.succeeded = True
+
+    return document_row
+
+
+# TODO: ensure one task is running all the time
+# TODO: make this more generic?
+# TODO: expose `batch_size` through API?
+# TODO: wrap around transaction?
+@celery_app.task
+def import_documents(import_pk: int, batch_size=500) -> None:
+    import_instance = Import.objects.get(pk=import_pk)  # noqa
 
     file_path = import_instance.import_file.path
 
@@ -225,105 +321,15 @@ def import_documents(import_pk: int, batch_size=500) -> None:
         if row_index == 1:  # skip the header row
             continue
 
-        logger.debug(f"Validating line {row_index}")
-
-        # TODO: is this possible with an invalid row count?
-        document_row = DocumentRow(*row[:expected_column_count])
-
-        if len(row) < expected_column_count:
-            error_message = (
-                f"Validation failed for line {row_index}: insufficient row count."
-            )
-
-            logger.warning(error_message)
-            document_row.set_import_comment(error_message)
-
-            batch.append(document_row)
-
-            processed += 1
-            fail_count += 1
-            continue
-
-        eio_serializer = EnkelvoudigInformatieObjectSerializer(
-            data=document_row.as_serializer_data(), context={"request": request}
-        )
-
-        if not eio_serializer.is_valid():
-            error_message = (
-                "A validation error occurred while deserializing a "
-                "EnkelvoudigInformtatieObject on line %(row_index)s: \n"
-                "%(errors)s"
-            ) % dict(row_index=row_index, errors=eio_serializer.errors)
-
-            logger.debug(error_message)
-            document_row.set_import_comment(error_message)
-
-            batch.append(document_row)
-
-            processed += 1
-            fail_count += 1
-            continue
-
-        try:
-            import_data = document_row.as_import_data()
-        except Exception as e:
-            error_message = f"Failed importing line {row_index}: \n{e}"
-
-            logger.warning(error_message)
-            document_row.set_import_comment(error_message)
-
-            batch.append(document_row)
-
-            processed += 1
-            fail_count += 1
-            continue
-
-        if document_row.zaak_id and document_row.zaak_id not in zaak_uuids:
-            error_message = f"Unknown ZAAK uuid for line {row_index}"
-
-            logger.warning(error_message)
-            document_row.set_import_comment(error_message)
-
-            batch.append(document_row)
-
-            processed += 1
-            fail_count += 1
-            continue
-
-        canonical_eio = EnkelvoudigInformatieObjectCanonical.objects.create()
-        eio_data = {**import_data, "canonical": canonical_eio}
-
-        # No many-to-many relations will be saved during the import for
-        # eio's so creating an instance like this should not cause any
-        # problems.
-        eio = EnkelvoudigInformatieObject.objects.create(**eio_data)
-
-        if document_row.zaak_id:
-            zaak = Zaak.objects.get(uuid=document_row.zaak_id)
-            zaak_informatie_object = ZaakInformatieObject(
-                zaak=zaak,
-                informatieobject=canonical_eio,
-                aard_relatie=RelatieAarden.from_object_type("zaak"),
-            )
-
-            logger.debug(f"Validating ZAAKINFORMATIEOBJECT for eio {eio.uuid}")
-
-            try:
-                zaak_informatie_object.full_clean()
-            except ValidationError as e:
-                error_message = f"Validation for ZAAKINFORMATIEOBJECT failed: {e}"
-
-                logger.warning(error_message)
-                batch.append(document_row)
-
-                processed += 1
-                fail_count += 1
-                continue
-
-            zaak_informatie_object.save()
+        document_row = import_document_row(row, row_index, zaak_uuids)
 
         batch.append(document_row)
-        success_count += 1
+
+        if document_row.succeeded:
+            success_count += 1
+        else:
+            fail_count += 1
+
         processed += 1
 
         if not len(batch) % batch_size == 0:
