@@ -94,7 +94,7 @@ class AuthNotificationStep(BaseConfigurationStep):
             component=ComponentTypes.nrc,
             defaults={"scopes": list(nrc_scopes)},
         )
-        if not nrc_scopes.issubset((existing_scopes := set(nrc_permission.scopes))):
+        if not nrc_scopes.issubset(existing_scopes := set(nrc_permission.scopes)):
             nrc_permission.scopes = sorted(nrc_scopes.union(existing_scopes))
             nrc_permission.save(update_fields=["scopes"])
 
@@ -187,7 +187,7 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
             component=ComponentTypes.nrc,
             defaults={"scopes": list(nrc_scopes)},
         )
-        if not nrc_scopes.issubset((existing_scopes := set(nrc_permission.scopes))):
+        if not nrc_scopes.issubset(existing_scopes := set(nrc_permission.scopes)):
             nrc_permission.scopes = sorted(nrc_scopes.union(existing_scopes))
             nrc_permission.save(update_fields=["scopes"])
 

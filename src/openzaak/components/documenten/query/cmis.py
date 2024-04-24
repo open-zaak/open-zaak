@@ -467,8 +467,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
     def iterator(self):
         # loop though the results to return them when requested.
         # Not tested with a filter attached to the all call.
-        for document in self.documents:
-            yield document
+        yield from self.documents
 
     def exists(self):
         if self._result_cache is None:

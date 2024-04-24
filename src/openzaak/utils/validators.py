@@ -224,7 +224,9 @@ class UniqueTogetherValidator(_UniqueTogetherValidator):
         problematic when CMIS is enabled and for each object a query to the DMS
         has to be done.
         """
-        return "<%s(fields=%s)>" % (self.__class__.__name__, smart_repr(self.fields))
+        return "<{}(fields={})>".format(
+            self.__class__.__name__, smart_repr(self.fields)
+        )
 
 
 class ResourceValidator(ResourceValidatorMixin, URLValidator):

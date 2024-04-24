@@ -73,7 +73,7 @@ def mock_resource_list(
 def mock_resource_get(m: Mocker, resource: str, url: str) -> None:
     file = MOCK_FILES_DIR / f"{resource}.json"
 
-    with open(file, "r") as response_data:
+    with open(file) as response_data:
         content = json.load(response_data)
         # for paginated resources
         if isinstance(content, dict):

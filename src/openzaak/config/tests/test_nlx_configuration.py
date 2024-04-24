@@ -48,7 +48,7 @@ class NLXConfigTests(AdminTestMixin, WebTest):
     )
     @requests_mock.Mocker()
     def test_get_nlx_service_dropdown_choices(self, mock_get_solo, m):
-        with open(CURRENT_DIR / "demo-directory.json", "r") as infile:
+        with open(CURRENT_DIR / "demo-directory.json") as infile:
             m.get(
                 f"{DEMO_DIRECTORY}api/directory/list-services", json=json.load(infile)
             )

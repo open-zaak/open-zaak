@@ -92,7 +92,7 @@ class EigenschapAPITests(TypeCheckMixin, APITestCase):
         )
 
         eigenschap_objecttype = next(
-            (eig for eig in response_data if eig["naam"] == "objecttype")
+            eig for eig in response_data if eig["naam"] == "objecttype"
         )
 
         zaaktype_url = get_operation_url(

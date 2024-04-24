@@ -169,5 +169,5 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
         )
 
-        delete_call = next((req for req in m.request_history if req.method == "DELETE"))
+        delete_call = next(req for req in m.request_history if req.method == "DELETE")
         self.assertEqual(delete_call.url, zio._objectinformatieobject_url)

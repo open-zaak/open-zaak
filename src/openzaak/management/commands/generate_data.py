@@ -325,8 +325,7 @@ class Command(BaseCommand):
         def generate_zaak_resource(generate_from_zaak: callable):
             for zaak in zaken:
                 obj_list = generate_from_zaak(zaak)
-                for obj in obj_list:
-                    yield obj
+                yield from obj_list
 
         # 3 mln statussen
         statustypen = StatusType.objects.order_by("zaaktype", "id")
@@ -463,8 +462,7 @@ class Command(BaseCommand):
             parent_objs = model.objects.order_by("id").all()
             for parent_obj, informatieobject in zip(parent_objs, documenten):
                 objs = generate_from_relation_documenten(parent_obj, informatieobject)
-                for obj in objs:
-                    yield obj
+                yield from objs
 
         # zio - 1 mln
         zio_generator = generate_document_relation(
