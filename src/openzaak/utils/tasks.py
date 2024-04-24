@@ -24,7 +24,7 @@ from openzaak.utils.models import Import
 logger = logging.getLogger(__name__)
 
 
-def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
+def _get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
     with open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
 
@@ -36,7 +36,7 @@ def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
             index += 1
 
 
-def get_total_count(filename: str) -> int:
+def _get_total_count(filename: str) -> int:
     with open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
         total = sum(1 for _ in csv_reader)
@@ -194,7 +194,7 @@ class DocumentRow:
         }
 
 
-def import_document_row(
+def _import_document_row(
     row: list[str], row_index: int, zaak_uuids: Iterable[str]
 ) -> DocumentRow:
     document_args = getfullargspec(DocumentRow.__init__)
@@ -306,7 +306,7 @@ def import_documents(import_pk: int, batch_size=500) -> None:
 
     file_path = import_instance.import_file.path
 
-    import_instance.total = get_total_count(file_path)
+    import_instance.total = _get_total_count(file_path)
     import_instance.save(update_fields=["total"])
 
     processed = 0
@@ -317,11 +317,11 @@ def import_documents(import_pk: int, batch_size=500) -> None:
 
     zaak_uuids = Zaak.objects.values_list("uuid", flat=True)
 
-    for row_index, row in get_csv_generator(file_path):
+    for row_index, row in _get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
             continue
 
-        document_row = import_document_row(row, row_index, zaak_uuids)
+        document_row = _import_document_row(row, row_index, zaak_uuids)
 
         batch.append(document_row)
 
