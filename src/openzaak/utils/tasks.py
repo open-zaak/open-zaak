@@ -36,12 +36,15 @@ def _get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]
             index += 1
 
 
-def _get_total_count(filename: str) -> int:
+def _get_total_count(filename: str, include_header: bool = False) -> int:
     with open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
         total = sum(1 for _ in csv_reader)
 
-        return total - 1 if total > 0 else 0  # don't count the header row
+        if include_header:
+            return total
+
+        return total - 1 if total > 0 else 0
 
 
 @dataclass
@@ -165,7 +168,7 @@ class DocumentRow:
 
         return {**data, "inhoud": self.get_inhoud()}
 
-    def as_export_data(self):
+    def as_original(self):
         return {
             "identificatie": self.identificatie,
             "bronorganisatie": self.bronorganisatie,
@@ -189,7 +192,13 @@ class DocumentRow:
             "integriteit.waarde": self.integriteit_waarde,
             "integriteit.datum": self.integriteit_datum,
             "informatieobjecttype": self.informatieobjecttype,
+            "zaakId": self.zaak_id,
             "trefwoorden": self.trefwoorden,
+        }
+
+    def as_export_data(self):
+        return {
+            **self.as_original(),
             "opmerking": self.comment,
         }
 
