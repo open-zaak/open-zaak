@@ -577,10 +577,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         # field is still required
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        validation_error = response.json()["invalidParams"][0]
-        self.assertEqual(
-            validation_error["name"],
-            "betrokkeneIdentificatie.verblijfsadres.aoaIdentificatie",
+        validation_error = get_validation_errors(
+            response, "betrokkeneIdentificatie.verblijfsadres.aoaIdentificatie"
         )
         self.assertEqual(validation_error["code"], "required")
 
