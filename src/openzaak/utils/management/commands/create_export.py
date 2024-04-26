@@ -4,7 +4,6 @@ from pathlib import Path
 from random import choice
 from typing import Iterable
 
-from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 
@@ -40,6 +39,20 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "domain",
+            type=str,
+            help="The domain name (ip address, port) to use for links",
+        )
+
+        parser.add_argument(
+            "--protocol",
+            type=str,
+            choices=("http", "https",),
+            default="http",
+            help="The protocol which is used in combination with the given domain",
+        )
+
+        parser.add_argument(
             "--row_count",
             type=int,
             default=100000,
@@ -55,8 +68,9 @@ class Command(BaseCommand):
         total = options["row_count"]
         batch_size = options["batch_size"]
         dummy_path = options["dummy_path"]
+        domain = options["domain"]
+        protocol = options["protocol"]
 
-        site = Site.objects.get_current()
         zaken = Zaak.objects.values_list("uuid", flat=True)
         informatieobject_typen = InformatieObjectType.objects.values_list(
             "uuid", flat=True
@@ -99,7 +113,11 @@ class Command(BaseCommand):
                 logger.debug("Generating new batch")
 
                 batch = self._get_batch(
-                    batch_size, zaken, informatieobject_typen, site.domain, dummy_path
+                    batch_size,
+                    zaken,
+                    informatieobject_typen,
+                    f"{protocol}://{domain}",
+                    dummy_path,
                 )
 
             file_exists = Path(export_file).exists()
@@ -138,7 +156,7 @@ class Command(BaseCommand):
         batch_size: int,
         zaken: Iterable[str],
         informatieobject_typen: Iterable[str],
-        site_domain: str,
+        base_url: str,
         dummy_path: str,
     ) -> list[DocumentRow]:
 
@@ -149,13 +167,13 @@ class Command(BaseCommand):
             informatie_object_uuid = choice(informatieobject_typen)
 
             zaak_path = reverse("zaak-detail", kwargs=dict(uuid=zaak_uuid, version=1))
-            zaak_url = f"https://{site_domain}{zaak_path}"
+            zaak_url = f"{base_url}{zaak_path}"
 
             informatie_object_path = reverse(
                 "informatieobjecttype-detail",
                 kwargs=dict(uuid=informatie_object_uuid, version=1),
             )
-            informatie_object_url = f"https://{site_domain}{informatie_object_path}"
+            informatie_object_url = f"{base_url}{informatie_object_path}"
 
             instance = EnkelvoudigInformatieObjectFactory.build(
                 informatieobjecttype__uuid=informatie_object_uuid,
