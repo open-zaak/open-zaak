@@ -42,6 +42,7 @@ from openzaak.utils.schema import (
     FILE_ERROR_RESPONSES,
     VALIDATION_ERROR_RESPONSES,
 )
+from openzaak.utils.tasks import DocumentRow
 from openzaak.utils.views import (
     AuditTrailViewSet,
     ImportCreateview,
@@ -444,32 +445,7 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
 
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
-
-    import_headers = [
-        "identificatie",
-        "bronorganisatie",
-        "creatiedatum",
-        "titel",
-        "vertrouwelijkheidaanduiding",
-        "auteur",
-        "status",
-        "formaat",
-        "taal",
-        "bestandsnaam",
-        "bestandsomvang",
-        "bestandspad",
-        "beschrijving",
-        "indicatieGebruiksrecht",
-        "verschijningsvorm",
-        "ondertekening.soort",
-        "ondertekening.datum",
-        "integriteit.algoritme",
-        "integriteit.waarde",
-        "integriteit.datum",
-        "informatieobjecttype",
-        "zaakId",
-        "trefwoorden",
-    ]
+    import_headers = DocumentRow.import_headers
 
 
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):

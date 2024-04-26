@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Generator, Iterable, Optional
 
 from django.core.exceptions import ValidationError
+from django.utils.functional import classproperty
 
 from rest_framework.test import APIRequestFactory
 from vng_api_common.constants import RelatieAarden
@@ -81,6 +82,35 @@ class DocumentRow:
 
     comment: Optional[str] = None
     succeeded: bool = False
+
+    @classproperty
+    def import_headers(cls) -> list[str]:
+        return [
+            "identificatie",
+            "bronorganisatie",
+            "creatiedatum",
+            "titel",
+            "vertrouwelijkheidaanduiding",
+            "auteur",
+            "status",
+            "formaat",
+            "taal",
+            "bestandsnaam",
+            "bestandsomvang",
+            "bestandspad",
+            "link",
+            "beschrijving",
+            "indicatieGebruiksrecht",
+            "verschijningsvorm",
+            "ondertekening.soort",
+            "ondertekening.datum",
+            "integriteit.algoritme",
+            "integriteit.waarde",
+            "integriteit.datum",
+            "informatieobjecttype",
+            "zaakId",
+            "trefwoorden",
+        ]
 
     def get_inhoud(self):
         if not self.bestandspad:

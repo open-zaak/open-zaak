@@ -76,32 +76,7 @@ class Command(BaseCommand):
             "uuid", flat=True
         )
 
-        headers = (
-            "identificatie",
-            "bronorganisatie",
-            "creatiedatum",
-            "titel",
-            "vertrouwelijkheidaanduiding",
-            "auteur",
-            "status",
-            "formaat",
-            "taal",
-            "bestandsnaam",
-            "bestandsomvang",
-            "bestandspad",
-            "link",
-            "beschrijving",
-            "indicatieGebruiksrecht",
-            "verschijningsvorm",
-            "ondertekening.soort",
-            "ondertekening.datum",
-            "integriteit.algoritme",
-            "integriteit.waarde",
-            "integriteit.datum",
-            "informatieobjecttype",
-            "zaakId",
-            "trefwoorden",
-        )
+        headers = DocumentRow.import_headers
 
         batch = []
         processed = 0
