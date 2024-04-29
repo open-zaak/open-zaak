@@ -8886,7 +8886,7 @@ paths:
 
         **Er wordt gevalideerd op**
 
-        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie`.
+        - **EXPERIMENTEEL** `waarde` moet worden gevalideerd tegen `eigenschap.specificatie` indien `ZAAK_EIGENSCHAP_WAARDE_VALIDATION` op `True` staat.
       summary: Maak een ZAAKEIGENSCHAP aan.
       parameters:
       - in: header
@@ -11537,14 +11537,12 @@ components:
       required:
       - gorOpenbareRuimteNaam
       - huisnummer
-      - identificatie
       - wplWoonplaatsNaam
     ObjectAdresRequest:
       type: object
       properties:
         identificatie:
           type: string
-          minLength: 1
           description: De unieke identificatie van het OBJECT
           maxLength: 100
         wplWoonplaatsNaam:
@@ -11573,7 +11571,6 @@ components:
       required:
       - gorOpenbareRuimteNaam
       - huisnummer
-      - identificatie
       - wplWoonplaatsNaam
     ObjectBuurt:
       type: object
@@ -13763,7 +13760,6 @@ components:
       required:
       - aoaHuisnummer
       - gorOpenbareRuimteNaam
-      - oaoIdentificatie
       - wplWoonplaatsNaam
     TerreinGebouwdObjectAdresRequest:
       type: object
@@ -13773,7 +13769,6 @@ components:
           maxLength: 100
         oaoIdentificatie:
           type: string
-          minLength: 1
           description: De unieke identificatie van het OBJECT
           maxLength: 100
         wplWoonplaatsNaam:
@@ -13805,7 +13800,6 @@ components:
       required:
       - aoaHuisnummer
       - gorOpenbareRuimteNaam
-      - oaoIdentificatie
       - wplWoonplaatsNaam
     TypeWaterdeelEnum:
       enum:
@@ -13889,7 +13883,6 @@ components:
       properties:
         aoaIdentificatie:
           type: string
-          minLength: 1
           description: De unieke identificatie van het OBJECT
           maxLength: 100
         wplWoonplaatsNaam:
@@ -14012,7 +14005,6 @@ components:
           maxLength: 1000
       required:
       - aoaHuisnummer
-      - aoaIdentificatie
       - gorOpenbareRuimteNaam
       - wplWoonplaatsNaam
     WozObjectAdresRequest:
@@ -14020,7 +14012,6 @@ components:
       properties:
         aoaIdentificatie:
           type: string
-          minLength: 1
           description: De unieke identificatie van het OBJECT
           maxLength: 100
         wplWoonplaatsNaam:
@@ -14051,7 +14042,6 @@ components:
           maxLength: 1000
       required:
       - aoaHuisnummer
-      - aoaIdentificatie
       - gorOpenbareRuimteNaam
       - wplWoonplaatsNaam
     Zaak:

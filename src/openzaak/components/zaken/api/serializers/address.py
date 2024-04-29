@@ -37,7 +37,7 @@ class VerblijfsAdresSerializer(serializers.ModelSerializer):
             "inp_locatiebeschrijving",
         )
         extra_kwargs = {
-            "aoa_identificatie": {"source": "identificatie"},
+            "aoa_identificatie": {"source": "identificatie", "required": True},
             "aoa_postcode": {"source": "postcode"},
             "aoa_huisnummer": {"source": "huisnummer"},
             "aoa_huisletter": {"source": "huisletter"},
