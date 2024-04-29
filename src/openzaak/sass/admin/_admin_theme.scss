@@ -4,8 +4,8 @@
 Generic admin styling overrides.
 
 DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
- */
-@import "vars";
+*/
+@import "./vars";
 
 // override django CSS variables
 // see admin/static/admin/css/base.css for a reference
@@ -41,10 +41,12 @@ DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
 }
 
 /* Overrides */
-
-// bootstrap is included in some pages, which messes everything up again with the reset...
 body {
   font-size: 14px;
+
+  &.change-form {
+    line-height: 1.15;
+  }
 }
 
 /**
@@ -118,35 +120,32 @@ div.breadcrumbs {
 
 /* Icons */
 .addlink {
-  background: url('../../img/admin/plus-square-regular.svg') 0 0/14px 14px no-repeat;
+  background: url("../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
 }
-.changelink, .inlinechangelink {
-  background: url('../../img/admin/edit-regular.svg') 0 0/14px 14px no-repeat;
+.changelink,
+.inlinechangelink {
+  background: url("../img/admin/edit-regular.svg") 0 0/14px 14px no-repeat;
 }
 .deletelink {
-  background: url('../../img/admin/trash-alt-regular.svg') 0 0/14px 14px no-repeat;
+  background: url("../img/admin/trash-alt-regular.svg") 0 0/14px 14px no-repeat;
 }
 .datetimeshortcuts .clock-icon {
-  background: url('../../img/admin/clock-regular.svg') 0 0/14px 14px no-repeat !important;
+  background: url("../img/admin/clock-regular.svg") 0 0/14px 14px no-repeat !important;
 }
 .datetimeshortcuts .date-icon {
-  background: url('../../img/admin/calendar-alt-regular.svg') 0 0/14px 14px no-repeat !important;
+  background: url("../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
 }
 
-/**
- * Footer
- */
- .version {
-   padding: 0 30px;
-   color: $color-secondary-dark;
-   font-size: smaller;
- }
+/* Footer */
+.version {
+  padding: 0 30px;
+  color: $color-secondary-dark;
+  font-size: smaller;
 
- #footer {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
- }
+  @at-root .login & {
+    text-align: center;
+  }
+}
 
 /**
  * Environment banner
@@ -179,19 +178,26 @@ div.breadcrumbs {
 }
 
 /**
+ * Django form related widget
+ */
+.related-widget-wrapper {
+  display: inline-block;
+}
+
+/**
  * Help text mouseover
  */
 div.help {
   cursor: help;
   width: 16px;
   height: 16px;
-  background-image: url('../../admin/img/icon-unknown.svg');
+  background-image: url(../admin/img/icon-unknown.svg);
   display: inline-block;
   background-repeat: no-repeat;
   background-size: 14px;
   margin-left: 8px !important;
   margin-top: 6px !important;
-  position: absolute;
+  position: relative;
   text-indent: -9999px;
 
   &:hover {
@@ -225,6 +231,9 @@ div.help {
 }
 .aligned label + div.help {
   margin-left: 2px !important;
+}
+div:has(> div.help ) {
+  display: flex;
 }
 
 /* Additional components seem to need the same behaviour */
