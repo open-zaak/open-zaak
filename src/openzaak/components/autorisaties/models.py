@@ -63,7 +63,7 @@ class AutorisatieSpec(models.Model):
         # informatieobjecttypen/besluittypen, the scopes/VA are constant for
         # these. The exact *type is implied by the component choice, so we need
         # a unique constraint on applicatie + component
-        unique_together = ("applicatie", "component")
+        unique_together = ("applicatie", "component", "scopes")
 
     def __str__(self):
         return _("{component} autorisatiespec voor {app}").format(
