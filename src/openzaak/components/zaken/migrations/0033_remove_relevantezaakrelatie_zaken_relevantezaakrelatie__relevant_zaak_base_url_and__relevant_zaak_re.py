@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("zaken", "0031_zaak_created_on"),
+        ("zaken", "0032_alter_adres_identificatie"),
     ]
 
     operations = [
