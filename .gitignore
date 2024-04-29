@@ -18,9 +18,9 @@ src/openzaak/static/fonts
 src/openzaak/static/css/screen.css
 src/openzaak/static/css/admin/
 src/openzaak/static/js/
+src/openzaak/static/bundles/
 docs/_build
 
-/docker/volumes/
 /docker/volumes/
 !/docker/volumes/.gitkeep
 

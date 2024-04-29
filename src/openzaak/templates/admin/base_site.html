@@ -7,7 +7,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/admin_overrides.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bundles/admin_overrides.css' %}">
 
     <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
 {% endblock %}
@@ -51,5 +51,5 @@
     </div>
 
     {# Load the custom JS #}
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'bundles/openzaak-js.js' %}"></script>
 {% endblock %}

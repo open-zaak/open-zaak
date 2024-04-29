@@ -84,7 +84,7 @@ jobs:
           cache-dependency-path: 'requirements/*.txt'
       - uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: '18'
 
       - name: Install system packages
         run: |
@@ -156,7 +156,7 @@ jobs:
           cache-dependency-path: 'requirements/*.txt'
       - uses: actions/setup-node@v3
         with:
-          node-version: '12'
+          node-version: '18'
 
       - name: Install system packages
         run: |

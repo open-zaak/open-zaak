@@ -16,7 +16,7 @@ RUN pip install -r requirements/production.txt
 
 
 # Stage 2 - build frontend
-FROM node:16-bookworm-slim AS frontend-build
+FROM node:18-alpine AS frontend-build
 
 WORKDIR /app
 
@@ -78,8 +78,7 @@ COPY --from=build /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 COPY --from=build /usr/local/bin/celery /usr/local/bin/celery
 
-COPY --from=frontend-build /app/src/openzaak/static/css /app/src/openzaak/static/css
-COPY --from=frontend-build /app/src/openzaak/static/js /app/src/openzaak/static/js
+COPY --from=frontend-build /app/src/openzaak/static/ /app/src/openzaak/static/
 
 # Stage 3.2 - Copy source code
 COPY ./config /app/config
