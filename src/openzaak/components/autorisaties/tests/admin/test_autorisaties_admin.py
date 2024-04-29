@@ -1113,7 +1113,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
     @tag("gh-1626")
-    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_besluittype(self):
+    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_besluittype(
+        self,
+    ):
 
         BesluitTypeFactory.create(concept=False)
 
@@ -1204,7 +1206,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
     @tag("gh-1626")
-    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_documenten(self):
+    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_documenten(
+        self,
+    ):
 
         iot = InformatieObjectTypeFactory.create(concept=False)
         InformatieObjectTypeFactory.create(concept=False)
@@ -1254,7 +1258,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @tag("gh-1626")
     def test_autorisatie_spec_is_not_shared_within_component(self):
 
-        besluittype = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
 
         AutorisatieSpecFactory.create(
             applicatie=self.applicatie,
