@@ -225,7 +225,8 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     initial = []
 
     autorisatie_specs = {
-        (spec.component, tuple(sorted(spec.scopes))): spec for spec in applicatie.autorisatie_specs.all()
+        (spec.component, tuple(sorted(spec.scopes))): spec
+        for spec in applicatie.autorisatie_specs.all()
     }
 
     grouped = defaultdict(list)

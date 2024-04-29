@@ -380,8 +380,7 @@ class AutorisatieForm(forms.Form):
             )
         else:
             applicatie.autorisatie_specs.filter(
-                component=component,
-                scopes=scopes,
+                component=component, scopes=scopes,
             ).delete()
 
         autorisatie_kwargs = {
