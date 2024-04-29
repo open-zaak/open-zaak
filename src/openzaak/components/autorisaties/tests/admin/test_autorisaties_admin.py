@@ -34,6 +34,7 @@ from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
+from ...models import AutorisatieSpec
 from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
 
 ZTC_URL = "https://ztc.com/api/v1"
@@ -1110,3 +1111,205 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         # check that the admin page does not crash
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+
+    @tag("gh-1626")
+    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_besluittype(self):
+
+        BesluitTypeFactory.create(concept=False)
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(AutorisatieSpec.objects.count(), 0)
+
+        response = self.client.get(self.url)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current,
+        )
+
+    @tag("gh-1626")
+    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_zaaktype(self):
+
+        ZaakTypeFactory.create(concept=False)
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(AutorisatieSpec.objects.count(), 0)
+
+        response = self.client.get(self.url)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current,
+        )
+
+    @tag("gh-1626")
+    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_documenten(self):
+
+        iot = InformatieObjectTypeFactory.create(concept=False)
+        InformatieObjectTypeFactory.create(concept=False)
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=["documenten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["documenten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-informatieobjecttypen": [iot.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(AutorisatieSpec.objects.count(), 0)
+
+        response = self.client.get(self.url)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.manual_select,
+        )
+
+    @tag("gh-1626")
+    def test_autorisatie_spec_is_not_shared_within_component(self):
+
+        besluittype = BesluitTypeFactory.create(concept=False)
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.bijwerken"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        form_data = response.context["formdata"][0]
+        self.assertEqual(
+            form_data["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
+        self.assertEqual(AutorisatieSpec.objects.count(), 2)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.brc,
+            "form-1-scopes": ["besluiten.bijwerken"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+
+        response = self.client.get(self.url)
+
+        form_data_1 = response.context["formdata"][0]
+        form_data_2 = response.context["formdata"][1]
+        self.assertEqual(
+            form_data_1["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current,
+        )
+        self.assertEqual(
+            form_data_2["values"]["related_type_selection"],
+            RelatedTypeSelectionMethods.all_current_and_future,
+        )
