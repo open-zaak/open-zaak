@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.conf.urls import url
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 from vng_api_common import routers
@@ -23,7 +22,7 @@ router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
 
 
 urlpatterns = [
-    url(
+    re_path(
         r"^v(?P<version>\d+)/",
         include(
             [
@@ -44,7 +43,7 @@ urlpatterns = [
                     name="schema-redoc-besluiten",
                 ),
                 # actual API
-                url(r"^", include(router.urls)),
+                path("", include(router.urls)),
                 # should not be picked up by drf-yasg
                 path("", router.APIRootView.as_view(), name="api-root-besluiten"),
             ]

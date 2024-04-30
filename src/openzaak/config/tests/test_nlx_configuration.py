@@ -35,10 +35,9 @@ class NLXConfigTests(AdminTestMixin, WebTest):
         # form validation errors -> no redirect
         self.assertEqual(response.status_code, 200)
         self.assertFormError(
-            response,
-            "form",
-            "__all__",
-            _("Connection refused. Please provide a correct address."),
+            response.context["form"],
+            field=None,
+            errors=_("Connection refused. Please provide a correct address."),
         )
 
     @patch(

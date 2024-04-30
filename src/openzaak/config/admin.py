@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from django.conf import settings
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from drc_cmis.admin import CMISConfigAdmin as _CMISConfigAdmin
 from drc_cmis.models import CMISConfig

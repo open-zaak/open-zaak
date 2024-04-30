@@ -17,7 +17,7 @@ bleach
 
 # Framework libraries
 django
-django-axes
+django-axes[ipware]
 django-cors-headers
 django-db-logger
 django-extra-views
@@ -35,11 +35,11 @@ django-sniplates
 django-better-admin-arrayfield
 
 # API libraries
-djangorestframework~=3.12.0
+djangorestframework~=3.14.0
 djangorestframework-gis
 drf-extra-fields
 django-filter
-djangorestframework-camel-case~=1.2.0
+djangorestframework-camel-case
 drf-writable-nested
 commonground-api-common
 notifications-api-common

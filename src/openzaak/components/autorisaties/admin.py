@@ -7,7 +7,7 @@ from django.forms import BaseModelFormSet
 from django.shortcuts import redirect
 from django.urls import path
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import (
     Applicatie,

@@ -8,7 +8,7 @@
 @import 'microscope-sass/lib/responsive';
 @import 'microscope-sass/lib/util';
 
-@import 'vars';
+@import './vars';
 
 /**
  * DJANGO ADMIN INDEX
@@ -63,10 +63,6 @@ $djai-border-width: 8px;
       }
     }
   }
-
-  @at-root body.login #header {
-    padding-bottom: 15px !important;
-  }
 }
 
 /**
@@ -85,7 +81,8 @@ $djai-border-width: 8px;
 
     /* Substitute theme style above with icon. Solves translation string as well. */
     &.add-array-item {
-      background: url('../../img/admin/plus-square-regular.svg') 0 0/14px 14px no-repeat !important;
+      background: url('../img/admin/plus-square-regular.svg') 0 0/14px 14px
+        no-repeat !important;
       width: 14px;
       line-height: 16px;
       text-indent: -9999px;
@@ -101,7 +98,8 @@ $djai-border-width: 8px;
 
   /* Substitute with icon */
   .remove {
-    background: url('../../img/admin/trash-alt-regular.svg') 0 0/14px 14px no-repeat;
+    background: url('../img/admin/trash-alt-regular.svg') 0 0/14px 14px
+      no-repeat;
     width: 14px;
     line-height: 16px;
 

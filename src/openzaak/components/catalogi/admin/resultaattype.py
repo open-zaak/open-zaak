@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from django.contrib import admin
 from django.http import HttpRequest
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from openzaak.selectielijst.admin_fields import (
     get_resultaat_readonly_field,

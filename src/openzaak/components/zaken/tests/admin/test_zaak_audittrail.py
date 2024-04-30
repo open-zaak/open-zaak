@@ -26,6 +26,7 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         data = {
             "_zaaktype": zaaktype.id,
             "bronorganisatie": "517439943",
+            "identificatie": "ZAAK1",
             "registratiedatum": "15-11-2019",
             "verantwoordelijke_organisatie": "517439943",
             "startdatum": "15-11-2019",

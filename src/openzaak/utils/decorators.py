@@ -3,7 +3,7 @@
 from functools import wraps
 
 from django.core.cache import caches
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from drc_cmis.webservice.utils import NoURLMappingException, URLTooLongException
 

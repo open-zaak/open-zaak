@@ -308,6 +308,16 @@ class ExpandLoader(InclusionLoader):
         """
         return False
 
+    def _sub_serializer_inclusions(self, path, field, instance):
+        """
+        added condition for loose-fk chained instances (like zaaktype.gerelateerde_zaaktypen):
+        stop and don't do chained requests for now
+        """
+        if isinstance(instance, ProxyMixin):
+            return []
+
+        return super()._sub_serializer_inclusions(path, field, instance)
+
 
 class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
     """

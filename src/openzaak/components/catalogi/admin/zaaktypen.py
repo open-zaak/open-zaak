@@ -9,7 +9,7 @@ from django.db.models import Field
 from django.forms import ChoiceField
 from django.http import HttpRequest
 from django.urls import path
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 

@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_filters import rest_framework as filters
 from vng_api_common.filters import URLModelChoiceFilter

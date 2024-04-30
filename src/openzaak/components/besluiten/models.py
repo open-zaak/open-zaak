@@ -5,7 +5,7 @@ import uuid as _uuid
 
 from django.apps import apps
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.caching import ETagMixin

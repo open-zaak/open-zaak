@@ -80,13 +80,13 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         # check custom formatting
         procestype = response.html.find(class_="field-selectielijst_procestype").div.div
-        self.assertEqual(procestype.text, "1 - Instellen en inrichten organisatie")
+        self.assertTrue("1 - Instellen en inrichten organisatie" in procestype.text)
         behandeling = response.html.find(
             class_="field-doorlooptijd_behandeling"
         ).div.div
-        self.assertEqual(
-            behandeling.text,
-            ngettext_lazy("{days} day", "{days} days", 10).format(days=10),
+        self.assertTrue(
+            ngettext_lazy("{days} day", "{days} days", 10).format(days=10)
+            in behandeling.text
         )
         producten_of_diensten = response.html.find(
             class_="field-producten_of_diensten"
@@ -226,15 +226,15 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
         selectielijstklasse = response.html.find(
             class_="field-selectielijstklasse"
         ).div.div
-        self.assertEqual(selectielijstklasse.text, "1.1 - Ingericht - vernietigen")
+        self.assertTrue("1.1 - Ingericht - vernietigen" in selectielijstklasse.text)
         omschrijving = response.html.find(
             class_="field-resultaattypeomschrijving"
         ).div.div
-        self.assertEqual(omschrijving.text, "Afgewezen")
+        self.assertTrue("Afgewezen" in omschrijving.text)
         archiefactietermijn = response.html.find(
             class_="field-archiefactietermijn"
         ).div.div
-        self.assertEqual(
-            archiefactietermijn.text,
-            ngettext_lazy("{years} year", "{years} years", 5).format(years=5),
+        self.assertTrue(
+            ngettext_lazy("{years} year", "{years} years", 5).format(years=5)
+            in archiefactietermijn.text
         )

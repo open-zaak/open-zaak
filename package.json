@@ -2,15 +2,15 @@
   "name": "openzaak",
   "version": "1.12.1",
   "description": "Open Zaak",
-  "main": "src/index.js",
+  "main": "src/p[enzaak/static/bundles/openzaak-js.js",
   "directories": {
     "doc": "doc"
   },
   "scripts": {
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "convert": "swagger2openapi $SCHEMA_PATH/swagger2.0.json -o $SCHEMA_PATH/openapi.yaml",
-    "appliance:serve-config": "http-server deployment/appliance/debian-config"
+    "build": "npm run bundle",
+    "bundle": "webpack",
+    "test": "karma start",
+    "watch": "webpack -w"
   },
   "repository": {
     "type": "git",
@@ -20,37 +20,28 @@
   "license": "EUPL-1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {
-    "core-js": "^3.33.2",
-    "prop-types": "^15.8.1",
+    "core-js": "latest",
+    "microscope-sass": "latest",
+    "prop-types": "latest",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-use": "^17.4.0",
-    "regenerator-runtime": "^0.13.11"
+    "react-use": "^17.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
     "@babel/preset-react": "^7.22.15",
     "autoprefixer": "^10.4.16",
-    "babel-loader": "^8.3.0",
-    "browserslist": "^4.22.1",
-    "cssnano": "^5.1.15",
-    "gulp": "^4.0.2",
-    "gulp-dart-sass": "^1.1.0",
-    "gulp-file": "^0.4.0",
-    "gulp-hub": "^4.2.0",
-    "gulp-if": "^3.0.0",
-    "gulp-postcss": "^9.0.1",
-    "gulp-sourcemaps": "^2.6.5",
-    "http-server": "^0.12.0",
-    "microscope-sass": "^1.1.0",
-    "postcss": "^8.4.31",
-    "postcss-loader": "^5.3.0",
-    "postcss-selector-lint": "^1.0.0",
-    "sass-loader": "^7.2.0",
-    "swagger2openapi": "^7.0.8",
-    "webpack": "^5.89.0",
-    "webpack-stream": "^7.0.0",
-    "yargs": "^16.0.0"
+    "babel-loader": "latest",
+    "css-loader": "latest",
+    "cssnano": "latest",
+    "mini-css-extract-plugin": "latest",
+    "postcss-loader": "latest",
+    "postcss-selector-lint": "latest",
+    "sass-loader": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-stream": "latest",
+    "yargs": "latest"
   }
 }

@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.gis.admin.widgets import OpenLayersWidget
 from django.contrib.gis.gdal import AxisOrder, OGRGeometry, SpatialReference
 from django.contrib.gis.geos import GEOSGeometry
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 from relativedeltafield.utils import format_relativedelta, parse_relativedelta

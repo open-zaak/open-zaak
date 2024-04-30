@@ -6,7 +6,7 @@ from typing import Union
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
@@ -32,15 +32,15 @@ class StatusValidator:
     correct field.
     """
 
-    def set_context(self, serializer):
-        self.instance = getattr(serializer, "instance", None)
+    requires_context = True
 
-    def __call__(self, attrs: dict):
+    def __call__(self, attrs: dict, serializer):
+        instance = getattr(serializer, "instance", None)
         try:
             validate_status(
                 status=attrs.get("status"),
                 ontvangstdatum=attrs.get("ontvangstdatum"),
-                instance=self.instance,
+                instance=instance,
             )
         except ValidationError as exc:
             raise serializers.ValidationError(exc.error_dict)

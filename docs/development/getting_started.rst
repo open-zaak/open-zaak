@@ -72,8 +72,7 @@ development machine.
        $ source env/bin/activate
        $ pip install -r requirements/dev.txt
 
-5. Install the front-end CLI tool `gulp`_ if you've never installed them
-   before and install the frontend libraries:
+5. Install the frontend libraries:
 
    .. code-block:: bash
 
@@ -110,8 +109,6 @@ example files included in the same directory.
 using ``npm run watch``. By default this will compile the files if they change.
 
 .. _Sass: https://sass-lang.com/
-.. _gulp: https://gulpjs.com/
-
 
 Update installation
 -------------------

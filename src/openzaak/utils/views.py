@@ -3,7 +3,7 @@
 from django import http
 from django.apps import apps
 from django.template import TemplateDoesNotExist, loader
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 

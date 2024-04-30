@@ -115,6 +115,7 @@ class ZaakAdminTests(WebTest):
         form["_zaaktype_relative_url"] = "zaken/c10edbb4-d038-4333-a9ba-bbccfc8fa8bd"
         form["vertrouwelijkheidaanduiding"] = VertrouwelijkheidsAanduiding.openbaar
         form["bronorganisatie"] = "517439943"
+        form["identificatie"] = "ZAAK1"
         form["verantwoordelijke_organisatie"] = "517439943"
         form["startdatum"] = "2023-01-01"
         form["registratiedatum"] = "2023-01-01"

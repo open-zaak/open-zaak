@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext, ngettext_lazy, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _, ngettext_lazy
 
 import requests_mock
 from dateutil.relativedelta import relativedelta

@@ -5,7 +5,7 @@ from datetime import date
 
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse as django_reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import requests_mock
 from rest_framework import status

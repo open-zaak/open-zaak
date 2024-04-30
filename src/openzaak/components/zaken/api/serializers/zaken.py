@@ -6,8 +6,8 @@ from typing import Optional
 from django.conf import settings
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
@@ -717,7 +717,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     aard_relatie_weergave = serializers.ChoiceField(
         source="get_aard_relatie_display",
         read_only=True,
-        choices=[(force_text(value), key) for key, value in RelatieAarden.choices],
+        choices=[(force_str(value), key) for key, value in RelatieAarden.choices],
     )
     informatieobject = EnkelvoudigInformatieObjectField(
         validators=[

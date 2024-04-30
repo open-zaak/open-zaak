@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.conf import settings
 from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework.serializers import (
