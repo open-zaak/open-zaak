@@ -4,12 +4,13 @@ from pathlib import Path
 from random import choice
 from typing import Iterable
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.urls import reverse
 
 from openzaak.components.catalogi.models.informatieobjecttype import (
     InformatieObjectType,
 )
+from openzaak.components.documenten.constants import OndertekeningSoorten
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -70,6 +71,11 @@ class Command(BaseCommand):
         dummy_path = options["dummy_path"]
         domain = options["domain"]
         protocol = options["protocol"]
+
+        _dummy_path = Path(dummy_path)
+
+        if not _dummy_path.exists():
+            raise CommandError("Dummy path does not exist")
 
         zaken = Zaak.objects.values_list("uuid", flat=True)
         informatieobject_typen = InformatieObjectType.objects.values_list(
@@ -141,9 +147,6 @@ class Command(BaseCommand):
             zaak_uuid = choice(zaken)
             informatie_object_uuid = choice(informatieobject_typen)
 
-            zaak_path = reverse("zaak-detail", kwargs=dict(uuid=zaak_uuid, version=1))
-            zaak_url = f"{base_url}{zaak_path}"
-
             informatie_object_path = reverse(
                 "informatieobjecttype-detail",
                 kwargs=dict(uuid=informatie_object_uuid, version=1),
@@ -152,7 +155,7 @@ class Command(BaseCommand):
 
             instance = EnkelvoudigInformatieObjectFactory.build(
                 informatieobjecttype__uuid=informatie_object_uuid,
-                ondertekening_soort="foo",
+                ondertekening_soort=OndertekeningSoorten.analoog,
                 ondertekening_datum="2024-04-26",
                 integriteit_algoritme="crc_16",
                 integriteit_waarde="foo",
@@ -162,6 +165,8 @@ class Command(BaseCommand):
             indicatie_gebruiksrecht = (
                 "true" if instance.indicatie_gebruiksrecht else "false"
             )
+
+            _dummy_path = Path(dummy_path)
 
             row = DocumentRow(
                 instance.identificatie,
@@ -173,8 +178,8 @@ class Command(BaseCommand):
                 instance.status,
                 instance.formaat,
                 instance.taal,
-                instance.bestandsnaam,
-                instance.bestandsomvang,
+                _dummy_path.name,
+                str(_dummy_path.stat().st_size),
                 dummy_path,
                 instance.link,
                 instance.beschrijving,
@@ -186,7 +191,7 @@ class Command(BaseCommand):
                 instance.integriteit["waarde"],
                 instance.integriteit["datum"],
                 informatie_object_url,
-                zaak_url,
+                zaak_uuid,
                 '"foobar,foobar"',
             )
 

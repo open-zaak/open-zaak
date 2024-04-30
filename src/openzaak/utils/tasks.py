@@ -1,23 +1,21 @@
+import binascii
 import csv
 import logging
+from base64 import b64decode
 from dataclasses import dataclass
-from inspect import getfullargspec
 from pathlib import Path
 from typing import Generator, Iterable, Optional
 
 from django.core.exceptions import ValidationError
 from django.utils.functional import classproperty
 
+from celery.utils.serialization import base64encode
 from rest_framework.test import APIRequestFactory
 from vng_api_common.constants import RelatieAarden
 
 from openzaak import celery_app
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectSerializer,
-)
-from openzaak.components.documenten.models import (
-    EnkelvoudigInformatieObject,
-    EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
 from openzaak.utils.models import Import
@@ -125,7 +123,20 @@ class DocumentRow:
             file_contents = import_file.read()
             import_file.seek(0)
 
-        return file_contents
+        if not file_contents:
+            return None
+
+        is_base64 = False
+
+        try:
+            is_base64 = b64decode(file_contents, validate=True)
+        except binascii.Error:
+            is_base64 = False
+
+        if is_base64:
+            return b64decode(file_contents)
+
+        return base64encode(file_contents).decode("ascii")
 
     def get_bestandsomvang(self):
         if not self.bestandsomvang:
@@ -162,15 +173,15 @@ class DocumentRow:
         }
 
     def get_trefwoorden(self):
+        # TODO: remove quotes
         if not self.trefwoorden:
             return []
 
         return self.trefwoorden.split(",")
 
     def as_serializer_data(self):
-        # Note that `inhoud` is not included here as files probably are not base64
-        # encoded (which the API expects). File contents will be read and saved
-        # after validating.
+        inhoud = self.get_inhoud() or None
+
         return {
             "identificatie": self.identificatie,
             "bronorganisatie": self.bronorganisatie or None,
@@ -182,6 +193,7 @@ class DocumentRow:
             "formaat": self.formaat,
             "taal": self.taal or None,
             "bestandsnaam": self.bestandsnaam,
+            "inhoud": inhoud,
             "bestandsomvang": self.get_bestandsomvang(),
             "link": self.link,
             "beschrijving": self.beschrijving,
@@ -192,11 +204,6 @@ class DocumentRow:
             "informatieobjecttype": self.informatieobjecttype,
             "trefwoorden": self.get_trefwoorden(),
         }
-
-    def as_import_data(self):
-        data = self.as_serializer_data()
-
-        return {**data, "inhoud": self.get_inhoud()}
 
     def as_original(self):
         return {
@@ -236,8 +243,7 @@ class DocumentRow:
 def _import_document_row(
     row: list[str], row_index: int, zaak_uuids: Iterable[str]
 ) -> DocumentRow:
-    document_args = getfullargspec(DocumentRow.__init__)
-    expected_column_count = len(document_args.args[1:])  # ignore the `self` arg
+    expected_column_count = len(DocumentRow.import_headers)  # ignore the `self` arg
 
     request_factory = APIRequestFactory()
     request = request_factory.get("/")
@@ -249,7 +255,7 @@ def _import_document_row(
 
     if len(row) < expected_column_count:
         error_message = (
-            f"Validation failed for line {row_index}: insufficient row count."
+            f"Validation failed for line {row_index}: insufficient row count"
         )
 
         logger.warning(error_message)
@@ -257,8 +263,17 @@ def _import_document_row(
 
         return document_row
 
+    try:
+        import_data = document_row.as_serializer_data()
+    except Exception as e:
+        error_message = f"Unable to import line {row_index}: {e}"
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+        return document_row
+
     eio_serializer = EnkelvoudigInformatieObjectSerializer(
-        data=document_row.as_serializer_data(), context={"request": request}
+        data=import_data, context={"request": request}
     )
 
     if not eio_serializer.is_valid():
@@ -273,17 +288,9 @@ def _import_document_row(
 
         return document_row
 
-    try:
-        import_data = document_row.as_import_data()
-    except Exception as e:
-        error_message = f"Failed importing line {row_index}: \n{e}"
+    zaak_uuid = document_row.zaak_id
 
-        logger.warning(error_message)
-        document_row.comment = error_message
-
-        return document_row
-
-    if document_row.zaak_id and document_row.zaak_id not in zaak_uuids:
+    if zaak_uuid and document_row.zaak_id not in zaak_uuids:
         error_message = f"Unknown ZAAK uuid for line {row_index}"
 
         logger.warning(error_message)
@@ -291,44 +298,42 @@ def _import_document_row(
 
         return document_row
 
-    canonical_eio = EnkelvoudigInformatieObjectCanonical.objects.create()
-    eio_data = {**import_data, "canonical": canonical_eio}
+    eio = eio_serializer.save()
 
-    # No many-to-many relations will be saved during the import for
-    # eio's so creating an instance like this should not cause any
-    # problems.
-    eio = EnkelvoudigInformatieObject.objects.create(**eio_data)
+    if not zaak_uuid:
+        document_row.succeeded = True
 
-    if document_row.zaak_id:
-        try:
-            zaak = Zaak.objects.get(uuid=document_row.zaak_id)
-        except Zaak.DoesNotExist:
-            error_message = f"Unknown ZAAK uuid for line {row_index}"
+        return document_row
 
-            logger.warning(error_message)
-            document_row.comment = error_message
+    try:
+        zaak = Zaak.objects.get(uuid=zaak_uuid)
+    except Zaak.DoesNotExist:
+        error_message = f"Unknown ZAAK uuid for line {row_index}"
 
-            return document_row
+        logger.warning(error_message)
+        document_row.comment = error_message
 
-        zaak_informatie_object = ZaakInformatieObject(
-            zaak=zaak,
-            informatieobject=canonical_eio,
-            aard_relatie=RelatieAarden.from_object_type("zaak"),
-        )
+        return document_row
 
-        logger.debug(f"Validating ZAAKINFORMATIEOBJECT for eio {eio.uuid}")
+    zaak_informatie_object = ZaakInformatieObject(
+        zaak=zaak,
+        informatieobject=eio.canonical,
+        aard_relatie=RelatieAarden.from_object_type("zaak"),
+    )
 
-        try:
-            zaak_informatie_object.full_clean()
-        except ValidationError as e:
-            error_message = f"Validation for ZAAKINFORMATIEOBJECT failed: {e}"
+    logger.debug(f"Validating ZAAKINFORMATIEOBJECT for eio {eio.uuid}")
 
-            logger.warning(error_message)
-            document_row.comment = error_message
+    try:
+        zaak_informatie_object.full_clean()
+    except ValidationError as e:
+        error_message = f"Validation for ZAAKINFORMATIEOBJECT failed: {e}"
 
-            return document_row
+        logger.warning(error_message)
+        document_row.comment = error_message
 
-        zaak_informatie_object.save()
+        return document_row
+
+    zaak_informatie_object.save()
 
     document_row.succeeded = True
 
@@ -354,7 +359,7 @@ def import_documents(import_pk: int, batch_size=500) -> None:
 
     batch = []
 
-    zaak_uuids = Zaak.objects.values_list("uuid", flat=True)
+    zaak_uuids = [str(uuid) for uuid in Zaak.objects.values_list("uuid", flat=True)]
 
     for row_index, row in _get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
