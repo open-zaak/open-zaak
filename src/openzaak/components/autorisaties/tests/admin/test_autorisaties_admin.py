@@ -476,6 +476,57 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             InformatieObjectTypeFactory.create()
         self.assertEqual(self.applicatie.autorisaties.count(), 2)
 
+    @tag("notifications")
+    @override_settings(
+        NOTIFICATIONS_DISABLED=False,
+        OPENZAAK_DOMAIN="openzaak.example.com",
+        OPENZAAK_REWRITE_HOST=True,
+        ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
+    )
+    def test_add_autorisatie_send_notificatie_with_rewrite_host(self):
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Autorisatie.objects.exists())
+
+        with patch(
+            "notifications_api_common.viewsets.send_notification.delay"
+        ) as mock_notif:
+            # create a besluittype - this should trigger a new autorisatie being installed
+            # We need to capture on_commit callbacks twice, because the `AutorisatieSpec.sync`
+            # itself is executed on_commit and the notification sending as well
+            with self.captureOnCommitCallbacks(
+                execute=True
+            ), self.captureOnCommitCallbacks(execute=True):
+                BesluitTypeFactory.create()
+
+            self.assertEqual(self.applicatie.autorisaties.count(), 1)
+            self.assertEqual(response.status_code, 302)
+
+            mock_notif.assert_called_with(
+                {
+                    "kanaal": "autorisaties",
+                    "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
+                    "resource": "applicatie",
+                    "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
+                    "actie": "update",
+                    "aanmaakdatum": "2022-01-01T00:00:00Z",
+                    "kenmerken": {},
+                }
+            )
+
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @requests_mock.Mocker()
     def test_no_changes_no_notifications(self, m):
