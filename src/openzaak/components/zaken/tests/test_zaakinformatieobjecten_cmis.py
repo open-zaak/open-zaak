@@ -222,7 +222,7 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         response = self.client.get(
             zio_list_url,
             {"zaak": f"http://example.com{zaak_url}"},
-            HTTP_HOST="example.com",
+            headers={"host": "example.com"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -246,7 +246,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
         # Test that only 1 of the 2 ZIOs is returned
         response = self.client.get(
-            zio_list_url, {"informatieobject": eio1_url}, HTTP_HOST="example.com",
+            zio_list_url,
+            {"informatieobject": eio1_url},
+            headers={"host": "example.com"},
         )
 
         self.assertEqual(response.status_code, 200)

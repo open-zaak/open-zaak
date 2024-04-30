@@ -155,7 +155,7 @@ class US169TestCase(JWTAuthMixin, APITestCase):
         response = self.client.get(
             rollen_list_url,
             {"zaak": f"http://openzaak.nl{zaak_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

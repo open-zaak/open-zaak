@@ -110,10 +110,9 @@ class CatalogusAdmin(
     # For import/export mixins
     resource_name = "catalogus"
 
+    @admin.display(description=_("Naam"))
     def get_admin_name(self, obj):
         return obj.naam or "(onbekend)"
-
-    get_admin_name.short_description = _("Naam")
 
     def get_related_objects(self, obj):
         resources = {}

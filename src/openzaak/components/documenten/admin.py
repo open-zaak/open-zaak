@@ -127,10 +127,9 @@ class ObjectInformatieObjectAdmin(
     raw_id_fields = ("informatieobject", "_zaak", "_besluit", "_object_base_url")
     viewset = viewsets.ObjectInformatieObject
 
+    @admin.display(description="object")
     def get_object_display(self, obj):
         return obj._zaak or obj._besluit or obj._object_url
-
-    get_object_display.short_description = "object"
 
     def get_queryset(self, request):
         """
@@ -238,10 +237,9 @@ class ObjectInformatieObjectInline(
     fields = ObjectInformatieObjectAdmin.list_display
     fk_name = "informatieobject"
 
+    @admin.display(description="object")
     def get_object_display(self, obj):
         return obj._zaak or obj._zaak_url or obj._besluit or obj._besluit_url
-
-    get_object_display.short_description = "object"
 
 
 class VerzendingInline(EditInlineAdminMixin, admin.TabularInline):
@@ -280,11 +278,11 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
     ]
     actions = [unlock]
 
+    @admin.display(
+        description="free to change", boolean=True,
+    )
     def get_not_lock_display(self, obj) -> bool:
         return not bool(obj.lock)
-
-    get_not_lock_display.short_description = "free to change"
-    get_not_lock_display.boolean = True
 
     def get_viewset(self, request):
         return None
@@ -415,11 +413,11 @@ class EnkelvoudigInformatieObjectAdmin(
             from_field = "uuid"
         return super().get_object(request, object_id, from_field=from_field)
 
+    @admin.display(
+        description=_("locked"), boolean=True,
+    )
     def _locked(self, obj) -> bool:
         return obj.locked
-
-    _locked.boolean = True
-    _locked.short_description = _("locked")
 
     def get_object_actions(self, obj):
         return (

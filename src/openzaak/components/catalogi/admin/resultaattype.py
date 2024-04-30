@@ -138,6 +138,7 @@ class ResultaatTypeAdmin(
         form._zaaktype = self._get_zaaktype(request, obj=obj)
         return form
 
+    @admin.display(description="zaaktype procestype")
     def get_zaaktype_procestype(self, obj):
         # obj is form.instance here
         if not obj.zaaktype_id:
@@ -153,8 +154,6 @@ class ResultaatTypeAdmin(
         client = ReferentieLijstConfig.get_client()
         procestype = client.retrieve("procestype", url)
         return f"{procestype['nummer']} - {procestype['naam']}"
-
-    get_zaaktype_procestype.short_description = "zaaktype procestype"
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         zaaktype = self._get_zaaktype(request)

@@ -5,7 +5,6 @@
 import datetime
 
 from django.db import migrations, models
-from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
@@ -20,7 +19,9 @@ class Migration(migrations.Migration):
             name="created_on",
             field=models.DateTimeField(
                 auto_now_add=True,
-                default=datetime.datetime(2024, 4, 9, 12, 59, 18, 517349, tzinfo=utc),
+                default=datetime.datetime(
+                    2024, 4, 9, 12, 59, 18, 517349, tzinfo=datetime.timezone.utc
+                ),
                 verbose_name="created on",
             ),
             preserve_default=False,

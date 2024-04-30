@@ -16,6 +16,7 @@ from .resend import ResendFailure, resend_notification
 logger = logging.getLogger(__name__)
 
 
+@admin.action(description=_("Resend %(verbose_name_plural)s"))
 def resend_notifications(
     modeladmin: admin.ModelAdmin, request: HttpRequest, queryset: QuerySet
 ) -> None:
@@ -32,9 +33,6 @@ def resend_notifications(
             except Exception:
                 logger.exception("Resend for %d failed", failed.pk)
                 continue
-
-
-resend_notifications.short_description = _("Resend %(verbose_name_plural)s")
 
 
 @admin.register(FailedNotification)

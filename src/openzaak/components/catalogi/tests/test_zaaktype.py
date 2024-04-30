@@ -538,7 +538,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype_url = get_operation_url("zaaktype_read", uuid=zaaktype.uuid)
 
         response = self.client.delete(
-            zaaktype_url, HTTP_ACCEPT="application/problem+json"
+            zaaktype_url, headers={"accept": "application/problem+json"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

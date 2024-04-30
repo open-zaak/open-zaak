@@ -523,7 +523,7 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         VerzendingFactory.create()
 
         response = self.client.get(
-            self.url, {"informatieobject": eio_url}, HTTP_HOST="testserver.com"
+            self.url, {"informatieobject": eio_url}, headers={"host": "testserver.com"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

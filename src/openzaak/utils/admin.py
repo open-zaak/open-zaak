@@ -52,7 +52,7 @@ def link_to_related_objects(
     )
 
 
-class ObjectActionsAdminMixin(object):
+class ObjectActionsAdminMixin:
     def _build_changelist_url(self, model, query=None):
         return self._build_object_action_url(model, view_name="changelist", query=query)
 
@@ -119,7 +119,7 @@ class ListObjectActionsAdminMixin(ObjectActionsAdminMixin):
         return tuple(list_display) + ("_get_object_actions",)
 
 
-class EditInlineAdminMixin(object):
+class EditInlineAdminMixin:
     template = "admin/edit_inline/tabular_add_and_edit.html"
     extra = 0
     can_delete = False
@@ -133,7 +133,7 @@ class EditInlineAdminMixin(object):
         return super().get_fields(request, obj)
 
 
-class AuditTrailAdminMixin(object):
+class AuditTrailAdminMixin:
     viewset = None
 
     def get_viewset(self, request):
@@ -297,7 +297,7 @@ class AuditTrailAdminMixin(object):
             )
 
 
-class AuditTrailInlineAdminMixin(object):
+class AuditTrailInlineAdminMixin:
     viewset = None
 
     def get_formset(self, request, obj=None, **kwargs):
@@ -311,7 +311,7 @@ class AuditTrailInlineAdminMixin(object):
         return formset
 
 
-class ExtraContextAdminMixin(object):
+class ExtraContextAdminMixin:
     """
     Add this mixin to your admin class to make use of the new function
     `self.get_extra_context` that allows you to add variables to all admin

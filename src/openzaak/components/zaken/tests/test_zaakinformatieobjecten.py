@@ -215,7 +215,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             zio_list_url,
             {"zaak": f"http://openzaak.nl{zaak_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -233,7 +233,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             zio_list_url,
             {"informatieobject": f"http://openzaak.nl{io1_url}"},
-            HTTP_HOST="openzaak.nl",
+            headers={"host": "openzaak.nl"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -289,12 +289,12 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response1 = self.client.post(
                 reverse(ZaakInformatieObject),
                 {"zaak": zaak_url, "informatieobject": document1},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
             self.client.post(
                 reverse(ZaakInformatieObject),
                 {"zaak": zaak_url, "informatieobject": document2},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         io1_url = response1.data["informatieobject"]
@@ -302,7 +302,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         # Test that only 1 of the 2 ZIOs in the database is returned.
         response = self.client.get(
-            zio_list_url, {"informatieobject": io1_url}, HTTP_HOST="openzaak.nl"
+            zio_list_url, {"informatieobject": io1_url}, headers={"host": "openzaak.nl"}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -509,7 +509,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             list_response = self.client.get(
                 reverse(ZaakInformatieObject),
                 {"zaak": zaak_url},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
             self.assertEqual(list_response.status_code, status.HTTP_200_OK)
@@ -524,7 +524,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         list_url = reverse(ZaakInformatieObject)
         data = {"zaak": zaak_url, "informatieobject": "abcd"}
 
-        response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
+        response = self.client.post(list_url, data, headers={"host": "openzaak.nl"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -545,7 +545,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/", text="<html></html>")
-            response = self.client.post(list_url, data, HTTP_HOST="openzaak.nl")
+            response = self.client.post(list_url, data, headers={"host": "openzaak.nl"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -733,7 +733,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -774,7 +774,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -803,7 +803,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -838,7 +838,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -867,7 +867,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.list_url,
                 {"zaak": zaak_url, "informatieobject": self.document},
-                HTTP_HOST="openzaak.nl",
+                headers={"host": "openzaak.nl"},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -921,7 +921,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             )
             zio_url = reverse(zio)
 
-            response = self.client.delete(zio_url, HTTP_HOST="openzaak.nl")
+            response = self.client.delete(zio_url, headers={"host": "openzaak.nl"})
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -955,7 +955,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             )
             zio_url = reverse(zio)
 
-            response = self.client.delete(zio_url, HTTP_HOST="openzaak.nl")
+            response = self.client.delete(zio_url, headers={"host": "openzaak.nl"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1023,7 +1023,7 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
 
             with override_script_prefix(prefix="/ozgv-t"):
                 response = self.client.post(
-                    ziot_list_url, data, HTTP_HOST="api.example.nl"
+                    ziot_list_url, data, headers={"host": "api.example.nl"}
                 )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

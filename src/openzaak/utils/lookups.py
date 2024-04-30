@@ -212,7 +212,7 @@ class In(FkOrServiceUrlFieldMixin, _In):
 
         if fk_rhs_sql:
             fk_rhs_sql = self.get_rhs_op(connection, fk_rhs_sql)
-            fk_sql = "%s %s" % (fk_lhs_sql, fk_rhs_sql)
+            fk_sql = "{} {}".format(fk_lhs_sql, fk_rhs_sql)
         else:
             fk_sql = None
 
@@ -232,6 +232,6 @@ class In(FkOrServiceUrlFieldMixin, _In):
             return fk_sql, fk_params
 
         params = url_params + list(fk_params)
-        sql = "(%s OR %s)" % (url_sql, fk_sql)
+        sql = "({} OR {})".format(url_sql, fk_sql)
 
         return sql, params

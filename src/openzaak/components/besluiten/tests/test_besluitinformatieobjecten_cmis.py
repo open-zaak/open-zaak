@@ -121,7 +121,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         response = self.client.get(
             bio_list_url,
             {"besluit": f"http://example.com{besluit_url}"},
-            HTTP_HOST="example.com",
+            headers={"host": "example.com"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -139,7 +139,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         bio_list_url = reverse("besluitinformatieobject-list")
 
         response = self.client.get(
-            bio_list_url, {"informatieobject": io_url}, HTTP_HOST="example.com",
+            bio_list_url, {"informatieobject": io_url}, headers={"host": "example.com"}
         )
 
         self.assertEqual(response.status_code, 200)

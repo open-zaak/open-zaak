@@ -36,7 +36,7 @@ VIEWSET_FOR_MODEL = {
 }
 
 
-class GeldigheidAdminMixin(object):
+class GeldigheidAdminMixin:
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         return tuple(fieldsets) + (
@@ -47,7 +47,7 @@ class GeldigheidAdminMixin(object):
         )
 
 
-class ConceptAdminMixin(object):
+class ConceptAdminMixin:
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         return tuple(fieldsets) + ((_("Concept"), {"fields": ("concept",)}),)
@@ -193,7 +193,7 @@ class SideEffectsMixin:
             self.message_user(request, msg, messages.SUCCESS)
 
             redirect_url = reverse(
-                "admin:%s_%s_change" % (opts.app_label, opts.model_name),
+                "admin:{}_{}_change".format(opts.app_label, opts.model_name),
                 args=(obj.pk,),
                 current_app=self.admin_site.name,
             )

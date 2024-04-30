@@ -396,7 +396,7 @@ class StatusTypeAPITests(APITestCase):
 
         new_checklistitem = statustype.checklistitem_set.get()
         self.assertEqual(new_checklistitem.itemnaam, "new")
-        self.assertNotEquals(old_checklistitem.id, new_checklistitem.id)
+        self.assertNotEqual(old_checklistitem.id, new_checklistitem.id)
         self.assertFalse(CheckListItem.objects.filter(id=old_checklistitem.id).exists())
 
 

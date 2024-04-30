@@ -143,7 +143,7 @@ class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
         response = self.client.get(
             url,
             {"zaak": f"http://testserver.com{zaak_url}"},
-            HTTP_HOST="testserver.com",
+            headers={"host": "testserver.com"},
         )
 
         self.assertEqual(response.status_code, 200)

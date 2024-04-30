@@ -135,7 +135,6 @@ class InformatieObjectTypeAdmin(
     def get_object_actions(self, obj):
         return (link_to_related_objects(ZaakTypeInformatieObjectType, obj),)
 
+    @admin.display(description=_("# zaaktypen"))
     def num_zaaktypen(self, obj) -> int:
         return obj.num_zaaktypen
-
-    num_zaaktypen.short_description = _("# zaaktypen")

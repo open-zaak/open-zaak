@@ -195,10 +195,9 @@ class ExpandLoader(InclusionLoader):
             serializer, "inclusion_serializers", {}
         )
         for name, field in serializer.fields.items():
-            for entry in self._field_inclusions(
+            yield from self._field_inclusions(
                 path, field, instance, name, inclusion_serializers
-            ):
-                yield entry
+            )
 
     def _field_inclusions(
         self,
@@ -219,8 +218,7 @@ class ExpandLoader(InclusionLoader):
             return
         new_path = path + (name,)
         if isinstance(field, BaseSerializer):
-            for entry in self._sub_serializer_inclusions(new_path, field, instance):
-                yield entry
+            yield from self._sub_serializer_inclusions(new_path, field, instance)
             return
         inclusion_serializer = inclusion_serializers.get(".".join(new_path))
         if inclusion_serializer is None:
@@ -236,13 +234,12 @@ class ExpandLoader(InclusionLoader):
             yield obj, inclusion_serializer, instance, new_path, many
             # when we do inclusions in inclusions, we base path off our
             # parent object path, not the sub-field
-            for entry in self._instance_inclusions(
+            yield from self._instance_inclusions(
                 new_path,
                 inclusion_serializer(instance=object),
                 obj,
                 inclusion_serializers,
-            ):
-                yield entry
+            )
 
     def _some_related_field_inclusions(
         self,

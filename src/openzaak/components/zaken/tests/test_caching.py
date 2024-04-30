@@ -115,7 +115,7 @@ class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         status_ = StatusFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(status_), HTTP_IF_NONE_MATCH=f'"{status_._etag}"'
+            reverse(status_), headers={"if-none-match": f'"{status_._etag}"'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -123,7 +123,9 @@ class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_stale(self):
         status_ = StatusFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(status_), HTTP_IF_NONE_MATCH='"not-an-md5"')
+        response = self.client.get(
+            reverse(status_), headers={"if-none-match": '"not-an-md5"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -153,14 +155,16 @@ class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         zio = ZaakInformatieObjectFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(zio), HTTP_IF_NONE_MATCH=f'"{zio._etag}"')
+        response = self.client.get(
+            reverse(zio), headers={"if-none-match": f'"{zio._etag}"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         zio = ZaakInformatieObjectFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(zio), HTTP_IF_NONE_MATCH='"old"')
+        response = self.client.get(reverse(zio), headers={"if-none-match": '"old"'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -196,7 +200,7 @@ class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             reverse(zaak_eigenschap, kwargs={"zaak_uuid": zaak_eigenschap.zaak.uuid}),
-            HTTP_IF_NONE_MATCH=f'"{zaak_eigenschap._etag}"',
+            headers={"if-none-match": f'"{zaak_eigenschap._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -206,7 +210,7 @@ class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
         response = self.client.get(
             reverse(zaak_eigenschap, kwargs={"zaak_uuid": zaak_eigenschap.zaak.uuid}),
-            HTTP_IF_NONE_MATCH='"old"',
+            headers={"if-none-match": '"old"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -237,14 +241,16 @@ class RolCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         rol = RolFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(rol), HTTP_IF_NONE_MATCH=f'"{rol._etag}"')
+        response = self.client.get(
+            reverse(rol), headers={"if-none-match": f'"{rol._etag}"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         rol = RolFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(rol), HTTP_IF_NONE_MATCH='"old"')
+        response = self.client.get(reverse(rol), headers={"if-none-match": '"old"'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -275,7 +281,7 @@ class ResultaatCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         resultaat = ResultaatFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(resultaat), HTTP_IF_NONE_MATCH=f'"{resultaat._etag}"'
+            reverse(resultaat), headers={"if-none-match": f'"{resultaat._etag}"'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -283,6 +289,8 @@ class ResultaatCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_stale(self):
         resultaat = ResultaatFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(resultaat), HTTP_IF_NONE_MATCH='"old"')
+        response = self.client.get(
+            reverse(resultaat), headers={"if-none-match": '"old"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

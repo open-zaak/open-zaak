@@ -14,7 +14,6 @@ import datetime
 import string
 
 from django.test import RequestFactory
-from django.utils import timezone
 
 import factory
 import factory.fuzzy
@@ -78,11 +77,11 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
     def startdatum(self):
         return datetime.datetime.combine(
             self.informatieobject.latest_version.creatiedatum, datetime.time(0, 0)
-        ).replace(tzinfo=timezone.utc)
+        ).replace(tzinfo=datetime.timezone.utc)
 
 
 class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
-    startdatum = datetime.datetime.now(tz=timezone.utc)
+    startdatum = datetime.datetime.now(tz=datetime.timezone.utc)
     omschrijving_voorwaarden = factory.Faker("paragraph")
 
     class Meta:

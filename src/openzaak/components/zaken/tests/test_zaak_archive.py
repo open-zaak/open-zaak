@@ -916,7 +916,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         }
 
         response = self.client.post(
-            resultaat_create_url, data, HTTP_HOST="testserver.com"
+            resultaat_create_url, data, headers={"host": "testserver.com"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -931,7 +931,9 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2018-10-18T20:00:00Z",
         }
 
-        response = self.client.post(status_create_url, data, HTTP_HOST="testserver.com")
+        response = self.client.post(
+            status_create_url, data, headers={"host": "testserver.com"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -1057,7 +1059,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         }
 
         response = self.client.post(
-            resultaat_create_url, data, HTTP_HOST="testserver.com"
+            resultaat_create_url, data, headers={"host": "testserver.com"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -1077,7 +1079,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             m.get(zaak2, json=zaak2_data)
             m.get(zaak3, json=zaak3_data)
             response = self.client.post(
-                status_create_url, data, HTTP_HOST="testserver.com"
+                status_create_url, data, headers={"host": "testserver.com"}
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

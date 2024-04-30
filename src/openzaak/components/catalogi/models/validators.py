@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 @deconstructible
-class KardinaliteitValidator(object):
+class KardinaliteitValidator:
     """
     Kardinaliteit: gehele getallen groter dan 0, 'N' voor ongelimiteerd
     (Max length of 3 is handled in the CharField)

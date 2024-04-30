@@ -37,11 +37,11 @@ class CMISConfigAdmin(_CMISConfigAdmin):
         (_("General"), {"fields": ("cmis_enabled", "cmis_connection",)},),
     ] + _CMISConfigAdmin.fieldsets[1:]
 
+    @admin.display(
+        description=_("Enabled"), boolean=True,
+    )
     def cmis_enabled(self, obj=None):
         return getattr(settings, "CMIS_ENABLED", False)
-
-    cmis_enabled.short_description = _("Enabled")
-    cmis_enabled.boolean = True
 
     def has_change_permission(self, *args, **kwargs):
         return self.cmis_enabled()

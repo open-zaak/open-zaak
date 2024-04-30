@@ -155,13 +155,13 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
         response1 = self.client.get(
             base_uri,
             {"besluit": f"http://example.com{besluit1_uri}"},
-            HTTP_HOST="example.com",
+            headers={"host": "example.com"},
         )
         self.assertEqual(len(response1.data), 3)
 
         response2 = self.client.get(
             base_uri,
             {"besluit": f"http://example.com{besluit2_uri}"},
-            HTTP_HOST="example.com",
+            headers={"host": "example.com"},
         )
         self.assertEqual(len(response2.data), 2)

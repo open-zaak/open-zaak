@@ -76,10 +76,10 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_412_PRECONDITION_FAILED)
 
-        response = self.client.get(url, HTTP_ACCEPT_CRS="dummy")
+        response = self.client.get(url, headers={"accept-crs": "dummy"})
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
-        response = self.client.get(url, HTTP_ACCEPT_CRS="EPSG:4326")
+        response = self.client.get(url, headers={"accept-crs": "EPSG:4326"})
         self.assertEqual(response["Content-Crs"], "EPSG:4326")
 
     def test_api_51_status_codes(self):

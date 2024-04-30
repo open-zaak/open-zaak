@@ -44,14 +44,18 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         _etag = eio.calculate_etag_value()
         set_etag(key, _etag)
 
-        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f'"{_etag}"')
+        response = self.client.get(
+            reverse(eio), headers={"if-none-match": f'"{_etag}"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
     def test_conditional_get_stale(self):
         eio = EnkelvoudigInformatieObjectFactory.create()
 
-        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH='"not-an-md5"')
+        response = self.client.get(
+            reverse(eio), headers={"if-none-match": '"not-an-md5"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -89,7 +93,9 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         _etag = oio.calculate_etag_value()
         set_etag(key, _etag)
 
-        response = self.client.get(reverse(oio), HTTP_IF_NONE_MATCH=f'"{_etag}"')
+        response = self.client.get(
+            reverse(oio), headers={"if-none-match": f'"{_etag}"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
@@ -102,7 +108,9 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         _etag = oio.calculate_etag_value()
         set_etag(key, _etag)
 
-        response = self.client.get(reverse(oio), HTTP_IF_NONE_MATCH='"not-an-md5"')
+        response = self.client.get(
+            reverse(oio), headers={"if-none-match": '"not-an-md5"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -137,7 +145,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         set_etag(key, _etag)
 
         response = self.client.get(
-            reverse(gebruiksrecht), HTTP_IF_NONE_MATCH=f'"{_etag}"'
+            reverse(gebruiksrecht), headers={"if-none-match": f'"{_etag}"'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -150,7 +158,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         set_etag(key, _etag)
 
         response = self.client.get(
-            reverse(gebruiksrecht), HTTP_IF_NONE_MATCH='"not-an-md5"'
+            reverse(gebruiksrecht), headers={"if-none-match": '"not-an-md5"'}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -184,5 +192,5 @@ class EnkelvoudigInformatieObjectCacheTransactionTests(
         eio.titel = "aangepast"
         eio.save()
 
-        response = self.client.get(reverse(eio), HTTP_IF_NONE_MATCH=f"{_etag}")
+        response = self.client.get(reverse(eio), headers={"if-none-match": f"{_etag}"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
