@@ -1367,3 +1367,41 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             response.context_data["formset"]._non_form_errors[0],
             _("{field} may not have overlapping scopes.").format(field="besluittypen"),
         )
+
+    @tag("gh-1584")
+    @override_settings(ALLOWED_HOSTS=["testserver", "differenttestserver"],)
+    def test_autorisatie_added_on_different_domain_is_deleted(self):
+        """
+        Tests that an autorisatie is saved in a way that the sync_autorisaties catalogi signal can delete
+        """
+
+        zaaktype = ZaakTypeFactory.create()
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data, SERVER_NAME="differenttestserver")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Autorisatie.objects.count(), 1)
+
+        autorisatie = Autorisatie.objects.get()
+        # domain expected by sync_autorisaties signal
+        self.assertEqual(
+            autorisatie.zaaktype, "http://testserver" + zaaktype.get_absolute_api_url()
+        )
+
+        zaaktype.delete()
+
+        with self.assertRaises(Autorisatie.DoesNotExist):
+            autorisatie.refresh_from_db()
+        self.assertEqual(Autorisatie.objects.count(), 0)
