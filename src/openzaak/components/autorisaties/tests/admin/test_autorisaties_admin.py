@@ -1263,14 +1263,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         AutorisatieSpecFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
+            scopes=["besluiten.bijwerken"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
 
         AutorisatieSpecFactory.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
-            scopes=["besluiten.bijwerken"],
+            scopes=["besluiten.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -1291,11 +1291,11 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
             "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
+            "form-0-scopes": ["besluiten.bijwerken"],
             "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
             "form-1-component": ComponentTypes.brc,
-            "form-1-scopes": ["besluiten.bijwerken"],
+            "form-1-scopes": ["besluiten.lezen"],
             "form-1-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
             "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
         }
@@ -1307,13 +1307,17 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         response = self.client.get(self.url)
 
-        form_data_1 = response.context["formdata"][0]
-        form_data_2 = response.context["formdata"][1]
-        self.assertEqual(
-            form_data_1["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current,
-        )
-        self.assertEqual(
-            form_data_2["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
+        self.assertEqual(len(response.context["formdata"]), 3)
+        related_type_selection_1 = response.context["formdata"][0]["values"][
+            "related_type_selection"
+        ]
+        related_type_selection_2 = response.context["formdata"][1]["values"][
+            "related_type_selection"
+        ]
+
+        # assert both types should be present initially
+        related_type_selections = [related_type_selection_1, related_type_selection_2]
+        self.assertIn(RelatedTypeSelectionMethods.all_current, related_type_selections)
+        self.assertIn(
+            RelatedTypeSelectionMethods.all_current_and_future, related_type_selections
         )
