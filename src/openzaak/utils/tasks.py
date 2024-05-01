@@ -4,20 +4,23 @@ import logging
 from base64 import b64decode
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generator, Iterable, Optional
+from typing import Generator, Optional
 
-from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils.functional import classproperty
 
 from celery.utils.serialization import base64encode
 from rest_framework.test import APIRequestFactory
-from vng_api_common.constants import RelatieAarden
+from vng_api_common.utils import generate_unique_identification
 
 from openzaak import celery_app
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectSerializer,
 )
-from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+)
 from openzaak.utils.models import Import
 
 logger = logging.getLogger(__name__)
@@ -48,38 +51,41 @@ def _get_total_count(filename: str, include_header: bool = False) -> int:
 
 @dataclass
 class DocumentRow:
-    identificatie: str
-    bronorganisatie: str
-    creatiedatum: str
-    titel: str
-    vertrouwelijkheidaanduiding: str
-    auteur: str
-    status: str
-    formaat: str
-    taal: str
+    _identificatie: str
+    _bronorganisatie: str
+    _creatiedatum: str
+    _titel: str
+    _vertrouwelijkheidaanduiding: str
+    _auteur: str
+    _status: str
+    _formaat: str
+    _taal: str
 
-    bestandsnaam: str
-    bestandsomvang: str
-    bestandspad: str
+    _bestandsnaam: str
+    _bestandsomvang: str
+    _bestandspad: str
 
-    link: str
-    beschrijving: str
-    indicatie_gebruiksrecht: str
-    verschijningsvorm: str
+    _link: str
+    _beschrijving: str
+    _indicatie_gebruiksrecht: str
+    _verschijningsvorm: str
 
-    ondertekening_soort: str
-    ondertekening_datum: str
+    _ondertekening_soort: str
+    _ondertekening_datum: str
 
-    integriteit_algoritme: str
-    integriteit_waarde: str
-    integriteit_datum: str
+    _integriteit_algoritme: str
+    _integriteit_waarde: str
+    _integriteit_datum: str
 
-    informatieobjecttype: str
-    zaak_id: str
-    trefwoorden: str
+    _informatieobjecttype: str
+    _zaak_id: str
+    _trefwoorden: str
 
     comment: Optional[str] = None
-    succeeded: bool = False
+    instance: Optional[EnkelvoudigInformatieObject] = None
+
+    _processed: bool = False
+    _succeeded: bool = False
 
     @classproperty
     def import_headers(cls) -> list[str]:
@@ -110,11 +116,32 @@ class DocumentRow:
             "trefwoorden",
         ]
 
-    def get_inhoud(self):
-        if not self.bestandspad:
+    @property
+    def bronorganisatie(self) -> str:
+        return self._bronorganisatie
+
+    @property
+    def creatiedatum(self) -> Optional[str]:
+        return self._creatiedatum or None
+
+    @property
+    def titel(self) -> Optional[str]:
+        return self._titel or None
+
+    @property
+    def auteur(self) -> Optional[str]:
+        return self._auteur or None
+
+    @property
+    def taal(self) -> Optional[str]:
+        return self._taal or None
+
+    @property
+    def inhoud(self) -> Optional[str]:
+        if not self._bestandspad:
             return None
 
-        path = Path(self.bestandspad)
+        path = Path(self._bestandspad)
 
         if not path.exists() or not path.is_file():
             raise IOError("The given filepath does not exist or is not a file.")
@@ -138,99 +165,127 @@ class DocumentRow:
 
         return base64encode(file_contents).decode("ascii")
 
-    def get_bestandsomvang(self):
-        if not self.bestandsomvang:
+    @property
+    def bestandsomvang(self) -> Optional[int]:
+        if not self._bestandsomvang:
             return None
 
-        return int(self.bestandsomvang)
+        return int(self._bestandsomvang)
 
-    def get_indicatie_gebruiksrecht(self):
-        return self.indicatie_gebruiksrecht in ("True", "true")
+    @property
+    def indicatie_gebruiksrecht(self) -> bool:
+        # TODO: fix this
+        return self._indicatie_gebruiksrecht in ("True", "true")
 
-    def get_ondertekening(self):
-        if not any((self.ondertekening_soort, self.ondertekening_datum,)):
+    @property
+    def ondertekening(self) -> Optional[dict]:
+        if not any((self._ondertekening_soort, self._ondertekening_datum,)):
             return None
 
         return {
-            "soort": self.ondertekening_soort,
-            "datum": self.ondertekening_datum,
+            "soort": self._ondertekening_soort,
+            "datum": self._ondertekening_datum,
         }
 
-    def get_integriteit(self):
+    @property
+    def integriteit(self) -> Optional[dict]:
         if not any(
             (
-                self.integriteit_datum,
-                self.integriteit_waarde,
-                self.integriteit_algoritme,
+                self._integriteit_datum,
+                self._integriteit_waarde,
+                self._integriteit_algoritme,
             )
         ):
             return None
 
         return {
-            "algoritme": self.integriteit_algoritme,
-            "waarde": self.integriteit_waarde,
-            "datum": self.integriteit_datum,
+            "algoritme": self._integriteit_algoritme,
+            "waarde": self._integriteit_waarde,
+            "datum": self._integriteit_datum,
         }
 
-    def get_trefwoorden(self):
+    @property
+    def zaak_id(self) -> Optional[str]:
+        return self._zaak_id
+
+    @property
+    def trefwoorden(self) -> list[str]:
         # TODO: remove quotes
-        if not self.trefwoorden:
+        if not self._trefwoorden:
             return []
 
-        return self.trefwoorden.split(",")
+        return self._trefwoorden.split(",")
+
+    @property
+    def processed(self) -> bool:
+        return self._processed
+
+    @processed.setter
+    def processed(self, value: bool):
+        self._processed = value
+
+    @property
+    def succeeded(self) -> bool:
+        return self.processed and self._succeeded
+
+    @succeeded.setter
+    def succeeded(self, value: bool):
+        self._succeeded = value
+
+    @property
+    def failed(self) -> bool:
+        return self.processed and not self.succeeded
 
     def as_serializer_data(self):
-        inhoud = self.get_inhoud() or None
-
         return {
-            "identificatie": self.identificatie,
-            "bronorganisatie": self.bronorganisatie or None,
-            "creatiedatum": self.creatiedatum or None,
-            "titel": self.titel or None,
-            "vertrouwelijkheidaanduiding": self.vertrouwelijkheidaanduiding,
-            "auteur": self.auteur or None,
-            "status": self.status,
-            "formaat": self.formaat,
-            "taal": self.taal or None,
-            "bestandsnaam": self.bestandsnaam,
-            "inhoud": inhoud,
-            "bestandsomvang": self.get_bestandsomvang(),
-            "link": self.link,
-            "beschrijving": self.beschrijving,
-            "indicatieGebruiksrecht": self.get_indicatie_gebruiksrecht(),
-            "verschijningsvorm": self.verschijningsvorm,
-            "ondertekening": self.get_ondertekening(),
-            "integriteit": self.get_integriteit(),
-            "informatieobjecttype": self.informatieobjecttype,
-            "trefwoorden": self.get_trefwoorden(),
+            "identificatie": self._identificatie,
+            "bronorganisatie": self.bronorganisatie,
+            "creatiedatum": self.creatiedatum,
+            "titel": self.titel,
+            "vertrouwelijkheidaanduiding": self._vertrouwelijkheidaanduiding,
+            "auteur": self.auteur,
+            "status": self._status,
+            "formaat": self._formaat,
+            "taal": self.taal,
+            "bestandsnaam": self._bestandsnaam,
+            "inhoud": self.inhoud,
+            "bestandsomvang": self.bestandsomvang,
+            "link": self._link,
+            "beschrijving": self._beschrijving,
+            "indicatieGebruiksrecht": self.indicatie_gebruiksrecht,
+            "verschijningsvorm": self._verschijningsvorm,
+            "ondertekening": self.ondertekening,
+            "integriteit": self.integriteit,
+            "informatieobjecttype": self._informatieobjecttype,
+            "trefwoorden": self.trefwoorden,
         }
 
     def as_original(self):
         return {
-            "identificatie": self.identificatie,
-            "bronorganisatie": self.bronorganisatie,
-            "creatiedatum": self.creatiedatum,
-            "titel": self.titel,
-            "vertrouwelijkheidaanduiding": self.vertrouwelijkheidaanduiding,
-            "auteur": self.auteur,
-            "status": self.status,
-            "formaat": self.formaat,
-            "taal": self.taal,
-            "bestandsnaam": self.bestandsnaam,
-            "bestandsomvang": self.bestandsomvang,
-            "bestandspad": self.bestandspad,
-            "link": self.link,
-            "beschrijving": self.beschrijving,
-            "indicatieGebruiksrecht": self.indicatie_gebruiksrecht,
-            "verschijningsvorm": self.verschijningsvorm,
-            "ondertekening.soort": self.ondertekening_soort,
-            "ondertekening.datum": self.ondertekening_datum,
-            "integriteit.algoritme": self.integriteit_algoritme,
-            "integriteit.waarde": self.integriteit_waarde,
-            "integriteit.datum": self.integriteit_datum,
-            "informatieobjecttype": self.informatieobjecttype,
-            "zaakId": self.zaak_id,
-            "trefwoorden": self.trefwoorden,
+            "identificatie": self._identificatie,
+            "bronorganisatie": self._bronorganisatie,
+            "creatiedatum": self._creatiedatum,
+            "titel": self._titel,
+            "vertrouwelijkheidaanduiding": self._vertrouwelijkheidaanduiding,
+            "auteur": self._auteur,
+            "status": self._status,
+            "formaat": self._formaat,
+            "taal": self._taal,
+            "bestandsnaam": self._bestandsnaam,
+            "bestandsomvang": self._bestandsomvang,
+            "bestandspad": self._bestandspad,
+            "link": self._link,
+            "beschrijving": self._beschrijving,
+            "indicatieGebruiksrecht": self._indicatie_gebruiksrecht,
+            "verschijningsvorm": self._verschijningsvorm,
+            "ondertekening.soort": self._ondertekening_soort,
+            "ondertekening.datum": self._ondertekening_datum,
+            "integriteit.algoritme": self._integriteit_algoritme,
+            "integriteit.waarde": self._integriteit_waarde,
+            "integriteit.datum": self._integriteit_datum,
+            "informatieobjecttype": self._informatieobjecttype,
+            "zaakId": self._zaak_id,
+            "trefwoorden": self._trefwoorden,
         }
 
     def as_export_data(self):
@@ -240,10 +295,8 @@ class DocumentRow:
         }
 
 
-def _import_document_row(
-    row: list[str], row_index: int, zaak_uuids: Iterable[str]
-) -> DocumentRow:
-    expected_column_count = len(DocumentRow.import_headers)  # ignore the `self` arg
+def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
+    expected_column_count = len(DocumentRow.import_headers)
 
     request_factory = APIRequestFactory()
     request = request_factory.get("/")
@@ -260,6 +313,7 @@ def _import_document_row(
 
         logger.warning(error_message)
         document_row.comment = error_message
+        document_row.processed = True
 
         return document_row
 
@@ -270,6 +324,8 @@ def _import_document_row(
 
         logger.warning(error_message)
         document_row.comment = error_message
+        document_row.processed = True
+
         return document_row
 
     eio_serializer = EnkelvoudigInformatieObjectSerializer(
@@ -285,68 +341,99 @@ def _import_document_row(
 
         logger.debug(error_message)
         document_row.comment = error_message
+        document_row.processed = True
 
         return document_row
 
-    zaak_uuid = document_row.zaak_id
+    data = eio_serializer.validated_data
 
-    if zaak_uuid and document_row.zaak_id not in zaak_uuids:
-        error_message = f"Unknown ZAAK uuid for line {row_index}"
+    gegevensgroep_fields = ("ondertekening", "integriteit")
 
-        logger.warning(error_message)
-        document_row.comment = error_message
+    for field in gegevensgroep_fields:
+        gegevens_groep_value = data.pop(field, {})
 
-        return document_row
+        for key, value in gegevens_groep_value.items():
+            data[f"{field}_{key}"] = value
 
-    eio = eio_serializer.save()
+    # TODO: call model `clean` method
+    # TODO: follow EnkelvoudigInformatieObjectSerializer `create` behavior
+    # TODO: handle features for `CMIS_ENABLED`?
+    instance = EnkelvoudigInformatieObject(**data)
+    document_row.instance = instance
+    return document_row
 
-    if not zaak_uuid:
-        document_row.succeeded = True
 
-        return document_row
+@transaction.atomic()
+def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
+    canonicals = []
 
-    try:
-        zaak = Zaak.objects.get(uuid=zaak_uuid)
-    except Zaak.DoesNotExist:
-        error_message = f"Unknown ZAAK uuid for line {row_index}"
+    for row in batch:
+        if row.instance is None:
+            continue
 
-        logger.warning(error_message)
-        document_row.comment = error_message
+        if not row.instance.identificatie:
+            row.instance.identificatie = generate_unique_identification(
+                row.instance, "creatiedatum"
+            )
 
-        return document_row
+        canonical = EnkelvoudigInformatieObjectCanonical()
+        row.instance.canonical = canonical
 
-    zaak_informatie_object = ZaakInformatieObject(
-        zaak=zaak,
-        informatieobject=eio.canonical,
-        aard_relatie=RelatieAarden.from_object_type("zaak"),
+        canonicals.append(canonical)
+
+    EnkelvoudigInformatieObjectCanonical.objects.bulk_create(canonicals)
+
+    eios = EnkelvoudigInformatieObject.objects.bulk_create(
+        [row.instance for row in batch if row.instance is not None]
     )
 
-    logger.debug(f"Validating ZAAKINFORMATIEOBJECT for eio {eio.uuid}")
+    # reuse created instances
+    for row in batch:
+        instance = next(
+            (
+                eio
+                for eio in eios
+                if row.instance
+                and eio.identificatie
+                == row.instance.identificatie  # TODO: is this the correct identifier?
+            ),
+            None,
+        )
 
-    try:
-        zaak_informatie_object.full_clean()
-    except ValidationError as e:
-        error_message = f"Validation for ZAAKINFORMATIEOBJECT failed: {e}"
+        row.instance = instance
 
-        logger.warning(error_message)
-        document_row.comment = error_message
+        if not row.zaak_id:
+            row.processed = True
+            row.succeeded = True if instance and instance.pk is not None else False
 
-        return document_row
+    return batch
 
-    zaak_informatie_object.save()
 
-    document_row.succeeded = True
+def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
+    success_count = 0
+    failure_count = 0
+    processed_count = 0
 
-    return document_row
+    for row in batch:
+        if not row.processed:
+            continue
+
+        if row.succeeded:
+            success_count += 1
+        elif row.failed:
+            failure_count += 1
+
+        processed_count += 1
+
+    return processed_count, failure_count, success_count
 
 
 # TODO: ensure one task is running all the time
 # TODO: make this more generic?
 # TODO: expose `batch_size` through API?
-# TODO: wrap around transaction?
 @celery_app.task
 def import_documents(import_pk: int, batch_size=500) -> None:
-    import_instance = Import.objects.get(pk=import_pk)  # noqa
+    import_instance = Import.objects.get(pk=import_pk)
 
     file_path = import_instance.import_file.path
 
@@ -357,27 +444,28 @@ def import_documents(import_pk: int, batch_size=500) -> None:
     fail_count = 0
     success_count = 0
 
-    batch = []
-
-    zaak_uuids = [str(uuid) for uuid in Zaak.objects.values_list("uuid", flat=True)]
+    batch: list[DocumentRow] = []
 
     for row_index, row in _get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
             continue
 
-        document_row = _import_document_row(row, row_index, zaak_uuids)
+        document_row = _import_document_row(row, row_index)
 
         batch.append(document_row)
 
-        if document_row.succeeded:
-            success_count += 1
-        else:
-            fail_count += 1
-
-        processed += 1
-
         if not len(batch) % batch_size == 0:
             continue
+
+        created_batch: list[DocumentRow] = _batch_create_eios(batch)
+
+        _processed, _fail_count, _success_count = _get_batch_statistics(created_batch)
+
+        processed += _processed
+        fail_count += _fail_count
+        success_count += _success_count
+
+        # TODO: couple eio's to zaken after bulk_create
 
         import_instance.processed = processed
         import_instance.processed_succesfully = success_count
