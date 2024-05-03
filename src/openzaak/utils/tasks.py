@@ -11,6 +11,7 @@ from django.utils.functional import classproperty
 
 from celery.utils.serialization import base64encode
 from rest_framework.test import APIRequestFactory
+from vng_api_common.constants import RelatieAarden
 from vng_api_common.utils import generate_unique_identification
 
 from openzaak import celery_app
@@ -21,6 +22,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
 from openzaak.utils.models import Import
 
 logger = logging.getLogger(__name__)
@@ -80,6 +82,8 @@ class DocumentRow:
     _informatieobjecttype: str
     _zaak_id: str
     _trefwoorden: str
+
+    row_index: int
 
     comment: Optional[str] = None
     instance: Optional[EnkelvoudigInformatieObject] = None
@@ -236,6 +240,10 @@ class DocumentRow:
     def failed(self) -> bool:
         return self.processed and not self.succeeded
 
+    @property
+    def has_instance(self) -> bool:
+        return bool(self.instance and self.instance.pk)
+
     def as_serializer_data(self):
         return {
             "identificatie": self._identificatie,
@@ -302,9 +310,8 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
     request = request_factory.get("/")
 
     # TODO: is this possible with an invalid row count?
-    document_row = DocumentRow(*row[:expected_column_count])
-
-    logger.debug(f"Validating line {row_index}")
+    data = [*row[:expected_column_count], row_index]
+    document_row = DocumentRow(*data)
 
     if len(row) < expected_column_count:
         error_message = (
@@ -339,7 +346,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
             "%(errors)s"
         ) % dict(row_index=row_index, errors=eio_serializer.errors)
 
-        logger.debug(error_message)
+        logger.warning(error_message)
         document_row.comment = error_message
         document_row.processed = True
 
@@ -363,6 +370,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
     return document_row
 
 
+# TODO: catch this function call
 @transaction.atomic()
 def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
     canonicals = []
@@ -428,6 +436,42 @@ def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
     return processed_count, failure_count, success_count
 
 
+# TODO: catch this function call
+# TODO: monitor performance of this & the storm of signals it will send
+@transaction.atomic()
+def _batch_couple_eios(
+    batch: list[DocumentRow], zaak_uuids: dict[str, int]
+) -> list[DocumentRow]:
+    """
+    Note that ZaakInformatieObject's will not be created in bulk (see queryset MRO).
+    """
+    zaak_rows = [row for row in batch if row.has_instance and row.zaak_id]
+
+    for row in zaak_rows:
+        if row.zaak_id not in zaak_uuids:
+            error_message = (
+                f"Provided zaak UUID {row.zaak_id} for line {row.row_index} is "
+                "unknown. Unable to couple EnkelvoudigInformatieObject to Zaak."
+            )
+            logger.warning(error_message)
+            row.comment = error_message
+            row.processed = True
+            continue
+
+        zaak_eio = ZaakInformatieObject(
+            zaak_id=zaak_uuids[row.zaak_id],
+            informatieobject=row.instance.canonical,
+            aard_relatie=RelatieAarden.from_object_type("zaak"),
+        )
+
+        zaak_eio.save()
+
+        row.processed = True
+        row.succeeded = True
+
+    return batch
+
+
 # TODO: ensure one task is running all the time
 # TODO: make this more generic?
 # TODO: expose `batch_size` through API?
@@ -445,10 +489,16 @@ def import_documents(import_pk: int, batch_size=500) -> None:
     success_count = 0
 
     batch: list[DocumentRow] = []
+    batch_number = int(processed / batch_size) + 1
+
+    zaak_uuids = {str(uuid): id for uuid, id in Zaak.objects.values_list("uuid", "id")}
 
     for row_index, row in _get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
             continue
+
+        if len(batch) % batch_size == 0:
+            logger.info(f"Starting batch {batch_number}")
 
         document_row = _import_document_row(row, row_index)
 
@@ -457,15 +507,17 @@ def import_documents(import_pk: int, batch_size=500) -> None:
         if not len(batch) % batch_size == 0:
             continue
 
+        logger.debug(f"Creating EIO's for batch {batch_number}")
         created_batch: list[DocumentRow] = _batch_create_eios(batch)
 
-        _processed, _fail_count, _success_count = _get_batch_statistics(created_batch)
+        logger.debug(f"Coupling EIO's to Zaken for for batch {batch_number}")
+        _batch = _batch_couple_eios(created_batch, zaak_uuids)
+
+        _processed, _fail_count, _success_count = _get_batch_statistics(_batch)
 
         processed += _processed
         fail_count += _fail_count
         success_count += _success_count
-
-        # TODO: couple eio's to zaken after bulk_create
 
         import_instance.processed = processed
         import_instance.processed_succesfully = success_count
@@ -474,8 +526,15 @@ def import_documents(import_pk: int, batch_size=500) -> None:
             update_fields=["processed", "processed_succesfully", "processed_invalid"]
         )
 
-        logger.debug(f"Writing batch number {processed / batch_size} to report file")
+        logger.info(f"Writing batch number {batch_number} to report file")
         # TODO: implement writing batch to report file. Use append file mode when
         # writing to existing report file.
 
+        remaining_batches = int(
+            (import_instance.total / batch_size) - (processed / batch_size)
+        )
+
+        logger.info(f"{remaining_batches} batches remaining")
+
+        batch_number = int(processed / batch_size) + 1
         batch.clear()
