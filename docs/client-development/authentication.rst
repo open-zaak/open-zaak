@@ -80,11 +80,10 @@ This would then be used in an API call like:
 .. _Standard: https://vng-realisatie.github.io/gemma-zaken/
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Useful Links
-   `More indepth JWT Explanation`_
-   `JWT implementations for various languages`_
+Useful Links
+
+   * `More indepth JWT Explanation`_
+   * `JWT implementations for various languages`_
 
 .. _More indepth JWT Explanation: https://jwt.io/introduction
 .. _JWT implementations for various languages: https://jwt.io/libraries
