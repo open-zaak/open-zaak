@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from django.test import TestCase
-
 from rest_framework.exceptions import ErrorDetail
 
 from openzaak.components.catalogi.admin.utils import format_serializer_errors
+from openzaak.utils.admintest import TestCase
 
 
 class SerializerErrorFormatterTests(TestCase):

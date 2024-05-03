@@ -3,13 +3,13 @@
 import uuid
 from datetime import date, time
 
-from django.test import TestCase
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.documenten.models import Gebruiksrechten
 from openzaak.tests.utils import AdminTestMixin
+from openzaak.utils.admintest import TestCase
 
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 from ..utils import get_operation_url

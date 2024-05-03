@@ -5,7 +5,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ngettext_lazy
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (

@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
 
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from .factories import SuperUserFactory
 

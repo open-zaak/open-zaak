@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -31,7 +31,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import TestCase, WebTest
 
 from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory

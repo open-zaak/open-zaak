@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from django.urls import reverse
 
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ..api.schema import custom_settings
 

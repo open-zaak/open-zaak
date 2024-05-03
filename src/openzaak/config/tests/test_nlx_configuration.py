@@ -13,7 +13,7 @@ from zgw_consumers.constants import NLXDirectories
 from zgw_consumers.models import NLXConfig
 
 from openzaak.tests.utils import AdminTestMixin
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ..forms import get_nlx_choices
 

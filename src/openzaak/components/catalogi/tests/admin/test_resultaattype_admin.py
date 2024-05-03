@@ -23,7 +23,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import ResultaatType
 from ..factories import ResultaatTypeFactory, ZaakTypeFactory

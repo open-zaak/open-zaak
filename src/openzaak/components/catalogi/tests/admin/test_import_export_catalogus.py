@@ -15,7 +15,7 @@ from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import (
     BesluitType,

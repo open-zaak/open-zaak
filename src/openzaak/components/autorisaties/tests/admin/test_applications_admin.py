@@ -6,7 +6,7 @@ from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ..factories import ApplicatieFactory
 

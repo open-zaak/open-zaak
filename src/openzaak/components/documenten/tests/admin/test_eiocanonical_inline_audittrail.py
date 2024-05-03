@@ -9,7 +9,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,

@@ -11,7 +11,7 @@ from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import InformatieObjectType, ZaakType, ZaakTypeInformatieObjectType
 from ..factories import (

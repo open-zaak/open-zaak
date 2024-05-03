@@ -9,7 +9,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import ZaakBesluit
 from ..factories import ZaakFactory, ZaakInformatieObjectFactory

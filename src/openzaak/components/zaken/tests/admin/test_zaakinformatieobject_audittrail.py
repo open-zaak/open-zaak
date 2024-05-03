@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.test import TestCase
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
@@ -12,6 +11,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.tests.utils import AdminTestMixin
+from openzaak.utils.admintest import TestCase
 
 from ..factories import ZaakFactory, ZaakInformatieObjectFactory
 from ..utils import get_operation_url

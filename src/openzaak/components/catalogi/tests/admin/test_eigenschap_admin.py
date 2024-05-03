@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import Eigenschap, EigenschapSpecificatie
 from ..factories import EigenschapSpecificatieFactory, ZaakTypeFactory

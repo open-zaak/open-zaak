@@ -6,6 +6,7 @@ from datetime import date, time
 from django.test import override_settings
 from django.urls import reverse
 
+from maykin_2fa.test import disable_admin_mfa
 from rest_framework import status
 from vng_api_common import tests
 
@@ -16,6 +17,7 @@ from ..utils import get_operation_url
 
 
 @require_cmis
+@disable_admin_mfa()
 @override_settings(CMIS_ENABLED=True)
 class GebruiksrechtenCMISAdminTests(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

@@ -22,7 +22,7 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_resource_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.utils.webtest import TransactionWebTest, WebTest
+from openzaak.utils.admintest import TransactionWebTest, WebTest
 
 from ...models import (
     BesluitType,

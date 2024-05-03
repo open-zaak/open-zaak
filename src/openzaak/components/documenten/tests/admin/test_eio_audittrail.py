@@ -3,7 +3,6 @@
 import uuid
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
 from django.urls import reverse
 
 from vng_api_common.audittrails.models import AuditTrail
@@ -11,6 +10,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.tests.utils import AdminTestMixin
+from openzaak.utils.admintest import TestCase
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,

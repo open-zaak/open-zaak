@@ -3,7 +3,6 @@
 import uuid
 from datetime import date, time
 
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -12,6 +11,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from openzaak.components.catalogi.tests.factories import StatusTypeFactory
 from openzaak.components.zaken.models import Status
 from openzaak.tests.utils import AdminTestMixin
+from openzaak.utils.admintest import TestCase
 
 from ..factories import StatusFactory, ZaakFactory
 from ..utils import get_operation_url

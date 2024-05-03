@@ -12,7 +12,7 @@ import requests_mock
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ..models import FailedNotification
 from . import mock_notification_send, mock_nrc_oas_get

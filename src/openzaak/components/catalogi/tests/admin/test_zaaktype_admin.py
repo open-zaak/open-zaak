@@ -23,7 +23,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import ZaakType
 from ..factories import (

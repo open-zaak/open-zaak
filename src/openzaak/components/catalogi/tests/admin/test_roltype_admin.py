@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from vng_api_common.constants import RolOmschrijving
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.webtest import WebTest
+from openzaak.utils.admintest import WebTest
 
 from ...models import RolType
 from ..factories import RolTypeFactory, ZaakTypeFactory
