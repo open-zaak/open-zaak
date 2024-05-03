@@ -34,4 +34,9 @@ UNIX-timestamp die aangeeft op welk moment het token gegenereerd is.
 `user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn
 vrije velden met als enige beperking dat de lengte maximaal de lengte van
 de overeenkomstige velden in de audit trail resources is (zie rest API spec).
+
+**Handige JWT links**
+ * [VNG Authenticatie en autorisatie](https://vng-realisatie.github.io\
+/gemma-zaken/themas/achtergronddocumentatie/authenticatie-autorisatie#autorisatie)
+ * [JWT Bibliotheken](https://jwt.io/libraries)
 """

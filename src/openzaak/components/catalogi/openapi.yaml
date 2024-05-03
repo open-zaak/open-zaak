@@ -57,6 +57,10 @@ info:
     vrije velden met als enige beperking dat de lengte maximaal de lengte van
     de overeenkomstige velden in de audit trail resources is (zie rest API spec).
 
+    **Handige JWT links**
+     * [VNG Authenticatie en autorisatie](https://vng-realisatie.github.io/gemma-zaken/themas/achtergronddocumentatie/authenticatie-autorisatie#autorisatie)
+     * [JWT Bibliotheken](https://jwt.io/libraries)
+
 
     ### Notificaties
 
@@ -12432,7 +12436,8 @@ components:
         naam:
           type: string
           title: Referentieprocesnaam
-          description: De naam van het Referentieproces.
+          description: De naam van het Referentieproces. Zie ook de Procesarchitectuur
+            Referentieprocessen op https://www.gemmaonline.nl/index.php/Procesarchitectuur_Referentieprocessen
           maxLength: 80
         link:
           type: string
@@ -12449,7 +12454,8 @@ components:
           type: string
           minLength: 1
           title: Referentieprocesnaam
-          description: De naam van het Referentieproces.
+          description: De naam van het Referentieproces. Zie ook de Procesarchitectuur
+            Referentieprocessen op https://www.gemmaonline.nl/index.php/Procesarchitectuur_Referentieprocessen
           maxLength: 80
         link:
           type: string
