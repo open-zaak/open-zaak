@@ -13057,6 +13057,11 @@ components:
           description: Specificatie van de attribuutsoort van het object, subject
             of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
             heeft en dat bepalend is voor de start van de archiefactietermijn.
+        communicatiekanaalNaam:
+          type: string
+          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+            om een zaak te starten is ontvangen.'
+          maxLength: 250
     Point:
       type: object
       description: GeoJSON point geometry
@@ -14327,6 +14332,11 @@ components:
           description: Specificatie van de attribuutsoort van het object, subject
             of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
             heeft en dat bepalend is voor de start van de archiefactietermijn.
+        communicatiekanaalNaam:
+          type: string
+          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+            om een zaak te starten is ontvangen.'
+          maxLength: 250
       required:
       - bronorganisatie
       - startdatum
@@ -14956,6 +14966,11 @@ components:
           description: Specificatie van de attribuutsoort van het object, subject
             of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
             heeft en dat bepalend is voor de start van de archiefactietermijn.
+        communicatiekanaalNaam:
+          type: string
+          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+            om een zaak te starten is ontvangen.'
+          maxLength: 250
       required:
       - bronorganisatie
       - startdatum
