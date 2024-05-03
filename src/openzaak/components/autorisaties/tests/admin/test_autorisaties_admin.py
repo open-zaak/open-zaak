@@ -119,8 +119,7 @@ class ApplicatieInlinesAdminTests(WebTest):
         url = build_absolute_url(obj.get_absolute_api_url())
         field = obj._meta.model_name
         Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            **{field: url, **kwargs},
+            applicatie=self.applicatie, **{field: url, **kwargs},
         )
 
 

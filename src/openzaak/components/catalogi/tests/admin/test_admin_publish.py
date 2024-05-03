@@ -120,8 +120,7 @@ class ZaaktypeAdminTests(
             "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogus-detail",
-            kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
+            "catalogus-detail", kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
             {
@@ -421,9 +420,7 @@ class ZaaktypeAdminTests(
         RolTypeFactory.create(zaaktype=zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=zaaktype.catalogus,
-            zaaktypen__zaaktype=zaaktype,
-            concept=True,
+            catalogus=zaaktype.catalogus, zaaktypen__zaaktype=zaaktype, concept=True,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 

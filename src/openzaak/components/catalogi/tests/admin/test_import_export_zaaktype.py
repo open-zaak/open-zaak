@@ -177,8 +177,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse,
-            json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
         )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
@@ -296,8 +295,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse,
-            json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
         )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")

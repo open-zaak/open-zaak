@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from django_webtest import (
     TransactionWebTest as DjangoTransactionWebTest,
     WebTest as DjangoWebTest,

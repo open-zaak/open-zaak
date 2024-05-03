@@ -568,9 +568,9 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "https://referentielijsten-api.vng.cloud/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
-        response.form["brondatum_archiefprocedure_afleidingswijze"] = (
-            BrondatumArchiefprocedureAfleidingswijze.afgehandeld
-        )
+        response.form[
+            "brondatum_archiefprocedure_afleidingswijze"
+        ] = BrondatumArchiefprocedureAfleidingswijze.afgehandeld
         response.form["zaaktype"] = zaaktype.id
         response = response.form.submit()
 

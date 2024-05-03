@@ -54,8 +54,7 @@ class AdminSessionRefreshMiddlewareTests(WebTest):
     @patch(
         "mozilla_django_oidc_db.mixins.OpenIDConnectConfig.get_solo",
         return_value=OpenIDConnectConfig(
-            enabled=True,
-            oidc_op_authorization_endpoint="https://example.com/auth/",
+            enabled=True, oidc_op_authorization_endpoint="https://example.com/auth/",
         ),
     )
     @patch(
