@@ -65,6 +65,7 @@ Which leads to the following JWT:
 This would then be used in an API call like:
 
 .. code-block:: http
+
     GET https://test.openzaak.nl/besluiten/api/v1/besuiten HTTP/1.1
     Host: test.open-zaak.nl
     Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkb2NzIiwiaWF0IjoxNjAyODU3MzAxLCJjbGllbnRfaWQiOiJkb2NzIiwidXNlcl9pZCI6ImRvY3NAZXhhbXBsZS5jb20iLCJ1c2VyX3JlcHJlc2VudGF0aW9uIjoiRG9jdW1lbnRhdGlvbiBFeGFtcGxlIn0.DZu7E780xG4zqRiT8ZhrBeMudz45301wNVDT0ra-Iyw
