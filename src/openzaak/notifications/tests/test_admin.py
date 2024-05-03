@@ -9,10 +9,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 import requests_mock
-from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.utils.webtest import WebTest
 
 from ..models import FailedNotification
 from . import mock_notification_send, mock_nrc_oas_get

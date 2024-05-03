@@ -13,6 +13,14 @@
             [
                 "auth",
                 "group"
+            ],
+            [
+                "otp_totp",
+                "totpdevice"
+            ],
+            [
+                "two_factor_webauthn",
+                "webauthndevice"
             ]
         ]
     }

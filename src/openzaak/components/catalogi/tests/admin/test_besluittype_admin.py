@@ -4,9 +4,8 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.utils.translation import ngettext_lazy
 
-from django_webtest import WebTest
-
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
@@ -70,7 +69,10 @@ class BesluitTypeAdminTests(WebTest):
 
     def test_create_besluittype_m2m_relation_popup_filters_with_catalogus(self):
         query_params = urlencode(
-            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+            {
+                "catalogus_id__exact": self.catalogus.pk,
+                "catalogus": self.catalogus.pk,
+            }
         )
         url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
         response = self.app.get(url)
@@ -149,7 +151,10 @@ class BesluitTypeAdminTests(WebTest):
 
     def test_create_besluittype(self):
         query_params = urlencode(
-            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+            {
+                "catalogus_id__exact": self.catalogus.pk,
+                "catalogus": self.catalogus.pk,
+            }
         )
         url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
         response = self.app.get(url)

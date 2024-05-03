@@ -4,12 +4,12 @@ import tempfile
 
 from django.urls import reverse
 
-from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.utils.webtest import WebTest
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
@@ -109,9 +109,9 @@ class EioAdminInlineTests(WebTest):
         form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"
         form["enkelvoudiginformatieobject_set-0-titel"] = "some titel"
         form["enkelvoudiginformatieobject_set-0-auteur"] = "some author"
-        form[
-            "enkelvoudiginformatieobject_set-0-_informatieobjecttype"
-        ] = informatieobjecttype.id
+        form["enkelvoudiginformatieobject_set-0-_informatieobjecttype"] = (
+            informatieobjecttype.id
+        )
         form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
         form["enkelvoudiginformatieobject_set-0-inhoud"] = (file.name,)
         form["enkelvoudiginformatieobject_set-0-bestandsomvang"] = 12

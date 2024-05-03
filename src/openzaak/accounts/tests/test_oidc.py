@@ -6,8 +6,9 @@ from urllib.parse import urlparse
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from django_webtest import WebTest
 from mozilla_django_oidc_db.models import OpenIDConnectConfig
+
+from openzaak.utils.webtest import WebTest
 
 from .factories import SuperUserFactory
 
@@ -53,7 +54,8 @@ class AdminSessionRefreshMiddlewareTests(WebTest):
     @patch(
         "mozilla_django_oidc_db.mixins.OpenIDConnectConfig.get_solo",
         return_value=OpenIDConnectConfig(
-            enabled=True, oidc_op_authorization_endpoint="https://example.com/auth/",
+            enabled=True,
+            oidc_op_authorization_endpoint="https://example.com/auth/",
         ),
     )
     @patch(

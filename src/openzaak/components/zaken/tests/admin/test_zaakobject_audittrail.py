@@ -2,11 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import reverse
 
-from django_webtest import WebTest
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.tests.utils import AdminTestMixin
+from openzaak.utils.webtest import WebTest
 
 from ..factories import ZaakFactory, ZaakObjectFactory
 from ..utils import get_operation_url

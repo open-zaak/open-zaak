@@ -14,7 +14,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import requests_mock
-from django_webtest import WebTest
 from freezegun import freeze_time
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -32,6 +31,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
+from openzaak.utils.webtest import WebTest
 
 from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
@@ -119,7 +119,8 @@ class ApplicatieInlinesAdminTests(WebTest):
         url = build_absolute_url(obj.get_absolute_api_url())
         field = obj._meta.model_name
         Autorisatie.objects.create(
-            applicatie=self.applicatie, **{field: url, **kwargs},
+            applicatie=self.applicatie,
+            **{field: url, **kwargs},
         )
 
 

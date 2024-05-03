@@ -14,7 +14,6 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 import requests_mock
-from django_webtest import TransactionWebTest, WebTest
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
@@ -23,6 +22,7 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_resource_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.utils.webtest import TransactionWebTest, WebTest
 
 from ...models import (
     BesluitType,
@@ -177,7 +177,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse,
+            json=selectielijstklasse_body,
         )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
@@ -295,7 +296,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse,
+            json=selectielijstklasse_body,
         )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")

@@ -10,12 +10,12 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
-from django_webtest import WebTest
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.utils.webtest import WebTest
 
 from ...models import (
     BesluitType,
@@ -155,7 +155,8 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse,
+            json=selectielijstklasse_body,
         )
         response = form.submit("_import")
 
@@ -290,7 +291,8 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
         )
         self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
         self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
+            resultaattype.selectielijstklasse,
+            json=selectielijstklasse_body,
         )
         response = form.submit("_import")
 

@@ -2,11 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import reverse
 
-from django_webtest import WebTest
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ..factories import ApplicatieFactory
 

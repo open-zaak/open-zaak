@@ -28,6 +28,7 @@ django-redis
 django-privates
 django-relativedelta
 mozilla-django-oidc-db
+maykin-2fa
 
 # Admin and UI libraries
 django-admin-index

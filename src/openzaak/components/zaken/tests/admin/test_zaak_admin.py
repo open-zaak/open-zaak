@@ -4,12 +4,12 @@ from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
-from django_webtest import WebTest
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ...models import ZaakBesluit
 from ..factories import ZaakFactory, ZaakInformatieObjectFactory
@@ -20,7 +20,8 @@ class ZaakAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
         cls.service = Service.objects.create(
-            api_type=APITypes.drc, api_root="https://external.nl/api/v1/",
+            api_type=APITypes.drc,
+            api_root="https://external.nl/api/v1/",
         )
 
     def setUp(self):

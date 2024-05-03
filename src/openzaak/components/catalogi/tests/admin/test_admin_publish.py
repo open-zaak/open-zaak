@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, ngettext_lazy
 
 import requests_mock
-from django_webtest import WebTest
 from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
@@ -21,6 +20,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.utils.webtest import WebTest
 
 from ..factories import (
     BesluitTypeFactory,
@@ -120,7 +120,8 @@ class ZaaktypeAdminTests(
             "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogus-detail", kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
+            "catalogus-detail",
+            kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
             {
@@ -420,7 +421,9 @@ class ZaaktypeAdminTests(
         RolTypeFactory.create(zaaktype=zaaktype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=zaaktype.catalogus, zaaktypen__zaaktype=zaaktype, concept=True,
+            catalogus=zaaktype.catalogus,
+            zaaktypen__zaaktype=zaaktype,
+            concept=True,
         )
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 

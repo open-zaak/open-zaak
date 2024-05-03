@@ -9,7 +9,6 @@ from django.utils.translation import gettext, gettext_lazy as _, ngettext_lazy
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
-from django_webtest import WebTest
 from freezegun import freeze_time
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
@@ -24,6 +23,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
+from openzaak.utils.webtest import WebTest
 
 from ...models import ZaakType
 from ..factories import (
@@ -270,7 +270,9 @@ class ZaaktypeAdminTests(
                 "kanaal": "zaaktypen",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_new_url}",
-                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{catalogus_url}",
+                },
             }
         )
         # assert that sub-resources have old datum_begin_geldigheid
@@ -994,7 +996,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_save_published_zaaktype(self, m):
-        """ Regressiontest where a user is not able to save a published zaaktype """
+        """Regressiontest where a user is not able to save a published zaaktype"""
 
         # from test_publish_with_minimum_requirements
         mock_selectielijst_oas_get(m)
@@ -1049,7 +1051,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_save_published_zaaktype_with_verlenging_mogelijk(self, m):
-        """ Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging """
+        """Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging"""
 
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
@@ -1095,7 +1097,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_published_zaaktype_with_empty_durations(self, m):
-        """ Regression test where a user is not able to publish a concept-zaaktype with a verlenging """
+        """Regression test where a user is not able to publish a concept-zaaktype with a verlenging"""
 
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")

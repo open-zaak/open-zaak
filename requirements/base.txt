@@ -12,6 +12,8 @@ asgiref==3.8.1
     # via
     #   django
     #   django-cors-headers
+asn1crypto==1.5.1
+    # via webauthn
 attrs==21.4.0
     # via
     #   cattrs
@@ -28,6 +30,8 @@ boltons==21.0.0
     #   glom
 cattrs==1.10.0
     # via requests-cache
+cbor2==5.6.3
+    # via webauthn
 celery==5.2.7
     # via
     #   -r requirements/base.in
@@ -75,6 +79,7 @@ cryptography==41.0.5
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
+    #   webauthn
 deprecated==1.2.13
     # via redis
 dictdiffer==0.9.0
@@ -90,10 +95,13 @@ django==4.2.11
     #   django-db-logger
     #   django-extra-views
     #   django-filter
+    #   django-formtools
     #   django-jsonform
     #   django-log-outgoing-requests
     #   django-loose-fk
     #   django-markup
+    #   django-otp
+    #   django-phonenumber-field
     #   django-privates
     #   django-redis
     #   django-relativedelta
@@ -103,6 +111,7 @@ django==4.2.11
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-two-factor-auth
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -110,6 +119,7 @@ django==4.2.11
     #   drf-nested-routers
     #   drf-spectacular
     #   drf-yasg
+    #   maykin-2fa
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
     #   notifications-api-common
@@ -133,6 +143,8 @@ django-filter==21.1
     #   -r requirements/base.in
     #   commonground-api-common
     #   django-loose-fk
+django-formtools==2.5.1
+    # via django-two-factor-auth
 django-ipware==4.0.2
     # via django-axes
 django-jsonform==2.21.2
@@ -145,6 +157,10 @@ django-markup==1.5
     # via -r requirements/base.in
 django-ordered-model==3.5
     # via django-admin-index
+django-otp==1.5.0
+    # via django-two-factor-auth
+django-phonenumber-field==7.3.0
+    # via django-two-factor-auth
 django-privates==2.0.0.post0
     # via
     #   -r requirements/base.in
@@ -173,6 +189,8 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
+    # via maykin-2fa
 djangorestframework==3.14.0
     # via
     #   -r requirements/base.in
@@ -261,6 +279,8 @@ markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
     # via jinja2
+maykin-2fa==1.0.0
+    # via -r requirements/base.in
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.15.0
@@ -278,6 +298,8 @@ packaging==24.0
     #   bleach
     #   drf-yasg
     #   redis
+phonenumberslite==8.13.35
+    # via django-two-factor-auth
 prometheus-client==0.15.0
     # via flower
 prompt-toolkit==3.0.31
@@ -286,6 +308,10 @@ psycopg2==2.9.3
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
+pydantic==1.10.15
+    # via
+    #   django-two-factor-auth
+    #   webauthn
 pyjwt==2.4.0
     # via
     #   commonground-api-common
@@ -294,9 +320,12 @@ pyopenssl==23.3.0
     # via
     #   django-simple-certmanager
     #   josepy
+    #   webauthn
     #   zgw-consumers
 pyparsing==3.0.7
     # via httplib2
+pypng==0.20220715.0
+    # via qrcode
 pyrsistent==0.18.1
     # via jsonschema
 python-dateutil==2.8.2
@@ -322,6 +351,8 @@ pyyaml==6.0
     #   drf-yasg
     #   gemma-zds-client
     #   oyaml
+qrcode==7.4.2
+    # via django-two-factor-auth
 redis==4.1.4
     # via django-redis
 requests==2.31.0
@@ -360,7 +391,10 @@ sqlparse==0.4.4
 tornado==6.3.3
     # via flower
 typing-extensions==4.11.0
-    # via asgiref
+    # via
+    #   asgiref
+    #   pydantic
+    #   qrcode
 uritemplate==4.1.1
     # via
     #   coreapi
@@ -383,6 +417,8 @@ vine==5.0.0
     #   kombu
 wcwidth==0.2.5
     # via prompt-toolkit
+webauthn==1.11.1
+    # via django-two-factor-auth
 webencodings==0.5.1
     # via bleach
 wrapt==1.14.1

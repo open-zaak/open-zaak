@@ -2,10 +2,9 @@
 # Copyright (C) 2021 Dimpact
 from django.urls import reverse
 
-from django_webtest import WebTest
-
 from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.constants import COMPONENT_MAPPING
+from openzaak.utils.webtest import WebTest
 
 from .factories import InternalServiceFactory
 

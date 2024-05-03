@@ -7,7 +7,6 @@ from django.utils.translation import ngettext_lazy
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
-from django_webtest import WebTest
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.selectielijst.tests import (
@@ -17,6 +16,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.utils.webtest import WebTest
 
 from ..factories import (
     BesluitTypeFactory,

@@ -5,7 +5,6 @@ from unittest.mock import patch
 from django.test import override_settings, tag
 from django.urls import reverse
 
-from django_webtest import WebTest
 from freezegun import freeze_time
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -13,6 +12,7 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.utils.webtest import WebTest
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
@@ -78,7 +78,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "informatieobjecttype",
                 "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -113,7 +115,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "informatieobjecttype",
                 "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -173,7 +177,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "besluittype",
                 "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -201,7 +207,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "besluittype",
                 "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -255,7 +263,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -293,7 +303,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -357,6 +369,8 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_new_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )

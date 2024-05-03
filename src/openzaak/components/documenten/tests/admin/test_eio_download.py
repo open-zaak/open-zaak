@@ -3,9 +3,8 @@
 from django.test import override_settings
 from django.urls import reverse
 
-from django_webtest import WebTest
-
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
@@ -28,7 +27,8 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         )
 
         change_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobject_change", args=(eio.pk,),
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(eio.pk,),
         )
         response = self.app.get(change_url)
 
@@ -49,7 +49,8 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         )
 
         change_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobject_change", args=(eio.pk,),
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(eio.pk,),
         )
         response = self.app.get(change_url)
 

@@ -4,9 +4,8 @@ from django.test import tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from django_webtest import WebTest
-
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ...models import StatusType
 from ..factories import ZaakTypeFactory

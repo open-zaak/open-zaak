@@ -2,9 +2,8 @@
 # Copyright (C) 2020 Dimpact
 from django.urls import reverse
 
-from django_webtest import WebTest
-
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.utils.webtest import WebTest
 
 from ..factories import BesluitFactory
 

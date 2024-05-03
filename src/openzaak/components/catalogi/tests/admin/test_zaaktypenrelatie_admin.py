@@ -3,12 +3,12 @@
 from django.test import override_settings
 from django.urls import reverse
 
-from django_webtest import WebTest
 from vng_api_common.tests import reverse as _reverse
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.models import ZaakTypenRelatie
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.utils.webtest import WebTest
 
 from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
