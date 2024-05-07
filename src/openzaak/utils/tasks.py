@@ -218,11 +218,15 @@ class DocumentRow:
 
     @property
     def trefwoorden(self) -> list[str]:
-        # TODO: remove quotes
         if not self._trefwoorden:
             return []
 
-        return self._trefwoorden.split(",")
+        trefwoorden = self._trefwoorden.replace('"', "")
+
+        if not trefwoorden:
+            return []
+
+        return trefwoorden.split(",")
 
     @property
     def processed(self) -> bool:
