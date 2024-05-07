@@ -79,6 +79,82 @@ This would then be used in an API call like:
 
 .. _Standard: https://vng-realisatie.github.io/gemma-zaken/
 
+Generating JWT Examples:
+------------------------
+
+.. tabs::
+
+    .. group-tab:: Python (Django)
+
+        Using Django with `pyjwt`_
+
+        .. code-block:: python
+
+            import jwt
+            import requests
+            import time
+
+            client_id = "example"
+            client_secret = "secret"
+
+            payload = {
+                "iss": client_id,
+                "iat": int(time.time()),  # current unix time
+                "client_id": client_id,
+                "user_id": "user-id",
+                "user_representation": "User Name",
+            }
+            jwt_token = jwt.encode(payload, client_secret, algorithm="HS256")
+
+            headers = {"Authorization": "Bearer {token}".format(token=jwt_token)}
+            request = requests.get(
+                "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
+                headers=headers,
+            )
+
+    .. group-tab:: JavaScript
+
+        In JavaScript, most of the token can be generated with the `jsonwebtoken`_ package.
+
+        .. code-block:: javascript
+
+            import jwt from 'jsonwebtoken';
+
+
+            const CLIENT_ID = 'example';
+            const SECRET = 'secret';
+
+            const getJWT = () => {
+              return jwt.sign(
+                {
+                    // iat: placed automatically
+                    client_id: CLIENT_ID,
+                    user_id: "eample@example.com",
+                    user_representation: "Example name"
+                },
+                SECRET,
+                {
+                  algorithm: 'HS256',
+                  issuer: CLIENT_ID, // iss in payload
+                }
+              );
+            };
+
+            const url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
+            var token = getJWT()
+
+            fetch(
+              url,
+              {
+                method: 'get',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/json',
+                },
+              }
+            ).then(response => {
+              console.log(response);
+            });
 
 Useful Links
 
@@ -87,3 +163,5 @@ Useful Links
 
 .. _More indepth JWT Explanation: https://jwt.io/introduction
 .. _JWT implementations for various languages: https://jwt.io/libraries
+.. _pyjwt: https://pypi.org/project/PyJWT/
+.. _jsonwebtoken: https://www.npmjs.com/package/jsonwebtoken

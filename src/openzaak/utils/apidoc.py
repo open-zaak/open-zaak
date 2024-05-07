@@ -38,5 +38,7 @@ de overeenkomstige velden in de audit trail resources is (zie rest API spec).
 **Handige JWT links**
  * [VNG Authenticatie en autorisatie](https://vng-realisatie.github.io\
 /gemma-zaken/themas/achtergronddocumentatie/authenticatie-autorisatie#autorisatie)
+ * [Codevoorbeelden voor Python, JavasScript, Java, PHP]\
+(https://open-zaak.readthedocs.io/en/stable/client-development/authentication.html#generating-jwt-examples)
  * [JWT Bibliotheken](https://jwt.io/libraries)
 """
