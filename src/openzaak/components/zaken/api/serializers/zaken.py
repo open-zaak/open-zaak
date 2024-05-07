@@ -337,6 +337,7 @@ class ZaakSerializer(
             "uiterlijke_einddatum_afdoening",
             "publicatiedatum",
             "communicatiekanaal",
+            "communicatiekanaal_naam",
             # TODO: add shape validator once we know the shape
             "producten_of_diensten",
             "vertrouwelijkheidaanduiding",
@@ -368,7 +369,6 @@ class ZaakSerializer(
             "processobjectaard",
             "startdatum_bewaartermijn",
             "processobject",
-            "communicatiekanaal_naam",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
