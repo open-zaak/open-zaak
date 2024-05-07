@@ -36,6 +36,7 @@ from openzaak.utils.fields import (
     RelativeURLField,
     ServiceFkField,
 )
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
@@ -409,6 +410,16 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         blank=True,
         help_text=_(
             "De naam van de registratie waarvan het procesobject deel uit maakt."
+        ),
+    )
+    communicatiekanaal_naam = models.CharField(
+        _("communicatiekanaal naam"),
+        max_length=250,
+        blank=True,
+        help_text=mark_experimental(
+            _(
+                "De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen."
+            )
         ),
     )
     processobject = GegevensGroepType(
