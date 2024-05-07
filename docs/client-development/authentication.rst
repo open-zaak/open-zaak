@@ -99,10 +99,10 @@ Generating JWT Examples:
 
             payload = {
                 "iss": client_id,
-                "iat": int(time.time()),  # current unix time
+                "iat": int(time.time()),  # current time in seconds
                 "client_id": client_id,
-                "user_id": "user-id",
-                "user_representation": "User Name",
+                "user_id": "eample@example.com",
+                "user_representation": "Example Name",
             }
             jwt_token = jwt.encode(payload, client_secret, algorithm="HS256")
 
@@ -130,7 +130,7 @@ Generating JWT Examples:
                     // iat: placed automatically
                     client_id: CLIENT_ID,
                     user_id: "eample@example.com",
-                    user_representation: "Example name"
+                    user_representation: "Example Name"
                 },
                 SECRET,
                 {
@@ -156,6 +156,38 @@ Generating JWT Examples:
               console.log(response);
             });
 
+    .. group-tab:: php
+
+        The `php-jwt`_ package is available which can generate the JWT token for you.
+
+        .. code-block:: PHP
+
+            use Firebase\JWT\JWT;
+
+            $CLIENT_ID = "example";
+            $SECRET = "secret";
+
+            $payload = [
+                "iss" => $CLIENT_ID,
+                "iat" => time(),
+                "client_id" => $CLIENT_ID,
+                "user_id" => "eample@example.com",
+                "user_representation" => "Example Name",
+            ];
+
+            $jwt_token = JWT::encode($payload, $SECRET, "HS256");
+            $headers = [
+                "Authorization" => "Bearer " . $jwt_token,
+            ];
+            $url ="http://127.0.0.1:8000/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
+
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request("GET", $url, [
+                "headers" => $headers,
+                'http_errors' => false
+            ]);
+
+
 Useful Links
 
    * `More indepth JWT Explanation`_
@@ -165,3 +197,4 @@ Useful Links
 .. _JWT implementations for various languages: https://jwt.io/libraries
 .. _pyjwt: https://pypi.org/project/PyJWT/
 .. _jsonwebtoken: https://www.npmjs.com/package/jsonwebtoken
+.. _php-jwt: https://github.com/firebase/php-jwt
