@@ -13059,7 +13059,7 @@ components:
             heeft en dat bepalend is voor de start van de archiefactietermijn.
         communicatiekanaalNaam:
           type: string
-          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+          description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
     Point:
@@ -14334,7 +14334,7 @@ components:
             heeft en dat bepalend is voor de start van de archiefactietermijn.
         communicatiekanaalNaam:
           type: string
-          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+          description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
       required:
@@ -14968,7 +14968,7 @@ components:
             heeft en dat bepalend is voor de start van de archiefactietermijn.
         communicatiekanaalNaam:
           type: string
-          description: '**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding
+          description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
             om een zaak te starten is ontvangen.'
           maxLength: 250
       required:

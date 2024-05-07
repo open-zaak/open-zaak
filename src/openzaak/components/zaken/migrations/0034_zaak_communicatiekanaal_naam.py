@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name="communicatiekanaal_naam",
             field=models.CharField(
                 blank=True,
-                help_text="**EXPERIMENTEEL** De naam van medium waarlangs de aanleiding om een zaak te starten is ontvangen.",
+                help_text="**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen.",
                 max_length=250,
                 verbose_name="communicatiekanaal naam",
             ),

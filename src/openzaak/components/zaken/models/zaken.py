@@ -418,7 +418,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         blank=True,
         help_text=mark_experimental(
             _(
-                "De naam van medium waarlangs de aanleiding om een zaak te starten is ontvangen."
+                "De naam van het medium waarlangs de aanleiding om een zaak te starten is ontvangen."
             )
         ),
     )
