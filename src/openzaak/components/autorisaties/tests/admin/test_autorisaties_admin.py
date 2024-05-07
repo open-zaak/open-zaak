@@ -1112,7 +1112,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    @tag("gh-1626")
+    @tag("gh-1636")
     def test_autorisatie_spec_is_removed_when_all_and_future_unselected_besluittype(
         self,
     ):
@@ -1160,7 +1160,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             RelatedTypeSelectionMethods.all_current,
         )
 
-    @tag("gh-1626")
+    @tag("gh-1636")
     def test_autorisatie_spec_is_removed_when_all_and_future_unselected_zaaktype(self):
 
         ZaakTypeFactory.create(concept=False)
@@ -1205,7 +1205,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             RelatedTypeSelectionMethods.all_current,
         )
 
-    @tag("gh-1626")
+    @tag("gh-1636")
     def test_autorisatie_spec_is_removed_when_all_and_future_unselected_documenten(
         self,
     ):
@@ -1255,7 +1255,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             RelatedTypeSelectionMethods.manual_select,
         )
 
-    @tag("gh-1626")
+    @tag("gh-1636")
     def test_autorisatie_spec_is_not_shared_within_component(self):
 
         BesluitTypeFactory.create(concept=False)
@@ -1320,4 +1320,50 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertIn(RelatedTypeSelectionMethods.all_current, related_type_selections)
         self.assertIn(
             RelatedTypeSelectionMethods.all_current_and_future, related_type_selections
+        )
+
+    @tag("gh-1636")
+    def test_autorisatie_spec_scope_order_does_not_matter(self):
+
+        BesluitTypeFactory.create(concept=False)
+
+        AutorisatieSpecFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            scopes=["besluiten.lezen", "besluiten.bijwerken"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": ["besluiten.bijwerken", "besluiten.lezen"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+
+        data["form-1-component"] = ComponentTypes.brc
+        data["form-1-scopes"] = ["besluiten.lezen", "besluiten.bijwerken"]
+        data[
+            "form-1-related_type_selection"
+        ] = RelatedTypeSelectionMethods.all_current_and_future
+        data[
+            "form-1-vertrouwelijkheidaanduiding"
+        ] = VertrouwelijkheidsAanduiding.openbaar
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context_data["formset"]._non_form_errors[0],
+            _("{field} may not have overlapping scopes.").format(field="besluittypen"),
         )
