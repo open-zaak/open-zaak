@@ -120,6 +120,10 @@ class DocumentRow:
             "trefwoorden",
         ]
 
+    @classproperty
+    def export_headers(cls) -> list[str]:
+        return [*cls.import_headers, "opmerking"]
+
     @property
     def bronorganisatie(self) -> str:
         return self._bronorganisatie
@@ -437,7 +441,6 @@ def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
 
 
 # TODO: catch this function call
-# TODO: monitor performance of this & the storm of signals it will send
 @transaction.atomic()
 def _batch_couple_eios(
     batch: list[DocumentRow], zaak_uuids: dict[str, int]
@@ -470,6 +473,50 @@ def _batch_couple_eios(
         row.succeeded = True
 
     return batch
+
+
+def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
+    """
+    Note that this relies on (PrivateMedia)FileSystemStorage
+    """
+    storage_location = Path(instance.report_file.storage.base_location)
+    default_dir = Path(storage_location / instance.report_file.field.upload_to)
+    default_name = f"report-{instance.pk}.csv"
+    default_path = f"{default_dir}/{default_name}"
+
+    if not default_dir.exists():
+        default_dir.mkdir(parents=True)
+
+    file_path = instance.report_file.file.name if instance.report_file else None
+    file_exists = Path(instance.report_file.file.name).exists() if file_path else False
+    has_data = bool(_get_total_count(file_path)) if file_exists else False
+
+    if file_exists and has_data:
+        mode = "a"
+    elif file_exists:
+        mode = "w"
+    else:
+        mode = "w+"
+
+    logger.debug(f"Using file mode {mode} for file {file_path or default_path}")
+
+    with open(file_path or default_path, mode) as _export_file:
+        csv_writer = csv.writer(_export_file, delimiter=",", quotechar='"')
+
+        if mode in ("w", "w+"):
+            csv_writer.writerow(DocumentRow.export_headers)
+
+        for row in batch:
+            data = row.as_original()
+            csv_writer.writerow(data.values())
+
+    if file_path:
+        return
+
+    relative_path = Path(instance.report_file.field.upload_to) / default_name
+
+    instance.report_file.name = str(relative_path)
+    instance.save(update_fields=["report_file"])
 
 
 # TODO: ensure one task is running all the time
@@ -527,8 +574,7 @@ def import_documents(import_pk: int, batch_size=500) -> None:
         )
 
         logger.info(f"Writing batch number {batch_number} to report file")
-        # TODO: implement writing batch to report file. Use append file mode when
-        # writing to existing report file.
+        _write_to_file(import_instance, _batch)
 
         remaining_batches = int(
             (import_instance.total / batch_size) - (processed / batch_size)

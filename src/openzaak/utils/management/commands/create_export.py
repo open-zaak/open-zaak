@@ -143,7 +143,7 @@ class Command(BaseCommand):
 
         document_data = []
 
-        for _ in range(batch_size):
+        for index in range(batch_size):
             zaak_uuid = choice(zaken)
             informatie_object_uuid = choice(informatieobject_typen)
 
@@ -193,6 +193,7 @@ class Command(BaseCommand):
                 informatie_object_url,
                 zaak_uuid,
                 '"foobar,foobar"',
+                index,
             )
 
             document_data.append(row)
