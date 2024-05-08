@@ -625,9 +625,9 @@ def task_locker(func):
 
 # TODO: make this more generic?
 # TODO: expose `batch_size` through API?
-@celery_app.task
+@celery_app.task(bind=True)
 @task_locker
-def import_documents(import_pk: int, batch_size=500) -> None:
+def import_documents(self, import_pk: int, batch_size=500) -> None:
     import_instance = Import.objects.get(pk=import_pk)
 
     file_path = import_instance.import_file.path
