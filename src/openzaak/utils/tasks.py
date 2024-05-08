@@ -384,6 +384,11 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     instance = EnkelvoudigInformatieObject(**data)
 
+    if not instance.identificatie:
+        instance.identificatie = generate_unique_identification(
+            instance, "creatiedatum"
+        )
+
     try:
         instance.clean()
     except ValidationError as e:
@@ -417,11 +422,6 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
     for row in batch:
         if row.instance is None:
             continue
-
-        if not row.instance.identificatie:
-            row.instance.identificatie = generate_unique_identification(
-                row.instance, "creatiedatum"
-            )
 
         canonical = EnkelvoudigInformatieObjectCanonical()
         row.instance.canonical = canonical
