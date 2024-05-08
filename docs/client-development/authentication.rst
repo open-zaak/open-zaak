@@ -82,11 +82,14 @@ This would then be used in an API call like:
 Generating JWT Examples:
 ------------------------
 
+Example of how to generate JWT tokens in Java, JavaScript, PHP and Python with example libraries.
+There is a link to a list of more libraries for these and other languages below.
+
 .. tabs::
 
     .. group-tab:: Python (Django)
 
-        Using Django with `pyjwt`_
+        Using the `pyjwt`_ for python.
 
         .. code-block:: python
 
@@ -106,11 +109,14 @@ Generating JWT Examples:
             }
             jwt_token = jwt.encode(payload, client_secret, algorithm="HS256")
 
+            # add token token to the authentication HTTP header of your request library
+            zaaktype_url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff"
             headers = {"Authorization": "Bearer {token}".format(token=jwt_token)}
-            request = requests.get(
-                "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
+            response = requests.get(
+                zaaktype_url,
                 headers=headers,
             )
+            print(response.json())
 
     .. group-tab:: JavaScript
 
@@ -119,7 +125,6 @@ Generating JWT Examples:
         .. code-block:: javascript
 
             import jwt from 'jsonwebtoken';
-
 
             const CLIENT_ID = 'example';
             const SECRET = 'secret';
@@ -140,15 +145,17 @@ Generating JWT Examples:
               );
             };
 
-            const url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff",
-            var token = getJWT()
 
+            var jwt_token = getJWT()
+
+            // add token token to the authentication HTTP header of fetch
+            const zaaktype_url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
             fetch(
-              url,
+              zaaktype_url,
               {
                 method: 'get',
                 headers: {
-                  'Authorization': `Bearer ${token}`,
+                  'Authorization': `Bearer ${jwt_token}`,
                   'Accept': 'application/json',
                 },
               }
@@ -156,11 +163,11 @@ Generating JWT Examples:
               console.log(response);
             });
 
-    .. group-tab:: php
+    .. group-tab:: PHP
 
-        The `php-jwt`_ package is available which can generate the JWT token for you.
+        The `php-jwt`_ package is available for PHP which can generate the JWT token for you.
 
-        .. code-block:: PHP
+        .. code-block:: php
 
             use Firebase\JWT\JWT;
 
@@ -176,17 +183,52 @@ Generating JWT Examples:
             ];
 
             $jwt_token = JWT::encode($payload, $SECRET, "HS256");
+            // add token token to the authentication HTTP header of your request library
             $headers = [
                 "Authorization" => "Bearer " . $jwt_token,
             ];
-            $url ="http://127.0.0.1:8000/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
+            $zaaktype_url ="https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
 
             $client = new \GuzzleHttp\Client();
-            $response = $client->request("GET", $url, [
+            $response = $client->request("GET", $zaaktype_url, [
                 "headers" => $headers,
                 'http_errors' => false
             ]);
 
+            echo $response->getBody();
+
+    .. group-tab:: Java
+
+        The `java-jwt`_ package is available for java which can generate the JWT token for you.
+
+        .. code-block:: java
+
+            final String CLIENT_ID = "example";
+            final String SECRET = "secret";
+
+            Algorithm algorithm = Algorithm.HMAC256(SECRET);
+
+            String jwt_token = JWT.create()
+                .withIssuer(CLIENT_ID) // iss
+                .withIssuedAt(new Date()) // iat
+                .withClaim("client_id", CLIENT_ID)
+                .withClaim("user_id", "eample@example.com")
+                .withClaim("user_representation", "Example Name")
+                .sign(algorithm);
+
+            // add token token to the authentication HTTP header of your request library
+            try {
+                URL zaaktype_url = new URL("https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff");
+                URLConnection zaaktype_connection = zaaktype_url.openConnection();
+
+                zaaktype_connection.setRequestProperty ("Authorization", "Bearer "+jwt_token);
+                zaaktype_connection.addRequestProperty("Accept", "application/json");
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(
+                            zaaktype_connection.getInputStream()));
+            } catch (Exception exception){
+            }
 
 Useful Links
 
@@ -198,3 +240,4 @@ Useful Links
 .. _pyjwt: https://pypi.org/project/PyJWT/
 .. _jsonwebtoken: https://www.npmjs.com/package/jsonwebtoken
 .. _php-jwt: https://github.com/firebase/php-jwt
+.. _java-jwt: https://github.com/auth0/java-jwt
