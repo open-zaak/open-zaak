@@ -68,6 +68,24 @@ class Import(models.Model):
         null=True,
     )
 
+    # date related fields
+    created_on = models.DateTimeField(
+        verbose_name=_("Aangemaakt op"),
+        auto_now_add=True
+    )
+
+    started_on = models.DateTimeField(
+        verbose_name=_("Gestart op"),
+        blank=True,
+        null=True
+    )
+
+    finished_on = models.DateTimeField(
+        verbose_name=_("Voltooid op"),
+        blank=True,
+        null=True
+    )
+
     # statistics
     total = models.IntegerField(verbose_name=_("Totaal"))
     processed = models.IntegerField(verbose_name=_("Verwerkt"), default=0)

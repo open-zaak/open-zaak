@@ -10,6 +10,7 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.utils import timezone
 from django.utils.functional import classproperty
 
 from celery.utils.serialization import base64encode
@@ -26,7 +27,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
-from openzaak.utils.models import Import
+from openzaak.utils.models import Import, ImportStatusChoices
 
 logger = logging.getLogger(__name__)
 
@@ -561,7 +562,9 @@ def import_documents(import_pk: int, batch_size=500) -> None:
     file_path = import_instance.import_file.path
 
     import_instance.total = _get_total_count(file_path)
-    import_instance.save(update_fields=["total"])
+    import_instance.started_on = timezone.now()
+    import_instance.status = ImportStatusChoices.active
+    import_instance.save(update_fields=["total", "started_on", "status"])
 
     processed = 0
     fail_count = 0
@@ -616,3 +619,8 @@ def import_documents(import_pk: int, batch_size=500) -> None:
 
         batch_number = int(processed / batch_size) + 1
         batch.clear()
+
+    import_instance.finished_on = timezone.now()
+    # TODO: determine status based on import errors occured
+    import_instance.status = ImportStatusChoices.finished
+    import_instance.save(update_fields=["finished_on", "status"])
