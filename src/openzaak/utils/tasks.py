@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Generator, Optional
 from uuid import uuid4
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.functional import classproperty
 
@@ -373,10 +374,25 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     data["uuid"] = str(uuid4())
 
-    # TODO: call model `clean` method
     # TODO: follow EnkelvoudigInformatieObjectSerializer `create` behavior
     # TODO: handle features for `CMIS_ENABLED`?
     instance = EnkelvoudigInformatieObject(**data)
+
+    try:
+        instance.clean()
+    except ValidationError as e:
+        error_message = (
+            "A validation error occurred while validating a "
+            "EnkelvoudigInformtatieObject on line %(row_index)s: \n"
+            "%(error)s"
+        ) % dict(row_index=row_index, error=str(e))
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+        document_row.processed = True
+
+        return document_row
+
     document_row.instance = instance
     return document_row
 
