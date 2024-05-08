@@ -87,7 +87,7 @@ There is a link to a list of more libraries for these and other languages below.
 
 .. tabs::
 
-    .. group-tab:: Python (Django)
+    .. group-tab:: Python
 
         Using the `pyjwt`_ for python.
 
@@ -97,17 +97,17 @@ There is a link to a list of more libraries for these and other languages below.
             import requests
             import time
 
-            client_id = "example"
-            client_secret = "secret"
+            CLIENT_ID = "example"
+            SECRET = "secret"
 
             payload = {
-                "iss": client_id,
+                "iss": CLIENT_ID,
                 "iat": int(time.time()),  # current time in seconds
-                "client_id": client_id,
+                "client_id": CLIENT_ID,
                 "user_id": "eample@example.com",
                 "user_representation": "Example Name",
             }
-            jwt_token = jwt.encode(payload, client_secret, algorithm="HS256")
+            jwt_token = jwt.encode(payload, SECRET, algorithm="HS256")
 
             # add token token to the authentication HTTP header of your request library
             zaaktype_url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff"
@@ -227,7 +227,10 @@ There is a link to a list of more libraries for these and other languages below.
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(
                             zaaktype_connection.getInputStream()));
+                // do stuff with buffer
+
             } catch (Exception exception){
+                // exception code
             }
 
 Useful Links
