@@ -634,11 +634,16 @@ def import_documents(import_pk: int, batch_size=500) -> None:
             import_instance.comment += f"\n\n {error_message}"
             import_instance.save(update_fields=["comment"])
 
-            logger.warning(f"{error_message} \n Continueing with the next batch")
+            logger.warning(
+                f"{error_message} \n Trying to continue with batch {batch_number + 1}"
+            )
 
             created_batch: list[DocumentRow] = batch
         except DatabaseError as e:
-            logger.critical(f"Finishing import due to database error: \n{str(e)}")
+            logger.critical(
+                f"A critical error occured during batch {batch_number}. "
+                f"Finishing import due to database error: \n{str(e)}"
+            )
             logger.info("Trying to stop the import process gracefully")
 
             _finish_import(
@@ -654,7 +659,10 @@ def import_documents(import_pk: int, batch_size=500) -> None:
         try:
             _batch = _batch_couple_eios(created_batch, zaak_uuids)
         except DatabaseError as e:
-            logger.exception(f"Stopping import due to database error: \n{str(e)}")
+            logger.critical(
+                f"A critical error occured during batch {batch_number}. "
+                f"Finishing import due to database error: \n{str(e)}"
+            )
             logger.info("Trying to stop the import process gracefully")
 
             _finish_import(
