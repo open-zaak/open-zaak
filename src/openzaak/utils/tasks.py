@@ -1,13 +1,17 @@
 import binascii
 import csv
-from datetime import datetime
 import logging
+import functools
 from base64 import b64decode
 from dataclasses import dataclass
+from datetime import datetime
+from contextlib import contextmanager
 from pathlib import Path
+from time import monotonic
 from typing import Generator, Optional
 from uuid import uuid4
 
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import Error as DatabaseError, IntegrityError, transaction
@@ -378,9 +382,9 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     if "vertrouwelijkheidaanduiding" not in data:
         informatieobjecttype = data["informatieobjecttype"]
-        data["vertrouwelijkheidaanduiding"] = (
-            informatieobjecttype.vertrouwelijkheidaanduiding
-        )
+        data[
+            "vertrouwelijkheidaanduiding"
+        ] = informatieobjecttype.vertrouwelijkheidaanduiding
 
     instance = EnkelvoudigInformatieObject(**data)
 
@@ -450,11 +454,7 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
     # reuse created instances
     for row in batch:
         instance = next(
-            (
-                eio
-                for eio in eios
-                if row.instance and eio.uuid == row.instance.uuid
-            ),
+            (eio for eio in eios if row.instance and eio.uuid == row.instance.uuid),
             None,
         )
 
@@ -573,12 +573,11 @@ def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
     instance.save(update_fields=["report_file"])
 
 
-
 def _finish_import(
     instance: Import,
     status: ImportStatusChoices,
-    finished_on: Optional[datetime]= None,
-    comment: Optional[str]= ""
+    finished_on: Optional[datetime] = None,
+    comment: Optional[str] = "",
 ):
     updated_fields = ["finished_on", "status"]
 
@@ -593,10 +592,41 @@ def _finish_import(
     instance.save(update_fields=updated_fields)
 
 
-# TODO: ensure one task is running all the time
+LOCK_EXPIRE = 60 * (60 * 24) # 24 hours
+
+
+@contextmanager
+def task_lock(lock_id, oid):
+    timeout_at = monotonic() + LOCK_EXPIRE - 3
+    logger.info(f"Lock id {lock_id}:{oid} cache added.")
+    status = cache.add(lock_id, oid, LOCK_EXPIRE)
+    try:
+        yield status
+    finally:
+        if monotonic() < timeout_at and status:
+            logger.warning(f"Lock id {lock_id}:{oid} cache deleted")
+            cache.delete(lock_id)
+
+
+def task_locker(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        instance = args[0]
+        lock_id = f"{instance.name}_lock"
+        with task_lock(lock_id, instance.app.oid) as acquired:
+            if acquired:
+                return func(*args, **kwargs)
+        logger.warning(
+            f"Task {instance.name} already running, dispatch ignored..."
+        )
+
+    return wrapped
+
+
 # TODO: make this more generic?
 # TODO: expose `batch_size` through API?
 @celery_app.task
+@task_locker
 def import_documents(import_pk: int, batch_size=500) -> None:
     import_instance = Import.objects.get(pk=import_pk)
 
@@ -654,9 +684,7 @@ def import_documents(import_pk: int, batch_size=500) -> None:
             logger.info("Trying to stop the import process gracefully")
 
             _finish_import(
-                import_instance,
-                status=ImportStatusChoices.error,
-                comment=str(e),
+                import_instance, status=ImportStatusChoices.error, comment=str(e),
             )
 
             return
@@ -673,9 +701,7 @@ def import_documents(import_pk: int, batch_size=500) -> None:
             logger.info("Trying to stop the import process gracefully")
 
             _finish_import(
-                import_instance,
-                status=ImportStatusChoices.error,
-                comment=str(e),
+                import_instance, status=ImportStatusChoices.error, comment=str(e),
             )
 
             return
@@ -704,7 +730,4 @@ def import_documents(import_pk: int, batch_size=500) -> None:
         batch_number = int(processed / batch_size) + 1
         batch.clear()
 
-    _finish_import(
-        import_instance,
-        ImportStatusChoices.finished
-    )
+    _finish_import(import_instance, ImportStatusChoices.finished)
