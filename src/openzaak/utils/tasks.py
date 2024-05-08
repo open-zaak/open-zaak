@@ -8,6 +8,7 @@ from typing import Generator, Optional
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils.functional import classproperty
 
@@ -374,8 +375,12 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     data["uuid"] = str(uuid4())
 
-    # TODO: follow EnkelvoudigInformatieObjectSerializer `create` behavior
-    # TODO: handle features for `CMIS_ENABLED`?
+    if "vertrouwelijkheidaanduiding" not in data:
+        informatieobjecttype = data["informatieobjecttype"]
+        data["vertrouwelijkheidaanduiding"] = (
+            informatieobjecttype.vertrouwelijkheidaanduiding
+        )
+
     instance = EnkelvoudigInformatieObject(**data)
 
     try:
@@ -392,6 +397,12 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
         document_row.processed = True
 
         return document_row
+
+    if instance.bestandsomvang == 0:
+        instance.inhoud.save("empty_file", ContentFile(""))
+
+    # TODO: handle large files? See `EnkelvoudigInformatieObjectSerializer`
+    # TODO: handle features for `CMIS_ENABLED`? See `EnkelvoudigInformatieObjectSerializer`
 
     document_row.instance = instance
     return document_row
