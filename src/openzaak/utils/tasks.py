@@ -580,10 +580,17 @@ def _finish_import(
     finished_on: Optional[datetime]= None,
     comment: Optional[str]= ""
 ):
+    updated_fields = ["finished_on", "status"]
+
     instance.finished_on = finished_on or timezone.now()
     instance.status = status
-    instance.comment = comment
-    instance.save(update_fields=["finished_on", "status", "comment"])
+
+    if comment:
+        instance.comment = comment
+
+        updated_fields.append("comment")
+
+    instance.save(update_fields=updated_fields)
 
 
 # TODO: ensure one task is running all the time
