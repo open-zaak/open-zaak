@@ -1079,6 +1079,12 @@ class ZaakKenmerk(models.Model):
         verbose_name = "zaak kenmerk"
         verbose_name_plural = "zaak kenmerken"
 
+    def __str__(self) -> str:
+        return self.unique_representation()
+
+    def unique_representation(self):
+        return f"({self.zaak.unique_representation()}) - {self.kenmerk}"
+
 
 class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
     """
