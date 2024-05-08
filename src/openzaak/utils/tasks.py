@@ -5,6 +5,7 @@ from base64 import b64decode
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Generator, Optional
+from uuid import uuid4
 
 from django.db import transaction
 from django.utils.functional import classproperty
@@ -360,7 +361,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
         return document_row
 
-    data = eio_serializer.validated_data
+    data: dict = eio_serializer.validated_data
 
     gegevensgroep_fields = ("ondertekening", "integriteit")
 
@@ -369,6 +370,8 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
         for key, value in gegevens_groep_value.items():
             data[f"{field}_{key}"] = value
+
+    data["uuid"] = str(uuid4())
 
     # TODO: call model `clean` method
     # TODO: follow EnkelvoudigInformatieObjectSerializer `create` behavior
@@ -403,16 +406,13 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
         [row.instance for row in batch if row.instance is not None]
     )
 
-    # TODO: generate UUID beforehand so that this can be used as identifier here
     # reuse created instances
     for row in batch:
         instance = next(
             (
                 eio
                 for eio in eios
-                if row.instance
-                and eio.identificatie
-                == row.instance.identificatie  # TODO: is this the correct identifier?
+                if row.instance and eio.uuid == row.instance.uuid
             ),
             None,
         )
