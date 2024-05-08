@@ -68,6 +68,8 @@ class Import(models.Model):
         null=True,
     )
 
+    comment = models.TextField(verbose_name=_("Opmerking"), blank=True)
+
     # date related fields
     created_on = models.DateTimeField(
         verbose_name=_("Aangemaakt op"),
