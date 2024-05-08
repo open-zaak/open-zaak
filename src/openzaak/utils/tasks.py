@@ -268,7 +268,7 @@ class DocumentRow:
             "bestandsomvang": self.bestandsomvang,
             "link": self._link,
             "beschrijving": self._beschrijving,
-            "indicatieGebruiksrecht": self.indicatie_gebruiksrecht,
+            "indicatie_gebruiksrecht": self.indicatie_gebruiksrecht,
             "verschijningsvorm": self._verschijningsvorm,
             "ondertekening": self.ondertekening,
             "integriteit": self.integriteit,
@@ -403,6 +403,7 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
         [row.instance for row in batch if row.instance is not None]
     )
 
+    # TODO: generate UUID beforehand so that this can be used as identifier here
     # reuse created instances
     for row in batch:
         instance = next(
