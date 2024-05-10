@@ -34,4 +34,8 @@ UNIX-timestamp die aangeeft op welk moment het token gegenereerd is.
 `user_id` en `user_representation` zijn nodig voor de audit trails. Het zijn
 vrije velden met als enige beperking dat de lengte maximaal de lengte van
 de overeenkomstige velden in de audit trail resources is (zie rest API spec).
+
+[Link naar volledige documentatie(in het Engels)]\
+(https://open-zaak.readthedocs.io/en/stable/client-development/authentication.html) \
+met codevoorbeelden voor Java, JavaScript, PHP, Python.
 """
