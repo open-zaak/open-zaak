@@ -47,6 +47,15 @@ class CatalogusAutorisatie(models.Model):
         blank=True,
     )
 
+    objects = AutorisatieSpecManager()
+
+    def natural_key(self):
+        return (
+            self.applicatie,
+            self.component,
+            self.scopes,
+        )
+
     class Meta:
         verbose_name = _("catalogus autorisatie")
         verbose_name_plural = _("catalogus autorisaties")

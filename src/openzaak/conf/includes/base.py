@@ -295,6 +295,7 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
     "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
     "openzaak.config.bootstrap.demo.DemoUserStep",
+    "openzaak.config.bootstrap.authorizations.AuthorizationConfigurationStep",
 ]
 
 #
@@ -333,6 +334,12 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour="9"),
     }
 }
+
+#
+# DJANGO-CSP
+#
+CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
+
 
 #
 # OpenZaak configuration
@@ -499,4 +506,9 @@ DEMO_CONFIG_ENABLE = config("DEMO_CONFIG_ENABLE", default=False, add_to_docs=Fal
 DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "", add_to_docs=False)
 DEMO_SECRET = config("DEMO_SECRET", "", add_to_docs=False)
 
-CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
+AUTHORIZATIONS_CONFIG_ENABLE = config(
+    "AUTHORIZATIONS_CONFIG_ENABLE", default=True, add_to_docs=False
+)
+AUTHORIZATIONS_CONFIG_FIXTURE_PATH = config(
+    "AUTHORIZATIONS_CONFIG_FIXTURE_PATH", default="", add_to_docs=False
+)
