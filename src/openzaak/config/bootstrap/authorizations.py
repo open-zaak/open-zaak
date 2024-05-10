@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
+import sys
+from contextlib import contextmanager
+from io import StringIO
+
 from django.conf import settings
 from django.core.management import call_command
 
@@ -8,6 +12,16 @@ from django_setup_configuration.configuration import BaseConfigurationStep
 from vng_api_common.models import JWTSecret
 
 from openzaak.components.autorisaties.models import Applicatie
+
+
+@contextmanager
+def override_stdin(data):
+    original_stdin = sys.stdin
+    sys.stdin = data
+    try:
+        yield
+    finally:
+        sys.stdin = original_stdin
 
 
 class AuthorizationConfigurationStep(BaseConfigurationStep):
@@ -51,8 +65,26 @@ class AuthorizationConfigurationStep(BaseConfigurationStep):
         return applicaties_configured and secrets_configured
 
     def configure(self):
-        call_command("loaddata", settings.AUTHORIZATIONS_CONFIG_FIXTURE_PATH)
+        with open(settings.AUTHORIZATIONS_CONFIG_FIXTURE_PATH) as original_file:
+            content = original_file.read()
+
+            if settings.AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH:
+                with open(
+                    settings.AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH
+                ) as mapping_file:
+                    mapping = yaml.safe_load(mapping_file)
+                    for entry in mapping:
+                        for env, domain in entry.items():
+                            if env == settings.ENVIRONMENT:
+                                continue
+
+                            content = content.replace(
+                                domain, entry[settings.ENVIRONMENT]
+                            )
+
+            # Load via stdin to avoid having to write to a temporary file
+            with override_stdin(StringIO(content)):
+                call_command("loaddata", "-", format="yaml")
 
     def test_configuration(self):
-        # TODO test access for each application? seems a bit excessive
         ...
