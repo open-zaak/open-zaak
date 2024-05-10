@@ -110,7 +110,7 @@ There is a link to a list of more libraries for these and other languages below.
             jwt_token = jwt.encode(payload, SECRET, algorithm="HS256")
 
             # add token token to the authentication HTTP header of your request library
-            zaaktype_url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff"
+            zaaktype_url = "https://openzaak.gemeente.local/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff"
             headers = {"Authorization": "Bearer {token}".format(token=jwt_token)}
             response = requests.get(
                 zaaktype_url,
@@ -149,7 +149,7 @@ There is a link to a list of more libraries for these and other languages below.
             var jwt_token = getJWT()
 
             // add token token to the authentication HTTP header of fetch
-            const zaaktype_url = "https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
+            const zaaktype_url = "https://openzaak.gemeente.local/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
             fetch(
               zaaktype_url,
               {
@@ -187,7 +187,7 @@ There is a link to a list of more libraries for these and other languages below.
             $headers = [
                 "Authorization" => "Bearer " . $jwt_token,
             ];
-            $zaaktype_url ="https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
+            $zaaktype_url ="https://openzaak.gemeente.local/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff";
 
             $client = new \GuzzleHttp\Client();
             $response = $client->request("GET", $zaaktype_url, [
@@ -218,7 +218,7 @@ There is a link to a list of more libraries for these and other languages below.
 
             // add token token to the authentication HTTP header of your request library
             try {
-                URL zaaktype_url = new URL("https://test.openzaak.nl/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff");
+                URL zaaktype_url = new URL("https://openzaak.gemeente.local/catalogi/api/v1/zaaktypen/4acb5ab8-f189-4559-b18a-8a54553a74ff");
                 URLConnection zaaktype_connection = zaaktype_url.openConnection();
 
                 zaaktype_connection.setRequestProperty ("Authorization", "Bearer "+jwt_token);
