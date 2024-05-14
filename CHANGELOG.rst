@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.12.2 (2024-05-14)
+-------------------
+
+Open Zaak 1.12.2 is a patch release:
+
+* [#1536] Fixed changing authorizations in the Admin
+
+
 1.12.1 (2024-04-05)
 -------------------
 
