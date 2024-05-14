@@ -2,15 +2,17 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import reverse
 
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.admintest import WebTest
 
 from ..factories import ApplicatieFactory
 
 
+@disable_admin_mfa()
 class ApplicationsTests(WebTest):
     @classmethod
     def setUpTestData(cls):

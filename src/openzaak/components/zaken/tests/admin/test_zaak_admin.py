@@ -4,17 +4,19 @@ from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.utils.admintest import WebTest
 
 from ...models import ZaakBesluit
 from ..factories import ZaakFactory, ZaakInformatieObjectFactory
 
 
+@disable_admin_mfa()
 class ZaakAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

@@ -7,11 +7,12 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.utils.translation import ngettext_lazy
 
+from django_webtest import WebTest
 from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.utils.admintest import WebTest
 
 from ...models import InformatieObjectType, ZaakType, ZaakTypeInformatieObjectType
 from ..factories import (
@@ -22,6 +23,7 @@ from ..factories import (
 )
 
 
+@disable_admin_mfa()
 class ZiotFilterAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -114,6 +116,7 @@ class ZiotFilterAdminTests(WebTest):
         self.assertIsNone(popup_zaaktypen)
 
 
+@disable_admin_mfa()
 class AddZiotAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -150,6 +153,7 @@ class AddZiotAdminTests(WebTest):
         self.assertEqual(ZaakTypeInformatieObjectType.objects.count(), 1)
 
 
+@disable_admin_mfa()
 class IoTypePublishAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -228,6 +232,7 @@ class IoTypePublishAdminTests(WebTest):
         self.assertFalse(iotype.concept)
 
 
+@disable_admin_mfa()
 class CreateIotypeTests(NotificationsConfigMixin, WebTest):
     url = reverse_lazy("admin:catalogi_informatieobjecttype_add")
 

@@ -2,16 +2,18 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import reverse
 
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.tests.utils import AdminTestMixin
-from openzaak.utils.admintest import WebTest
 
 from ..factories import ZaakFactory, ZaakObjectFactory
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class ZaakObjectAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
 

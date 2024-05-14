@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+from django.test import TestCase
+
+from maykin_2fa.test import disable_admin_mfa
 from rest_framework.exceptions import ErrorDetail
 
 from openzaak.components.catalogi.admin.utils import format_serializer_errors
-from openzaak.utils.admintest import TestCase
 
 
+@disable_admin_mfa()
 class SerializerErrorFormatterTests(TestCase):
     def test_basic_errors(self):
 

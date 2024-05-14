@@ -3,18 +3,20 @@
 import uuid
 from datetime import date, time
 
+from django.test import TestCase
 from django.urls import reverse
 
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.zaken.models import KlantContact
 from openzaak.tests.utils import AdminTestMixin
-from openzaak.utils.admintest import TestCase
 
 from ..factories import KlantContactFactory, ZaakFactory
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class KlantContactAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 

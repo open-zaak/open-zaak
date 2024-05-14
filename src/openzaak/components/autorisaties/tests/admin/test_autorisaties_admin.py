@@ -9,12 +9,14 @@ from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag
+from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import requests_mock
+from django_webtest import WebTest
 from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from zgw_consumers.test import generate_oas_component
@@ -31,7 +33,6 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
-from openzaak.utils.admintest import TestCase, WebTest
 
 from ...constants import RelatedTypeSelectionMethods
 from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
@@ -46,6 +47,7 @@ BESLUITTYPE2 = f"{ZTC_URL}/besluittypen/2"
 
 
 @tag("admin-autorisaties")
+@disable_admin_mfa()
 class PermissionTests(WebTest):
     """
     Test that the permission checks are implmeented correctly.
@@ -87,6 +89,7 @@ class PermissionTests(WebTest):
 
 
 @tag("admin-autorisaties")
+@disable_admin_mfa()
 class ApplicatieInlinesAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -125,6 +128,7 @@ class ApplicatieInlinesAdminTests(WebTest):
 
 @tag("admin-autorisaties")
 @freeze_time("2022-01-01")
+@disable_admin_mfa()
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -10,12 +10,13 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.utils.admintest import WebTest
 
 from ...models import (
     BesluitType,
@@ -54,6 +55,7 @@ mock_selectielijst_client = Service(
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
     return_value=mock_selectielijst_client,
 )
+@disable_admin_mfa()
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -386,6 +388,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
 
 
 @tag("readonly-user")
+@disable_admin_mfa()
 class ReadOnlyUserTests(WebTest):
     @classmethod
     def setUpTestData(cls):

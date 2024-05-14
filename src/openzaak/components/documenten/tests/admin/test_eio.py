@@ -2,15 +2,17 @@
 # Copyright (C) 2020 Dimpact
 from django.urls import reverse
 
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from webtest import Upload
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.utils.admintest import WebTest
 
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
+@disable_admin_mfa()
 class EnkelvoudigInformatieObjectAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

@@ -8,7 +8,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _, ngettext_lazy
 
 import requests_mock
+from django_webtest import WebTest
 from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -20,7 +22,6 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
-from openzaak.utils.admintest import WebTest
 
 from ..factories import (
     BesluitTypeFactory,
@@ -34,6 +35,7 @@ from ..factories import (
 )
 
 
+@disable_admin_mfa()
 @requests_mock.Mocker()
 class ZaaktypeAdminTests(
     NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
@@ -461,6 +463,7 @@ class ZaaktypeAdminTests(
         self.assertIsNotNone(publish_button)
 
 
+@disable_admin_mfa()
 @requests_mock.Mocker()
 class PublishWithGeldigheidTests(
     ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
@@ -699,6 +702,7 @@ class PublishWithGeldigheidTests(
 
 
 @tag("readonly-user")
+@disable_admin_mfa()
 class ReadOnlyUserTests(ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):

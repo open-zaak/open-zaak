@@ -3,14 +3,15 @@
 import uuid
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 from django.urls import reverse
 
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.tests.utils import AdminTestMixin
-from openzaak.utils.admintest import TestCase
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
@@ -19,6 +20,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 

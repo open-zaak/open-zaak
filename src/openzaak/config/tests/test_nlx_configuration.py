@@ -9,11 +9,12 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
 import requests_mock
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import NLXDirectories
 from zgw_consumers.models import NLXConfig
 
 from openzaak.tests.utils import AdminTestMixin
-from openzaak.utils.admintest import WebTest
 
 from ..forms import get_nlx_choices
 
@@ -22,6 +23,7 @@ CURRENT_DIR = Path(__file__).parent
 DEMO_DIRECTORY = "https://directory.demo.nlx.io/"
 
 
+@disable_admin_mfa()
 class NLXConfigTests(AdminTestMixin, WebTest):
     url = reverse_lazy("config:config-nlx")
 

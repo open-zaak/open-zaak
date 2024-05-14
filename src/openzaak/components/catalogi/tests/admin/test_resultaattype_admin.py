@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
@@ -23,12 +25,12 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
-from openzaak.utils.admintest import WebTest
 
 from ...models import ResultaatType
 from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 
 
+@disable_admin_mfa()
 @requests_mock.Mocker()
 class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod
