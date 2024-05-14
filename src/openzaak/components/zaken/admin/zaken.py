@@ -693,6 +693,7 @@ class ZaakAdmin(
             link_to_related_objects(ZaakObject, obj),
             link_to_related_objects(ZaakInformatieObject, obj),
             link_to_related_objects(KlantContact, obj),
+            link_to_related_objects(ZaakKenmerk, obj),
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
         )
