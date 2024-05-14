@@ -7,7 +7,7 @@ version: '3.4'
 
 services:
   db:
-    image: mdillon/postgis
+    image: postgis/postgis:12-2.5
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     command: postgres -c max_connections=300 -c log_min_messages=LOG
