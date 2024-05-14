@@ -442,18 +442,26 @@ class EnkelvoudigInformatieObjectViewSet(
 class EnkelvoudigInformatieObjectImportView(ImportCreateview):
     import_type = ImportTypeChoices.documents
 
+    required_scopes = {"post": SCOPE_DOCUMENTEN_AANMAKEN}
+
 
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
     import_headers = DocumentRow.import_headers
 
+    required_scopes = {"post": SCOPE_DOCUMENTEN_AANMAKEN}
+
 
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents
 
+    required_scopes = {"get": SCOPE_DOCUMENTEN_AANMAKEN}
+
 
 class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
     import_type = ImportTypeChoices.documents
+
+    required_scopes = {"get": SCOPE_DOCUMENTEN_AANMAKEN}
 
 
 @extend_schema_view(

@@ -9,6 +9,7 @@ from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
 from privates.fields import PrivateMediaFileField
+from vng_api_common.constants import ComponentTypes
 
 from openzaak.utils import build_absolute_url
 
@@ -46,6 +47,16 @@ class ImportStatusChoices(models.TextChoices):
 class ImportTypeChoices(models.TextChoices):
     documents = "documenten", _("Enkelvoudige informatie objecten")
 
+    @classproperty
+    def component_mapping(cls):
+        return {
+            cls.documents: ComponentTypes.drc,
+        }
+
+    @classmethod
+    def get_component_from_choice(cls, choice):
+        return cls.component_mapping[choice]
+
 
 class Import(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
@@ -72,20 +83,15 @@ class Import(models.Model):
 
     # date related fields
     created_on = models.DateTimeField(
-        verbose_name=_("Aangemaakt op"),
-        auto_now_add=True
+        verbose_name=_("Aangemaakt op"), auto_now_add=True
     )
 
     started_on = models.DateTimeField(
-        verbose_name=_("Gestart op"),
-        blank=True,
-        null=True
+        verbose_name=_("Gestart op"), blank=True, null=True
     )
 
     finished_on = models.DateTimeField(
-        verbose_name=_("Voltooid op"),
-        blank=True,
-        null=True
+        verbose_name=_("Voltooid op"), blank=True, null=True
     )
 
     # statistics

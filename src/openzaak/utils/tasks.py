@@ -1,11 +1,11 @@
 import binascii
 import csv
-import logging
 import functools
+import logging
 from base64 import b64decode
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from contextlib import contextmanager
 from pathlib import Path
 from time import monotonic
 from typing import Generator, Optional
@@ -592,7 +592,7 @@ def _finish_import(
     instance.save(update_fields=updated_fields)
 
 
-LOCK_EXPIRE = 60 * (60 * 24) # 24 hours
+LOCK_EXPIRE = 60 * (60 * 24)  # 24 hours
 
 
 @contextmanager
@@ -608,6 +608,7 @@ def task_lock(lock_id, oid):
             cache.delete(lock_id)
 
 
+# Note that this not will not work with per process caches (e.g LocMemCache)
 def task_locker(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
@@ -616,9 +617,7 @@ def task_locker(func):
         with task_lock(lock_id, instance.app.oid) as acquired:
             if acquired:
                 return func(*args, **kwargs)
-        logger.warning(
-            f"Task {instance.name} already running, dispatch ignored..."
-        )
+        logger.warning(f"Task {instance.name} already running, dispatch ignored...")
 
     return wrapped
 

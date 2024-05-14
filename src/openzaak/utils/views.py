@@ -9,7 +9,6 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist, loader
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
-from django.utils.encoding import force_str
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
@@ -26,6 +25,7 @@ from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_
 from zds_client import ClientError
 
 from openzaak.utils.models import Import, ImportStatusChoices, ImportTypeChoices
+from openzaak.utils.permissions import ImportAuthRequired
 from openzaak.utils.serializers import ImportSerializer
 from openzaak.utils.tasks import import_documents
 
@@ -130,9 +130,10 @@ class AuditTrailViewSet(_AuditTrailViewSet):
         )
 
 
-# TODO: add permissions
 class ImportCreateview(CreateAPIView):
     import_type: ImportTypeChoices
+
+    permission_classes = (ImportAuthRequired,)
 
     def get_queryset(self):
         return Import.objects.all()
@@ -211,10 +212,10 @@ def validate_headers(import_data: StringIO, expected_headers: list[str]) -> None
         )
 
 
-# TODO: add permissions
 class ImportUploadView(GenericAPIView):
     lookup_field: str = "uuid"
     parser_classes = (CSVParser,)
+    permission_classes = (ImportAuthRequired,)
 
     import_type: ImportTypeChoices
     import_headers: list[str] = []
@@ -251,10 +252,11 @@ class ImportUploadView(GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-# TODO: add permissions
 class ImportStatusView(RetrieveAPIView):
     import_type: ImportTypeChoices
     serializer_class = ImportSerializer
+    permission_classes = (ImportAuthRequired,)
+
     lookup_field = "uuid"
 
     def get_queryset(self):
@@ -263,9 +265,9 @@ class ImportStatusView(RetrieveAPIView):
         )
 
 
-# TODO: add permissions
 class ImportReportView(RetrieveAPIView):
     import_type: ImportTypeChoices
+    permission_classes = (ImportAuthRequired,)
     lookup_field = "uuid"
 
     def get_queryset(self):

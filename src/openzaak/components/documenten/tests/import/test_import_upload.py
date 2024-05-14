@@ -7,8 +7,10 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.utils.tests.factories import ImportFactory
@@ -16,6 +18,9 @@ from openzaak.utils.tests.factories import ImportFactory
 
 @tag("documenten-import-upload")
 class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
+    component = ComponentTypes.drc
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -292,3 +297,33 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         import_instance.refresh_from_db()
 
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
+
+    @patch("openzaak.utils.views.import_documents")
+    def test_insufficient_scopes(self, import_document_task_mock):
+        autorisatie = self.autorisatie
+
+        autorisatie.scopes = []
+        autorisatie.save()
+
+        import_instance = ImportFactory.create(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.pending,
+            total=0,
+        )
+
+        url = reverse(
+            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+        )
+
+        with open(self.test_path / "import.csv", "rb") as import_file:
+            response = self.client.post(
+                url, import_file.read(), content_type="text/csv"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
+        import_document_task_mock.delay.assert_not_called()
