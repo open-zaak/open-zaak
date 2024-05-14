@@ -131,8 +131,8 @@ class VerzendingFactory(factory.django.DjangoModelFactory):
             ),
         )
         has_outer_address = factory.Trait(
-            buitenlands_correspondentieadres_adres_buitenland_1=factory.Faker(
-                "street_address"
+            buitenlands_correspondentieadres_adres_buitenland_1=factory.fuzzy.FuzzyText(
+                length=35
             ),
             buitenlands_correspondentieadres_land_postadres=factory.Faker("url"),
         )
