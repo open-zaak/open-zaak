@@ -32,20 +32,23 @@ router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
 
 import_patterns = [
-    path("start", EnkelvoudigInformatieObjectImportView.as_view(), name="start"),
+    path(
+        "create", EnkelvoudigInformatieObjectImportView.as_view({"post": "create"}, name="create"),
+        name="create"
+    ),
     path(
         "<uuid:uuid>/upload",
-        EnkelvoudigInformatieObjectImportUploadView.as_view(),
+        EnkelvoudigInformatieObjectImportUploadView.as_view({"post": "create"}, name="upload"),
         name="upload",
     ),
     path(
         "<uuid:uuid>/status",
-        EnkelvoudigInformatieObjectImportStatusView.as_view(),
+        EnkelvoudigInformatieObjectImportStatusView.as_view({"get": "retrieve"}, name="status"),
         name="status",
     ),
     path(
         "<uuid:uuid>/report",
-        EnkelvoudigInformatieObjectImportReportView.as_view(),
+        EnkelvoudigInformatieObjectImportReportView.as_view({"get": "retrieve"}, name="report"),
         name="report",
     ),
 ]

@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from typing import Any
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import fields as drf_fields
 from rest_framework.serializers import (
     ModelSerializer,
@@ -59,6 +61,7 @@ def get_from_serializer_data_or_instance(
 class ImportSerializer(ModelSerializer):
     status = SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_status(self, instance):
         status = ImportStatusChoices(instance.status)
         return status.label

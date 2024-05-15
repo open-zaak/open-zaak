@@ -13,7 +13,7 @@ from openzaak.utils.tests.factories import ImportFactory
 
 @tag("documenten-import-start")
 class ImportDocumentenStartTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("documenten-import:start")
+    url = reverse_lazy("documenten-import:create")
     scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
     component = ComponentTypes.drc
 

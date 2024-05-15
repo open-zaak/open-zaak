@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
 from drf_spectacular.utils import (
+    OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
     OpenApiTypes,
@@ -439,29 +440,105 @@ class EnkelvoudigInformatieObjectViewSet(
     _zoek.is_search_action = True
 
 
+@extend_schema_view(
+    create=extend_schema(
+        operation_id="import_create",
+        summary=_("Een IMPORT creeren"),
+        description=_(
+            "Creeert een IMPORT. Wanneer er vervolgens een metadata bestand"
+            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan."
+        ),
+        request=OpenApiTypes.NONE,
+        responses={
+            (status.HTTP_201_CREATED, "application/json"): {
+                "type": "object",
+                "properties": {
+                    "uploadUrl": {
+                        "type": "string",
+                        "description": _("Url waar het metadata bestand geupload kan worden."),
+                    },
+                    "statusUrl": {
+                        "type": "string",
+                        "description": _("Url waar de status van de IMPORT opgevraagd kan worden."),
+                    },
+                    "reportUrl": {
+                        "type": "string",
+                        "description": _("Url waar het reportage bestand gedownload kan worden."),
+                    },
+                },
+                "example": {
+                    "uploadUrl": "https://example.com",
+                    "statusUrl": "https://example.com",
+                    "reportUrl": "https://example.com",
+                },
+            },
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
+)
 class EnkelvoudigInformatieObjectImportView(ImportCreateview):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"post": SCOPE_DOCUMENTEN_AANMAKEN}
+    required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
 
 
+@extend_schema_view(
+    create=extend_schema(
+        operation_id="import_upload",
+        summary=_("Een IMPORT bestand uploaden"),
+        description=_(
+            "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
+            "Deze actie start tevens de IMPORT."
+        ),
+        request={"text/csv": OpenApiTypes.STR},
+        responses={
+            (status.HTTP_200_OK): OpenApiTypes.NONE
+        }
+    )
+)
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
     import_headers = DocumentRow.import_headers
 
-    required_scopes = {"post": SCOPE_DOCUMENTEN_AANMAKEN}
+    required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        operation_id="import_status",
+        summary=_("De status van een IMPORT opvragen."),
+        description=_(
+            "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
+            "Deze actie start tevens de IMPORT."
+        ),
+    )
+)
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"get": SCOPE_DOCUMENTEN_AANMAKEN}
+    required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        operation_id="import_report",
+        summary=_("Het reportage bestand van een IMPORT downloaden."),
+        description=_(
+            "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
+                "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat)."
+        ),
+        responses={
+            (status.HTTP_200_OK, "text/csv"): {
+                "type": "file",
+                "description": _("Het reportage bestand van de IMPORT."),
+            }
+        }
+    )
+)
 class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"get": SCOPE_DOCUMENTEN_AANMAKEN}
+    required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
 
 
 @extend_schema_view(

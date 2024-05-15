@@ -14,7 +14,8 @@ from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 import requests
 from django_sendfile import sendfile
-from rest_framework import exceptions, status, viewsets
+from rest_framework import exceptions, mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveAPIView
 from rest_framework.parsers import BaseParser
@@ -130,7 +131,7 @@ class AuditTrailViewSet(_AuditTrailViewSet):
         )
 
 
-class ImportCreateview(CreateAPIView):
+class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
     import_type: ImportTypeChoices
 
     permission_classes = (ImportAuthRequired,)
@@ -171,6 +172,7 @@ class ImportCreateview(CreateAPIView):
                 "report_url": import_instance.get_report_url(request=request),
             },
             status=status.HTTP_201_CREATED,
+            content_type="application/json"
         )
 
 
@@ -212,7 +214,7 @@ def validate_headers(import_data: StringIO, expected_headers: list[str]) -> None
         )
 
 
-class ImportUploadView(GenericAPIView):
+class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     lookup_field: str = "uuid"
     parser_classes = (CSVParser,)
     permission_classes = (ImportAuthRequired,)
@@ -252,7 +254,8 @@ class ImportUploadView(GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ImportStatusView(RetrieveAPIView):
+
+class ImportStatusView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     import_type: ImportTypeChoices
     serializer_class = ImportSerializer
     permission_classes = (ImportAuthRequired,)
@@ -265,7 +268,7 @@ class ImportStatusView(RetrieveAPIView):
         )
 
 
-class ImportReportView(RetrieveAPIView):
+class ImportReportView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     import_type: ImportTypeChoices
     permission_classes = (ImportAuthRequired,)
     lookup_field = "uuid"
