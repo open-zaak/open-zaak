@@ -87,7 +87,10 @@ class Command(BaseCommand):
         batch = []
         processed = 0
 
-        while processed != total:
+        if total < batch_size:
+            batch_size = total
+
+        while processed < total:
             batch_number = int(processed / batch_size) + 1
 
             if not batch or processed % batch_size == 0:
