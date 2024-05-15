@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.12.2 (2024-05-14)
+-------------------
+
+Open Zaak 1.12.2 is a patch release:
+
+* [#1536] Fixed changing authorizations in the Admin
+
+
 1.12.1 (2024-04-05)
 -------------------
 
@@ -676,9 +684,7 @@ The biggest changes are:
 * Enabled database connection re-use, configurable via ``DB_CONN_MAX_AGE``
 * Implemented configuration option to enable query logging for debugging purposes
 * Added a number of useful links to the dashboard menu. Most notably, this includes
-  the link to `sign up for early notices`_ to plan around security releases in advance (#830).
-
-.. _sign up for early notices: https://odoo.publiccode.net/survey/start/086e0627-8bc0-4b65-8aa9-f6872aba89d0
+  the link to sign up for early notices to plan around security releases in advance (#830).
 
 **Bugfixes**
 

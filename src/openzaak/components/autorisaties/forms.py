@@ -372,11 +372,16 @@ class AutorisatieForm(forms.Form):
         if related_type_selection == RelatedTypeSelectionMethods.all_current_and_future:
             applicatie.autorisatie_specs.update_or_create(
                 component=component,
+                scopes=scopes,
                 defaults={
                     "scopes": scopes,
                     "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
                 },
             )
+        else:
+            applicatie.autorisatie_specs.filter(
+                component=component, scopes=scopes,
+            ).delete()
 
         autorisatie_kwargs = {
             "applicatie": applicatie,

@@ -225,7 +225,8 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     initial = []
 
     autorisatie_specs = {
-        spec.component: spec for spec in applicatie.autorisatie_specs.all()
+        (spec.component, tuple(sorted(spec.scopes))): spec
+        for spec in applicatie.autorisatie_specs.all()
     }
 
     grouped = defaultdict(list)
@@ -245,7 +246,7 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
 
     for (component, _scopes), _autorisaties in grouped.items():
         component_initial = get_initial_for_component(
-            component, _autorisaties, autorisatie_specs.get(component),
+            component, _autorisaties, autorisatie_specs.get((component, _scopes))
         )
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}
