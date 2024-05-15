@@ -1,8 +1,7 @@
-import binascii
 import csv
 import functools
 import logging
-from base64 import b64decode
+import shutil
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -13,12 +12,11 @@ from uuid import uuid4
 
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import Error as DatabaseError, IntegrityError, transaction
+from django.db.models.fields.files import FieldFile, FileDescriptor, FileField
 from django.utils import timezone
 from django.utils.functional import classproperty
 
-from celery.utils.serialization import base64encode
 from rest_framework.test import APIRequestFactory
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.utils import generate_unique_identification
@@ -154,33 +152,8 @@ class DocumentRow:
         return self._taal or None
 
     @property
-    def inhoud(self) -> Optional[str]:
-        if not self._bestandspad:
-            return None
-
-        path = Path(self._bestandspad)
-
-        if not path.exists() or not path.is_file():
-            raise IOError("The given filepath does not exist or is not a file.")
-
-        with open(path, "rb") as import_file:
-            file_contents = import_file.read()
-            import_file.seek(0)
-
-        if not file_contents:
-            return None
-
-        is_base64 = False
-
-        try:
-            is_base64 = b64decode(file_contents, validate=True)
-        except binascii.Error:
-            is_base64 = False
-
-        if is_base64:
-            return b64decode(file_contents)
-
-        return base64encode(file_contents).decode("ascii")
+    def bestandspad(self) -> str:
+        return self._bestandspad
 
     @property
     def bestandsomvang(self) -> Optional[int]:
@@ -272,7 +245,6 @@ class DocumentRow:
             "formaat": self._formaat,
             "taal": self.taal,
             "bestandsnaam": self._bestandsnaam,
-            "inhoud": self.inhoud,
             "bestandsomvang": self.bestandsomvang,
             "link": self._link,
             "beschrijving": self._beschrijving,
@@ -408,11 +380,41 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
         return document_row
 
-    if instance.bestandsomvang == 0:
-        instance.inhoud.save("empty_file", ContentFile(""))
+    file_path = document_row.bestandspad
+    path = Path(file_path)
 
-    # TODO: handle large files? See `EnkelvoudigInformatieObjectSerializer`
-    # TODO: handle features for `CMIS_ENABLED`? See `EnkelvoudigInformatieObjectSerializer`
+    if not path.exists() or not path.is_file():
+        error_message = (
+            "The given filepath %(file_path)s does not exist or is a file for "
+            "row %(row_index)s"
+        ) % dict(file_path=file_path, row_index=row_index)
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+        document_row.processed = True
+
+        return document_row
+
+    default_dir = _get_default_path(instance.inhoud)
+    import_path = f"{default_dir}/{path.name}"
+
+    if not default_dir.exists():
+        default_dir.mkdir(parents=True)
+
+    try:
+        shutil.copy2(file_path, import_path)
+    except Exception as e:
+        error_message = (
+            "Unable to copy file for row %(row_index)s: \n %(error)s"
+        ) % dict(error=str(e), row_index=row_index)
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+        document_row.processed = True
+
+        return document_row
+
+    instance.inhoud.name = str(import_path)
 
     document_row.instance = instance
     return document_row
@@ -529,12 +531,19 @@ def _batch_couple_eios(
     return batch
 
 
+def _get_default_path(field: FieldFile) -> Path:
+    storage_location = Path(field.storage.base_location)
+    path = Path(storage_location / field.field.upload_to)
+
+    now = timezone.now()
+    return Path(now.strftime(str(path)))
+
+
 def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
     """
     Note that this relies on (PrivateMedia)FileSystemStorage
     """
-    storage_location = Path(instance.report_file.storage.base_location)
-    default_dir = Path(storage_location / instance.report_file.field.upload_to)
+    default_dir = _get_default_path(instance.report_file)
     default_name = f"report-{instance.pk}.csv"
     default_path = f"{default_dir}/{default_name}"
 
