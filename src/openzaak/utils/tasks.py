@@ -287,7 +287,7 @@ class DocumentRow:
     def as_export_data(self):
         return {
             **self.as_original(),
-            "opmerking": self.comment,
+            "opmerking": self.comment, # TODO: verify this is formatted properly
         }
 
 
@@ -421,7 +421,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
 
 @transaction.atomic()
-def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
+def _batch_create_eios(batch: list[DocumentRow]) -> None:
     canonicals = []
 
     for row in batch:
@@ -438,7 +438,7 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
     except IntegrityError as e:
         for row in batch:
             row.processed = True
-            row.comment = "Unable to load row due to batch error, see Import comment"
+            row.comment = f"Unable to load row due to batch error: {str(e)}"
 
         raise e
 
@@ -449,7 +449,7 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
     except IntegrityError as e:
         for row in batch:
             row.processed = True
-            row.comment = "Unable to load row due to batch error, see Import comment"
+            row.comment = f"Unable to load row due to batch error: {str(e)}"
 
         raise e
 
@@ -465,8 +465,6 @@ def _batch_create_eios(batch: list[DocumentRow]) -> list[DocumentRow]:
         if not row.zaak_id:
             row.processed = True
             row.succeeded = True if instance and instance.pk is not None else False
-
-    return batch
 
 
 def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
@@ -491,13 +489,14 @@ def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
 @transaction.atomic()
 def _batch_couple_eios(
     batch: list[DocumentRow], zaak_uuids: dict[str, int]
-) -> list[DocumentRow]:
+) -> None:
     """
     Note that ZaakInformatieObject's will not be created in bulk (see queryset MRO).
     """
-    zaak_rows = [row for row in batch if row.has_instance and row.zaak_id]
+    for row in batch:
+        if not row.zaak_id:
+            continue
 
-    for row in zaak_rows:
         if row.zaak_id not in zaak_uuids:
             error_message = (
                 f"Provided zaak UUID {row.zaak_id} for line {row.row_index} is "
@@ -527,8 +526,6 @@ def _batch_couple_eios(
 
         row.processed = True
         row.succeeded = True
-
-    return batch
 
 
 def _get_default_path(field: FieldFile) -> Path:
@@ -570,7 +567,7 @@ def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
             csv_writer.writerow(DocumentRow.export_headers)
 
         for row in batch:
-            data = row.as_original()
+            data = row.as_export_data()
             csv_writer.writerow(data.values())
 
     if file_path:
@@ -579,7 +576,13 @@ def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
     relative_path = Path(instance.report_file.field.upload_to) / default_name
 
     instance.report_file.name = str(relative_path)
-    instance.save(update_fields=["report_file"])
+
+    try:
+        instance.save(update_fields=["report_file"])
+    except DatabaseError as e:
+        logger.critical(
+            f"Unable to save new report file due to database error: {str(e)}"
+        )
 
 
 def _finish_import(
@@ -598,7 +601,42 @@ def _finish_import(
 
         updated_fields.append("comment")
 
-    instance.save(update_fields=updated_fields)
+    try:
+        instance.save(update_fields=updated_fields)
+    except DatabaseError as e:
+        logger.critical(
+            f"Unable to save import state due to database error: {str(e)}"
+        )
+
+
+def _finish_batch(
+    import_instance: Import,
+    batch: list[DocumentRow],
+) -> None:
+    batch_number = import_instance.get_batch_number(len(batch))
+    _processed, _fail_count, _success_count = _get_batch_statistics(batch)
+
+    import_instance.processed = import_instance.processed + _processed
+    import_instance.processed_succesfully = (
+        import_instance.processed_succesfully + _success_count
+    )
+    import_instance.processed_invalid = (
+        import_instance.processed_invalid + _fail_count
+    )
+
+    try:
+        import_instance.save(
+            update_fields=["processed", "processed_succesfully", "processed_invalid"]
+        )
+    except DatabaseError as e:
+        logger.critical(
+            f"Unable to save batch statistics for batch {batch_number} due to database "
+            f"error: {str(e)}"
+        )
+
+    logger.info(f"Writing batch number {batch_number} to report file")
+    _write_to_file(import_instance, batch)
+
 
 
 LOCK_EXPIRE = 60 * (60 * 24)  # 24 hours
@@ -645,12 +683,7 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
     import_instance.status = ImportStatusChoices.active
     import_instance.save(update_fields=["total", "started_on", "status"])
 
-    processed = 0
-    fail_count = 0
-    success_count = 0
-
     batch: list[DocumentRow] = []
-    batch_number = int(processed / batch_size) + 1
 
     zaak_uuids = {str(uuid): id for uuid, id in Zaak.objects.values_list("uuid", "id")}
 
@@ -659,7 +692,7 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
             continue
 
         if len(batch) % batch_size == 0:
-            logger.info(f"Starting batch {batch_number}")
+            logger.info(f"Starting batch {import_instance.get_batch_number(batch_size)}")
 
         document_row = _import_document_row(row, row_index)
 
@@ -669,73 +702,64 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
             continue
 
         try:
-            logger.debug(f"Creating EIO's for batch {batch_number}")
-            created_batch: list[DocumentRow] = _batch_create_eios(batch)
+            logger.debug(f"Creating EIO's for batch {import_instance.get_batch_number(batch_size)}")
+            _batch_create_eios(batch)
         except IntegrityError as e:
             error_message = (
-                f"An Integrity error occured during batch {batch_number}: \n {str(e)}"
+                f"An Integrity error occured during batch "
+                f"{import_instance.get_batch_number(batch_size)}: \n {str(e)}"
             )
 
             import_instance.comment += f"\n\n {error_message}"
             import_instance.save(update_fields=["comment"])
 
             logger.warning(
-                f"{error_message} \n Trying to continue with batch {batch_number + 1}"
+                f"{error_message} \n Trying to continue with batch "
+                f"{import_instance.get_batch_number(batch_size) + 1}"
             )
 
-            created_batch: list[DocumentRow] = batch
         except DatabaseError as e:
             logger.critical(
-                f"A critical error occured during batch {batch_number}. "
+                f"A critical error occured during batch "
+                f"{import_instance.get_batch_number(batch_size)}. "
                 f"Finishing import due to database error: \n{str(e)}"
             )
             logger.info("Trying to stop the import process gracefully")
 
+            _finish_batch(import_instance, batch)
             _finish_import(
                 import_instance, status=ImportStatusChoices.error, comment=str(e),
             )
 
             return
 
-        logger.debug(f"Coupling EIO's to Zaken for for batch {batch_number}")
+        logger.debug(
+            f"Coupling EIO's to Zaken for for batch "
+            f"{import_instance.get_batch_number(batch_size)}"
+        )
 
         try:
-            _batch = _batch_couple_eios(created_batch, zaak_uuids)
+            _batch_couple_eios(batch, zaak_uuids)
         except DatabaseError as e:
             logger.critical(
-                f"A critical error occured during batch {batch_number}. "
+                f"A critical error occured during batch "
+                f"{import_instance.get_batch_number(batch_size)}. "
                 f"Finishing import due to database error: \n{str(e)}"
             )
             logger.info("Trying to stop the import process gracefully")
 
+            _finish_batch(import_instance, batch)
             _finish_import(
                 import_instance, status=ImportStatusChoices.error, comment=str(e),
             )
 
             return
 
-        _processed, _fail_count, _success_count = _get_batch_statistics(_batch)
+        _finish_batch(import_instance, batch)
 
-        processed += _processed
-        fail_count += _fail_count
-        success_count += _success_count
-
-        import_instance.processed = processed
-        import_instance.processed_succesfully = success_count
-        import_instance.processed_invalid = fail_count
-        import_instance.save(
-            update_fields=["processed", "processed_succesfully", "processed_invalid"]
-        )
-
-        logger.info(f"Writing batch number {batch_number} to report file")
-        _write_to_file(import_instance, _batch)
-
-        remaining_batches = int(
-            (import_instance.total / batch_size) - (processed / batch_size)
-        )
+        remaining_batches = import_instance.get_remaining_batches(batch_size)
         logger.info(f"{remaining_batches} batches remaining")
 
-        batch_number = int(processed / batch_size) + 1
         batch.clear()
 
     _finish_import(import_instance, ImportStatusChoices.finished)

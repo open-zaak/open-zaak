@@ -125,3 +125,16 @@ class Import(models.Model):
             "documenten-import:report", kwargs=dict(uuid=self.uuid, version="1")
         )
         return build_absolute_url(relative_url, request=request)
+
+    def get_batch_number(self, batch_size: int):
+        return int(self.processed / batch_size) + 1 if self.processed else 1
+
+    def get_remaining_batches(self, batch_size: int):
+        if self.total < 1:
+            return 0
+        elif self.processed < 1:
+            return self.total / batch_size
+
+        return int(
+            (self.total / batch_size) - (self.processed / batch_size)
+        )
