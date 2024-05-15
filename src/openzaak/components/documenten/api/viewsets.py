@@ -442,7 +442,7 @@ class EnkelvoudigInformatieObjectViewSet(
 
 @extend_schema_view(
     create=extend_schema(
-        operation_id="import_create",
+        operation_id="enkelvoudiginformatieobject_import_create",
         summary=_("Een IMPORT creeren"),
         description=_(
             "Creeert een IMPORT. Wanneer er vervolgens een metadata bestand"
@@ -484,7 +484,7 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
 
 @extend_schema_view(
     create=extend_schema(
-        operation_id="import_upload",
+        operation_id="enkelvoudiginformatieobject_import_upload",
         summary=_("Een IMPORT bestand uploaden"),
         description=_(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
@@ -505,7 +505,7 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
 
 @extend_schema_view(
     retrieve=extend_schema(
-        operation_id="import_status",
+        operation_id="enkelvoudiginformatieobject_import_status",
         summary=_("De status van een IMPORT opvragen."),
         description=_(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
@@ -521,7 +521,7 @@ class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
 
 @extend_schema_view(
     retrieve=extend_schema(
-        operation_id="import_report",
+        operation_id="enkelvoudiginformatieobject_import_report",
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=_(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
