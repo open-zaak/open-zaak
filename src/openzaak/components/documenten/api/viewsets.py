@@ -490,7 +490,7 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
             "Deze actie start tevens de IMPORT."
         ),
-        request={"text/csv": OpenApiTypes.STR},
+        request={"text/csv": OpenApiTypes.BYTE},
         responses={
             (status.HTTP_200_OK): OpenApiTypes.NONE
         }
