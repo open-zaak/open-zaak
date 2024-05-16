@@ -10,6 +10,7 @@ from time import monotonic
 from typing import Generator, Optional
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
@@ -652,10 +653,9 @@ def task_locker(func):
 
 
 # TODO: make this more generic?
-# TODO: expose `batch_size` through API?
 @celery_app.task(bind=True)
 @task_locker
-def import_documents(self, import_pk: int, batch_size=500) -> None:
+def import_documents(self, import_pk: int) -> None:
     import_instance = Import.objects.get(pk=import_pk)
 
     file_path = import_instance.import_file.path
@@ -666,6 +666,7 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
     import_instance.save(update_fields=["total", "started_on", "status"])
 
     batch: list[DocumentRow] = []
+    batch_size = settings.IMPORT_DOCUMENTEN_BATCH_SIZE
 
     zaak_uuids = {str(uuid): id for uuid, id in Zaak.objects.values_list("uuid", "id")}
 
