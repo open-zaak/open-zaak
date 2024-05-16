@@ -488,6 +488,9 @@ DOCUMENTEN_UPLOAD_READ_CHUNK = config(
 )  # 6 MB default
 DOCUMENTEN_UPLOAD_DEFAULT_EXTENSION = "bin"
 
+# Change the User-Agent value for the outgoing requests
+USER_AGENT = "Open Zaak"
+
 # urls for OAS3 specifications
 SPEC_URL = {
     "zaken": os.path.join(
