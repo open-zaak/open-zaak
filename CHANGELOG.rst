@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.12.3 (2024-05-16)
+-------------------
+
+Open Zaak 1.12.3 is a patch release:
+
+* [#1588] Restricted rewriting host for only API requests
+
+
 1.12.2 (2024-05-14)
 -------------------
 
