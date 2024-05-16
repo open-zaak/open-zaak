@@ -7,11 +7,10 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
-    OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
-    OpenApiTypes,
     extend_schema,
     extend_schema_view,
 )
@@ -455,15 +454,21 @@ class EnkelvoudigInformatieObjectViewSet(
                 "properties": {
                     "uploadUrl": {
                         "type": "string",
-                        "description": _("Url waar het metadata bestand geupload kan worden."),
+                        "description": _(
+                            "Url waar het metadata bestand geupload kan worden."
+                        ),
                     },
                     "statusUrl": {
                         "type": "string",
-                        "description": _("Url waar de status van de IMPORT opgevraagd kan worden."),
+                        "description": _(
+                            "Url waar de status van de IMPORT opgevraagd kan worden."
+                        ),
                     },
                     "reportUrl": {
                         "type": "string",
-                        "description": _("Url waar het reportage bestand gedownload kan worden."),
+                        "description": _(
+                            "Url waar het reportage bestand gedownload kan worden."
+                        ),
                     },
                 },
                 "example": {
@@ -481,6 +486,11 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
 
     required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
 
+    def create(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().create(request, *args, **kwargs)
+
 
 @extend_schema_view(
     create=extend_schema(
@@ -491,9 +501,7 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
             "Deze actie start tevens de IMPORT."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
-        responses={
-            (status.HTTP_200_OK): OpenApiTypes.NONE
-        }
+        responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
     )
 )
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
@@ -501,6 +509,11 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_headers = DocumentRow.import_headers
 
     required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
+
+    def create(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().create(request, *args, **kwargs)
 
 
 @extend_schema_view(
@@ -518,6 +531,11 @@ class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
 
     required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
 
+    def retrieve(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().retrieve(request, *args, **kwargs)
+
 
 @extend_schema_view(
     retrieve=extend_schema(
@@ -525,20 +543,25 @@ class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=_(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
-                "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat)."
+            "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat)."
         ),
         responses={
             (status.HTTP_200_OK, "text/csv"): {
                 "type": "file",
                 "description": _("Het reportage bestand van de IMPORT."),
             }
-        }
+        },
     )
 )
 class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
     import_type = ImportTypeChoices.documents
 
     required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
+
+    def retrieve(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().retrieve(request, *args, **kwargs)
 
 
 @extend_schema_view(

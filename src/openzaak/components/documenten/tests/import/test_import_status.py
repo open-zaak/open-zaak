@@ -1,4 +1,5 @@
-from django.test import tag
+from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -172,3 +173,26 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
         response_data = response.json()
 
         self.assertEqual(response_data["code"], "permission_denied")
+
+    @override_settings(CMIS_ENABLED=True)
+    def test_cmis_enabled(self):
+        import_instance = ImportFactory.create(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.active,
+            total=500000,
+            processed=250000,
+            processed_succesfully=125000,
+            processed_invalid=125000,
+        )
+
+        url = reverse(
+            "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response_data = response.json()
+
+        self.assertEqual(response_data["code"], _("CMIS not supported"))
