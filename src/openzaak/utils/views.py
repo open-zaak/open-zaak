@@ -6,6 +6,7 @@ from io import StringIO
 from django import http
 from django.apps import apps
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.template import TemplateDoesNotExist, loader
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
@@ -15,9 +16,7 @@ from django.views.defaults import ERROR_500_TEMPLATE_NAME
 import requests
 from django_sendfile import sendfile
 from rest_framework import exceptions, mixins, status, viewsets
-from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError, ValidationError
-from rest_framework.generics import CreateAPIView, GenericAPIView, RetrieveAPIView
 from rest_framework.parsers import BaseParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -172,7 +171,7 @@ class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 "report_url": import_instance.get_report_url(request=request),
             },
             status=status.HTTP_201_CREATED,
-            content_type="application/json"
+            content_type="application/json",
         )
 
 
@@ -228,7 +227,7 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def get_import_headers(self) -> list[str]:
         return self.import_headers
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         import_instance = self.get_object()
 
         if import_instance.status != ImportStatusChoices.pending:
@@ -246,13 +245,15 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
         validate_headers(StringIO(request_data), self.get_import_headers())
 
+        import_instance.import_file = ContentFile(
+            request.data, name=f"{import_instance.uuid}-import.csv"
+        )
         import_instance.status = ImportStatusChoices.active
-        import_instance.save(update_fields=["status"])
+        import_instance.save(update_fields=["status", "import_file"])
 
         import_documents.delay(import_instance.pk)
 
         return Response(status=status.HTTP_200_OK)
-
 
 
 class ImportStatusView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
