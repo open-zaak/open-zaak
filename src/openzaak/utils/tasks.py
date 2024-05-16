@@ -13,7 +13,7 @@ from uuid import uuid4
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
-from django.db.models.fields.files import FieldFile, FileDescriptor, FileField
+from django.db.models.fields.files import FieldFile
 from django.utils import timezone
 from django.utils.functional import classproperty
 
@@ -287,7 +287,7 @@ class DocumentRow:
     def as_export_data(self):
         return {
             **self.as_original(),
-            "opmerking": self.comment, # TODO: verify this is formatted properly
+            "opmerking": self.comment,  # TODO: verify this is formatted properly
         }
 
 
@@ -421,7 +421,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
 
 @transaction.atomic()
-def _batch_create_eios(batch: list[DocumentRow]) -> None:
+def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> None:
     canonicals = []
 
     for row in batch:
@@ -465,6 +465,38 @@ def _batch_create_eios(batch: list[DocumentRow]) -> None:
         if not row.zaak_id:
             row.processed = True
             row.succeeded = True if instance and instance.pk is not None else False
+            continue
+
+        # Note that ZaakInformatieObject's will not be created using
+        # `bulk_create` (see queryset MRO).
+        zaak_eio = ZaakInformatieObject(
+            zaak_id=zaak_uuids.get(row.zaak_id),
+            informatieobject=instance.canonical,
+            aard_relatie=RelatieAarden.from_object_type("zaak"),
+        )
+
+        try:
+            zaak_eio.save()
+        except IntegrityError as e:
+            row.processed = True
+            row.comment = (
+                f"Unable to couple row {row.row_index} to ZAAK {row.zaak_id}:"
+                f"\n {str(e)}"
+            )
+
+            for _row in batch:
+                if _row.row_index == row.row_index:
+                    continue
+
+                _row.processed = True
+                _row.comment = (
+                    f"Unable to load row due to database error on row {row.row_index}"
+                )
+
+            raise e
+
+        row.processed = True
+        row.succeeded = True
 
 
 def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
@@ -484,48 +516,6 @@ def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
         processed_count += 1
 
     return processed_count, failure_count, success_count
-
-
-@transaction.atomic()
-def _batch_couple_eios(
-    batch: list[DocumentRow], zaak_uuids: dict[str, int]
-) -> None:
-    """
-    Note that ZaakInformatieObject's will not be created in bulk (see queryset MRO).
-    """
-    for row in batch:
-        if not row.zaak_id:
-            continue
-
-        if row.zaak_id not in zaak_uuids:
-            error_message = (
-                f"Provided zaak UUID {row.zaak_id} for line {row.row_index} is "
-                "unknown. Unable to couple EnkelvoudigInformatieObject to Zaak."
-            )
-            logger.warning(error_message)
-            row.comment = error_message
-            row.processed = True
-            continue
-
-        zaak_eio = ZaakInformatieObject(
-            zaak_id=zaak_uuids[row.zaak_id],
-            informatieobject=row.instance.canonical,
-            aard_relatie=RelatieAarden.from_object_type("zaak"),
-        )
-
-        try:
-            zaak_eio.save()
-        except IntegrityError as e:
-            row.processed = True
-            row.comment = (
-                f"Unable to couple row {row.row_index} to ZAAK {row.zaak_id}:"
-                f"\n {str(e)}"
-            )
-
-            continue
-
-        row.processed = True
-        row.succeeded = True
 
 
 def _get_default_path(field: FieldFile) -> Path:
@@ -604,15 +594,10 @@ def _finish_import(
     try:
         instance.save(update_fields=updated_fields)
     except DatabaseError as e:
-        logger.critical(
-            f"Unable to save import state due to database error: {str(e)}"
-        )
+        logger.critical(f"Unable to save import state due to database error: {str(e)}")
 
 
-def _finish_batch(
-    import_instance: Import,
-    batch: list[DocumentRow],
-) -> None:
+def _finish_batch(import_instance: Import, batch: list[DocumentRow],) -> None:
     batch_number = import_instance.get_batch_number(len(batch))
     _processed, _fail_count, _success_count = _get_batch_statistics(batch)
 
@@ -620,9 +605,7 @@ def _finish_batch(
     import_instance.processed_succesfully = (
         import_instance.processed_succesfully + _success_count
     )
-    import_instance.processed_invalid = (
-        import_instance.processed_invalid + _fail_count
-    )
+    import_instance.processed_invalid = import_instance.processed_invalid + _fail_count
 
     try:
         import_instance.save(
@@ -636,7 +619,6 @@ def _finish_batch(
 
     logger.info(f"Writing batch number {batch_number} to report file")
     _write_to_file(import_instance, batch)
-
 
 
 LOCK_EXPIRE = 60 * (60 * 24)  # 24 hours
@@ -692,7 +674,9 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
             continue
 
         if len(batch) % batch_size == 0:
-            logger.info(f"Starting batch {import_instance.get_batch_number(batch_size)}")
+            logger.info(
+                f"Starting batch {import_instance.get_batch_number(batch_size)}"
+            )
 
         document_row = _import_document_row(row, row_index)
 
@@ -702,8 +686,11 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
             continue
 
         try:
-            logger.debug(f"Creating EIO's for batch {import_instance.get_batch_number(batch_size)}")
-            _batch_create_eios(batch)
+            logger.debug(
+                "Creating EIO's and ZEIO's for batch "
+                f"{import_instance.get_batch_number(batch_size)}"
+            )
+            _batch_create_eios(batch, zaak_uuids)
         except IntegrityError as e:
             error_message = (
                 f"An Integrity error occured during batch "
@@ -718,28 +705,6 @@ def import_documents(self, import_pk: int, batch_size=500) -> None:
                 f"{import_instance.get_batch_number(batch_size) + 1}"
             )
 
-        except DatabaseError as e:
-            logger.critical(
-                f"A critical error occured during batch "
-                f"{import_instance.get_batch_number(batch_size)}. "
-                f"Finishing import due to database error: \n{str(e)}"
-            )
-            logger.info("Trying to stop the import process gracefully")
-
-            _finish_batch(import_instance, batch)
-            _finish_import(
-                import_instance, status=ImportStatusChoices.error, comment=str(e),
-            )
-
-            return
-
-        logger.debug(
-            f"Coupling EIO's to Zaken for for batch "
-            f"{import_instance.get_batch_number(batch_size)}"
-        )
-
-        try:
-            _batch_couple_eios(batch, zaak_uuids)
         except DatabaseError as e:
             logger.critical(
                 f"A critical error occured during batch "
