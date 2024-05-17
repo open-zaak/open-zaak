@@ -112,7 +112,6 @@ class Import(models.Model):
     def __str__(self):
         return str(self.uuid)
 
-    # TODO: retrieve API version from request if possible
     def get_upload_url(self, request=None):
         relative_url = reverse(
             "documenten-import:upload", kwargs=dict(uuid=self.uuid, version="1")
