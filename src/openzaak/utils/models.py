@@ -44,6 +44,11 @@ class ImportStatusChoices(models.TextChoices):
         return {cls.finished, cls.error}
 
 
+class ImportRowResultChoices(models.TextChoices):
+    imported = "imported", _("Geïmporteerd")
+    not_imported = "not_imported", _("Niet geïmporteerd")
+
+
 class ImportTypeChoices(models.TextChoices):
     documents = "documenten", _("Enkelvoudige informatie objecten")
 
@@ -135,6 +140,4 @@ class Import(models.Model):
         elif self.processed < 1:
             return self.total / batch_size
 
-        return int(
-            (self.total / batch_size) - (self.processed / batch_size)
-        )
+        return int((self.total / batch_size) - (self.processed / batch_size))

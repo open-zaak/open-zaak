@@ -31,7 +31,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
-from openzaak.utils.models import Import, ImportStatusChoices
+from openzaak.utils.models import Import, ImportRowResultChoices, ImportStatusChoices
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ class DocumentRow:
 
     @classproperty
     def export_headers(cls) -> list[str]:
-        return [*cls.import_headers, "opmerking"]
+        return [*cls.import_headers, "opmerking", "resultaat"]
 
     @property
     def bronorganisatie(self) -> str:
@@ -234,6 +234,13 @@ class DocumentRow:
     def has_instance(self) -> bool:
         return bool(self.instance and self.instance.pk)
 
+    @property
+    def result(self):
+        if self.succeeded:
+            return ImportRowResultChoices.imported.label
+
+        return ImportRowResultChoices.not_imported.label
+
     def as_serializer_data(self):
         return {
             "identificatie": self._identificatie,
@@ -289,6 +296,7 @@ class DocumentRow:
         return {
             **self.as_original(),
             "opmerking": self.comment,  # TODO: verify this is formatted properly
+            "resultaat": self.result,
         }
 
 
