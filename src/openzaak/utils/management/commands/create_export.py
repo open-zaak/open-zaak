@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from random import choice
 from typing import Iterable
+from uuid import uuid4
 
 from django.core.management.base import BaseCommand, CommandError
 from django.urls import reverse
@@ -54,14 +55,18 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--row_count",
+            "--row-count",
             type=int,
             default=100000,
             help="The amount of CSV rows to create",
         )
 
         parser.add_argument(
-            "--batch_size", type=int, default=1000,
+            "--batch-size", type=int, default=1000,
+        )
+
+        parser.add_argument(
+            "--generate-uuids", type=bool, default=True,
         )
 
     def handle(self, *args, **options):
@@ -71,6 +76,7 @@ class Command(BaseCommand):
         dummy_path = options["dummy_path"]
         domain = options["domain"]
         protocol = options["protocol"]
+        generate_uuids = options["generate_uuids"]
 
         _dummy_path = Path(dummy_path)
 
@@ -102,6 +108,7 @@ class Command(BaseCommand):
                     informatieobject_typen,
                     f"{protocol}://{domain}",
                     dummy_path,
+                    generate_uuids,
                 )
 
             file_exists = Path(export_file).exists()
@@ -142,6 +149,7 @@ class Command(BaseCommand):
         informatieobject_typen: Iterable[str],
         base_url: str,
         dummy_path: str,
+        generate_uuids: bool,
     ) -> list[DocumentRow]:
 
         document_data = []
@@ -172,6 +180,7 @@ class Command(BaseCommand):
             _dummy_path = Path(dummy_path)
 
             row = DocumentRow(
+                str(uuid4()) if generate_uuids else "",
                 instance.identificatie,
                 instance.bronorganisatie,
                 instance.creatiedatum,
