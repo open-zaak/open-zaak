@@ -492,13 +492,19 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
         return super().create(request, *args, **kwargs)
 
 
+def _get_import_headers():
+    return ", ".join([f"**{header}**" for header in DocumentRow.import_headers])
+
+
 @extend_schema_view(
     create=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_upload",
         summary=_("Een IMPORT bestand uploaden"),
         description=_(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
-            "Deze actie start tevens de IMPORT."
+            "Deze actie start tevens de IMPORT. De volgende kolommen worden "
+            "verwacht (op volgorde) in het bestand: "
+            f"{_get_import_headers()}"
         ),
         request={"text/csv": OpenApiTypes.BYTE},
         responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
@@ -537,13 +543,19 @@ class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
         return super().retrieve(request, *args, **kwargs)
 
 
+def _get_report_headers():
+    return ", ".join([f"**{header}**" for header in DocumentRow.export_headers])
+
+
 @extend_schema_view(
     retrieve=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_report",
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=_(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
-            "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat)."
+            "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
+            " De volgende kolommen zijn te vinden in het rapportage bestand: "
+            f"{_get_report_headers()}"
         ),
         responses={
             (status.HTTP_200_OK, "text/csv"): {
