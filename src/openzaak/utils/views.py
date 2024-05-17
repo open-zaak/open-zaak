@@ -26,7 +26,7 @@ from zds_client import ClientError
 
 from openzaak.utils.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.utils.permissions import ImportAuthRequired
-from openzaak.utils.serializers import ImportSerializer
+from openzaak.utils.serializers import ImportCreateSerializer, ImportSerializer
 from openzaak.utils.tasks import import_documents
 
 
@@ -133,6 +133,8 @@ class AuditTrailViewSet(_AuditTrailViewSet):
 class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
     import_type: ImportTypeChoices
 
+    serializer_class = ImportCreateSerializer
+
     permission_classes = (ImportAuthRequired,)
 
     def get_queryset(self):
@@ -164,12 +166,10 @@ class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
             total=0,
         )
 
+        serializer = self.get_serializer_class()(instance=import_instance)
+
         return Response(
-            data={
-                "upload_url": import_instance.get_upload_url(request=request),
-                "status_url": import_instance.get_status_url(request=request),
-                "report_url": import_instance.get_report_url(request=request),
-            },
+            data=serializer.data,
             status=status.HTTP_201_CREATED,
             content_type="application/json",
         )

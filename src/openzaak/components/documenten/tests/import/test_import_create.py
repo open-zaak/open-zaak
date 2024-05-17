@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
@@ -13,7 +14,7 @@ from openzaak.utils.tests.factories import ImportFactory
 
 
 @tag("documenten-import-start")
-class ImportDocumentenStartTests(JWTAuthMixin, APITestCase):
+class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("documenten-import:create")
     scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
     component = ComponentTypes.drc
@@ -36,13 +37,15 @@ class ImportDocumentenStartTests(JWTAuthMixin, APITestCase):
             "documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
         )
 
+        site = Site.objects.get()
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
             response.json(),
             {
-                "uploadUrl": f"http://testserver{upload_url}",
-                "statusUrl": f"http://testserver{status_url}",
-                "reportUrl": f"http://testserver{report_url}",
+                "uploadUrl": f"http://{site.domain}{upload_url}",
+                "statusUrl": f"http://{site.domain}{status_url}",
+                "reportUrl": f"http://{site.domain}{report_url}",
             },
         )
 

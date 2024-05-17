@@ -448,37 +448,6 @@ class EnkelvoudigInformatieObjectViewSet(
             " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan."
         ),
         request=OpenApiTypes.NONE,
-        responses={
-            (status.HTTP_201_CREATED, "application/json"): {
-                "type": "object",
-                "properties": {
-                    "uploadUrl": {
-                        "type": "string",
-                        "description": _(
-                            "Url waar het metadata bestand geupload kan worden."
-                        ),
-                    },
-                    "statusUrl": {
-                        "type": "string",
-                        "description": _(
-                            "Url waar de status van de IMPORT opgevraagd kan worden."
-                        ),
-                    },
-                    "reportUrl": {
-                        "type": "string",
-                        "description": _(
-                            "Url waar het reportage bestand gedownload kan worden."
-                        ),
-                    },
-                },
-                "example": {
-                    "uploadUrl": "https://example.com",
-                    "statusUrl": "https://example.com",
-                    "reportUrl": "https://example.com",
-                },
-            },
-            **COMMON_ERROR_RESPONSES,
-        },
     )
 )
 class EnkelvoudigInformatieObjectImportView(ImportCreateview):
