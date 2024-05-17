@@ -655,14 +655,14 @@ def _finish_batch(import_instance: Import, batch: list[DocumentRow],) -> None:
     _processed, _fail_count, _success_count = _get_batch_statistics(batch)
 
     import_instance.processed = import_instance.processed + _processed
-    import_instance.processed_succesfully = (
-        import_instance.processed_succesfully + _success_count
+    import_instance.processed_successfully = (
+        import_instance.processed_successfully + _success_count
     )
     import_instance.processed_invalid = import_instance.processed_invalid + _fail_count
 
     try:
         import_instance.save(
-            update_fields=["processed", "processed_succesfully", "processed_invalid"]
+            update_fields=["processed", "processed_successfully", "processed_invalid"]
         )
     except DatabaseError as e:
         logger.critical(

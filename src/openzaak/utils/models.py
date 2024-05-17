@@ -100,12 +100,12 @@ class Import(models.Model):
     )
 
     # statistics
-    total = models.IntegerField(verbose_name=_("Totaal"))
-    processed = models.IntegerField(verbose_name=_("Verwerkt"), default=0)
-    processed_succesfully = models.IntegerField(
+    total = models.PositiveIntegerField(verbose_name=_("Totaal"))
+    processed = models.PositiveIntegerField(verbose_name=_("Verwerkt"), default=0)
+    processed_successfully = models.PositiveIntegerField(
         verbose_name=_("Succesvol verwerkt"), default=0
     )
-    processed_invalid = models.IntegerField(
+    processed_invalid = models.PositiveIntegerField(
         verbose_name=_("Niet succesvol verwerkt"), default=0
     )
 

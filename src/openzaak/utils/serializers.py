@@ -71,7 +71,7 @@ class ImportSerializer(ModelSerializer):
         fields = (
             "total",
             "processed",
-            "processed_succesfully",
+            "processed_successfully",
             "processed_invalid",
             "status",
         )
