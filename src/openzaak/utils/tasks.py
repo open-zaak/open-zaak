@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from time import monotonic
 from typing import Generator, Optional
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from django.conf import settings
 from django.core.cache import cache
@@ -61,6 +61,7 @@ def _get_total_count(filename: str, include_header: bool = False) -> int:
 
 @dataclass
 class DocumentRow:
+    _uuid: str
     _identificatie: str
     _bronorganisatie: str
     _creatiedatum: str
@@ -102,6 +103,7 @@ class DocumentRow:
     @classproperty
     def import_headers(cls) -> list[str]:
         return [
+            "uuid",
             "identificatie",
             "bronorganisatie",
             "creatiedatum",
@@ -131,6 +133,12 @@ class DocumentRow:
     @classproperty
     def export_headers(cls) -> list[str]:
         return [*cls.import_headers, "opmerking", "resultaat"]
+
+    @property
+    def uuid(self) -> str:
+        if self.instance and self.instance.uuid:
+            return str(self.instance.uuid)
+        return self._uuid
 
     @property
     def bronorganisatie(self) -> str:
@@ -266,6 +274,7 @@ class DocumentRow:
 
     def as_original(self):
         return {
+            "uuid": self._uuid,
             "identificatie": self._identificatie,
             "bronorganisatie": self._bronorganisatie,
             "creatiedatum": self._creatiedatum,
@@ -295,12 +304,15 @@ class DocumentRow:
     def as_export_data(self):
         return {
             **self.as_original(),
-            "opmerking": self.comment,  # TODO: verify this is formatted properly
+            "uuid": self.uuid,
+            "opmerking": self.comment,
             "resultaat": self.result,
         }
 
 
-def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
+def _import_document_row(
+    row: list[str], row_index: int, existing_uuids: list[str]
+) -> DocumentRow:
     expected_column_count = len(DocumentRow.import_headers)
 
     request_factory = APIRequestFactory()
@@ -339,9 +351,9 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
     if not eio_serializer.is_valid():
         error_message = (
             "A validation error occurred while deserializing a "
-            "EnkelvoudigInformtatieObject on line %(row_index)s: \n"
-            "%(errors)s"
-        ) % dict(row_index=row_index, errors=eio_serializer.errors)
+            f"EnkelvoudigInformtatieObject on line {row_index}: \n"
+            f"{eio_serializer.errors}"
+        )
 
         logger.warning(error_message)
         document_row.comment = error_message
@@ -351,6 +363,37 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     data: dict = eio_serializer.validated_data
 
+    if document_row.uuid:
+
+        try:
+            uuid = UUID(document_row.uuid, version=4)
+        except ValueError:
+            error_message = (
+                f"Given UUID for row {row_index} is not a valid UUID (version 4)"
+            )
+
+            logger.warning(error_message)
+            document_row.comment = error_message
+            document_row.processed = True
+
+            return document_row
+
+        if document_row.uuid in existing_uuids:
+            error_message = (
+                f"UUID given on row {row_index} was already found! Not overwriting "
+                "existing EIO."
+            )
+
+            logger.warning(error_message)
+            document_row.comment = error_message
+            document_row.processed = True
+
+            return document_row
+
+        data["uuid"] = str(uuid)
+    else:
+        data["uuid"] = str(uuid4())
+
     gegevensgroep_fields = ("ondertekening", "integriteit")
 
     for field in gegevensgroep_fields:
@@ -358,8 +401,6 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
         for key, value in gegevens_groep_value.items():
             data[f"{field}_{key}"] = value
-
-    data["uuid"] = str(uuid4())
 
     if "vertrouwelijkheidaanduiding" not in data:
         informatieobjecttype = data["informatieobjecttype"]
@@ -379,9 +420,9 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
     except ValidationError as e:
         error_message = (
             "A validation error occurred while validating a "
-            "EnkelvoudigInformtatieObject on line %(row_index)s: \n"
-            "%(error)s"
-        ) % dict(row_index=row_index, error=str(e))
+            f"EnkelvoudigInformtatieObject on line {row_index}: \n"
+            f"{str(e)}"
+        )
 
         logger.warning(error_message)
         document_row.comment = error_message
@@ -394,9 +435,9 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
 
     if not path.exists() or not path.is_file():
         error_message = (
-            "The given filepath %(file_path)s does not exist or is a file for "
-            "row %(row_index)s"
-        ) % dict(file_path=file_path, row_index=row_index)
+            f"The given filepath {file_path} does not exist or is a file for "
+            f"row {row_index}"
+        )
 
         logger.warning(error_message)
         document_row.comment = error_message
@@ -413,9 +454,7 @@ def _import_document_row(row: list[str], row_index: int) -> DocumentRow:
     try:
         shutil.copy2(file_path, import_path)
     except Exception as e:
-        error_message = (
-            "Unable to copy file for row %(row_index)s: \n %(error)s"
-        ) % dict(error=str(e), row_index=row_index)
+        error_message = f"Unable to copy file for row {row_index}: \n {str(e)}"
 
         logger.warning(error_message)
         document_row.comment = error_message
@@ -464,6 +503,9 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
 
     # reuse created instances
     for row in batch:
+        if row.failed:
+            continue
+
         instance = next(
             (eio for eio in eios if row.instance and eio.uuid == row.instance.uuid),
             None,
@@ -600,6 +642,8 @@ def _finish_import(
 
         updated_fields.append("comment")
 
+    logger.info(f"Finishing import with status {status.label}")
+
     try:
         instance.save(update_fields=updated_fields)
     except DatabaseError as e:
@@ -677,6 +721,9 @@ def import_documents(self, import_pk: int) -> None:
     batch_size = settings.IMPORT_DOCUMENTEN_BATCH_SIZE
 
     zaak_uuids = {str(uuid): id for uuid, id in Zaak.objects.values_list("uuid", "id")}
+    eio_uuids = [
+        str(uuid) for uuid in EnkelvoudigInformatieObject.objects.values_list("uuid")
+    ]
 
     for row_index, row in _get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
@@ -687,9 +734,14 @@ def import_documents(self, import_pk: int) -> None:
                 f"Starting batch {import_instance.get_batch_number(batch_size)}"
             )
 
-        document_row = _import_document_row(row, row_index)
+        document_row = _import_document_row(row, row_index, eio_uuids)
 
         batch.append(document_row)
+
+        # Note that the UUID's are only used for validation
+        for row in batch:
+            if row.instance and row.instance.uuid:
+                eio_uuids.append(str(row.instance.uuid))
 
         if not len(batch) % batch_size == 0:
             continue
@@ -702,7 +754,7 @@ def import_documents(self, import_pk: int) -> None:
             _batch_create_eios(batch, zaak_uuids)
         except IntegrityError as e:
             error_message = (
-                f"An Integrity error occured during batch "
+                "An Integrity error occured during batch "
                 f"{import_instance.get_batch_number(batch_size)}: \n {str(e)}"
             )
 
@@ -716,7 +768,7 @@ def import_documents(self, import_pk: int) -> None:
 
         except DatabaseError as e:
             logger.critical(
-                f"A critical error occured during batch "
+                "A critical error occured during batch "
                 f"{import_instance.get_batch_number(batch_size)}. "
                 f"Finishing import due to database error: \n{str(e)}"
             )
