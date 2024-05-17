@@ -6,7 +6,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import fields as drf_fields
 from rest_framework.serializers import (
-    ModelSerializer,
+    HyperlinkedModelSerializer,
     Serializer,
     SerializerMethodField,
 )
@@ -58,7 +58,7 @@ def get_from_serializer_data_or_instance(
     return serializer_field.get_attribute(instance)
 
 
-class ImportSerializer(ModelSerializer):
+class ImportSerializer(HyperlinkedModelSerializer):
     status = SerializerMethodField()
 
     @extend_schema_field(OpenApiTypes.STR)
