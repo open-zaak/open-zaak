@@ -128,7 +128,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "__all__")
 
-        self.assertEqual(validation_error["code"], "missing-import-headers")
+        self.assertEqual(validation_error["code"], "empty-file")
 
         import_instance.refresh_from_db()
 

@@ -243,6 +243,12 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
         request_data = request.data or ""
 
+        if not request_data:
+            error_message = _(
+                "The import process cannot be started with an empty import file."
+            )
+            raise ValidationError({"__all__": [error_message]}, code="empty-file")
+
         validate_headers(StringIO(request_data), self.get_import_headers())
 
         import_instance.import_file = ContentFile(
