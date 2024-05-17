@@ -28,8 +28,6 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         cls.test_path = Path(__file__).parent.resolve() / "files"
 
-    # TODO: add more in depth testing (assert updated import instance, EIO instance,
-    # saved file contents)
     @patch("openzaak.utils.views.import_documents")
     def test_valid_upload(self, import_document_task_mock):
         import_instance = ImportFactory.create(
@@ -42,16 +40,20 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
+        file_contents = None
+
         with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+            file_contents = import_file.read()
+            response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         import_instance.refresh_from_db()
 
         self.assertEqual(import_instance.status, ImportStatusChoices.active)
+
+        with open(import_instance.import_file.path, "rb") as import_file:
+            self.assertEqual(file_contents, import_file.read())
 
         import_document_task_mock.delay.assert_called_once_with(import_instance.pk)
 
@@ -218,7 +220,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             status=ImportStatusChoices.active,
             total=500000,
             processed=249000,
-            processed_succesfully=125000,
+            processed_successfully=125000,
             processed_invalid=124000,
         )
 
@@ -247,7 +249,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             status=ImportStatusChoices.error,
             total=500000,
             processed=249000,
-            processed_succesfully=125000,
+            processed_successfully=125000,
             processed_invalid=124000,
         )
 
@@ -276,7 +278,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             status=ImportStatusChoices.finished,
             total=500000,
             processed=500000,
-            processed_succesfully=250000,
+            processed_successfully=250000,
             processed_invalid=250000,
         )
 
