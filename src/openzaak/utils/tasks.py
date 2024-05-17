@@ -431,11 +431,11 @@ def _import_document_row(
         return document_row
 
     file_path = document_row.bestandspad
-    path = Path(file_path)
+    path = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR) / Path(file_path)
 
     if not path.exists() or not path.is_file():
         error_message = (
-            f"The given filepath {file_path} does not exist or is a file for "
+            f"The given filepath {path} does not exist or is a file for "
             f"row {row_index}"
         )
 
@@ -452,7 +452,7 @@ def _import_document_row(
         default_dir.mkdir(parents=True)
 
     try:
-        shutil.copy2(file_path, import_path)
+        shutil.copy2(path, import_path)
     except Exception as e:
         error_message = f"Unable to copy file for row {row_index}: \n {str(e)}"
 
