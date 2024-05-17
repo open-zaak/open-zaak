@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import tempfile
 from io import StringIO
 from pathlib import Path
 
@@ -16,22 +15,11 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
-from openzaak.components.autorisaties.tests.factories import (
-    ApplicatieFactory,
-    AutorisatieFactory,
-    AutorisatieSpecFactory,
-)
-from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
-from openzaak.components.zaken.api.scopes import (
-    SCOPE_ZAKEN_ALLES_LEZEN,
-    SCOPE_ZAKEN_CREATE,
-)
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.bootstrap.authorizations import AuthorizationConfigurationStep
 from openzaak.config.bootstrap.demo import DemoUserStep
@@ -43,6 +31,8 @@ from openzaak.config.bootstrap.selectielijst import SelectielijstAPIConfiguratio
 from openzaak.config.bootstrap.site import SiteConfigurationStep
 
 ZAAKTYPE = "https://acc.openzaak.nl/zaaktypen/1"
+
+AUTH_FIXTURE_PATH = Path(__file__).parents[2] / "config/tests/bootstrap/files/auth.yaml"
 
 
 @override_settings(
@@ -62,41 +52,11 @@ ZAAKTYPE = "https://acc.openzaak.nl/zaaktypen/1"
     DEMO_CONFIG_ENABLE=True,
     DEMO_CLIENT_ID="demo-client-id",
     DEMO_SECRET="demo-secret",
+    AUTHORIZATIONS_CONFIG_FIXTURE_PATH=AUTH_FIXTURE_PATH,
 )
 class SetupConfigurationTests(APITestCase):
     def setUp(self):
         super().setUp()
-
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.dump_path = str(Path(self.temp_dir.name) / "auth_dump.yaml")
-        self.addCleanup(self.temp_dir.cleanup)
-
-        self.jwt_secret = JWTSecret.objects.create(
-            identifier="open-zaak", secret="oz-secret"
-        )
-        self.applicatie = ApplicatieFactory.create(client_ids=["open-zaak"])
-        self.autorisatie = AutorisatieFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_ALLES_LEZEN],
-            zaaktype=ZAAKTYPE,
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-        self.autorisatiespec = AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=[SCOPE_BESLUITEN_ALLES_LEZEN],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-
-        call_command(
-            "dump_auth_fixtures", str(Path(self.temp_dir.name) / "auth_dump.yaml")
-        )
-
-        self.jwt_secret.delete()
-        self.applicatie.delete()
-        self.autorisatie.delete()
-        self.autorisatiespec.delete()
 
         self.addCleanup(Site.objects.clear_cache)
 
@@ -111,8 +71,7 @@ class SetupConfigurationTests(APITestCase):
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
 
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            call_command("setup_configuration", stdout=stdout, no_color=True)
+        call_command("setup_configuration", stdout=stdout, no_color=True)
 
         # minimal output expected
         with self.subTest("Command output"):
@@ -180,11 +139,11 @@ class SetupConfigurationTests(APITestCase):
 
         with self.subTest("Authorizations configured correctly"):
             # One for notif-client, one for demo-client, one from auth config
-            self.assertEqual(JWTSecret.objects.count(), 3)
+            self.assertEqual(JWTSecret.objects.count(), 4)
             # One for OZ itself, notif-client, one for demo-client, one from auth config
-            self.assertEqual(Applicatie.objects.count(), 4)
+            self.assertEqual(Applicatie.objects.count(), 5)
             # One for OZ itself, notif-client, one for demo-client, one from auth config
-            self.assertEqual(Autorisatie.objects.count(), 4)
+            self.assertEqual(Autorisatie.objects.count(), 5)
             # One from auth config
             self.assertEqual(AutorisatieSpec.objects.count(), 1)
 
@@ -197,19 +156,17 @@ class SetupConfigurationTests(APITestCase):
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
 
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            with self.assertRaisesMessage(
-                CommandError,
-                "Could not access home page at 'http://open-zaak.example.com/'",
-            ):
-                call_command("setup_configuration")
+        with self.assertRaisesMessage(
+            CommandError,
+            "Could not access home page at 'http://open-zaak.example.com/'",
+        ):
+            call_command("setup_configuration")
 
     @requests_mock.Mocker()
     def test_setup_configuration_without_selftest(self, m):
         stdout = StringIO()
 
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            call_command("setup_configuration", no_selftest=True, stdout=stdout)
+        call_command("setup_configuration", no_selftest=True, stdout=stdout)
         command_output = stdout.getvalue()
 
         self.assertEqual(len(m.request_history), 0)

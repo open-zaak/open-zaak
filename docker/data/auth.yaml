@@ -1,0 +1,47 @@
+- model: authorizations.applicatie
+  fields:
+    uuid: aedd8e94-48b9-4d10-9b6f-1247bc4a61cb
+    client_ids: '["application-1"]'
+    label: Applicatie 1
+    heeft_alle_autorisaties: false
+- model: authorizations.applicatie
+  fields:
+    uuid: a38fc020-eb4f-4eaf-8444-14097f0f6f79
+    client_ids: '["application-2"]'
+    label: Applicatie 2
+    heeft_alle_autorisaties: false
+- model: authorizations.autorisatie
+  fields:
+    applicatie:
+    - aedd8e94-48b9-4d10-9b6f-1247bc4a61cb
+    component: zrc
+    scopes: '["zaken.aanmaken", "zaken.lezen"]'
+    zaaktype: https://acc.openzaak.nl/zaaktypen/63c92281-2ac1-48e7-8fa8-e14c6d7a287a
+    informatieobjecttype: ''
+    besluittype: ''
+    max_vertrouwelijkheidaanduiding: geheim
+- model: authorizations.autorisatie
+  fields:
+    applicatie:
+    - a38fc020-eb4f-4eaf-8444-14097f0f6f79
+    component: zrc
+    scopes: '["zaken.lezen"]'
+    zaaktype: https://external.acc.openzaak.nl/zaaktypen/cbbd0a25-353d-4687-abd5-6733028f4976
+    informatieobjecttype: ''
+    besluittype: ''
+    max_vertrouwelijkheidaanduiding: openbaar
+- model: autorisaties.autorisatiespec
+  fields:
+    applicatie:
+    - aedd8e94-48b9-4d10-9b6f-1247bc4a61cb
+    component: brc
+    scopes: '["besluiten.lezen"]'
+    max_vertrouwelijkheidaanduiding: geheim
+- model: vng_api_common.jwtsecret
+  fields:
+    identifier: application-1
+    secret: supersecret1
+- model: vng_api_common.jwtsecret
+  fields:
+    identifier: application-2
+    secret: supersecret2

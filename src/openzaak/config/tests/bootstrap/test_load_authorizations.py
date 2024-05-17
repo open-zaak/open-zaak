@@ -1,23 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
 
-import tempfile
 from pathlib import Path
 
-from django.core.management import call_command
 from django.test import TestCase, override_settings
 
-import yaml
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
-from openzaak.components.autorisaties.tests.factories import (
-    ApplicatieFactory,
-    AutorisatieFactory,
-    AutorisatieSpecFactory,
-)
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -31,60 +23,16 @@ ZAAKTYPE3 = "https://acc.openzaak.nl/zaaktypen/3"
 ZAAKTYPE4 = "https://acc.openzaak.nl/zaaktypen/4"
 
 
+AUTH_FIXTURE_PATH = Path(__file__).parent / "files/auth.yaml"
+DOMAIN_MAPPING_PATH = Path(__file__).parent / "files/domain_mapping.yaml"
+
+
+@override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=AUTH_FIXTURE_PATH)
 class AuthorizationConfigurationTests(TestCase):
     maxDiff = None
 
-    def setUp(self):
-        super().setUp()
-
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.dump_path = str(Path(self.temp_dir.name) / "auth_dump.yaml")
-        self.addCleanup(self.temp_dir.cleanup)
-
-        self.jwt_secret_oz = JWTSecret.objects.create(
-            identifier="open-zaak", secret="oz-secret"
-        )
-        self.jwt_secret_on = JWTSecret.objects.create(
-            identifier="open-notificaties", secret="on-secret"
-        )
-        self.applicatie_oz = ApplicatieFactory.create(client_ids=["open-zaak"])
-        self.applicatie_on = ApplicatieFactory.create(client_ids=["open-notificaties"])
-        self.autorisatie_oz = AutorisatieFactory.create(
-            applicatie=self.applicatie_oz,
-            component=ComponentTypes.zrc,
-            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_ALLES_LEZEN],
-            zaaktype=ZAAKTYPE1,
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-        self.autorisatiespec = AutorisatieSpecFactory.create(
-            applicatie=self.applicatie_oz,
-            component=ComponentTypes.brc,
-            scopes=[SCOPE_BESLUITEN_ALLES_LEZEN],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-        )
-        self.autorisatie_on = AutorisatieFactory.create(
-            applicatie=self.applicatie_on,
-            component=ComponentTypes.zrc,
-            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
-            zaaktype=ZAAKTYPE2,
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        call_command(
-            "dump_auth_fixtures", str(Path(self.temp_dir.name) / "auth_dump.yaml")
-        )
-
-        self.jwt_secret_oz.delete()
-        self.jwt_secret_on.delete()
-        self.applicatie_oz.delete()
-        self.applicatie_on.delete()
-        self.autorisatie_oz.delete()
-        self.autorisatiespec.delete()
-        self.autorisatie_on.delete()
-
     def test_configure(self):
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            AuthorizationConfigurationStep().configure()
+        AuthorizationConfigurationStep().configure()
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
@@ -131,27 +79,12 @@ class AuthorizationConfigurationTests(TestCase):
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
+    @override_settings(
+        AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH=DOMAIN_MAPPING_PATH,
+        ENVIRONMENT="production",
+    )
     def test_configure_domain_mapping(self):
-        mapping_path = Path(self.temp_dir.name) / "mapping.yaml"
-        with open(mapping_path, "w") as f:
-            mapping = [
-                {
-                    "acceptance": "https://acc.openzaak.nl",
-                    "production": "https://openzaak.nl",
-                },
-                {
-                    "acceptance": "https://external.acc.openzaak.nl",
-                    "production": "https://external.openzaak.nl",
-                },
-            ]
-            yaml.safe_dump(mapping, f)
-
-        with override_settings(
-            AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path,
-            AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH=mapping_path,
-            ENVIRONMENT="production",
-        ):
-            AuthorizationConfigurationStep().configure()
+        AuthorizationConfigurationStep().configure()
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
@@ -205,8 +138,7 @@ class AuthorizationConfigurationTests(TestCase):
         Running `.configure` twice should overwrite any changes made to the configurated
         Applicaties, Autorisaties, AutorisatieSpecs and JWTSecrets
         """
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            AuthorizationConfigurationStep().configure()
+        AuthorizationConfigurationStep().configure()
 
         secret_oz, secret_on = JWTSecret.objects.all()
 
@@ -237,8 +169,7 @@ class AuthorizationConfigurationTests(TestCase):
         autorisatiespec_oz.save()
 
         # Overwrite the changes
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            AuthorizationConfigurationStep().configure()
+        AuthorizationConfigurationStep().configure()
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
@@ -288,10 +219,9 @@ class AuthorizationConfigurationTests(TestCase):
     def test_is_configured(self):
         configuration = AuthorizationConfigurationStep()
 
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            self.assertFalse(configuration.is_configured())
+        self.assertFalse(configuration.is_configured())
 
-            configuration.configure()
+        configuration.configure()
 
         # Modifying these attribute should not affect `is_configured`
         secret_oz, secret_on = JWTSecret.objects.all()
@@ -322,5 +252,4 @@ class AuthorizationConfigurationTests(TestCase):
         )
         autorisatiespec_oz.save()
 
-        with override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=self.dump_path):
-            self.assertTrue(configuration.is_configured())
+        self.assertTrue(configuration.is_configured())
