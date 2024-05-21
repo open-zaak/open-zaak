@@ -24,6 +24,7 @@ from openzaak.components.catalogi.models import (
     InformatieObjectType,
     ZaakType,
 )
+from openzaak.utils import build_absolute_url
 from openzaak.utils.auth import get_auth
 from openzaak.utils.middleware import override_request_host
 from openzaak.utils.validators import ResourceValidator
@@ -397,8 +398,11 @@ class AutorisatieForm(forms.Form):
             autorisaties = []
             for _type in types:
                 data = autorisatie_kwargs.copy()
-                url = request.build_absolute_uri(_type.get_absolute_api_url())
-                data[_field_info["_autorisatie_type_field"]] = url
+
+                # signal uses build_absolute_url to find autorisaties to delete
+                data[_field_info["_autorisatie_type_field"]] = build_absolute_url(
+                    _type.get_absolute_api_url()
+                )
                 autorisaties.append(
                     Autorisatie(
                         max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
