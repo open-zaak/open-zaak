@@ -732,12 +732,10 @@ def import_documents(self, import_pk: int) -> None:
 
         document_row = _import_document_row(row, row_index, eio_uuids)
 
-        batch.append(document_row)
+        if document_row.instance and document_row.instance.uuid:
+            eio_uuids.append(str(import_documents.instance.uuid))
 
-        # Note that the UUID's are only used for validation
-        for row in batch:
-            if row.instance and row.instance.uuid:
-                eio_uuids.append(str(row.instance.uuid))
+        batch.append(document_row)
 
         if not len(batch) % batch_size == 0:
             continue
