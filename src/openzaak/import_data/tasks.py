@@ -31,7 +31,11 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
-from openzaak.import_data.models import Import, ImportRowResultChoices, ImportStatusChoices
+from openzaak.import_data.models import (
+    Import,
+    ImportRowResultChoices,
+    ImportStatusChoices,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -351,7 +355,7 @@ def _import_document_row(
     if not eio_serializer.is_valid():
         error_message = (
             "A validation error occurred while deserializing a "
-            f"EnkelvoudigInformtatieObject on line {row_index}: \n"
+            f"EnkelvoudigInformatieObject on line {row_index}: \n"
             f"{eio_serializer.errors}"
         )
 
@@ -420,7 +424,7 @@ def _import_document_row(
     except ValidationError as e:
         error_message = (
             "A validation error occurred while validating a "
-            f"EnkelvoudigInformtatieObject on line {row_index}: \n"
+            f"EnkelvoudigInformatieObject on line {row_index}: \n"
             f"{str(e)}"
         )
 
@@ -435,7 +439,7 @@ def _import_document_row(
 
     if not path.exists() or not path.is_file():
         error_message = (
-            f"The given filepath {path} does not exist or is a file for "
+            f"The given filepath {path} does not exist or is not a file for "
             f"row {row_index}"
         )
 
