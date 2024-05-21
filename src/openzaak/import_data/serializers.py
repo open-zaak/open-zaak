@@ -44,10 +44,8 @@ class ImportCreateSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Import
-        read_only_fields = (
+        fields = (
             "upload_url",
             "status_url",
             "report_url",
         )
-
-        fields = read_only_fields
