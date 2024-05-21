@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import classproperty
@@ -100,19 +101,28 @@ class Import(models.Model):
 
     def get_upload_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=self.uuid, version="1")
+            "documenten-import:upload",
+            kwargs=dict(
+                uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+            ),
         )
         return build_absolute_url(relative_url, request=request)
 
     def get_status_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:status", kwargs=dict(uuid=self.uuid, version="1")
+            "documenten-import:status",
+            kwargs=dict(
+                uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+            ),
         )
         return build_absolute_url(relative_url, request=request)
 
     def get_report_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=self.uuid, version="1")
+            "documenten-import:report",
+            kwargs=dict(
+                uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+            ),
         )
         return build_absolute_url(relative_url, request=request)
 
