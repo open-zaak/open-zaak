@@ -413,6 +413,7 @@ def _import_document_row(
         ] = informatieobjecttype.vertrouwelijkheidaanduiding
 
     instance = EnkelvoudigInformatieObject(**data)
+    instance.canonical = EnkelvoudigInformatieObjectCanonical()
 
     if not instance.identificatie:
         instance.identificatie = generate_unique_identification(
@@ -474,19 +475,10 @@ def _import_document_row(
 
 @transaction.atomic()
 def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> None:
-    canonicals = []
-
-    for row in batch:
-        if row.instance is None:
-            continue
-
-        canonical = EnkelvoudigInformatieObjectCanonical()
-        row.instance.canonical = canonical
-
-        canonicals.append(canonical)
-
     try:
-        EnkelvoudigInformatieObjectCanonical.objects.bulk_create(canonicals)
+        EnkelvoudigInformatieObjectCanonical.objects.bulk_create(
+            [row.instance.canonical for row in batch if row.instance is not None]
+        )
     except IntegrityError as e:
         for row in batch:
             row.processed = True
