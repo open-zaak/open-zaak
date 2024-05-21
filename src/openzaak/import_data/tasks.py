@@ -450,7 +450,7 @@ def _import_document_row(
         return document_row
 
     default_dir = _get_default_path(instance.inhoud)
-    import_path = f"{default_dir}/{path.name}"
+    import_path = default_dir / path.name
 
     if not default_dir.exists():
         default_dir.mkdir(parents=True)
