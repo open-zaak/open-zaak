@@ -28,6 +28,13 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.import_data.models import ImportTypeChoices
+from openzaak.import_data.tasks import DocumentRow
+from openzaak.import_data.views import (
+    ImportCreateview,
+    ImportReportView,
+    ImportStatusView,
+    ImportUploadView,
+)
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.mixins import (
@@ -43,13 +50,6 @@ from openzaak.utils.schema import (
     VALIDATION_ERROR_RESPONSES,
 )
 from openzaak.utils.views import AuditTrailViewSet
-from openzaak.import_data.tasks import DocumentRow
-from openzaak.import_data.views import (
-    ImportCreateview,
-    ImportReportView,
-    ImportStatusView,
-    ImportUploadView,
-)
 
 from ..caching import cmis_conditional_retrieve
 from ..models import (
@@ -445,7 +445,9 @@ class EnkelvoudigInformatieObjectViewSet(
         summary=_("Een IMPORT creeren"),
         description=_(
             "Creeert een IMPORT. Wanneer er vervolgens een metadata bestand"
-            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan."
+            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Deze "
+            "actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld."
         ),
         request=OpenApiTypes.NONE,
     )
@@ -471,9 +473,10 @@ def _get_import_headers():
         summary=_("Een IMPORT bestand uploaden"),
         description=_(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
-            "Deze actie start tevens de IMPORT. De volgende kolommen worden "
-            "verwacht (op volgorde) in het bestand: "
-            f"{_get_import_headers()}"
+            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld. Deze actie start tevens de IMPORT. De volgende "
+            "kolommen worden verwacht (op volgorde) in het bestand: "
+            f"{_get_import_headers()}."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
         responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
@@ -497,7 +500,8 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         summary=_("De status van een IMPORT opvragen."),
         description=_(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
-            "Deze actie start tevens de IMPORT."
+            "Deze actie start tevens de IMPORT. Deze actie is niet beschikbaar "
+            "wanneer de `CMIS_ENABLED` optie is ingeschakeld."
         ),
     )
 )
@@ -523,8 +527,9 @@ def _get_report_headers():
         description=_(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
             "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
-            " De volgende kolommen zijn te vinden in het rapportage bestand: "
-            f"{_get_report_headers()}"
+            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld. De volgende kolommen zijn te vinden in het rapportage "
+            f"bestand: {_get_report_headers()}"
         ),
         responses={
             (status.HTTP_200_OK, "text/csv"): {
