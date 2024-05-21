@@ -22,7 +22,6 @@ from vng_api_common.permissions import bypass_permissions, get_required_scopes
 from vng_api_common.utils import get_resource_for_path
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
-from openzaak.utils.models import ImportTypeChoices
 
 logger = logging.getLogger(__name__)
 
@@ -189,9 +188,3 @@ class AuthRequired(permissions.BasePermission):
         main_object_data = self.format_data(main_object, request)
         fields = self.get_fields(main_object_data)
         return request.jwt_auth.has_auth(scopes_required, component, **fields)
-
-
-class ImportAuthRequired(AuthRequired):
-    def get_component(self, view) -> str:
-        importer_type = view.import_type
-        return ImportTypeChoices.get_component_from_choice(importer_type)

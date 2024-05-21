@@ -27,6 +27,7 @@ from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.import_data.models import ImportTypeChoices
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.mixins import (
@@ -34,7 +35,6 @@ from openzaak.utils.mixins import (
     ConvertCMISAdapterExceptions,
     ExpandMixin,
 )
-from openzaak.utils.models import ImportTypeChoices
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
@@ -42,9 +42,9 @@ from openzaak.utils.schema import (
     FILE_ERROR_RESPONSES,
     VALIDATION_ERROR_RESPONSES,
 )
-from openzaak.utils.tasks import DocumentRow
-from openzaak.utils.views import (
-    AuditTrailViewSet,
+from openzaak.utils.views import AuditTrailViewSet
+from openzaak.import_data.tasks import DocumentRow
+from openzaak.import_data.views import (
     ImportCreateview,
     ImportReportView,
     ImportStatusView,

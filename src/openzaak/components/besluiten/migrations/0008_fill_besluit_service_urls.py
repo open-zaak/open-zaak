@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from django.db import migrations
-
-from openzaak.utils._migrations import fill_service_urls
+from openzaak.utils.migrations import fill_service_urls
 
 
 def fill_besluiten_service_urls(apps, schema_editor):

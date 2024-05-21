@@ -4,7 +4,6 @@ from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
@@ -18,8 +17,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import CommonResourceAction
-
-from openzaak.utils.models import Import
 
 
 def link_to_related_objects(
@@ -450,8 +447,3 @@ class AdminContextMixin:
         context = super().get_context_data(**kwargs)
         context.update(self.admin_site.each_context(self.request))
         return context
-
-
-@admin.register(Import)
-class ImportAdmin(admin.ModelAdmin):
-    model = Import

@@ -16,7 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.zaken import Zaak
-from openzaak.utils.tasks import DocumentRow, _get_total_count
+from openzaak.import_data.tasks import DocumentRow, _get_total_count
 
 logger = logging.getLogger(__name__)
 

@@ -168,6 +168,7 @@ INSTALLED_APPS = [
     # Project applications.
     "openzaak",
     "openzaak.accounts",
+    "openzaak.import_data",
     "openzaak.utils",
     "openzaak.components.autorisaties",
     "openzaak.components.zaken",

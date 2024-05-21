@@ -31,7 +31,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
-from openzaak.utils.models import Import, ImportRowResultChoices, ImportStatusChoices
+from openzaak.import_data.models import Import, ImportRowResultChoices, ImportStatusChoices
 
 logger = logging.getLogger(__name__)
 
