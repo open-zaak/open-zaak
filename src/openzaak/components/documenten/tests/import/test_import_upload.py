@@ -13,8 +13,8 @@ from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.tests.utils.auth import JWTAuthMixin
-from openzaak.utils.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.utils.tests.factories import ImportFactory
+from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
+from openzaak.import_data.tests.factories import ImportFactory
 
 
 @tag("documenten-import-upload")
@@ -28,7 +28,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         cls.test_path = Path(__file__).parent.resolve() / "files"
 
-    @patch("openzaak.utils.views.import_documents")
+    @patch("openzaak.import_data.views.import_documents")
     def test_valid_upload(self, import_document_task_mock):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -301,7 +301,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-    @patch("openzaak.utils.views.import_documents")
+    @patch("openzaak.import_data.views.import_documents")
     def test_insufficient_scopes(self, import_document_task_mock):
         autorisatie = self.autorisatie
 
@@ -332,7 +332,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         import_document_task_mock.delay.assert_not_called()
 
     @override_settings(CMIS_ENABLED=True)
-    @patch("openzaak.utils.views.import_documents")
+    @patch("openzaak.import_data.views.import_documents")
     def test_cmis_enabled(self, import_document_task_mock):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,

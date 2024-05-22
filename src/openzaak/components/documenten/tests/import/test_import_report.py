@@ -9,8 +9,8 @@ from vng_api_common.tests import reverse
 
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.utils.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.utils.tests.factories import ImportFactory
+from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
+from openzaak.import_data.tests.factories import ImportFactory
 
 
 @tag("documenten-import-report")
