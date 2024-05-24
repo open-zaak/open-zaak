@@ -27,8 +27,8 @@ from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.tasks import DocumentRow, import_documents
 from openzaak.import_data.models import ImportTypeChoices
-from openzaak.import_data.tasks import DocumentRow
 from openzaak.import_data.views import (
     ImportCreateview,
     ImportReportView,
@@ -491,7 +491,13 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().create(request, *args, **kwargs)
+
+        response = super().create(request, *args, **kwargs)
+
+        import_instance = self.get_object()
+        import_documents.delay(import_instance.pk)
+
+        return response
 
 
 @extend_schema_view(

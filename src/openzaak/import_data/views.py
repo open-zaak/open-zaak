@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_sendfile import sendfile
 from rest_framework import status, viewsets
-from rest_framework.exceptions import ValidationError, ParseError
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import mixins
 from rest_framework.parsers import BaseParser
 from rest_framework.response import Response
@@ -16,7 +16,6 @@ from rest_framework.response import Response
 from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.permissions import ImportAuthRequired
 from openzaak.import_data.serializers import ImportCreateSerializer, ImportSerializer
-from openzaak.import_data.tasks import import_documents
 
 
 class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -145,8 +144,6 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         )
         import_instance.status = ImportStatusChoices.active
         import_instance.save(update_fields=["status", "import_file"])
-
-        import_documents.delay(import_instance.pk)
 
         return Response(status=status.HTTP_200_OK)
 

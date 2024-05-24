@@ -1,17 +1,13 @@
 import csv
-import functools
 import logging
 import shutil
-from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from time import monotonic
-from typing import Generator, Optional
+from typing import Optional
 from uuid import UUID, uuid4
 
 from django.conf import settings
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
 from django.utils import timezone
@@ -35,32 +31,10 @@ from openzaak.import_data.models import (
     ImportRowResultChoices,
     ImportStatusChoices,
 )
+from openzaak.import_data.utils import finish_batch, finish_import, get_csv_generator, get_total_count, task_locker
 from openzaak.utils.fields import get_default_path
 
 logger = logging.getLogger(__name__)
-
-
-def _get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
-    with open(filename, "r") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
-
-        index = 1
-
-        for row in csv_reader:
-            yield index, row
-
-            index += 1
-
-
-def _get_total_count(filename: str, include_header: bool = False) -> int:
-    with open(filename, "r") as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
-        total = sum(1 for _ in csv_reader)
-
-        if include_header:
-            return total
-
-        return total - 1 if total > 0 else 0
 
 
 @dataclass
@@ -548,152 +522,6 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         row.succeeded = True
 
 
-def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
-    success_count = 0
-    failure_count = 0
-    processed_count = 0
-
-    for row in batch:
-        if not row.processed:
-            continue
-
-        if row.succeeded:
-            success_count += 1
-        elif row.failed:
-            failure_count += 1
-
-        processed_count += 1
-
-    return processed_count, failure_count, success_count
-
-
-def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
-    """
-    Note that this relies on (PrivateMedia)FileSystemStorage
-    """
-    default_dir = get_default_path(Import.report_file.field)
-    default_name = f"report-{instance.pk}.csv"
-    default_path = f"{default_dir}/{default_name}"
-
-    if not default_dir.exists():
-        default_dir.mkdir(parents=True)
-
-    file_path = instance.report_file.file.name if instance.report_file else None
-    file_exists = Path(instance.report_file.file.name).exists() if file_path else False
-    has_data = bool(_get_total_count(file_path)) if file_exists else False
-
-    if file_exists and has_data:
-        mode = "a"
-    elif file_exists:
-        mode = "w"
-    else:
-        mode = "w+"
-
-    logger.debug(f"Using file mode {mode} for file {file_path or default_path}")
-
-    with open(file_path or default_path, mode) as _export_file:
-        csv_writer = csv.writer(_export_file, delimiter=",", quotechar='"')
-
-        if mode in ("w", "w+"):
-            csv_writer.writerow(DocumentRow.export_headers)
-
-        for row in batch:
-            data = row.as_export_data()
-            csv_writer.writerow(data.values())
-
-    if file_path:
-        return
-
-    relative_path = Path(instance.report_file.field.upload_to) / default_name
-
-    instance.report_file.name = str(relative_path)
-
-    try:
-        instance.save(update_fields=["report_file"])
-    except DatabaseError as e:
-        logger.critical(
-            f"Unable to save new report file due to database error: {str(e)}"
-        )
-
-
-def _finish_import(
-    instance: Import,
-    status: ImportStatusChoices,
-    finished_on: Optional[datetime] = None,
-    comment: Optional[str] = "",
-):
-    updated_fields = ["finished_on", "status"]
-
-    instance.finished_on = finished_on or timezone.now()
-    instance.status = status
-
-    if comment:
-        instance.comment = comment
-
-        updated_fields.append("comment")
-
-    logger.info(f"Finishing import with status {status.label}")
-
-    try:
-        instance.save(update_fields=updated_fields)
-    except DatabaseError as e:
-        logger.critical(f"Unable to save import state due to database error: {str(e)}")
-
-
-def _finish_batch(import_instance: Import, batch: list[DocumentRow],) -> None:
-    batch_number = import_instance.get_batch_number(len(batch))
-    _processed, _fail_count, _success_count = _get_batch_statistics(batch)
-
-    import_instance.processed = import_instance.processed + _processed
-    import_instance.processed_successfully = (
-        import_instance.processed_successfully + _success_count
-    )
-    import_instance.processed_invalid = import_instance.processed_invalid + _fail_count
-
-    try:
-        import_instance.save(
-            update_fields=["processed", "processed_successfully", "processed_invalid"]
-        )
-    except DatabaseError as e:
-        logger.critical(
-            f"Unable to save batch statistics for batch {batch_number} due to database "
-            f"error: {str(e)}"
-        )
-
-    logger.info(f"Writing batch number {batch_number} to report file")
-    _write_to_file(import_instance, batch)
-
-
-LOCK_EXPIRE = 60 * (60 * 24)  # 24 hours
-
-
-@contextmanager
-def task_lock(lock_id, oid):
-    timeout_at = monotonic() + LOCK_EXPIRE - 3
-    logger.info(f"Lock id {lock_id}:{oid} cache added.")
-    status = cache.add(lock_id, oid, LOCK_EXPIRE)
-    try:
-        yield status
-    finally:
-        if monotonic() < timeout_at and status:
-            logger.warning(f"Lock id {lock_id}:{oid} cache deleted")
-            cache.delete(lock_id)
-
-
-# Note that this not will not work with per process caches (e.g LocMemCache)
-def task_locker(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        instance = args[0]
-        lock_id = f"{instance.name}_lock"
-        with task_lock(lock_id, instance.app.oid) as acquired:
-            if acquired:
-                return func(*args, **kwargs)
-        logger.warning(f"Task {instance.name} already running, dispatch ignored...")
-
-    return wrapped
-
-
 # TODO: make this more generic?
 @celery_app.task(bind=True)
 @task_locker
@@ -702,7 +530,7 @@ def import_documents(self, import_pk: int) -> None:
 
     file_path = import_instance.import_file.path
 
-    import_instance.total = _get_total_count(file_path)
+    import_instance.total = get_total_count(file_path)
     import_instance.started_on = timezone.now()
     import_instance.status = ImportStatusChoices.active
     import_instance.save(update_fields=["total", "started_on", "status"])
@@ -715,7 +543,7 @@ def import_documents(self, import_pk: int) -> None:
         str(uuid) for uuid in EnkelvoudigInformatieObject.objects.values_list("uuid")
     ]
 
-    for row_index, row in _get_csv_generator(file_path):
+    for row_index, row in get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
             continue
 
@@ -727,7 +555,7 @@ def import_documents(self, import_pk: int) -> None:
         document_row = _import_document_row(row, row_index, eio_uuids)
 
         if document_row.instance and document_row.instance.uuid:
-            eio_uuids.append(str(import_documents.instance.uuid))
+            eio_uuids.append(str(document_row.instance.uuid))
 
         batch.append(document_row)
 
@@ -762,18 +590,18 @@ def import_documents(self, import_pk: int) -> None:
             )
             logger.info("Trying to stop the import process gracefully")
 
-            _finish_batch(import_instance, batch)
-            _finish_import(
+            finish_batch(import_instance, batch, DocumentRow.export_headers)
+            finish_import(
                 import_instance, status=ImportStatusChoices.error, comment=str(e),
             )
 
             return
 
-        _finish_batch(import_instance, batch)
+        finish_batch(import_instance, batch, DocumentRow.export_headers)
 
         remaining_batches = import_instance.get_remaining_batches(batch_size)
         logger.info(f"{remaining_batches} batches remaining")
 
         batch.clear()
 
-    _finish_import(import_instance, ImportStatusChoices.finished)
+    finish_import(import_instance, ImportStatusChoices.finished)

@@ -19,11 +19,11 @@ from openzaak.components.documenten.constants import (
     Statussen,
 )
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.documenten.tasks import _import_document_row
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.import_data.tasks import _import_document_row
 from openzaak.import_data.tests.factories import (
     DocumentRowFactory,
     get_informatieobjecttype_url,
@@ -479,7 +479,7 @@ class ImportDocumentRowTests(TestCase):
 
         self.assertFalse(imported_path.exists())
 
-    @patch("openzaak.import_data.tasks.shutil.copy2")
+    @patch("openzaak.components.documenten.tasks.shutil.copy2")
     def test_unable_to_copy_file(self, patched_copy):
         patched_copy.side_effect = FileNotFoundError
 

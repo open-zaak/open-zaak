@@ -12,11 +12,11 @@ from openzaak.components.catalogi.models.informatieobjecttype import (
     InformatieObjectType,
 )
 from openzaak.components.documenten.constants import OndertekeningSoorten
+from openzaak.components.documenten.tasks import DocumentRow, get_total_count
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.models.zaken import Zaak
-from openzaak.import_data.tasks import DocumentRow, _get_total_count
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 )
 
             file_exists = Path(export_file).exists()
-            has_data = bool(_get_total_count(export_file)) if file_exists else False
+            has_data = bool(get_total_count(export_file)) if file_exists else False
 
             if file_exists and has_data:
                 mode = "a"
