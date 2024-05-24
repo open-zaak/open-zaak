@@ -14,7 +14,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
-from django.db.models.fields.files import FieldFile
 from django.utils import timezone
 from django.utils.functional import classproperty
 
@@ -36,6 +35,7 @@ from openzaak.import_data.models import (
     ImportRowResultChoices,
     ImportStatusChoices,
 )
+from openzaak.utils.fields import get_default_path
 
 logger = logging.getLogger(__name__)
 
@@ -322,20 +322,26 @@ def _import_document_row(
     request_factory = APIRequestFactory()
     request = request_factory.get("/")
 
-    # TODO: is this possible with an invalid row count?
-    data = [*row[:expected_column_count], row_index]
-    document_row = DocumentRow(*data)
-
     if len(row) < expected_column_count:
         error_message = (
             f"Validation failed for line {row_index}: insufficient row count"
         )
 
         logger.warning(error_message)
+
+        length = len(row)
+        missing_count = expected_column_count - length
+
+        missing_dummy_data = ["" for _i in range(missing_count)]
+        data = [*row[:length], *missing_dummy_data, row_index]
+
+        document_row = DocumentRow(*data)
         document_row.comment = error_message
         document_row.processed = True
-
         return document_row
+
+    data = [*row[:expected_column_count], row_index]
+    document_row = DocumentRow(*data)
 
     try:
         import_data = document_row.as_serializer_data()
@@ -368,7 +374,6 @@ def _import_document_row(
     data: dict = eio_serializer.validated_data
 
     if document_row.uuid:
-
         try:
             uuid = UUID(document_row.uuid, version=4)
         except ValueError:
@@ -403,14 +408,11 @@ def _import_document_row(
     for field in gegevensgroep_fields:
         gegevens_groep_value = data.pop(field, {})
 
+        if not gegevens_groep_value:
+            continue
+
         for key, value in gegevens_groep_value.items():
             data[f"{field}_{key}"] = value
-
-    if "vertrouwelijkheidaanduiding" not in data:
-        informatieobjecttype = data["informatieobjecttype"]
-        data[
-            "vertrouwelijkheidaanduiding"
-        ] = informatieobjecttype.vertrouwelijkheidaanduiding
 
     instance = EnkelvoudigInformatieObject(**data)
     instance.canonical = EnkelvoudigInformatieObjectCanonical()
@@ -450,7 +452,7 @@ def _import_document_row(
 
         return document_row
 
-    default_dir = _get_default_path(instance.inhoud)
+    default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
     import_path = default_dir / path.name
 
     if not default_dir.exists():
@@ -565,19 +567,11 @@ def _get_batch_statistics(batch: list[DocumentRow]) -> tuple[int, int, int]:
     return processed_count, failure_count, success_count
 
 
-def _get_default_path(field: FieldFile) -> Path:
-    storage_location = Path(field.storage.base_location)
-    path = Path(storage_location / field.field.upload_to)
-
-    now = timezone.now()
-    return Path(now.strftime(str(path)))
-
-
 def _write_to_file(instance: Import, batch: list[DocumentRow]) -> None:
     """
     Note that this relies on (PrivateMedia)FileSystemStorage
     """
-    default_dir = _get_default_path(instance.report_file)
+    default_dir = get_default_path(Import.report_file.field)
     default_name = f"report-{instance.pk}.csv"
     default_path = f"{default_dir}/{default_name}"
 
