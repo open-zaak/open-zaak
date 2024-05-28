@@ -31,6 +31,7 @@ from ..models import (
     ZaakObject,
     ZaakVerzoek,
 )
+from ..models.zaken import ZaakKenmerk
 from .betrokkenen import (
     MedewerkerInline,
     NatuurlijkPersoonInline,
@@ -540,6 +541,14 @@ class ZaakVerzoekAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     viewset = "openzaak.components.zaken.api.viewsets.ZaakVerzoekViewSet"
 
 
+@admin.register(ZaakKenmerk)
+class ZaakKenmerkAdmin(admin.ModelAdmin):
+    list_display = ["zaak", "kenmerk", "bron"]
+    list_select_related = ["zaak"]
+    search_fields = ("zaak__identificatie", "zaak__uuid", "kenmerk", "bron")
+    raw_id_fields = ["zaak"]
+
+
 # inline classes for Zaak
 class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
@@ -607,6 +616,12 @@ class ZaakVerzoekInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakKenmerkInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakKenmerk
+    fields = ZaakKenmerkAdmin.list_display
+    fk_name = "zaak"
+
+
 class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
@@ -656,6 +671,7 @@ class ZaakAdmin(
         ZaakObjectInline,
         ZaakInformatieObjectInline,
         ZaakContactMomentInline,
+        ZaakKenmerkInline,
         ZaakVerzoekInline,
         ZaakEigenschapInline,
         RolInline,
@@ -677,6 +693,7 @@ class ZaakAdmin(
             link_to_related_objects(ZaakObject, obj),
             link_to_related_objects(ZaakInformatieObject, obj),
             link_to_related_objects(KlantContact, obj),
+            link_to_related_objects(ZaakKenmerk, obj),
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
         )
