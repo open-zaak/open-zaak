@@ -134,7 +134,13 @@ class DocumentRowFactory(factory.ListFactory):
         if not kwargs["bestandspad"] or kwargs.get("ignore_import_path"):
             return super()._create(model_class, *args, **kwargs)
 
-        path = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR) / kwargs["bestandspad"]
+        base_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
+
+        if not base_dir.exists():
+            base_dir.mkdir(parents=True)
+
+        path = base_dir / kwargs["bestandspad"]
+
         is_dir = path.is_dir() or kwargs.pop("is_dir", False)
 
         if is_dir:
