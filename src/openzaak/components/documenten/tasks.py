@@ -56,6 +56,8 @@ class DocumentRow:
 
     _link: str
     _beschrijving: str
+    _ontvangstdatum: str
+    _verzenddatum: str
     _indicatie_gebruiksrecht: str
     _verschijningsvorm: str
 
@@ -96,6 +98,8 @@ class DocumentRow:
             "bestandspad",
             "link",
             "beschrijving",
+            "ontvangstdatum",
+            "verzenddatum",
             "indicatieGebruiksrecht",
             "verschijningsvorm",
             "ondertekening.soort",
@@ -148,6 +152,14 @@ class DocumentRow:
             return None
 
         return int(self._bestandsomvang)
+
+    @property
+    def ontvangstdatum(self) -> Optional[str]:
+        return self._ontvangstdatum or None
+
+    @property
+    def verzenddatum(self) -> Optional[str]:
+        return self._verzenddatum or None
 
     @property
     def indicatie_gebruiksrecht(self) -> bool:
@@ -242,6 +254,8 @@ class DocumentRow:
             "bestandsomvang": self.bestandsomvang,
             "link": self._link,
             "beschrijving": self._beschrijving,
+            "ontvangstdatum": self.ontvangstdatum,
+            "verzenddatum": self.verzenddatum,
             "indicatie_gebruiksrecht": self.indicatie_gebruiksrecht,
             "verschijningsvorm": self._verschijningsvorm,
             "ondertekening": self.ondertekening,
@@ -267,6 +281,8 @@ class DocumentRow:
             "bestandspad": self._bestandspad,
             "link": self._link,
             "beschrijving": self._beschrijving,
+            "ontvangstdatum": self._ontvangstdatum,
+            "verzenddatum": self._verzenddatum,
             "indicatieGebruiksrecht": self._indicatie_gebruiksrecht,
             "verschijningsvorm": self._verschijningsvorm,
             "ondertekening.soort": self._ondertekening_soort,

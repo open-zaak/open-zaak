@@ -121,6 +121,8 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
             beschrijving="a very nice document",
+            ontvangstdatum=str(date(2024, 1, 1)),
+            verzenddatum=str(date(2024, 1, 1)),
             indicatie_gebruiksrecht="false",
             verschijningsvorm="form XYZ",
             ondertekening_soort=OndertekeningSoorten.analoog.value,
@@ -154,6 +156,8 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertEqual(eio.bestandsnaam, "foobar.txt")
         self.assertEqual(eio.bestandsomvang, 8092)
         self.assertEqual(eio.beschrijving, "a very nice document")
+        self.assertEqual(eio.ontvangstdatum, date(2024, 1, 1))
+        self.assertEqual(eio.verzenddatum, date(2024, 1, 1))
         self.assertEqual(eio.verschijningsvorm, "form XYZ")
         self.assertEqual(
             eio.ondertekening,

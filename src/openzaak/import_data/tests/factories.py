@@ -93,6 +93,8 @@ class DocumentRowFactory(factory.ListFactory):
     link = ""
 
     beschrijving = ""
+    ontvangstdatum = ""
+    verzenddatum = ""
     indicatie_gebruiksrecht = ""
     verschijningsvorm = ""
 
@@ -171,6 +173,8 @@ class DocumentRowFactory(factory.ListFactory):
             bestandsomvang="8092",
             bestandspad="import-test-files/foo.txt",
             beschrijving="a very nice document",
+            ontvangstdatum=str(datetime.date(2024, 1, 1)),
+            verzenddatum=str(datetime.date(2024, 1, 1)),
             indicatie_gebruiksrecht="false",
             verschijningsvorm="form XYZ",
             ondertekening_soort=OndertekeningSoorten.analoog.value,
