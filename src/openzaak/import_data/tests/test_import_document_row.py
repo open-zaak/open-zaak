@@ -4,7 +4,6 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
@@ -28,37 +27,12 @@ from openzaak.import_data.tests.factories import (
     DocumentRowFactory,
     get_informatieobjecttype_url,
 )
+from openzaak.import_data.tests.utils import ImportTestFileMixin
 from openzaak.utils.fields import get_default_path
 
 
 @override_settings(IMPORT_DOCUMENTEN_BASE_DIR="/tmp/import")
-class ImportDocumentRowTests(TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self._remove_upload_files()
-        self._remove_import_files()
-
-    def _remove_import_files(self):
-        import_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
-        files = import_dir.glob("*")
-
-        for file in files:
-            if file.is_file():
-                file.unlink()
-            else:
-                shutil.rmtree(file)
-
-    def _remove_upload_files(self):
-        upload_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
-        files = upload_dir.glob("*")
-
-        for file in files:
-            if file.is_file():
-                file.unlink()
-            else:
-                shutil.rmtree(file)
-
+class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
     def test_minimum_fields(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
@@ -88,7 +62,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -159,7 +133,7 @@ class ImportDocumentRowTests(TestCase):
             trefwoorden='"foo,bar"',
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {str(zaak.uuid): zaak.pk})
 
         eio = document_row.instance
 
@@ -235,7 +209,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -272,7 +246,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row[:5], 0, [])
+        document_row = _import_document_row(row[:5], 0, [], {})
 
         eio = document_row.instance
 
@@ -307,7 +281,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -343,7 +317,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -385,7 +359,9 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [str(existing_eio.uuid)])
+        document_row = _import_document_row(
+            row, 0, [str(existing_eio.uuid)], {}
+        )
 
         eio = document_row.instance
 
@@ -400,6 +376,58 @@ class ImportDocumentRowTests(TestCase):
         file_path = Path(default_file_path) / import_file_path.name
 
         self.assertFalse(file_path.exists())
+
+    def test_unknown_zaak_id(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+            concept=False,
+        )
+
+        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
+
+        import_file_path = Path("import-test-files/foo.txt")
+        import_file_content = "minimum fields"
+
+        default_imported_file_path = get_default_path(
+            EnkelvoudigInformatieObject.inhoud.field
+        )
+
+        imported_path = Path(default_imported_file_path) / import_file_path.name
+
+        row = DocumentRowFactory(
+            bronorganisatie="706284513",
+            creatiedatum="2024-01-01",
+            titel="Document XYZ",
+            auteur="Auteur Y",
+            taal="nld",
+            bestandspad=str(import_file_path),
+            import_file_content=import_file_content,
+            informatieobjecttype=informatieobjecttype_url,
+            zaak_id="b0f3681d-945a-4b30-afcb-12cad0a3eeaf"
+        )
+
+        document_row = _import_document_row(row, 0, [], {})
+
+        eio = document_row.instance
+
+        self.assertIsNone(eio)
+
+        self.assertTrue(document_row.processed)
+        self.assertFalse(document_row.succeeded)
+
+        self.assertEqual(
+            document_row.comment,
+            "Zaak ID specified for row 0 is unknown."
+        )
+
+        default_imported_file_path = get_default_path(
+            EnkelvoudigInformatieObject.inhoud.field
+        )
+
+        imported_path = Path(default_imported_file_path) / import_file_path.name
+
+        self.assertFalse(imported_path.exists())
 
     def test_non_existent_file(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -421,7 +449,7 @@ class ImportDocumentRowTests(TestCase):
             ignore_import_path=True,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -460,7 +488,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -509,7 +537,7 @@ class ImportDocumentRowTests(TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(row, 0, [])
+        document_row = _import_document_row(row, 0, [], {})
 
         eio = document_row.instance
 
@@ -523,6 +551,9 @@ class ImportDocumentRowTests(TestCase):
         self.assertFalse(imported_path.exists())
 
     def test_link_attribute(self):
+        raise NotImplementedError
+
+    def test_link_exception(self):
         raise NotImplementedError
 
     def test_overwrite_existing(self):

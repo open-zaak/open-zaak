@@ -289,7 +289,10 @@ class DocumentRow:
 
 
 def _import_document_row(
-    row: list[str], row_index: int, existing_uuids: list[str]
+    row: list[str],
+    row_index: int,
+    existing_uuids: list[str],
+    zaak_uuids: dict[str, int],
 ) -> DocumentRow:
     expected_column_count = len(DocumentRow.import_headers)
 
@@ -396,6 +399,17 @@ def _import_document_row(
             instance, "creatiedatum"
         )
 
+    zaak_id = document_row.zaak_id
+
+    if zaak_id and zaak_id not in zaak_uuids:
+        error_message = f"Zaak ID specified for row {row_index} is unknown."
+
+        logger.warning(error_message)
+        document_row.comment = error_message
+        document_row.processed = True
+
+        return document_row
+
     try:
         instance.clean()
     except ValidationError as e:
@@ -455,7 +469,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         EnkelvoudigInformatieObjectCanonical.objects.bulk_create(
             [row.instance.canonical for row in batch if row.instance is not None]
         )
-    except IntegrityError as e:
+    except DatabaseError as e:
         for row in batch:
             row.processed = True
             row.comment = f"Unable to load row due to batch error: {str(e)}"
@@ -466,7 +480,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         eios = EnkelvoudigInformatieObject.objects.bulk_create(
             [row.instance for row in batch if row.instance is not None]
         )
-    except IntegrityError as e:
+    except DatabaseError as e:
         for row in batch:
             row.processed = True
             row.comment = f"Unable to load row due to batch error: {str(e)}"
@@ -479,7 +493,10 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
             continue
 
         instance = next(
-            (eio for eio in eios if row.instance and eio.uuid == row.instance.uuid),
+            (
+                eio
+                for eio in eios if row.instance and str(eio.uuid) == str(row.instance.uuid)
+            ),
             None,
         )
 
@@ -500,7 +517,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
 
         try:
             zaak_eio.save()
-        except IntegrityError as e:
+        except DatabaseError as e:
             row.processed = True
             row.comment = (
                 f"Unable to couple row {row.row_index} to ZAAK {row.zaak_id}:"
@@ -552,7 +569,12 @@ def import_documents(self, import_pk: int) -> None:
                 f"Starting batch {import_instance.get_batch_number(batch_size)}"
             )
 
-        document_row = _import_document_row(row, row_index, eio_uuids)
+        document_row = _import_document_row(
+            row,
+            row_index,
+            eio_uuids,
+            zaak_uuids
+        )
 
         if document_row.instance and document_row.instance.uuid:
             eio_uuids.append(str(document_row.instance.uuid))
