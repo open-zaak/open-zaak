@@ -1,5 +1,4 @@
-from pathlib import Path
-
+from django.conf import settings
 from django.test import tag
 
 from rest_framework import status
@@ -8,6 +7,9 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
+from openzaak.components.documenten.tests.factories import DocumentRowReportFactory, DocumentRowFactory
+from openzaak.components.documenten.utils import DocumentRow
+from openzaak.import_data.tests.utils import get_csv_data
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
@@ -18,21 +20,15 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
     component = ComponentTypes.drc
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.test_path = Path(__file__).parent.resolve() / "files"
-
     def test_simple(self):
-        import_file_path = self.test_path / "import.csv"
-        report_path = self.test_path / "import_report.csv"
+        import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
+        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.finished,
-            import_file__from_path=import_file_path,
-            report_file__from_path=report_path,
+            import_file__data=import_data,
+            report_file__data=report_data,
             total=100000,
         )
 
@@ -45,16 +41,19 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response["Content-Type"], "text/csv")
 
-        with open(report_path, "rb") as report_file:
-            self.assertEqual(response.getvalue(), report_file.read())
+        response_data = response.getvalue().decode(settings.DEFAULT_CHARSET)
+
+        with open(import_instance.report_file.path, "r", newline="") as report_file:
+            self.assertEqual(response_data, report_file.read())
 
     def test_active_import(self):
-        import_file_path = self.test_path / "import.csv"
+        rows = [DocumentRowFactory()]
+        import_data = get_csv_data(rows, DocumentRow.import_headers)
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.active,
-            import_file__from_path=import_file_path,
+            import_file__data=import_data,
             report_file=None,
             total=100000,
         )
@@ -69,14 +68,14 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(response["Content-Type"], "text/csv")
 
     def test_error_import(self):
-        import_file_path = self.test_path / "import.csv"
-        report_path = self.test_path / "import_report_errors.csv"
+        import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
+        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.error,
-            import_file__from_path=import_file_path,
-            report_file__from_path=report_path,
+            import_file__data=import_data,
+            report_file__data=report_data,
             total=100000,
         )
 
@@ -89,18 +88,20 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response["Content-Type"], "text/csv")
 
-        with open(report_path, "rb") as report_file:
-            self.assertEqual(response.getvalue(), report_file.read())
+        response_data = response.getvalue().decode(settings.DEFAULT_CHARSET)
+
+        with open(import_instance.report_file.path, "r", newline="") as report_file:
+            self.assertEqual(response_data, report_file.read())
 
     def test_pending_import(self):
-        import_file_path = self.test_path / "import.csv"
-        report_path = self.test_path / "import_report.csv"
+        import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
+        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
-            import_file__from_path=import_file_path,
-            report_file__from_path=report_path,
+            import_file__data=import_data,
+            report_file__data=report_data,
             total=100000,
         )
 
@@ -114,14 +115,14 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(response["Content-Type"], "text/csv")
 
     def test_import_type_mismatch(self):
-        import_file_path = self.test_path / "import.csv"
-        report_path = self.test_path / "import_report.csv"
+        import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
+        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
 
         import_instance = ImportFactory.create(
             import_type="foobar",
             status=ImportStatusChoices.finished,
-            import_file__from_path=import_file_path,
-            report_file__from_path=report_path,
+            import_file__data=import_data,
+            report_file__data=report_data,
             total=100000,
         )
 
@@ -135,14 +136,14 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(response["Content-Type"], "text/csv")
 
     def test_insufficient_scopes(self):
-        import_file_path = self.test_path / "import.csv"
-        report_path = self.test_path / "import_report.csv"
+        import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
+        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.finished,
-            import_file__from_path=import_file_path,
-            report_file__from_path=report_path,
+            import_file__data=import_data,
+            report_file__data=report_data,
             total=100000,
         )
 

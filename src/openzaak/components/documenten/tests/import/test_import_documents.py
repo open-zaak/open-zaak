@@ -7,12 +7,12 @@ from django.db import IntegrityError, OperationalError
 from django.test import TestCase, override_settings
 
 from openzaak.components.catalogi.tests.factories.informatie_objecten import InformatieObjectTypeFactory
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import DocumentRow, import_documents
-from openzaak.components.documenten.tests.factories import EnkelvoudigInformatieObjectFactory
+from openzaak.components.documenten.tests.factories import DocumentRowFactory, EnkelvoudigInformatieObjectFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.models import ImportRowResultChoices, ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.factories import DocumentRowFactory, ImportFactory, get_informatieobjecttype_url
+from openzaak.import_data.tests.factories import ImportFactory, get_informatieobjecttype_url
 from openzaak.import_data.tests.utils import ImportTestFileMixin
 
 

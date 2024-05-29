@@ -82,7 +82,7 @@ class CSVParser(BaseParser):
 
 
 def validate_headers(import_data: StringIO, expected_headers: list[str]) -> None:
-    csv_reader = csv.reader(import_data, delimiter=",")
+    csv_reader = csv.reader(import_data, delimiter=",", quotechar='"')
 
     headers = next(csv_reader, [])
     missing_headers = [
@@ -137,7 +137,7 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
             )
             raise ValidationError({"__all__": [error_message]}, code="empty-file")
 
-        validate_headers(StringIO(request_data), self.get_import_headers())
+        validate_headers(StringIO(request_data, newline=""), self.get_import_headers())
 
         import_instance.import_file = ContentFile(
             request.data, name=f"{import_instance.uuid}-import.csv"

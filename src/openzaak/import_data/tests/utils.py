@@ -1,11 +1,12 @@
+import csv
 import shutil
 
 from unittest import TestCase
 from pathlib import Path
 
+from celery.utils.text import StringIO
 from django.conf import settings
 
-from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.utils.fields import get_default_path
 
 
@@ -27,6 +28,8 @@ class ImportTestFileMixin(TestCase):
                 shutil.rmtree(file)
 
     def remove_upload_files(self):
+        from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+
         upload_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
         files = upload_dir.glob("*")
 
@@ -35,3 +38,18 @@ class ImportTestFileMixin(TestCase):
                 file.unlink()
             else:
                 shutil.rmtree(file)
+
+
+def get_csv_data(rows: list[list], headers: list[str]) -> str:
+    data = StringIO(newline="")
+
+    with data as file:
+        csv_writer = csv.writer(file, delimiter=",", quotechar='"')
+
+        if headers:
+            csv_writer.writerow(headers)
+
+        for row in rows:
+            csv_writer.writerow(row)
+
+        return data.getvalue()

@@ -20,13 +20,11 @@ from openzaak.components.documenten.constants import (
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import _import_document_row
 from openzaak.components.documenten.tests.factories import (
+    DocumentRowFactory,
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.import_data.tests.factories import (
-    DocumentRowFactory,
-    get_informatieobjecttype_url,
-)
+from openzaak.import_data.tests.factories import get_informatieobjecttype_url
 from openzaak.import_data.tests.utils import ImportTestFileMixin
 from openzaak.utils.fields import get_default_path
 

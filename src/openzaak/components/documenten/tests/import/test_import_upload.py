@@ -1,8 +1,6 @@
-from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from django.conf import settings
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
@@ -12,8 +10,11 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
+from openzaak.components.documenten.tests.factories import DocumentRowFactory
+from openzaak.components.documenten.utils import DocumentRow
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
+from openzaak.import_data.tests.utils import get_csv_data
 from openzaak.tests.utils.auth import JWTAuthMixin
 
 
@@ -21,12 +22,6 @@ from openzaak.tests.utils.auth import JWTAuthMixin
 class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
     component = ComponentTypes.drc
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.test_path = Path(__file__).parent.resolve() / "files"
 
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_valid_upload(self, import_document_task_mock):
@@ -40,11 +35,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        file_contents = None
+        rows = [DocumentRowFactory()]
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            file_contents = import_file.read()
-            response = self.client.post(url, file_contents, content_type="text/csv")
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -52,7 +46,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(import_instance.status, ImportStatusChoices.active)
 
-        with open(import_instance.import_file.path, "rb") as import_file:
+        with open(import_instance.import_file.path, "r", newline="") as import_file:
             self.assertEqual(file_contents, import_file.read())
 
         import_document_task_mock.delay.assert_called_once_with(import_instance.pk)
@@ -68,10 +62,14 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import_missing_headers.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        headers = DocumentRow.import_headers[1:] # misses the uuid header
+        rows = [DocumentRowFactory()]
+
+        import_contents = get_csv_data(rows, headers)
+
+        response = self.client.post(
+            url, import_contents, content_type="text/csv"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -94,10 +92,12 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import_no_headers.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        headers = []
+        rows = [DocumentRowFactory()]
+
+        import_contents = get_csv_data(rows, headers)
+
+        response = self.client.post(url, import_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -120,9 +120,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        response = self.client.post(
-            url, bytes("", settings.DEFAULT_CHARSET), content_type="text/csv"
-        )
+        response = self.client.post(url, "", content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -145,10 +143,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "empty.pdf", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        data = bytes("%PDF-1.5%äðíø", encoding="latin-1")
+
+        response = self.client.post(url, data, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -171,10 +168,13 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="application/pdf"
-            )
+        rows = [DocumentRowFactory()]
+
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(
+            url, file_contents, content_type="application/pdf"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
@@ -187,10 +187,11 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         url = reverse("documenten-import:upload", kwargs=dict(uuid=import_uuid))
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -203,10 +204,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -228,10 +229,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -257,10 +258,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -286,10 +287,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -318,10 +319,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -344,10 +345,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        with open(self.test_path / "import.csv", "rb") as import_file:
-            response = self.client.post(
-                url, import_file.read(), content_type="text/csv"
-            )
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
