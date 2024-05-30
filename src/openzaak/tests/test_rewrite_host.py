@@ -80,6 +80,19 @@ class RewriteHostTests(TestCase):
 
         self.assertEqual(response.content, b"kekw")
 
+    @override_settings(
+        OPENZAAK_DOMAIN="api.example.nl",
+        ALLOWED_HOSTS=["api.example.nl", "testserver"],
+        FORCE_SCRIPT_NAME="/ozgv-t",
+    )
+    def test_overridden_host_with_subpath(self):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1662
+        """
+        response = self.client.get("/zaken/api/v1/zaken")
+
+        self.assertEqual(response.content, b"api.example.nl")
+
 
 class BuildAbsoluteUrlTests(SimpleTestCase):
     @override_settings(

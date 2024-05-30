@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.12.4 (2024-05-30)
+-------------------
+
+Open Zaak 1.12.4 is a patch release:
+
+* [#1662] Supported subpaths when rewriting host for API requests
+
+
 1.12.3 (2024-05-16)
 -------------------
 

@@ -101,15 +101,6 @@ Keuze scopes
 *Scopes* bepalen welke acties een applicatie via de API kan uitvoeren. Het is een
 groepering van rechten.
 
-De betekenis van de scopes is gedocumenteerd per component:
-
-* `Zaken API <https://zaken-api.vng.cloud/ref/scopes/>`_
-* `Documenten API <https://documenten-api.vng.cloud/ref/scopes/>`_
-* `Catalogi API <https://catalogi-api.vng.cloud/ref/scopes/>`_
-* `Besluiten API <https://besluiten-api.vng.cloud/ref/scopes/>`_
-* `Notificaties API <https://notificaties-api.vng.cloud/ref/scopes/>`_
-* `Autorisaties API <https://autorisaties-api.vng.cloud/ref/scopes/>`_
-
 Typisch zal een leverancier van de applicatie je vertellen welke scopes er precies nodig
 zijn. Selecteer de relevante scopes door de checkboxes aan te vinken.
 

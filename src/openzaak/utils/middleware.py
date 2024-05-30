@@ -25,7 +25,7 @@ DEPRECATION_WARNING_CODE = 299
 
 
 def is_api_request(request: HttpRequest) -> bool:
-    return request.path.startswith(
+    return request.path_info.startswith(
         tuple(f"/{component}/api" for component in COMPONENT_MAPPING.keys())
     )
 
