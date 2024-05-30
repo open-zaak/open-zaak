@@ -8,7 +8,7 @@ In a default installation of Open Zaak, any documents created through the
 database. However, it is also possible to store these documents in a Document
 Management System (DMS) using the CMIS standard.
 
-.. _`Documenten API`: https://documenten-api.vng.cloud/api/v1/schema/
+.. _`Documenten API`: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/documenten-api/1.3.0/src/openapi.yaml
 
 The CMIS adapter converts API calls to the Documenten API in Open Zaak, to CMIS
 calls which are sent to the DMS to retrieve, create, update and delete
