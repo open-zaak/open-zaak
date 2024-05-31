@@ -15,7 +15,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from notifications_api_common.viewsets import NotificationViewSetMixin
-from rest_framework import mixins, status, viewsets
+from rest_framework import authentication, mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -27,6 +27,7 @@ from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.permissions import IsSuperUser
 from openzaak.components.documenten.tasks import DocumentRow, import_documents
 from openzaak.import_data.models import ImportTypeChoices
 from openzaak.import_data.views import (
@@ -455,7 +456,8 @@ class EnkelvoudigInformatieObjectViewSet(
 class EnkelvoudigInformatieObjectImportView(ImportCreateview):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (IsSuperUser,)
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -486,7 +488,8 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
     import_headers = DocumentRow.import_headers
 
-    required_scopes = {"create": SCOPE_DOCUMENTEN_AANMAKEN}
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (IsSuperUser,)
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -514,7 +517,8 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (IsSuperUser,)
 
     def retrieve(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -548,7 +552,8 @@ def _get_report_headers():
 class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
     import_type = ImportTypeChoices.documents
 
-    required_scopes = {"retrieve": SCOPE_DOCUMENTEN_AANMAKEN}
+    authentication_classes = (authentication.SessionAuthentication,)
+    permission_classes = (IsSuperUser,)
 
     def retrieve(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:

@@ -4,22 +4,21 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.accounts.tests.factories import UserFactory
 from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
 
 
 @tag("documenten-import-start")
-class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
+class ImportDocumentenCreateTests(APITestCase):
     url = reverse_lazy("documenten-import:create")
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
-    component = ComponentTypes.drc
 
     def test_simple(self):
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(self.url)
 
         instance = Import.objects.get()
@@ -56,6 +55,9 @@ class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
             total=123,
         )
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -70,6 +72,9 @@ class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
             total=123,
         )
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -77,11 +82,23 @@ class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "__all__")
         self.assertEqual(error["code"], "existing-import-started")
 
-    def test_insufficient_scopes(self):
-        autorisatie = self.autorisatie
+    def test_regular_user(self):
+        user = UserFactory.create(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user=user)
 
-        autorisatie.scopes = []
-        autorisatie.save()
+        response = self.client.post(self.url)
+
+        self.assertEqual(Import.objects.count(), 0)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response_data = response.json()
+
+        self.assertEqual(response_data["code"], "permission_denied")
+
+    def test_admin_user(self):
+        user = UserFactory.create(is_staff=True, is_superuser=False)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(self.url)
 
@@ -95,6 +112,9 @@ class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
 
     @override_settings(CMIS_ENABLED=True)
     def test_cmis_enabled(self):
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

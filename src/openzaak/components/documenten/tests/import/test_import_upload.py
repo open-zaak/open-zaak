@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
+from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.components.documenten.tests.factories import DocumentRowFactory
 from openzaak.components.documenten.utils import DocumentRow
@@ -19,10 +20,7 @@ from openzaak.tests.utils.auth import JWTAuthMixin
 
 
 @tag("documenten-import-upload")
-class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
-    component = ComponentTypes.drc
-
+class ImportDocumentenUploadTests(APITestCase):
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_valid_upload(self, import_document_task_mock):
         import_instance = ImportFactory.create(
@@ -38,6 +36,10 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         rows = [DocumentRowFactory()]
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -66,6 +68,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         rows = [DocumentRowFactory()]
 
         import_contents = get_csv_data(rows, headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(
             url, import_contents, content_type="text/csv"
@@ -97,6 +102,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         import_contents = get_csv_data(rows, headers)
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(url, import_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -119,6 +127,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         url = reverse(
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, "", content_type="text/csv")
 
@@ -144,6 +155,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         )
 
         data = bytes("%PDF-1.5%äðíø", encoding="latin-1")
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, data, content_type="text/csv")
 
@@ -172,6 +186,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(
             url, file_contents, content_type="application/pdf"
         )
@@ -191,6 +208,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -206,6 +226,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -231,6 +254,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -261,6 +287,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -290,6 +319,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
+
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -303,12 +335,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
-    def test_insufficient_scopes(self, import_document_task_mock):
-        autorisatie = self.autorisatie
-
-        autorisatie.scopes = []
-        autorisatie.save()
-
+    def test_regular_user(self, import_document_task_mock):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
@@ -321,6 +348,37 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=False, is_superuser=False)
+        self.client.force_authenticate(user=user)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
+        import_document_task_mock.delay.assert_not_called()
+
+    @patch("openzaak.components.documenten.api.viewsets.import_documents")
+    def test_admin_user(self, import_document_task_mock):
+        import_instance = ImportFactory.create(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.pending,
+            total=0,
+        )
+
+        url = reverse(
+            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+        )
+
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=False)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -347,6 +405,9 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        user = UserFactory.create(is_staff=True, is_superuser=True)
+        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
