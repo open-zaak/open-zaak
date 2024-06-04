@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2022 Dimpact
 import shutil
 from datetime import date
 from pathlib import Path
