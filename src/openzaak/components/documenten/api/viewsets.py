@@ -445,7 +445,8 @@ class EnkelvoudigInformatieObjectViewSet(
         operation_id="enkelvoudiginformatieobject_import_create",
         summary=_("Een IMPORT creeren"),
         description=_(
-            "Creeert een IMPORT. Wanneer er vervolgens een metadata bestand"
+            "**Let op! dit is een experimentele functionaliteit**. "
+            "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
             " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Deze "
             "actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
             "ingeschakeld."
@@ -474,6 +475,7 @@ def _get_import_headers():
         operation_id="enkelvoudiginformatieobject_import_upload",
         summary=_("Een IMPORT bestand uploaden"),
         description=_(
+            "**Let op! dit is een experimentele functionaliteit**. "
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
             "ingeschakeld. Deze actie start tevens de IMPORT. De volgende "
@@ -508,9 +510,9 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         operation_id="enkelvoudiginformatieobject_import_status",
         summary=_("De status van een IMPORT opvragen."),
         description=_(
-            "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
-            "Deze actie start tevens de IMPORT. Deze actie is niet beschikbaar "
-            "wanneer de `CMIS_ENABLED` optie is ingeschakeld."
+            "**Let op! dit is een experimentele functionaliteit**. "
+            "Het opvragen van de status van een IMPORT. Deze actie is niet "
+            "beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld."
         ),
     )
 )
@@ -535,6 +537,7 @@ def _get_report_headers():
         operation_id="enkelvoudiginformatieobject_import_report",
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=_(
+            "**Let op! dit is een experimentele functionaliteit**. "
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
             "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
