@@ -201,6 +201,9 @@ class DocumentRow:
     _processed: bool = False
     _succeeded: bool = False
 
+    def __str__(self):
+        return f"Row {self.row_index} - {self.uuid}"
+
     @classproperty
     def import_headers(cls) -> list[str]:
         return [
@@ -423,5 +426,3 @@ class DocumentRow:
             "opmerking": self.comment,
             "resultaat": self.result,
         }
-
-
