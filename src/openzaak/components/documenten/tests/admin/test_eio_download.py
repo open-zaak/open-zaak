@@ -4,12 +4,14 @@ from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@disable_admin_mfa()
 @override_settings(
     SENDFILE_BACKEND="django_sendfile.backends.simple", CMIS_ENABLED=False
 )

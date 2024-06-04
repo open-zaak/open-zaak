@@ -11,6 +11,7 @@ import requests_mock
 from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -39,6 +40,7 @@ from ..factories import (
 )
 
 
+@disable_admin_mfa()
 @requests_mock.Mocker()
 class ZaaktypeAdminTests(
     NotificationsConfigMixin, SelectieLijstMixin, ClearCachesMixin, WebTest
@@ -682,6 +684,7 @@ class ZaaktypeAdminTests(
         )
 
 
+@disable_admin_mfa()
 class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -994,7 +997,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_save_published_zaaktype(self, m):
-        """ Regressiontest where a user is not able to save a published zaaktype """
+        """Regressiontest where a user is not able to save a published zaaktype"""
 
         # from test_publish_with_minimum_requirements
         mock_selectielijst_oas_get(m)
@@ -1049,7 +1052,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_save_published_zaaktype_with_verlenging_mogelijk(self, m):
-        """ Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging """
+        """Regressiontest where a user is not able to publish a concept-zaaktype with a verlenging"""
 
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
@@ -1095,7 +1098,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=True)
     @requests_mock.Mocker()
     def test_published_zaaktype_with_empty_durations(self, m):
-        """ Regression test where a user is not able to publish a concept-zaaktype with a verlenging """
+        """Regression test where a user is not able to publish a concept-zaaktype with a verlenging"""
 
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")

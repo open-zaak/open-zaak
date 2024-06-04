@@ -3,6 +3,7 @@
 from django import forms
 from django.test import TestCase
 
+from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -11,6 +12,7 @@ from openzaak.components.documenten.admin import ObjectInformatieObjectForm
 from ...constants import ObjectInformatieObjectTypes
 
 
+@disable_admin_mfa()
 class TestObjectInformatieObjectForm(TestCase):
     @classmethod
     def setUpTestData(cls):

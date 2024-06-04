@@ -4,6 +4,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.tests import reverse as _reverse
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -14,6 +15,7 @@ from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
 
 
+@disable_admin_mfa()
 @override_settings(IS_HTTPS=False)
 class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     @classmethod

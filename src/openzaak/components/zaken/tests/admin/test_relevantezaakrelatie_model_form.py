@@ -3,12 +3,14 @@
 from django import forms
 from django.test import TestCase
 
+from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.components.zaken.admin import RelevanteZaakRelatieForm
 
 
+@disable_admin_mfa()
 class TestRelevanteZaakRelatieForm(TestCase):
     def test_relevantezaakrelatie_form_clean_does_not_throw_exception_if_relevant_zaak_is_given(
         self,

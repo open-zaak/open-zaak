@@ -8,6 +8,9 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views.generic import TemplateView
 
+from maykin_2fa import monkeypatch_admin
+from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
+
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
@@ -15,11 +18,18 @@ admin.site.enable_nav_sidebar = False
 
 handler500 = "openzaak.utils.views.server_error"
 
+# Configure admin
+monkeypatch_admin()
+
+
 urlpatterns = [
     path("admin/config/", include("openzaak.config.admin_urls")),
     path(
         "admin/api/v1/catalogi/", include("openzaak.components.catalogi.api.admin.urls")
     ),
+    # 2fa
+    path("admin/", include((urlpatterns, "maykin_2fa"))),
+    path("admin/", include((webauthn_urlpatterns, "two_factor"))),
     path("admin/", admin.site.urls),
     path("", TemplateView.as_view(template_name="main.html"), name="home"),
     # separate apps per component

@@ -8,6 +8,7 @@ from unittest import skipIf
 from django.test import override_settings, tag
 from django.urls import reverse
 
+from maykin_2fa.test import disable_admin_mfa
 from rest_framework import status
 from vng_api_common import tests
 
@@ -18,6 +19,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 
 
 @require_cmis
+@disable_admin_mfa()
 @override_settings(CMIS_ENABLED=True)
 class EnkelvoudigInformatieObjectCMISAdminTest(AdminTestMixin, APICMISTestCase):
     heeft_alle_autorisaties = True

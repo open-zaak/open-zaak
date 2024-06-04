@@ -8,6 +8,7 @@ from django.utils.translation import ngettext_lazy
 import requests_mock
 from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.selectielijst.tests import (
@@ -28,6 +29,7 @@ from ..factories import (
 )
 
 
+@disable_admin_mfa()
 @requests_mock.Mocker()
 class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
     @classmethod

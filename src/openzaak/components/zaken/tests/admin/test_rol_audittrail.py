@@ -3,6 +3,7 @@
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
@@ -13,6 +14,7 @@ from ..factories import RolFactory, ZaakFactory
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class RolAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
 

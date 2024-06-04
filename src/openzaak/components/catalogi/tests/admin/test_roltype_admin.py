@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import RolOmschrijving
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -14,6 +15,7 @@ from ..factories import RolTypeFactory, ZaakTypeFactory
 
 
 @tag("gh-1042")
+@disable_admin_mfa()
 class RolTypeAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

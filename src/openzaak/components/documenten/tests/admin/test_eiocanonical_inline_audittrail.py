@@ -5,6 +5,7 @@ import tempfile
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -18,6 +19,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class EioAdminInlineTests(WebTest):
     @classmethod
     def setUpTestData(cls):

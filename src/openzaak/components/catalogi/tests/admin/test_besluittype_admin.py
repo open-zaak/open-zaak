@@ -5,6 +5,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ngettext_lazy
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
@@ -17,6 +18,7 @@ from ..factories import (
 )
 
 
+@disable_admin_mfa()
 class BesluitTypeAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -188,6 +190,7 @@ class BesluitTypeAdminTests(WebTest):
         self.assertEqual(BesluitType.objects.count(), 1)
 
 
+@disable_admin_mfa()
 class BesluitTypePublishAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

@@ -3,6 +3,7 @@
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import ComponentTypes
 
 from openzaak.tests.utils import AdminTestMixin
@@ -12,6 +13,7 @@ from ..models import InternalService
 from .factories import InternalServiceFactory
 
 
+@disable_admin_mfa()
 class InternalServicesFormTests(AdminTestMixin, WebTest):
     @classmethod
     def setUpTestData(cls):

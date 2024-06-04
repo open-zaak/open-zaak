@@ -5,6 +5,7 @@ import uuid
 from django.test import TestCase
 from django.urls import reverse
 
+from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
@@ -17,6 +18,7 @@ from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 from ..utils import get_operation_url
 
 
+@disable_admin_mfa()
 class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
 

@@ -15,6 +15,7 @@ from django.utils.translation import gettext as _
 
 import requests_mock
 from django_webtest import TransactionWebTest, WebTest
+from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
@@ -82,6 +83,7 @@ class MockSelectielijst(SelectieLijstMixin):
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
     return_value=mock_selectielijst_client,
 )
+@disable_admin_mfa()
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1854,6 +1856,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
     return_value=mock_selectielijst_client,
 )
+@disable_admin_mfa()
 @override_settings(CUSTOM_CLIENT_FETCHER=None)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
@@ -2243,6 +2246,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
 
 
 @tag("readonly-user")
+@disable_admin_mfa()
 class ReadOnlyUserTests(WebTest):
     @classmethod
     def setUpTestData(cls):

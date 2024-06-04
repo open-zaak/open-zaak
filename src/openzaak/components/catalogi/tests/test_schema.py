@@ -3,10 +3,12 @@
 from django.urls import reverse
 
 from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 
 from ..api.schema import custom_settings
 
 
+@disable_admin_mfa()
 class CatalogiSchemaTests(WebTest):
     def test_schema_page_title(self):
         response = self.app.get(reverse("schema-redoc-catalogi", kwargs={"version": 1}))

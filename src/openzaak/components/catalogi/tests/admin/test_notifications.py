@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 from freezegun import freeze_time
+from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -24,6 +25,7 @@ from ..factories import (
 
 
 @tag("notifications")
+@disable_admin_mfa()
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @freeze_time("2022-01-01")
 @patch("notifications_api_common.viewsets.send_notification.delay")

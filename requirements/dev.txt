@@ -24,6 +24,10 @@ asgiref==3.8.1
     #   -r requirements/ci.txt
     #   django
     #   django-cors-headers
+asn1crypto==1.5.1
+    # via
+    #   -r requirements/ci.txt
+    #   webauthn
 attrs==21.4.0
     # via
     #   -r requirements/ci.txt
@@ -63,6 +67,10 @@ cattrs==1.10.0
     # via
     #   -r requirements/ci.txt
     #   requests-cache
+cbor2==5.6.3
+    # via
+    #   -r requirements/ci.txt
+    #   webauthn
 celery==5.2.7
     # via
     #   -r requirements/ci.txt
@@ -135,6 +143,7 @@ cryptography==41.0.5
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
+    #   webauthn
 deprecated==1.2.13
     # via
     #   -r requirements/ci.txt
@@ -154,10 +163,13 @@ django==4.2.11
     #   django-extensions
     #   django-extra-views
     #   django-filter
+    #   django-formtools
     #   django-jsonform
     #   django-log-outgoing-requests
     #   django-loose-fk
     #   django-markup
+    #   django-otp
+    #   django-phonenumber-field
     #   django-privates
     #   django-redis
     #   django-relativedelta
@@ -168,6 +180,7 @@ django==4.2.11
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-two-factor-auth
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -175,6 +188,7 @@ django==4.2.11
     #   drf-nested-routers
     #   drf-spectacular
     #   drf-yasg
+    #   maykin-2fa
     #   mozilla-django-oidc
     #   mozilla-django-oidc-db
     #   notifications-api-common
@@ -204,6 +218,10 @@ django-filter==21.1
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   django-loose-fk
+django-formtools==2.5.1
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
 django-ipware==4.0.2
     # via
     #   -r requirements/ci.txt
@@ -222,6 +240,14 @@ django-ordered-model==3.5
     # via
     #   -r requirements/ci.txt
     #   django-admin-index
+django-otp==1.5.0
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
+django-phonenumber-field==7.3.0
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
 django-privates==2.0.0.post0
     # via
     #   -r requirements/ci.txt
@@ -259,6 +285,10 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
+    # via
+    #   -r requirements/ci.txt
+    #   maykin-2fa
 django-webtest==1.9.10
     # via -r requirements/ci.txt
 djangorestframework==3.14.0
@@ -418,6 +448,8 @@ markupsafe==2.1.1
     # via
     #   -r requirements/ci.txt
     #   jinja2
+maykin-2fa==1.0.0
+    # via -r requirements/ci.txt
 mccabe==0.6.1
     # via
     #   -r requirements/ci.txt
@@ -459,6 +491,10 @@ pathspec==0.9.0
     # via
     #   -r requirements/ci.txt
     #   black
+phonenumberslite==8.13.35
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
 pip-tools==7.4.1
     # via -r requirements/dev.in
 prometheus-client==0.15.0
@@ -486,6 +522,11 @@ pycparser==2.21
     # via
     #   -r requirements/ci.txt
     #   cffi
+pydantic==1.10.15
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
+    #   webauthn
 pyflakes==2.2.0
     # via
     #   -r requirements/ci.txt
@@ -504,11 +545,16 @@ pyopenssl==23.3.0
     #   -r requirements/ci.txt
     #   django-simple-certmanager
     #   josepy
+    #   webauthn
     #   zgw-consumers
 pyparsing==3.0.7
     # via
     #   -r requirements/ci.txt
     #   httplib2
+pypng==0.20220715.0
+    # via
+    #   -r requirements/ci.txt
+    #   qrcode
 pyproject-hooks==1.0.0
     # via
     #   build
@@ -553,6 +599,10 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+qrcode==7.4.2
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
 recommonmark==0.7.1
     # via -r requirements/dev.in
 redis==4.1.4
@@ -676,6 +726,8 @@ typing-extensions==4.11.0
     # via
     #   -r requirements/ci.txt
     #   asgiref
+    #   pydantic
+    #   qrcode
 uritemplate==4.1.1
     # via
     #   -r requirements/ci.txt
@@ -710,6 +762,10 @@ wcwidth==0.2.5
     # via
     #   -r requirements/ci.txt
     #   prompt-toolkit
+webauthn==1.11.1
+    # via
+    #   -r requirements/ci.txt
+    #   django-two-factor-auth
 webencodings==0.5.1
     # via
     #   -r requirements/ci.txt
