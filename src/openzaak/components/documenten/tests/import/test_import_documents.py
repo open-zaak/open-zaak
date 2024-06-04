@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import csv
+import tempfile
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -9,9 +10,10 @@ from uuid import uuid4
 from django.db import IntegrityError, OperationalError
 from django.test import TestCase, override_settings
 
-from openzaak.components.catalogi.tests.factories.informatie_objecten import (
-    InformatieObjectTypeFactory,
-)
+import requests_mock
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
+
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import import_documents
@@ -19,50 +21,83 @@ from openzaak.components.documenten.tests.factories import (
     DocumentRowFactory,
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.documenten.tests.utils import (
+    get_catalogus_response,
+    get_informatieobjecttype_response,
+)
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.models import (
     ImportRowResultChoices,
     ImportStatusChoices,
     ImportTypeChoices,
 )
-from openzaak.import_data.tests.factories import (
-    ImportFactory,
-    get_informatieobjecttype_url,
-)
+from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.import_data.tests.utils import ImportTestFileMixin
+from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
 @override_settings(
-    IMPORT_DOCUMENTEN_BASE_DIR="/tmp/import/", IMPORT_DOCUMENTEN_BATCH_SIZE=2
+    ALLOWED_HOSTS=["testserver"],
+    IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkdtemp(),
+    IMPORT_DOCUMENTEN_BATCH_SIZE=2,
 )
-class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
-    def test_simple_import(self):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
+class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
+    mocker_attr = "requests_mock"
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        cls.informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
 
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
 
+    def setUp(self):
+        self.requests_mock = requests_mock.Mocker()
+        self.requests_mock.start()
+
+        self.requests_mock.get(
+            self.informatieobjecttype,
+            json=get_informatieobjecttype_response(
+                self.catalogus, self.informatieobjecttype
+            ),
+        )
+        self.requests_mock.get(
+            self.catalogus,
+            json=get_catalogus_response(self.catalogus, self.informatieobjecttype),
+        )
+
+        self.addCleanup(self.requests_mock.stop)
+
+        super().setUp()
+
+    def test_simple_import(self):
         zaken = {1: ZaakFactory(), 2: ZaakFactory()}
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id=str(zaken[1].uuid),
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
                 uuid=str(uuid4()),
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
                 zaak_id=str(zaken[2].uuid),
             ),
@@ -115,28 +150,22 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_batch_validation_errors(self):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 uuid="foobar",  # Note the incorrect uuid
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
             ),
         }
@@ -204,33 +233,27 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         autospec=True,
     )
     def test_database_connection_loss(self, mocked_bulk_create, mocked_uuid):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         zaken = {1: ZaakFactory(), 2: ZaakFactory()}
 
         absent_files = ("test-file-3.docx", "test-file-4.docx")
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id=str(zaken[1].uuid),
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad=absent_files[0],
                 uuid=str(uuid4()),
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad=absent_files[1],
                 zaak_id=str(zaken[2].uuid),
                 uuid=str(uuid4()),
@@ -258,7 +281,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         )
 
         random_eios = EnkelvoudigInformatieObjectFactory.create_batch(
-            size=2, informatieobjecttype=informatieobjecttype
+            size=2, informatieobjecttype=self.informatieobjecttype
         )
 
         mocked_bulk_create.side_effect = (random_eios, OperationalError)
@@ -314,32 +337,26 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         autospec=True,
     )
     def test_integrity_error(self, mocked_bulk_create, mocked_uuid):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         zaken = {1: ZaakFactory(), 2: ZaakFactory()}
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id=str(zaken[1].uuid),
                 uuid=str(uuid4()),
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
                 uuid=str(uuid4()),
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
                 zaak_id=str(zaken[2].uuid),
             ),
@@ -366,7 +383,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         )
 
         random_eios = EnkelvoudigInformatieObjectFactory.create_batch(
-            size=2, informatieobjecttype=informatieobjecttype
+            size=2, informatieobjecttype=self.informatieobjecttype
         )
 
         mocked_bulk_create.side_effect = (IntegrityError, random_eios)
@@ -411,31 +428,25 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
     def test_unknown_zaak_id(self):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         zaken = {1: ZaakFactory()}
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id="36df518e-7dff-4af3-be96-ccca0c6e6a2e",  # unknown
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
                 uuid=str(uuid4()),
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
                 zaak_id=str(zaken[1].uuid),
             ),
@@ -497,31 +508,25 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
                 self.assertEqual(row[-2], "")
 
     def test_zaak_integrity_error(self):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id=str(zaak.uuid),
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
                 uuid=str(uuid4()),
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
             ),
         }
@@ -596,31 +601,25 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
                 self.assertEqual(row[-2], "")
 
     def test_zaak_database_error(self):
-        informatieobjecttype = InformatieObjectTypeFactory(
-            concept=False, uuid="2eefe81d-8638-4306-b079-74e4e41f557b"
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
         import_data = {
             1: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
                 zaak_id=str(zaak.uuid),
             ),
             2: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-2.docx",
                 uuid=str(uuid4()),
             ),
             3: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-3.docx",
             ),
             4: DocumentRowFactory(
-                informatieobjecttype=informatieobjecttype_url,
+                informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
             ),
         }

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import shutil
+import tempfile
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
@@ -8,12 +9,13 @@ from uuid import uuid4
 
 from django.test import TestCase, override_settings
 
+import requests_mock
+from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
-from openzaak.components.catalogi.tests.factories.informatie_objecten import (
-    InformatieObjectTypeFactory,
-)
 from openzaak.components.documenten.constants import (
     ChecksumAlgoritmes,
     OndertekeningSoorten,
@@ -25,23 +27,57 @@ from openzaak.components.documenten.tests.factories import (
     DocumentRowFactory,
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.documenten.tests.utils import (
+    get_catalogus_response,
+    get_informatieobjecttype_response,
+)
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.import_data.tests.factories import get_informatieobjecttype_url
 from openzaak.import_data.tests.utils import ImportTestFileMixin
+from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR="/tmp/import")
-class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
-    def test_minimum_fields(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-            concept=False,
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkdtemp()
+)
+@temp_private_root()
+class ImportDocumentRowTests(ImportTestFileMixin, MockSchemasMixin, TestCase):
+    mocker_attr = "requests_mock"
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        cls.informatieobjecttype = (
+            "https://externe.catalogus.nl/api/v1/informatieobjecttypen/"
+            "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
 
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
 
+    def setUp(self):
+        self.requests_mock = requests_mock.Mocker()
+        self.requests_mock.start()
+
+        self.requests_mock.get(
+            self.informatieobjecttype,
+            json=get_informatieobjecttype_response(
+                self.catalogus, self.informatieobjecttype
+            ),
+        )
+        self.requests_mock.get(
+            self.catalogus,
+            json=get_catalogus_response(self.catalogus, self.informatieobjecttype),
+        )
+
+        self.addCleanup(self.requests_mock.stop)
+
+        super().setUp()
+
+    def test_minimum_fields(self):
         import_file_path = Path("import-test-files/foo.txt")
         import_file_content = "minimum fields"
 
@@ -59,7 +95,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             taal="nld",
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -75,20 +111,14 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertEqual(eio.titel, "Document XYZ")
         self.assertEqual(eio.auteur, "Auteur Y")
         self.assertEqual(eio.taal, "nld")
-        self.assertEqual(eio.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
         with open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_all_fields(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
         zaak = ZaakFactory()
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
 
         creatiedatum = date(2024, 1, 1)
 
@@ -130,7 +160,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             integriteit_algoritme=ChecksumAlgoritmes.crc_16.value,
             integriteit_waarde="foo",
             integriteit_datum=str(date(2024, 1, 1)),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
             zaak_id=str(zaak.uuid),
             trefwoorden='"foo,bar"',
         )
@@ -172,7 +202,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
                 "waarde": "foo",
             },
         )
-        self.assertEqual(eio.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
 
         with open(imported_path, "r") as file:
@@ -183,14 +213,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         Test that the files are correctly copied to the upload dir even tough it
         does not exist yet
         """
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-            concept=False,
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_file_path = Path("import-test-files/foo.txt")
         import_file_content = "minimum fields"
 
@@ -210,7 +232,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             taal="nld",
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -226,18 +248,13 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertEqual(eio.titel, "Document XYZ")
         self.assertEqual(eio.auteur, "Auteur Y")
         self.assertEqual(eio.taal, "nld")
-        self.assertEqual(eio.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
         with open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_lower_column_count(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
         import_file_path = Path("import-test-files/foo.txt")
 
         row = DocumentRowFactory(
@@ -247,7 +264,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row[:5], 0, [], {})
@@ -268,11 +285,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(file_path.exists())
 
     def test_validation_error(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
         import_file_path = Path("import-test-files/foo.txt")
 
         row = DocumentRowFactory(
@@ -282,7 +294,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -303,11 +315,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(file_path.exists())
 
     def test_invalid_uuid(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
         import_file_path = Path("import-test-files/foo.txt")
 
         row = DocumentRowFactory(
@@ -318,7 +325,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -339,15 +346,10 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(file_path.exists())
 
     def test_existing_uuid(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
         existing_eio = EnkelvoudigInformatieObjectFactory(
-            informatieobjecttype=informatieobjecttype
+            informatieobjecttype=self.informatieobjecttype
         )
 
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
         import_file_path = Path("import-test-files/foo.txt")
 
         default_file_path = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
@@ -360,7 +362,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [str(existing_eio.uuid)], {})
@@ -380,14 +382,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(file_path.exists())
 
     def test_unknown_zaak_id(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-            concept=False,
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_file_path = Path("import-test-files/foo.txt")
         import_file_content = "minimum fields"
 
@@ -405,7 +399,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             taal="nld",
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
             zaak_id="b0f3681d-945a-4b30-afcb-12cad0a3eeaf",
         )
 
@@ -431,12 +425,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(imported_path.exists())
 
     def test_non_existent_file(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_file_path = Path("import-test-files/foo.txt")
 
         row = DocumentRowFactory(
@@ -446,7 +434,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
             ignore_import_path=True,
         )
 
@@ -470,12 +458,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(imported_path.exists())
 
     def test_directory_as_path(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b", concept=False
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_file_path = Path("import-test-files/foobar/")
 
         row = DocumentRowFactory(
@@ -486,7 +468,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             taal="nld",
             bestandspad=str(import_file_path),
             is_dir=True,
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -512,14 +494,6 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
     def test_unable_to_copy_file(self, patched_copy):
         patched_copy.side_effect = FileNotFoundError
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            uuid="2eefe81d-8638-4306-b079-74e4e41f557b",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
-            concept=False,
-        )
-
-        informatieobjecttype_url = get_informatieobjecttype_url(informatieobjecttype)
-
         import_file_path = Path("import-test-files/foo.txt")
 
         default_imported_file_path = get_default_path(
@@ -535,7 +509,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             auteur="Auteur Y",
             taal="nld",
             bestandspad=str(import_file_path),
-            informatieobjecttype=informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
         )
 
         document_row = _import_document_row(row, 0, [], {})
