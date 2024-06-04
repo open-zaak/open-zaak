@@ -2,6 +2,7 @@ name: Verzoek tot verbetering / Feature request
 description: Stel een idee voor om het product beter te maken / Suggest an idea for this product
 title: "Title here"
 labels: ["enhancement", "triage"]
+projects: ["maykinmedia/15"]
 assignees: []
 body:
   - type: dropdown
