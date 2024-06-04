@@ -683,9 +683,3 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
                     )
                 else:
                     self.assertIn("Unable to load row due to database error", row[-2])
-
-    def test_overwrite_eio(self):
-        raise NotImplementedError
-
-    def test_link_exception(self):
-        raise NotImplementedError
