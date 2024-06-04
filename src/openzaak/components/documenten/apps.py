@@ -4,6 +4,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
+
 from vng_api_common.serializers import GegevensGroepSerializer
 from vng_api_common.utils import underscore_to_camel
 
@@ -23,7 +24,7 @@ class DocumentenConfig(AppConfig):
             return
 
         from .api.serializers import EnkelvoudigInformatieObjectSerializer
-        from .utils import DocumentRow
+        from .import_utils import DocumentRow
 
         excluded_fields = (
             "locked",
@@ -31,7 +32,7 @@ class DocumentenConfig(AppConfig):
             "bestandsdelen",
             "begin_registratie",
             "versie",
-            "url"
+            "url",
         )
 
         serializer = EnkelvoudigInformatieObjectSerializer()
@@ -56,8 +57,7 @@ class DocumentenConfig(AppConfig):
         expected_fields.update(csv_nested_fields)
 
         document_row_fields = set(
-            field for field in DocumentRow.import_headers
-            if field in expected_fields
+            field for field in DocumentRow.import_headers if field in expected_fields
         )
 
         missing_fields = expected_fields - document_row_fields

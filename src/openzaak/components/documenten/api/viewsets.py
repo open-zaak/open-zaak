@@ -15,7 +15,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from notifications_api_common.viewsets import NotificationViewSetMixin
-from rest_framework import authentication, mixins, permissions, status, viewsets
+from rest_framework import authentication, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -27,8 +27,9 @@ from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.permissions import IsSuperUser
-from openzaak.components.documenten.tasks import DocumentRow, import_documents
+from openzaak.components.documenten.tasks import import_documents
 from openzaak.import_data.models import ImportTypeChoices
 from openzaak.import_data.views import (
     ImportCreateview,

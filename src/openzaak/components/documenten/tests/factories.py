@@ -11,16 +11,16 @@ Factory models for the documenten application.
     creation.
 """
 import datetime
-import string
 import os
+import string
 from pathlib import Path
 
 from django.conf import settings
 from django.test import RequestFactory
 
 import factory
-from factory.builder import Resolver
 import factory.fuzzy
+from factory.builder import Resolver
 from furl import furl
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
@@ -32,7 +32,13 @@ from openzaak.import_data.models import ImportRowResultChoices
 from openzaak.import_data.tests.factories import get_informatieobjecttype_url
 from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
-from ..constants import AfzenderTypes, ChecksumAlgoritmes, OndertekeningSoorten, PostAdresTypes, Statussen
+from ..constants import (
+    AfzenderTypes,
+    ChecksumAlgoritmes,
+    OndertekeningSoorten,
+    PostAdresTypes,
+    Statussen,
+)
 from ..models import BestandsDeel, EnkelvoudigInformatieObject
 
 

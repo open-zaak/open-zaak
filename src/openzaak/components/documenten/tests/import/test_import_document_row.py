@@ -361,9 +361,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             informatieobjecttype=informatieobjecttype_url,
         )
 
-        document_row = _import_document_row(
-            row, 0, [str(existing_eio.uuid)], {}
-        )
+        document_row = _import_document_row(row, 0, [str(existing_eio.uuid)], {})
 
         eio = document_row.instance
 
@@ -406,7 +404,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
             informatieobjecttype=informatieobjecttype_url,
-            zaak_id="b0f3681d-945a-4b30-afcb-12cad0a3eeaf"
+            zaak_id="b0f3681d-945a-4b30-afcb-12cad0a3eeaf",
         )
 
         document_row = _import_document_row(row, 0, [], {})
@@ -419,8 +417,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, TestCase):
         self.assertFalse(document_row.succeeded)
 
         self.assertEqual(
-            document_row.comment,
-            "Zaak ID specified for row 0 is unknown."
+            document_row.comment, "Zaak ID specified for row 0 is unknown."
         )
 
         default_imported_file_path = get_default_path(

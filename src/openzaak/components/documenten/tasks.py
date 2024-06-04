@@ -16,17 +16,20 @@ from openzaak import celery_app
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectSerializer,
 )
+from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
-from openzaak.components.documenten.utils import DocumentRow
 from openzaak.components.zaken.models.zaken import Zaak, ZaakInformatieObject
-from openzaak.import_data.models import (
-    Import,
-    ImportStatusChoices,
+from openzaak.import_data.models import Import, ImportStatusChoices
+from openzaak.import_data.utils import (
+    finish_batch,
+    finish_import,
+    get_csv_generator,
+    get_total_count,
+    task_locker,
 )
-from openzaak.import_data.utils import finish_batch, finish_import, get_csv_generator, get_total_count, task_locker
 from openzaak.utils.fields import get_default_path
 
 logger = logging.getLogger(__name__)
@@ -239,7 +242,8 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         instance = next(
             (
                 eio
-                for eio in eios if row.instance and str(eio.uuid) == str(row.instance.uuid)
+                for eio in eios
+                if row.instance and str(eio.uuid) == str(row.instance.uuid)
             ),
             None,
         )
@@ -313,12 +317,7 @@ def import_documents(self, import_pk: int) -> None:
                 f"Starting batch {import_instance.get_batch_number(batch_size)}"
             )
 
-        document_row = _import_document_row(
-            row,
-            row_index,
-            eio_uuids,
-            zaak_uuids
-        )
+        document_row = _import_document_row(row, row_index, eio_uuids, zaak_uuids)
 
         if document_row.instance and document_row.instance.uuid:
             eio_uuids.append(str(document_row.instance.uuid))

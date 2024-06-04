@@ -12,7 +12,8 @@ from openzaak.components.catalogi.models.informatieobjecttype import (
     InformatieObjectType,
 )
 from openzaak.components.documenten.constants import OndertekeningSoorten
-from openzaak.components.documenten.tasks import DocumentRow, get_total_count
+from openzaak.components.documenten.import_utils import DocumentRow
+from openzaak.components.documenten.tasks import get_total_count
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )

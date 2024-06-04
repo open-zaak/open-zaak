@@ -3,24 +3,27 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 
 from openzaak.accounts.tests.factories import UserFactory
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
-from openzaak.components.documenten.tests.factories import DocumentRowReportFactory, DocumentRowFactory
-from openzaak.components.documenten.utils import DocumentRow
-from openzaak.import_data.tests.utils import get_csv_data
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.components.documenten.import_utils import DocumentRow
+from openzaak.components.documenten.tests.factories import (
+    DocumentRowFactory,
+    DocumentRowReportFactory,
+)
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
+from openzaak.import_data.tests.utils import get_csv_data
+from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-report")
 class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
     def test_simple(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -73,7 +76,9 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
 
     def test_error_import(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -102,7 +107,9 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
 
     def test_pending_import(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -126,7 +133,9 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
 
     def test_import_type_mismatch(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type="foobar",
@@ -150,7 +159,9 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
 
     def test_regular_user(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -177,7 +188,9 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
 
     def test_admin_user(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
-        report_data = get_csv_data([DocumentRowReportFactory()], DocumentRow.export_headers)
+        report_data = get_csv_data(
+            [DocumentRowReportFactory()], DocumentRow.export_headers
+        )
 
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,

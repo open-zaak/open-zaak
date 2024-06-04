@@ -1,11 +1,11 @@
 import csv
 import shutil
-
-from unittest import TestCase
 from pathlib import Path
+from unittest import TestCase
+
+from django.conf import settings
 
 from celery.utils.text import StringIO
-from django.conf import settings
 
 from openzaak.utils.fields import get_default_path
 

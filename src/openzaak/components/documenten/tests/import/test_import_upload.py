@@ -6,17 +6,14 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.accounts.tests.factories import UserFactory
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
+from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tests.factories import DocumentRowFactory
-from openzaak.components.documenten.utils import DocumentRow
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.import_data.tests.utils import get_csv_data
-from openzaak.tests.utils.auth import JWTAuthMixin
 
 
 @tag("documenten-import-upload")
@@ -64,7 +61,7 @@ class ImportDocumentenUploadTests(APITestCase):
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        headers = DocumentRow.import_headers[1:] # misses the uuid header
+        headers = DocumentRow.import_headers[1:]  # misses the uuid header
         rows = [DocumentRowFactory()]
 
         import_contents = get_csv_data(rows, headers)
@@ -72,9 +69,7 @@ class ImportDocumentenUploadTests(APITestCase):
         user = UserFactory.create(is_staff=True, is_superuser=True)
         self.client.force_authenticate(user=user)
 
-        response = self.client.post(
-            url, import_contents, content_type="text/csv"
-        )
+        response = self.client.post(url, import_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -189,9 +184,7 @@ class ImportDocumentenUploadTests(APITestCase):
         user = UserFactory.create(is_staff=True, is_superuser=True)
         self.client.force_authenticate(user=user)
 
-        response = self.client.post(
-            url, file_contents, content_type="application/pdf"
-        )
+        response = self.client.post(url, file_contents, content_type="application/pdf")
 
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 

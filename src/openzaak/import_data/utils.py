@@ -1,10 +1,10 @@
 import csv
 import functools
 import logging
+import shutil
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-import shutil
 from time import monotonic
 from typing import Generator, Optional
 

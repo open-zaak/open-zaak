@@ -3,19 +3,16 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 
 from openzaak.accounts.tests.factories import UserFactory
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
-from openzaak.tests.utils import JWTAuthMixin
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
+from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-status")
 class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
-
     def test_active_import(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
