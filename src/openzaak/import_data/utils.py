@@ -4,6 +4,7 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
+import shutil
 from time import monotonic
 from typing import Generator, Optional
 
@@ -105,6 +106,27 @@ def finish_batch(import_instance: Import, batch: list, headers: list) -> None:
 
     logger.info(f"Writing batch number {batch_number} to report file")
     write_to_file(import_instance, batch, headers)
+
+    logger.info(f"Removing files for unimported rows for batch number {batch_number}")
+    cleanup_import_files(batch)
+
+
+def cleanup_import_files(batch: list) -> None:
+    for row in batch:
+        if row.succeeded:
+            continue
+
+        path = row.imported_path
+
+        if not path or not path.exists():
+            continue
+
+        logger.debug(f"Removing {path} for row {row.row_index}")
+
+        if path.is_dir():
+            shutil.rmtree(path, ignore_errors=True)
+        else:
+            path.unlink(missing_ok=True)
 
 
 def write_to_file(instance: Import, batch: list, headers: list) -> None:

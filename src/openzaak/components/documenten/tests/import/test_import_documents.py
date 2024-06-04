@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from pathlib import Path
 from uuid import uuid4
 from unittest.mock import patch
 
@@ -14,6 +15,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.models import ImportRowResultChoices, ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory, get_informatieobjecttype_url
 from openzaak.import_data.tests.utils import ImportTestFileMixin
+from openzaak.utils.fields import get_default_path
 
 
 @override_settings(
@@ -202,6 +204,8 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
 
         zaken = {1: ZaakFactory(), 2: ZaakFactory()}
 
+        absent_files = ("test-file-3.docx", "test-file-4.docx")
+
         import_data = {
             1: DocumentRowFactory(
                 informatieobjecttype=informatieobjecttype_url,
@@ -214,12 +218,12 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
             ),
             3: DocumentRowFactory(
                 informatieobjecttype=informatieobjecttype_url,
-                bestandspad="test-file-3.docx",
+                bestandspad=absent_files[0],
                 uuid=str(uuid4()),
             ),
             4: DocumentRowFactory(
                 informatieobjecttype=informatieobjecttype_url,
-                bestandspad="test-file-4.docx",
+                bestandspad=absent_files[1],
                 zaak_id=str(zaken[2].uuid),
                 uuid=str(uuid4()),
             ),
@@ -290,6 +294,14 @@ class ImportDocumentTestCase(ImportTestFileMixin, TestCase):
 
                 self.assertEqual(row[-1], ImportRowResultChoices.imported.label)
                 self.assertEqual(row[-2], "")
+
+        default_path = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
+
+        for filename in absent_files:
+            expected_path = Path(default_path / filename)
+
+            with self.subTest(filename=filename):
+                self.assertFalse(expected_path.exists())
 
     @patch("openzaak.components.documenten.tasks.uuid4")
     @patch(

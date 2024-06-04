@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import io
 from decimal import Decimal
 from io import BytesIO
+from pathlib import Path
 from typing import Optional, TypeVar
 
 from django.conf import settings
@@ -269,6 +270,13 @@ class DocumentRow:
     @property
     def bestandspad(self) -> str:
         return self._bestandspad
+
+    @property
+    def imported_path(self) -> Optional[Path]:
+        if not self.instance or not self.instance.inhoud.path:
+            return
+
+        return Path(self.instance.inhoud.path)
 
     @property
     def bestandsomvang(self) -> Optional[int]:
