@@ -2039,11 +2039,6 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form["iotype-0-existing"].value = ""
         response = form.submit("_select")
 
-        from bs4 import BeautifulSoup
-
-        soup = BeautifulSoup(response.content)
-        print(soup.prettify())
-
         self.assertEqual(response.status_code, 302)
         self.assertEqual(InformatieObjectType.objects.count(), 2)
         self.assertEqual(ZaakType.objects.count(), 1)
@@ -2198,11 +2193,6 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         form = response.form
         form["iotype-0-existing"].value = ""
         response = form.submit("_select")
-
-        from bs4 import BeautifulSoup
-
-        soup = BeautifulSoup(response.content)
-        print(soup.prettify())
 
         # ensure form submits correctly
         self.assertEqual(response.status_code, 302)
