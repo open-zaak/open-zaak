@@ -149,6 +149,139 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
+    def test_total_smaller_than_batch_size(self):
+        zaken = {1: ZaakFactory()}
+
+        import_data = {
+            1: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-1.docx",
+                zaak_id=str(zaken[1].uuid),
+            ),
+        }
+
+        import_file = StringIO()
+
+        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
+        csv_writer.writerow(DocumentRow.export_headers)
+
+        for index, row in import_data.items():
+            csv_writer.writerow(row)
+
+        import_file.seek(0)
+
+        self.addCleanup(import_file.close)
+
+        import_instance = ImportFactory(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.pending,
+            import_file__data=import_file.read(),
+            total=0,
+            report_file=None,
+        )
+
+        import_documents(import_instance.pk)
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+
+        self.assertEqual(import_instance.total, 1)
+        self.assertEqual(import_instance.processed, 1)
+        self.assertEqual(import_instance.processed_invalid, 0)
+        self.assertEqual(import_instance.processed_successfully, 1)
+        self.assertEqual(import_instance.status, ImportStatusChoices.finished)
+
+        with open(import_instance.report_file.path, "r") as report_file:
+            csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
+            rows = [row for row in csv_reader]
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(DocumentRow.export_headers, rows[0])
+
+        self.assertTrue(
+            all((row[-1] == ImportRowResultChoices.imported.label) for row in rows[1:])
+        )
+
+        # no comments on all the rows
+        self.assertTrue(all((row[-2] == "") for row in rows[1:]))
+
+    def test_last_batch_is_not_full_batch(self):
+        zaken = {1: ZaakFactory(), 2: ZaakFactory()}
+
+        import_data = {
+            1: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-1.docx",
+                zaak_id=str(zaken[1].uuid),
+            ),
+            2: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-2.docx",
+                uuid=str(uuid4()),
+            ),
+            3: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-3.docx",
+            ),
+            4: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-4.docx",
+                zaak_id=str(zaken[2].uuid),
+            ),
+            5: DocumentRowFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                bestandspad="test-file-5.docx",
+                zaak_id=str(zaken[1].uuid),
+            ),
+        }
+
+        import_file = StringIO()
+
+        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
+        csv_writer.writerow(DocumentRow.export_headers)
+
+        for index, row in import_data.items():
+            csv_writer.writerow(row)
+
+        import_file.seek(0)
+
+        self.addCleanup(import_file.close)
+
+        import_instance = ImportFactory(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.pending,
+            import_file__data=import_file.read(),
+            total=0,
+            report_file=None,
+        )
+
+        import_documents(import_instance.pk)
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 5)
+
+        self.assertEqual(import_instance.total, 5)
+        self.assertEqual(import_instance.processed, 5)
+        self.assertEqual(import_instance.processed_invalid, 0)
+        self.assertEqual(import_instance.processed_successfully, 5)
+        self.assertEqual(import_instance.status, ImportStatusChoices.finished)
+
+        with open(import_instance.report_file.path, "r") as report_file:
+            csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
+            rows = [row for row in csv_reader]
+
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(DocumentRow.export_headers, rows[0])
+
+        self.assertTrue(
+            all((row[-1] == ImportRowResultChoices.imported.label) for row in rows[1:])
+        )
+
+        # no comments on all the rows
+        self.assertTrue(all((row[-2] == "") for row in rows[1:]))
+
     def test_batch_validation_errors(self):
         import_data = {
             1: DocumentRowFactory(

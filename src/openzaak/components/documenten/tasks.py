@@ -326,7 +326,10 @@ def import_documents(self, import_pk: int) -> None:
 
         batch.append(document_row)
 
-        if not len(batch) % batch_size == 0:
+        processed = import_instance.processed + len(batch)
+        is_finished = bool(import_instance.total == processed)
+
+        if not len(batch) % batch_size == 0 and not is_finished:
             continue
 
         try:
