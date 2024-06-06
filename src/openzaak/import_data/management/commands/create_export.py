@@ -198,6 +198,8 @@ class Command(BaseCommand):
                 dummy_path,
                 instance.link,
                 instance.beschrijving,
+                instance.ontvangstdatum,
+                instance.verzenddatum,
                 indicatie_gebruiksrecht,
                 instance.verschijningsvorm or "",
                 instance.ondertekening["soort"],
