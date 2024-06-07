@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+from django.utils.translation import gettext as _
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.fields import SerializerMethodField
@@ -28,9 +30,21 @@ class ImportSerializer(HyperlinkedModelSerializer):
 
 
 class ImportCreateSerializer(HyperlinkedModelSerializer):
-    upload_url = SerializerMethodField()
-    status_url = SerializerMethodField()
-    report_url = SerializerMethodField()
+    upload_url = SerializerMethodField(
+        help_text=_(
+            "De URL waar het metadata bestand geupload kan worden. Dit start "
+            "vervolgens de IMPORT."
+        )
+    )
+    status_url = SerializerMethodField(
+        help_text=_("De URL waar de status van de IMPORT opgevraagd kan worden.")
+    )
+    report_url = SerializerMethodField(
+        help_text=_(
+            "De URL waar het rapportage bestand gedownload kan worden van de IMPORT "
+            "wanneer deze is afgerond."
+        )
+    )
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_upload_url(self, instance):

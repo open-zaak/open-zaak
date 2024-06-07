@@ -7301,14 +7301,18 @@ components:
           type: string
           format: uri
           readOnly: true
+          description: De URL waar het metadata bestand geupload kan worden.
         statusUrl:
           type: string
           format: uri
           readOnly: true
+          description: De URL waar de status van de IMPORT opgevraagd kan worden.
         reportUrl:
           type: string
           format: uri
           readOnly: true
+          description: De URL waar het rapportage bestand gedownload kan worden van
+            de IMPORT wanneer deze is afgerond.
     Integriteit:
       type: object
       properties:
