@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2022 Dimpact
+# Copyright (C) 2019 - 2024 Dimpact
 from unittest.mock import patch
 from uuid import uuid4
 

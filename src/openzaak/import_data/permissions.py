@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2022 Dimpact
+# Copyright (C) 2019 - 2024 Dimpact
 from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions
 from openzaak.import_data.models import ImportTypeChoices

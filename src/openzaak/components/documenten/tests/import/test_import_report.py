@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2022 Dimpact
+# Copyright (C) 2019 - 2024 Dimpact
 from django.conf import settings
 from django.test import tag
 

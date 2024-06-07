@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2022 Dimpact
+# Copyright (C) 2019 - 2024 Dimpact
 from django.utils.translation import gettext as _
 
 from drf_spectacular.types import OpenApiTypes
