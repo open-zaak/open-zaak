@@ -547,7 +547,8 @@ def _get_report_headers():
             (status.HTTP_200_OK, "text/csv"): {
                 "type": "string",
                 "description": _("Het reportage bestand van de IMPORT."),
-            }
+            },
+            **COMMON_ERROR_RESPONSES,
         },
     )
 )
