@@ -5,9 +5,12 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -15,6 +18,9 @@ from openzaak.tests.utils import JWTAuthMixin
 
 @tag("documenten-import-status")
 class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
+    component = ComponentTypes.drc
+    heeft_alle_autorisaties = True
+
     def test_active_import(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
@@ -28,9 +34,6 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
         url = reverse(
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.get(url)
 
@@ -60,9 +63,6 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -90,9 +90,6 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
         url = reverse(
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.get(url)
 
@@ -122,9 +119,6 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -153,14 +147,11 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_regular_user(self):
+    def test_no_alle_autorisaties(self):
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.active,
@@ -170,37 +161,31 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
             processed_invalid=125000,
         )
 
-        url = reverse(
-            "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
-        )
+        applicatie = self.applicatie
 
-        user = UserFactory.create(is_staff=False, is_superuser=False)
-        self.client.force_authenticate(user=user)
+        applicatie.heeft_alle_autorisaties = False
+        applicatie.save()
 
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        response_data = response.json()
-
-        self.assertEqual(response_data["code"], "permission_denied")
-
-    def test_admin_user(self):
-        import_instance = ImportFactory.create(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.active,
-            total=500000,
-            processed=250000,
-            processed_successfully=125000,
-            processed_invalid=125000,
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[
+                SCOPE_DOCUMENTEN_AANMAKEN,
+                SCOPE_DOCUMENTEN_BIJWERKEN,
+                SCOPE_DOCUMENTEN_ALLES_LEZEN,
+                SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+                SCOPE_DOCUMENTEN_LOCK,
+                SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+            ],
+            zaaktype="",
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
 
         url = reverse(
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
-
-        user = UserFactory.create(is_staff=True, is_superuser=False)
-        self.client.force_authenticate(user=user)
 
         response = self.client.get(url)
 
@@ -224,9 +209,6 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
         url = reverse(
             "documenten-import:status", kwargs=dict(uuid=import_instance.uuid)
         )
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.get(url)
 

@@ -28,7 +28,6 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.documenten.import_utils import DocumentRow
-from openzaak.components.documenten.permissions import IsSuperUser
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.import_data.models import ImportTypeChoices
 from openzaak.import_data.views import (
@@ -450,7 +449,8 @@ class EnkelvoudigInformatieObjectViewSet(
             "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
             " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Deze "
             "actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
-            "ingeschakeld."
+            "ingeschakeld. Voor deze actie is een APPLICATIE nodig met "
+            "`heeft_alle_autorisaties` ingeschakeld."
         ),
         request=OpenApiTypes.NONE,
     )
@@ -458,8 +458,7 @@ class EnkelvoudigInformatieObjectViewSet(
 class EnkelvoudigInformatieObjectImportView(ImportCreateview):
     import_type = ImportTypeChoices.documents
 
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    required_scopes = {}
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -480,7 +479,8 @@ def _get_import_headers():
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
             "ingeschakeld. Deze actie start tevens de IMPORT. De volgende "
             "kolommen worden verwacht (op volgorde) in het bestand: "
-            f"{_get_import_headers()}."
+            f"{_get_import_headers()}. Voor deze actie is een APPLICATIE nodig met "
+            "`heeft_alle_autorisaties` ingeschakeld."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
         responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
@@ -490,8 +490,7 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_type = ImportTypeChoices.documents
     import_headers = DocumentRow.import_headers
 
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    required_scopes = {}
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -511,15 +510,16 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         summary=_("De status van een IMPORT opvragen."),
         description=mark_experimental(
             "Het opvragen van de status van een IMPORT. Deze actie is niet "
-            "beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld."
+            "beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld. "
+            "Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`"
+            " ingeschakeld."
         ),
     )
 )
 class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents
 
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    required_scopes = {}
 
     def retrieve(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -540,7 +540,8 @@ def _get_report_headers():
             "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
             "ingeschakeld. De volgende kolommen zijn te vinden in het rapportage "
-            f"bestand: {_get_report_headers()}"
+            f"bestand: {_get_report_headers()}. Voor deze actie is een APPLICATIE"
+            "nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         responses={
             (status.HTTP_200_OK, "text/csv"): {
@@ -553,8 +554,7 @@ def _get_report_headers():
 class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
     import_type = ImportTypeChoices.documents
 
-    authentication_classes = (authentication.SessionAuthentication,)
-    permission_classes = (IsSuperUser,)
+    required_scopes = {}
 
     def retrieve(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:

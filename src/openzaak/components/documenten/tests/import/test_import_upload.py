@@ -8,18 +8,24 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tests.factories import DocumentRowFactory
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.import_data.tests.utils import get_csv_data
+from openzaak.tests.utils.auth import JWTAuthMixin
 
 
 @tag("documenten-import-upload")
-class ImportDocumentenUploadTests(APITestCase):
+class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
+    component = ComponentTypes.drc
+    heeft_alle_autorisaties = True
+
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_valid_upload(self, import_document_task_mock):
         import_instance = ImportFactory.create(
@@ -35,10 +41,6 @@ class ImportDocumentenUploadTests(APITestCase):
         rows = [DocumentRowFactory()]
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -68,10 +70,9 @@ class ImportDocumentenUploadTests(APITestCase):
 
         import_contents = get_csv_data(rows, headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
-        response = self.client.post(url, import_contents, content_type="text/csv")
+        response = self.client.post(
+            url, import_contents, content_type="text/csv"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -99,9 +100,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         import_contents = get_csv_data(rows, headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(url, import_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -124,9 +122,6 @@ class ImportDocumentenUploadTests(APITestCase):
         url = reverse(
             "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
         )
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, "", content_type="text/csv")
 
@@ -152,9 +147,6 @@ class ImportDocumentenUploadTests(APITestCase):
         )
 
         data = bytes("%PDF-1.5%äðíø", encoding="latin-1")
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, data, content_type="text/csv")
 
@@ -183,10 +175,9 @@ class ImportDocumentenUploadTests(APITestCase):
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
-        response = self.client.post(url, file_contents, content_type="application/pdf")
+        response = self.client.post(
+            url, file_contents, content_type="application/pdf"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
@@ -203,9 +194,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -221,9 +209,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -249,9 +234,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -282,9 +264,6 @@ class ImportDocumentenUploadTests(APITestCase):
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -314,9 +293,6 @@ class ImportDocumentenUploadTests(APITestCase):
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -330,7 +306,29 @@ class ImportDocumentenUploadTests(APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
-    def test_regular_user(self, import_document_task_mock):
+    def test_no_alle_autorisaties(self, import_document_task_mock):
+        applicatie = self.applicatie
+
+        applicatie.heeft_alle_autorisaties = False
+        applicatie.save()
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[
+                SCOPE_DOCUMENTEN_AANMAKEN,
+                SCOPE_DOCUMENTEN_BIJWERKEN,
+                SCOPE_DOCUMENTEN_ALLES_LEZEN,
+                SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+                SCOPE_DOCUMENTEN_LOCK,
+                SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+            ],
+            zaaktype="",
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+
         import_instance = ImportFactory.create(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
@@ -343,37 +341,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=False, is_superuser=False)
-        self.client.force_authenticate(user=user)
-
-        response = self.client.post(url, file_contents, content_type="text/csv")
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        import_instance.refresh_from_db()
-
-        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
-
-        import_document_task_mock.delay.assert_not_called()
-
-    @patch("openzaak.components.documenten.api.viewsets.import_documents")
-    def test_admin_user(self, import_document_task_mock):
-        import_instance = ImportFactory.create(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            total=0,
-        )
-
-        url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
-        )
-
-        rows = [DocumentRowFactory()]
-        file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=True, is_superuser=False)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 
@@ -400,9 +367,6 @@ class ImportDocumentenUploadTests(APITestCase):
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
 
         response = self.client.post(url, file_contents, content_type="text/csv")
 

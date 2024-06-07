@@ -6,21 +6,24 @@ from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
 
 
 @tag("documenten-import-start")
-class ImportDocumentenCreateTests(APITestCase):
+class ImportDocumentenCreateTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("documenten-import:create")
 
-    def test_simple(self):
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
+    component = ComponentTypes.drc
+    heeft_alle_autorisaties = True
 
+    def test_simple(self):
         response = self.client.post(self.url)
 
         instance = Import.objects.get()
@@ -57,9 +60,6 @@ class ImportDocumentenCreateTests(APITestCase):
             total=123,
         )
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -74,9 +74,6 @@ class ImportDocumentenCreateTests(APITestCase):
             total=123,
         )
 
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -84,23 +81,28 @@ class ImportDocumentenCreateTests(APITestCase):
         error = get_validation_errors(response, "__all__")
         self.assertEqual(error["code"], "existing-import-started")
 
-    def test_regular_user(self):
-        user = UserFactory.create(is_staff=False, is_superuser=False)
-        self.client.force_authenticate(user=user)
+    def test_no_alle_autorisaties(self):
+        applicatie = self.applicatie
 
-        response = self.client.post(self.url)
+        applicatie.heeft_alle_autorisaties = False
+        applicatie.save()
 
-        self.assertEqual(Import.objects.count(), 0)
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        response_data = response.json()
-
-        self.assertEqual(response_data["code"], "permission_denied")
-
-    def test_admin_user(self):
-        user = UserFactory.create(is_staff=True, is_superuser=False)
-        self.client.force_authenticate(user=user)
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[
+                SCOPE_DOCUMENTEN_AANMAKEN,
+                SCOPE_DOCUMENTEN_BIJWERKEN,
+                SCOPE_DOCUMENTEN_ALLES_LEZEN,
+                SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+                SCOPE_DOCUMENTEN_LOCK,
+                SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+            ],
+            zaaktype="",
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
 
         response = self.client.post(self.url)
 
@@ -114,9 +116,6 @@ class ImportDocumentenCreateTests(APITestCase):
 
     @override_settings(CMIS_ENABLED=True)
     def test_cmis_enabled(self):
-        user = UserFactory.create(is_staff=True, is_superuser=True)
-        self.client.force_authenticate(user=user)
-
         response = self.client.post(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

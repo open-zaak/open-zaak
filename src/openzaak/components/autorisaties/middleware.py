@@ -60,10 +60,7 @@ class JWTAuth(_JWTAuth):
             return False
 
         # allow everything
-        superuser_applications = [
-            app for app in self.applicaties if app.heeft_alle_autorisaties
-        ]
-        if any(superuser_applications):
+        if self.has_alle_autorisaties:
             return True
 
         if not init_component:
@@ -87,6 +84,16 @@ class JWTAuth(_JWTAuth):
             scopes_provided.update(autorisatie.scopes)
 
         return scopes.is_contained_in(list(scopes_provided))
+
+    @property
+    def has_alle_autorisaties(self) -> bool:
+        if not self.applicaties:
+            return False
+
+        superuser_applications = [
+            app for app in self.applicaties if app.heeft_alle_autorisaties
+        ]
+        return any(superuser_applications)
 
 
 class AuthMiddleware(_AuthMiddleware):
