@@ -9,7 +9,7 @@ the API standards defined by VNG.
 The base policy is that complying to these standards is a **must**, and the upstream
 standard defines compliance as:
 
-* the full API sepcification including run-time behaviour must be correctly implemented
+* the full API specification including run-time behaviour must be correctly implemented
 * implementations are not allowed to offer (proprietary) extensions on top of this
   standard
 
@@ -59,7 +59,7 @@ or even completely removed in any release of Open Zaak. We do commit to document
 as a breaking change in the release notes, if it happens.
 
 At the API level, experimental features will be marked with the ``x-experimental: true``
-extension object in the machine-readable API sepcification, in addition to including a
+extension object in the machine-readable API specification, in addition to including a
 textual warning in the relevant description that a feature is experimental.
 
 Situations we recognize
@@ -88,7 +88,7 @@ the standard) containing the feature is **fully** implemented in Open Zaak.
 
 At the time of writing, Open Zaak only supports the 1.0.x versions of the APIs as defined
 in the standard. Some parties rely on features implemented in or planned for newer
-versions of the API sepcification.
+versions of the API specification.
 
 The intent is to have Open Zaak implement complete minor versions of API specifications,
 not parts thereof. The TSG wants to encourage organizations making use of Open Zaak to
