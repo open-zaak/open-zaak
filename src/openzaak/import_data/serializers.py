@@ -7,17 +7,10 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import HyperlinkedModelSerializer
 
-from openzaak.import_data.models import Import, ImportStatusChoices
+from openzaak.import_data.models import Import
 
 
 class ImportSerializer(HyperlinkedModelSerializer):
-    status = SerializerMethodField()
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_status(self, instance):
-        status = ImportStatusChoices(instance.status)
-        return status.label
-
     class Meta:
         model = Import
         fields = (

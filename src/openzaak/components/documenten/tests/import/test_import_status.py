@@ -45,7 +45,7 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
                 "processed": 250000,
                 "processedSuccessfully": 125000,
                 "processedInvalid": 125000,
-                "status": ImportStatusChoices.active.label,
+                "status": ImportStatusChoices.active.value,
             },
         )
 
@@ -73,7 +73,7 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
                 "processed": 100000,
                 "processedSuccessfully": 50000,
                 "processedInvalid": 50000,
-                "status": ImportStatusChoices.error.label,
+                "status": ImportStatusChoices.error.value,
             },
         )
 
@@ -101,7 +101,7 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
                 "processed": 250000,
                 "processedSuccessfully": 125000,
                 "processedInvalid": 125000,
-                "status": ImportStatusChoices.finished.label,
+                "status": ImportStatusChoices.finished.value,
             },
         )
 
@@ -129,7 +129,7 @@ class ImportDocumentenStatustTests(JWTAuthMixin, APITestCase):
                 "processed": 0,
                 "processedSuccessfully": 0,
                 "processedInvalid": 0,
-                "status": ImportStatusChoices.pending.label,
+                "status": ImportStatusChoices.pending.value,
             },
         )
 
