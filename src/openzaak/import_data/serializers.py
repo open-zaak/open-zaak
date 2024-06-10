@@ -48,15 +48,15 @@ class ImportCreateSerializer(HyperlinkedModelSerializer):
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_upload_url(self, instance):
-        return instance.get_upload_url()
+        return instance.get_upload_url(request=self.context.get("request"))
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_status_url(self, instance):
-        return instance.get_status_url()
+        return instance.get_status_url(request=self.context.get("request"))
 
     @extend_schema_field(OpenApiTypes.URI)
     def get_report_url(self, instance):
-        return instance.get_report_url()
+        return instance.get_report_url(request=self.context.get("request"))
 
     class Meta:
         model = Import
