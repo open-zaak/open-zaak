@@ -105,7 +105,7 @@ de **Verwijderen** knop linksonderin de detailpagina van de catalogus.
     :alt: Verwijderen van een catalogus
 
 Importeer de catalogus door op de catalogus lijstweergave te klikken op de **Importeer catalogus**
-knop rechtsbovenin. Upload op de volgende pagine het .zip-bestand en kies
+knop rechtsbovenin. Upload op de volgende pagina het .zip-bestand en kies
 of er voor de objecten nieuwe UUIDs gegenereerd moeten worden, of dat de bestaande
 UUIDs uit de import gebruikt moeten worden.
 
