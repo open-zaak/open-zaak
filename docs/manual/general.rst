@@ -81,7 +81,7 @@ API Autorisaties
 
 De *API's voor zaakgericht werken* zijn niet toegankelijk zonder autorisatie.
 Dit betekent dat elke applicatie die gegevens ophaalt of registreert in Open
-Zaak hiervoor moet geautoriseerd zijn. We spreken van *taakapplicaties*.
+Zaak hiervoor geautoriseerd moet zijn. We spreken van *taakapplicaties*.
 
 Via **Applicaties** wordt elke taakapplicatie geconfigureerd om de toegang in
 te regelen. Zie :ref:`manual_api_auth_applicaties` voor hoe je dit doet.
