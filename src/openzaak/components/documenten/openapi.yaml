@@ -3850,8 +3850,9 @@ paths:
         **bestandsnaam**, **bestandsomvang**, **bestandspad**, **link**, **beschrijving**,
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
-        **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakId**,
-        **trefwoorden**, **opmerking**, **resultaat**'
+        **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
+        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIEnodig
+        met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -3862,8 +3863,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - cookieAuth: []
       responses:
         '200':
           headers:
@@ -3875,14 +3874,111 @@ paths:
           content:
             text/csv:
               schema:
-                type: file
+                type: string
                 description: Het reportage bestand van de IMPORT.
           description: OK
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /import/{uuid}/status:
     get:
       operationId: enkelvoudiginformatieobject_import_status
       description: '**EXPERIMENTEEL** Het opvragen van de status van een IMPORT. Deze
-        actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.'
+        actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.
+        Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: De status van een IMPORT opvragen.
       parameters:
       - in: path
@@ -3893,8 +3989,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - cookieAuth: []
       responses:
         '200':
           headers:
@@ -4021,14 +4115,16 @@ paths:
       operationId: enkelvoudiginformatieobject_import_upload
       description: '**EXPERIMENTEEL** Het uploaden van een metadata bestand, ter gebruik
         voor de IMPORT. Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie
-        is ingeschakeld. Deze actie start tevens de IMPORT. De volgende kolommen worden
-        verwacht (op volgorde) in het bestand: **uuid**, **identificatie**, **bronorganisatie**,
-        **creatiedatum**, **titel**, **vertrouwelijkheidaanduiding**, **auteur**,
-        **status**, **formaat**, **taal**, **bestandsnaam**, **bestandsomvang**, **bestandspad**,
-        **link**, **beschrijving**, **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**,
-        **verschijningsvorm**, **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
-        **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakId**,
-        **trefwoorden**.'
+        is ingeschakeld. Deze actie start tevens de IMPORT. Één actieve IMPORT  tegelijkertijd
+        is mogelijk. De volgende kolommen worden verwacht (op volgorde) in het bestand:
+        **uuid**, **identificatie**, **bronorganisatie**, **creatiedatum**, **titel**,
+        **vertrouwelijkheidaanduiding**, **auteur**, **status**, **formaat**, **taal**,
+        **bestandsnaam**, **bestandsomvang**, **bestandspad**, **link**, **beschrijving**,
+        **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
+        **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
+        **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
+        **trefwoorden**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
+        ingeschakeld.'
       summary: Een IMPORT bestand uploaden
       parameters:
       - in: header
@@ -4053,8 +4149,6 @@ paths:
             schema:
               type: string
               format: byte
-      security:
-      - cookieAuth: []
       responses:
         '200':
           headers:
@@ -4072,7 +4166,8 @@ paths:
       operationId: enkelvoudiginformatieobject_import_create
       description: '**EXPERIMENTEEL** Creëert een IMPORT. Wanneer er vervolgens een
         metadata bestand  wordt aangeleverd zal de daadwerkelijke IMPORT van start
-        gaan. Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.'
+        gaan. Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.
+        Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT creeren
       parameters:
       - in: header
@@ -4085,8 +4180,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - cookieAuth: []
       responses:
         '201':
           headers:
@@ -7301,7 +7394,8 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: De URL waar het metadata bestand geupload kan worden.
+          description: De URL waar het metadata bestand geupload kan worden. Dit start
+            vervolgens de IMPORT.
         statusUrl:
           type: string
           format: uri
@@ -8335,9 +8429,5 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: openzaak_sessionid
 servers:
 - url: /documenten/api/v1
