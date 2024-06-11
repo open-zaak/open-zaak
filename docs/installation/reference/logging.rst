@@ -29,7 +29,7 @@ Monitoring
 `Sentry`_ focuses on tracking down errors in software, i.e. the Open Zaak application.
 We strongly recommend setting up this integration.
 
-Open Zaak has support to itegrate with Sentry error monitoring. Whenever a bug occurs
+Open Zaak has support to integrate with Sentry error monitoring. Whenever a bug occurs
 in Open Zaak, the client will receive an error response **and** the technical details
 of the error are sent to the Sentry project, with context.
 
