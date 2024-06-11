@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+from pathlib import Path
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
@@ -491,6 +492,10 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
     import_headers = DocumentRow.import_headers
 
     required_scopes = {}
+
+    @property
+    def import_dir(self) -> Path:
+        return Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
 
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:

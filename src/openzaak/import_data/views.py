@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
 from io import StringIO
+from pathlib import Path
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -109,7 +110,11 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = (ImportAuthRequired,)
 
     import_type: ImportTypeChoices
-    import_headers: list[str] = []
+    import_headers: list[str]
+
+    @property
+    def import_dir(self) -> Path:
+        raise NotImplementedError
 
     def get_queryset(self):
         return Import.objects.filter(import_type=self.import_type)
@@ -119,6 +124,30 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         import_instance = self.get_object()
+
+        import_dir = self.import_dir
+
+        if not import_dir.exists():
+            error_message = (
+                _(
+                    "The import was not started as the import directory %s could not "
+                    "be found"
+                )
+                % str(import_dir)
+            )
+            code = "import-dir-not-found"
+            raise ValidationError({"__all__": [error_message]}, code=code)
+        elif not import_dir.is_dir():
+            error_message = (
+                _(
+                    "The import was not started as the specified import  "
+                    "directory is not a directory: %s"
+                )
+                % str(import_dir)
+            )
+            code = "import-dir-not-dir"
+            raise ValidationError({"__all__": [error_message]}, code=code)
+
 
         if import_instance.status != ImportStatusChoices.pending:
             import_status = ImportStatusChoices(import_instance.status)

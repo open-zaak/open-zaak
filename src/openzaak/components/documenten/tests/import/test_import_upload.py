@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
+from pathlib import Path
+import tempfile
 from unittest.mock import patch
 from uuid import uuid4
 
+from django.conf import settings
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
@@ -379,5 +382,77 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         import_instance.refresh_from_db()
 
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+
+        import_document_task_mock.delay.assert_not_called()
+
+    @override_settings(IMPORT_DOCUMENTEN_BASE_DIR="/foobar/")
+    @patch("openzaak.components.documenten.api.viewsets.import_documents")
+    def test_import_dir_does_not_exist(self, import_document_task_mock):
+        import_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
+
+        self.assertFalse(import_dir.exists())
+
+        import_instance = ImportFactory.create(
+            import_type=ImportTypeChoices.documents,
+            import_file=None,
+            status=ImportStatusChoices.pending,
+            total=0,
+        )
+
+        url = reverse(
+            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+        )
+
+        rows = [DocumentRowFactory(ignore_import_path=True)]
+
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+        response = self.client.post(url, file_contents, content_type="text/csv")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "__all__")
+
+        self.assertEqual(validation_error["code"], "import-dir-not-found")
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+        self.assertFalse(import_instance.import_file)
+
+        import_document_task_mock.delay.assert_not_called()
+
+    @override_settings(IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkstemp()[1])
+    @patch("openzaak.components.documenten.api.viewsets.import_documents")
+    def test_import_dir_is_file(self, import_document_task_mock):
+        import_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
+
+        self.assertTrue(import_dir.is_file())
+
+        import_instance = ImportFactory.create(
+            import_type=ImportTypeChoices.documents,
+            import_file=None,
+            status=ImportStatusChoices.pending,
+            total=0,
+        )
+
+        url = reverse(
+            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+        )
+
+        rows = [DocumentRowFactory(ignore_import_path=True)]
+
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+        response = self.client.post(url, file_contents, content_type="text/csv")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "__all__")
+
+        self.assertEqual(validation_error["code"], "import-dir-not-dir")
+
+        import_instance.refresh_from_db()
+
+        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
+        self.assertFalse(import_instance.import_file)
 
         import_document_task_mock.delay.assert_not_called()
