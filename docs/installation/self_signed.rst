@@ -18,10 +18,10 @@ Open Zaak supports self-signed certificates in two ways:
    the VNG Selectielijst service. It does this using ``https`` - using http is insecure.
 
    When Open Zaak makes these requests, the SSL certificates are varified for their
-   validity - e.g. expired certificates or certificates signed by an unkonwn Certificate
+   validity - e.g. expired certificates or certificates signed by an unknown Certificate
    Authority (CA) will throw errors (as they should!).
 
-   When you're using self-signed certificates, you are essentially using an unkonwn CA,
+   When you're using self-signed certificates, you are essentially using an unknown CA,
    and this breaks the functionality of Open Zaak.
 
 
