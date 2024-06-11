@@ -9,13 +9,26 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
-from openzaak.components.documenten.tests.factories import DocumentRowReportFactory, DocumentRowFactory
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+    SCOPE_DOCUMENTEN_LOCK,
+)
 from openzaak.components.documenten.import_utils import DocumentRow
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.components.documenten.tests.factories import (
+    DocumentRowFactory,
+    DocumentRowReportFactory,
+)
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.factories import ImportFactory
-from openzaak.import_data.tests.utils import ImportTestMixin, get_csv_data, get_temporary_dir
+from openzaak.import_data.tests.utils import (
+    ImportTestMixin,
+    get_csv_data,
+    get_temporary_dir,
+)
+from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-report")

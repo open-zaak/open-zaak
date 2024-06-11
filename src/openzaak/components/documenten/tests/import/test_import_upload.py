@@ -14,7 +14,14 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+    SCOPE_DOCUMENTEN_LOCK,
+)
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tests.factories import DocumentRowFactory
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
@@ -22,7 +29,7 @@ from openzaak.import_data.tests.utils import (
     ImportTestMixin,
     get_csv_data,
     get_temporary_dir,
-    get_temporary_file
+    get_temporary_file,
 )
 from openzaak.tests.utils.auth import JWTAuthMixin
 
@@ -81,9 +88,7 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         import_contents = get_csv_data(rows, headers)
 
-        response = self.client.post(
-            url, import_contents, content_type="text/csv"
-        )
+        response = self.client.post(url, import_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -186,9 +191,7 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
 
-        response = self.client.post(
-            url, file_contents, content_type="application/pdf"
-        )
+        response = self.client.post(url, file_contents, content_type="application/pdf")
 
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 

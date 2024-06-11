@@ -2,8 +2,8 @@
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
 import shutil
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest import TestCase
 
 from django.conf import settings

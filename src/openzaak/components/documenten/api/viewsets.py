@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from pathlib import Path
+
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
@@ -16,7 +17,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from notifications_api_common.viewsets import NotificationViewSetMixin
-from rest_framework import authentication, mixins, status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser

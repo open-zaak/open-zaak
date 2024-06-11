@@ -128,26 +128,19 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         import_dir = self.import_dir
 
         if not import_dir.exists():
-            error_message = (
-                _(
-                    "The import was not started as the import directory %s could not "
-                    "be found"
-                )
-                % str(import_dir)
-            )
+            error_message = _(
+                "The import was not started as the import directory %s could not "
+                "be found"
+            ) % str(import_dir)
             code = "import-dir-not-found"
             raise ValidationError({"__all__": [error_message]}, code=code)
         elif not import_dir.is_dir():
-            error_message = (
-                _(
-                    "The import was not started as the specified import  "
-                    "directory is not a directory: %s"
-                )
-                % str(import_dir)
-            )
+            error_message = _(
+                "The import was not started as the specified import  "
+                "directory is not a directory: %s"
+            ) % str(import_dir)
             code = "import-dir-not-dir"
             raise ValidationError({"__all__": [error_message]}, code=code)
-
 
         if import_instance.status != ImportStatusChoices.pending:
             import_status = ImportStatusChoices(import_instance.status)

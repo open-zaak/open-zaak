@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-from pathlib import Path
+
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
@@ -11,11 +11,17 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
-from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_BIJWERKEN, SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK, SCOPE_DOCUMENTEN_LOCK
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
+    SCOPE_DOCUMENTEN_LOCK,
+)
+from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.factories import ImportFactory
 
 
 @tag("documenten-import-start")

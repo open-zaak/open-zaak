@@ -1,14 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
-import tempfile
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
 from django.db import IntegrityError, OperationalError
-from django.conf import settings
 from django.test import TestCase, override_settings
 
 import requests_mock
@@ -32,7 +30,6 @@ from openzaak.import_data.models import (
     ImportStatusChoices,
     ImportTypeChoices,
 )
-from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
