@@ -15,7 +15,11 @@ from rest_framework.validators import (
 )
 from vng_api_common.oas import obj_has_shape
 from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
-from vng_api_common.validators import IsImmutableValidator, URLValidator
+from vng_api_common.validators import (
+    IsImmutableValidator,
+    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
+    URLValidator,
+)
 
 from openzaak.api_standards import APIStandard
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -268,3 +272,18 @@ class ResourceValidator(ResourceValidatorMixin, URLValidator):
             raise error
 
         return obj
+
+
+class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
+
+    partial_message = _(
+        "Deze identificatie ({identificatie}) bestaat al binnen de organisatie"
+    )
+
+    @property
+    def message(self):
+        return self.partial_message.format(identificatie=self.identificatie)
+
+    def __call__(self, attrs: dict, serializer):
+        self.identificatie = attrs.get(self.identificatie_field)
+        return super().__call__(attrs, serializer)

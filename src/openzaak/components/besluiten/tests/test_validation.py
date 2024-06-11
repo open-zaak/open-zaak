@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.test import override_settings
+from django.utils.translation import gettext_lazy as _
 
 import requests_mock
 from freezegun import freeze_time
@@ -70,6 +71,12 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "identificatie")
         self.assertEqual(error["code"], "identificatie-niet-uniek")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Deze identificatie ({identificatie}) bestaat al voor deze verantwoordelijke organisatie"
+            ).format(identificatie="123456"),
+        )
 
     def test_change_immutable_fields(self):
         besluit = BesluitFactory.create(identificatie="123456")

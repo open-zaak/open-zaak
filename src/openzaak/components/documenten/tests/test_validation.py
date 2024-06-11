@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
+from django.utils.translation import gettext_lazy as _
 
 import requests_mock
 from privates.test import temp_private_root
@@ -219,6 +220,45 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_duplicate_rsin_identificatie(self):
+        EnkelvoudigInformatieObjectFactory.create(
+            identificatie="123456", bronorganisatie="159351741"
+        )
+
+        iotype = InformatieObjectTypeFactory.create(concept=False)
+        iotype_url = reverse(iotype)
+
+        url = reverse("enkelvoudiginformatieobject-list")
+        content = {
+            "identificatie": "123456",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            # Remove padding from the base64 data
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{iotype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+        }
+
+        # Send to the API
+        response = self.client.post(url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "identificatie")
+        self.assertEqual(error["code"], "identificatie-niet-uniek")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Deze identificatie ({identificatie}) bestaat al voor deze bronorganisatie"
+            ).format(identificatie="123456"),
+        )
+
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
@@ -264,7 +304,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         All statusses should be allowed when the informatieobject doesn't have
         a receive date.
         """
-        for valid_status, _ in Statussen.choices:
+        for valid_status, message in Statussen.choices:
             with self.subTest(status=status):
                 data = {"ontvangstdatum": None, "status": valid_status}
 
