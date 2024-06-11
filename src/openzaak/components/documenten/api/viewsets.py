@@ -478,10 +478,10 @@ def _get_import_headers():
         description=mark_experimental(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
-            "ingeschakeld. Deze actie start tevens de IMPORT. De volgende "
-            "kolommen worden verwacht (op volgorde) in het bestand: "
-            f"{_get_import_headers()}. Voor deze actie is een APPLICATIE nodig met "
-            "`heeft_alle_autorisaties` ingeschakeld."
+            "ingeschakeld. Deze actie start tevens de IMPORT. Één actieve IMPORT "
+            " tegelijkertijd is mogelijk. De volgende kolommen worden verwacht "
+            f"(op volgorde) in het bestand: {_get_import_headers()}. Voor deze "
+            "actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
         responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
