@@ -57,14 +57,14 @@ Kubernetes
      We have added an init container to the Ansible and Helm based deployments, which
      is enabled by default. This init container should correct the incorrect file
      system permissions, **provided that the pod is allowed to run containers as
-     root**. It changes the owner and groupo of the ``/app/private-media`` directory
+     root**. It changes the owner and group of the ``/app/private-media`` directory
      to ``1000:1000``.
 
      The updated deployment tooling also includes a ``podSecurityContext`` which
      now specifies the ``fsGroup: 1000``. If your environment is different, you may
      have to specify ``openzaak_init_containers`` accordingly.
 
-     It's possible that the PV provisioner causes problems, and it that case, please
+     It's possible that the PV provisioner causes problems, and in that case, please
      consult with your infrastructure provider on how to ensure the PV is writable
      by UID 1000 and/or GID 1000.
 
