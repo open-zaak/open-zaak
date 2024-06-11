@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 from django.conf import settings
-from django.test import tag
+from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -15,12 +15,12 @@ from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.factories import ImportFactory
-from openzaak.import_data.tests.utils import get_csv_data
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.import_data.tests.utils import ImportTestMixin, get_csv_data, get_temporary_dir
 
 
 @tag("documenten-import-report")
-class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
+@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
+class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
@@ -30,7 +30,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
             [DocumentRowReportFactory()], DocumentRow.export_headers
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.finished,
             import_file__data=import_data,
@@ -56,7 +56,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
         rows = [DocumentRowFactory()]
         import_data = get_csv_data(rows, DocumentRow.import_headers)
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.active,
             import_file__data=import_data,
@@ -79,7 +79,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
             [DocumentRowReportFactory()], DocumentRow.export_headers
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.error,
             import_file__data=import_data,
@@ -107,7 +107,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
             [DocumentRowReportFactory()], DocumentRow.export_headers
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_data,
@@ -130,7 +130,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
             [DocumentRowReportFactory()], DocumentRow.export_headers
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type="foobar",
             status=ImportStatusChoices.finished,
             import_file__data=import_data,
@@ -153,7 +153,7 @@ class ImportDocumentenReportTests(JWTAuthMixin, APITestCase):
             [DocumentRowReportFactory()], DocumentRow.export_headers
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.finished,
             import_file__data=import_data,

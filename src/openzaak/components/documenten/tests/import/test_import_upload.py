@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 from pathlib import Path
-import tempfile
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -19,19 +18,24 @@ from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN,
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tests.factories import DocumentRowFactory
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.factories import ImportFactory
-from openzaak.import_data.tests.utils import get_csv_data
+from openzaak.import_data.tests.utils import (
+    ImportTestMixin,
+    get_csv_data,
+    get_temporary_dir,
+    get_temporary_file
+)
 from openzaak.tests.utils.auth import JWTAuthMixin
 
 
 @tag("documenten-import-upload")
-class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
+@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
+class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_valid_upload(self, import_document_task_mock):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -52,13 +56,17 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(import_instance.status, ImportStatusChoices.active)
 
-        with open(import_instance.import_file.path, "r", newline="") as import_file:
+        import_path = Path(import_instance.import_file.path)
+
+        with open(str(import_path), "r", newline="") as import_file:
             self.assertEqual(file_contents, import_file.read())
+
+        self.addCleanup(import_path.unlink)
 
         import_document_task_mock.delay.assert_called_once_with(import_instance.pk)
 
     def test_missing_headers(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -88,7 +96,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_no_headers(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -116,7 +124,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_empty_csv_data(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -139,7 +147,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_no_csv_file(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -164,7 +172,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_invalid_content_type(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -202,7 +210,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_mismatching_import_type(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type="foobar", status=ImportStatusChoices.pending, total=0,
         )
 
@@ -222,7 +230,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.pending)
 
     def test_active_import(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.active,
             total=500000,
@@ -251,7 +259,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.active)
 
     def test_error_import(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.error,
             total=500000,
@@ -280,7 +288,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.error)
 
     def test_finished_import(self):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.finished,
             total=500000,
@@ -332,7 +340,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -358,7 +366,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
     @override_settings(CMIS_ENABLED=True)
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_cmis_enabled(self, import_document_task_mock):
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             total=0,
@@ -392,7 +400,7 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         self.assertFalse(import_dir.exists())
 
-        import_instance = ImportFactory.create(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             import_file=None,
             status=ImportStatusChoices.pending,
@@ -421,14 +429,16 @@ class ImportDocumentenUploadTests(JWTAuthMixin, APITestCase):
 
         import_document_task_mock.delay.assert_not_called()
 
-    @override_settings(IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkstemp()[1])
+    @override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_file())
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_import_dir_is_file(self, import_document_task_mock):
         import_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
 
         self.assertTrue(import_dir.is_file())
 
-        import_instance = ImportFactory.create(
+        self.addCleanup(import_dir.unlink)
+
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             import_file=None,
             status=ImportStatusChoices.pending,

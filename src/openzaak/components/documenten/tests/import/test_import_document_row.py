@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 import shutil
-import tempfile
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
@@ -10,7 +9,6 @@ from uuid import uuid4
 from django.test import TestCase, override_settings
 
 import requests_mock
-from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.constants import APITypes
@@ -32,16 +30,16 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.import_data.tests.utils import ImportTestFileMixin
+from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
 @override_settings(
-    ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkdtemp()
+    ALLOWED_HOSTS=["testserver"],
+    IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir()
 )
-@temp_private_root()
-class ImportDocumentRowTests(ImportTestFileMixin, MockSchemasMixin, TestCase):
+class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
 
     @classmethod

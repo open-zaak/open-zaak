@@ -8,6 +8,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from django.db import IntegrityError, OperationalError
+from django.conf import settings
 from django.test import TestCase, override_settings
 
 import requests_mock
@@ -32,17 +33,17 @@ from openzaak.import_data.models import (
     ImportTypeChoices,
 )
 from openzaak.import_data.tests.factories import ImportFactory
-from openzaak.import_data.tests.utils import ImportTestFileMixin
+from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
 @override_settings(
     ALLOWED_HOSTS=["testserver"],
-    IMPORT_DOCUMENTEN_BASE_DIR=tempfile.mkdtemp(),
+    IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir(),
     IMPORT_DOCUMENTEN_BATCH_SIZE=2,
 )
-class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
+class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
 
     @classmethod
@@ -115,7 +116,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -135,9 +136,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 4)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -172,7 +177,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -192,9 +197,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 1)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -248,7 +257,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -268,9 +277,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 5)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 6)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -315,7 +328,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -335,9 +348,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 3)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -405,7 +422,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -433,9 +450,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 2)
         self.assertEqual(import_instance.status, ImportStatusChoices.error)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -507,7 +528,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -535,9 +556,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 2)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -597,7 +622,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -617,9 +642,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 3)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -676,7 +705,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -701,9 +730,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 2)
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(report_path, "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -769,7 +802,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.addCleanup(import_file.close)
 
-        import_instance = ImportFactory(
+        import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,
             status=ImportStatusChoices.pending,
             import_file__data=import_file.read(),
@@ -794,9 +827,13 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.processed_successfully, 0)
         self.assertEqual(import_instance.status, ImportStatusChoices.error)
 
-        with open(import_instance.report_file.path, "r") as report_file:
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 3)
         self.assertEqual(DocumentRow.export_headers, rows[0])
