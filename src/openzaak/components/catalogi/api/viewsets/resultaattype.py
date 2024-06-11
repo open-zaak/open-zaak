@@ -75,7 +75,7 @@ class ResultaatTypeViewSet(
         .order_by("-pk")
     )
     serializer_class = ResultaatTypeSerializer
-    filter_class = ResultaatTypeFilter
+    filterset_class = ResultaatTypeFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
     permission_classes = (AuthRequired,)
