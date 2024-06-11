@@ -211,7 +211,7 @@ class DocumentRowFactory(factory.ListFactory):
 
     informatieobjecttype = factory.LazyFunction(get_informatieobjecttype_url)
 
-    zaak_id = ""
+    zaak_uuid = ""
     trefwoorden = ""
 
     @classmethod

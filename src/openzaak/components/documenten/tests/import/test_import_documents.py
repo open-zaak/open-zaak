@@ -85,7 +85,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
@@ -99,7 +99,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             4: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
-                zaak_id=str(zaken[2].uuid),
+                zaak_uuid=str(zaken[2].uuid),
             ),
         }
 
@@ -156,7 +156,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
         }
 
@@ -213,7 +213,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
@@ -227,12 +227,12 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             4: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
-                zaak_id=str(zaken[2].uuid),
+                zaak_uuid=str(zaken[2].uuid),
             ),
             5: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-5.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
         }
 
@@ -374,7 +374,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
@@ -388,7 +388,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             4: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad=absent_files[1],
-                zaak_id=str(zaken[2].uuid),
+                zaak_uuid=str(zaken[2].uuid),
                 uuid=str(uuid4()),
             ),
         }
@@ -476,7 +476,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
                 uuid=str(uuid4()),
             ),
             2: DocumentRowFactory(
@@ -491,7 +491,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             4: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
-                zaak_id=str(zaken[2].uuid),
+                zaak_uuid=str(zaken[2].uuid),
             ),
         }
 
@@ -560,14 +560,14 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
-    def test_unknown_zaak_id(self):
+    def test_unknown_zaak_uuid(self):
         zaken = {1: ZaakFactory()}
 
         import_data = {
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id="36df518e-7dff-4af3-be96-ccca0c6e6a2e",  # unknown
+                zaak_uuid="36df518e-7dff-4af3-be96-ccca0c6e6a2e",  # unknown
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
@@ -581,7 +581,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             4: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-4.docx",
-                zaak_id=str(zaken[1].uuid),
+                zaak_uuid=str(zaken[1].uuid),
             ),
         }
 
@@ -647,7 +647,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaak.uuid),
+                zaak_uuid=str(zaak.uuid),
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
@@ -740,7 +740,7 @@ class ImportDocumentTestCase(ImportTestFileMixin, MockSchemasMixin, TestCase):
             1: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 bestandspad="test-file-1.docx",
-                zaak_id=str(zaak.uuid),
+                zaak_uuid=str(zaak.uuid),
             ),
             2: DocumentRowFactory(
                 informatieobjecttype=self.informatieobjecttype,

@@ -42,7 +42,7 @@ class DocumentRow:
     _integriteit_datum: str
 
     _informatieobjecttype: str
-    _zaak_id: str
+    _zaak_uuid: str
     _trefwoorden: str
 
     row_index: int
@@ -84,7 +84,7 @@ class DocumentRow:
             "integriteit.waarde",
             "integriteit.datum",
             "informatieobjecttype",
-            "zaakId",
+            "zaakUuid",
             "trefwoorden",
         ]
 
@@ -176,8 +176,8 @@ class DocumentRow:
         }
 
     @property
-    def zaak_id(self) -> Optional[str]:
-        return self._zaak_id
+    def zaak_uuid(self) -> Optional[str]:
+        return self._zaak_uuid
 
     @property
     def trefwoorden(self) -> list[str]:
@@ -274,7 +274,7 @@ class DocumentRow:
             "integriteit.waarde": self._integriteit_waarde,
             "integriteit.datum": self._integriteit_datum,
             "informatieobjecttype": self._informatieobjecttype,
-            "zaakId": self._zaak_id,
+            "zaakUuid": self._zaak_uuid,
             "trefwoorden": self._trefwoorden,
         }
 

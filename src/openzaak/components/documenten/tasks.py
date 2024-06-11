@@ -148,9 +148,9 @@ def _import_document_row(
             instance, "creatiedatum"
         )
 
-    zaak_id = document_row.zaak_id
+    zaak_uuid = document_row.zaak_uuid
 
-    if zaak_id and zaak_id not in zaak_uuids:
+    if zaak_uuid and zaak_uuid not in zaak_uuids:
         error_message = f"Zaak ID specified for row {row_index} is unknown."
 
         logger.warning(error_message)
@@ -252,7 +252,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
 
         row.instance = instance
 
-        if not row.zaak_id:
+        if not row.zaak_uuid:
             row.processed = True
             row.succeeded = True if instance and instance.pk is not None else False
             continue
@@ -260,7 +260,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         # Note that ZaakInformatieObject's will not be created using
         # `bulk_create` (see queryset MRO).
         zaak_eio = ZaakInformatieObject(
-            zaak_id=zaak_uuids.get(row.zaak_id),
+            zaak_id=zaak_uuids.get(row.zaak_uuid),
             informatieobject=instance.canonical,
             aard_relatie=RelatieAarden.from_object_type("zaak"),
         )
@@ -270,7 +270,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         except DatabaseError as e:
             row.processed = True
             row.comment = (
-                f"Unable to couple row {row.row_index} to ZAAK {row.zaak_id}:"
+                f"Unable to couple row {row.row_index} to ZAAK {row.zaak_uuid}:"
                 f"\n {str(e)}"
             )
 

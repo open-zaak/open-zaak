@@ -161,7 +161,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, MockSchemasMixin, TestCase):
             integriteit_waarde="foo",
             integriteit_datum=str(date(2024, 1, 1)),
             informatieobjecttype=self.informatieobjecttype,
-            zaak_id=str(zaak.uuid),
+            zaak_uuid=str(zaak.uuid),
             trefwoorden='"foo,bar"',
         )
 
@@ -381,7 +381,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, MockSchemasMixin, TestCase):
 
         self.assertFalse(file_path.exists())
 
-    def test_unknown_zaak_id(self):
+    def test_unknown_zaak_uuid(self):
         import_file_path = Path("import-test-files/foo.txt")
         import_file_content = "minimum fields"
 
@@ -400,7 +400,7 @@ class ImportDocumentRowTests(ImportTestFileMixin, MockSchemasMixin, TestCase):
             bestandspad=str(import_file_path),
             import_file_content=import_file_content,
             informatieobjecttype=self.informatieobjecttype,
-            zaak_id="b0f3681d-945a-4b30-afcb-12cad0a3eeaf",
+            zaak_uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf",
         )
 
         document_row = _import_document_row(row, 0, [], {})
