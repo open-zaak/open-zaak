@@ -3,7 +3,7 @@
 Principles and code style (draft)
 =================================
 
-Definining (architectural) principles and code style keeps the code base consistent
+Defining (architectural) principles and code style keeps the code base consistent
 and manages expectations for contributions.
 
 Backend
