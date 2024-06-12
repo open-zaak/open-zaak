@@ -123,7 +123,7 @@ class BesluitViewSet(
 
     queryset = Besluit.objects.select_related("_besluittype").order_by("-pk")
     serializer_class = BesluitSerializer
-    filter_class = BesluitFilter
+    filterset_class = BesluitFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
     permission_classes = (BesluitAuthRequired,)

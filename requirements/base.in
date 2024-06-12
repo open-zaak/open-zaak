@@ -1,57 +1,30 @@
+open-api-framework
+
 # Core python libraries
-celery
-click<8.1.0  # click>=8.1.0 causes issues with black https://github.com/psf/black/issues/2964
 jq
 jsonschema
 dictdiffer # Used to show diffs for audittrails in admin
 markdown  # used to render some markdown in code to html
-psycopg2
 python-dateutil
-python-dotenv  # environment variables for secrets
-python-decouple  # processing of envvar configs
-requests
 requests-cache
-zgw-consumers
 self-certifi
-bleach
 
 # Framework libraries
-django
-django-axes[ipware]
-django-cors-headers
 django-db-logger
 django-extra-views
-django-log-outgoing-requests
 django-loose-fk
-django-markup
-django-redis
 django-privates
 django-relativedelta
-mozilla-django-oidc-db
-maykin-2fa
 
 # Admin and UI libraries
-django-admin-index
 django-sniplates
 django-better-admin-arrayfield
 
 # API libraries
-djangorestframework~=3.14.0
-djangorestframework-gis
 drf-extra-fields
-django-filter
-djangorestframework-camel-case
 drf-writable-nested
-commonground-api-common
 notifications-api-common
 humanize
 drc-cmis
 djangorestframework-inclusions
-drf-spectacular
 django-setup-configuration
-
-# WSGI servers & monitoring - production oriented
-uwsgi
-sentry_sdk # error monitoring sentry
-flower # task monitoring
-elastic-apm  # Elastic APM integration
