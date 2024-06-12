@@ -261,6 +261,45 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(import_instance.status, ImportStatusChoices.active)
 
+    @patch("openzaak.components.documenten.api.viewsets.import_documents")
+    def test_existing_active_import(self, import_document_task_mock):
+        self.create_import(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.active,
+            total=500000,
+            processed=249000,
+            processed_successfully=125000,
+            processed_invalid=124000,
+        )
+
+        new_instance = self.create_import(
+            import_type=ImportTypeChoices.documents,
+            status=ImportStatusChoices.pending,
+            total=500000,
+            processed=0,
+            processed_successfully=0,
+            processed_invalid=0,
+        )
+
+        url = reverse("documenten-import:upload", kwargs=dict(uuid=new_instance.uuid))
+
+        rows = [DocumentRowFactory()]
+        file_contents = get_csv_data(rows, DocumentRow.import_headers)
+
+        response = self.client.post(url, file_contents, content_type="text/csv")
+
+        import_document_task_mock.assert_not_called()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "__all__")
+
+        self.assertEqual(validation_error["code"], "existing-import-started")
+
+        new_instance.refresh_from_db()
+
+        self.assertEqual(new_instance.status, ImportStatusChoices.pending)
+
     def test_error_import(self):
         import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,

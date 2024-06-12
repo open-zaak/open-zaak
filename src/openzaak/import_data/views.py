@@ -21,21 +21,16 @@ from openzaak.import_data.permissions import ImportAuthRequired
 from openzaak.import_data.serializers import ImportCreateSerializer, ImportSerializer
 
 
-class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    import_type: ImportTypeChoices
-
-    serializer_class = ImportCreateSerializer
-
-    permission_classes = (ImportAuthRequired,)
-
-    def get_queryset(self):
-        return Import.objects.all()
-
-    def create(self, request, *args, **kwargs):
+class ImportMixin:
+    def validate_existing_imports(self, instance=None):
         existing_imports = self.get_queryset()
+
         active_imports = existing_imports.filter(
             import_type=self.import_type, status__in=ImportStatusChoices.started_choices
         )
+
+        if instance:
+            active_imports = active_imports.exclude(pk=instance.pk)
 
         if active_imports:
             raise ValidationError(
@@ -49,6 +44,20 @@ class ImportCreateview(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 },
                 code="existing-import-started",
             )
+
+
+class ImportCreateview(ImportMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    import_type: ImportTypeChoices
+
+    serializer_class = ImportCreateSerializer
+
+    permission_classes = (ImportAuthRequired,)
+
+    def get_queryset(self):
+        return Import.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        self.validate_existing_imports()
 
         import_instance = Import.objects.create(
             status=ImportStatusChoices.pending,
@@ -104,7 +113,7 @@ def validate_headers(import_data: StringIO, expected_headers: list[str]) -> None
         )
 
 
-class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class ImportUploadView(ImportMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     lookup_field: str = "uuid"
     parser_classes = (CSVParser,)
     permission_classes = (ImportAuthRequired,)
@@ -124,6 +133,8 @@ class ImportUploadView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         import_instance = self.get_object()
+
+        self.validate_existing_imports(instance=import_instance)
 
         import_dir = self.import_dir
 
