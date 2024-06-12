@@ -71,4 +71,4 @@ Reference
    reference/fq-urls
    reference/time
    reference/1-5_upgrade
-   reference/import.rst
+   reference/import

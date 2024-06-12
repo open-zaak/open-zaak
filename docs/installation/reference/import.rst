@@ -1,7 +1,8 @@
-.. _installation_reference_containers:
+.. _installation_reference_import:
 
+=====================
 Importing documenten
-=======================
+=====================
 
 Open Zaak data can be supplied in various ways. One can ofcourse make API calls
 for example to create `EnkelvoudigInformatieObject`'s but whenever a large amount
