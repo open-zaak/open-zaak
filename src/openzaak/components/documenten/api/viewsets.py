@@ -486,9 +486,9 @@ def _get_import_headers():
         ),
         request={"text/csv": OpenApiTypes.BYTE},
         responses={
-        status.HTTP_200_OK: OpenApiTypes.NONE,
-        **VALIDATION_ERROR_RESPONSES,
-        **COMMON_ERROR_RESPONSES,
+            status.HTTP_200_OK: OpenApiTypes.NONE,
+            **VALIDATION_ERROR_RESPONSES,
+            **COMMON_ERROR_RESPONSES,
         },
     )
 )
