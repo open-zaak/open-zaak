@@ -29,6 +29,9 @@ from openzaak.tests.utils import JWTAuthMixin
 class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     url = reverse_lazy("documenten-import:create")
 
+    clean_documenten_files = True
+    clean_import_files = True
+
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 

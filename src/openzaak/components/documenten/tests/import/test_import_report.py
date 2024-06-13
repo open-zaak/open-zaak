@@ -37,6 +37,9 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
+    clean_documenten_files = True
+    clean_import_files = True
+
     def test_simple(self):
         import_data = get_csv_data([DocumentRowFactory()], DocumentRow.import_headers)
         report_data = get_csv_data(

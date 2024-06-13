@@ -28,6 +28,9 @@ class ImportDocumentenStatustTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
+    clean_documenten_files = True
+    clean_import_files = True
+
     def test_active_import(self):
         import_instance = self.create_import(
             import_type=ImportTypeChoices.documents,

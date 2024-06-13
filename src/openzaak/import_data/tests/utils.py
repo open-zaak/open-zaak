@@ -15,24 +15,30 @@ from openzaak.utils.fields import get_default_path
 
 
 class ImportTestMixin(TestCase):
+    clean_documenten_files: bool
+    clean_import_files: bool
+
     def setUp(self):
         super().setUp()
 
-        self.addCleanup(self.remove_upload_files)
-        self.addCleanup(self.remove_import_files)
+        if self.clean_documenten_files:
+            self.addCleanup(self.remove_documenten_files)
+
+        if self.clean_import_files:
+            self.addCleanup(self.remove_import_files)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
         import_dir = cls._get_import_dir()
-        upload_dir = cls._get_upload_dir()
+        documenten_dir = cls._get_documenten_dir()
 
-        if import_dir.exists():
+        if cls.clean_import_files and import_dir.exists():
             shutil.rmtree(import_dir)
 
-        if upload_dir.exists():
-            shutil.rmtree(upload_dir)
+        if cls.clean_documenten_files and documenten_dir.exists():
+            shutil.rmtree(documenten_dir)
 
     @classmethod
     def _get_import_dir(cls) -> Path:
@@ -48,7 +54,7 @@ class ImportTestMixin(TestCase):
         return import_dir
 
     @classmethod
-    def _get_upload_dir(cls) -> Path:
+    def _get_documenten_dir(cls) -> Path:
         from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
         upload_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
@@ -62,6 +68,9 @@ class ImportTestMixin(TestCase):
         return upload_dir
 
     def remove_import_files(self):
+        """
+        Removes all files that are referenced in the import metadata file
+        """
         import_dir = self._get_import_dir()
         files = import_dir.glob("*")
 
@@ -71,8 +80,11 @@ class ImportTestMixin(TestCase):
             else:
                 shutil.rmtree(file)
 
-    def remove_upload_files(self):
-        upload_dir = self._get_upload_dir()
+    def remove_documenten_files(self):
+        """
+        Removes the files that are linked to EIO's
+        """
+        upload_dir = self._get_documenten_dir()
         files = upload_dir.glob("*")
 
         for file in files:

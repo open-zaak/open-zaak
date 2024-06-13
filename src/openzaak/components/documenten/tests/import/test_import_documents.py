@@ -7,6 +7,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from django.db import IntegrityError, OperationalError
+from django.conf import settings
 from django.test import TestCase, override_settings
 
 import requests_mock
@@ -34,14 +35,27 @@ from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
+def _get_test_dir() -> Path:
+    import_test_dir = Path(__file__).parent.resolve()
+    return import_test_dir / "files"
+
 
 @override_settings(
     ALLOWED_HOSTS=["testserver"],
-    IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir(),
+    IMPORT_DOCUMENTEN_BASE_DIR=str(_get_test_dir()),
     IMPORT_DOCUMENTEN_BATCH_SIZE=2,
 )
 class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
+
+    clean_import_files = False
+    clean_documenten_files = True
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.test_data_path = _get_test_dir()
 
     @classmethod
     def setUpTestData(cls):
@@ -77,49 +91,21 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         super().setUp()
 
     def test_simple_import(self):
-        zaken = {1: ZaakFactory(), 2: ZaakFactory()}
-
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-                zaak_uuid=str(zaken[2].uuid),
-            ),
+        zaken = {
+            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
+            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
         }
 
-        import_file = StringIO()
+        import_file_path = self.test_data_path / "import.csv"
 
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         import_documents(import_instance.pk)
 
@@ -152,35 +138,19 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_total_smaller_than_batch_size(self):
-        zaken = {1: ZaakFactory()}
+        zaken = {1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")}
 
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
-        }
 
-        import_file = StringIO()
+        import_file_path = self.test_data_path / "import-smaller-batch.csv"
 
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         import_documents(import_instance.pk)
 
@@ -213,54 +183,21 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_last_batch_is_not_full_batch(self):
-        zaken = {1: ZaakFactory(), 2: ZaakFactory()}
-
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-                zaak_uuid=str(zaken[2].uuid),
-            ),
-            5: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-5.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
+        zaken = {
+            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
+            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
         }
 
-        import_file = StringIO()
+        import_file_path = self.test_data_path / "import-last-batch-not-full.csv"
 
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         import_documents(import_instance.pk)
 
@@ -293,45 +230,16 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_batch_validation_errors(self):
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                uuid="foobar",  # Note the incorrect uuid
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-            ),
-        }
+        import_file_path = self.test_data_path / "import-batch-validation-errors.csv"
 
-        import_file = StringIO()
-
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         import_documents(import_instance.pk)
 
@@ -380,64 +288,44 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         autospec=True,
     )
     def test_database_connection_loss(self, mocked_bulk_create, mocked_uuid):
-        zaken = {1: ZaakFactory(), 2: ZaakFactory()}
-
-        absent_files = ("test-file-3.docx", "test-file-4.docx")
-
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad=absent_files[0],
-                uuid=str(uuid4()),
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad=absent_files[1],
-                zaak_uuid=str(zaken[2].uuid),
-                uuid=str(uuid4()),
-            ),
+        zaken = {
+            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
+            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
         }
 
-        import_file = StringIO()
+        absent_files = ("test-file-3.odt", "test-file-4.odt")
 
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
+        import_file_path = self.test_data_path / "import-database-connection-loss.csv"
 
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
-
-        random_eios = EnkelvoudigInformatieObjectFactory.create_batch(
-            size=2, informatieobjecttype=self.informatieobjecttype
+        random_eios = (
+            EnkelvoudigInformatieObjectFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                uuid="22a42371-da49-4098-b8fd-ef3d593d2b4c"
+            ),
+            EnkelvoudigInformatieObjectFactory(
+                informatieobjecttype=self.informatieobjecttype,
+                uuid="9c8f7c02-a26e-42a2-bd27-44d4af1de112"
+            ),
         )
 
         mocked_bulk_create.side_effect = (random_eios, OperationalError)
 
-        mocked_uuid.side_effect = [eio.uuid for eio in random_eios]
+        mocked_uuid.side_effect = tuple(eio.uuid for eio in random_eios)
 
         import_documents(import_instance.pk)
 
         import_instance.refresh_from_db()
+
+        mocked_bulk_create.assert_called()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 2)
 
@@ -488,50 +376,22 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         autospec=True,
     )
     def test_integrity_error(self, mocked_bulk_create, mocked_uuid):
-        zaken = {1: ZaakFactory(), 2: ZaakFactory()}
-
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaken[1].uuid),
-                uuid=str(uuid4()),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-                zaak_uuid=str(zaken[2].uuid),
-            ),
+        zaken = {
+            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
+            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
         }
 
-        import_file = StringIO()
 
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
+        import_file_path = self.test_data_path / "import-integrity-error.csv"
 
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         random_eios = EnkelvoudigInformatieObjectFactory.create_batch(
             size=2, informatieobjecttype=self.informatieobjecttype
@@ -542,6 +402,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         mocked_uuid.side_effect = [eio.uuid for eio in random_eios]
 
         import_documents(import_instance.pk)
+
+        mocked_bulk_create.assert_called()
 
         import_instance.refresh_from_db()
 
@@ -583,49 +445,18 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
     def test_unknown_zaak_uuid(self):
-        zaken = {1: ZaakFactory()}
+        zaken = {1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")}
 
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid="36df518e-7dff-4af3-be96-ccca0c6e6a2e",  # unknown
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-                zaak_uuid=str(zaken[1].uuid),
-            ),
-        }
+        import_file_path = self.test_data_path / "import-unknown-zaak-uuid.csv"
 
-        import_file = StringIO()
-
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         import_documents(import_instance.pk)
 
@@ -669,46 +500,16 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     def test_zaak_integrity_error(self):
         zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaak.uuid),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-            ),
-        }
+        import_file_path = self.test_data_path / "import-zaak-integrity-error.csv"
 
-        import_file = StringIO()
-
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         with patch(
             "openzaak.components.documenten.tasks.ZaakInformatieObject.save"
@@ -718,6 +519,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             import_documents(import_instance.pk)
 
         import_instance.refresh_from_db()
+
+        mocked_save.assert_called()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 2)
 
@@ -766,46 +569,16 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     def test_zaak_database_error(self):
         zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
-        import_data = {
-            1: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-1.docx",
-                zaak_uuid=str(zaak.uuid),
-            ),
-            2: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-2.docx",
-                uuid=str(uuid4()),
-            ),
-            3: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-3.docx",
-            ),
-            4: DocumentRowFactory(
-                informatieobjecttype=self.informatieobjecttype,
-                bestandspad="test-file-4.docx",
-            ),
-        }
+        import_file_path = self.test_data_path / "import-zaak-database-error.csv"
 
-        import_file = StringIO()
-
-        csv_writer = csv.writer(import_file, delimiter=",", quotechar='"')
-        csv_writer.writerow(DocumentRow.export_headers)
-
-        for index, row in import_data.items():
-            csv_writer.writerow(row)
-
-        import_file.seek(0)
-
-        self.addCleanup(import_file.close)
-
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            import_file__data=import_file.read(),
-            total=0,
-            report_file=None,
-        )
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
 
         with patch(
             "openzaak.components.documenten.tasks.ZaakInformatieObject.save"

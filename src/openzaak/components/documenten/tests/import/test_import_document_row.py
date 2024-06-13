@@ -41,6 +41,9 @@ from openzaak.utils.fields import get_default_path
 class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
 
+    clean_documenten_files = True
+    clean_import_files = True
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()

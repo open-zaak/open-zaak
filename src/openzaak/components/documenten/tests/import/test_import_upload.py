@@ -40,6 +40,9 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
+    clean_documenten_files = True
+    clean_import_files = True
+
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_valid_upload(self, import_document_task_mock):
         import_instance = self.create_import(
