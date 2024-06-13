@@ -8,3 +8,18 @@ from openzaak.import_data.models import Import
 @admin.register(Import)
 class ImportAdmin(admin.ModelAdmin):
     model = Import
+
+    list_display = (
+        "uuid",
+        "status",
+        "import_type",
+        "started_on",
+        "finished_on",
+    )
+
+    list_filter = (
+        "status",
+        "import_type",
+    )
+
+    ordering = ("-created_on", "-finished_on")
