@@ -4132,7 +4132,7 @@ paths:
         schema:
           type: string
           enum:
-          - application/json
+          - test/csv
         description: Content type van de verzoekinhoud.
         required: true
       - in: path

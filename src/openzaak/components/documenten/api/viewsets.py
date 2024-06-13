@@ -485,6 +485,16 @@ def _get_import_headers():
             "actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
+        parameters=[
+            OpenApiParameter(
+                name="Content-Type",
+                required=True,
+                location=OpenApiParameter.HEADER,
+                description="Content type van de verzoekinhoud.",
+                type=OpenApiTypes.STR,
+                enum=["test/csv"]
+            )
+        ],
         responses={
             status.HTTP_200_OK: OpenApiTypes.NONE,
             **VALIDATION_ERROR_RESPONSES,
