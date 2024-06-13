@@ -33,6 +33,8 @@ services:
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - SUBPATH=${SUBPATH:-/}
+      - IMPORT_DOCUMENTEN_BASE_DIR=${IMPORT_DOCUMENTEN_BASE_DIR:-/app/import-data}
+      - IMPORT_DOCUMENTEN_BATCH_SIZE=${IMPORT_DOCUMENTEN_BATCH_SIZE:-500}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
       - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
@@ -56,6 +58,7 @@ services:
     volumes: &app-volumes
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
+      - import-data:/app/import-data
     depends_on:
       web-init:
         condition: service_completed_successfully
@@ -103,3 +106,4 @@ volumes:
   db:
   media:
   private-media:
+  import-data:
