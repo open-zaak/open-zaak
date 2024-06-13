@@ -485,7 +485,11 @@ def _get_import_headers():
             "actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         request={"text/csv": OpenApiTypes.BYTE},
-        responses={(status.HTTP_200_OK): OpenApiTypes.NONE},
+        responses={
+        status.HTTP_200_OK: OpenApiTypes.NONE,
+        **VALIDATION_ERROR_RESPONSES,
+        **COMMON_ERROR_RESPONSES,
+        },
     )
 )
 class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
