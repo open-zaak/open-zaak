@@ -91,10 +91,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         super().setUp()
 
     def test_simple_import(self):
-        zaken = {
-            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
-            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
-        }
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
 
         import_file_path = self.test_data_path / "import.csv"
 
@@ -111,7 +109,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_instance.refresh_from_db()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 4)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 4)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -138,7 +142,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_total_smaller_than_batch_size(self):
-        zaken = {1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")}
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
 
 
         import_file_path = self.test_data_path / "import-smaller-batch.csv"
@@ -183,10 +187,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
     def test_last_batch_is_not_full_batch(self):
-        zaken = {
-            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
-            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
-        }
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
 
         import_file_path = self.test_data_path / "import-last-batch-not-full.csv"
 
@@ -203,7 +205,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_instance.refresh_from_db()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 5)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 5)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 5)
         self.assertEqual(import_instance.processed, 5)
@@ -245,7 +253,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_instance.refresh_from_db()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 3)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 3)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -288,10 +302,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         autospec=True,
     )
     def test_database_connection_loss(self, mocked_bulk_create, mocked_uuid):
-        zaken = {
-            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
-            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
-        }
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
 
         absent_files = ("test-file-3.odt", "test-file-4.odt")
 
@@ -327,7 +339,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         mocked_bulk_create.assert_called()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 2)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 2)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -376,11 +394,8 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         autospec=True,
     )
     def test_integrity_error(self, mocked_bulk_create, mocked_uuid):
-        zaken = {
-            1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341"),
-            2: ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
-        }
-
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
 
         import_file_path = self.test_data_path / "import-integrity-error.csv"
 
@@ -407,7 +422,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_instance.refresh_from_db()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 2)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 2)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -445,7 +466,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(import_instance.status, ImportStatusChoices.finished)
 
     def test_unknown_zaak_uuid(self):
-        zaken = {1: ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")}
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
 
         import_file_path = self.test_data_path / "import-unknown-zaak-uuid.csv"
 
@@ -462,7 +483,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_instance.refresh_from_db()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 3)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 3)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -498,7 +525,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 self.assertEqual(row[-2], "")
 
     def test_zaak_integrity_error(self):
-        zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
+        ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
         import_file_path = self.test_data_path / "import-zaak-integrity-error.csv"
 
@@ -522,7 +549,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         mocked_save.assert_called()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 2)
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 2)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
 
         self.assertEqual(import_instance.total, 4)
         self.assertEqual(import_instance.processed, 4)
@@ -567,7 +600,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 self.assertEqual(row[-2], "")
 
     def test_zaak_database_error(self):
-        zaak = ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
+        ZaakFactory(uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf")
 
         import_file_path = self.test_data_path / "import-zaak-database-error.csv"
 

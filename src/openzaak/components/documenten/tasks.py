@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 def _import_document_row(
     row: list[str],
     row_index: int,
+    identifier: str,
     existing_uuids: list[str],
     zaak_uuids: dict[str, int],
 ) -> DocumentRow:
@@ -144,9 +145,7 @@ def _import_document_row(
     instance.canonical = EnkelvoudigInformatieObjectCanonical()
 
     if not instance.identificatie:
-        instance.identificatie = generate_unique_identification(
-            instance, "creatiedatum"
-        )
+        instance.identificatie = identifier
 
     zaak_uuid = document_row.zaak_uuid
 
@@ -289,6 +288,23 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         row.succeeded = True
 
 
+def _get_identifiers(size: int) -> list[str]:
+    now = timezone.now()
+    dummy_instance = EnkelvoudigInformatieObject(creatiedatum=now.date())
+    first_identifier = generate_unique_identification(
+        dummy_instance, "creatiedatum"
+    )
+
+    _range = size - 1 if size else 0 # don't count the first identifier
+
+    model_name, year, number = first_identifier.split("-")
+    identifiers = [
+        f"{model_name}-{year}-{int(number) + 1}" for i in range(_range)
+    ]
+
+    return [first_identifier, *identifiers]
+
+
 # TODO: make this more generic?
 @celery_app.task(bind=True)
 @task_locker
@@ -310,6 +326,8 @@ def import_documents(self, import_pk: int) -> None:
         str(uuid) for uuid in EnkelvoudigInformatieObject.objects.values_list("uuid")
     ]
 
+    identifiers = []
+
     for row_index, row in get_csv_generator(file_path):
         if row_index == 1:  # skip the header row
             continue
@@ -319,7 +337,15 @@ def import_documents(self, import_pk: int) -> None:
                 f"Starting batch {import_instance.get_batch_number(batch_size)}"
             )
 
-        document_row = _import_document_row(row, row_index, eio_uuids, zaak_uuids)
+            identifiers = _get_identifiers(batch_size)
+
+        document_row = _import_document_row(
+            row,
+            row_index,
+            identifiers.pop(),
+            eio_uuids,
+            zaak_uuids,
+        )
 
         if document_row.instance and document_row.instance.uuid:
             eio_uuids.append(str(document_row.instance.uuid))

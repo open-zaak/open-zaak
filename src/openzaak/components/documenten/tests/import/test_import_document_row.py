@@ -9,8 +9,12 @@ from uuid import uuid4
 from django.test import TestCase, override_settings
 
 import requests_mock
+
+from django.utils import timezone
+
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
+
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -58,6 +62,9 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
+        now = timezone.now()
+        cls.creatiedatum = now.date()
+
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
@@ -98,7 +105,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -165,7 +177,14 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             trefwoorden='"foo,bar"',
         )
 
-        document_row = _import_document_row(row, 0, [], {str(zaak.uuid): zaak.pk})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(
+            row, 0, identifier, [], {str(zaak.uuid): zaak.pk}
+        )
 
         eio = document_row.instance
 
@@ -235,7 +254,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -267,7 +291,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row[:5], 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row[:5], 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -297,7 +326,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -328,7 +362,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -365,7 +404,14 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [str(existing_eio.uuid)], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(
+            row, 0, identifier, [str(existing_eio.uuid)], {}
+        )
 
         eio = document_row.instance
 
@@ -403,7 +449,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             zaak_uuid="b0f3681d-945a-4b30-afcb-12cad0a3eeaf",
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -438,7 +489,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             ignore_import_path=True,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -471,7 +527,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
@@ -512,7 +573,12 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
         )
 
-        document_row = _import_document_row(row, 0, [], {})
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+            "creatiedatum"
+        )
+
+        document_row = _import_document_row(row, 0, identifier, [], {})
 
         eio = document_row.instance
 
