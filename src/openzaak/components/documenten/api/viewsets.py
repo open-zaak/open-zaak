@@ -561,7 +561,7 @@ def _get_report_headers():
             "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
             "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
             "ingeschakeld. De volgende kolommen zijn te vinden in het rapportage "
-            f"bestand: {_get_report_headers()}. Voor deze actie is een APPLICATIE"
+            f"bestand: {_get_report_headers()}. Voor deze actie is een APPLICATIE "
             "nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         responses={
