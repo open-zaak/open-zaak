@@ -12,7 +12,6 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
-from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zgw_consumers.models import Service
 
 from openzaak.components.autorisaties.models import AutorisatieSpec
@@ -56,7 +55,6 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
-        validators=[alphanumeric_excluding_diacritic],
         db_index=True,
     )
     zaaktype_omschrijving = models.CharField(
@@ -305,7 +303,6 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_(
             "De Zaaktype-identificatie van het bronzaaktype binnen de CATALOGUS."
         ),
-        validators=[alphanumeric_excluding_diacritic],
     )
     bronzaaktype_omschrijving = models.CharField(
         _("bronzaaktype omschrijving"),
