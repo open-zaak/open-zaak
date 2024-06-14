@@ -3851,8 +3851,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIEnodig
-        met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIE
+        nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -8526,13 +8526,9 @@ components:
       type: object
       properties:
         oud:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object zoals dat bestond voordat
             de actie heeft plaatsgevonden.
         nieuw:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object na de actie.
   securitySchemes:
     JWT-Claims:
