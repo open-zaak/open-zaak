@@ -348,6 +348,54 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
 
+    @tag("gh-1353")
+    def test_add_resultaat_on_zaak_with_eigenschap_dotted_datumkenmerk(self,):
+        """
+        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        """
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        ZaakEigenschapFactory.create(
+            zaak=zaak, _naam="dotted.brondatum", waarde=isodatetime(2019, 1, 1)
+        )
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.eigenschap,
+            brondatum_archiefprocedure_datumkenmerk="dotted.brondatum",
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
+
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        status_create_url = get_operation_url("status_create")
+        data = {
+            "zaak": zaak_url,
+            "statustype": f"http://testserver{statustype_url}",
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
+
     def test_add_resultaat_on_zaak_with_incorrect_eigenschap_fails(self):
         """
         Attempt to add RESULTAAT with incorrect ZTC-configuration.
@@ -599,6 +647,128 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2023, 1, 1))
+
+    @tag("gh-1353")
+    @requests_mock.Mocker()
+    def test_add_resultaat_on_zaak_with_remote_zaakobject_dotted_datum_kenmerk(self, m):
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_object1 = ZaakObjectFactory.create(zaak=zaak)
+        zaak_object2 = ZaakObjectFactory.create(
+            zaak=zaak, object_type=zaak_object1.object_type
+        )
+        for api_root in [zaak_object1.object, zaak_object2.object]:
+            Service.objects.create(
+                api_type=APITypes.orc,
+                api_root=api_root,
+                label="BAG",
+                auth_type=AuthTypes.no_auth,
+            )
+            mock_service_oas_get(m, api_root, service="empty")
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_datumkenmerk="record.einddatum",
+            brondatum_archiefprocedure_objecttype=zaak_object1.object_type,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        m.get(zaak_object1.object, json={"record.einddatum": isodatetime(2019, 1, 1)})
+        m.get(zaak_object2.object, json={"record.einddatum": isodatetime(2022, 1, 1)})
+
+        # add resultaat
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": f"http://testserver{statustype_url}",
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2032, 1, 1))
+
+    @tag("gh-1353")
+    @requests_mock.Mocker()
+    def test_add_resultaat_on_zaak_with_remote_zaakobject_nested_datum_kenmerk(self, m):
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_object1 = ZaakObjectFactory.create(zaak=zaak)
+        zaak_object2 = ZaakObjectFactory.create(
+            zaak=zaak, object_type=zaak_object1.object_type
+        )
+        for api_root in [zaak_object1.object, zaak_object2.object]:
+            Service.objects.create(
+                api_type=APITypes.orc,
+                api_root=api_root,
+                label="BAG",
+                auth_type=AuthTypes.no_auth,
+            )
+            mock_service_oas_get(m, api_root, service="empty")
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_datumkenmerk="record/einddatum",
+            brondatum_archiefprocedure_objecttype=zaak_object1.object_type,
+            zaaktype=zaak.zaaktype,
+        )
+        resultaattype_url = reverse(resultaattype)
+        m.get(
+            zaak_object1.object, json={"record": {"einddatum": isodatetime(2019, 1, 1)}}
+        )
+        m.get(
+            zaak_object2.object, json={"record": {"einddatum": isodatetime(2022, 1, 1)}}
+        )
+
+        # add resultaat
+        resultaat_create_url = get_operation_url("resultaat_create")
+        data = {
+            "zaak": zaak_url,
+            "resultaattype": f"http://testserver{resultaattype_url}",
+            "toelichting": "",
+        }
+
+        response = self.client.post(resultaat_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # add final status to the case to close it and to calculate archive parameters
+        status_create_url = get_operation_url("status_create")
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        statustype_url = reverse(statustype)
+        data = {
+            "zaak": zaak_url,
+            "statustype": f"http://testserver{statustype_url}",
+            "datumStatusGezet": "2018-10-18T20:00:00Z",
+        }
+
+        response = self.client.post(status_create_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2032, 1, 1))
 
     def test_add_resultaat_on_zaak_with_procestermijn_causes_archiefactiedatum_to_be_set(
         self,
