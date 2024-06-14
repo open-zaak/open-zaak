@@ -446,6 +446,7 @@ class EnkelvoudigInformatieObjectViewSet(
 @extend_schema_view(
     create=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_create",
+        auth=["JWT-Claims"],
         summary=_("Een IMPORT creeren"),
         description=mark_experimental(
             "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
@@ -528,6 +529,7 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
 @extend_schema_view(
     retrieve=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_status",
+        auth=["JWT-Claims"],
         summary=_("De status van een IMPORT opvragen."),
         description=mark_experimental(
             "Het opvragen van de status van een IMPORT. Deze actie is niet "
@@ -555,6 +557,7 @@ def _get_report_headers():
 @extend_schema_view(
     retrieve=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_report",
+        auth=["JWT-Claims"],
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=mark_experimental(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
