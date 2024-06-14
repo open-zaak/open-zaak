@@ -164,7 +164,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response_data = response.json()
-        self.assertEqual(len(response_data), 4)
+        self.assertEqual(len(response_data), 5)
 
 
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):

@@ -49,7 +49,13 @@ class ResultaatFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -77,7 +83,13 @@ class RolFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -105,7 +117,13 @@ class StatusFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -160,7 +178,13 @@ class ZaakObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(
                     response.data,
-                    {"count": 0, "next": None, "previous": None, "results": []},
+                    {
+                        "count": 0,
+                        "next": None,
+                        "previous": None,
+                        "count_exact": False,
+                        "results": [],
+                    },
                 )
 
 
@@ -185,7 +209,14 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
     @tag("gh-1023")

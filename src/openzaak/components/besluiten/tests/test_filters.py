@@ -69,7 +69,14 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data, {"count": 0, "next": None, "previous": None, "results": []}
+            response.data,
+            {
+                "count": 0,
+                "next": None,
+                "previous": None,
+                "count_exact": False,
+                "results": [],
+            },
         )
 
 
