@@ -32,6 +32,7 @@ from ..models import (
     StatusType,
     ZaakObjectType,
     ZaakType,
+    ZaakTypeInformatieObjectType,
     ZaakTypenRelatie,
 )
 from ..validators import validate_zaaktype_for_publish
@@ -39,6 +40,7 @@ from .admin_views import ZaaktypePublishView
 from .eigenschap import EigenschapAdmin
 from .filters import GeldigheidFilter
 from .forms import ZaakTypeForm, ZaakTypenRelatieAdminForm
+from .informatieobjecttype import ZaakTypeInformatieObjectTypeAdmin
 from .mixins import (
     CatalogusContextAdminMixin,
     ExportMixin,
@@ -116,6 +118,12 @@ class ZaakObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakObjectType
     fk_name = "zaaktype"
     fields = ZaakObjectTypeAdmin.list_display
+
+
+class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakTypeInformatieObjectType
+    fk_name = "zaaktype"
+    fields = ZaakTypeInformatieObjectTypeAdmin.list_display
 
 
 @admin.register(ZaakType)
@@ -265,6 +273,7 @@ class ZaakTypeAdmin(
         EigenschapInline,
         ResultaatTypeInline,
         ZaakObjectTypeInline,
+        ZaakTypeInformatieObjectTypeInline,
     )
     change_form_template = "admin/catalogi/change_form_zaaktype.html"
     exclude_copy_relation = ("zaak",)
@@ -340,6 +349,7 @@ class ZaakTypeAdmin(
             link_to_related_objects(ResultaatType, obj),
             link_to_related_objects(ZaakTypenRelatie, obj),
             link_to_related_objects(ZaakObjectType, obj),
+            link_to_related_objects(ZaakTypeInformatieObjectType, obj),
         )
 
     def formfield_for_dbfield(self, db_field: Field, request: HttpRequest, **kwargs):
