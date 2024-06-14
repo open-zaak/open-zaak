@@ -4149,6 +4149,8 @@ paths:
             schema:
               type: string
               format: byte
+      security:
+      - JWT-Claims
       responses:
         '200':
           headers:

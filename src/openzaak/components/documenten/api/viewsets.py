@@ -475,6 +475,7 @@ def _get_import_headers():
 @extend_schema_view(
     create=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_upload",
+        auth=["JWT-Claims"],
         summary=_("Een IMPORT bestand uploaden"),
         description=mark_experimental(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
