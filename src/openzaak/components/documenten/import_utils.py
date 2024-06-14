@@ -99,6 +99,12 @@ class DocumentRow:
         return self._uuid
 
     @property
+    def identificatie(self) -> str:
+        if self.instance and self.instance.identificatie:
+            return self.instance.identificatie
+        return self._identificatie
+
+    @property
     def bronorganisatie(self) -> str:
         return self._bronorganisatie
 
@@ -282,6 +288,7 @@ class DocumentRow:
         return {
             **self.as_original(),
             "uuid": self.uuid,
+            "identificatie": self.identificatie,
             "opmerking": self.comment,
             "resultaat": self.result,
         }
