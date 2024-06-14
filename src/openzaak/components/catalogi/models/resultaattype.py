@@ -145,7 +145,9 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         blank=True,
         help_text=_(
             "Naam van de attribuutsoort van het procesobject dat "
-            "bepalend is voor het einde van de procestermijn."
+            "bepalend is voor het einde van de procestermijn. "
+            "**EXPERIMENTEEL**: In het geval van afleidingswijze zaakobject kunnen nested attributen "
+            "gespecificeerd worden door middel van `/` (bijv. `some/nested/path`)"
         ),
     )
     brondatum_archiefprocedure_einddatum_bekend = models.BooleanField(

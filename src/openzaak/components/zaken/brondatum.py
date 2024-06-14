@@ -7,6 +7,7 @@ from django.db.models import Max
 from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
+from glom import Path, glom
 from relativedeltafield.utils import parse_relativedelta
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
@@ -141,14 +142,16 @@ def get_brondatum(
                 )
             )
 
+        # Nested `datumkenmerk` can be specified with `/`
+        datum_kenmerk_path = Path(*datum_kenmerk.split("/"))
         dates = []
         for zaak_object in zaak.zaakobject_set.filter(object_type=objecttype):
             if zaak_object.object:
                 remote_object = zaak_object._get_object()
-                value = remote_object.get(datum_kenmerk)
+                value = glom(remote_object, datum_kenmerk_path, default=None)
             else:
                 local_object = getattr(zaak_object, objecttype.replace("_", ""))
-                value = getattr(local_object, datum_kenmerk, None)
+                value = glom(local_object, datum_kenmerk_path, default=None)
 
             if value is None:
                 raise DetermineProcessEndDateException(
