@@ -7,14 +7,11 @@ from unittest.mock import patch
 from uuid import uuid4
 
 from django.test import TestCase, override_settings
-
-import requests_mock
-
 from django.utils import timezone
 
+import requests_mock
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
-
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
@@ -106,8 +103,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -178,8 +174,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(
@@ -255,8 +250,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -292,8 +286,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row[:5], 0, identifier, [], {})
@@ -327,8 +320,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -363,8 +355,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -405,8 +396,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(
@@ -450,8 +440,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -490,8 +479,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -528,8 +516,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})
@@ -574,8 +561,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
-            "creatiedatum"
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
         document_row = _import_document_row(row, 0, identifier, [], {})

@@ -1,13 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
-from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
-from uuid import uuid4
 
 from django.db import IntegrityError, OperationalError
-from django.conf import settings
 from django.test import TestCase, override_settings
 
 import requests_mock
@@ -18,7 +15,6 @@ from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.components.documenten.tests.factories import (
-    DocumentRowFactory,
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.documenten.tests.utils import (
@@ -31,9 +27,10 @@ from openzaak.import_data.models import (
     ImportStatusChoices,
     ImportTypeChoices,
 )
-from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
+from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
+
 
 def _get_test_dir() -> Path:
     import_test_dir = Path(__file__).parent.resolve()
@@ -143,7 +140,6 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
     def test_total_smaller_than_batch_size(self):
         ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
-
 
         import_file_path = self.test_data_path / "import-smaller-batch.csv"
 
@@ -321,11 +317,11 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         random_eios = (
             EnkelvoudigInformatieObjectFactory(
                 informatieobjecttype=self.informatieobjecttype,
-                uuid="22a42371-da49-4098-b8fd-ef3d593d2b4c"
+                uuid="22a42371-da49-4098-b8fd-ef3d593d2b4c",
             ),
             EnkelvoudigInformatieObjectFactory(
                 informatieobjecttype=self.informatieobjecttype,
-                uuid="9c8f7c02-a26e-42a2-bd27-44d4af1de112"
+                uuid="9c8f7c02-a26e-42a2-bd27-44d4af1de112",
             ),
         )
 

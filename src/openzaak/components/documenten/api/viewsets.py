@@ -493,7 +493,7 @@ def _get_import_headers():
                 location=OpenApiParameter.HEADER,
                 description="Content type van de verzoekinhoud.",
                 type=OpenApiTypes.STR,
-                enum=["test/csv"]
+                enum=["test/csv"],
             )
         ],
         responses={

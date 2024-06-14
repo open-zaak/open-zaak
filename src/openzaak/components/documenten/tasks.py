@@ -291,16 +291,12 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
 def _get_identifiers(size: int) -> list[str]:
     now = timezone.now()
     dummy_instance = EnkelvoudigInformatieObject(creatiedatum=now.date())
-    first_identifier = generate_unique_identification(
-        dummy_instance, "creatiedatum"
-    )
+    first_identifier = generate_unique_identification(dummy_instance, "creatiedatum")
 
-    _range = size - 1 if size else 0 # don't count the first identifier
+    _range = size - 1 if size else 0  # don't count the first identifier
 
     model_name, year, number = first_identifier.split("-")
-    identifiers = [
-        f"{model_name}-{year}-{int(number) + 1}" for i in range(_range)
-    ]
+    identifiers = [f"{model_name}-{year}-{int(number) + 1}" for i in range(_range)]
 
     return [first_identifier, *identifiers]
 
@@ -340,11 +336,7 @@ def import_documents(self, import_pk: int) -> None:
             identifiers = _get_identifiers(batch_size)
 
         document_row = _import_document_row(
-            row,
-            row_index,
-            identifiers.pop(),
-            eio_uuids,
-            zaak_uuids,
+            row, row_index, identifiers.pop(), eio_uuids, zaak_uuids,
         )
 
         if document_row.instance and document_row.instance.uuid:
