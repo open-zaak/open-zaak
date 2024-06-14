@@ -208,6 +208,58 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         )
         self.assertEqual(zaaktype.concept, True)
 
+    @tag("gh-1306")
+    def test_create_zaaktype_identificatie_all_characters_allowed(self):
+        besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
+        besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)
+
+        zaaktype_list_url = get_operation_url("zaaktype_list")
+        data = {
+            "identificatie": "some zääktype",
+            "doel": "some test",
+            "aanleiding": "some test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "some test",
+            "gerelateerdeZaaktypen": [
+                {
+                    "zaaktype": "http://example.com/zaaktype/1",
+                    "aard_relatie": AardRelatieChoices.bijdrage,
+                    "toelichting": "test relations",
+                }
+            ],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "besluittypen": [f"http://testserver{besluittype_url}"],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+        }
+        response = self.client.post(zaaktype_list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaaktype = ZaakType.objects.get(zaaktype_omschrijving="some test")
+
+        self.assertEqual(zaaktype.catalogus, self.catalogus)
+        self.assertEqual(zaaktype.besluittypen.get(), besluittype)
+        self.assertEqual(zaaktype.referentieproces_naam, "ReferentieProces 0")
+        self.assertEqual(
+            zaaktype.zaaktypenrelaties.get().gerelateerd_zaaktype,
+            "http://example.com/zaaktype/1",
+        )
+        self.assertEqual(zaaktype.concept, True)
+
     def test_create_zaaktype_referentieproces_no_link(self):
         besluittype = BesluitTypeFactory.create(catalogus=self.catalogus)
         besluittype_url = get_operation_url("besluittype_read", uuid=besluittype.uuid)

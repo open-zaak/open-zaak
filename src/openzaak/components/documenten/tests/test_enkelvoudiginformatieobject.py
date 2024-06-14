@@ -128,6 +128,92 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
+    @tag("gh-1306")
+    def test_create_identificatie_all_characters_allowed(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+        content = {
+            "identificatie": "some docüment",
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+            "verschijningsvorm": "Vorm A",
+            "trefwoorden": ["some", "other"],
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+
+        # Test response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Test database
+        stored_object = EnkelvoudigInformatieObject.objects.get()
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(stored_object.identificatie, content["identificatie"])
+        self.assertEqual(stored_object.bronorganisatie, "159351741")
+        self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
+        self.assertEqual(stored_object.titel, "detailed summary")
+        self.assertEqual(stored_object.auteur, "test_auteur")
+        self.assertEqual(stored_object.formaat, "txt")
+        self.assertEqual(stored_object.taal, "eng")
+        self.assertEqual(stored_object.versie, 1)
+        self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())
+        self.assertEqual(stored_object.bestandsnaam, "dummy.txt")
+        self.assertEqual(stored_object.inhoud.read(), b"some file content")
+        self.assertEqual(stored_object.link, "http://een.link")
+        self.assertEqual(stored_object.beschrijving, "test_beschrijving")
+        self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
+        self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
+        self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
+        self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+
+        expected_url = reverse(stored_object)
+        expected_file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=stored_object.uuid
+        )
+
+        expected_response = content.copy()
+        expected_response.update(
+            {
+                "url": f"http://testserver{expected_url}",
+                "inhoud": f"http://testserver{expected_file_url}?versie=1",
+                "versie": 1,
+                "bestandsdelen": [],
+                "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
+                    "+00:00", "Z"
+                ),
+                "vertrouwelijkheidaanduiding": "openbaar",
+                "bestandsomvang": stored_object.inhoud.size,
+                "integriteit": {"algoritme": "", "waarde": "", "datum": None},
+                "ontvangstdatum": None,
+                "verzenddatum": None,
+                "ondertekening": {"soort": "", "datum": None},
+                "indicatieGebruiksrecht": None,
+                "status": "",
+                "locked": False,
+                "lock": "",
+                "verschijningsvorm": "Vorm A",
+            }
+        )
+
+        response_data = response.json()
+        self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
+
+        for key in response_data.keys():
+            with self.subTest(field=key):
+                self.assertEqual(response_data[key], expected_response[key])
+
     def test_create_without_identificatie(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)

@@ -140,6 +140,40 @@ class ZaaktypeAdminTests(
         self.assertEqual(zaaktype.verantwoordingsrelatie, [])
         self.assertEqual(zaaktype.producten_of_diensten, [])
 
+    @tag("gh-1306")
+    def test_submit_zaaktype_identificatie_all_characters_allowed(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.form
+
+        form["identificatie"] = "some zääktype"
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
+
+        response = form.submit()
+
+        # redirect on successful create, 200 on validation errors, 500 on db errors
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.count(), 1)
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.identificatie, "some zääktype")
+
     def test_doorlooptijd_behandeling_is_required(self, m):
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
