@@ -58,7 +58,7 @@ services:
     volumes: &app-volumes
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
-      - import-data:/app/import-data
+      - ./import-data:/app/import-data
     depends_on:
       web-init:
         condition: service_completed_successfully
