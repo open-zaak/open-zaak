@@ -179,12 +179,22 @@ Optional
 * ``LOOSE_FK_LOCAL_BASE_URLS``: explicitly list the allowed prefixes of local urls.
   Defaults to an empty list. This setting can be used to separate local and external urls, when
   Open Zaak and other services are deployed within the same domain or API Gateway.
-  If this setting is not defined, all urls with the same host as in the request are considered local. 
+  If this setting is not defined, all urls with the same host as in the request are considered local.
   Example:
   ``LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/``
 
 * ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde``
   property would be validated against the related ``Eigenschap.specificatie``. Defaults to ``False``.
+
+.. _import_documenten_base_dir:
+* ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path
+  of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This
+  value is used to determine the file path for each row in the import metadata
+  file. By default this is the same directory as the projects directory (``BASE_DIR``).
+
+.. _import_documenten_batch_size:
+* ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed
+  at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s.
 
 
 Initial superuser creation
@@ -246,7 +256,7 @@ Initial configuration
 ---------------------
 
 Open Zaak supports ``setup_configuration`` management command, which allows configuration via
-environment variables. 
+environment variables.
 All these environment variables are described at :ref:`installation_configuration_cli`.
 
 Specifying the environment variables
