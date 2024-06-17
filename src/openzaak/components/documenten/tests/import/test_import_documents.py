@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.db import IntegrityError, OperationalError
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import TestCase, override_settings
 
 import requests_mock
 from zgw_consumers.constants import APITypes
@@ -68,9 +68,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
-        request_factory = RequestFactory()
-
-        cls.request = request_factory.get("/")
+        cls.request_headers = {"SERVER_NAME": "testserver", "SERVER_PORT": 80}
 
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
@@ -106,7 +104,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 report_file=None,
             )
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -156,7 +154,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 report_file=None,
             )
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -201,7 +199,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 report_file=None,
             )
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -249,7 +247,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 report_file=None,
             )
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -333,7 +331,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         mocked_uuid.side_effect = tuple(eio.uuid for eio in random_eios)
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -416,7 +414,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         mocked_uuid.side_effect = [eio.uuid for eio in random_eios]
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         mocked_bulk_create.assert_called()
 
@@ -479,7 +477,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
                 report_file=None,
             )
 
-        import_documents(import_instance.pk, self.request)
+        import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -543,7 +541,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         ) as mocked_save:
             mocked_save.side_effect = IntegrityError
 
-            import_documents(import_instance.pk, self.request)
+            import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 
@@ -618,7 +616,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         ) as mocked_save:
             mocked_save.side_effect = OperationalError
 
-            import_documents(import_instance.pk, self.request)
+            import_documents(import_instance.pk, self.request_headers)
 
         import_instance.refresh_from_db()
 

@@ -308,11 +308,26 @@ def _get_identifiers(size: int) -> list[str]:
     return [first_identifier, *identifiers]
 
 
+def _reconstruct_request(headers: dict) -> HttpRequest:
+    """
+    Reconstructs the HTTP request headers from the request the task originally was
+    called from. Required for `django_loose_fk`.
+    """
+    request = HttpRequest()
+
+    for key, value in headers.items():
+        request.META[key] = value
+
+    return request
+
+
 # TODO: make this more generic?
 @celery_app.task(bind=True)
 @task_locker
-def import_documents(self, import_pk: int, request: HttpRequest) -> None:
+def import_documents(self, import_pk: int, request_headers: dict) -> None:
     import_instance = Import.objects.get(pk=import_pk)
+
+    request = _reconstruct_request(request_headers)
 
     file_path = import_instance.import_file.path
 

@@ -520,8 +520,14 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
 
         response = super().create(request, *args, **kwargs)
 
+        request_headers = {
+            key: value
+            for key, value in request.META.items()
+            if isinstance(value, (str, int))
+        }
+
         import_instance = self.get_object()
-        import_documents.delay(import_instance.pk, request)
+        import_documents.delay(import_instance.pk, request_headers)
 
         return response
 
