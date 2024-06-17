@@ -187,12 +187,14 @@ Optional
   property would be validated against the related ``Eigenschap.specificatie``. Defaults to ``False``.
 
 .. _import_documenten_base_dir:
+
 * ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path
   of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This
   value is used to determine the file path for each row in the import metadata
   file. By default this is the same directory as the projects directory (``BASE_DIR``).
 
 .. _import_documenten_batch_size:
+
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed
   at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s.
 
