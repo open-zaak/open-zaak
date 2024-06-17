@@ -6,6 +6,8 @@ ik in mijn communicatie snel kan verwijzen naar mijn aanvraag.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/164
 """
+from django.utils.translation import gettext_lazy as _
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -70,3 +72,9 @@ class US164TestCase(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "identificatie")
         self.assertEqual(error["code"], "identificatie-niet-uniek")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Deze identificatie ({identificatie}) bestaat al voor deze bronorganisatie"
+            ).format(identificatie="strtmzk-0001"),
+        )

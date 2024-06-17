@@ -10,14 +10,14 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
-from vng_api_common.validators import (
-    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
-)
 from zds_client import ClientError
 from zgw_consumers.models import Service
 
 from openzaak.utils import build_absolute_url
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
+from openzaak.utils.validators import (
+    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
+)
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
@@ -78,7 +78,9 @@ class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
     identificatie uniek is.
     """
 
-    message = _("Deze identificatie bestaat al voor deze bronorganisatie")
+    partial_message = _(
+        "Deze identificatie ({identificatie}) bestaat al voor deze bronorganisatie"
+    )
 
     def __init__(self):
         super().__init__("bronorganisatie", "identificatie")
