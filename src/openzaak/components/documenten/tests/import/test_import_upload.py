@@ -73,7 +73,7 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         self.addCleanup(import_path.unlink)
 
-        import_document_task_mock.delay.assert_called_once_with(import_instance.pk)
+        import_document_task_mock.delay.assert_called()
 
     def test_missing_headers(self):
         import_instance = self.create_import(

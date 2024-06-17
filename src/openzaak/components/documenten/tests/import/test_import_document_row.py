@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 
 import requests_mock
@@ -62,6 +62,10 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         now = timezone.now()
         cls.creatiedatum = now.date()
 
+        cls.request_factory = RequestFactory()
+
+        cls.request = cls.request_factory.get("/")
+
     def setUp(self):
         self.requests_mock = requests_mock.Mocker()
         self.requests_mock.start()
@@ -106,7 +110,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -178,7 +182,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         document_row = _import_document_row(
-            row, 0, identifier, [], {str(zaak.uuid): zaak.pk}
+            row, 0, identifier, [], {str(zaak.uuid): zaak.pk}, self.request
         )
 
         eio = document_row.instance
@@ -253,7 +257,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -289,7 +293,9 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row[:5], 0, identifier, [], {})
+        document_row = _import_document_row(
+            row[:5], 0, identifier, [], {}, self.request
+        )
 
         eio = document_row.instance
 
@@ -323,7 +329,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -358,7 +364,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -400,7 +406,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
 
         document_row = _import_document_row(
-            row, 0, identifier, [str(existing_eio.uuid)], {}
+            row, 0, identifier, [str(existing_eio.uuid)], {}, self.request
         )
 
         eio = document_row.instance
@@ -443,7 +449,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -482,7 +488,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -519,7 +525,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -564,7 +570,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
         )
 
-        document_row = _import_document_row(row, 0, identifier, [], {})
+        document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
         eio = document_row.instance
 
@@ -574,5 +580,45 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertFalse(document_row.succeeded)
 
         self.assertIn("Unable to copy file for row", document_row.comment)
+
+        self.assertFalse(imported_path.exists())
+
+    def test_invalid_host_header(self):
+        import_file_path = Path("import-test-files/foo.txt")
+        import_file_content = "minimum fields"
+
+        default_imported_file_path = get_default_path(
+            EnkelvoudigInformatieObject.inhoud.field
+        )
+
+        imported_path = Path(default_imported_file_path) / import_file_path.name
+
+        row = DocumentRowFactory(
+            bronorganisatie="706284513",
+            creatiedatum="2024-01-01",
+            titel="Document XYZ",
+            auteur="Auteur Y",
+            taal="nld",
+            bestandspad=str(import_file_path),
+            import_file_content=import_file_content,
+            informatieobjecttype=self.informatieobjecttype,
+        )
+
+        identifier = generate_unique_identification(
+            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
+        )
+
+        request = self.request_factory.get("/", headers={"Host": "foobar.com"})
+
+        document_row = _import_document_row(row, 0, identifier, [], {}, request)
+
+        eio = document_row.instance
+
+        self.assertIsNone(eio)
+
+        self.assertTrue(document_row.processed)
+        self.assertFalse(document_row.succeeded)
+
+        self.assertIn("Unable to import line", document_row.comment)
 
         self.assertFalse(imported_path.exists())

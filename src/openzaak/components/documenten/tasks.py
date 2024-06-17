@@ -6,11 +6,11 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import DisallowedHost, ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
+from django.http import HttpRequest
 from django.utils import timezone
 
-from rest_framework.test import APIRequestFactory
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.utils import generate_unique_identification
 
@@ -43,11 +43,9 @@ def _import_document_row(
     identifier: str,
     existing_uuids: list[str],
     zaak_uuids: dict[str, int],
+    request: HttpRequest,
 ) -> DocumentRow:
     expected_column_count = len(DocumentRow.import_headers)
-
-    request_factory = APIRequestFactory()
-    request = request_factory.get("/")
 
     if len(row) < expected_column_count:
         error_message = (
@@ -85,12 +83,21 @@ def _import_document_row(
         data=import_data, context={"request": request}
     )
 
-    if not eio_serializer.is_valid():
-        error_message = (
-            "A validation error occurred while deserializing a "
-            f"EnkelvoudigInformatieObject on line {row_index}: \n"
-            f"{eio_serializer.errors}"
-        )
+    try:
+        if not eio_serializer.is_valid():
+            error_message = (
+                "A validation error occurred while deserializing a "
+                f"EnkelvoudigInformatieObject on line {row_index}: \n"
+                f"{eio_serializer.errors}"
+            )
+
+            logger.warning(error_message)
+            document_row.comment = error_message
+            document_row.processed = True
+
+            return document_row
+    except DisallowedHost as e:
+        error_message = f"Unable to import line {row_index}: {e}"
 
         logger.warning(error_message)
         document_row.comment = error_message
@@ -304,7 +311,7 @@ def _get_identifiers(size: int) -> list[str]:
 # TODO: make this more generic?
 @celery_app.task(bind=True)
 @task_locker
-def import_documents(self, import_pk: int) -> None:
+def import_documents(self, import_pk: int, request: HttpRequest) -> None:
     import_instance = Import.objects.get(pk=import_pk)
 
     file_path = import_instance.import_file.path
@@ -336,7 +343,7 @@ def import_documents(self, import_pk: int) -> None:
             identifiers = _get_identifiers(batch_size)
 
         document_row = _import_document_row(
-            row, row_index, identifiers.pop(), eio_uuids, zaak_uuids,
+            row, row_index, identifiers.pop(), eio_uuids, zaak_uuids, request
         )
 
         if document_row.instance and document_row.instance.uuid:

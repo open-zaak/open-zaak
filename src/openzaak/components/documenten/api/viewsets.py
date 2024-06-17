@@ -521,7 +521,7 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         response = super().create(request, *args, **kwargs)
 
         import_instance = self.get_object()
-        import_documents.delay(import_instance.pk)
+        import_documents.delay(import_instance.pk, request)
 
         return response
 
