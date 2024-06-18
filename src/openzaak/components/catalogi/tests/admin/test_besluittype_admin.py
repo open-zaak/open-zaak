@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
-from django.utils.translation import ngettext_lazy
+from django.utils.translation import gettext as _, ngettext_lazy
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
@@ -265,3 +265,53 @@ class BesluitTypePublishAdminTests(WebTest):
 
         besluittype.refresh_from_db()
         self.assertFalse(besluittype.concept)
+
+    def test_change_page_publish(self):
+        btype = BesluitTypeFactory.create(catalogus=self.catalogus, concept=True)
+
+        url = reverse("admin:catalogi_besluittype_change", args=(btype.pk,))
+
+        response = self.app.get(url)
+        response = response.form.submit("_publish")
+
+        btype.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(btype.concept)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(
+            messages, [_("The resource has been published successfully!")],
+        )
+
+    def test_change_page_publish_overlap(self):
+        BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+            omschrijving="enter text here",
+            datum_begin_geldigheid="2020-10-20",
+        )
+
+        btype = BesluitTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=True,
+            omschrijving="enter text here",
+            datum_begin_geldigheid="2020-10-30",
+        )
+
+        url = reverse("admin:catalogi_besluittype_change", args=(btype.pk,))
+
+        response = self.app.get(url)
+        response = response.form.submit("_publish")
+
+        btype.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(btype.concept)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(
+            messages,
+            [
+                "besluittype versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben."
+            ],
+        )

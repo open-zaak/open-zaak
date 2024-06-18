@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
-from django.utils.translation import ngettext_lazy
+from django.utils.translation import gettext as _, ngettext_lazy
 
 from django_webtest import WebTest
 from freezegun import freeze_time
@@ -230,6 +230,58 @@ class IoTypePublishAdminTests(WebTest):
 
         iotype.refresh_from_db()
         self.assertFalse(iotype.concept)
+
+    def test_change_page_publish(self):
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus, concept=True
+        )
+
+        url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
+
+        response = self.app.get(url)
+        response = response.form.submit("_publish")
+
+        iotype.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(iotype.concept)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(
+            messages, [_("The resource has been published successfully!")],
+        )
+
+    def test_change_page_publish_overlap(self):
+        InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=False,
+            omschrijving="enter text here",
+            datum_begin_geldigheid="2020-10-20",
+        )
+
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
+            concept=True,
+            omschrijving="enter text here",
+            datum_begin_geldigheid="2020-10-30",
+        )
+
+        url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
+
+        response = self.app.get(url)
+        response = response.form.submit("_publish")
+
+        iotype.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(iotype.concept)
+
+        messages = [str(m) for m in response.follow().context["messages"]]
+        self.assertEqual(
+            messages,
+            [
+                "Informatieobjecttype versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben."
+            ],
+        )
 
 
 @disable_admin_mfa()

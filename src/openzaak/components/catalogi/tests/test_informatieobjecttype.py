@@ -67,7 +67,7 @@ class InformatieObjectTypeAPITests(APITestCase):
             "catalogus": "http://testserver{}".format(self.catalogus_detail_url),
             "omschrijving": iotype.omschrijving,
             "url": "http://testserver{}".format(informatieobjecttype_detail_url),
-            "vertrouwelijkheidaanduiding": "",
+            "vertrouwelijkheidaanduiding": "openbaar",
             "beginGeldigheid": "2019-01-01",
             "eindeGeldigheid": None,
             "concept": True,

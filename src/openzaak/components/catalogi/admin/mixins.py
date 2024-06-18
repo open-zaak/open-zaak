@@ -63,15 +63,17 @@ class PublishAdminMixin:
             storage = messages.get_messages(request)
             for i in storage:
                 pass
-
             errors = self._publish_validation_errors(obj)
             if errors:
                 for error in errors:
                     self.message_user(request, error, level=messages.ERROR)
             else:
-                obj.publish()
-                msg = _("The resource has been published successfully!")
-                self.message_user(request, msg, level=messages.SUCCESS)
+                try:
+                    obj.publish()
+                    msg = _("The resource has been published successfully!")
+                    self.message_user(request, msg, level=messages.SUCCESS)
+                except ValidationError as e:
+                    self.message_user(request, e.message, level=messages.ERROR)
 
             return HttpResponseRedirect(request.path)
         else:
