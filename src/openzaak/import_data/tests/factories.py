@@ -19,7 +19,7 @@ from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeC
 
 
 class ImportFactory(factory.django.DjangoModelFactory):
-    import_type = factory.fuzzy.FuzzyChoice(ImportTypeChoices.choices)
+    import_type = factory.fuzzy.FuzzyChoice(ImportTypeChoices.values)
     status = ImportStatusChoices.pending
 
     import_file = factory.django.FileField(filename="import.csv")
