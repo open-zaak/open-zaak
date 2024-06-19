@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.test import TestCase
 
 import pytz
@@ -30,7 +31,7 @@ class RemoveImportsTests(TestCase):
             ),
         )
 
-        active_import =  ImportFactory(
+        active_import = ImportFactory(
             status=ImportStatusChoices.active,
             finished_on=datetime(2023, 12, 25, 6, tzinfo=pytz.utc),
             total=0,
@@ -52,7 +53,6 @@ class RemoveImportsTests(TestCase):
                 finished_on=datetime(2023, 12, 25, 11, tzinfo=pytz.utc),
                 total=0,
             ),
-
         )
 
         remove_imports()

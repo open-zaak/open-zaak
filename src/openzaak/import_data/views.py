@@ -231,12 +231,11 @@ class ImportDestroyView(mixins.DestroyModelMixin, viewsets.GenericViewSet):
         instance = self.get_object()
 
         if instance.status not in ImportStatusChoices.deletion_choices:
-            message = _(
-                "Import cannot be deleted due to current status: %s"
-            ) % instance.status
-
-            raise ValidationError(
-                {"__all__": message}, code="import-invalid-status"
+            message = (
+                _("Import cannot be deleted due to current status: %s")
+                % instance.status
             )
+
+            raise ValidationError({"__all__": message}, code="import-invalid-status")
 
         return super().destroy(request, *args, **kwargs)

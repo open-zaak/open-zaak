@@ -609,10 +609,7 @@ def _get_deletion_choices():
             "de `CMIS_ENABLED` optie is ingeschakeld. Voor deze actie is een "
             "APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
-        responses={
-            status.HTTP_204_NO_CONTENT: None,
-            **COMMON_ERROR_RESPONSES,
-        },
+        responses={status.HTTP_204_NO_CONTENT: None, **COMMON_ERROR_RESPONSES,},
     )
 )
 class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
