@@ -66,7 +66,7 @@ urls provide the user the ability to progress further in the import process.
 After this request the ``Import`` instance will have it's status changed to
 ``pending``.
 
-See the `API documentation for creating an Import`_ for more details.
+See the `API documentation`_ for more details.
 
 **Starting an Import**
 
@@ -99,7 +99,7 @@ After this request passes validation (with the above mentioned checks) the
 actual import process is started through a background task and the status of the
 ``Import`` instance is changed to ``active``.
 
-See the `API documentation for starting an Import`_ for more details.
+See the `API documentation`_ for more details.
 
 **Retrieving the status**
 
@@ -112,7 +112,7 @@ has and the amount of rows the ``Import`` at that time has processed.
 If the background task is finished the status of the ``Import`` is either ``finished``
 or ``error`` in case of unrecoverable error situations.
 
-See the `API documentation for retrieving the status of an Import`_ for more details.
+See the `API documentation`_ for more details.
 
 **Retrieving a report file**
 
@@ -121,7 +121,7 @@ file of the process can be downloaded. This report is a CSV file the same as
 the provided metadata file with an additional two columns that specify whether
 a row was imported successfully and if there any comments about the row.
 
-See the `API documentation for retrieving a report file of an Import`_ for more details.
+See the `API documentation`_ for more details.
 
 Import behavior
 ----------------
@@ -186,7 +186,4 @@ For these examples the `curl` tool is used.
          https://<domain-name>/documenten/api/v1/import/<import-uuid>/report
 
 
-.. _API documentation for creating an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_create
-.. _API documentation for starting an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_upload
-.. _API documentation for retrieving the status of an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_status
-.. _API documentation for retrieving a report file of an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_report
+.. _API documentation: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml
