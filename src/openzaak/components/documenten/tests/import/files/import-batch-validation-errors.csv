@@ -1,0 +1,5 @@
+uuid,identificatie,bronorganisatie,creatiedatum,titel,vertrouwelijkheidaanduiding,auteur,status,formaat,taal,bestandsnaam,bestandsomvang,bestandspad,link,beschrijving,ontvangstdatum,verzenddatum,indicatieGebruiksrecht,verschijningsvorm,ondertekening.soort,ondertekening.datum,integriteit.algoritme,integriteit.waarde,integriteit.datum,informatieobjecttype,zaakUuid,trefwoorden
+foobar,,352604918,2018-06-27,Document 1,,Auteur 1,,,nld,test-file-1.odt,,test-file-1.odt,,,,,,,,,,,,https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a,,
+,,352604918,2018-06-27,Document 2,,Auteur 2,,,nld,test-file-2.odt,,test-file-2.odt,,,,,,,,,,,,https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a,,
+,,352604918,2018-06-27,Document 3,,Auteur 3,,,nld,test-file-3.odt,,test-file-3.odt,,,,,,,,,,,,https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a,,
+,,352604918,2018-06-27,Document 4,,Auteur 4,,,nld,test-file-4.odt,,test-file-4.odt,,,,,,,,,,,,https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a,,

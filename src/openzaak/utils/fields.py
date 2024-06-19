@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from pathlib import Path
 from typing import Callable, List
 
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core import checks, exceptions, validators
 from django.db import models
 from django.db.models.base import Options
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
@@ -204,3 +206,11 @@ class NLPostcodeField(models.CharField):
     def __init__(self, verbose_name=None, name=None, **kwargs):
         kwargs.setdefault("max_length", 6)
         super().__init__(verbose_name, name, **kwargs)
+
+
+def get_default_path(field: models.FileField) -> Path:
+    storage_location = Path(field.storage.base_location)
+    path = Path(storage_location / field.upload_to)
+
+    now = timezone.now()
+    return Path(now.strftime(str(path)))

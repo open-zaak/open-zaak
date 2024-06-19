@@ -44,6 +44,7 @@ src/openzaak/conf/includes/local.py
 /log/nginx/*.log*
 .env
 /private-media/
+/import-data/
 
 # Ansible secrets
 deployment/single-server/vars/*

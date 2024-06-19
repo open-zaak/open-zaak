@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+from pathlib import Path
+
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
@@ -7,10 +9,10 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
-    OpenApiTypes,
     extend_schema,
     extend_schema_view,
 )
@@ -27,8 +29,18 @@ from vng_api_common.filters import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.import_utils import DocumentRow
+from openzaak.components.documenten.tasks import import_documents
+from openzaak.import_data.models import ImportTypeChoices
+from openzaak.import_data.views import (
+    ImportCreateview,
+    ImportReportView,
+    ImportStatusView,
+    ImportUploadView,
+)
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
@@ -429,6 +441,156 @@ class EnkelvoudigInformatieObjectViewSet(
         return self.get_search_output(queryset)
 
     _zoek.is_search_action = True
+
+
+@extend_schema_view(
+    create=extend_schema(
+        operation_id="enkelvoudiginformatieobject_import_create",
+        auth=["JWT-Claims"],
+        summary=_("Een IMPORT creeren"),
+        description=mark_experimental(
+            "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
+            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Deze "
+            "actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld. Voor deze actie is een APPLICATIE nodig met "
+            "`heeft_alle_autorisaties` ingeschakeld."
+        ),
+        request=OpenApiTypes.NONE,
+    )
+)
+class EnkelvoudigInformatieObjectImportView(ImportCreateview):
+    import_type = ImportTypeChoices.documents
+
+    required_scopes = {}
+
+    def create(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().create(request, *args, **kwargs)
+
+
+def _get_import_headers():
+    return ", ".join([f"**{header}**" for header in DocumentRow.import_headers])
+
+
+@extend_schema_view(
+    create=extend_schema(
+        operation_id="enkelvoudiginformatieobject_import_upload",
+        auth=["JWT-Claims"],
+        summary=_("Een IMPORT bestand uploaden"),
+        description=mark_experimental(
+            "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
+            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld. Deze actie start tevens de IMPORT. Één actieve IMPORT "
+            " tegelijkertijd is mogelijk. De volgende kolommen worden verwacht "
+            f"(op volgorde) in het bestand: {_get_import_headers()}. Voor deze "
+            "actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
+        ),
+        request={"text/csv": OpenApiTypes.BYTE},
+        parameters=[
+            OpenApiParameter(
+                name="Content-Type",
+                required=True,
+                location=OpenApiParameter.HEADER,
+                description="Content type van de verzoekinhoud.",
+                type=OpenApiTypes.STR,
+                enum=["test/csv"],
+            )
+        ],
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.NONE,
+            **VALIDATION_ERROR_RESPONSES,
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
+)
+class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
+    import_type = ImportTypeChoices.documents
+    import_headers = DocumentRow.import_headers
+
+    required_scopes = {}
+
+    @property
+    def import_dir(self) -> Path:
+        return Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
+
+    def create(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+
+        response = super().create(request, *args, **kwargs)
+
+        request_headers = {
+            key: value
+            for key, value in request.META.items()
+            if isinstance(value, (str, int))
+        }
+
+        import_instance = self.get_object()
+        import_documents.delay(import_instance.pk, request_headers)
+
+        return response
+
+
+@extend_schema_view(
+    retrieve=extend_schema(
+        operation_id="enkelvoudiginformatieobject_import_status",
+        auth=["JWT-Claims"],
+        summary=_("De status van een IMPORT opvragen."),
+        description=mark_experimental(
+            "Het opvragen van de status van een IMPORT. Deze actie is niet "
+            "beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld. "
+            "Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`"
+            " ingeschakeld."
+        ),
+    )
+)
+class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
+    import_type = ImportTypeChoices.documents
+
+    required_scopes = {}
+
+    def retrieve(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().retrieve(request, *args, **kwargs)
+
+
+def _get_report_headers():
+    return ", ".join([f"**{header}**" for header in DocumentRow.export_headers])
+
+
+@extend_schema_view(
+    retrieve=extend_schema(
+        operation_id="enkelvoudiginformatieobject_import_report",
+        auth=["JWT-Claims"],
+        summary=_("Het reportage bestand van een IMPORT downloaden."),
+        description=mark_experimental(
+            "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
+            "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
+            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
+            "ingeschakeld. De volgende kolommen zijn te vinden in het rapportage "
+            f"bestand: {_get_report_headers()}. Voor deze actie is een APPLICATIE "
+            "nodig met `heeft_alle_autorisaties` ingeschakeld."
+        ),
+        responses={
+            (status.HTTP_200_OK, "text/csv"): {
+                "type": "string",
+                "description": _("Het reportage bestand van de IMPORT."),
+            },
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
+)
+class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
+    import_type = ImportTypeChoices.documents
+
+    required_scopes = {}
+
+    def retrieve(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().retrieve(request, *args, **kwargs)
 
 
 @extend_schema_view(

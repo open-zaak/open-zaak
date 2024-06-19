@@ -168,6 +168,7 @@ INSTALLED_APPS = [
     # Project applications.
     "openzaak",
     "openzaak.accounts",
+    "openzaak.import_data",
     "openzaak.utils",
     "openzaak.components.autorisaties",
     "openzaak.components.zaken",
@@ -774,6 +775,10 @@ IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_reques
 ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
     "ZAAK_EIGENSCHAP_WAARDE_VALIDATION", default=False
 )
+
+# Import settings
+IMPORT_DOCUMENTEN_BASE_DIR = config("IMPORT_DOCUMENTEN_BASE_DIR", BASE_DIR)
+IMPORT_DOCUMENTEN_BATCH_SIZE = config("IMPORT_DOCUMENTEN_BATCH_SIZE", 500)
 
 # Settings for setup_configuration command
 # sites config

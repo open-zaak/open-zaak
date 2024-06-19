@@ -9,6 +9,10 @@ from ..api.schema import custom_settings
 from .viewsets import (
     BestandsDeelViewSet,
     EnkelvoudigInformatieObjectAuditTrailViewSet,
+    EnkelvoudigInformatieObjectImportReportView,
+    EnkelvoudigInformatieObjectImportStatusView,
+    EnkelvoudigInformatieObjectImportUploadView,
+    EnkelvoudigInformatieObjectImportView,
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
     ObjectInformatieObjectViewSet,
@@ -27,6 +31,36 @@ router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
 
+import_patterns = [
+    path(
+        "create",
+        EnkelvoudigInformatieObjectImportView.as_view(
+            {"post": "create"}, name="create"
+        ),
+        name="create",
+    ),
+    path(
+        "<uuid:uuid>/upload",
+        EnkelvoudigInformatieObjectImportUploadView.as_view(
+            {"post": "create"}, name="upload"
+        ),
+        name="upload",
+    ),
+    path(
+        "<uuid:uuid>/status",
+        EnkelvoudigInformatieObjectImportStatusView.as_view(
+            {"get": "retrieve"}, name="status"
+        ),
+        name="status",
+    ),
+    path(
+        "<uuid:uuid>/report",
+        EnkelvoudigInformatieObjectImportReportView.as_view(
+            {"get": "retrieve"}, name="report"
+        ),
+        name="report",
+    ),
+]
 
 urlpatterns = [
     re_path(
@@ -51,6 +85,13 @@ urlpatterns = [
                 ),
                 # actual API
                 path("", include(router.urls)),
+                path(
+                    "import/",
+                    include(
+                        (import_patterns, "openzaak.components.documenten"),
+                        namespace="documenten-import",
+                    ),
+                ),
                 # should not be picked up by drf-yasg
                 path("", router.APIRootView.as_view(), name="api-root-documenten"),
                 path("", include("vng_api_common.notifications.api.urls")),

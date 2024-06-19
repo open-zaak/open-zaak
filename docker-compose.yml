@@ -20,7 +20,7 @@ services:
   redis:
     image: redis
 
-  web:
+  web.local:
     build: .
     image: openzaak/open-zaak:latest
     environment: &app-env
@@ -29,10 +29,14 @@ services:
       - DB_NAME=openzaak
       - DB_USER=openzaak
       - IS_HTTPS=no
-      - ALLOWED_HOSTS=*
+      - ALLOWED_HOSTS=localhost,127.0.0.1,web,web.local
+      - CORS_ALLOW_ALL_ORIGINS=True
+      - CSRF_TRUSTED_ORIGINS=http://localhost:9000
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
       - SUBPATH=${SUBPATH:-/}
+      - IMPORT_DOCUMENTEN_BASE_DIR=${IMPORT_DOCUMENTEN_BASE_DIR:-/app/import-data}
+      - IMPORT_DOCUMENTEN_BATCH_SIZE=${IMPORT_DOCUMENTEN_BATCH_SIZE:-500}
       - OPENZAAK_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_PASSWORD=admin
       - OPENZAAK_SUPERUSER_EMAIL=admin@localhost
@@ -41,7 +45,7 @@ services:
       - CELERY_LOGLEVEL=DEBUG
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
       # setup_configuration env vars
-      - OPENZAAK_DOMAIN=web:8000
+      - OPENZAAK_DOMAIN=web.local:8000
       - OPENZAAK_ORGANIZATION=OZ
       - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
       - NOTIF_OPENZAAK_SECRET=notif-secret
@@ -56,6 +60,7 @@ services:
     volumes: &app-volumes
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
+      - ./import-data:/app/import-data
     depends_on:
       web-init:
         condition: service_completed_successfully
@@ -94,10 +99,11 @@ services:
     image: nginx
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - private-media:/private-media
     ports:
       - "9000:80"
     depends_on:
-      - web
+      - web.local
 
 volumes:
   db:
