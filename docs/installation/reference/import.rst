@@ -59,7 +59,7 @@ for this step.
 Creating an ``Import`` is only possible whenever no other ``Import`` instance exist
 with the statusses ``pending`` or ``active``.
 
-Whenever no other import is pending or active, the endpoint will provide the user
+Whenever no other import is ``pending`` or ``active``, the endpoint will provide the user
 three URLs: a URL to upload an import metadata file, a URL to retrieve the status
 of an import and another URL for downloading a report of the import. These three
 urls provide the user the ability to progress further in the import process.
@@ -70,14 +70,13 @@ See the `API documentation for creating an Import`_ for more details.
 
 **Starting an Import**
 
-After creating an `Import` instance, users can upload an import metada file. This
-should be a CSV which consists of rows with data needed to create an
-``EnkelvoudigInformatieObject``. The data this CSV should contain is roughly the
-same as the data needed for creating an ``EnkelvoudigInformatieObject`` through
-a "regular" API call with some exceptions. For more details about the format and
-the requirements of the CSV file, the API documentation should be consulted.
-The request for this endpoint should be a ``POST`` request containing the CSV data
-in its request body.
+After creating an `Import` instance, users can upload an import metadata file. This
+should be a CSV which consists of rows with the data needed to create an
+``EnkelvoudigInformatieObject``. This data is roughly the same as the data needed
+for creating an ``EnkelvoudigInformatieObject`` through a "regular" API call
+with some exceptions. For more details about the format and the requirements of
+the CSV file, the API documentation should be consulted. The request for this
+endpoint should be a ``POST`` request containing the CSV data in its request body.
 
 Whenever the CSV file contains invalid and/or missing headers, the import process will
 not be started and the error response will contain any missing headers.
@@ -89,7 +88,7 @@ configured in ``IMPORT_DOCUMENTEN_BASE_DIR``.
 
 The import will only start if the ``IMPORT_DOCUMENTEN_BASE_DIR`` setting is set
 correctly. Unknown directories or the ``IMPORT_DOCUMENTEN_BASE_DIR`` leading to a
-path which is actually a file are examples of incorrect configurations. An
+a file instead of a directory are examples of incorrect configurations. An
 incorrectly configured ``IMPORT_DOCUMENTEN_BASE_DIR`` setting will cause the import
 to not start.
 
@@ -107,7 +106,7 @@ See the `API documentation for starting an Import`_ for more details.
 The status of the ``Import`` can be retrieved when an import process is started
 and has the status ``pending``, ``active``, ``finished`` or ``error``. This endpoint
 can be called through a `GET` request. The data of the response contains
-information for example about the total amount of rows the import metadata file
+information, for example, about the total amount of rows the import metadata file
 has and the amount of rows the ``Import`` at that time has processed.
 
 If the background task is finished the status of the ``Import`` is either ``finished``
