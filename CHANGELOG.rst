@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.13.0 (2024-06-14)
+
+**New features**
+* [#1637] Added 2FA which can be disabled by the environment variable``DISABLE_2FA``.
+
 1.12.1 (2024-04-05)
 -------------------
 
