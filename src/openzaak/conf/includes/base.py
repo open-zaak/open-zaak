@@ -693,6 +693,11 @@ MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = [
     "mozilla_django_oidc_db.backends.OIDCAuthenticationBackend",
 ]
 
+# if DISABLE_2FA is true, fill the MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS with all
+# configured AUTHENTICATION_BACKENDS and thus disabeling the entire 2FA chain.
+if config("DISABLE_2FA", default=False):  # pragma: no cover
+    MAYKIN_2FA_ALLOW_MFA_BYPASS_BACKENDS = AUTHENTICATION_BACKENDS
+
 #
 # CELERY
 #
