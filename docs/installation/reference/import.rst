@@ -186,7 +186,7 @@ For these examples the `curl` tool is used.
          https://<domain-name>/documenten/api/v1/import/<import-uuid>/report
 
 
-.. _API documentation for creating an Import: https://test.openzaak.nl/documenten/api/v1/schema/#tag/import/operation/enkelvoudiginformatieobject_import_create
-.. _API documentation for starting an Import: https://test.openzaak.nl/documenten/api/v1/schema/#tag/import/operation/enkelvoudiginformatieobject_import_upload
-.. _API documentation for retrieving the status of an Import: https://test.openzaak.nl/documenten/api/v1/schema/#tag/import/operation/enkelvoudiginformatieobject_import_status
-.. _API documentation for retrieving a report file of an Import: https://test.openzaak.nl/documenten/api/v1/schema/#tag/import/operation/enkelvoudiginformatieobject_import_report
+.. _API documentation for creating an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_create
+.. _API documentation for starting an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_upload
+.. _API documentation for retrieving the status of an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_status
+.. _API documentation for retrieving a report file of an Import: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml#tag/import/operation/enkelvoudiginformatieobject_import_report
