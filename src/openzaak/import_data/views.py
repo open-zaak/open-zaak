@@ -217,3 +217,26 @@ class ImportReportView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             attachment=True,
             mimetype="text/csv",
         )
+
+
+class ImportDestroyView(mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    import_type: ImportTypeChoices
+    permission_classes = (ImportAuthRequired,)
+    lookup_field = "uuid"
+
+    def get_queryset(self):
+        return Import.objects.filter(import_type=self.import_type)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.status not in ImportStatusChoices.deletion_choices:
+            message = _(
+                "Import cannot be deleted due to current status: %s"
+            ) % instance.status
+
+            raise ValidationError(
+                {"__all__": message}, code="import-invalid-status"
+            )
+
+        return super().destroy(request, *args, **kwargs)

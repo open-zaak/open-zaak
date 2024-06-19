@@ -9,6 +9,7 @@ from ..api.schema import custom_settings
 from .viewsets import (
     BestandsDeelViewSet,
     EnkelvoudigInformatieObjectAuditTrailViewSet,
+    EnkelvoudigInformatieObjectImportDestroyView,
     EnkelvoudigInformatieObjectImportReportView,
     EnkelvoudigInformatieObjectImportStatusView,
     EnkelvoudigInformatieObjectImportUploadView,
@@ -59,6 +60,13 @@ import_patterns = [
             {"get": "retrieve"}, name="report"
         ),
         name="report",
+    ),
+    path(
+        "<uuid:uuid>/delete",
+        EnkelvoudigInformatieObjectImportDestroyView.as_view(
+            {"delete": "destroy"}, name="destroy"
+        ),
+        name="destroy",
     ),
 ]
 
