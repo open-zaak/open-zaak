@@ -303,7 +303,13 @@ def _get_identifiers(size: int) -> list[str]:
     _range = size - 1 if size else 0  # don't count the first identifier
 
     model_name, year, number = first_identifier.split("-")
-    identifiers = [f"{model_name}-{year}-{int(number) + 1}" for i in range(_range)]
+    number = int(number)
+    identifiers = []
+
+    for i in range(_range):
+        number += 1
+
+        identifiers.append(f"{model_name}-{year}-{str(number).zfill(10)}")
 
     return [first_identifier, *identifiers]
 

@@ -184,6 +184,58 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
+    @override_settings(IMPORT_DOCUMENTEN_BATCH_SIZE=4)
+    def test_generate_unique_identificatie(self):
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
+
+        import_file_path = self.test_data_path / "import-identificatie.csv"
+
+        with open(import_file_path, "r") as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
+
+        import_documents(import_instance.pk, self.request_headers)
+
+        import_instance.refresh_from_db()
+
+        eios = EnkelvoudigInformatieObject.objects.all()
+
+        self.assertEqual(eios.count(), 4)
+
+        identifiers = eios.values_list("identificatie", flat=True)
+
+        self.assertTrue(len(identifiers) == len(set(identifiers)))
+
+        self.assertEqual(import_instance.total, 4)
+        self.assertEqual(import_instance.processed, 4)
+        self.assertEqual(import_instance.processed_invalid, 0)
+        self.assertEqual(import_instance.processed_successfully, 4)
+        self.assertEqual(import_instance.status, ImportStatusChoices.finished)
+
+        report_path = Path(import_instance.report_file.path)
+
+        with open(str(report_path), "r") as report_file:
+            csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
+            rows = [row for row in csv_reader]
+
+        self.addCleanup(report_path.unlink)
+
+        self.assertEqual(len(rows), 5)
+        self.assertEqual(DocumentRow.export_headers, rows[0])
+
+        self.assertTrue(
+            all((row[-1] == ImportRowResultChoices.imported.label) for row in rows[1:])
+        )
+
+        # no comments on all the rows
+        self.assertTrue(all((row[-2] == "") for row in rows[1:]))
+
     def test_last_batch_is_not_full_batch(self):
         ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
         ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
