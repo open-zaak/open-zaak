@@ -16,8 +16,8 @@ Configuration
 --------------
 
 Environment variables related to the import functionaly are:
-- :ref:`IMPORT_DOCUMENTEN_BASE_DIR <_import_documenten_base_dir>`
-- :ref:`IMPORT_DOCUMENTEN_BATCH_SIZE <_import_documenten_batch_size>`
+- :ref:`IMPORT_DOCUMENTEN_BASE_DIR <import_documenten_base_dir>`
+- :ref:`IMPORT_DOCUMENTEN_BATCH_SIZE <import_documenten_batch_size>`
 
 ``IMPORT_DOCUMENTEN_BASE_DIR`` is used to determine the absolute import path for each
 row in the import metadata file. All file paths specified in the import metadata
