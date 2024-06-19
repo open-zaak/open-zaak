@@ -40,6 +40,9 @@ The process consists of the following steps:
 3. (Optionally) Retrieving the status of the ``Import``
 4. (Optionally) Retrieving the report file of the ``Import``
 
+An visual representation of the process can be seen below:
+.. image:: sequence-diagram.png
+
 **Permissions**
 
 Importing ``EnkelvoudigInformatieObjecten`` is not possible for all authenticated users
