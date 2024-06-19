@@ -39,6 +39,7 @@ The process consists of the following steps:
 2. Uploading the ``Import`` metadata file
 3. (Optionally) Retrieving the status of the ``Import``
 4. (Optionally) Retrieving the report file of the ``Import``
+5. (Optionally) Deleting the ``Import``
 
 An visual representation of the process can be seen below:
 .. image:: sequence-diagram.png
@@ -126,6 +127,13 @@ a row was imported successfully and if there any comments about the row.
 
 See the `API documentation`_ for more details.
 
+**Deleting an Import**
+
+When an ``Import`` instance has the status ``finished``, ``error`` or ``pending``
+and was finished 7 days ago or earlier, it can be deleted.
+
+See the `API documentation`_ for more details.
+
 Import behavior
 ----------------
 
@@ -187,6 +195,15 @@ For these examples the `curl` tool is used.
     curl --request GET \
          --header "Authorization: Bearer <token>" \
          https://<domain-name>/documenten/api/v1/import/<import-uuid>/report
+
+
+**Deleting an import**
+
+.. code-block:: bash
+
+    curl --request DELETE \
+         --header "Authorization: Bearer <token>" \
+         https://<domain-name>/documenten/api/v1/import/<import-uuid>/delete
 
 
 .. _API documentation: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/main/src/openzaak/components/documenten/openapi.yaml
