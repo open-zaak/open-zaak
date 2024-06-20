@@ -1,10 +1,76 @@
 Changelog
 =========
 
-1.13.0 (2024-06-14)
+1.13.0 (2024-06-19)
+-------------------
 
 **New features**
-* [#1637] Added 2FA which can be disabled by the environment variable``DISABLE_2FA``.
+
+* API:
+  * [#1596] Added bulk import of documents (**NOTE** this change is not supported when CMIS is enabled)
+  * [#1630] Added new experimental field ``communicatiekanaal_naam`` for ``Zaak`` resource
+  * [#1479] Validated ``ZaakEigenschap.waarde`` by ``Eigennschap.specificatie``
+  * [#1569] Added filter and sorting parameters for ``EnkelvoudigInformatieObjecten`` endpoint
+  * [#1619] Changed "User-Agent" header for outgoing requests to "Open Zaak"
+
+* Admin:
+  * [#1637] Introduced two-factor authentification (2FA) for the Admin, which can be disabled by the environment variable ``DISABLE_2FA``
+  * [#1382] Added ``ZaakKenmerk`` to the Admin
+  * [#1587] Added read-only field ``created_on`` for ``Zaak``
+
+**Bugfixes and QOL**
+
+* [#1577] Allowed empty ``Zaaktype.doorlooptijd`` in the Admin
+* [#1594] Checked for missing scopes in the Authorization admin form
+* [#1627] Allowed ``verblijfsadres.aoaIdentificatie`` to be blank
+* [#1642] Fixed cleaning autorisaties when related zaaktypen are removed
+* [#1256] Showed identification number in validation errors
+
+**Documentation**
+
+* [#1670-#1676] Fixed typos in the documentation
+* [#1679] Documented the bulk import of documents
+* [#1626] Added examples how to generate JWT in several programming languages
+* [#1593] Added a link to the help text for ``Zaaktype.referentieprocess.naam``
+* [#1598] Converted "Environment configuration" page from .md to .rst
+
+**Project maintenance**
+
+* [#1597] Updated django to 4.2
+* [#1666] Added `open-api-framework` dependency
+* [#1582] Discontinued Foundation for Public Code stewardship
+* [#1606] Removed default Notification Service
+* [#1656] Updated DB image in docker-compose
+
+.. warning::
+
+    Two-factor authentication is enabled by default. The ``DISABLE_2FA`` environment variable
+    can be used to disable it if needed.
+
+
+1.12.4 (2024-05-30)
+-------------------
+
+Open Zaak 1.12.4 is a patch release:
+
+* [#1662] Supported subpaths when rewriting host for API requests
+
+
+1.12.3 (2024-05-16)
+-------------------
+
+Open Zaak 1.12.3 is a patch release:
+
+* [#1588] Restricted rewriting host for only API requests
+
+
+1.12.2 (2024-05-14)
+-------------------
+
+Open Zaak 1.12.2 is a patch release:
+
+* [#1636] Fixed changing authorizations in the Admin
+
 
 1.12.1 (2024-04-05)
 -------------------
