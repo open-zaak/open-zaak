@@ -441,6 +441,15 @@ class ZaakTypeImportForm(forms.Form):
         required=True,
         help_text=_("Het ZIP-bestand met het zaaktype."),
     )
+    generate_new_uuids = forms.BooleanField(
+        label=_("Genereer nieuwe UUIDs"),
+        initial=True,
+        help_text=_(
+            "Zorgt ervoor dat er nieuwe UUIDs gegenereerd worden "
+            "in plaats van dat de bestaande UUIDs uit het bestand gebruikt worden"
+        ),
+        required=False,
+    )
 
 
 class ExistingTypeForm(forms.Form):
