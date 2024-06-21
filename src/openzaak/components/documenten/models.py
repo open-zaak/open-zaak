@@ -19,7 +19,6 @@ from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.utils import generate_unique_identification
-from vng_api_common.validators import alphanumeric_excluding_diacritic
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.utils.fields import (
@@ -69,7 +68,6 @@ __all__ = [
 class InformatieObject(models.Model):
     identificatie = models.CharField(
         max_length=40,
-        validators=[alphanumeric_excluding_diacritic],
         blank=True,
         default="",
         help_text="Een binnen een gegeven context ondubbelzinnige referentie "

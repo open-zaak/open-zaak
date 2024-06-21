@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.test import tag
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -8,6 +9,7 @@ from webtest import Upload
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
@@ -46,10 +48,41 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         form["titel"] = "test"
         form["auteur"] = "test"
         form["taal"] = "nld"
-        form["inhoud"] = Upload("stuff.txt", b"")
+        form["inhoud"] = Upload("stuff.txt", b"foo")
 
         response = form.submit(name="_continue")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+
+        eio = EnkelvoudigInformatieObject.objects.get()
+        self.assertEqual(eio.canonical, canonical)
+        self.assertEqual(eio.inhoud.read(), b"foo")
+
+    @tag("gh-1306")
+    def test_create_informatieobject_save_identificatie_all_characters_allowed(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
+
+        response = self.app.get(add_url)
+        form = response.form
+
+        form["identificatie"] = "some docüment"
+        form["canonical"] = canonical.pk
+        form["bronorganisatie"] = "000000000"
+        form["creatiedatum"] = "2010-01-01"
+        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["titel"] = "test"
+        form["auteur"] = "test"
+        form["taal"] = "nld"
+        form["inhoud"] = Upload("stuff.txt", b"foo")
+
+        response = form.submit(name="_continue")
+        self.assertEqual(response.status_code, 302)
+
+        eio = EnkelvoudigInformatieObject.objects.get()
+        self.assertEqual(eio.identificatie, "some docüment")
 
     def test_create_without_iotype(self):
         """
