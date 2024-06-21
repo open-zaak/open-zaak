@@ -10586,8 +10586,10 @@ components:
             \ van het zaakobjecttype het betreft."
         datumkenmerk:
           type: string
-          description: Naam van de attribuutsoort van het procesobject dat bepalend
-            is voor het einde van de procestermijn.
+          description: 'Naam van de attribuutsoort van het procesobject dat bepalend
+            is voor het einde van de procestermijn. **EXPERIMENTEEL**: In het geval
+            van afleidingswijze zaakobject kunnen nested attributen gespecificeerd
+            worden door middel van `/` (bijv. `some/nested/path`)'
           maxLength: 80
         einddatumBekend:
           type: boolean
@@ -10687,8 +10689,10 @@ components:
             \ van het zaakobjecttype het betreft."
         datumkenmerk:
           type: string
-          description: Naam van de attribuutsoort van het procesobject dat bepalend
-            is voor het einde van de procestermijn.
+          description: 'Naam van de attribuutsoort van het procesobject dat bepalend
+            is voor het einde van de procestermijn. **EXPERIMENTEEL**: In het geval
+            van afleidingswijze zaakobject kunnen nested attributen gespecificeerd
+            worden door middel van `/` (bijv. `some/nested/path`)'
           maxLength: 80
         einddatumBekend:
           type: boolean
