@@ -271,10 +271,10 @@ class IoTypePublishAdminTests(WebTest):
         response = response.form.submit("_publish")
 
         iotype.refresh_from_db()
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(iotype.concept)
 
-        messages = [str(m) for m in response.follow().context["messages"]]
+        messages = [str(m) for m in response.context["messages"]]
         self.assertEqual(
             messages,
             [
