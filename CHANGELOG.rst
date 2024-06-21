@@ -7,6 +7,7 @@ Changelog
 **New features**
 
 * API:
+
   * [#1596] Added bulk import of documents (**NOTE** this change is not supported when CMIS is enabled)
   * [#1630] Added new experimental field ``communicatiekanaal_naam`` for ``Zaak`` resource
   * [#1479] Validated ``ZaakEigenschap.waarde`` by ``Eigennschap.specificatie``
@@ -14,6 +15,7 @@ Changelog
   * [#1619] Changed "User-Agent" header for outgoing requests to "Open Zaak"
 
 * Admin:
+
   * [#1637] Introduced two-factor authentification (2FA) for the Admin, which can be disabled by the environment variable ``DISABLE_2FA``
   * [#1382] Added ``ZaakKenmerk`` to the Admin
   * [#1587] Added read-only field ``created_on`` for ``Zaak``
