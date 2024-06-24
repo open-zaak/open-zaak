@@ -1,12 +1,14 @@
 {% extends "admin/base.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
-{% load i18n static %}
+{% load i18n static open_api_framework %}
 
 {% block title %}{{ title }} | {{ settings.PROJECT_NAME }}{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'open_api_framework/css/admin.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'bundles/admin_overrides.css' %}">
 
     <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
@@ -38,19 +40,15 @@
 {% block nav-global %}{% endblock %}
 
 {% block messages %}
-    {% if settings.ENVIRONMENT_SHOWN_IN_ADMIN %}
-        <div class="env env-{{ settings.ENVIRONMENT }}">{{ settings.ENVIRONMENT }}</div>
+    {% if show_environment %}
+        {% environment %}
     {% endif %}
-    {{ block.super }}
 {% endblock %}
 
 {% block footer %}
     <div id="footer">
-        {% url 'admin:login' as admin_login_url %}
-        {% if request.path != admin_login_url %}
-            <div class="version" title="Git SHA: {{ settings.GIT_SHA|default:'' }}">
-                {% blocktrans with version=settings.RELEASE %}version {{ version }}{% endblocktrans %}
-            </div>
+        {% if show_version %}
+            {% version %}
         {% endif %}
     </div>
 

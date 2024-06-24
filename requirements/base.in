@@ -1,4 +1,4 @@
-open-api-framework
+git+https://github.com/maykinmedia/open-api-framework@b6164c606e3f7a6dd4d5a47a5b0e6ab486707d36#egg=open_api_framework
 
 # Core python libraries
 jq
