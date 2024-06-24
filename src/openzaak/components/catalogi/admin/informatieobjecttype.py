@@ -17,7 +17,7 @@ from .forms import ZaakTypeInformatieObjectTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
-    PublishAdminMixin,
+    GeldigheidPublishAdminMixin,
     ReadOnlyPublishedMixin,
     ReadOnlyPublishedParentMixin,
     SideEffectsMixin,
@@ -74,7 +74,7 @@ class InformatieObjectTypeAdmin(
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
-    PublishAdminMixin,
+    GeldigheidPublishAdminMixin,
     SideEffectsMixin,
     admin.ModelAdmin,
 ):
