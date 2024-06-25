@@ -699,9 +699,7 @@ class ZaakAdmin(
     @admin.display(description="Resultaat")
     def get_resultaat(self, obj) -> str:
         try:
-            resultaat = Resultaat.objects.get(
-                zaak=obj, _resultaattype__isnull=False,
-            )
+            resultaat = Resultaat.objects.get(zaak=obj, _resultaattype__isnull=False,)
             resultaattype = resultaat._resultaattype
             return resultaattype.omschrijving
         except Resultaat.DoesNotExist:

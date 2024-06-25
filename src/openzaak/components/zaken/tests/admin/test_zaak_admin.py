@@ -17,7 +17,9 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.catalogi.tests.factories.resultaattype import ResultaatTypeFactory
+from openzaak.components.catalogi.tests.factories.resultaattype import (
+    ResultaatTypeFactory,
+)
 from openzaak.components.catalogi.tests.factories.statustype import StatusTypeFactory
 from openzaak.components.catalogi.tests.factories.zaaktype import ZaakTypeFactory
 
@@ -28,7 +30,13 @@ from openzaak.components.zaken.models.betrokkenen import (
 
 
 from ...models import ZaakBesluit
-from ..factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
+from ..factories import (
+    ResultaatFactory,
+    RolFactory,
+    StatusFactory,
+    ZaakFactory,
+    ZaakInformatieObjectFactory,
+)
 
 
 @disable_admin_mfa()
@@ -156,8 +164,12 @@ class ZaakAdminTests(WebTest):
         """
         zaaktype_uuid = "eae1791c-2f23-48c7-bae5-1a83574b67fe"
         zaaktype = f"{self.service.api_root}zaken/{zaaktype_uuid}"
-        resultaattype = f"{self.service.api_root}/resultaten/67161be9-f386-4b20-a3e4-47ff6fdfd57e"
-        statustype = f"{self.service.api_root}/statustypen/e5754fe2-83ac-431f-8e72-fe6dc063b92b"
+        resultaattype = (
+            f"{self.service.api_root}/resultaten/67161be9-f386-4b20-a3e4-47ff6fdfd57e"
+        )
+        statustype = (
+            f"{self.service.api_root}/statustypen/e5754fe2-83ac-431f-8e72-fe6dc063b92b"
+        )
 
         ZaakFactory.create(identificatie="some", zaaktype=zaaktype)
 
