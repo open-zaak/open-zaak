@@ -648,10 +648,13 @@ class ZaakAdmin(
 ):
     list_display = (
         "identificatie",
+        "get_zaaktype",
         "registratiedatum",
         "created_on",
         "startdatum",
         "einddatum",
+        "get_status",
+        "get_resultaat",
         "archiefstatus",
     )
     list_select_related = ("_zaaktype", "_zaaktype_base_url")
@@ -685,6 +688,34 @@ class ZaakAdmin(
     raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
     widget = AuthorityAxisOrderOLWidget
+
+    @admin.display(description="Zaaktype")
+    def get_zaaktype(self, obj) -> str:
+        if not obj._zaaktype:
+            return ""
+
+        return obj._zaaktype.identificatie
+
+    @admin.display(description="Resultaat")
+    def get_resultaat(self, obj) -> str:
+        try:
+            resultaat = Resultaat.objects.get(
+                zaak=obj, _resultaattype__isnull=False,
+            )
+            resultaattype = resultaat._resultaattype
+            return resultaattype.omschrijving
+        except Resultaat.DoesNotExist:
+            return ""
+
+    @admin.display(description="Status")
+    def get_status(self, obj) -> str:
+        status = obj.current_status
+
+        if not status or not status._statustype:
+            return ""
+
+        statustype = status._statustype
+        return statustype.statustype_omschrijving
 
     def get_object_actions(self, obj):
         return (
