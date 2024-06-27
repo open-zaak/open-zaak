@@ -352,6 +352,7 @@ jobs:
   publish:
     needs:
       - tests
+      - oas-up-to-date
       - docker
 
     name: Push Docker image
