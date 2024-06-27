@@ -105,7 +105,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - name: page
