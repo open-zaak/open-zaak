@@ -308,7 +308,7 @@ class EnkelvoudigInformatieObjectViewSet(
     @extend_schema(
         "enkelvoudiginformatieobject_download",
         summary="Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.",
-        description="Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.",
+        description="Download de binaire data van het INFORMATIEOBJECT.",
         parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
         responses={
             (status.HTTP_200_OK, "application/octet-stream"): OpenApiResponse(
