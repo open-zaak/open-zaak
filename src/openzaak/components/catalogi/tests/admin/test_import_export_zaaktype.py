@@ -4,6 +4,7 @@ import io
 import zipfile
 from datetime import datetime
 from unittest.mock import patch
+from uuid import UUID
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
@@ -13,7 +14,6 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
-import requests_mock
 from django_webtest import TransactionWebTest, WebTest
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes, AuthTypes
@@ -61,21 +61,30 @@ class MockSelectielijst(SelectieLijstMixin):
     def setUp(self):
         super().setUp()
 
+        self.procestype = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
         mock_resource_get(
-            self.requests_mocker,
-            "procestypen",
-            (
-                "https://selectielijst.openzaak.nl/api/v1/"
-                "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
-            ),
+            self.requests_mocker, "procestypen", self.procestype,
+        )
+
+        self.selectielijstklasse = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        mock_resource_get(
+            self.requests_mocker, "resultaten", self.selectielijstklasse,
+        )
+
+        self.resultaattypeomschrijving = (
+            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         mock_resource_get(
             self.requests_mocker,
-            "resultaten",
-            (
-                "https://selectielijst.openzaak.nl/api/v1/"
-                "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
-            ),
+            "resultaattypeomschrijvingen",
+            self.resultaattypeomschrijving,
         )
 
 
@@ -99,49 +108,57 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.app.set_user(self.user)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch_resource_validator
-    def test_export_import_zaaktype_with_relations(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+        self.catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.zaaktype = ZaakTypeFactory.create(
+            uuid="3d7107cb-b8c2-4573-bd7e-8f2e51f7df4a",
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
-            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            selectielijst_procestype=f"{self.base}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
+        self.informatieobjecttype = InformatieObjectTypeFactory.create(
+            uuid="1f93ace1-eddc-4ece-b2e4-b53fd3f4321f",
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktypen=[],
         )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        self.besluittype = BesluitTypeFactory.create(
+            uuid="53634679-9cea-4219-921e-9cc46d3f42f0", catalogus=self.catalogus
         )
-        statustype = StatusTypeFactory.create(
-            zaaktype=zaaktype, statustype_omschrijving="bla"
+        self.besluittype.zaaktypen.all().delete()
+        self.besluittype.zaaktypen.set([self.zaaktype])
+        self.besluittype.informatieobjecttypen.set([self.informatieobjecttype])
+        self.ziot = ZaakTypeInformatieObjectTypeFactory.create(
+            uuid="6a500e97-3e1e-4cae-983b-f8d6899271de",
+            zaaktype=self.zaaktype,
+            informatieobjecttype=self.informatieobjecttype,
         )
-        roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        with requests_mock.Mocker() as m:
-            resultaattypeomschrijving = (
-                "https://example.com/resultaattypeomschrijving/1"
-            )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
-            resultaattype = ResultaatTypeFactory.create(
-                zaaktype=zaaktype,
-                omschrijving_generiek="bla",
-                brondatum_archiefprocedure_afleidingswijze="afgehandeld",
-                resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-            )
+        self.statustype = StatusTypeFactory.create(
+            uuid="ec6d4afd-e57a-424c-ab73-7abd367dc1c8",
+            zaaktype=self.zaaktype,
+            statustype_omschrijving="bla",
+        )
+        self.roltype = RolTypeFactory.create(
+            uuid="664f289b-f4a8-4b23-9dae-1c5deac0380b", zaaktype=self.zaaktype
+        )
+        self.resultaattype = ResultaatTypeFactory.create(
+            uuid="2ce77096-6ffd-481d-bbc7-d591315e5be0",
+            zaaktype=self.zaaktype,
+            omschrijving_generiek="bla",
+            brondatum_archiefprocedure_afleidingswijze="afgehandeld",
+            resultaattypeomschrijving=self.resultaattypeomschrijving,
+            selectielijstklasse=self.selectielijstklasse,
+        )
+        self.eigenschap = EigenschapFactory.create(
+            uuid="9f71f141-573e-4499-812a-df552d1c58a1",
+            zaaktype=self.zaaktype,
+            definitie="bla",
+        )
 
-        eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    def test_export_import_zaaktype_with_relations_keep_uuids(self, *mocks):
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
@@ -150,11 +167,13 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        zaaktype.refresh_from_db()
-        zaaktype.delete()
-        informatieobjecttype.delete()
-        besluittype.delete()
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        self.zaaktype.refresh_from_db()
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
 
         response = self.app.get(url)
 
@@ -166,27 +185,13 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             "test.zip",
             f.read(),
         )
+        form["generate_new_uuids"] = False
 
-        selectielijstklasse_body = {
-            "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-            "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
-            "procestermijn": "nihil",
-        }
-
-        # with requests_mock.Mocker() as m:
-        self.requests_mocker.get(
-            resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"}
-        )
-        self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
-        self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
-        )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
-        imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
         informatieobjecttype = InformatieObjectType.objects.get()
         zaaktype = ZaakType.objects.get()
@@ -196,71 +201,44 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         statustype = StatusType.objects.get()
         eigenschap = Eigenschap.objects.get()
 
-        self.assertEqual(besluittype.catalogus, imported_catalogus)
+        self.assertEqual(besluittype.uuid, UUID("53634679-9cea-4219-921e-9cc46d3f42f0"))
+        self.assertEqual(besluittype.catalogus, self.catalogus)
         self.assertTrue(besluittype.concept)
         self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
         self.assertEqual(
             list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
         )
 
-        self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
+        self.assertEqual(
+            informatieobjecttype.uuid, UUID("1f93ace1-eddc-4ece-b2e4-b53fd3f4321f")
+        )
+        self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
         self.assertTrue(informatieobjecttype.concept)
 
-        self.assertEqual(zaaktype.catalogus, imported_catalogus)
-        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
+        self.assertEqual(zaaktype.uuid, UUID("3d7107cb-b8c2-4573-bd7e-8f2e51f7df4a"))
+        self.assertEqual(zaaktype.catalogus, self.catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2017)
         self.assertTrue(zaaktype.concept)
 
+        self.assertEqual(ziot.uuid, UUID("6a500e97-3e1e-4cae-983b-f8d6899271de"))
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
 
+        self.assertEqual(roltype.uuid, UUID("664f289b-f4a8-4b23-9dae-1c5deac0380b"))
         self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertEqual(
+            resultaattype.uuid, UUID("2ce77096-6ffd-481d-bbc7-d591315e5be0")
+        )
         self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertEqual(statustype.uuid, UUID("ec6d4afd-e57a-424c-ab73-7abd367dc1c8"))
         self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertEqual(eigenschap.uuid, UUID("9f71f141-573e-4499-812a-df552d1c58a1"))
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     @patch_resource_validator
-    def test_export_import_zaaktype_to_different_catalogus(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus, vertrouwelijkheidaanduiding="openbaar"
-        )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        statustype = StatusTypeFactory.create(
-            zaaktype=zaaktype, statustype_omschrijving="bla"
-        )
-        roltype = RolTypeFactory.create(zaaktype=zaaktype)
-        with requests_mock.Mocker() as m:
-            resultaattypeomschrijving = (
-                "https://example.com/resultaattypeomschrijving/1"
-            )
-            m.register_uri(
-                "GET", resultaattypeomschrijving, json={"omschrijving": "init"}
-            )
-            resultaattype = ResultaatTypeFactory.create(
-                zaaktype=zaaktype,
-                omschrijving_generiek="bla",
-                brondatum_archiefprocedure_afleidingswijze="afgehandeld",
-                resultaattypeomschrijving=resultaattypeomschrijving,
-                selectielijstklasse=f"{self.base}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-            )
-
-        eigenschap = EigenschapFactory.create(zaaktype=zaaktype, definitie="bla")
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+    def test_export_import_zaaktype_with_relations_generate_new_uuids(self, *mocks):
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
@@ -269,8 +247,94 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        zaaktype.refresh_from_db()
-        catalogus.delete()
+        self.zaaktype.refresh_from_db()
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
+
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        form["generate_new_uuids"] = True
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 302)
+
+        besluittype = BesluitType.objects.get()
+        informatieobjecttype = InformatieObjectType.objects.get()
+        zaaktype = ZaakType.objects.get()
+        ziot = ZaakTypeInformatieObjectType.objects.get()
+        roltype = RolType.objects.get()
+        resultaattype = ResultaatType.objects.get()
+        statustype = StatusType.objects.get()
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertNotEqual(
+            besluittype.uuid, UUID("53634679-9cea-4219-921e-9cc46d3f42f0")
+        )
+        self.assertEqual(besluittype.catalogus, self.catalogus)
+        self.assertTrue(besluittype.concept)
+        self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
+        )
+
+        self.assertNotEqual(
+            informatieobjecttype.uuid, UUID("1f93ace1-eddc-4ece-b2e4-b53fd3f4321f")
+        )
+        self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
+        self.assertTrue(informatieobjecttype.concept)
+
+        self.assertNotEqual(zaaktype.uuid, UUID("3d7107cb-b8c2-4573-bd7e-8f2e51f7df4a"))
+        self.assertEqual(zaaktype.catalogus, self.catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2017)
+        self.assertTrue(zaaktype.concept)
+
+        self.assertNotEqual(ziot.uuid, UUID("6a500e97-3e1e-4cae-983b-f8d6899271de"))
+        self.assertEqual(ziot.zaaktype, zaaktype)
+        self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
+
+        self.assertNotEqual(roltype.uuid, UUID("664f289b-f4a8-4b23-9dae-1c5deac0380b"))
+        self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            resultaattype.uuid, UUID("2ce77096-6ffd-481d-bbc7-d591315e5be0")
+        )
+        self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            statustype.uuid, UUID("ec6d4afd-e57a-424c-ab73-7abd367dc1c8")
+        )
+        self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            eigenschap.uuid, UUID("9f71f141-573e-4499-812a-df552d1c58a1")
+        )
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    def test_export_import_zaaktype_to_different_catalogus_keep_uuids(self, *mocks):
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_export")
+
+        data = response.content
+
+        self.zaaktype.refresh_from_db()
+        self.catalogus.delete()
 
         catalogus = CatalogusFactory.create(rsin="015006864", domein="TEST2")
         url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
@@ -285,26 +349,14 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             "test.zip",
             f.read(),
         )
+        form["generate_new_uuids"] = False
 
-        selectielijstklasse_body = {
-            "url": "https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-            "procesType": "https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
-            "procestermijn": "nihil",
-        }
-
-        self.requests_mocker.get(
-            resultaattype.resultaattypeomschrijving, json={"omschrijving": "bla"}
-        )
-        self.requests_mocker.get(zaaktype.selectielijst_procestype, json={"jaar": 2020})
-        self.requests_mocker.get(
-            resultaattype.selectielijstklasse, json=selectielijstklasse_body,
-        )
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
-        imported_catalogus = Catalogus.objects.get()
+        existing_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
         informatieobjecttype = InformatieObjectType.objects.get()
         zaaktype = ZaakType.objects.get()
@@ -314,49 +366,48 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         statustype = StatusType.objects.get()
         eigenschap = Eigenschap.objects.get()
 
-        self.assertEqual(besluittype.catalogus, imported_catalogus)
+        self.assertEqual(existing_catalogus.domein, "TEST2")
+
+        self.assertEqual(besluittype.uuid, UUID("53634679-9cea-4219-921e-9cc46d3f42f0"))
+        self.assertEqual(besluittype.catalogus, existing_catalogus)
         self.assertTrue(besluittype.concept)
         self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
         self.assertEqual(
             list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
         )
 
-        self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
+        self.assertEqual(
+            informatieobjecttype.uuid, UUID("1f93ace1-eddc-4ece-b2e4-b53fd3f4321f")
+        )
+        self.assertEqual(informatieobjecttype.catalogus, existing_catalogus)
         self.assertTrue(informatieobjecttype.concept)
 
-        self.assertEqual(zaaktype.catalogus, imported_catalogus)
-        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
+        self.assertEqual(zaaktype.uuid, UUID("3d7107cb-b8c2-4573-bd7e-8f2e51f7df4a"))
+        self.assertEqual(zaaktype.catalogus, existing_catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2017)
         self.assertTrue(zaaktype.concept)
 
+        self.assertEqual(ziot.uuid, UUID("6a500e97-3e1e-4cae-983b-f8d6899271de"))
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
 
+        self.assertEqual(roltype.uuid, UUID("664f289b-f4a8-4b23-9dae-1c5deac0380b"))
         self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertEqual(
+            resultaattype.uuid, UUID("2ce77096-6ffd-481d-bbc7-d591315e5be0")
+        )
         self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertEqual(statustype.uuid, UUID("ec6d4afd-e57a-424c-ab73-7abd367dc1c8"))
         self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertEqual(eigenschap.uuid, UUID("9f71f141-573e-4499-812a-df552d1c58a1"))
         self.assertEqual(eigenschap.zaaktype, zaaktype)
 
-    def test_export_import_zaaktype_choose_existing_informatieobjecttype(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="export",
-        )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    def test_export_import_zaaktype_to_different_catalogus_generate_new_uuids(
+        self, *mocks
+    ):
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
@@ -365,20 +416,101 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        zaaktype.refresh_from_db()
-        zaaktype.delete()
-        informatieobjecttype.delete()
-        besluittype.delete()
+        self.zaaktype.refresh_from_db()
+        self.catalogus.delete()
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="existing",
-        )
-        informatieobjecttype_uuid = informatieobjecttype.uuid
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
+        catalogus = CatalogusFactory.create(rsin="015006864", domein="TEST2")
         url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        form["generate_new_uuids"] = True
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 302)
+
+        existing_catalogus = Catalogus.objects.get()
+        besluittype = BesluitType.objects.get()
+        informatieobjecttype = InformatieObjectType.objects.get()
+        zaaktype = ZaakType.objects.get()
+        ziot = ZaakTypeInformatieObjectType.objects.get()
+        roltype = RolType.objects.get()
+        resultaattype = ResultaatType.objects.get()
+        statustype = StatusType.objects.get()
+        eigenschap = Eigenschap.objects.get()
+
+        self.assertEqual(existing_catalogus.domein, "TEST2")
+
+        self.assertNotEqual(
+            besluittype.uuid, UUID("53634679-9cea-4219-921e-9cc46d3f42f0")
+        )
+        self.assertEqual(besluittype.catalogus, existing_catalogus)
+        self.assertTrue(besluittype.concept)
+        self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
+        )
+
+        self.assertNotEqual(
+            informatieobjecttype.uuid, UUID("1f93ace1-eddc-4ece-b2e4-b53fd3f4321f")
+        )
+        self.assertEqual(informatieobjecttype.catalogus, existing_catalogus)
+        self.assertTrue(informatieobjecttype.concept)
+
+        self.assertNotEqual(zaaktype.uuid, UUID("3d7107cb-b8c2-4573-bd7e-8f2e51f7df4a"))
+        self.assertEqual(zaaktype.catalogus, existing_catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2017)
+        self.assertTrue(zaaktype.concept)
+
+        self.assertNotEqual(ziot.uuid, UUID("6a500e97-3e1e-4cae-983b-f8d6899271de"))
+        self.assertEqual(ziot.zaaktype, zaaktype)
+        self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
+
+        self.assertNotEqual(roltype.uuid, UUID("664f289b-f4a8-4b23-9dae-1c5deac0380b"))
+        self.assertEqual(roltype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            resultaattype.uuid, UUID("2ce77096-6ffd-481d-bbc7-d591315e5be0")
+        )
+        self.assertEqual(resultaattype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            statustype.uuid, UUID("ec6d4afd-e57a-424c-ab73-7abd367dc1c8")
+        )
+        self.assertEqual(statustype.zaaktype, zaaktype)
+        self.assertNotEqual(
+            eigenschap.uuid, UUID("9f71f141-573e-4499-812a-df552d1c58a1")
+        )
+        self.assertEqual(eigenschap.zaaktype, zaaktype)
+
+    def test_export_import_zaaktype_choose_existing_informatieobjecttype(self, *mocks):
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
+
+        response = self.app.get(url)
+        form = response.forms["zaaktype_form"]
+
+        response = form.submit("_export")
+
+        data = response.content
+
+        self.zaaktype.refresh_from_db()
+        self.zaaktype.delete()
+        self.besluittype.delete()
+
+        self.informatieobjecttype.omschrijving = "existing"
+        self.informatieobjecttype.save()
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
 
         response = self.app.get(url)
 
@@ -393,7 +525,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = form.submit("_import_zaaktype").follow()
 
-        response.form["iotype-0-existing"] = informatieobjecttype.id
+        response.form["iotype-0-existing"] = self.informatieobjecttype.id
         response = response.form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
@@ -410,7 +542,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.assertEqual(informatieobjecttype.catalogus, imported_catalogus)
         self.assertEqual(informatieobjecttype.omschrijving, "existing")
-        self.assertEqual(informatieobjecttype.uuid, informatieobjecttype_uuid)
+        self.assertEqual(
+            informatieobjecttype.uuid, UUID("1f93ace1-eddc-4ece-b2e4-b53fd3f4321f")
+        )
 
         self.assertEqual(zaaktype.catalogus, imported_catalogus)
 
@@ -418,28 +552,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
 
     def test_export_import_zaaktype_choose_existing_besluittype(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="export",
-        )
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="export"
-        )
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
@@ -448,19 +561,16 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        zaaktype.refresh_from_db()
-        zaaktype.delete()
-        informatieobjecttype.delete()
-        besluittype.delete()
+        self.zaaktype.refresh_from_db()
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
 
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="existing"
+        self.besluittype.omschrijving = "existing"
+        self.besluittype.save()
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
         )
-        besluittype_uuid = besluittype.uuid
-        besluittype.zaaktypen.all().delete()
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
 
         response = self.app.get(url)
 
@@ -475,7 +585,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = form.submit("_import_zaaktype").follow()
 
-        response.form["besluittype-0-existing"] = besluittype.id
+        response.form["besluittype-0-existing"] = self.besluittype.id
         response = response.form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
@@ -486,7 +596,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         self.assertEqual(besluittype.catalogus, imported_catalogus)
         self.assertEqual(besluittype.omschrijving, "existing")
-        self.assertEqual(besluittype.uuid, besluittype_uuid)
+        self.assertEqual(besluittype.uuid, UUID("53634679-9cea-4219-921e-9cc46d3f42f0"))
         self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
         self.assertEqual(
             list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
@@ -502,28 +612,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     def test_export_import_zaaktype_choose_existing_besluittype_and_informatieobjecttype(
         self, *mocks
     ):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="export",
-        )
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="export"
-        )
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        besluittype.informatieobjecttypen.set([informatieobjecttype])
-        ziot = ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+        url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))
 
         response = self.app.get(url)
         form = response.forms["zaaktype_form"]
@@ -532,23 +621,17 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        zaaktype.refresh_from_db()
-        zaaktype.delete()
-        informatieobjecttype.delete()
-        besluittype.delete()
+        self.zaaktype.refresh_from_db()
+        self.zaaktype.delete()
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="existing",
-        )
-        besluittype = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="existing"
-        )
-        besluittype.zaaktypen.all().delete()
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
+        self.informatieobjecttype.omschrijving = "existing"
+        self.informatieobjecttype.save()
+        self.besluittype.omschrijving = "existing"
+        self.besluittype.save()
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
 
         response = self.app.get(url)
 
@@ -563,8 +646,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = form.submit("_import_zaaktype").follow()
 
-        response.form["besluittype-0-existing"] = besluittype.id
-        response.form["iotype-0-existing"] = informatieobjecttype.id
+        response.form["besluittype-0-existing"] = self.besluittype.id
+        response.form["iotype-0-existing"] = self.informatieobjecttype.id
         response = response.form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
@@ -588,83 +671,26 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(ziot.zaaktype, zaaktype)
         self.assertEqual(ziot.informatieobjecttype, informatieobjecttype)
 
-    def test_import_zaaktype_create_new_generates_new_uuids(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        zaaktype_uuid = zaaktype.uuid
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="export",
-        )
-        informatieobjecttype_uuid = informatieobjecttype.uuid
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype_uuid = besluittype.uuid
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-        ZaakType.objects.exclude(pk=zaaktype.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_export")
-
-        data = response.content
-
-        zaaktype.delete()
-        informatieobjecttype.delete()
-        besluittype.delete()
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
-
-        response = self.app.get(url)
-
-        form = response.form
-        f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
-
-        zaaktype = ZaakType.objects.get()
-        informatieobjecttype = InformatieObjectType.objects.get()
-        besluittype = BesluitType.objects.get()
-
-        self.assertNotEqual(zaaktype.uuid, zaaktype_uuid)
-        self.assertNotEqual(informatieobjecttype.uuid, informatieobjecttype_uuid)
-        self.assertNotEqual(besluittype.uuid, besluittype_uuid)
-
     def test_simultaneous_zaaktype_imports(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        # catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype1 = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="geheim",
             zaaktype_omschrijving="zaaktype1",
         )
         zaaktype2 = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="zaaktype2",
         )
-        besluittype1 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="1")
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, omschrijving="1"
+        )
         besluittype1.zaaktypen.set([zaaktype1])
 
-        besluittype2 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="2")
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, omschrijving="2"
+        )
         besluittype2.zaaktypen.set([zaaktype2])
 
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype1.pk,))
@@ -682,7 +708,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         ZaakType.objects.all().delete()
         BesluitType.objects.all().delete()
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
 
         self.app2 = self.app_class()
 
@@ -748,9 +776,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         """
         Regression test for #964 - export published zaaktype.
         """
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
             concept=False,
@@ -766,36 +793,38 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(response.status_code, 200)
 
     def test_import_zaaktype_besluittype_and_informatieobjecttype_order(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
-        Catalogus.objects.exclude(pk=catalogus.pk)
+
         iot_1 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Brave",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-17",
         )
         iot_2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-18",
         )
         iot_3 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-17",
         )
         iot_4 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
@@ -803,25 +832,25 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-17",
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-18",
         )
         besluittype3 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Banana",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-18",
         )
         besluittype4 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Banana",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-17",
@@ -834,7 +863,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -885,36 +916,34 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     def test_import_zaaktype_besluittype_and_informatieobjecttype_field_order(
         self, *mocks
     ):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
-        Catalogus.objects.exclude(pk=catalogus.pk)
         iot_1 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-17",
         )
         iot_2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-18",
         )
         iot_3 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-11-17",
         )
         iot_4 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
@@ -922,25 +951,25 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-17",
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-18",
         )
         besluittype3 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Banana",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-18",
         )
         besluittype4 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Banana",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-11-17",
@@ -953,7 +982,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -968,14 +999,14 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         returned_labels = [str(label) for label in response.html.find_all("label")]
 
         expected_labels = [
-            f'<label for="id_iotype-0-existing">{catalogus} - {iot_3.omschrijving}:</label>',
-            f'<label for="id_iotype-1-existing">{catalogus} - {iot_2.omschrijving}:</label>',
-            f'<label for="id_iotype-2-existing">{catalogus} - {iot_1.omschrijving}:</label>',
-            f'<label for="id_iotype-3-existing">{catalogus} - {iot_4.omschrijving}:</label>',
-            f'<label for="id_besluittype-0-existing">{catalogus} - {besluittype1.omschrijving}:</label>',
-            f'<label for="id_besluittype-1-existing">{catalogus} - {besluittype2.omschrijving}:</label>',
-            f'<label for="id_besluittype-2-existing">{catalogus} - {besluittype4.omschrijving}:</label>',
-            f'<label for="id_besluittype-3-existing">{catalogus} - {besluittype3.omschrijving}:</label>',
+            f'<label for="id_iotype-0-existing">{self.catalogus} - {iot_3.omschrijving}:</label>',
+            f'<label for="id_iotype-1-existing">{self.catalogus} - {iot_2.omschrijving}:</label>',
+            f'<label for="id_iotype-2-existing">{self.catalogus} - {iot_1.omschrijving}:</label>',
+            f'<label for="id_iotype-3-existing">{self.catalogus} - {iot_4.omschrijving}:</label>',
+            f'<label for="id_besluittype-0-existing">{self.catalogus} - {besluittype1.omschrijving}:</label>',
+            f'<label for="id_besluittype-1-existing">{self.catalogus} - {besluittype2.omschrijving}:</label>',
+            f'<label for="id_besluittype-2-existing">{self.catalogus} - {besluittype4.omschrijving}:</label>',
+            f'<label for="id_besluittype-3-existing">{self.catalogus} - {besluittype3.omschrijving}:</label>',
         ]
 
         self.assertEqual(returned_labels, expected_labels)
@@ -990,40 +1021,39 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(returned_labels, expected_labels)
 
     def test_import_zaaktype_saved_selected_on_error(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
-        Catalogus.objects.exclude(pk=catalogus.pk)
+        Catalogus.objects.exclude(pk=self.catalogus.pk)
         iot_1 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
         )
         iot_2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Bravo",
             zaaktypen__zaaktype=zaaktype,
         )
         iot_3 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Charlie",
             zaaktypen__zaaktype=zaaktype,
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
+            catalogus=self.catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
+            catalogus=self.catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
         )
         besluittype3 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
+            catalogus=self.catalogus, omschrijving="Banana", zaaktypen=[zaaktype]
         )
 
         # create zip
@@ -1033,7 +1063,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1080,29 +1112,36 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     def test_import_zaaktype_auto_match_besluittype_and_informatieobjecttype(
         self, *mocks
     ):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
         )
         informatieobjecttype2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Beta",
             zaaktypen__zaaktype=zaaktype,
         )
 
-        besluittype1 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="1")
+        besluittype1 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, omschrijving="1"
+        )
         besluittype1.zaaktypen.set([zaaktype])
 
-        besluittype2 = BesluitTypeFactory.create(catalogus=catalogus, omschrijving="2")
+        besluittype2 = BesluitTypeFactory.create(
+            catalogus=self.catalogus, omschrijving="2"
+        )
         besluittype2.zaaktypen.set([zaaktype])
 
         # create zip
@@ -1112,7 +1151,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1179,33 +1220,34 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(besluittype_field_1.value, "")
 
     def test_import_zaaktype_auto_match_import_relations(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.zaaktype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
             datum_begin_geldigheid="2023-01-01",
         )
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
         )
 
         informatieobjecttype2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Beta",
             zaaktypen__zaaktype=zaaktype,
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
+            catalogus=self.catalogus, omschrijving="Apple", zaaktypen=[zaaktype]
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus, omschrijving="Charlie", zaaktypen=[zaaktype]
+            catalogus=self.catalogus, omschrijving="Charlie", zaaktypen=[zaaktype]
         )
 
         # create zip
@@ -1215,7 +1257,11 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        zaaktype.delete()
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1231,19 +1277,13 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         informatieobjecttype2.delete()
         besluittype2.delete()
 
-        zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1)
-        zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31)
-        zaaktype.save()
-
-        self.assertEqual(ZaakType.objects.all().count(), 1)
-
         response = form.submit("_import_zaaktype").follow()
         response = response.form.submit("_select")
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(ZaakType.objects.all().count(), 2)
+        self.assertEqual(ZaakType.objects.all().count(), 1)
 
-        new_zaaktype = ZaakType.objects.exclude(pk=zaaktype.pk).get()
+        new_zaaktype = ZaakType.objects.get()
 
         old_iot = new_zaaktype.informatieobjecttypen.all().get(omschrijving="Alpha")
         self.assertEqual(old_iot, informatieobjecttype)
@@ -1256,16 +1296,17 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertNotEqual(new_besluittype.pk, besluittype2.pk)
 
     def test_import_zaaktype_auto_match_latest_object(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.zaaktype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
             datum_begin_geldigheid="2023-01-01",
         )
 
         iot1 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
@@ -1274,7 +1315,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         besluittype1 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-01-01",
@@ -1290,20 +1331,24 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         # New types not found in zip
         iot2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
             datum_begin_geldigheid="2023-04-01",
         )
         besluittype2 = BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-04-01",
         )
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        zaaktype.delete()
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1314,10 +1359,6 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             "test.zip",
             f.read(),
         )
-
-        zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1)
-        zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31)
-        zaaktype.save()
 
         response = form.submit("_import_zaaktype").follow()
 
@@ -1334,23 +1375,23 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(response.status_code, 302)
 
         new_zaaktype = ZaakType.objects.exclude(pk=zaaktype.pk).get()
-        old_iot = new_zaaktype.informatieobjecttypen.all().get(omschrijving="Alpha")
+        old_iot = new_zaaktype.informatieobjecttypen.get()
         self.assertEqual(old_iot, iot2)
 
-        old_bt = new_zaaktype.besluittypen.all().get(omschrijving="Apple")
+        old_bt = new_zaaktype.besluittypen.get()
         self.assertEqual(old_bt, besluittype2)
 
     def test_import_iotype_without_omschrijving_generiek(self, *mocks):
         """
         regression test for https://github.com/open-zaak/open-zaak/issues/1509
         """
-        catalogus_old = CatalogusFactory.create(rsin="000000000", domein="OLD")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus_old,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving_generiek_informatieobjecttype="",
             omschrijving_generiek_definitie="",
@@ -1360,7 +1401,6 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
-        catalogus_new = CatalogusFactory.create(domein="NEW")
 
         # export
         zaaktype_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
@@ -1371,9 +1411,12 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         export_data = response.content
 
+        zaaktype.delete()
+        informatieobjecttype.delete()
+
         # import to the new catalogus
         import_url = reverse(
-            "admin:catalogi_catalogus_import_zaaktype", args=(catalogus_new.pk,)
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
         )
 
         response = self.app.get(import_url)
@@ -1393,9 +1436,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(response.status_code, 302)
 
     def test_import_zaaktype_with_no_identification_selected(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             identificatie="ZAAKTYPE_1",
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
@@ -1403,7 +1445,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
@@ -1412,7 +1454,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-01-01",
@@ -1426,7 +1468,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1449,9 +1493,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertTrue(ZaakType.objects.filter(identificatie="ZAAKTYPE_1").exists())
 
     def test_import_zaaktype_with_different_identification(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             identificatie="ZAAKTYPE_1",
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
@@ -1459,7 +1502,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
@@ -1468,7 +1511,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-01-01",
@@ -1482,7 +1525,11 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        zaaktype.delete()
+
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1505,9 +1552,12 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     def test_import_zaaktype_with_different_identification_exceeds_max_length(
         self, *mocks
     ):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             identificatie="Identification_that_is_fifty_characters_long_00000",
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
@@ -1515,7 +1565,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
@@ -1524,7 +1574,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-01-01",
@@ -1538,7 +1588,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1565,15 +1617,16 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
     def test_import_zaaktype_with_bad_filenames(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
             datum_begin_geldigheid="2023-01-01",
         )
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
         response = self.app.get(url)
 
         form = response.form
@@ -1625,16 +1678,15 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     def test_import_zaaktype_with_bad_filenames_with_correct_besluittype_and_informatieobjecttype(
         self, *mocks
     ):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
             datum_begin_geldigheid="2023-01-01",
         )
 
         InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             omschrijving="Alpha",
             zaaktypen__zaaktype=zaaktype,
@@ -1642,7 +1694,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             datum_einde_geldigheid="2023-03-31",
         )
         BesluitTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             omschrijving="Apple",
             zaaktypen=[zaaktype],
             datum_begin_geldigheid="2023-01-01",
@@ -1658,7 +1710,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         data = response.content
 
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
 
         response = self.app.get(url)
 
@@ -1716,16 +1770,19 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         """
         Regression test that imported volgnummer is the same as in the export
         """
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST1")
+        self.zaaktype.delete()
+        self.informatieobjecttype.delete()
+        self.besluittype.delete()
+
         zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktype_omschrijving="bla",
-            selectielijst_procestype=f"{self.base}api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            selectielijst_procestype=self.procestype,
         )
 
         informatieobjecttype_1 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktypen=None,
             omschrijving="Apple",
@@ -1734,7 +1791,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_1, volgnummer=1
         )
         informatieobjecttype_2 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktypen=None,
             omschrijving="Banana",
@@ -1749,7 +1806,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype_2, volgnummer=4
         )
         informatieobjecttype_3 = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
+            catalogus=self.catalogus,
             vertrouwelijkheidaanduiding="openbaar",
             zaaktypen=None,
             omschrijving="Chair",
@@ -1768,11 +1825,13 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_export")
         data = response.content
 
-        # import into a different catalog
-        catalogus_2 = CatalogusFactory.create(rsin="111222333", domein="TEST2")
+        zaaktype.delete()
+        informatieobjecttype_1.delete()
+        informatieobjecttype_2.delete()
+        informatieobjecttype_3.delete()
 
         url = reverse(
-            "admin:catalogi_catalogus_import_zaaktype", args=(catalogus_2.pk,)
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
         )
         response = self.app.get(url)
 
@@ -1787,10 +1846,10 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         response = form.submit("_import_zaaktype").follow()
         response.form.submit("_select")
 
-        self.assertEqual(ZaakType.objects.filter(catalogus=catalogus_2).count(), 1)
-        new_zaaktype = ZaakType.objects.get(catalogus=catalogus_2)
+        self.assertEqual(ZaakType.objects.filter(catalogus=self.catalogus).count(), 1)
+        new_zaaktype = ZaakType.objects.get(catalogus=self.catalogus)
         self.assertEqual(
-            InformatieObjectType.objects.filter(catalogus=catalogus_2).count(), 3
+            InformatieObjectType.objects.filter(catalogus=self.catalogus).count(), 3
         )
         self.assertEqual(
             ZaakTypeInformatieObjectType.objects.filter(zaaktype=new_zaaktype).count(),
@@ -1798,7 +1857,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         # verify ZaakTypeInformatieObjectType are imported correctly
         new_iot_1 = InformatieObjectType.objects.get(
-            catalogus=catalogus_2, omschrijving="Apple"
+            catalogus=self.catalogus, omschrijving="Apple"
         )
         self.assertTrue(
             ZaakTypeInformatieObjectType.objects.filter(
@@ -1816,7 +1875,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         new_iot_2 = InformatieObjectType.objects.get(
-            catalogus=catalogus_2, omschrijving="Banana"
+            catalogus=self.catalogus, omschrijving="Banana"
         )
         self.assertTrue(
             ZaakTypeInformatieObjectType.objects.filter(
@@ -1841,7 +1900,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         new_iot_2 = InformatieObjectType.objects.get(
-            catalogus=catalogus_2, omschrijving="Chair"
+            catalogus=self.catalogus, omschrijving="Chair"
         )
         self.assertTrue(
             ZaakTypeInformatieObjectType.objects.filter(
@@ -1870,178 +1929,6 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         conf.default_year = 2020
         conf.allowed_years = [2020]
         conf.save()
-
-    def test_import_zaaktype_already_exists(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_export")
-
-        data = response.content
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
-
-        response = self.app.get(url)
-
-        form = response.form
-        f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(ZaakType.objects.count(), 2)
-
-    def test_import_zaaktype_already_exists_with_besluittype(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_export")
-
-        data = response.content
-
-        besluittype.delete()
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
-
-        response = self.app.get(url)
-
-        form = response.form
-        f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(ZaakType.objects.count(), 2)
-        self.assertEqual(BesluitType.objects.count(), 1)
-
-    def test_import_zaaktype_besluittype_already_exists(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        besluittype = BesluitTypeFactory.create(catalogus=catalogus)
-        besluittype.zaaktypen.all().delete()
-        besluittype.zaaktypen.set([zaaktype])
-        Catalogus.objects.exclude(pk=catalogus.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_export")
-
-        data = response.content
-
-        zaaktype.delete()
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
-
-        response = self.app.get(url)
-
-        form = response.form
-        f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype").follow()
-
-        form = response.form
-        form["besluittype-0-existing"].value = ""
-        response = form.submit("_select")
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(BesluitType.objects.count(), 2)
-        self.assertEqual(ZaakType.objects.count(), 1)
-
-    def test_import_zaaktype_informatieobjectype_already_exists(self, *mocks):
-        catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
-        zaaktype = ZaakTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            zaaktype_omschrijving="bla",
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=catalogus,
-            vertrouwelijkheidaanduiding="openbaar",
-            omschrijving="export",
-        )
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        ZaakType.objects.exclude(pk=zaaktype.pk).delete()
-
-        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
-
-        response = self.app.get(url)
-        form = response.forms["zaaktype_form"]
-
-        response = form.submit("_export")
-
-        data = response.content
-
-        zaaktype.delete()
-
-        url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
-
-        response = self.app.get(url)
-
-        form = response.form
-        f = io.BytesIO(data)
-        f.name = "test.zip"
-        f.seek(0)
-        form["file"] = (
-            "test.zip",
-            f.read(),
-        )
-
-        response = form.submit("_import_zaaktype").follow()
-        form = response.form
-        form["iotype-0-existing"].value = ""
-        response = form.submit("_select")
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(InformatieObjectType.objects.count(), 2)
-        self.assertEqual(ZaakType.objects.count(), 1)
 
     def test_import_zaaktype_besluittype_invalid_eigenschap(self, *mocks):
         catalogus = CatalogusFactory.create(rsin="000000000", domein="TEST")
@@ -2184,6 +2071,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             "test.zip",
             f.read(),
         )
+        form["generate_new_uuids"] = True
 
         zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
         zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31).date()
@@ -2230,6 +2118,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
             "test.zip",
             f.read(),
         )
+        form["generate_new_uuids"] = True
 
         zaaktype.datum_begin_geldigheid = datetime(2022, 1, 1).date()
         zaaktype.datum_einde_geldigheid = datetime(2022, 12, 31).date()

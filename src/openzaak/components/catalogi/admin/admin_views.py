@@ -47,6 +47,10 @@ class CatalogusZaakTypeImportUploadView(
                 "identificatie_prefix"
             )
 
+            request.session["generate_new_uuids"] = request.POST.get(
+                "generate_new_uuids"
+            )
+
             iotypen = retrieve_iotypen(catalogus_pk, request.session["file_content"])
             request.session["iotypen"] = (
                 sorted(iotypen, key=lambda x: x["omschrijving"]) if iotypen else iotypen
@@ -77,6 +81,7 @@ class CatalogusZaakTypeImportUploadView(
                             request.session["file_content"],
                             {},
                             {},
+                            request.session["generate_new_uuids"],
                         )
 
                     messages.add_message(
@@ -193,6 +198,7 @@ class CatalogusZaakTypeImportSelectView(
                             request.session["iotypen"],
                             iotype_forms.cleaned_data,
                             iotype_forms,
+                            request.session["generate_new_uuids"],
                         )
 
                 besluittypen_uuid_mapping = {}
@@ -204,6 +210,7 @@ class CatalogusZaakTypeImportSelectView(
                             besluittype_forms.cleaned_data,
                             iotypen_uuid_mapping,
                             besluittype_forms,
+                            request.session["generate_new_uuids"],
                         )
 
                 import_zaaktype_for_catalogus(
@@ -212,6 +219,7 @@ class CatalogusZaakTypeImportSelectView(
                     request.session["file_content"],
                     iotypen_uuid_mapping,
                     besluittypen_uuid_mapping,
+                    request.session["generate_new_uuids"],
                 )
 
             messages.add_message(

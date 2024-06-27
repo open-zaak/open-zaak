@@ -98,7 +98,7 @@ def retrieve_besluittypen(catalogus_pk, import_file_content):
     return besluittypen
 
 
-def construct_iotypen(iotypen, iotype_form_data, iot_formset):
+def construct_iotypen(iotypen, iotype_form_data, iot_formset, generate_new_uuids):
     iotypen_uuid_mapping = {}
     for imported, form_data, form in zip(iotypen, iotype_form_data, iot_formset.forms):
         uuid = imported["url"].split("/")[-1]
@@ -122,13 +122,19 @@ def construct_iotypen(iotypen, iotype_form_data, iot_formset):
                         "A validation error occurred while deserializing a {}\n{}"
                     ).format("InformatieObjectType", error_message)
                 )
+            if not generate_new_uuids:
+                instance.uuid = uuid
             instance.save()
             iotypen_uuid_mapping[uuid] = instance
     return iotypen_uuid_mapping
 
 
 def construct_besluittypen(
-    besluittypen, besluittype_form_data, iotypen_uuid_mapping, besluittype_formset
+    besluittypen,
+    besluittype_form_data,
+    iotypen_uuid_mapping,
+    besluittype_formset,
+    generate_new_uuids,
 ):
     besluittypen_uuid_mapping = {}
     for (imported, related_iotypen_uuids,), form_data, form in zip(
@@ -153,6 +159,8 @@ def construct_besluittypen(
                         "A validation error occurred while deserializing a {}\n{}"
                     ).format("BesluitType", error_message)
                 )
+            if not generate_new_uuids:
+                instance.uuid = uuid
             instance.save()
             chosen_object = instance
         besluittypen_uuid_mapping[uuid] = chosen_object
@@ -171,6 +179,7 @@ def import_zaaktype_for_catalogus(
     import_file_content,
     iotypen_uuid_mapping,
     besluittypen_uuid_mapping,
+    generate_new_uuids,
 ):
     catalogus = Catalogus.objects.get(pk=catalogus_pk)
     catalogus_uuid = str(catalogus.uuid)
@@ -197,6 +206,10 @@ def import_zaaktype_for_catalogus(
                 data = zip_file.read(f"{resource}.json").decode()
                 files_found.append(f"{resource}.json")
 
+                # These mappings are also needed when `generate_new_uuids=False`, because
+                # it is possible to select existing InformatieObjectTypen/BesluitTypen
+                # to link a ZaakType to, which may have different UUIDs than those in
+                # the import file (possibly because they are newer version)
                 if resource == "ZaakTypeInformatieObjectType":
                     for old, new in iotypen_uuid_mapping.items():
                         data = data.replace(old, str(new.uuid))
@@ -204,8 +217,9 @@ def import_zaaktype_for_catalogus(
                     for old, new in besluittypen_uuid_mapping.items():
                         data = data.replace(old, str(new.uuid))
 
-                for old, new in uuid_mapping.items():
-                    data = data.replace(old, new)
+                if generate_new_uuids:
+                    for old, new in uuid_mapping.items():
+                        data = data.replace(old, new)
 
                 data = json.loads(data)
 
@@ -237,9 +251,14 @@ def import_zaaktype_for_catalogus(
                     deserialized = serializer(data=entry, context={"request": REQUEST})
 
                     if deserialized.is_valid():
-                        deserialized.save()
-                        instance = deserialized.instance
-                        uuid_mapping[entry["url"].split("/")[-1]] = str(instance.uuid)
+                        if generate_new_uuids:
+                            deserialized.save()
+                            instance = deserialized.instance
+                            uuid_mapping[entry["url"].split("/")[-1]] = str(
+                                instance.uuid
+                            )
+                        else:
+                            deserialized.save(uuid=entry["url"].split("/")[-1])
                     else:
                         raise CommandError(
                             _(

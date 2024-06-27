@@ -17,6 +17,7 @@ class SelectieLijstMixin:
         # there are TransactionTestCases that truncate the DB, so we need to ensure
         # there are available years
         config = ReferentieLijstConfig.get_solo()
+        config.default_year = 2020
         config.allowed_years = [2017, 2020]
         config.save()
         cls.base = config.api_root
