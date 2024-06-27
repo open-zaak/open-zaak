@@ -419,7 +419,7 @@ idna==3.3
     #   requests
 imagesize==1.1.0
     # via sphinx
-importlib-metadata==7.2.1
+importlib-metadata==8.0.0
     # via build
 inflection==0.5.1
     # via
