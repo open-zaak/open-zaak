@@ -192,7 +192,6 @@ jobs:
 
   generate-oas-files:
     name: Generate and upload OAS files for all components
-    needs: tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
