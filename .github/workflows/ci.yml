@@ -226,7 +226,7 @@ jobs:
       - name: Store generated OAS files
         uses: actions/upload-artifact@v4
         with:
-          name: openzaak-oas
+          name: openzaak-${{ matrix.component }}-oas
           path: openapi-${{ matrix.component }}.yaml
           retention-days: 1
 
@@ -242,7 +242,7 @@ jobs:
       - name: Download generated OAS
         uses: actions/download-artifact@v4
         with:
-          name: openzaak-oas
+          name: openzaak-${{ matrix.component }}-oas
       - name: Check for OAS changes
         run: |
           diff openapi-${{ matrix.component }}.yaml src/openzaak/components/${{ matrix.component }}/openapi.yaml
