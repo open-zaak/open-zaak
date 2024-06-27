@@ -1911,7 +1911,7 @@ paths:
   /enkelvoudiginformatieobjecten/{uuid}/download:
     get:
       operationId: enkelvoudiginformatieobject_download
-      description: Download de binaire data van het INFORMATIEOBJECT.
+      description: Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.
       summary: Download de binaire data van het (ENKELVOUDIG) INFORMATIEOBJECT.
       parameters:
       - in: query
