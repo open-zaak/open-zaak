@@ -222,7 +222,7 @@ jobs:
         run: ./bin/generate_schema_for_component.sh ${{ matrix.component }} openapi-${{ matrix.component }}.yaml
 
       - name: Store generated OAS files
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         with:
           name: openzaak-oas
           path: openapi-${{ matrix.component }}.yaml
