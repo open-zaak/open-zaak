@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import CharField, F
+from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
@@ -699,9 +699,9 @@ class ZaakAdmin(
     @admin.display(description="Resultaat")
     def get_resultaat(self, obj) -> str:
         try:
-            resultaat = Resultaat.objects.get(zaak=obj, _resultaattype__isnull=False,)
+            resultaat = obj.resultaat
             resultaattype = resultaat._resultaattype
-            return resultaattype.omschrijving
+            return resultaattype.omschrijving if resultaattype else ""
         except Resultaat.DoesNotExist:
             return ""
 
@@ -734,10 +734,34 @@ class ZaakAdmin(
         annotate queryset with composite url field for search purposes
         """
         queryset = super().get_queryset(request)
-        return queryset.annotate(
-            zaaktype_url=Concat(
-                F("_zaaktype_base_url__api_root"),
-                F("_zaaktype_relative_url"),
-                output_field=CharField(),
+
+        status_prefetch = Prefetch(
+            "status_set",
+            queryset=(
+                Status.objects
+                .select_related("_statustype")
+                .filter(_statustype__isnull=False)
+                .order_by("-datum_status_gezet")
             )
+        )
+
+        resultaat_prefetch = Prefetch(
+            "resultaat",
+            queryset=(
+                Resultaat.objects
+                .select_related("_resultaattype")
+                .filter(_resultaattype__isnull=False)
+            )
+        )
+
+        return (
+                queryset.select_related("_zaaktype")
+                .prefetch_related(resultaat_prefetch, status_prefetch)
+                .annotate(
+                    zaaktype_url=Concat(
+                        F("_zaaktype_base_url__api_root"),
+                        F("_zaaktype_relative_url"),
+                        output_field=CharField(),
+                    )
+                )
         )
