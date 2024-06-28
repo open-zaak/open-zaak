@@ -738,30 +738,29 @@ class ZaakAdmin(
         status_prefetch = Prefetch(
             "status_set",
             queryset=(
-                Status.objects
-                .select_related("_statustype")
+                Status.objects.select_related("_statustype")
                 .filter(_statustype__isnull=False)
                 .order_by("-datum_status_gezet")
-            )
+            ),
         )
 
         resultaat_prefetch = Prefetch(
             "resultaat",
             queryset=(
-                Resultaat.objects
-                .select_related("_resultaattype")
-                .filter(_resultaattype__isnull=False)
-            )
+                Resultaat.objects.select_related("_resultaattype").filter(
+                    _resultaattype__isnull=False
+                )
+            ),
         )
 
         return (
-                queryset.select_related("_zaaktype")
-                .prefetch_related(resultaat_prefetch, status_prefetch)
-                .annotate(
-                    zaaktype_url=Concat(
-                        F("_zaaktype_base_url__api_root"),
-                        F("_zaaktype_relative_url"),
-                        output_field=CharField(),
-                    )
+            queryset.select_related("_zaaktype")
+            .prefetch_related(resultaat_prefetch, status_prefetch)
+            .annotate(
+                zaaktype_url=Concat(
+                    F("_zaaktype_base_url__api_root"),
+                    F("_zaaktype_relative_url"),
+                    output_field=CharField(),
                 )
+            )
         )
