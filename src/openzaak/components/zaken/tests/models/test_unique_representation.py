@@ -25,7 +25,9 @@ class UniqueRepresentationTestCase(APITestCase):
 
     def test_rol_unique_repr_does_not_exceed_200_chars(self):
         rol = RolFactory.build(
-            zaak__identificatie="foo", roltoelichting="a" * 200, betrokkene="",
+            zaak__identificatie="foo",
+            roltoelichting="a" * 200,
+            betrokkene="",
         )
 
         unique_repr = rol.unique_representation()

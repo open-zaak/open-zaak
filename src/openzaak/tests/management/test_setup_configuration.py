@@ -58,7 +58,8 @@ class SetupConfigurationTests(APITestCase):
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
 
         call_command(
-            "setup_configuration", stdout=stdout,
+            "setup_configuration",
+            stdout=stdout,
         )
 
         # minimal output expected

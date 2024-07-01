@@ -72,7 +72,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("exact"):
             response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"auteur": "Bernard"},
+                reverse(EnkelvoudigInformatieObject),
+                {"auteur": "Bernard"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -81,7 +82,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("contains"):
             response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"auteur": "Ber"},
+                reverse(EnkelvoudigInformatieObject),
+                {"auteur": "Ber"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -115,7 +117,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("contains"):
             response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"beschrijving": "Lorem ipsum"},
+                reverse(EnkelvoudigInformatieObject),
+                {"beschrijving": "Lorem ipsum"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -133,7 +136,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("exact"):
             response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"titel": "Lorem Ipsum"},
+                reverse(EnkelvoudigInformatieObject),
+                {"titel": "Lorem Ipsum"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -142,7 +146,8 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("contains"):
             response = self.client.get(
-                reverse(EnkelvoudigInformatieObject), {"titel": "Lorem"},
+                reverse(EnkelvoudigInformatieObject),
+                {"titel": "Lorem"},
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.json()
@@ -291,7 +296,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                     getattr(first_information_object, order_option),
                 )
 
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_internal_objectinformatieobjecten_object_filter(self):
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -340,7 +347,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["results"][0]["titel"], "besluit")
 
     @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_external_objectinformatieobjecten_object_filter(self):
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
@@ -349,7 +358,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         zaak = "https://externe.catalogus.nl/api/v1/zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaak_eio = EnkelvoudigInformatieObjectFactory.create(titel="zaak")
         ObjectInformatieObject.objects.create(
-            informatieobject=zaak_eio.canonical, zaak=zaak, object_type="zaak",
+            informatieobject=zaak_eio.canonical,
+            zaak=zaak,
+            object_type="zaak",
         )
 
         besluit = "https://externe.catalogus.nl/api/v1/besluiten/bd0788ea-90b6-4c70-8e14-62f327296c12"
@@ -403,7 +414,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["count"], 1)
             self.assertEqual(data["results"][0]["titel"], "verzoek")
 
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_internal_informatieobjecttype_filter(self):
         iot = "http://externe.catalogi.com/catalogi/api/v1/informatieobjecttypen/a7a49f9e-3de9-43f0-b2b6-1a59d307f01a"
         EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iot, titel="one")
@@ -422,7 +435,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(data["results"][0]["titel"], "one")
 
     @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_external_informatieobjecttype_filter(self):
         iot1 = InformatieObjectTypeFactory.create()
         iot2, iot3, iot4 = InformatieObjectTypeFactory.create_batch(3)
@@ -504,7 +519,9 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(response.data, [])
 
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_internal_object_filter(self):
         site = Site.objects.get_current()
         site.domain = "testserver"
@@ -545,7 +562,9 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data[0]["objectType"], "besluit")
 
     @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+    )
     def test_external_object_filter(self):
         Service.objects.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
@@ -560,13 +579,17 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         besluit = "https://externe.catalogus.nl/api/v1/besluiten/bd0788ea-90b6-4c70-8e14-62f327296c12"
         besluit_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
         ObjectInformatieObject.objects.create(
-            informatieobject=besluit_eioc, besluit=besluit, object_type="besluit",
+            informatieobject=besluit_eioc,
+            besluit=besluit,
+            object_type="besluit",
         )
 
         verzoek = "https://externe.catalogus.nl/api/v1/verzoeken/41460bca-5ffc-4dbe-b205-468bdc5eac6b"
         verzoek_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
         ObjectInformatieObject.objects.create(
-            informatieobject=verzoek_eioc, verzoek=verzoek, object_type="verzoek",
+            informatieobject=verzoek_eioc,
+            verzoek=verzoek,
+            object_type="verzoek",
         )
 
         with self.subTest("zaak"):

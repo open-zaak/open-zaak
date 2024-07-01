@@ -188,7 +188,7 @@ class CatalogusZaakTypeImportSelectView(
         context = self.get_context_data(**kwargs)
 
         try:
-            with (transaction.atomic()):
+            with transaction.atomic():
                 iotypen_uuid_mapping = {}
 
                 if context.get("iotype_forms"):

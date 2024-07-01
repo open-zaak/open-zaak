@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
-    with open(filename, "r") as csv_file:
+    with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
 
         index = 1
@@ -33,7 +33,7 @@ def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
 
 
 def get_total_count(filename: str, include_header: bool = False) -> int:
-    with open(filename, "r") as csv_file:
+    with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
         total = sum(1 for _ in csv_reader)
 

@@ -156,7 +156,12 @@ class DocumentRow:
 
     @property
     def ondertekening(self) -> Optional[dict]:
-        if not any((self._ondertekening_soort, self._ondertekening_datum,)):
+        if not any(
+            (
+                self._ondertekening_soort,
+                self._ondertekening_datum,
+            )
+        ):
             return None
 
         return {

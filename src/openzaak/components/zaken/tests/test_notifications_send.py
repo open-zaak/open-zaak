@@ -822,7 +822,10 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         # 1. check that notification task is called
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(
-                url, data={"besluit": f"http://testserver{besluit_url}",}
+                url,
+                data={
+                    "besluit": f"http://testserver{besluit_url}",
+                },
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

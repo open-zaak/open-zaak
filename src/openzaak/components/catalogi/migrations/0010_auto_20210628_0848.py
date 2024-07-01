@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(name="besluittype", unique_together=set(),),
+        migrations.AlterUniqueTogether(
+            name="besluittype",
+            unique_together=set(),
+        ),
     ]

@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
         migrations.SeparateDatabaseAndState(
             database_operations=[],
             state_operations=[
-                migrations.RemoveField(model_name="besluit", name="zaak",),
+                migrations.RemoveField(
+                    model_name="besluit",
+                    name="zaak",
+                ),
             ],
         ),
         migrations.AlterField(

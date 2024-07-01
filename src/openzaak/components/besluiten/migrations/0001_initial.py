@@ -174,7 +174,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "besluit", "verbose_name_plural": "besluiten",},
+            options={
+                "verbose_name": "besluit",
+                "verbose_name_plural": "besluiten",
+            },
             bases=(
                 openzaak.utils.mixins.AuditTrailMixin,
                 vng_api_common.models.APIMixin,

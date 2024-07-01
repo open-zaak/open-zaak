@@ -24,7 +24,8 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 @require_cmis
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(
-    CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,
+    CMIS_ENABLED=True,
+    CMIS_URL_MAPPING_ENABLED=True,
 )
 @skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
 class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):

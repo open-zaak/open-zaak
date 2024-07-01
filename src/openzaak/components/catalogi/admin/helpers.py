@@ -27,7 +27,10 @@ from .utils import format_duration
 
 class AdminForm(_AdminForm):
     def __init__(
-        self, callback_readonly, *args, **kwargs,
+        self,
+        callback_readonly,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.callback_readonly = callback_readonly

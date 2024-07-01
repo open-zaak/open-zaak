@@ -65,7 +65,7 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         response_data = response.getvalue().decode(settings.DEFAULT_CHARSET)
 
-        with open(import_instance.report_file.path, "r", newline="") as report_file:
+        with open(import_instance.report_file.path, newline="") as report_file:
             self.assertEqual(response_data, report_file.read())
 
     def test_active_import(self):
@@ -114,7 +114,7 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         response_data = response.getvalue().decode(settings.DEFAULT_CHARSET)
 
-        with open(import_instance.report_file.path, "r", newline="") as report_file:
+        with open(import_instance.report_file.path, newline="") as report_file:
             self.assertEqual(response_data, report_file.read())
 
     def test_pending_import(self):

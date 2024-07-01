@@ -61,7 +61,8 @@ class DemoUserStep(BaseConfigurationStep):
         endpoint = reverse("zaak-list", kwargs={"version": "1"})
         full_url = build_absolute_url(endpoint, request=None)
         auth = ClientAuth(
-            client_id=settings.DEMO_CLIENT_ID, secret=settings.DEMO_SECRET,
+            client_id=settings.DEMO_CLIENT_ID,
+            secret=settings.DEMO_SECRET,
         )
 
         try:

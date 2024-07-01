@@ -151,6 +151,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="enkelvoudiginformatieobject", unique_together={("uuid", "versie")},
+            name="enkelvoudiginformatieobject",
+            unique_together={("uuid", "versie")},
         ),
     ]

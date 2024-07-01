@@ -26,7 +26,8 @@ class TestZaakBesluitForm(TestCase):
         self,
     ):
         brc_service = Service.objects.create(
-            api_type=APITypes.brc, api_root="https://external.besluiten.nl/api/v1/",
+            api_type=APITypes.brc,
+            api_root="https://external.besluiten.nl/api/v1/",
         )
         form = ZaakBesluitForm()
         form.cleaned_data = {

@@ -371,13 +371,20 @@ LOGGING = {
         },
     },
     "loggers": {
-        "": {"handlers": _root_handlers, "level": "ERROR", "propagate": False,},
+        "": {
+            "handlers": _root_handlers,
+            "level": "ERROR",
+            "propagate": False,
+        },
         "openzaak": {
             "handlers": _root_handlers,
             "level": LOG_LEVEL,
             "propagate": True,
         },
-        "mozilla_django_oidc": {"handlers": _root_handlers, "level": LOG_LEVEL,},
+        "mozilla_django_oidc": {
+            "handlers": _root_handlers,
+            "level": LOG_LEVEL,
+        },
         "openzaak.utils.middleware": {
             "handlers": _root_handlers,
             "level": LOG_LEVEL,
@@ -491,12 +498,12 @@ ENVIRONMENT = config("ENVIRONMENT", "")
 ENVIRONMENT_SHOWN_IN_ADMIN = True
 
 # settings for uploading large files
-MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2 ** 30)
+MIN_UPLOAD_SIZE = config("MIN_UPLOAD_SIZE", 4 * 2**30)
 # default to the MIN_UPLOAD_SIZE, as that is typically the maximum post body size configured
 # in the webserver
 DOCUMENTEN_UPLOAD_CHUNK_SIZE = config("DOCUMENTEN_UPLOAD_CHUNK_SIZE", MIN_UPLOAD_SIZE)
 DOCUMENTEN_UPLOAD_READ_CHUNK = config(
-    "DOCUMENTEN_UPLOAD_READ_CHUNK", 6 * 2 ** 20
+    "DOCUMENTEN_UPLOAD_READ_CHUNK", 6 * 2**20
 )  # 6 MB default
 DOCUMENTEN_UPLOAD_DEFAULT_EXTENSION = "bin"
 
@@ -546,7 +553,9 @@ else:
 RELEASE = config("RELEASE", GIT_SHA)
 
 NUM_PROXIES = config(  # TODO: this also is relevant for DRF settings if/when we have rate-limited endpoints
-    "NUM_PROXIES", default=1, cast=lambda val: int(val) if val is not None else None,
+    "NUM_PROXIES",
+    default=1,
+    cast=lambda val: int(val) if val is not None else None,
 )
 
 ##############################
@@ -603,7 +612,10 @@ CORS_ALLOWED_ORIGIN_REGEXES = config(
 # Authorization is included in default_cors_headers
 CORS_ALLOW_HEADERS = (
     list(default_cors_headers)
-    + ["accept-crs", "content-crs",]
+    + [
+        "accept-crs",
+        "content-crs",
+    ]
     + config("CORS_EXTRA_ALLOW_HEADERS", split=True, default=[])
 )
 CORS_EXPOSE_HEADERS = [

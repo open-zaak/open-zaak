@@ -52,7 +52,8 @@ class OIOCMISTests(APICMISTestCase, TestCase):
         oio = ObjectInformatieObject.objects.get()
 
         self.assertEqual(
-            oio.get_informatieobject_url(), self.eio_url,
+            oio.get_informatieobject_url(),
+            self.eio_url,
         )
         self.assertEqual(oio.object, zio.zaak)
 
@@ -63,7 +64,8 @@ class OIOCMISTests(APICMISTestCase, TestCase):
         oio = ObjectInformatieObject.objects.get()
 
         self.assertEqual(
-            oio.get_informatieobject_url(), self.eio_url,
+            oio.get_informatieobject_url(),
+            self.eio_url,
         )
         self.assertEqual(oio.object, bio.besluit)
 

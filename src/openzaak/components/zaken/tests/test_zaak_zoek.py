@@ -167,7 +167,10 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         }
 
         response = self.client.post(
-            url, data, **ZAAK_WRITE_KWARGS, HTTP_HOST="testserver.com",
+            url,
+            data,
+            **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="testserver.com",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

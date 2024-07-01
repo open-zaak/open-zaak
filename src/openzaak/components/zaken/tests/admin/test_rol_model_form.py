@@ -24,7 +24,8 @@ class TestRolForm(TestCase):
 
     def test_rol_form_clean_does_not_throw_exception_if_roltype_url_is_given(self):
         ztc_service = Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://external.catalogi.nl/api/v1/",
+            api_type=APITypes.ztc,
+            api_root="https://external.catalogi.nl/api/v1/",
         )
         form = RolForm()
         form.cleaned_data = {

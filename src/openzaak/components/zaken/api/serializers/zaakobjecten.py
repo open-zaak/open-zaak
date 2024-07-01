@@ -174,7 +174,9 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                 "required": False,
                 "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
             },
-            "object_type": {"validators": [IsImmutableValidator()],},
+            "object_type": {
+                "validators": [IsImmutableValidator()],
+            },
             "zaakobjecttype": {
                 "lookup_field": "uuid",
                 "max_length": 1000,

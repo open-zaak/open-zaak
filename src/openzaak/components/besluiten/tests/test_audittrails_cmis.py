@@ -125,7 +125,11 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
         url = reverse(BesluitInformatieObject)
 
         response = self.client.post(
-            url, {"besluit": besluit_data["url"], "informatieobject": eio_url,},
+            url,
+            {
+                "besluit": besluit_data["url"],
+                "informatieobject": eio_url,
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

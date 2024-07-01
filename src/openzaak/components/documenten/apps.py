@@ -49,23 +49,23 @@ def validate_eio_headers() -> None:
         for field_name, field in fields
         if isinstance(field, GegevensGroepSerializer)
     }
-    csv_nested_fields = set(
+    csv_nested_fields = {
         f"{field_parent}.{field_child}"
         for field_parent, children in nested_fields.items()
         for field_child in children
-    )
+    }
 
-    expected_fields = set(
+    expected_fields = {
         underscore_to_camel(field)
         for field in EnkelvoudigInformatieObjectSerializer.Meta.fields
         if field not in (*excluded_fields, *nested_fields.keys())
-    )
+    }
 
     expected_fields.update(csv_nested_fields)
 
-    document_row_fields = set(
+    document_row_fields = {
         field for field in DocumentRow.import_headers if field in expected_fields
-    )
+    }
 
     missing_fields = expected_fields - document_row_fields
 

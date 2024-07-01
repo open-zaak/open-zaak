@@ -146,7 +146,10 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
                         "properties": {
                             "coordinates": {
                                 "type": "array",
-                                "items": {"type": "array", "items": point_2d.ref,},
+                                "items": {
+                                    "type": "array",
+                                    "items": point_2d.ref,
+                                },
                             }
                         },
                     },
@@ -172,7 +175,10 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
                         "properties": {
                             "coordinates": {
                                 "type": "array",
-                                "items": {"type": "array", "items": point_2d.ref,},
+                                "items": {
+                                    "type": "array",
+                                    "items": point_2d.ref,
+                                },
                             }
                         },
                     },
@@ -200,7 +206,10 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
                                 "type": "array",
                                 "items": {
                                     "type": "array",
-                                    "items": {"type": "array", "items": point_2d.ref,},
+                                    "items": {
+                                        "type": "array",
+                                        "items": point_2d.ref,
+                                    },
                                 },
                             }
                         },
@@ -257,5 +266,7 @@ class GeometryFieldExtension(OpenApiSerializerFieldExtension):
                 multi_polygon.ref,
                 geometry_collection.ref,
             ],
-            "discriminator": {"propertyName": "type",},
+            "discriminator": {
+                "propertyName": "type",
+            },
         }

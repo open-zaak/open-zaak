@@ -27,7 +27,8 @@ from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenCMISFa
 @require_cmis
 @freeze_time("2018-06-27 12:12:12")
 @override_settings(
-    CMIS_ENABLED=True, CMIS_URL_MAPPING_ENABLED=True,
+    CMIS_ENABLED=True,
+    CMIS_URL_MAPPING_ENABLED=True,
 )
 @skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
 class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
@@ -114,7 +115,10 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         lock = lock_response.data["lock"]
 
         eio_data.update(
-            {"informatieobjecttype": f"http://testserver{reverse(iot2)}", "lock": lock,}
+            {
+                "informatieobjecttype": f"http://testserver{reverse(iot2)}",
+                "lock": lock,
+            }
         )
         del eio_data["integriteit"]
         del eio_data["ondertekening"]
@@ -149,7 +153,8 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
             creatiedatum=datetime.date(2018, 12, 24)
         )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid},
+            "enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": eio.uuid},
         )
 
         eio_detail = self.client.get(eio_url)

@@ -334,7 +334,8 @@ class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestC
         )
 
         audit_url = reverse(
-            "audittrail-list", kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid},
+            "audittrail-list",
+            kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid},
         )
 
         response = self.client.get(audit_url)

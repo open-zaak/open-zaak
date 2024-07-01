@@ -54,14 +54,19 @@ class ZaakInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = eio.get_url()
 
-        zio1 = ZaakInformatieObjectFactory.create(informatieobject=eio_url, zaak=zaak1,)
-        # must not show up
-        ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url, zaak=zaak2,
+        zio1 = ZaakInformatieObjectFactory.create(
+            informatieobject=eio_url,
+            zaak=zaak1,
         )
         # must not show up
         ZaakInformatieObjectFactory.create(
-            informatieobject=eio_url, zaak=zaak3,
+            informatieobject=eio_url,
+            zaak=zaak2,
+        )
+        # must not show up
+        ZaakInformatieObjectFactory.create(
+            informatieobject=eio_url,
+            zaak=zaak3,
         )
 
         url = reverse(ZaakInformatieObject)

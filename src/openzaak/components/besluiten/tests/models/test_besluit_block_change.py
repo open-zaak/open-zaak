@@ -27,7 +27,10 @@ class BlockChangeTestCase(TestCase):
     def test_bulk_update(self):
         self.besluit.uuid = uuid.uuid4()
         self.assertRaises(
-            QueryBlocked, Besluit.objects.bulk_update, [self.besluit], fields=["uuid"],
+            QueryBlocked,
+            Besluit.objects.bulk_update,
+            [self.besluit],
+            fields=["uuid"],
         )
 
     def test_bulk_create(self):

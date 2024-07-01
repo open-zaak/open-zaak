@@ -303,7 +303,10 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
 
         AuditTrail.objects.create(hoofd_object=url, resource="Zaak", resultaat=200)
 
-        audit_url = reverse("audittrail-list", kwargs={"zaak_uuid": zaak.uuid},)
+        audit_url = reverse(
+            "audittrail-list",
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
 
         response = self.client.get(audit_url)
 

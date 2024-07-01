@@ -34,7 +34,9 @@ class _Replace:
         )
         resultaattypen.update(
             selectielijstklasse=Replace(
-                "selectielijstklasse", Value(self.current), Value(self.new),
+                "selectielijstklasse",
+                Value(self.current),
+                Value(self.new),
             )
         )
 

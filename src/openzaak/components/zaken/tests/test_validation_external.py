@@ -52,7 +52,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         m.get(
             REMOTE_DOCUMENT,
             json=get_eio_response(
-                REMOTE_DOCUMENT, locked=False, indicatieGebruiksrecht=False,
+                REMOTE_DOCUMENT,
+                locked=False,
+                indicatieGebruiksrecht=False,
             ),
         )
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
@@ -81,7 +83,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def test_eindstatus_with_informatieobject_lock(self, m):
         REMOTE_DOCUMENT = "https://external.nl/documenten/123"
         m.get(
-            REMOTE_DOCUMENT, json=get_eio_response(REMOTE_DOCUMENT, locked=True),
+            REMOTE_DOCUMENT,
+            json=get_eio_response(REMOTE_DOCUMENT, locked=True),
         )
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)

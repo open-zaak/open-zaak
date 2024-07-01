@@ -17,7 +17,8 @@ class Migration(migrations.Migration):
             database_operations=[],
             state_operations=[
                 migrations.RemoveField(
-                    model_name="objectinformatieobject", name="zaak",
+                    model_name="objectinformatieobject",
+                    name="zaak",
                 ),
             ],
         ),

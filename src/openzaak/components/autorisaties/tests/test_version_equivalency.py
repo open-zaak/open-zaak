@@ -41,10 +41,16 @@ class VersionEquivalencyTests(SimpleTestCase):
 
     def test_list_of_dicts(self):
         obj1 = {
-            "foo": [{"bar": 1}, {"baz": 2},],
+            "foo": [
+                {"bar": 1},
+                {"baz": 2},
+            ],
         }
         obj2 = {
-            "foo": [{"baz": 2}, {"bar": 1},],
+            "foo": [
+                {"baz": 2},
+                {"bar": 1},
+            ],
         }
 
         equivalent = versions_equivalent(obj1, obj2)
@@ -53,10 +59,16 @@ class VersionEquivalencyTests(SimpleTestCase):
 
     def test_list_of_different_dicts(self):
         obj1 = {
-            "foo": [{"bar": 1}, {"baz": 2},],
+            "foo": [
+                {"bar": 1},
+                {"baz": 2},
+            ],
         }
         obj2 = {
-            "foo": [{"bar": 1}, {"baz": 3},],
+            "foo": [
+                {"bar": 1},
+                {"baz": 3},
+            ],
         }
 
         equivalent = versions_equivalent(obj1, obj2)

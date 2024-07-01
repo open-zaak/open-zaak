@@ -715,7 +715,8 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             auth_type=AuthTypes.no_auth,
         )
         Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/",
+            api_type=APITypes.ztc,
+            api_root="http://openzaak.nl/catalogi/api/v1/",
         )
 
     def test_zaaktype_internal_iotype_internal_fail(self):
@@ -898,7 +899,8 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             auth_type=AuthTypes.no_auth,
         )
         Service.objects.create(
-            api_type=APITypes.drc, api_root="http://openzaak.nl/catalogi/api/v1/",
+            api_type=APITypes.drc,
+            api_root="http://openzaak.nl/catalogi/api/v1/",
         )
 
     def test_destroy_with_external_informatieobject(self):

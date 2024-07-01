@@ -363,7 +363,11 @@ class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
 
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         eio_data.update(
-            {"inhoud": b64encode(b"aaaaa"), "bestandsomvang": 5, "lock": lock,}
+            {
+                "inhoud": b64encode(b"aaaaa"),
+                "bestandsomvang": 5,
+                "lock": lock,
+            }
         )
         for i in ["integriteit", "ondertekening"]:
             eio_data.pop(i)
@@ -386,7 +390,11 @@ class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
 
         response = self.client.patch(
-            eio_url, {"lock": lock, "beschrijving": "updated",}
+            eio_url,
+            {
+                "lock": lock,
+                "beschrijving": "updated",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

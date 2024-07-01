@@ -185,7 +185,15 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
                 ),
             },
         ),
-        (_("Contactpersoon"), {"fields": ("contact_persoon", "contactpersoonnaam",),},),
+        (
+            _("Contactpersoon"),
+            {
+                "fields": (
+                    "contact_persoon",
+                    "contactpersoonnaam",
+                ),
+            },
+        ),
         (
             _("Afwijkend binnenlands correspondentieadres verzending"),
             {
@@ -279,7 +287,8 @@ class EnkelvoudigInformatieObjectCanonicalAdmin(AuditTrailAdminMixin, admin.Mode
     actions = [unlock]
 
     @admin.display(
-        description="free to change", boolean=True,
+        description="free to change",
+        boolean=True,
     )
     def get_not_lock_display(self, obj) -> bool:
         return not bool(obj.lock)
@@ -386,12 +395,21 @@ class EnkelvoudigInformatieObjectAdmin(
         ),
         (
             _("Verzending/ontvangst"),
-            {"fields": ("ontvangstdatum", "verzenddatum",), "classes": ("collapse",),},
+            {
+                "fields": (
+                    "ontvangstdatum",
+                    "verzenddatum",
+                ),
+                "classes": ("collapse",),
+            },
         ),
         (
             _("Ondertekening"),
             {
-                "fields": ("ondertekening_soort", "ondertekening_datum",),
+                "fields": (
+                    "ondertekening_soort",
+                    "ondertekening_datum",
+                ),
                 "classes": ("collapse",),
             },
         ),
@@ -414,7 +432,8 @@ class EnkelvoudigInformatieObjectAdmin(
         return super().get_object(request, object_id, from_field=from_field)
 
     @admin.display(
-        description=_("locked"), boolean=True,
+        description=_("locked"),
+        boolean=True,
     )
     def _locked(self, obj) -> bool:
         return obj.locked

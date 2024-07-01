@@ -19,7 +19,9 @@ class RecoveryTokenTests(WebTest):
     @tag("gh-4072")
     def test_can_enter_recovery_token(self):
         user = SuperUserFactory.create(
-            with_totp_device=True, username="admin", password="admin",
+            with_totp_device=True,
+            username="admin",
+            password="admin",
         )
         recovery_token = RecoveryTokenFactory.create(device__user=user).token
         login_page = self.app.get(LOGIN_URL, auto_follow=True)

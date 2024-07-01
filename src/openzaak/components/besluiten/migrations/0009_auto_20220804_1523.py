@@ -17,7 +17,10 @@ class Migration(migrations.Migration):
             model_name="besluit",
             name="besluiten_besluit__besluittype_or__besluittype_url_filled",
         ),
-        migrations.RemoveField(model_name="besluit", name="_besluittype_url",),
+        migrations.RemoveField(
+            model_name="besluit",
+            name="_besluittype_url",
+        ),
         migrations.AddConstraint(
             model_name="besluit",
             constraint=models.CheckConstraint(
@@ -61,7 +64,8 @@ class Migration(migrations.Migration):
             name="besluiten_besluitinformatieobject__informatieobject_or__informatieobject_url_filled",
         ),
         migrations.RemoveField(
-            model_name="besluitinformatieobject", name="_informatieobject_url",
+            model_name="besluitinformatieobject",
+            name="_informatieobject_url",
         ),
         migrations.AddConstraint(
             model_name="besluitinformatieobject",

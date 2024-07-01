@@ -519,7 +519,8 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
 
         self.assertEqual(resultaattypeomschrijving_request.method, "GET")
         self.assertEqual(
-            resultaattypeomschrijving_request.url, resultaattypeomschrijving,
+            resultaattypeomschrijving_request.url,
+            resultaattypeomschrijving,
         )
 
         self.assertEqual(resultaattypeomschrijving_request.method, "GET")

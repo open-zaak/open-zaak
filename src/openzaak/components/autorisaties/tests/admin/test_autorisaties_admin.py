@@ -123,7 +123,8 @@ class ApplicatieInlinesAdminTests(WebTest):
         url = build_absolute_url(obj.get_absolute_api_url())
         field = obj._meta.model_name
         Autorisatie.objects.create(
-            applicatie=self.applicatie, **{field: url, **kwargs},
+            applicatie=self.applicatie,
+            **{field: url, **kwargs},
         )
 
 
@@ -1357,12 +1358,12 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         data["form-1-component"] = ComponentTypes.brc
         data["form-1-scopes"] = ["besluiten.lezen", "besluiten.bijwerken"]
-        data[
-            "form-1-related_type_selection"
-        ] = RelatedTypeSelectionMethods.all_current_and_future
-        data[
-            "form-1-vertrouwelijkheidaanduiding"
-        ] = VertrouwelijkheidsAanduiding.openbaar
+        data["form-1-related_type_selection"] = (
+            RelatedTypeSelectionMethods.all_current_and_future
+        )
+        data["form-1-vertrouwelijkheidaanduiding"] = (
+            VertrouwelijkheidsAanduiding.openbaar
+        )
 
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.status_code, 200)
@@ -1373,7 +1374,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
     @tag("gh-1584")
-    @override_settings(ALLOWED_HOSTS=["testserver", "differenttestserver"],)
+    @override_settings(
+        ALLOWED_HOSTS=["testserver", "differenttestserver"],
+    )
     def test_autorisatie_added_on_different_domain_is_deleted(self):
         """
         Tests that an autorisatie is saved in a way that the sync_autorisaties catalogi signal can delete

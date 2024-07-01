@@ -130,7 +130,10 @@ class CheckListItem(models.Model):
     punten waaraan aandacht besteed moet worden teneinde die status te bereiken.
     """
 
-    statustype = models.ForeignKey(StatusType, on_delete=models.CASCADE,)
+    statustype = models.ForeignKey(
+        StatusType,
+        on_delete=models.CASCADE,
+    )
     itemnaam = models.CharField(
         _("itemnaam"),
         max_length=30,

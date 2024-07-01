@@ -534,7 +534,8 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
 @require_cmis
 @temp_private_root()
 @override_settings(
-    DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
+    DOCUMENTEN_UPLOAD_CHUNK_SIZE=10,
+    CMIS_ENABLED=True,
 )
 class LargeFileAPITests(JWTAuthMixin, APICMISTestCase):
     component = ComponentTypes.drc

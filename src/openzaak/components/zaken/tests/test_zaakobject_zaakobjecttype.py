@@ -129,7 +129,9 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
         zaakobjecttype = ZaakObjectTypeFactory.create()
         zaak = ZaakFactory.create(zaaktype=zaakobjecttype.zaaktype)
         zaakobject = ZaakObjectFactory.create(
-            zaak=zaak, object=OBJECT, object_type=ZaakobjectTypes.adres,
+            zaak=zaak,
+            object=OBJECT,
+            object_type=ZaakobjectTypes.adres,
         )
         url = reverse(zaakobject)
 
