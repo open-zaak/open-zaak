@@ -21,7 +21,11 @@ class ZaakTypeSerializer(serializers.ModelSerializer):
             "concept",
             "versiedatum",
         )
-        extra_kwargs = {"omschrijving": {"source": "zaaktype_omschrijving",}}
+        extra_kwargs = {
+            "omschrijving": {
+                "source": "zaaktype_omschrijving",
+            }
+        }
 
 
 class InformatieObjectTypeSerializer(serializers.ModelSerializer):
@@ -49,10 +53,14 @@ class BesluitTypeSerializer(serializers.ModelSerializer):
 class CatalogusSerializer(serializers.ModelSerializer):
     zaaktypen = ZaakTypeSerializer(source="zaaktype_set", many=True, read_only=True)
     informatieobjecttypen = InformatieObjectTypeSerializer(
-        source="informatieobjecttype_set", many=True, read_only=True,
+        source="informatieobjecttype_set",
+        many=True,
+        read_only=True,
     )
     besluittypen = BesluitTypeSerializer(
-        source="besluittype_set", many=True, read_only=True,
+        source="besluittype_set",
+        many=True,
+        read_only=True,
     )
 
     class Meta:

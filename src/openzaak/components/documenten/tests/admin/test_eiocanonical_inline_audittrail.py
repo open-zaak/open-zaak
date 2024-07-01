@@ -111,9 +111,9 @@ class EioAdminInlineTests(WebTest):
         form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"
         form["enkelvoudiginformatieobject_set-0-titel"] = "some titel"
         form["enkelvoudiginformatieobject_set-0-auteur"] = "some author"
-        form[
-            "enkelvoudiginformatieobject_set-0-_informatieobjecttype"
-        ] = informatieobjecttype.id
+        form["enkelvoudiginformatieobject_set-0-_informatieobjecttype"] = (
+            informatieobjecttype.id
+        )
         form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
         form["enkelvoudiginformatieobject_set-0-inhoud"] = (file.name,)
         form["enkelvoudiginformatieobject_set-0-bestandsomvang"] = 12

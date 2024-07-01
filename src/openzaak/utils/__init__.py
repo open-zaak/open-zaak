@@ -38,7 +38,9 @@ def build_absolute_url(path: str, request: Optional[HttpRequest] = None) -> str:
 
     domain = get_openzaak_domain()
     _furl = furl(
-        scheme="https" if settings.IS_HTTPS else "http", netloc=domain, path=path,
+        scheme="https" if settings.IS_HTTPS else "http",
+        netloc=domain,
+        path=path,
     )
     return _furl.url
 

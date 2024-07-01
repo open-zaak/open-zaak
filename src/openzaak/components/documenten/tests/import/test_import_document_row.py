@@ -209,7 +209,10 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio.verschijningsvorm, "form XYZ")
         self.assertEqual(
             eio.ondertekening,
-            {"soort": OndertekeningSoorten.analoog, "datum": date(2024, 1, 1),},
+            {
+                "soort": OndertekeningSoorten.analoog,
+                "datum": date(2024, 1, 1),
+            },
         )
 
         self.assertEqual(

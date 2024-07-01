@@ -728,7 +728,11 @@ class ZaakVerzoekValidationTests(JWTAuthMixin, APITestCase):
             m.get(verzoek, json={"url": verzoek})
 
             response = self.client.post(
-                url, {"zaak": f"http://testserver{reverse(zaak)}", "verzoek": verzoek,},
+                url,
+                {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "verzoek": verzoek,
+                },
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -33,7 +33,8 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete",
+            uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -52,7 +53,8 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         BesluitInformatieObjectFactory.create(informatieobject=informatieobject)
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete",
+            uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)
@@ -70,7 +72,8 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         eio_uuid = informatieobject.latest_version.uuid
 
         informatieobject_delete_url = get_operation_url(
-            "enkelvoudiginformatieobject_delete", uuid=eio_uuid,
+            "enkelvoudiginformatieobject_delete",
+            uuid=eio_uuid,
         )
 
         response = self.client.delete(informatieobject_delete_url)

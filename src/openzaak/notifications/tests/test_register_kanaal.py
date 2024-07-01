@@ -65,7 +65,9 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
 
         stdout = StringIO()
         call_command(
-            "register_kanalen", kanalen=["dummy-kanaal"], stdout=stdout,
+            "register_kanalen",
+            kanalen=["dummy-kanaal"],
+            stdout=stdout,
         )
 
         client.create.assert_called_once_with(
@@ -87,7 +89,8 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
 
         stdout = StringIO()
         call_command(
-            "register_kanalen", stdout=stdout,
+            "register_kanalen",
+            stdout=stdout,
         )
 
         client.create.assert_has_calls(

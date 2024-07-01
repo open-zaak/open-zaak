@@ -408,7 +408,9 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
 
             finish_batch(import_instance, batch, DocumentRow.export_headers)
             finish_import(
-                import_instance, status=ImportStatusChoices.error, comment=str(e),
+                import_instance,
+                status=ImportStatusChoices.error,
+                comment=str(e),
             )
 
             return

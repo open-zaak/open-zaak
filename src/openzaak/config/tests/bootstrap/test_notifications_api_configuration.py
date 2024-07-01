@@ -165,7 +165,8 @@ class APIStateTests(JWTAuthMixin, APITestCase):
 
     def test_extend_existing_configuration(self):
         app = Applicatie.objects.create(
-            client_ids=["a-client-id", "another-client-id"], label="A label",
+            client_ids=["a-client-id", "another-client-id"],
+            label="A label",
         )
         Autorisatie.objects.create(
             applicatie=app, component="nrc", scopes=["notificaties.consumeren"]

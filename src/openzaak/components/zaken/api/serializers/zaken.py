@@ -157,7 +157,8 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return self.Meta.model.objects.generate(
-            validated_data["bronorganisatie"], validated_data["startdatum"],
+            validated_data["bronorganisatie"],
+            validated_data["startdatum"],
         )
 
     def update(self, instance, data):  # pragma:nocover
@@ -492,12 +493,12 @@ class ZaakSerializer(
         # set the derived value from ZTC
         if "vertrouwelijkheidaanduiding" not in validated_data:
             zaaktype = validated_data["zaaktype"]
-            validated_data[
-                "vertrouwelijkheidaanduiding"
-            ] = zaaktype.vertrouwelijkheidaanduiding
+            validated_data["vertrouwelijkheidaanduiding"] = (
+                zaaktype.vertrouwelijkheidaanduiding
+            )
 
         # set by the ZaakViewSet via create and get_serializer_context
-        if (generated_identificatie := self.context["generated_identificatie"]) :
+        if generated_identificatie := self.context["generated_identificatie"]:
             validated_data.update(
                 {
                     "identificatie_ptr": generated_identificatie,
@@ -567,7 +568,8 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         )
         validators = [
             UniqueTogetherValidator(
-                queryset=Status.objects.all(), fields=("zaak", "datum_status_gezet"),
+                queryset=Status.objects.all(),
+                fields=("zaak", "datum_status_gezet"),
             ),
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),

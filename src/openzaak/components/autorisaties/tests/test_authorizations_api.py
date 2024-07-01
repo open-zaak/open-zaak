@@ -66,7 +66,11 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
+                    "scopes": [
+                        "zaken.lezen",
+                        "zaken.aanmaken",
+                        "zaken.verwijderen",
+                    ],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },
@@ -103,7 +107,12 @@ class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(auth2.applicatie, applicatie)
         self.assertEqual(auth2.component, ComponentTypes.zrc)
         self.assertEqual(
-            auth2.scopes, ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
+            auth2.scopes,
+            [
+                "zaken.lezen",
+                "zaken.aanmaken",
+                "zaken.verwijderen",
+            ],
         )
         self.assertEqual(
             auth2.zaaktype,
@@ -433,7 +442,11 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
                 },
                 {
                     "component": ComponentTypes.zrc,
-                    "scopes": ["zaken.lezen", "zaken.aanmaken", "zaken.verwijderen",],
+                    "scopes": [
+                        "zaken.lezen",
+                        "zaken.aanmaken",
+                        "zaken.verwijderen",
+                    ],
                     "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/2/zaaktypen/1",
                     "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.zeer_geheim,
                 },

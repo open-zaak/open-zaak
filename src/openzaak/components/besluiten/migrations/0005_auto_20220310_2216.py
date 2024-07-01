@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="besluit", name="_besluittype_or__besluittype_url_filled",
+            model_name="besluit",
+            name="_besluittype_or__besluittype_url_filled",
         ),
         migrations.RemoveConstraint(
             model_name="besluitinformatieobject",

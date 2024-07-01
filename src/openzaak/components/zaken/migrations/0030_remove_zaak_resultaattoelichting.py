@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="zaak", name="resultaattoelichting",),
+        migrations.RemoveField(
+            model_name="zaak",
+            name="resultaattoelichting",
+        ),
     ]

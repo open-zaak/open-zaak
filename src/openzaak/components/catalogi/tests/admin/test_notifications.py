@@ -80,7 +80,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "informatieobjecttype",
                 "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -115,7 +117,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "informatieobjecttype",
                 "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -175,7 +179,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "besluittype",
                 "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -203,7 +209,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "besluittype",
                 "resourceUrl": f"http://testserver{besluittype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -257,7 +265,9 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -295,7 +305,9 @@ class NotificationAdminTests(
                 "actie": "update",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )
 
@@ -359,6 +371,8 @@ class NotificationAdminTests(
                 "actie": "create",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_new_url}",
-                "kenmerken": {"catalogus": f"http://testserver{self.catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{self.catalogus_url}",
+                },
             }
         )

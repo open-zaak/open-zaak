@@ -24,7 +24,8 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
             creatiedatum=datetime.date(2018, 12, 24)
         )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid},
+            "enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": eio.uuid},
         )
 
         eio_detail = self.client.get(eio_url)
@@ -192,7 +193,10 @@ class GebruiksrechtenTests(JWTAuthMixin, APICMISTestCase):
         )
 
         response = self.client.patch(
-            url, {"omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",},
+            url,
+            {
+                "omschrijvingVoorwaarden": "Aangepaste omschrijving voorwaarden",
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(

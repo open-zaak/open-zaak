@@ -101,9 +101,9 @@ class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
         nietnatuurlijkpersoon = super().create(validated_data)
 
         if sub_verblijf_buitenland_data:
-            sub_verblijf_buitenland_data[
-                "nietnatuurlijkpersoon"
-            ] = nietnatuurlijkpersoon
+            sub_verblijf_buitenland_data["nietnatuurlijkpersoon"] = (
+                nietnatuurlijkpersoon
+            )
             SubVerblijfBuitenlandSerializer().create(sub_verblijf_buitenland_data)
         return nietnatuurlijkpersoon
 

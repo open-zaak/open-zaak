@@ -510,7 +510,10 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "verantwoordelijke": "063308836",
             "gerelateerdeZaaktypen": [],
             "besluittypen": [],
-            "broncatalogus": {"domein": "BRON", "rsin": "517439943",},
+            "broncatalogus": {
+                "domein": "BRON",
+                "rsin": "517439943",
+            },
             "bronzaaktype": {
                 "identificatie": "BRONZAAK1",
                 "omschrijving": "bron zaak",

@@ -28,7 +28,9 @@ class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
             "title": "Beleidsvelden",
             "description": "Beleidsvelden in gebruik binnen de gemeente",
             "default": {},
-            "examples": [{"name": "Burgerzaken"},],
+            "examples": [
+                {"name": "Burgerzaken"},
+            ],
             "required": ["name"],
             "properties": {
                 "name": {
@@ -60,7 +62,11 @@ class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
             json={
                 "url": object_url,
                 "type": "https://objecttypes.example.com/api/objecttypes/foo",
-                "record": {"data": {"name": "Asiel en Migratie",}},
+                "record": {
+                    "data": {
+                        "name": "Asiel en Migratie",
+                    }
+                },
             },
         )
 
@@ -106,7 +112,11 @@ class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
             json={
                 "url": object_url,
                 "type": "https://objecttypes.example.com/api/objecttypes/foo",
-                "record": {"data": {"name": "Asiel en Migratie",}},
+                "record": {
+                    "data": {
+                        "name": "Asiel en Migratie",
+                    }
+                },
             },
         )
 
@@ -142,7 +152,11 @@ class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
             json={
                 "url": object_url,
                 "type": "https://objecttypes.example.com/api/objecttypes/foo",
-                "record": {"data": {"invalidKey": "should not validate",}},
+                "record": {
+                    "data": {
+                        "invalidKey": "should not validate",
+                    }
+                },
             },
         )
 

@@ -18,7 +18,8 @@ from ...bootstrap.notifications import AuthNotificationStep
 
 
 @override_settings(
-    NOTIF_OPENZAAK_CLIENT_ID="a-client-id", NOTIF_OPENZAAK_SECRET="a-secret",
+    NOTIF_OPENZAAK_CLIENT_ID="a-client-id",
+    NOTIF_OPENZAAK_SECRET="a-secret",
 )
 class AutorisatiesAPIClientConfigurationTests(TestCase):
     def test_create_configuration(self):
@@ -33,7 +34,8 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
 
     def test_update_existing_configuration(self):
         app = Applicatie.objects.create(
-            client_ids=["a-client-id", "another-client-id"], label="A label",
+            client_ids=["a-client-id", "another-client-id"],
+            label="A label",
         )
         jwt_secret = JWTSecret.objects.create(
             identifier="a-client-id", secret="old-secret"
@@ -96,7 +98,8 @@ class AutorisatiesAPIClientConfigurationTests(TestCase):
 
 
 @override_settings(
-    NOTIF_OPENZAAK_CLIENT_ID="a-client-id", NOTIF_OPENZAAK_SECRET="a-secret",
+    NOTIF_OPENZAAK_CLIENT_ID="a-client-id",
+    NOTIF_OPENZAAK_SECRET="a-secret",
 )
 class APIStateTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -140,7 +143,8 @@ class APIStateTests(JWTAuthMixin, APITestCase):
 
     def test_extend_existing_configuration(self):
         app = Applicatie.objects.create(
-            client_ids=["a-client-id", "another-client-id"], label="A label",
+            client_ids=["a-client-id", "another-client-id"],
+            label="A label",
         )
         Autorisatie.objects.create(applicatie=app, component="ac", scopes=[])
         Autorisatie.objects.create(

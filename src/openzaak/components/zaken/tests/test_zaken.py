@@ -1047,7 +1047,8 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
                 },
             )
             m.get(
-                catalogus, json=get_catalogus_response(catalogus, zaaktype),
+                catalogus,
+                json=get_catalogus_response(catalogus, zaaktype),
             )
 
             response = self.client.post(
@@ -1196,7 +1197,8 @@ class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):
             omschrijving_generiek=RolOmschrijving.behandelaar,
         )
         Medewerker.objects.create(
-            rol=rol, identificatie="some-username",
+            rol=rol,
+            identificatie="some-username",
         )
 
         with self.subTest(expected="no-match"):

@@ -14,7 +14,7 @@ from .fields import FkOrServiceUrlField
 
 class FkOrServiceUrlFieldMixin:
     def get_cols(self) -> tuple:
-        """ return tuple of cols for local fk, remote base url and remote relative url"""
+        """return tuple of cols for local fk, remote base url and remote relative url"""
         target = self.lhs.target
         db_table = target.model._meta.db_table
 

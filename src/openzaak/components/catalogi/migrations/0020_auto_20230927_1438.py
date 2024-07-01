@@ -90,5 +90,8 @@ class Migration(migrations.Migration):
                 to="catalogi.statustype",
             ),
         ),
-        migrations.RemoveField(model_name="statustype", name="zaakobjecttype",),
+        migrations.RemoveField(
+            model_name="statustype",
+            name="zaakobjecttype",
+        ),
     ]

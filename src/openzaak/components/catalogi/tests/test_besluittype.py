@@ -722,7 +722,8 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
             datum_einde_geldigheid=date(2020, 2, 1),
         )
         BesluitTypeFactory.create(
-            concept=False, datum_begin_geldigheid=date(2020, 2, 1),
+            concept=False,
+            datum_begin_geldigheid=date(2020, 2, 1),
         )
 
         response = self.client.get(self.url, {"datumGeldigheid": "2020-01-10"})

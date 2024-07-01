@@ -765,7 +765,11 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
         response = self.client.put(
-            part_url, {"inhoud": part_files[0],}, format="multipart",
+            part_url,
+            {
+                "inhoud": part_files[0],
+            },
+            format="multipart",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -794,7 +798,9 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         part_url = get_operation_url("bestandsdeel_update", uuid=part.uuid)
 
         response = self.client.put(
-            part_url, {"inhoud": part_files[0], "lock": "12345"}, format="multipart",
+            part_url,
+            {"inhoud": part_files[0], "lock": "12345"},
+            format="multipart",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -13,7 +13,8 @@ from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
 
 @require_cmis
 @override_settings(
-    DOCUMENTEN_UPLOAD_CHUNK_SIZE=10, CMIS_ENABLED=True,
+    DOCUMENTEN_UPLOAD_CHUNK_SIZE=10,
+    CMIS_ENABLED=True,
 )
 class UploadTestCase(APICMISTestCase):
     def test_complete_upload_true(self):

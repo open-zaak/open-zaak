@@ -217,7 +217,9 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
     def test_mismatching_import_type(self):
         import_instance = self.create_import(
-            import_type="foobar", status=ImportStatusChoices.pending, total=0,
+            import_type="foobar",
+            status=ImportStatusChoices.pending,
+            total=0,
         )
 
         url = reverse(

@@ -280,10 +280,12 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["count"], 1)
         self.assertEqual(
-            response.data["results"][0]["url"], f"http://testserver{reverse(zaak1)}",
+            response.data["results"][0]["url"],
+            f"http://testserver{reverse(zaak1)}",
         )
         self.assertNotEqual(
-            response.data["results"][0]["url"], f"http://testserver{reverse(zaak2)}",
+            response.data["results"][0]["url"],
+            f"http://testserver{reverse(zaak2)}",
         )
 
     def test_filter_rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn_max_length(

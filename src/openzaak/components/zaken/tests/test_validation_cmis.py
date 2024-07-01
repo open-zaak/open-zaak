@@ -51,7 +51,10 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
         response = self.client.post(
             url,
-            {"zaak": f"http://{site.domain}{zaak_url}", "informatieobject": io_url,},
+            {
+                "zaak": f"http://{site.domain}{zaak_url}",
+                "informatieobject": io_url,
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -71,7 +74,9 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         io_2_url = f"http://testserver{reverse(io_2)}"
 
         # Relate a zaak to one of the documents
-        zio = ZaakInformatieObjectFactory.create(informatieobject=io_1_url,)
+        zio = ZaakInformatieObjectFactory.create(
+            informatieobject=io_1_url,
+        )
         zio_url = reverse(zio)
 
         # Attempt to replace the document related to the zaak with another document

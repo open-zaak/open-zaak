@@ -137,9 +137,9 @@ class Application:
         )
 
         self.references["statustype"] = statustype
-        self.references[
-            "statustype_overlast_geconstateerd"
-        ] = statustype_overlast_geconstateerd
+        self.references["statustype_overlast_geconstateerd"] = (
+            statustype_overlast_geconstateerd
+        )
 
     def registreer_domein_data(self):
         eigenschap_objecttype = EigenschapFactory.create(

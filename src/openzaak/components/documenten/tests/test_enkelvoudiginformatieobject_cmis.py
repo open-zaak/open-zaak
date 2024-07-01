@@ -700,7 +700,9 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APICMISTes
         lock1 = self.client.post(f"{eio1_url}/lock").data["lock"]
         self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
 
-        eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2",)
+        eio2 = EnkelvoudigInformatieObjectFactory.create(
+            beschrijving="object2",
+        )
 
         eio2_url = reverse(
             "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
@@ -984,7 +986,10 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.adapter.register_uri(
             "GET",
             informatieobjecttype,
-            json={"url": informatieobjecttype, "catalogus": catalogus,},
+            json={
+                "url": informatieobjecttype,
+                "catalogus": catalogus,
+            },
         )
         self.adapter.register_uri(
             "GET",
@@ -1028,7 +1033,9 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         informatieobjecttype_data["concept"] = True
 
         self.adapter.register_uri(
-            "GET", informatieobjecttype, json=informatieobjecttype_data,
+            "GET",
+            informatieobjecttype,
+            json=informatieobjecttype_data,
         )
         self.adapter.register_uri(
             "GET",
