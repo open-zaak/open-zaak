@@ -38,7 +38,7 @@ FILE_TYPES = {
 )
 def main(src):
     # Path handling inspired on the implementation of Black: https://github.com/psf/black
-    root = find_project_root(src)
+    root, source = find_project_root(src)
     gitignore = get_gitignore(root)
     sources: Set[Path] = set()
 
