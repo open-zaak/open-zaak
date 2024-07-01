@@ -73,7 +73,7 @@ class ConceptFilterMixin:
 
 
 class ConceptMixin(ConceptPublishMixin, ConceptDestroyMixin, ConceptFilterMixin):
-    """ mixin for resources which have 'concept' field"""
+    """mixin for resources which have 'concept' field"""
 
     pass
 

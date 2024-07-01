@@ -236,7 +236,10 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
 
         AuditTrail.objects.create(hoofd_object=url, resource="Besluit", resultaat=200)
 
-        audit_url = reverse("audittrail-list", kwargs={"besluit_uuid": besluit.uuid},)
+        audit_url = reverse(
+            "audittrail-list",
+            kwargs={"besluit_uuid": besluit.uuid},
+        )
 
         response = self.client.get(audit_url)
 

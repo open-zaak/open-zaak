@@ -12,18 +12,27 @@ class XForwardedHostTests(SimpleTestCase):
     factory = RequestFactory()
 
     def test_default_disabled(self):
-        request = self.factory.get("/", HTTP_X_FORWARDED_HOST="evil.com",)
+        request = self.factory.get(
+            "/",
+            HTTP_X_FORWARDED_HOST="evil.com",
+        )
 
         self.assertEqual(
-            request.get_host(), "testserver",
+            request.get_host(),
+            "testserver",
         )
 
     @override_settings(
-        USE_X_FORWARDED_HOST=True, ALLOWED_HOSTS=["upstream.proxy"],
+        USE_X_FORWARDED_HOST=True,
+        ALLOWED_HOSTS=["upstream.proxy"],
     )
     def test_enabled(self):
-        request = self.factory.get("/", HTTP_X_FORWARDED_HOST="upstream.proxy",)
+        request = self.factory.get(
+            "/",
+            HTTP_X_FORWARDED_HOST="upstream.proxy",
+        )
 
         self.assertEqual(
-            request.get_host(), "upstream.proxy",
+            request.get_host(),
+            "upstream.proxy",
         )

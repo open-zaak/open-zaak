@@ -23,14 +23,16 @@ class Migration(migrations.Migration):
             name="zaken_resultaat__resultaattype_or__resultaattype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="rol", name="zaken_rol__roltype_or__roltype_url_filled",
+            model_name="rol",
+            name="zaken_rol__roltype_or__roltype_url_filled",
         ),
         migrations.RemoveConstraint(
             model_name="status",
             name="zaken_status__statustype_or__statustype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaak", name="zaken_zaak__zaaktype_or__zaaktype_url_filled",
+            model_name="zaak",
+            name="zaken_zaak__zaaktype_or__zaaktype_url_filled",
         ),
         migrations.RemoveConstraint(
             model_name="zaakbesluit",
@@ -41,26 +43,48 @@ class Migration(migrations.Migration):
             name="zaken_zaakeigenschap__eigenschap_or__eigenschap_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaakinformatieobject", name="unique_zaak_and_external_document",
+            model_name="zaakinformatieobject",
+            name="unique_zaak_and_external_document",
         ),
         migrations.RemoveConstraint(
             model_name="zaakinformatieobject",
             name="zaken_zaakinformatieobject__informatieobject_or__informatieobject_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaakbesluit", name="unique_zaak_and_besluit",
+            model_name="zaakbesluit",
+            name="unique_zaak_and_besluit",
         ),
         migrations.RemoveField(
-            model_name="relevantezaakrelatie", name="_relevant_zaak_url",
+            model_name="relevantezaakrelatie",
+            name="_relevant_zaak_url",
         ),
-        migrations.RemoveField(model_name="resultaat", name="_resultaattype_url",),
-        migrations.RemoveField(model_name="rol", name="_roltype_url",),
-        migrations.RemoveField(model_name="status", name="_statustype_url",),
-        migrations.RemoveField(model_name="zaak", name="_zaaktype_url",),
-        migrations.RemoveField(model_name="zaakbesluit", name="_besluit_url",),
-        migrations.RemoveField(model_name="zaakeigenschap", name="_eigenschap_url",),
         migrations.RemoveField(
-            model_name="zaakinformatieobject", name="_informatieobject_url",
+            model_name="resultaat",
+            name="_resultaattype_url",
+        ),
+        migrations.RemoveField(
+            model_name="rol",
+            name="_roltype_url",
+        ),
+        migrations.RemoveField(
+            model_name="status",
+            name="_statustype_url",
+        ),
+        migrations.RemoveField(
+            model_name="zaak",
+            name="_zaaktype_url",
+        ),
+        migrations.RemoveField(
+            model_name="zaakbesluit",
+            name="_besluit_url",
+        ),
+        migrations.RemoveField(
+            model_name="zaakeigenschap",
+            name="_eigenschap_url",
+        ),
+        migrations.RemoveField(
+            model_name="zaakinformatieobject",
+            name="_informatieobject_url",
         ),
         migrations.AddConstraint(
             model_name="relevantezaakrelatie",

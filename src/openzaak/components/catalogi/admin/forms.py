@@ -87,9 +87,9 @@ class ZaakTypeForm(forms.ModelForm):
             and self.initial["selectielijst_procestype_jaar"] is None
         ):
             referentielijst_config = ReferentieLijstConfig.get_solo()
-            self.initial[
-                "selectielijst_procestype_jaar"
-            ] = referentielijst_config.default_year
+            self.initial["selectielijst_procestype_jaar"] = (
+                referentielijst_config.default_year
+            )
 
     def _make_required(self, field: str):
         if field not in self.fields:
@@ -191,18 +191,18 @@ class ResultaatTypeForm(forms.ModelForm):
         if self.instance.zaaktype_id:
             proces_type = self.instance.zaaktype.selectielijst_procestype
             if "selectielijstklasse" in self.fields:
-                self.fields[
-                    "selectielijstklasse"
-                ].choices = get_selectielijst_resultaat_choices(proces_type)
+                self.fields["selectielijstklasse"].choices = (
+                    get_selectielijst_resultaat_choices(proces_type)
+                )
 
         # make the selectielijstklasse field readonly if we don't have sufficient
         # information to validate/filter it
         if not self._zaaktype or not self._zaaktype.selectielijst_procestype:
             self.fields["selectielijstklasse"].required = False
             self.fields["selectielijstklasse"].disabled = True
-            self.fields[
-                "selectielijstklasse"
-            ].choices = EMPTY_SELECTIELIJSTKLASSE_CHOICES
+            self.fields["selectielijstklasse"].choices = (
+                EMPTY_SELECTIELIJSTKLASSE_CHOICES
+            )
 
     def clean(self):
         super().clean()
@@ -397,14 +397,16 @@ class ResultaatTypeForm(forms.ModelForm):
         for key in empty:
             field = f"brondatum_archiefprocedure_{key}"
             msg = MSG_FIELD_FORBIDDEN.format(
-                verbose_name=self._get_field_label(field), value=afleidingswijze_label,
+                verbose_name=self._get_field_label(field),
+                value=afleidingswijze_label,
             )
             self.add_error(field, forms.ValidationError(msg, code="invalid"))
 
         for key in required:
             field = f"brondatum_archiefprocedure_{key}"
             msg = MSG_FIELD_REQUIRED.format(
-                verbose_name=self._get_field_label(field), value=afleidingswijze_label,
+                verbose_name=self._get_field_label(field),
+                value=afleidingswijze_label,
             )
             self.add_error(field, forms.ValidationError(msg, code="required"))
 
@@ -615,7 +617,10 @@ class RelatedZaakTypeMultiValueField(forms.MultiValueField):
 
 class ZaakTypenRelatieAdminForm(forms.ModelForm):
     gerelateerd_zaaktype = RelatedZaakTypeMultiValueField(
-        fields=[forms.IntegerField(required=False), forms.URLField(required=False),],
+        fields=[
+            forms.IntegerField(required=False),
+            forms.URLField(required=False),
+        ],
         widget=RelatedZaakTypeMultiWidget(
             widgets=[
                 ForeignKeyRawIdWidget(

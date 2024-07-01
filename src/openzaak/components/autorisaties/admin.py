@@ -94,7 +94,10 @@ class ApplicatieAdmin(admin.ModelAdmin):
 
     @property
     def autorisaties_view(self):
-        return AutorisatiesView.as_view(admin_site=self.admin_site, model_admin=self,)
+        return AutorisatiesView.as_view(
+            admin_site=self.admin_site,
+            model_admin=self,
+        )
 
     def response_post_save_change(self, request, obj):
         if "_autorisaties" in request.POST:
@@ -110,7 +113,8 @@ class ApplicatieAdmin(admin.ModelAdmin):
         super().delete_model(request, obj)
 
     @admin.display(
-        description=_("Ready?"), boolean=True,
+        description=_("Ready?"),
+        boolean=True,
     )
     def ready(self, obj) -> bool:
         return obj.heeft_alle_autorisaties ^ obj.has_authorizations

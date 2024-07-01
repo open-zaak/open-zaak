@@ -87,5 +87,6 @@ class ZaakIdentificatie(models.Model):
 
     def __str__(self):
         return _("{identification} ({organisation})").format(
-            identification=self.identificatie, organisation=self.bronorganisatie,
+            identification=self.identificatie,
+            organisation=self.bronorganisatie,
         )

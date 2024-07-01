@@ -30,7 +30,8 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         )
 
         change_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobject_change", args=(eio.pk,),
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(eio.pk,),
         )
         response = self.app.get(change_url)
 
@@ -51,7 +52,8 @@ class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
         )
 
         change_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobject_change", args=(eio.pk,),
+            "admin:documenten_enkelvoudiginformatieobject_change",
+            args=(eio.pk,),
         )
         response = self.app.get(change_url)
 

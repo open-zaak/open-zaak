@@ -58,7 +58,10 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
                     "startdatum": "2018-12-24",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "relevanteAndereZaken": [
-                        {"url": zaak_external, "aardRelatie": AardZaakRelatie.vervolg,}
+                        {
+                            "url": zaak_external,
+                            "aardRelatie": AardZaakRelatie.vervolg,
+                        }
                     ],
                 },
                 **ZAAK_WRITE_KWARGS,
@@ -81,7 +84,10 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
                 "startdatum": "2018-12-24",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 "relevanteAndereZaken": [
-                    {"url": "abcd", "aardRelatie": AardZaakRelatie.vervolg,}
+                    {
+                        "url": "abcd",
+                        "aardRelatie": AardZaakRelatie.vervolg,
+                    }
                 ],
             },
             **ZAAK_WRITE_KWARGS,
@@ -159,7 +165,10 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
                     "startdatum": "2018-12-24",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "relevanteAndereZaken": [
-                        {"url": zaak_external, "aardRelatie": AardZaakRelatie.vervolg,}
+                        {
+                            "url": zaak_external,
+                            "aardRelatie": AardZaakRelatie.vervolg,
+                        }
                     ],
                 },
                 **ZAAK_WRITE_KWARGS,
@@ -225,7 +234,10 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 "startdatum": "2018-12-24",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 "relevanteAndereZaken": [
-                    {"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg,}
+                    {
+                        "url": zaak_url,
+                        "aardRelatie": AardZaakRelatie.vervolg,
+                    }
                 ],
             },
             **ZAAK_WRITE_KWARGS,

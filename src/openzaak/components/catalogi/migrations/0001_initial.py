@@ -631,7 +631,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Zaaktype", "verbose_name_plural": "Zaaktypen",},
+            options={
+                "verbose_name": "Zaaktype",
+                "verbose_name_plural": "Zaaktypen",
+            },
             bases=(vng_api_common.models.APIMixin, models.Model),
         ),
         migrations.CreateModel(
@@ -794,7 +797,8 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AlterUniqueTogether(
-            name="statustype", unique_together={("zaaktype", "statustypevolgnummer")},
+            name="statustype",
+            unique_together={("zaaktype", "statustypevolgnummer")},
         ),
         migrations.CreateModel(
             name="RolType",

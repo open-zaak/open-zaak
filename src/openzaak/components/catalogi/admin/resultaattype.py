@@ -71,7 +71,10 @@ class ResultaatTypeAdmin(
                 )
             },
         ),
-        (_("Archief"), {"fields": ("archiefnominatie", "archiefactietermijn")},),
+        (
+            _("Archief"),
+            {"fields": ("archiefnominatie", "archiefactietermijn")},
+        ),
         (
             _("Bepaling brondatum archiefprocedure"),
             {

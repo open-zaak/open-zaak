@@ -349,7 +349,9 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
 
     @tag("gh-1353")
-    def test_add_resultaat_on_zaak_with_eigenschap_dotted_datumkenmerk(self,):
+    def test_add_resultaat_on_zaak_with_eigenschap_dotted_datumkenmerk(
+        self,
+    ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.
         """

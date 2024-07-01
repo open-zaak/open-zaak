@@ -195,7 +195,8 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
         eio_canonical.lock_document(doc_uuid=eio.uuid)
 
         informatieobject_response = self.client.patch(
-            informatieobject_url, {"titel": "changed", "lock": eio_canonical.lock},
+            informatieobject_url,
+            {"titel": "changed", "lock": eio_canonical.lock},
         ).data
 
         audittrails = AuditTrail.objects.filter(

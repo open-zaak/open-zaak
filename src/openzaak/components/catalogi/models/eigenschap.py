@@ -29,15 +29,17 @@ class EigenschapSpecificatie(models.Model):
     ‘Referentie naar eigenschap’.
     """
 
-    groep = models.CharField(  # waardenverzameling Letters, cijfers en liggende streepjes
-        _("groep"),
-        max_length=32,
-        blank=True,
-        validators=[validate_letters_numbers_underscores_spaces],
-        help_text=_(
-            "Benaming van het object of groepattribuut waarvan de EIGENSCHAP een "
-            "inhoudelijk gegeven specificeert."
-        ),
+    groep = (
+        models.CharField(  # waardenverzameling Letters, cijfers en liggende streepjes
+            _("groep"),
+            max_length=32,
+            blank=True,
+            validators=[validate_letters_numbers_underscores_spaces],
+            help_text=_(
+                "Benaming van het object of groepattribuut waarvan de EIGENSCHAP een "
+                "inhoudelijk gegeven specificeert."
+            ),
+        )
     )
     # waardenverzameling gedefinieerd als tekst, getal, datum (jjjjmmdd), datum/tijd (jjjjmmdduummss), met AN20
     formaat = models.CharField(

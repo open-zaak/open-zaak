@@ -81,7 +81,9 @@ class UniqueRepresentationTestCase(APICMISTestCase):
         eio_url = f"http://testserver{reverse(eio)}"
 
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio_url, verzoek=verzoek, object_type="verzoek",
+            informatieobject=eio_url,
+            verzoek=verzoek,
+            object_type="verzoek",
         )
 
         # not a model we can generate a representation for -> take the last fragment

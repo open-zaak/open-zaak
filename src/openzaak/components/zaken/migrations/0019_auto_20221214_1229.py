@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
     # ALTER table operations result in table locks
     operations = [
         migrations.AlterField(
-            model_name="zaak", name="id", field=models.IntegerField(),
+            model_name="zaak",
+            name="id",
+            field=models.IntegerField(),
         ),
         migrations.AlterField(
             model_name="zaak",

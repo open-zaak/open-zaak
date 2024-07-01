@@ -66,7 +66,9 @@ class MockSelectielijst(SelectieLijstMixin):
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
         )
         mock_resource_get(
-            self.requests_mocker, "procestypen", self.procestype,
+            self.requests_mocker,
+            "procestypen",
+            self.procestype,
         )
 
         self.selectielijstklasse = (
@@ -74,7 +76,9 @@ class MockSelectielijst(SelectieLijstMixin):
             "resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
         mock_resource_get(
-            self.requests_mocker, "resultaten", self.selectielijstklasse,
+            self.requests_mocker,
+            "resultaten",
+            self.selectielijstklasse,
         )
 
         self.resultaattypeomschrijving = (

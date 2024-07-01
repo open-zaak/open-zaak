@@ -63,6 +63,7 @@ def sort_results(documents: List, order_by: List[str]) -> List:
 
 # ---------------------- Model iterables -----------
 
+
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable, CMISClientMixin):
 
@@ -514,7 +515,8 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         # The url needs to be added manually because the drc_cmis uses the 'omshrijving' as the value
         # of the informatie object type
         kwargs["informatieobjecttype"] = get_object_url(
-            kwargs.get("informatieobjecttype"), request=kwargs.get("_request"),
+            kwargs.get("informatieobjecttype"),
+            request=kwargs.get("_request"),
         )
 
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
@@ -711,7 +713,8 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
 
         for django_gebruiksrechten in gebruiksrechten_to_update:
             self.cmis_client.update_gebruiksrechten(
-                drc_uuid=django_gebruiksrechten.uuid, data=kwargs,
+                drc_uuid=django_gebruiksrechten.uuid,
+                data=kwargs,
             )
 
             updated += 1

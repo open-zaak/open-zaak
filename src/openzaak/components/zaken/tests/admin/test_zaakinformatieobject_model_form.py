@@ -28,7 +28,8 @@ class TestZaakInformatieObjectForm(TestCase):
         self,
     ):
         drc_service = Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://external.documenten.nl/api/v1/",
+            api_type=APITypes.ztc,
+            api_root="https://external.documenten.nl/api/v1/",
         )
         form = ZaakInformatieObjectForm()
         form.cleaned_data = {

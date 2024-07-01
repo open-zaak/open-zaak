@@ -58,7 +58,8 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         # setup mocks
         m.get(
-            besluittype, json=get_besluittype_response(catalogus, besluittype),
+            besluittype,
+            json=get_besluittype_response(catalogus, besluittype),
         )
         m.get(
             catalogus,
@@ -115,7 +116,8 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaak = f"{zaken_api}zaken/b71f72ef-198d-44d8-af64-ae1932df830a"
         # setup mocks
         m.get(
-            zaak, json=get_zaak_response(zaak, zaaktype_url),
+            zaak,
+            json=get_zaak_response(zaak, zaaktype_url),
         )
         besluit = BesluitFactory.create(
             verantwoordelijke_organisatie="853162402",

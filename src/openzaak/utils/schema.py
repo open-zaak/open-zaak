@@ -511,7 +511,7 @@ class AutoSchema(_AutoSchema):
         return super().get_description()
 
     def get_filter_backends(self):
-        """ support expand for detail views """
+        """support expand for detail views"""
         include_allowed = getattr(self.view, "include_allowed", lambda: False)()
         if self.method == "GET" and include_allowed:
             return getattr(self.view, "filter_backends", [])

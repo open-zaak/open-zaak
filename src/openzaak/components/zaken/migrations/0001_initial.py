@@ -375,7 +375,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Rol", "verbose_name_plural": "Rollen",},
+            options={
+                "verbose_name": "Rol",
+                "verbose_name_plural": "Rollen",
+            },
         ),
         migrations.CreateModel(
             name="WozDeelobject",
@@ -732,7 +735,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "zaak", "verbose_name_plural": "zaken",},
+            options={
+                "verbose_name": "zaak",
+                "verbose_name_plural": "zaken",
+            },
             bases=(
                 openzaak.utils.mixins.AuditTrailMixin,
                 vng_api_common.models.APIMixin,
@@ -1333,7 +1339,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "wijk", "verbose_name_plural": "wijken",},
+            options={
+                "verbose_name": "wijk",
+                "verbose_name_plural": "wijken",
+            },
         ),
         migrations.CreateModel(
             name="Wegdeel",
@@ -1371,7 +1380,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "wegdeel", "verbose_name_plural": "wegdelen",},
+            options={
+                "verbose_name": "wegdeel",
+                "verbose_name_plural": "wegdelen",
+            },
         ),
         migrations.CreateModel(
             name="Waterdeel",
@@ -1421,7 +1433,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "waterdeel", "verbose_name_plural": "waterdelen",},
+            options={
+                "verbose_name": "waterdeel",
+                "verbose_name_plural": "waterdelen",
+            },
         ),
         migrations.CreateModel(
             name="Vestiging",
@@ -1685,7 +1700,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "status", "verbose_name_plural": "statussen",},
+            options={
+                "verbose_name": "status",
+                "verbose_name_plural": "statussen",
+            },
         ),
         migrations.CreateModel(
             name="Spoorbaandeel",
@@ -1805,7 +1823,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "resultaat", "verbose_name_plural": "resultaten",},
+            options={
+                "verbose_name": "resultaat",
+                "verbose_name_plural": "resultaten",
+            },
         ),
         migrations.CreateModel(
             name="RelevanteZaakRelatie",
@@ -1897,7 +1918,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "pand", "verbose_name_plural": "panden",},
+            options={
+                "verbose_name": "pand",
+                "verbose_name_plural": "panden",
+            },
         ),
         migrations.CreateModel(
             name="Overige",
@@ -1920,7 +1944,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "overig", "verbose_name_plural": "overige",},
+            options={
+                "verbose_name": "overig",
+                "verbose_name_plural": "overige",
+            },
         ),
         migrations.CreateModel(
             name="OrganisatorischeEenheid",
@@ -2504,7 +2531,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "gemeente", "verbose_name_plural": "gemeenten",},
+            options={
+                "verbose_name": "gemeente",
+                "verbose_name_plural": "gemeenten",
+            },
         ),
         migrations.CreateModel(
             name="Buurt",
@@ -2554,7 +2584,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "buurt", "verbose_name_plural": "buurten",},
+            options={
+                "verbose_name": "buurt",
+                "verbose_name_plural": "buurten",
+            },
         ),
         migrations.CreateModel(
             name="Adres",
@@ -2645,7 +2678,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "adres", "verbose_name_plural": "adressen",},
+            options={
+                "verbose_name": "adres",
+                "verbose_name_plural": "adressen",
+            },
         ),
         migrations.AddConstraint(
             model_name="zaakinformatieobject",
@@ -2719,7 +2755,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="zaakbesluit", unique_together={("zaak", "_besluit")},
+            name="zaakbesluit",
+            unique_together={("zaak", "_besluit")},
         ),
         migrations.AddConstraint(
             model_name="zaak",
@@ -2739,7 +2776,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="zaak", unique_together={("bronorganisatie", "identificatie")},
+            name="zaak",
+            unique_together={("bronorganisatie", "identificatie")},
         ),
         migrations.AddConstraint(
             model_name="status",
@@ -2759,7 +2797,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="status", unique_together={("zaak", "datum_status_gezet")},
+            name="status",
+            unique_together={("zaak", "datum_status_gezet")},
         ),
         migrations.AddConstraint(
             model_name="rol",
@@ -2813,6 +2852,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="buurt", unique_together={("buurt_code", "wyk_wijk_code")},
+            name="buurt",
+            unique_together={("buurt_code", "wyk_wijk_code")},
         ),
     ]

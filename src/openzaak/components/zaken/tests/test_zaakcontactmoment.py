@@ -75,7 +75,8 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.post(
-                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten", status_code=400,
+                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
+                status_code=400,
             )
             response = self.client.post(
                 url, {"contactmoment": CONTACTMOMENT, "zaak": reverse(zaak)}
@@ -98,7 +99,8 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.delete(
-                zaak_contactmoment._objectcontactmoment, status_code=204,
+                zaak_contactmoment._objectcontactmoment,
+                status_code=204,
             )
             response = self.client.delete(url)
 
@@ -114,7 +116,8 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.post(
-                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten", status_code=400,
+                f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
+                status_code=400,
             )
             response = self.client.delete(url)
 

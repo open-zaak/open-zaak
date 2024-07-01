@@ -396,7 +396,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
             response = self.client.post(
                 self.list_url,
-                {"object": zaak, "informatieobject": eio_url, "objectType": "zaak",},
+                {
+                    "object": zaak,
+                    "informatieobject": eio_url,
+                    "objectType": "zaak",
+                },
             )
 
             self.assertEqual(
@@ -435,7 +439,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
             response = self.client.post(
                 self.list_url,
-                {"object": zaak, "informatieobject": eio_url, "objectType": "zaak",},
+                {
+                    "object": zaak,
+                    "informatieobject": eio_url,
+                    "objectType": "zaak",
+                },
             )
 
         self.assertEqual(
@@ -508,7 +516,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             )  # Mock OAS for external besluiten API
             m.get(besluit, json=get_besluit_response(besluit, besluittype))
             m.get(
-                bio_url.url, json=[],
+                bio_url.url,
+                json=[],
             )
 
             response = self.client.post(
@@ -592,7 +601,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             )
             m.get(verzoek, json=get_verzoek_response(verzoek))
             m.get(
-                vio_url.url, json=[],
+                vio_url.url,
+                json=[],
             )
 
             response = self.client.post(
@@ -685,7 +695,10 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             mock_vrc_oas_get(m)
             m.get(
                 verzoek,
-                json={"url": verzoek, "identificatie": "VERZOEK-2019-0000000001",},
+                json={
+                    "url": verzoek,
+                    "identificatie": "VERZOEK-2019-0000000001",
+                },
             )
 
             response = self.client.post(

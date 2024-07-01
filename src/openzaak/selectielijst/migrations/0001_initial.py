@@ -33,6 +33,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "ReferentieLijstconfiguratie",},
+            options={
+                "verbose_name": "ReferentieLijstconfiguratie",
+            },
         ),
     ]

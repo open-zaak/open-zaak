@@ -137,9 +137,14 @@ def construct_besluittypen(
     generate_new_uuids,
 ):
     besluittypen_uuid_mapping = {}
-    for (imported, related_iotypen_uuids,), form_data, form in zip(
-        besluittypen, besluittype_form_data, besluittype_formset
-    ):
+    for (
+        (
+            imported,
+            related_iotypen_uuids,
+        ),
+        form_data,
+        form,
+    ) in zip(besluittypen, besluittype_form_data, besluittype_formset):
         uuid = imported["url"].split("/")[-1]
         if form_data["existing"]:
             chosen_object = form_data["existing"]
@@ -288,43 +293,55 @@ def format_duration(rel_delta: relativedelta) -> str:
 
     if rel_delta.years:
         bits.append(
-            ngettext("{years} year", "{years} years", rel_delta.years,).format(
-                years=rel_delta.years
-            )
+            ngettext(
+                "{years} year",
+                "{years} years",
+                rel_delta.years,
+            ).format(years=rel_delta.years)
         )
 
     if rel_delta.months:
         bits.append(
-            ngettext("{months} month", "{months} months", rel_delta.months,).format(
-                months=rel_delta.months
-            )
+            ngettext(
+                "{months} month",
+                "{months} months",
+                rel_delta.months,
+            ).format(months=rel_delta.months)
         )
 
     if rel_delta.days:
         bits.append(
-            ngettext("{days} day", "{days} days", rel_delta.days,).format(
-                days=rel_delta.days
-            )
+            ngettext(
+                "{days} day",
+                "{days} days",
+                rel_delta.days,
+            ).format(days=rel_delta.days)
         )
 
     if rel_delta.hours:
         bits.append(
-            ngettext("{hours} hour", "{hours} hours", rel_delta.hours,).format(
-                hours=rel_delta.hours
-            )
+            ngettext(
+                "{hours} hour",
+                "{hours} hours",
+                rel_delta.hours,
+            ).format(hours=rel_delta.hours)
         )
 
     if rel_delta.minutes:
         bits.append(
             ngettext(
-                "{minutes} minute", "{minutes} minutes", rel_delta.minutes,
+                "{minutes} minute",
+                "{minutes} minutes",
+                rel_delta.minutes,
             ).format(minutes=rel_delta.minutes)
         )
 
     if rel_delta.seconds:
         bits.append(
             ngettext(
-                "{seconds} second", "{seconds} seconds", rel_delta.seconds,
+                "{seconds} second",
+                "{seconds} seconds",
+                rel_delta.seconds,
             ).format(seconds=rel_delta.seconds)
         )
 

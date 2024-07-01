@@ -59,7 +59,10 @@ class ZiotFilterAdminTests(WebTest):
 
     def test_create_ziot_zaaktype_popup_filter_with_catalogus(self):
         query_params = urlencode(
-            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+            {
+                "catalogus_id__exact": self.catalogus.pk,
+                "catalogus": self.catalogus.pk,
+            }
         )
         url = f'{reverse("admin:catalogi_zaaktypeinformatieobjecttype_add")}?{query_params}'
         response = self.app.get(url)
@@ -70,7 +73,8 @@ class ZiotFilterAdminTests(WebTest):
             {"_to_field": "id", "catalogus__exact": self.catalogus.pk}
         )
         self.assertEqual(
-            popup_zaaktypen.attrs["href"], f"{zaaktype_changelist_url}?{query_params}",
+            popup_zaaktypen.attrs["href"],
+            f"{zaaktype_changelist_url}?{query_params}",
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -92,7 +96,8 @@ class ZiotFilterAdminTests(WebTest):
             {"_to_field": "id", "catalogus__exact": self.catalogus.pk}
         )
         self.assertEqual(
-            popup_zaaktypen.attrs["href"], f"{zaaktype_changelist_url}?{query_param}",
+            popup_zaaktypen.attrs["href"],
+            f"{zaaktype_changelist_url}?{query_param}",
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -330,6 +335,8 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
                 "kanaal": "informatieobjecttypen",
                 "resource": "informatieobjecttype",
                 "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{catalogus_url}",
+                },
             }
         )

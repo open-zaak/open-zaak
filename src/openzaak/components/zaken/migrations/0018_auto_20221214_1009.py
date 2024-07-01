@@ -106,7 +106,10 @@ class Migration(migrations.Migration):
                     model_name="relevantezaakrelatie",
                     name="zaken_relevantezaakrelatie__relevant_zaak_or__relevant_zaak_base_url_filled",
                 ),
-                migrations.RemoveField(model_name="relevantezaakrelatie", name="url",),
+                migrations.RemoveField(
+                    model_name="relevantezaakrelatie",
+                    name="url",
+                ),
             ],
         ),
     ]

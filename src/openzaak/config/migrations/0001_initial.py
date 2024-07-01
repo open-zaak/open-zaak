@@ -39,6 +39,8 @@ class Migration(migrations.Migration):
                 ),
                 ("outway", models.URLField(blank=True, verbose_name="outway address")),
             ],
-            options={"verbose_name": "NLX configuration",},
+            options={
+                "verbose_name": "NLX configuration",
+            },
         ),
     ]

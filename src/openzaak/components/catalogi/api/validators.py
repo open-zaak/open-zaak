@@ -486,7 +486,8 @@ class RelationZaaktypeValidator:
     requires_context = True
 
     def __init__(
-        self, relation_field: str,
+        self,
+        relation_field: str,
     ):
         self.relation_field = relation_field
 
@@ -552,8 +553,8 @@ class StartBeforeEndValidator:
 
 class ZaakTypeRelationsPublishValidator:
     """
-        Validate that the ZaakType object has the correct relations for publishing
-        """
+    Validate that the ZaakType object has the correct relations for publishing
+    """
 
     code = "concept-relation"
     requires_context = True

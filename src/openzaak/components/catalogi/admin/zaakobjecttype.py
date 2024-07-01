@@ -11,7 +11,9 @@ from .mixins import ReadOnlyPublishedZaaktypeMixin
 
 @admin.register(ZaakObjectType)
 class ZaakObjectTypeAdmin(
-    ReadOnlyPublishedZaaktypeMixin, UUIDAdminMixin, admin.ModelAdmin,
+    ReadOnlyPublishedZaaktypeMixin,
+    UUIDAdminMixin,
+    admin.ModelAdmin,
 ):
     # List
     list_display = (

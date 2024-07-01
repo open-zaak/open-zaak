@@ -16,12 +16,20 @@ class Migration(migrations.Migration):
 
     # ALTER table operations result in table locks
     operations = [
-        migrations.RenameField(model_name="zaak", old_name="id", new_name="_id",),
         migrations.RenameField(
-            model_name="zaak", old_name="bronorganisatie", new_name="_bronorganisatie",
+            model_name="zaak",
+            old_name="id",
+            new_name="_id",
         ),
         migrations.RenameField(
-            model_name="zaak", old_name="identificatie", new_name="_identificatie",
+            model_name="zaak",
+            old_name="bronorganisatie",
+            new_name="_bronorganisatie",
+        ),
+        migrations.RenameField(
+            model_name="zaak",
+            old_name="identificatie",
+            new_name="_identificatie",
         ),
         migrations.AlterField(
             model_name="zaak",
@@ -48,7 +56,10 @@ class Migration(migrations.Migration):
                 max_length=40,
             ),
         ),
-        migrations.AlterUniqueTogether(name="zaak", unique_together=set(),),
+        migrations.AlterUniqueTogether(
+            name="zaak",
+            unique_together=set(),
+        ),
         migrations.AlterField(
             model_name="zaak",
             name="identificatie_ptr",

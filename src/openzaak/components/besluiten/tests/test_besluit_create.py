@@ -220,7 +220,8 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
             m.get(
-                besluittype, json=get_besluittype_response(catalogus, besluittype),
+                besluittype,
+                json=get_besluittype_response(catalogus, besluittype),
             )
 
             m.get(

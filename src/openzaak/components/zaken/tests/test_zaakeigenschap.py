@@ -118,7 +118,10 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
         zaak_url = reverse(zaak)
 
         zaakeigenschap_data = {
@@ -143,8 +146,14 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
-        zaak_url = reverse("zaak-detail", kwargs={"version": 1, "uuid": zaak.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
+        zaak_url = reverse(
+            "zaak-detail",
+            kwargs={"version": 1, "uuid": zaak.uuid},
+        )
 
         zaakeigenschap_data = {
             "zaak": f"http://testserver{zaak_url}",
@@ -168,7 +177,10 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             eigenschap__specificatie_van_eigenschap__lengte=30,
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
 
         zaakeigenschap_data = {
             "waarde": "This is a changed value",
@@ -188,8 +200,14 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             zaak=zaak, waarde="This is a value"
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
-        zaak_url = reverse("zaak-detail", kwargs={"version": 1, "uuid": zaak.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
+        zaak_url = reverse(
+            "zaak-detail",
+            kwargs={"version": 1, "uuid": zaak.uuid},
+        )
 
         eigenschap = EigenschapFactory()
 
@@ -218,7 +236,10 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             zaak=zaak1, eigenschap=eigenschap, waarde="This is a value"
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak1.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak1.uuid},
+        )
         zaak2_url = reverse(zaak2)
 
         zaakeigenschap_data = {
@@ -247,7 +268,10 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             zaak=zaak, waarde="This is a value"
         )
 
-        zaakeigenschap_url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaak.uuid},)
+        zaakeigenschap_url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaak.uuid},
+        )
 
         self.assertEqual(1, ZaakEigenschap.objects.all().count())
 
@@ -301,7 +325,12 @@ class ZaakEigenschapCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(
-            url, {"zaak": zaak_url, "eigenschap": "abcd", "waarde": "overlast_water",},
+            url,
+            {
+                "zaak": zaak_url,
+                "eigenschap": "abcd",
+                "waarde": "overlast_water",
+            },
         )
 
         self.assertEqual(
@@ -438,7 +467,10 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_zaakeigenschap_detail_jwt_expired(self):
         zaakeigenschap = ZaakEigenschapFactory.create()
-        url = reverse(zaakeigenschap, kwargs={"zaak_uuid": zaakeigenschap.zaak.uuid},)
+        url = reverse(
+            zaakeigenschap,
+            kwargs={"zaak_uuid": zaakeigenschap.zaak.uuid},
+        )
 
         response = self.client.get(url)
 

@@ -594,7 +594,10 @@ class BestandsDeel(models.Model):
                 condition=Q(informatieobject_uuid__isnull=False),
                 name="unique_informatieobject_uuid_and_volgnummer",
             ),
-            models.CheckConstraint(check=Q(omvang__gt=0), name="check_omvang",),
+            models.CheckConstraint(
+                check=Q(omvang__gt=0),
+                name="check_omvang",
+            ),
             models.CheckConstraint(
                 check=Q(
                     informatieobject__isnull=True, informatieobject_uuid__isnull=False
@@ -819,14 +822,20 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         "zaken.Zaak", on_delete=models.CASCADE, null=True, blank=True
     )
     zaak = FkOrServiceUrlField(
-        fk_field="_zaak", url_field="_object_url", blank=True, null=True,
+        fk_field="_zaak",
+        url_field="_object_url",
+        blank=True,
+        null=True,
     )
 
     _besluit = models.ForeignKey(
         "besluiten.Besluit", on_delete=models.CASCADE, null=True, blank=True
     )
     besluit = FkOrServiceUrlField(
-        fk_field="_besluit", url_field="_object_url", blank=True, null=True,
+        fk_field="_besluit",
+        url_field="_object_url",
+        blank=True,
+        null=True,
     )
 
     objects = ObjectInformatieObjectAdapterManager()
@@ -917,7 +926,8 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
 
     def get_url(self):
         oio_path = reverse(
-            "objectinformatieobject-detail", kwargs={"version": "1", "uuid": self.uuid},
+            "objectinformatieobject-detail",
+            kwargs={"version": "1", "uuid": self.uuid},
         )
         return make_absolute_uri(oio_path)
 
@@ -1159,7 +1169,11 @@ class Verzending(APIMixin, CMISETagMixin, models.Model):
             "woonplaatsnaam": binnenlands_correspondentieadres_woonplaatsnaam,
         },
         required=False,
-        optional=("huisletter", "huisnummer_toevoeging", "postcode",),
+        optional=(
+            "huisletter",
+            "huisnummer_toevoeging",
+            "postcode",
+        ),
     )
 
     buitenlands_correspondentieadres_adres_buitenland_1 = models.CharField(
@@ -1205,7 +1219,10 @@ class Verzending(APIMixin, CMISETagMixin, models.Model):
             "land_postadres": buitenlands_correspondentieadres_land_postadres,
         },
         required=False,
-        optional=("adres_buitenland_2", "adres_buitenland_3",),
+        optional=(
+            "adres_buitenland_2",
+            "adres_buitenland_3",
+        ),
     )
 
     correspondentie_postadres_postbus_of_antwoord_nummer = models.PositiveIntegerField(

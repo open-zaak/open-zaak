@@ -212,5 +212,8 @@ class ImportReportView(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         instance = self.get_object()
 
         return sendfile(
-            request, instance.report_file.path, attachment=True, mimetype="text/csv",
+            request,
+            instance.report_file.path,
+            attachment=True,
+            mimetype="text/csv",
         )

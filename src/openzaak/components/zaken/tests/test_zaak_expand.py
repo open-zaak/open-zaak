@@ -249,7 +249,9 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
             m.get(zaaktype, json=zaaktype_data)
 
             response = self.client.get(
-                self.url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS,
+                self.url,
+                {"expand": "zaaktype"},
+                **ZAAK_READ_KWARGS,
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -309,7 +311,9 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
             m.get(zaaktype, json=zaaktype_data)
 
             response = self.client.get(
-                self.url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS,
+                self.url,
+                {"expand": "zaaktype"},
+                **ZAAK_READ_KWARGS,
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -328,7 +332,9 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
             m.get(zaaktype, status_code=500)
 
             response = self.client.get(
-                self.url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS,
+                self.url,
+                {"expand": "zaaktype"},
+                **ZAAK_READ_KWARGS,
             )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

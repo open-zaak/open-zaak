@@ -31,7 +31,8 @@ class QueryTests(APICMISTestCase):
         eios = EnkelvoudigInformatieObject.objects.filter(identificatie="002")
 
         self.assertEqual(
-            [eio.identificatie for eio in eios], [eio2.identificatie],
+            [eio.identificatie for eio in eios],
+            [eio2.identificatie],
         )
 
     def test_filter_then_all(self):
@@ -41,7 +42,8 @@ class QueryTests(APICMISTestCase):
         eios = EnkelvoudigInformatieObject.objects.filter(identificatie="002").all()
 
         self.assertEqual(
-            [eio.identificatie for eio in eios], [eio2.identificatie],
+            [eio.identificatie for eio in eios],
+            [eio2.identificatie],
         )
 
     def test_chained_filter(self):
@@ -74,11 +76,13 @@ class QueryTests(APICMISTestCase):
         first_filter = eios.filter(identificatie="001")
 
         self.assertEqual(
-            [eio.identificatie for eio in first_filter], [eio1.identificatie],
+            [eio.identificatie for eio in first_filter],
+            [eio1.identificatie],
         )
 
         second_filter = eios.filter(identificatie="002")
 
         self.assertEqual(
-            [eio.identificatie for eio in second_filter], [eio2.identificatie],
+            [eio.identificatie for eio in second_filter],
+            [eio2.identificatie],
         )

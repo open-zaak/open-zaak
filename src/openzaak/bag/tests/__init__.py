@@ -13,7 +13,11 @@ def mock_pand_get(m: Mocker, url: str, self_url: Optional[str] = None) -> None:
             "identificatiecode": "0003100000118018",
             "oorspronkelijkBouwjaar": 1965,
             "status": "PandInGebruik",
-            "_links": {"self": {"href": self_url,},},
+            "_links": {
+                "self": {
+                    "href": self_url,
+                },
+            },
             "_embedded": {
                 "geometrie": {
                     "type": "Polygon",

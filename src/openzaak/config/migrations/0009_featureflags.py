@@ -33,6 +33,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "feature flags",},
+            options={
+                "verbose_name": "feature flags",
+            },
         ),
     ]

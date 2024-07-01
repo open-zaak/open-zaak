@@ -77,7 +77,8 @@ class RolTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",
@@ -128,7 +129,8 @@ class ResultaatTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",
@@ -148,7 +150,8 @@ class StatusTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",
@@ -168,7 +171,8 @@ class EigenschapFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",
@@ -189,7 +193,8 @@ class ZaakTypeFilter(FilterSet):
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
 
     class Meta:
@@ -211,7 +216,8 @@ class InformatieObjectTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
 
     class Meta:
@@ -244,7 +250,8 @@ class BesluitTypeFilter(FilterSet):
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
 
     class Meta:
@@ -272,7 +279,8 @@ class ZaakObjectTypeFilter(FilterSet):
         help_text=get_help_text("catalogi.ZaakType", "catalogus"),
     )
     datum_geldigheid = filters.DateFilter(
-        method=geldigheid_filter, help_text=DATUM_GELDIGHEID_HELP_TEXT,
+        method=geldigheid_filter,
+        help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
     zaaktype_identificatie = filters.CharFilter(
         field_name="zaaktype__identificatie",

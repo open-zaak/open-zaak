@@ -312,7 +312,8 @@ class EnkelvoudigInformatieObjectViewSet(
         parameters=[VERSIE_QUERY_PARAM, REGISTRATIE_QUERY_PARAM],
         responses={
             (status.HTTP_200_OK, "application/octet-stream"): OpenApiResponse(
-                description="De binaire bestandsinhoud", response=OpenApiTypes.BINARY,
+                description="De binaire bestandsinhoud",
+                response=OpenApiTypes.BINARY,
             ),
             **COMMON_ERROR_RESPONSES,
         },

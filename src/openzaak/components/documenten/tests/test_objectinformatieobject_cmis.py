@@ -251,7 +251,10 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
             informatieobject=f"http://example.com{reverse(eio_2)}"
         )  # may not show up
 
-        response = self.client.get(self.list_url, {"informatieobject": eio_detail_url},)
+        response = self.client.get(
+            self.list_url,
+            {"informatieobject": eio_detail_url},
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -275,7 +278,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         zaak_url = reverse(zio.zaak)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://example.com{zaak_url}"},
+            self.list_url,
+            {"object": f"http://example.com{zaak_url}"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -300,7 +304,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         besluit_url = reverse(bio.besluit)
 
         response = self.client.get(
-            self.list_url, {"object": f"http://example.com{besluit_url}"},
+            self.list_url,
+            {"object": f"http://example.com{besluit_url}"},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -478,7 +483,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         )
         response = self.client.post(
             self.list_url,
-            {"object": self.zaak, "informatieobject": eio_url, "objectType": "zaak",},
+            {
+                "object": self.zaak,
+                "informatieobject": eio_url,
+                "objectType": "zaak",
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -509,7 +518,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         self.adapter.get(zio_url.url, json=[])
         response = self.client.post(
             self.list_url,
-            {"object": self.zaak, "informatieobject": eio_url, "objectType": "zaak",},
+            {
+                "object": self.zaak,
+                "informatieobject": eio_url,
+                "objectType": "zaak",
+            },
         )
 
         self.assertEqual(
@@ -759,7 +772,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio_url = reverse(eio)
 
         self.adapter.get(
-            verzoek, json={"url": verzoek, "identificatie": "VERZOEK-2019-0000000001",},
+            verzoek,
+            json={
+                "url": verzoek,
+                "identificatie": "VERZOEK-2019-0000000001",
+            },
         )
 
         response = self.client.post(
@@ -1042,7 +1059,9 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio_url, zaak=self.zaak, object_type="zaak",
+            informatieobject=eio_url,
+            zaak=self.zaak,
+            object_type="zaak",
         )
         url = reverse(oio)
 
@@ -1067,7 +1086,8 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         )
 
         self.adapter.get(
-            self.besluit, json=get_besluit_response(self.besluit, self.besluittype),
+            self.besluit,
+            json=get_besluit_response(self.besluit, self.besluittype),
         )
 
         eio = EnkelvoudigInformatieObjectFactory.create()
@@ -1107,7 +1127,9 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://testserver{reverse(eio)}"
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio_url, verzoek=self.verzoek, object_type="verzoek",
+            informatieobject=eio_url,
+            verzoek=self.verzoek,
+            object_type="verzoek",
         )
         url = reverse(oio)
 
@@ -1143,7 +1165,9 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             ],
         )
         oio = ObjectInformatieObject.objects.create(
-            informatieobject=eio_url, zaak=zaak, object_type="zaak",
+            informatieobject=eio_url,
+            zaak=zaak,
+            object_type="zaak",
         )
         url = reverse(oio)
 

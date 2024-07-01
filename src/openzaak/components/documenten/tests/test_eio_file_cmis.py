@@ -97,7 +97,8 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
         )
 
         self.assertEqual(
-            data[0]["inhoud"], f"http://testserver{download_url}?versie={eio.versie}",
+            data[0]["inhoud"],
+            f"http://testserver{download_url}?versie={eio.versie}",
         )
 
     def test_create_enkelvoudiginformatieobject_without_identificatie(self):

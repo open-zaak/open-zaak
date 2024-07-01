@@ -35,7 +35,10 @@ class Command(BaseCommand):
         total_invalid = 0
         for zaakeigenschap in zaakeigenschappen:
             specificatie = zaakeigenschap._eigenschap.specificatie_van_eigenschap
-            valid = match_eigenschap_specificatie(specificatie, zaakeigenschap.waarde,)
+            valid = match_eigenschap_specificatie(
+                specificatie,
+                zaakeigenschap.waarde,
+            )
             if not valid:
                 self.stdout.write(
                     f"Zaak {zaakeigenschap.zaak.uuid} has Eigenschap {zaakeigenschap.uuid} "

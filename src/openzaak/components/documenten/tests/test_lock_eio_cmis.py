@@ -103,7 +103,8 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
             {"algoritme": "sha_256", "waarde": "1234", "datum": date(2022, 1, 1)},
         )
         self.assertEqual(
-            eio.ondertekening, {"soort": "analoog", "datum": date(2022, 1, 1)},
+            eio.ondertekening,
+            {"soort": "analoog", "datum": date(2022, 1, 1)},
         )
 
     def test_update_fail_unlocked_doc(self):

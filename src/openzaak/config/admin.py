@@ -34,11 +34,20 @@ class CMISConfigAdmin(_CMISConfigAdmin):
         "cmis_enabled",
     ]
     fieldsets = [
-        (_("General"), {"fields": ("cmis_enabled", "cmis_connection",)},),
+        (
+            _("General"),
+            {
+                "fields": (
+                    "cmis_enabled",
+                    "cmis_connection",
+                )
+            },
+        ),
     ] + _CMISConfigAdmin.fieldsets[1:]
 
     @admin.display(
-        description=_("Enabled"), boolean=True,
+        description=_("Enabled"),
+        boolean=True,
     )
     def cmis_enabled(self, obj=None):
         return getattr(settings, "CMIS_ENABLED", False)
