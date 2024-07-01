@@ -11,7 +11,6 @@ amqp==5.1.1
 appdirs==1.4.4
     # via
     #   -r requirements/base.txt
-    #   black
     #   requests-cache
 asgiref==3.8.1
     # via
@@ -25,7 +24,6 @@ asn1crypto==1.5.1
 attrs==21.4.0
     # via
     #   -r requirements/base.txt
-    #   black
     #   cattrs
     #   glom
     #   jsonschema
@@ -36,7 +34,7 @@ billiard==3.6.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-black==19.10b0
+black==24.4.2
     # via -r requirements/test-tools.in
 bleach==6.1.0
     # via
@@ -69,7 +67,7 @@ certifi==2023.7.22
     #   requests
     #   self-certifi
     #   sentry-sdk
-cffi==1.15.0
+cffi==1.16.0
     # via
     #   -r requirements/base.txt
     #   cryptography
@@ -436,6 +434,8 @@ mozilla-django-oidc-db==0.16.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+mypy-extensions==1.0.0
+    # via black
 notifications-api-common==0.2.2
     # via
     #   -r requirements/base.txt
@@ -453,6 +453,7 @@ oyaml==1.0
 packaging==24.0
     # via
     #   -r requirements/base.txt
+    #   black
     #   drf-yasg
     #   redis
 pathspec==0.9.0
@@ -461,6 +462,8 @@ phonenumberslite==8.13.35
     # via
     #   -r requirements/base.txt
     #   django-two-factor-auth
+platformdirs==4.2.2
+    # via black
 prometheus-client==0.15.0
     # via
     #   -r requirements/base.txt
@@ -547,8 +550,6 @@ redis==4.1.4
     # via
     #   -r requirements/base.txt
     #   django-redis
-regex==2022.3.15
-    # via black
 requests==2.31.0
     # via
     #   -r requirements/base.txt
@@ -595,18 +596,17 @@ sqlparse==0.4.4
     #   django
 tblib==1.7.0
     # via -r requirements/test-tools.in
-toml==0.10.2
+tomli==2.0.1
     # via black
 tornado==6.4
     # via
     #   -r requirements/base.txt
     #   flower
-typed-ast==1.5.2
-    # via black
 typing-extensions==4.11.0
     # via
     #   -r requirements/base.txt
     #   asgiref
+    #   black
     #   pydantic
     #   qrcode
 uritemplate==4.1.1
