@@ -95,7 +95,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -124,7 +124,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -145,7 +145,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-smaller-batch.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -168,7 +168,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -191,7 +191,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-identificatie.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -220,7 +220,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -242,7 +242,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-last-batch-not-full.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -271,7 +271,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -290,7 +290,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     def test_batch_validation_errors(self):
         import_file_path = self.test_data_path / "import-batch-validation-errors.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -319,7 +319,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -359,7 +359,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-database-connection-loss.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -405,7 +405,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -449,7 +449,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-integrity-error.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -488,7 +488,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -520,7 +520,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-unknown-zaak-uuid.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -549,7 +549,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -579,7 +579,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-zaak-integrity-error.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -615,7 +615,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(report_path, "r") as report_file:
+        with open(report_path) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 
@@ -654,7 +654,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         import_file_path = self.test_data_path / "import-zaak-database-error.csv"
 
-        with open(import_file_path, "r") as import_file:
+        with open(import_file_path) as import_file:
             import_instance = self.create_import(
                 import_type=ImportTypeChoices.documents,
                 status=ImportStatusChoices.pending,
@@ -682,7 +682,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path), "r") as report_file:
+        with open(str(report_path)) as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
 

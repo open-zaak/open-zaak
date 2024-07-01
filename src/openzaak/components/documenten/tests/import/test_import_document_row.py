@@ -126,7 +126,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
-        with open(imported_path, "r") as file:
+        with open(imported_path) as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_all_fields(self):
@@ -226,7 +226,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
 
-        with open(imported_path, "r") as file:
+        with open(imported_path) as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_upload_dir_does_not_exist(self):
@@ -276,7 +276,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
-        with open(imported_path, "r") as file:
+        with open(imported_path) as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_lower_column_count(self):
