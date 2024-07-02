@@ -38,6 +38,12 @@ DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
 
   --object-tools-bg: #888;
   --object-tools-hover-bg: #{$color-dark};
+
+  // version styling
+  --version-fg: var(--body-quiet-color);
+
+  // environment styling
+  --env-button-fg: #{$color-secondary};
 }
 
 /* Overrides */
@@ -134,38 +140,6 @@ div.breadcrumbs {
 }
 .datetimeshortcuts .date-icon {
   background: url("../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
-}
-
-/* Footer */
-.version {
-  padding: 0 30px;
-  color: $color-secondary-dark;
-  font-size: smaller;
-
-  @at-root .login & {
-    text-align: center;
-  }
-}
-
-/**
- * Environment banner
- */
-.env {
-  display: block;
-  line-height: 35px;
-  text-align: center;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: $color-secondary;
-  background-color: $color-dark;
-  position: fixed;
-  top: 0;
-  height: 35px;
-  width: 300px;
-  left: 50%;
-  margin-left: -150px;
-  z-index: 1000001;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
 }
 
 /**

@@ -10,6 +10,7 @@ import sentry_sdk
 from corsheaders.defaults import default_headers as default_cors_headers
 from log_outgoing_requests.formatters import HttpFormatter
 from notifications_api_common.settings import *  # noqa
+from open_api_framework.conf.base import TEMPLATE_LOADERS, TEMPLATES  # noqa
 
 from ...utils.monitoring import filter_sensitive_data
 from .api import *  # noqa
@@ -165,6 +166,7 @@ INSTALLED_APPS = [
     "mozilla_django_oidc_db",
     "log_outgoing_requests",
     "django_setup_configuration",
+    "open_api_framework",
     # Project applications.
     "openzaak",
     "openzaak.accounts",
@@ -202,30 +204,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "openzaak.urls"
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-)
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(DJANGO_PROJECT_DIR, "templates")],
-        "APP_DIRS": False,  # conflicts with explicity specifying the loaders
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-                "openzaak.utils.context_processors.settings",
-            ],
-            "loaders": TEMPLATE_LOADERS,
-        },
-    }
-]
 
 WSGI_APPLICATION = "openzaak.wsgi.application"
 
