@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from dateutil.relativedelta import relativedelta
 
+from openzaak.components.catalogi.utils import has_overlapping_objects
 from openzaak.utils.admin import ExtraContextAdminMixin
 
 from ..api.viewsets import (
@@ -68,10 +69,20 @@ class PublishAdminMixin:
             if errors:
                 for error in errors:
                     self.message_user(request, error, level=messages.ERROR)
-            else:
-                obj.publish()
-                msg = _("The resource has been published successfully!")
-                self.message_user(request, msg, level=messages.SUCCESS)
+
+                redirect_url = request.path
+                redirect_url = add_preserved_filters(
+                    {
+                        "preserved_filters": self.get_preserved_filters(request),
+                        "opts": self.opts,
+                    },
+                    redirect_url,
+                )
+                return HttpResponseRedirect(redirect_url)
+
+            obj.publish()
+            msg = _("The resource has been published successfully!")
+            self.message_user(request, msg, level=messages.SUCCESS)
 
             return HttpResponseRedirect(request.path)
         else:
@@ -129,6 +140,28 @@ class PublishAdminMixin:
         actions = super().get_actions(request)
         actions["publish_selected"] = self.get_action("publish_selected")
         return actions
+
+
+class GeldigheidPublishAdminMixin(PublishAdminMixin):
+    def _publish_validation_errors(self, obj):
+
+        if has_overlapping_objects(
+            model_manager=obj._meta.default_manager,
+            catalogus=obj.catalogus,
+            omschrijving_query={
+                obj.omschrijving_field: getattr(obj, obj.omschrijving_field)
+            },
+            begin_geldigheid=obj.datum_begin_geldigheid,
+            einde_geldigheid=obj.datum_einde_geldigheid,
+            instance=obj,
+            concept=False,
+        ):
+            return [
+                f"{obj._meta.verbose_name} versies (dezelfde omschrijving) mogen geen "
+                "overlappende geldigheid hebben."
+            ]
+
+        return []
 
 
 class SideEffectsMixin:

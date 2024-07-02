@@ -11,7 +11,7 @@ from .forms import BesluitTypeAdminForm
 from .mixins import (
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
-    PublishAdminMixin,
+    GeldigheidPublishAdminMixin,
     ReadOnlyPublishedMixin,
     SideEffectsMixin,
 )
@@ -23,7 +23,7 @@ class BesluitTypeAdmin(
     UUIDAdminMixin,
     CatalogusContextAdminMixin,
     GeldigheidAdminMixin,
-    PublishAdminMixin,
+    GeldigheidPublishAdminMixin,
     SideEffectsMixin,
     admin.ModelAdmin,
 ):
