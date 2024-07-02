@@ -282,7 +282,9 @@ django-sendfile2==0.7.0
     #   -r requirements/ci.txt
     #   django-privates
 django-setup-configuration==0.1.0
-    # via -r requirements/ci.txt
+    # via
+    #   -r requirements/ci.txt
+    #   open-api-framework
 django-silk==4.3.0
     # via -r requirements/dev.in
 django-simple-certmanager==1.3.0
@@ -500,7 +502,7 @@ notifications-api-common==0.2.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.3.0
+open-api-framework==0.5.0
     # via -r requirements/ci.txt
 openshift==0.11.2
     # via -r requirements/../deployment/requirements.in
