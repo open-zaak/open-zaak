@@ -6230,7 +6230,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -6251,7 +6251,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -6267,7 +6267,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9850,7 +9850,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9871,7 +9871,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9887,7 +9887,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -10223,7 +10223,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 zaaktype:
                   type: string
                   description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
@@ -10240,7 +10240,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 archiefactiedatum:
                   type: string
                   format: date
@@ -10282,7 +10282,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 startdatum:
                   type: string
                   format: date
@@ -12006,17 +12006,13 @@ components:
     ObjectOverige:
       type: object
       properties:
-        overigeData:
-          type: object
-          additionalProperties: {}
+        overigeData: {}
       required:
       - overigeData
     ObjectOverigeRequest:
       type: object
       properties:
-        overigeData:
-          type: object
-          additionalProperties: {}
+        overigeData: {}
       required:
       - overigeData
     ObjectPand:
@@ -13971,13 +13967,9 @@ components:
       type: object
       properties:
         oud:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object zoals dat bestond voordat
             de actie heeft plaatsgevonden.
         nieuw:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object na de actie.
     WozObjectAdres:
       type: object
