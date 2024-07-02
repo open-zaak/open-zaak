@@ -62,8 +62,9 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==1.13.0
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@5c9cb4d685ab6cec3a5b2d2881ee22b9487d05bd
     # via
+    #   -r requirements/base.in
     #   drc-cmis
     #   open-api-framework
 coreapi==2.3.3

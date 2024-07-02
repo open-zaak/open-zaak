@@ -16,7 +16,10 @@ import jq
 import jsonschema
 from rest_framework import serializers
 from vng_api_common.constants import Archiefstatus
-from vng_api_common.validators import URLValidator
+from vng_api_common.validators import (
+    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
+    URLValidator,
+)
 
 from openzaak.components.catalogi.constants import FormaatChoices
 from openzaak.components.documenten.constants import Statussen
@@ -26,9 +29,6 @@ from openzaak.components.documenten.models import (
 )
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
-from openzaak.utils.validators import (
-    UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
-)
 
 from ..models import Zaak
 
@@ -85,7 +85,7 @@ class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
     Valideer dat de combinatie van bronorganisatie en zaak uniek is.
     """
 
-    partial_message = _(
+    message = _(
         "Deze identificatie ({identificatie}) bestaat al voor deze bronorganisatie"
     )
 
