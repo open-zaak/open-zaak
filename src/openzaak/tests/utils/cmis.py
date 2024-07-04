@@ -127,9 +127,7 @@ def serialise_eio(eio, eio_url, **overrides):
     serialised_eio = json.loads(
         serializers.serialize(
             "json",
-            [
-                eio
-            ],
+            [eio],
         )
     )[
         0
