@@ -285,9 +285,7 @@ class BesluitTypePublishAdminTests(WebTest):
         self.assertFalse(btype.concept)
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(
-            messages, [_("The resource has been published successfully!")],
-        )
+        self.assertEqual(messages, [_("The resource has been published successfully!")])
 
     def test_change_page_publish_overlap(self):
         BesluitTypeFactory.create(
