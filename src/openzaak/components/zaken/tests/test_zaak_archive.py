@@ -350,7 +350,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
     @tag("gh-1353")
     def test_add_resultaat_on_zaak_with_eigenschap_dotted_datumkenmerk(
-        self,
+        self
     ):
         """
         Add RESULTAAT that causes `archiefactiedatum` to be set.

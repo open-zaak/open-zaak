@@ -334,7 +334,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_partial_update_resultaattype_brondatum_archiefprocedure(self):
         zaaktype = ZaakTypeFactory.create(
-            selectielijst_procestype=PROCESTYPE_URL,
+            selectielijst_procestype=PROCESTYPE_URL
         )
         with requests_mock.Mocker() as m:
             resultaattypeomschrijving = (

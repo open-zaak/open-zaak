@@ -824,8 +824,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             response = self.client.post(
                 url,
                 data={
-                    "besluit": f"http://testserver{besluit_url}",
-                },
+                    "besluit": f"http://testserver{besluit_url}"
+                }
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

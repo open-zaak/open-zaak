@@ -66,7 +66,7 @@ class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
             response = self.client.post(
                 url,
-                besluit_data,
+                besluit_data
             )
 
             self.assertEqual(

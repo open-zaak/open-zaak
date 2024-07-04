@@ -385,7 +385,7 @@ def get_expand_options_for_serializer(
     choices = [
         (
             opt,
-            opt,
+            opt
         )
         for opt in serializer_class.inclusion_serializers
     ]
