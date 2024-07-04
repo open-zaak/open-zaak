@@ -26,5 +26,3 @@ drf-writable-nested
 notifications-api-common
 humanize
 drc-cmis
-djangorestframework-inclusions
-django-setup-configuration
