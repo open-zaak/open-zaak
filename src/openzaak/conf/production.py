@@ -11,7 +11,6 @@ import os
 os.environ.setdefault("ENVIRONMENT", "production")
 
 from .includes.base import *  # noqa
-from .includes.base import _django_handlers  # noqa
 from .includes.environ import config  # noqa
 
 conn_max_age = config("DB_CONN_MAX_AGE", cast=float, default=None)
@@ -35,7 +34,7 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 LOGGING["loggers"].update(
     {
         "django.security.DisallowedHost": {
-            "handlers": _django_handlers,
+            "handlers": logging_django_handlers,
             "level": "CRITICAL",
             "propagate": False,
         },

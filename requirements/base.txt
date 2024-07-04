@@ -175,7 +175,7 @@ django-rest-framework-condition==0.1.1
 django-sendfile2==0.7.0
     # via django-privates
 django-setup-configuration==0.1.0
-    # via -r requirements/base.in
+    # via open-api-framework
 django-simple-certmanager==1.3.0
     # via zgw-consumers
 django-sniplates==0.7.2
@@ -209,9 +209,7 @@ djangorestframework-camel-case==1.4.2
 djangorestframework-gis==1.0
     # via open-api-framework
 djangorestframework-inclusions==1.2.0
-    # via
-    #   -r requirements/base.in
-    #   open-api-framework
+    # via open-api-framework
 drc-cmis==1.9.0
     # via -r requirements/base.in
 drf-extra-fields==3.4.0
@@ -291,7 +289,7 @@ notifications-api-common==0.2.2
     # via
     #   -r requirements/base.in
     #   commonground-api-common
-open-api-framework==0.3.0
+open-api-framework==0.5.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
