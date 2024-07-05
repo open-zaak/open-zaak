@@ -10736,6 +10736,71 @@ components:
       - roltoelichting
       - roltype
       - zaak
+    Base_RolSerializerRequest:
+      type: object
+      properties:
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Type van de `betrokkene`.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          maxLength: 1000
+        roltoelichting:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRolRequest'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+      required:
+      - betrokkeneType
+      - roltoelichting
+      - roltype
+      - zaak
     Base_ZaakObjectSerializer:
       type: object
       properties:
@@ -10814,6 +10879,88 @@ components:
         objectTypeOverigeDefinitie:
           allOf:
           - $ref: '#/components/schemas/ObjectTypeOverigeDefinitie'
+          nullable: true
+          title: definitie object type overige
+          description: |-
+            Verwijzing naar het schema van het type OBJECT als `objectType` de waarde "overige" heeft.
+
+            * De URL referentie moet naar een JSON endpoint   wijzen waarin het objecttype gedefinieerd is, inclusief het   [JSON-schema](https://json-schema.org/).
+            * Gebruik het `schema` attribuut om te verwijzen naar het schema binnen   de objecttype resource (deze gebruikt het   [jq](http://stedolan.github.io/jq/) formaat.
+            * Gebruik het `objectData` attribuut om te verwijzen naar de gegevens   binnen het OBJECT. Deze gebruikt ook het   [jq](http://stedolan.github.io/jq/) formaat.
+
+            Indien je hier gebruikt van maakt, dan moet je een OBJECT url opgeven en is het gebruik van objectIdentificatie niet mogelijk. De opgegeven OBJECT url wordt gevalideerd tegen het schema van het opgegeven objecttype.
+        relatieomschrijving:
+          type: string
+          description: Omschrijving van de betrekking tussen de ZAAK en het OBJECT.
+          maxLength: 80
+      required:
+      - objectType
+      - zaak
+    Base_ZaakObjectSerializerRequest:
+      type: object
+      properties:
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+        object:
+          type: string
+          format: uri
+          description: URL-referentie naar de resource die het OBJECT beschrijft.
+          maxLength: 1000
+        zaakobjecttype:
+          type: string
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        objectType:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeEnum'
+          description: |-
+            Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
+
+            Uitleg bij mogelijke waarden:
+
+            * `adres` - Adres
+            * `besluit` - Besluit
+            * `buurt` - Buurt
+            * `enkelvoudig_document` - Enkelvoudig document
+            * `gemeente` - Gemeente
+            * `gemeentelijke_openbare_ruimte` - Gemeentelijke openbare ruimte
+            * `huishouden` - Huishouden
+            * `inrichtingselement` - Inrichtingselement
+            * `kadastrale_onroerende_zaak` - Kadastrale onroerende zaak
+            * `kunstwerkdeel` - Kunstwerkdeel
+            * `maatschappelijke_activiteit` - Maatschappelijke activiteit
+            * `medewerker` - Medewerker
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `openbare_ruimte` - Openbare ruimte
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `pand` - Pand
+            * `spoorbaandeel` - Spoorbaandeel
+            * `status` - Status
+            * `terreindeel` - Terreindeel
+            * `terrein_gebouwd_object` - Terrein gebouwd object
+            * `vestiging` - Vestiging
+            * `waterdeel` - Waterdeel
+            * `wegdeel` - Wegdeel
+            * `wijk` - Wijk
+            * `woonplaats` - Woonplaats
+            * `woz_deelobject` - Woz deel object
+            * `woz_object` - Woz object
+            * `woz_waarde` - Woz waarde
+            * `zakelijk_recht` - Zakelijk recht
+            * `overige` - Overige
+        objectTypeOverige:
+          type: string
+          description: Beschrijft het type OBJECT als `objectType` de waarde "overige"
+            heeft.
+          pattern: '[a-z_]+'
+          maxLength: 100
+        objectTypeOverigeDefinitie:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeOverigeDefinitieRequest'
           nullable: true
           title: definitie object type overige
           description: |-
@@ -12527,71 +12674,71 @@ components:
             van die STATUS en/of de communicatie daarover.
     PatchedZaakObjectRequest:
       oneOf:
-      - $ref: '#/components/schemas/adres_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/besluit_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/buurt_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/gemeente_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/huishouden_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/medewerker_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/pand_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/status_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/terreindeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/vestiging_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/waterdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/wegdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/wijk_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woonplaats_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_object_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/overige_ZaakObjectSerializer'
+      - $ref: '#/components/schemas/adres_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/besluit_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/buurt_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/gemeente_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/huishouden_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/status_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/terreindeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/waterdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/wegdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/wijk_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woonplaats_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_object_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/overige_ZaakObjectSerializerRequest'
       discriminator:
         propertyName: objectType
         mapping:
-          adres: '#/components/schemas/adres_ZaakObjectSerializer'
-          besluit: '#/components/schemas/besluit_ZaakObjectSerializer'
-          buurt: '#/components/schemas/buurt_ZaakObjectSerializer'
-          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializer'
-          gemeente: '#/components/schemas/gemeente_ZaakObjectSerializer'
-          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializer'
-          huishouden: '#/components/schemas/huishouden_ZaakObjectSerializer'
-          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSerializer'
-          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializer'
-          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializer'
-          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializer'
-          medewerker: '#/components/schemas/medewerker_ZaakObjectSerializer'
-          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
-          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
-          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
-          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
-          pand: '#/components/schemas/pand_ZaakObjectSerializer'
-          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
-          status: '#/components/schemas/status_ZaakObjectSerializer'
-          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSerializer'
-          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializer'
-          vestiging: '#/components/schemas/vestiging_ZaakObjectSerializer'
-          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSerializer'
-          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSerializer'
-          wijk: '#/components/schemas/wijk_ZaakObjectSerializer'
-          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSerializer'
-          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSerializer'
-          woz_object: '#/components/schemas/woz_object_ZaakObjectSerializer'
-          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSerializer'
-          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSerializer'
-          overige: '#/components/schemas/overige_ZaakObjectSerializer'
+          adres: '#/components/schemas/adres_ZaakObjectSerializerRequest'
+          besluit: '#/components/schemas/besluit_ZaakObjectSerializerRequest'
+          buurt: '#/components/schemas/buurt_ZaakObjectSerializerRequest'
+          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializerRequest'
+          gemeente: '#/components/schemas/gemeente_ZaakObjectSerializerRequest'
+          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest'
+          huishouden: '#/components/schemas/huishouden_ZaakObjectSerializerRequest'
+          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSerializerRequest'
+          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializerRequest'
+          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializerRequest'
+          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_ZaakObjectSerializerRequest'
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
+          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
+          pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
+          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
+          status: '#/components/schemas/status_ZaakObjectSerializerRequest'
+          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSerializerRequest'
+          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_ZaakObjectSerializerRequest'
+          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSerializerRequest'
+          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSerializerRequest'
+          wijk: '#/components/schemas/wijk_ZaakObjectSerializerRequest'
+          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSerializerRequest'
+          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSerializerRequest'
+          woz_object: '#/components/schemas/woz_object_ZaakObjectSerializerRequest'
+          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSerializerRequest'
+          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSerializerRequest'
+          overige: '#/components/schemas/overige_ZaakObjectSerializerRequest'
     PatchedZaakRequest:
       type: object
       description: |-
@@ -13272,19 +13419,19 @@ components:
           maxLength: 24
     RolRequest:
       oneOf:
-      - $ref: '#/components/schemas/natuurlijk_persoon_RolSerializer'
-      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolSerializer'
-      - $ref: '#/components/schemas/vestiging_RolSerializer'
-      - $ref: '#/components/schemas/organisatorische_eenheid_RolSerializer'
-      - $ref: '#/components/schemas/medewerker_RolSerializer'
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_RolSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_RolSerializerRequest'
       discriminator:
         propertyName: betrokkeneType
         mapping:
-          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolSerializer'
-          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolSerializer'
-          vestiging: '#/components/schemas/vestiging_RolSerializer'
-          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSerializer'
-          medewerker: '#/components/schemas/medewerker_RolSerializer'
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_RolSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_RolSerializerRequest'
     RolVestiging:
       type: object
       properties:
@@ -14432,71 +14579,71 @@ components:
           overige: '#/components/schemas/overige_ZaakObjectSerializer'
     ZaakObjectRequest:
       oneOf:
-      - $ref: '#/components/schemas/adres_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/besluit_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/buurt_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/gemeente_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/huishouden_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/medewerker_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/pand_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/status_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/terreindeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/vestiging_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/waterdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/wegdeel_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/wijk_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woonplaats_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_object_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/overige_ZaakObjectSerializer'
+      - $ref: '#/components/schemas/adres_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/besluit_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/buurt_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/gemeente_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/huishouden_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/pand_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/status_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/terreindeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/waterdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/wegdeel_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/wijk_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woonplaats_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_object_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/overige_ZaakObjectSerializerRequest'
       discriminator:
         propertyName: objectType
         mapping:
-          adres: '#/components/schemas/adres_ZaakObjectSerializer'
-          besluit: '#/components/schemas/besluit_ZaakObjectSerializer'
-          buurt: '#/components/schemas/buurt_ZaakObjectSerializer'
-          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializer'
-          gemeente: '#/components/schemas/gemeente_ZaakObjectSerializer'
-          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializer'
-          huishouden: '#/components/schemas/huishouden_ZaakObjectSerializer'
-          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSerializer'
-          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializer'
-          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializer'
-          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializer'
-          medewerker: '#/components/schemas/medewerker_ZaakObjectSerializer'
-          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializer'
-          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializer'
-          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializer'
-          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializer'
-          pand: '#/components/schemas/pand_ZaakObjectSerializer'
-          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializer'
-          status: '#/components/schemas/status_ZaakObjectSerializer'
-          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSerializer'
-          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializer'
-          vestiging: '#/components/schemas/vestiging_ZaakObjectSerializer'
-          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSerializer'
-          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSerializer'
-          wijk: '#/components/schemas/wijk_ZaakObjectSerializer'
-          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSerializer'
-          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSerializer'
-          woz_object: '#/components/schemas/woz_object_ZaakObjectSerializer'
-          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSerializer'
-          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSerializer'
-          overige: '#/components/schemas/overige_ZaakObjectSerializer'
+          adres: '#/components/schemas/adres_ZaakObjectSerializerRequest'
+          besluit: '#/components/schemas/besluit_ZaakObjectSerializerRequest'
+          buurt: '#/components/schemas/buurt_ZaakObjectSerializerRequest'
+          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSerializerRequest'
+          gemeente: '#/components/schemas/gemeente_ZaakObjectSerializerRequest'
+          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest'
+          huishouden: '#/components/schemas/huishouden_ZaakObjectSerializerRequest'
+          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSerializerRequest'
+          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSerializerRequest'
+          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSerializerRequest'
+          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_ZaakObjectSerializerRequest'
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSerializerRequest'
+          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSerializerRequest'
+          pand: '#/components/schemas/pand_ZaakObjectSerializerRequest'
+          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSerializerRequest'
+          status: '#/components/schemas/status_ZaakObjectSerializerRequest'
+          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSerializerRequest'
+          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_ZaakObjectSerializerRequest'
+          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSerializerRequest'
+          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSerializerRequest'
+          wijk: '#/components/schemas/wijk_ZaakObjectSerializerRequest'
+          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSerializerRequest'
+          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSerializerRequest'
+          woz_object: '#/components/schemas/woz_object_ZaakObjectSerializerRequest'
+          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSerializerRequest'
+          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSerializerRequest'
+          overige: '#/components/schemas/overige_ZaakObjectSerializerRequest'
     ZaakRequest:
       type: object
       description: |-
@@ -14784,9 +14931,16 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectAdres'
+    adres_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectAdresRequest'
     besluit_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
+    besluit_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
     betrokkene_identificatie_RolMedewerker:
       type: object
       properties:
@@ -14841,61 +14995,120 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectBuurt'
+    buurt_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectBuurtRequest'
     enkelvoudig_document_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
+    enkelvoudig_document_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
     gemeente_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectGemeente'
+    gemeente_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeenteRequest'
     gemeentelijke_openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
+    gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
     huishouden_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectHuishouden'
+    huishouden_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectHuishoudenRequest'
     inrichtingselement_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselement'
+    inrichtingselement_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselementRequest'
     kadastrale_onroerende_zaak_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaak'
+    kadastrale_onroerende_zaak_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
     kunstwerkdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeel'
+    kunstwerkdeel_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeelRequest'
     maatschappelijke_activiteit_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteit'
+    maatschappelijke_activiteit_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
     medewerker_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolMedewerker'
+    medewerker_RolSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSerializerRequest'
+      - $ref: '#/components/schemas/betrokkene_identificatie_RolMedewerkerRequest'
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_RolMedewerker'
+    medewerker_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_RolMedewerkerRequest'
     natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolNatuurlijkPersoon'
+    natuurlijk_persoon_RolSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSerializerRequest'
+      - $ref: '#/components/schemas/betrokkene_identificatie_RolNatuurlijkPersoonRequest'
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_RolNatuurlijkPersoon'
+    natuurlijk_persoon_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_RolNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolNietNatuurlijkPersoon'
+    niet_natuurlijk_persoon_RolSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSerializerRequest'
+      - $ref: '#/components/schemas/betrokkene_identificatie_RolNietNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_RolNietNatuurlijkPersoon'
+    niet_natuurlijk_persoon_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_RolNietNatuurlijkPersoonRequest'
     object_identificatie_ObjectAdres:
       type: object
       properties:
@@ -15180,77 +15393,152 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimte'
+    openbare_ruimte_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimteRequest'
     organisatorische_eenheid_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolOrganisatorischeEenheid'
+    organisatorische_eenheid_RolSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSerializerRequest'
+      - $ref: '#/components/schemas/betrokkene_identificatie_RolOrganisatorischeEenheidRequest'
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_RolOrganisatorischeEenheid'
+    organisatorische_eenheid_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_RolOrganisatorischeEenheidRequest'
     overige_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectOverige'
+    overige_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOverigeRequest'
     pand_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectPand'
+    pand_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
     spoorbaandeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeel'
+    spoorbaandeel_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeelRequest'
     status_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
+    status_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
     terrein_gebouwd_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObject'
+    terrein_gebouwd_object_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObjectRequest'
     terreindeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeel'
+    terreindeel_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeelRequest'
     vestiging_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
       - $ref: '#/components/schemas/betrokkene_identificatie_RolVestiging'
+    vestiging_RolSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSerializerRequest'
+      - $ref: '#/components/schemas/betrokkene_identificatie_RolVestigingRequest'
     vestiging_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_RolVestiging'
+    vestiging_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_RolVestigingRequest'
     waterdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeel'
+    waterdeel_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeelRequest'
     wegdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWegdeel'
+    wegdeel_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWegdeelRequest'
     wijk_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWijk'
+    wijk_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWijkRequest'
     woonplaats_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaats'
+    woonplaats_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaatsRequest'
     woz_deelobject_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobject'
+    woz_deelobject_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobjectRequest'
     woz_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWozObject'
+    woz_object_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozObjectRequest'
     woz_waarde_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectWozWaarde'
+    woz_waarde_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozWaardeRequest'
     zakelijk_recht_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
       - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRecht'
+    zakelijk_recht_ZaakObjectSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRechtRequest'
   securitySchemes:
     JWT-Claims:
       type: http
