@@ -4163,10 +4163,7 @@ paths:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/json:
-              schema: null
-          description: OK
+          description: No response body
         '400':
           headers:
             API-version:

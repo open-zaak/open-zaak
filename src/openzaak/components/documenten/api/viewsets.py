@@ -497,7 +497,7 @@ def _get_import_headers():
             )
         ],
         responses={
-            status.HTTP_200_OK: OpenApiTypes.NONE,
+            status.HTTP_200_OK: OpenApiResponse(description=_("No response body")),
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
