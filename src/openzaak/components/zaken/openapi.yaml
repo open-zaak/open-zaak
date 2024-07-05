@@ -15504,3 +15504,13 @@ components:
       bearerFormat: JWT
 servers:
 - url: /zaken/api/v1
+tags:
+- name: zaken
+- name: resultaten
+- name: rollen
+- name: statussen
+- name: zaakcontactmomenten
+- name: zaakinformatieobjecten
+- name: zaakobjecten
+- name: zaakverzoeken
+- name: klantcontacten

@@ -1528,3 +1528,5 @@ components:
       bearerFormat: JWT
 servers:
 - url: /autorisaties/api/v1
+tags:
+- name: applicaties

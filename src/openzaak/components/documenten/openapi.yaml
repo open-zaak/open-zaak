@@ -8540,3 +8540,10 @@ components:
       bearerFormat: JWT
 servers:
 - url: /documenten/api/v1
+tags:
+- name: enkelvoudiginformatieobjecten
+- name: bestandsdelen
+- name: gebruiksrechten
+- name: objectinformatieobjecten
+- name: verzendingen
+- name: import

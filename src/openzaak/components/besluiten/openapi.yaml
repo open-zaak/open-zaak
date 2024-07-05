@@ -2649,3 +2649,6 @@ components:
       bearerFormat: JWT
 servers:
 - url: /besluiten/api/v1
+tags:
+- name: besluiten
+- name: besluitinformatieobjecten

@@ -13903,3 +13903,14 @@ components:
       bearerFormat: JWT
 servers:
 - url: /catalogi/api/v1
+tags:
+- name: besluittypen
+- name: catalogussen
+- name: eigenschappen
+- name: informatieobjecttypen
+- name: resultaattypen
+- name: roltypen
+- name: statustypen
+- name: zaakobjecttypen
+- name: zaaktype-informatieobjecttypen
+- name: zaaktypen

@@ -64,4 +64,12 @@ custom_settings = {
     "VERSION": settings.DOCUMENTEN_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/documenten/api/v1"}],
+    "TAGS": [
+        {"name": "enkelvoudiginformatieobjecten"},
+        {"name": "bestandsdelen"},
+        {"name": "gebruiksrechten"},
+        {"name": "objectinformatieobjecten"},
+        {"name": "verzendingen"},
+        {"name": "import"},
+    ],
 }
