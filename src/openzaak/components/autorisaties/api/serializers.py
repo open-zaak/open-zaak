@@ -4,16 +4,67 @@ import logging
 
 from django.db import transaction
 
-from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.serializers import (
     ApplicatieSerializer as _ApplicatieSerializer,
+    AutorisatieBaseSerializer,
 )
 from vng_api_common.models import JWTSecret
+from vng_api_common.tests import reverse
+
+from openzaak.utils import build_absolute_url
 
 logger = logging.getLogger(__name__)
 
 
 class ApplicatieSerializer(_ApplicatieSerializer):
+    def to_representation(self, instance):
+        """
+        Join the regular `Applicatie.autorisaties` with `CatalogusAutorisaties`, by
+        adding a virtual `Autorisatie` for each zaak/besluit/informatieobjecttype in the
+        linked `Catalogus`
+        """
+        from ..forms import COMPONENT_TO_FIELDS_MAP
+
+        data = super().to_representation(instance)
+
+        for catalogus_autorisatie in instance.catalogusautorisatie_set.order_by(
+            "component"
+        ).select_related("catalogus"):
+            if catalogus_autorisatie.component not in COMPONENT_TO_FIELDS_MAP:
+                continue
+
+            # Get the related zaak/informatieobject/besluittypen related to this Catalogus
+            # (dependent on the component of the CatalogusAutorisatie in the current iteration)
+            type_field = COMPONENT_TO_FIELDS_MAP[catalogus_autorisatie.component][
+                "_autorisatie_type_field"
+            ]
+            types = getattr(
+                catalogus_autorisatie.catalogus, f"{type_field}_set"
+            ).order_by("pk")
+
+            serializer = AutorisatieBaseSerializer(
+                [
+                    Autorisatie(
+                        **{
+                            "applicatie": instance,
+                            "component": catalogus_autorisatie.component,
+                            "scopes": catalogus_autorisatie.scopes,
+                            "max_vertrouwelijkheidaanduiding": catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+                            type_field: build_absolute_url(
+                                reverse(type), request=self.context["request"]
+                            ),
+                        }
+                    )
+                    for type in types
+                ],
+                many=True,
+            )
+            extra_autorisaties = serializer.data
+            data["autorisaties"] = data["autorisaties"] + extra_autorisaties
+
+        return data
+
     def create_missing_credentials(self, applicatie: Applicatie):
         # create missing jwtsecret objects for admin page
         current_credentials = list(

@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 
+from django.db.models import Q
+
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -104,9 +106,14 @@ class ApplicatieViewSet(
 
     queryset = (
         Applicatie.objects.exclude(
-            heeft_alle_autorisaties=False, autorisaties__isnull=True
+            Q(heeft_alle_autorisaties=False)
+            & ~Q(autorisaties__isnull=False)
+            & ~Q(catalogusautorisatie__isnull=False)
         )
-        .exclude(heeft_alle_autorisaties=True, autorisaties__isnull=False)
+        .exclude(
+            Q(heeft_alle_autorisaties=True)
+            & (Q(autorisaties__isnull=False) | Q(catalogusautorisatie__isnull=False))
+        )
         .prefetch_related("autorisaties")
         .order_by("-pk")
     )
