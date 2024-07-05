@@ -105,7 +105,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - name: page
@@ -1154,8 +1154,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         clientIds:
           type: array
           items:

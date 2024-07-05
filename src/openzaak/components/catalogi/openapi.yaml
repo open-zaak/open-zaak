@@ -1440,7 +1440,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - name: page
@@ -1461,7 +1461,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       tags:
@@ -9147,7 +9147,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       tags:
@@ -10295,8 +10295,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -10763,8 +10763,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         domein:
           type: string
           description: Een afkorting waarmee wordt aangegeven voor welk domein in
@@ -10949,8 +10949,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         naam:
           type: string
           description: De naam van de EIGENSCHAP
@@ -11209,8 +11209,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -12480,8 +12480,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri
@@ -12754,8 +12754,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri
@@ -12869,8 +12869,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           description: Een korte, voor de initiator van de zaak relevante, omschrijving
@@ -13095,8 +13095,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         anderObjecttype:
           type: boolean
           description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
@@ -13222,8 +13222,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         identificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13515,8 +13515,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri

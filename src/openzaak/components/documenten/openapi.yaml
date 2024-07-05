@@ -6545,8 +6545,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         volgnummer:
           type: integer
           readOnly: true
@@ -6811,8 +6811,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         identificatie:
           type: string
           description: Een binnen een gegeven context ondubbelzinnige referentie naar
@@ -7421,8 +7421,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         informatieobject:
           type: string
           format: uri
@@ -7714,8 +7714,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         informatieobject:
           type: string
           format: uri
@@ -8311,8 +8311,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         betrokkene:
           type: string
           format: uri
@@ -8532,13 +8532,9 @@ components:
       type: object
       properties:
         oud:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object zoals dat bestond voordat
             de actie heeft plaatsgevonden.
         nieuw:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object na de actie.
   securitySchemes:
     JWT-Claims:
