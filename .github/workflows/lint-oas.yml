@@ -1,0 +1,30 @@
+name: lint-oas
+
+on:
+  push:
+    paths:
+      - "src/openzaak/components/*/openapi.yaml"
+      - .github/workflows/lint-oas.yml
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
+
+    name: Run with component ${{ matrix.component }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install spectral
+        run: npm install -g @stoplight/spectral@5
+      - name: Run OAS linter
+        run: spectral lint ./src/openzaak/components/${{ matrix.component }}/openapi.yaml
