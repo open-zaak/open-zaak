@@ -189,6 +189,52 @@ div.breadcrumbs {
  */
 div.help {
   cursor: help;
+  block-size: 14px;
+  inline-size: 14px;
+
+  background-image: url(../admin/img/icon-unknown.svg);
+  background-repeat: no-repeat;
+  background-size: 14px;
+  margin-left: 8px !important;
+  margin-top: 6px !important;
+  padding-inline: 0 !important;
+  padding-block: 0 !important;
+
+  position: relative; // provides an anchor for the nested div absolute positioning
+
+  // the actual content is nested in a div, so we can easily hide it by default
+  > div {
+    display: none;
+  }
+
+  // On hover of the icon, we display the real help text content.
+  &:hover {
+    background-image: none;
+
+    > div {
+      display: block;
+      position: absolute;
+      top: 1px;
+      z-index: 10;
+
+      block-size: auto;
+      inline-size: max-content;
+      max-inline-size: 300px;
+      padding-block: 5px 3px;
+      padding-inline: 5px 5px;
+
+      background-color: $color-tooltip-background;
+      border: 1px solid $color-tooltip-border;
+      color: $color-tooltip-text;
+    }
+  }
+}
+
+/**
+ * Help text for datetime field is without inner div
+ */
+div.help:not(:has(div)) {
+  cursor: help;
   width: 16px;
   height: 16px;
   background-image: url(../admin/img/icon-unknown.svg);
@@ -197,7 +243,7 @@ div.help {
   background-size: 14px;
   margin-left: 8px !important;
   margin-top: 6px !important;
-  position: relative;
+  position: absolute;
   text-indent: -9999px;
 
   &:hover {
@@ -215,6 +261,19 @@ div.help {
   }
 }
 
+
+/**
+ * Help text layout
+ */
+.form-row:has(.help) {
+  overflow: visible;
+}
+
+div:has(> div.help ) {
+  display: flex;
+}
+
+
 .related-widget-wrapper ~ div.help {
   margin-top: 8px !important;
 
@@ -231,9 +290,6 @@ div.help {
 }
 .aligned label + div.help {
   margin-left: 2px !important;
-}
-div:has(> div.help ) {
-  display: flex;
 }
 
 /* Additional components seem to need the same behaviour */
