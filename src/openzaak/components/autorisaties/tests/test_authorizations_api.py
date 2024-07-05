@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.test import tag
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -7,11 +9,33 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
 
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_BIJWERKEN,
+)
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+)
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+)
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from ..api.validators import UniqueClientIDValidator
-from .factories import ApplicatieFactory, AutorisatieFactory
+from .factories import (
+    ApplicatieFactory,
+    AutorisatieFactory,
+    CatalogusAutorisatieFactory,
+)
 from .utils import get_operation_url
 
 
@@ -323,6 +347,8 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_LEZEN)]
     component = ComponentTypes.ac
 
+    maxDiff = None
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -401,6 +427,177 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             response = self.client.get(app_url)
 
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @tag("gh-1661")
+    def test_fetch_applicatie_with_catalogus_autorisaties_and_regular_autorisaties(
+        self,
+    ):
+        """
+        Test if CatalogusAutorisaties are displayed as separate autorisaties for each
+        zaak/besluit/informatieobjecttype when retrieving the Applicatie via the API
+        """
+        app = ApplicatieFactory.create(
+            client_ids=["client id"], heeft_alle_autorisaties=False
+        )
+
+        zaaktype_regular_autorisatie = ZaakTypeFactory.create()
+        # Create a "regular" autorisatie, this should be shown first in the list
+        AutorisatieFactory.create(
+            applicatie=app,
+            zaaktype=f"http://testserver{reverse(zaaktype_regular_autorisatie)}",
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url = get_operation_url("applicatie_read", uuid=app.uuid)
+
+        catalogus1, catalogus2 = CatalogusFactory.create_batch(2)
+        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=catalogus1)
+        zaaktype3, zaaktype4 = ZaakTypeFactory.create_batch(2, catalogus=catalogus2)
+
+        besluittype1, besluittype2 = BesluitTypeFactory.create_batch(
+            2, catalogus=catalogus1, zaaktypen=[zaaktype1],
+        )
+        besluittype3, besluittype4 = BesluitTypeFactory.create_batch(
+            2, catalogus=catalogus2, zaaktypen=[zaaktype3],
+        )
+
+        iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(
+            2, catalogus=catalogus1, zaaktypen=[zaaktype1],
+        )
+        iotype3, iotype4 = InformatieObjectTypeFactory.create_batch(
+            2, catalogus=catalogus2, zaaktypen=[zaaktype4],
+        )
+
+        CatalogusAutorisatieFactory.create(
+            applicatie=app,
+            catalogus=catalogus1,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.confidentieel,
+        )
+        CatalogusAutorisatieFactory.create(
+            applicatie=app,
+            catalogus=catalogus2,
+            component=ComponentTypes.brc,
+            scopes=[SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_BIJWERKEN],
+        )
+        CatalogusAutorisatieFactory.create(
+            applicatie=app,
+            catalogus=catalogus1,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_BIJWERKEN],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+
+        expected = [
+            {
+                "component": ComponentTypes.zrc,
+                "component_weergave": "Zaken API",
+                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
+                "zaaktype": f"http://testserver{reverse(zaaktype_regular_autorisatie)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            },
+            {
+                "component": ComponentTypes.brc,
+                "component_weergave": "Besluiten API",
+                "scopes": [
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                ],
+                "besluittype": f"http://testserver{reverse(besluittype3)}",
+            },
+            {
+                "component": ComponentTypes.brc,
+                "component_weergave": "Besluiten API",
+                "scopes": [
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                ],
+                "besluittype": f"http://testserver{reverse(besluittype4)}",
+            },
+            {
+                "component": ComponentTypes.drc,
+                "component_weergave": "Documenten API",
+                "scopes": [
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                ],
+                "informatieobjecttype": f"http://testserver{reverse(iotype1)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            },
+            {
+                "component": ComponentTypes.drc,
+                "component_weergave": "Documenten API",
+                "scopes": [
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                ],
+                "informatieobjecttype": f"http://testserver{reverse(iotype2)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "component_weergave": "Zaken API",
+                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
+                "zaaktype": f"http://testserver{reverse(zaaktype1)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "component_weergave": "Zaken API",
+                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
+                "zaaktype": f"http://testserver{reverse(zaaktype2)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
+            },
+        ]
+
+        self.assertEqual(response.data["autorisaties"], expected)
+
+    @tag("gh-1661")
+    def test_fetch_applicatie_with_only_catalogus_autorisaties(self):
+        """
+        Test if Applicaties that have no "regular" Autorisaties associated with them
+        can be retrieved
+        """
+        app = ApplicatieFactory.create(
+            client_ids=["client id"], heeft_alle_autorisaties=False
+        )
+
+        url = get_operation_url("applicatie_read", uuid=app.uuid)
+
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+
+        CatalogusAutorisatieFactory.create(
+            applicatie=app,
+            catalogus=catalogus,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.confidentieel,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+
+        expected = [
+            {
+                "component": ComponentTypes.zrc,
+                "component_weergave": "Zaken API",
+                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
+                "zaaktype": f"http://testserver{reverse(zaaktype)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
+            },
+        ]
+
+        self.assertEqual(response.data["autorisaties"], expected)
 
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):

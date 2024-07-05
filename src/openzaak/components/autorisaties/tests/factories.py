@@ -3,6 +3,8 @@
 import factory.fuzzy
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 
+from openzaak.components.catalogi.tests.factories import CatalogusFactory
+
 
 class ApplicatieFactory(factory.django.DjangoModelFactory):
     client_ids = factory.List(factory.Faker("word") for i in range(2))
@@ -35,3 +37,16 @@ class AutorisatieSpecFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "autorisaties.AutorisatieSpec"
+
+
+class CatalogusAutorisatieFactory(factory.django.DjangoModelFactory):
+    applicatie = factory.SubFactory(ApplicatieFactory)
+    component = factory.fuzzy.FuzzyChoice(ComponentTypes.values)
+    scopes = factory.List(factory.Faker("word") for i in range(3))
+    max_vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
+        choices=VertrouwelijkheidsAanduiding.values
+    )
+    catalogus = factory.SubFactory(CatalogusFactory)
+
+    class Meta:
+        model = "autorisaties.CatalogusAutorisatie"
