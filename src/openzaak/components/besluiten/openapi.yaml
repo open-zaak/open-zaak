@@ -2242,7 +2242,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2376,7 +2375,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2546,7 +2544,6 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
-          minLength: null
           maxLength: 200
         datum:
           type: string
