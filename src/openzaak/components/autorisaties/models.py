@@ -154,3 +154,37 @@ class AutorisatieSpec(models.Model):
         changed = {autorisatie.applicatie for autorisatie in (to_delete + _to_add)}
         for applicatie in changed:
             send_applicatie_changed_notification(applicatie)
+
+
+class CatalogusAutorisatie(models.Model):
+    applicatie = models.ForeignKey(
+        Applicatie,
+        on_delete=models.CASCADE,
+        help_text=_("The application to which this authorisation belongs"),
+    )
+    catalogus = models.ForeignKey(
+        "catalogi.Catalogus",
+        on_delete=models.CASCADE,
+        help_text=_("The catalogi for which this authorisation gives permissions"),
+    )
+
+    component = models.CharField(
+        _("component"),
+        max_length=50,
+        choices=ComponentTypes.choices,
+        help_text=_("Component waarop autorisatie van toepassing is."),
+    )
+    scopes = ArrayField(
+        models.CharField(max_length=100),
+        verbose_name=_("scopes"),
+        help_text=_("Komma-gescheiden lijst van scope labels."),
+    )
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
+        help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _("catalogus autorisatie")
+        verbose_name_plural = _("catalogus autorisaties")
+        unique_together = ("applicatie", "catalogus", "component")
