@@ -74,7 +74,10 @@ class ZaakTypenRelatieAdmin(ReadOnlyPublishedZaaktypeMixin, admin.ModelAdmin):
             _("Algemeen"),
             {"fields": ("gerelateerd_zaaktype", "aard_relatie", "toelichting")},
         ),
-        (_("Relaties"), {"fields": ("zaaktype",)},),
+        (
+            _("Relaties"),
+            {"fields": ("zaaktype",)},
+        ),
     )
     raw_id_fields = ("zaaktype",)
 

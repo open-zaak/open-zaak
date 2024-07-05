@@ -19,7 +19,10 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "bestandsdelen",
             },
         ),
-        migrations.AlterUniqueTogether(name="bestandsdeel", unique_together=set(),),
+        migrations.AlterUniqueTogether(
+            name="bestandsdeel",
+            unique_together=set(),
+        ),
         migrations.AddConstraint(
             model_name="bestandsdeel",
             constraint=models.UniqueConstraint(

@@ -431,7 +431,10 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         },
     )
 
-    created_on = models.DateTimeField(_("created on"), auto_now_add=True,)
+    created_on = models.DateTimeField(
+        _("created on"),
+        auto_now_add=True,
+    )
 
     objects = ZaakQuerySet.as_manager()
 
@@ -448,7 +451,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         if not self.identificatie:
             assert not self.identificatie_ptr_id
             self.identificatie_ptr = ZaakIdentificatie.objects.generate(
-                organisation=self.bronorganisatie, date=self.registratiedatum,
+                organisation=self.bronorganisatie,
+                date=self.registratiedatum,
             )
             self.identificatie = self.identificatie_ptr.identificatie
 
@@ -630,7 +634,7 @@ class Status(ETagMixin, APIMixin, models.Model):
 
     @property
     def indicatie_laatst_gezette_status(self) -> bool:
-        """⚡️ use annotated field when possible """
+        """⚡️ use annotated field when possible"""
         if hasattr(self, "max_datum_status_gezet"):
             return self.max_datum_status_gezet == self.datum_status_gezet
 
@@ -841,7 +845,11 @@ class Rol(ETagMixin, APIMixin, models.Model):
             "telefoonnummer": contactpersoon_rol_telefoonnummer,
             "naam": contactpersoon_rol_naam,
         },
-        optional=("emailadres", "functie", "telefoonnummer",),
+        optional=(
+            "emailadres",
+            "functie",
+            "telefoonnummer",
+        ),
     )
 
     objects = ZaakRelatedQuerySet.as_manager()

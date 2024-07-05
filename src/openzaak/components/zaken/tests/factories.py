@@ -151,7 +151,8 @@ class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactor
 class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     resultaattype = factory.SubFactory(
-        ResultaatTypeFactory, zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
+        ResultaatTypeFactory,
+        zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
     )
 
     class Meta:

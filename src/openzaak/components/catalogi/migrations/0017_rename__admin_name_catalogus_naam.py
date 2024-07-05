@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="catalogus", old_name="_admin_name", new_name="naam",
+            model_name="catalogus",
+            old_name="_admin_name",
+            new_name="naam",
         ),
     ]

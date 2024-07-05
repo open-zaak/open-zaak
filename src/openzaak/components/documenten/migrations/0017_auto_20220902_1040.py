@@ -13,18 +13,25 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="objectinformatieobject", name="check_type",
+            model_name="objectinformatieobject",
+            name="check_type",
         ),
         migrations.RemoveConstraint(
-            model_name="objectinformatieobject", name="unique_io_zaak_external",
+            model_name="objectinformatieobject",
+            name="unique_io_zaak_external",
         ),
         migrations.RemoveConstraint(
-            model_name="objectinformatieobject", name="unique_io_besluit_external",
+            model_name="objectinformatieobject",
+            name="unique_io_besluit_external",
         ),
         migrations.RemoveField(
-            model_name="objectinformatieobject", name="_besluit_url",
+            model_name="objectinformatieobject",
+            name="_besluit_url",
         ),
-        migrations.RemoveField(model_name="objectinformatieobject", name="_zaak_url",),
+        migrations.RemoveField(
+            model_name="objectinformatieobject",
+            name="_zaak_url",
+        ),
         migrations.AddConstraint(
             model_name="objectinformatieobject",
             constraint=models.CheckConstraint(

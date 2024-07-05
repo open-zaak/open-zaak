@@ -28,7 +28,8 @@ class TestRelevanteZaakRelatieForm(TestCase):
         self,
     ):
         zrc_service = Service.objects.create(
-            api_type=APITypes.zrc, api_root="https://external.zaken.nl/api/v1/",
+            api_type=APITypes.zrc,
+            api_root="https://external.zaken.nl/api/v1/",
         )
         form = RelevanteZaakRelatieForm()
         form.cleaned_data = {

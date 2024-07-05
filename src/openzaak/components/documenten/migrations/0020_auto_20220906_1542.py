@@ -19,20 +19,24 @@ class Migration(migrations.Migration):
             name="documenten_enkelvoudiginformatieobject__informatieobjecttype_or__informatieobjecttype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="objectinformatieobject", name="object_reference_fields_mutex",
+            model_name="objectinformatieobject",
+            name="object_reference_fields_mutex",
         ),
         migrations.RemoveConstraint(
             model_name="objectinformatieobject",
             name="correct_field_set_for_object_type",
         ),
         migrations.RemoveConstraint(
-            model_name="objectinformatieobject", name="unique_io_object_external",
+            model_name="objectinformatieobject",
+            name="unique_io_object_external",
         ),
         migrations.RemoveField(
-            model_name="enkelvoudiginformatieobject", name="_informatieobjecttype_url",
+            model_name="enkelvoudiginformatieobject",
+            name="_informatieobjecttype_url",
         ),
         migrations.RemoveField(
-            model_name="objectinformatieobject", name="_object_url",
+            model_name="objectinformatieobject",
+            name="_object_url",
         ),
         migrations.AddConstraint(
             model_name="enkelvoudiginformatieobject",

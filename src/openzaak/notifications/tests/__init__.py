@@ -27,7 +27,11 @@ def mock_nrc_oas_get(m: Mocker):
 def mock_notification_send(m: Mocker, **kwargs) -> None:
     base_url = _get_base_url()
     mock_kwargs = (
-        {"status_code": 201, "json": {"dummy": "json"}, **kwargs,}
+        {
+            "status_code": 201,
+            "json": {"dummy": "json"},
+            **kwargs,
+        }
         if "exc" not in kwargs
         else kwargs
     )

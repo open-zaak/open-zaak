@@ -28,7 +28,8 @@ class TestResultaatForm(TestCase):
         self,
     ):
         ztc_service = Service.objects.create(
-            api_type=APITypes.ztc, api_root="https://external.catalogi.nl/api/v1/",
+            api_type=APITypes.ztc,
+            api_root="https://external.catalogi.nl/api/v1/",
         )
         form = ResultaatForm()
         form.cleaned_data = {

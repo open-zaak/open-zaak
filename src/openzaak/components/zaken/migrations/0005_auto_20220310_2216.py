@@ -19,29 +19,37 @@ class Migration(migrations.Migration):
             name="_relevant_zaak_or__relevant_zaak_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="resultaat", name="_resultaattype_or__resultaattype_url_filled",
+            model_name="resultaat",
+            name="_resultaattype_or__resultaattype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="rol", name="_roltype_or__roltype_url_filled",
+            model_name="rol",
+            name="_roltype_or__roltype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="status", name="_statustype_or__statustype_url_filled",
+            model_name="status",
+            name="_statustype_or__statustype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaak", name="_zaaktype_or__zaaktype_url_filled",
+            model_name="zaak",
+            name="_zaaktype_or__zaaktype_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaakbesluit", name="_besluit_or__besluit_url_filled",
+            model_name="zaakbesluit",
+            name="_besluit_or__besluit_url_filled",
         ),
         migrations.RemoveConstraint(
-            model_name="zaakeigenschap", name="_eigenschap_or__eigenschap_url_filled",
+            model_name="zaakeigenschap",
+            name="_eigenschap_or__eigenschap_url_filled",
         ),
         migrations.RemoveConstraint(
             model_name="zaakinformatieobject",
             name="_informatieobject_or__informatieobject_url_filled",
         ),
         migrations.AlterField(
-            model_name="overige", name="overige_data", field=models.JSONField(),
+            model_name="overige",
+            name="overige_data",
+            field=models.JSONField(),
         ),
         migrations.AddConstraint(
             model_name="relevantezaakrelatie",

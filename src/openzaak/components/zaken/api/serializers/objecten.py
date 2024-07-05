@@ -271,15 +271,15 @@ class ZakelijkRechtHeeftAlsGerechtigdeSerializer(serializers.ModelSerializer):
         heeft_als_gerechtigde = super().create(validated_data)
 
         if natuurlijk_persoon_data:
-            natuurlijk_persoon_data[
-                "zakelijk_rechtHeeft_als_gerechtigde"
-            ] = heeft_als_gerechtigde
+            natuurlijk_persoon_data["zakelijk_rechtHeeft_als_gerechtigde"] = (
+                heeft_als_gerechtigde
+            )
             RolNatuurlijkPersoonSerializer().create(natuurlijk_persoon_data)
 
         if niet_natuurlijk_persoon_data:
-            niet_natuurlijk_persoon_data[
-                "zakelijk_rechtHeeft_als_gerechtigde"
-            ] = heeft_als_gerechtigde
+            niet_natuurlijk_persoon_data["zakelijk_rechtHeeft_als_gerechtigde"] = (
+                heeft_als_gerechtigde
+            )
             RolNietNatuurlijkPersoonSerializer().create(niet_natuurlijk_persoon_data)
 
         return heeft_als_gerechtigde

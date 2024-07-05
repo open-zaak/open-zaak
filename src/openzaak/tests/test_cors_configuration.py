@@ -139,7 +139,8 @@ class CORSEnabledWithAuthHeaderTests(CorsMixin, APITestCase):
 
         self.assertEqual(response["Access-Control-Allow-Origin"], "*")
         self.assertIn(
-            "authorization", response["Access-Control-Allow-Headers"].lower(),
+            "authorization",
+            response["Access-Control-Allow-Headers"].lower(),
         )
         self.assertNotIn("Access-Control-Allow-Credentials", response)
 

@@ -63,7 +63,8 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         zaak_verzoek = zaak.zaakverzoek_set.get()
         self.assertEqual(zaak_verzoek.verzoek, VERZOEK)
         self.assertEqual(
-            zaak_verzoek._objectverzoek, f"{VERZOEKEN_BASE}objectverzoeken/1",
+            zaak_verzoek._objectverzoek,
+            f"{VERZOEKEN_BASE}objectverzoeken/1",
         )
 
     def test_create_fail_sync(self, *m):
@@ -73,7 +74,8 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.post(
-                f"{VERZOEKEN_BASE}objectverzoeken", status_code=400,
+                f"{VERZOEKEN_BASE}objectverzoeken",
+                status_code=400,
             )
             response = self.client.post(
                 url, {"verzoek": VERZOEK, "zaak": reverse(zaak)}
@@ -96,7 +98,8 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.delete(
-                zaak_verzoek._objectverzoek, status_code=204,
+                zaak_verzoek._objectverzoek,
+                status_code=204,
             )
             response = self.client.delete(url)
 
@@ -112,7 +115,8 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.delete(
-                f"{VERZOEKEN_BASE}objectverzoeken", status_code=400,
+                f"{VERZOEKEN_BASE}objectverzoeken",
+                status_code=400,
             )
             response = self.client.delete(url)
 

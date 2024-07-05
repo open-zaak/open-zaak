@@ -51,7 +51,15 @@ class ZaakTypeInformatieObjectTypeAdmin(
 
     # Detail
     fieldsets = (
-        (_("Algemeen"), {"fields": ("volgnummer", "richting",)},),
+        (
+            _("Algemeen"),
+            {
+                "fields": (
+                    "volgnummer",
+                    "richting",
+                )
+            },
+        ),
         (_("Relaties"), {"fields": ("zaaktype", "informatieobjecttype", "statustype")}),
     )
     raw_id_fields = ("zaaktype", "informatieobjecttype", "statustype")

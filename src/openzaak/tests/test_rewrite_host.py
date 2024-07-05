@@ -96,7 +96,8 @@ class RewriteHostTests(TestCase):
 
 class BuildAbsoluteUrlTests(SimpleTestCase):
     @override_settings(
-        OPENZAAK_DOMAIN="oz.example.com", IS_HTTPS=True,
+        OPENZAAK_DOMAIN="oz.example.com",
+        IS_HTTPS=True,
     )
     def test_build_absolute_url_uses_setting(self):
         abs_url = build_absolute_url("/foo")

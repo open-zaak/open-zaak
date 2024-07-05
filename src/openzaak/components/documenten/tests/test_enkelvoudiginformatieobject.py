@@ -968,7 +968,8 @@ class InformatieobjectCreateExternalURLsTests(
             json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
         )
         self.requests_mock.get(
-            catalogus, json=get_catalogus_response(catalogus, informatieobjecttype),
+            catalogus,
+            json=get_catalogus_response(catalogus, informatieobjecttype),
         )
 
         response = self.client.post(
@@ -1056,10 +1057,14 @@ class InformatieobjectCreateExternalURLsTests(
         )
         self.requests_mock.get(
             informatieobjecttype,
-            json={"url": informatieobjecttype, "catalogus": catalogus,},
+            json={
+                "url": informatieobjecttype,
+                "catalogus": catalogus,
+            },
         )
         self.requests_mock.get(
-            catalogus, json=get_catalogus_response(catalogus, informatieobjecttype),
+            catalogus,
+            json=get_catalogus_response(catalogus, informatieobjecttype),
         )
 
         response = self.client.post(
@@ -1137,7 +1142,10 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         eio_data = self.client.get(reverse(eio)).json()
         iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
 
-        response = self.client.get(self.url, {"expand": "informatieobjecttype"},)
+        response = self.client.get(
+            self.url,
+            {"expand": "informatieobjecttype"},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1154,7 +1162,10 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         eio_data = self.client.get(reverse(eio)).json()
         iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
 
-        response = self.client.get(url, {"expand": "informatieobjecttype"},)
+        response = self.client.get(
+            url,
+            {"expand": "informatieobjecttype"},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

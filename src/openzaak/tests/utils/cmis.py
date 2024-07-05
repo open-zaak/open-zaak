@@ -124,6 +124,13 @@ class APICMISTransactionTestCase(CMISMixin, APITransactionTestCase):
 
 
 def serialise_eio(eio, eio_url, **overrides):
-    serialised_eio = json.loads(serializers.serialize("json", [eio,]))[0]["fields"]
+    serialised_eio = json.loads(
+        serializers.serialize(
+            "json",
+            [eio],
+        )
+    )[
+        0
+    ]["fields"]
     serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
     return camelize(serialised_eio)

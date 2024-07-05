@@ -454,7 +454,8 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(self.informatieobjecttype)}",
         )
         self.assertEqual(
-            results[1]["informatieobjecttype"], IOTYPE_EXTERNAL,
+            results[1]["informatieobjecttype"],
+            IOTYPE_EXTERNAL,
         )
 
     def test_eio_retreive(self):

@@ -80,7 +80,10 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         )
         io2_url = f"http://testserver{reverse(io2)}"
 
-        zio = ZaakInformatieObjectFactory(zaak=self.zaak, informatieobject=io2_url,)
+        zio = ZaakInformatieObjectFactory(
+            zaak=self.zaak,
+            informatieobject=io2_url,
+        )
         zio_url = f"http://testserver{reverse(zio)}"
 
         self.assertCreateBlocked(

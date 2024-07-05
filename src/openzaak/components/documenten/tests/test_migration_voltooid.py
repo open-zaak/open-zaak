@@ -12,7 +12,9 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True,)
+@override_settings(
+    CMIS_ENABLED=True,
+)
 class PopulatevoltooidCMISTest(CMISMixin, TestMigrations):
     migrate_from = "0026_bestandsdeel__voltooid"
     migrate_to = "0027_auto_20230417_1415"

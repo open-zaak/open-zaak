@@ -214,9 +214,15 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
         model = BestandsDeel
         fields = ("url", "volgnummer", "omvang", "inhoud", "voltooid", "lock")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid",},
-            "volgnummer": {"read_only": True,},
-            "omvang": {"read_only": True,},
+            "url": {
+                "lookup_field": "uuid",
+            },
+            "volgnummer": {
+                "read_only": True,
+            },
+            "omvang": {
+                "read_only": True,
+            },
             "voltooid": {
                 "read_only": True,
                 "help_text": _(
@@ -224,7 +230,9 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
                     "het aantal bytes dat staat genoemd bij grootte is daadwerkelijk ontvangen."
                 ),
             },
-            "inhoud": {"write_only": True,},
+            "inhoud": {
+                "write_only": True,
+            },
         }
 
     def validate(self, attrs):
@@ -314,7 +322,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         ),
     )
     bestandsdelen = BestandsDeelSerializer(
-        many=True, source="get_bestandsdelen", read_only=True,
+        many=True,
+        source="get_bestandsdelen",
+        read_only=True,
     )
 
     inclusion_serializers = {
@@ -494,9 +504,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # add vertrouwelijkheidaanduiding
         if "vertrouwelijkheidaanduiding" not in validated_data:
             informatieobjecttype = validated_data["informatieobjecttype"]
-            validated_data[
-                "vertrouwelijkheidaanduiding"
-            ] = informatieobjecttype.vertrouwelijkheidaanduiding
+            validated_data["vertrouwelijkheidaanduiding"] = (
+                informatieobjecttype.vertrouwelijkheidaanduiding
+            )
 
         canonical = EnkelvoudigInformatieObjectCanonical.objects.create()
         validated_data["canonical"] = canonical
@@ -690,9 +700,9 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
     EnkelvoudigInformatieObjectSerializer
 ):
     """
-   This serializer class is used by EnkelvoudigInformatieObjectViewSet for
-   create operation for large files
-   """
+    This serializer class is used by EnkelvoudigInformatieObjectViewSet for
+    create operation for large files
+    """
 
     lock = serializers.CharField(
         read_only=True,
@@ -708,7 +718,14 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
         # Use the same fields as the parent class and add the lock to it
         fields = EnkelvoudigInformatieObjectSerializer.Meta.fields + ("lock",)
         extra_kwargs = EnkelvoudigInformatieObjectSerializer.Meta.extra_kwargs.copy()
-        extra_kwargs.update({"lock": {"source": "canonical.lock", "read_only": True,}})
+        extra_kwargs.update(
+            {
+                "lock": {
+                    "source": "canonical.lock",
+                    "read_only": True,
+                }
+            }
+        )
 
     def create(self, validated_data):
         eio = super().create(validated_data)
@@ -1018,7 +1035,8 @@ class CorrespondentiePostadresVerzendingSerializer(GegevensGroepSerializer):
 
 
 class VerzendingSerializer(
-    NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer,
+    NestedGegevensGroepMixin,
+    serializers.HyperlinkedModelSerializer,
 ):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
         view_name="enkelvoudiginformatieobject-detail",
@@ -1027,26 +1045,30 @@ class VerzendingSerializer(
         help_text=get_help_text("documenten.Verzending", "informatieobject"),
     )
 
-    binnenlands_correspondentieadres = BinnenlandsCorrespondentieadresVerzendingSerializer(
-        required=False,
-        allow_null=True,
-        help_text=_(
-            "Het correspondentieadres, betreffende een adresseerbaar object,"
-            " van de BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld"
-            " in het ontvangen of verzonden INFORMATIEOBJECT indien dat afwijkt"
-            " van het reguliere binnenlandse correspondentieadres van BETROKKENE."
-        ),
+    binnenlands_correspondentieadres = (
+        BinnenlandsCorrespondentieadresVerzendingSerializer(
+            required=False,
+            allow_null=True,
+            help_text=_(
+                "Het correspondentieadres, betreffende een adresseerbaar object,"
+                " van de BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld"
+                " in het ontvangen of verzonden INFORMATIEOBJECT indien dat afwijkt"
+                " van het reguliere binnenlandse correspondentieadres van BETROKKENE."
+            ),
+        )
     )
 
-    buitenlands_correspondentieadres = BuitenlandsCorrespondentieadresVerzendingSerializer(
-        required=False,
-        allow_null=True,
-        help_text=_(
-            "De gegevens van het adres in het buitenland van BETROKKENE, zijnde"
-            " afzender of geadresseerde, zoals vermeld in het ontvangen of"
-            " verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere"
-            " correspondentiegegevens van BETROKKENE."
-        ),
+    buitenlands_correspondentieadres = (
+        BuitenlandsCorrespondentieadresVerzendingSerializer(
+            required=False,
+            allow_null=True,
+            help_text=_(
+                "De gegevens van het adres in het buitenland van BETROKKENE, zijnde"
+                " afzender of geadresseerde, zoals vermeld in het ontvangen of"
+                " verzonden INFORMATIEOBJECT en dat afwijkt van de reguliere"
+                " correspondentiegegevens van BETROKKENE."
+            ),
+        )
     )
 
     correspondentie_postadres = CorrespondentiePostadresVerzendingSerializer(

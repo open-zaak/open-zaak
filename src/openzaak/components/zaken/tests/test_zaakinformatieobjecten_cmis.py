@@ -267,7 +267,10 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
         response = self.client.put(
             zio_detail_url,
-            {"zaak": f"http://testserver{zaak_url}", "informatieobject": eio2_url,},
+            {
+                "zaak": f"http://testserver{zaak_url}",
+                "informatieobject": eio2_url,
+            },
         )
 
         self.assertEqual(
@@ -390,7 +393,10 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         ZaakTypeInformatieObjectTypeFactory.create(
             informatieobjecttype=io.informatieobjecttype, zaaktype=zaak.zaaktype
         )
-        zio = ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=io_url,)
+        zio = ZaakInformatieObjectFactory.create(
+            zaak=zaak,
+            informatieobject=io_url,
+        )
         zio_representation = str(zio)
         expected_representation = f"{zaak.identificatie} - {io_url}"
         self.assertEqual(expected_representation, zio_representation)

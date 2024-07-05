@@ -411,11 +411,16 @@ class ZaakObjectHuishoudenTestCase(JWTAuthMixin, APITestCase):
             zaak=zaak, object="", object_type=ZaakobjectTypes.medewerker
         )
         Medewerker.objects.create(
-            zaakobject=zaakobject, identificatie="old",
+            zaakobject=zaakobject,
+            identificatie="old",
         )
 
         url = get_operation_url("zaakobject_read", uuid=zaakobject.uuid)
-        data = {"objectIdentificatie": {"identificatie": "new",}}
+        data = {
+            "objectIdentificatie": {
+                "identificatie": "new",
+            }
+        }
 
         response = self.client.patch(url, data)
 

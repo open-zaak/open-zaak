@@ -141,7 +141,9 @@ class SplitRelativeDeltaWidget(forms.Widget):
         if id_:
             attrs["id"] = f"{id_}_{attribute}"
         widget_context = forms.NumberInput().get_context(
-            name=f"{name}_{attribute}", value=value, attrs=attrs,
+            name=f"{name}_{attribute}",
+            value=value,
+            attrs=attrs,
         )
         return widget_context["widget"]
 

@@ -41,7 +41,8 @@ def get_informatieobjecttype_url(
     instance_url = reverse(
         "informatieobjecttype-detail",
         kwargs=dict(
-            uuid=instance.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"],
+            uuid=instance.uuid,
+            version=settings.REST_FRAMEWORK["DEFAULT_VERSION"],
         ),
     )
 

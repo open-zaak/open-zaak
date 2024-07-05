@@ -59,7 +59,9 @@ class CMISETagMixin:
 
 
 def cmis_conditional_retrieve(
-    action="retrieve", etag_field="_etag", extra_depends_on: Optional[Set[str]] = None,
+    action="retrieve",
+    etag_field="_etag",
+    extra_depends_on: Optional[Set[str]] = None,
 ):
     """
     Decorate a viewset to apply conditional GET requests.

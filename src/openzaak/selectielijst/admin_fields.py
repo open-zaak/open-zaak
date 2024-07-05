@@ -24,7 +24,10 @@ def get_procestype_field(
     db_field: Field, request: HttpRequest, procestype_jaar: int, **kwargs
 ) -> forms.ChoiceField:
     choices = (
-        (procestype["url"], f"{procestype['nummer']} - {procestype['naam']}",)
+        (
+            procestype["url"],
+            f"{procestype['nummer']} - {procestype['naam']}",
+        )
         for procestype in get_procestypen(procestype_jaar=procestype_jaar)
     )
 

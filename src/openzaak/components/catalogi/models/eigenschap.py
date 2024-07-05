@@ -29,7 +29,8 @@ class EigenschapSpecificatie(models.Model):
     ‘Referentie naar eigenschap’.
     """
 
-    groep = models.CharField(  # waardenverzameling Letters, cijfers en liggende streepjes
+    # waardenverzameling Letters, cijfers en liggende streepjes
+    groep = models.CharField(
         _("groep"),
         max_length=32,
         blank=True,

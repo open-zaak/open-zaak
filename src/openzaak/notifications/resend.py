@@ -38,7 +38,10 @@ def resend_notification(notification: FailedNotification) -> None:
             "Could not deliver message to %s",
             client.base_url,
             exc_info=True,
-            extra={"notification_msg": notification.message, "final_try": True,},
+            extra={
+                "notification_msg": notification.message,
+                "final_try": True,
+            },
         )
         raise ResendFailure from error
     finally:

@@ -224,7 +224,10 @@ class AutorisatieForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
     externe_typen = DynamicArrayField(
-        base_field=forms.URLField(max_length=1000, required=True,),
+        base_field=forms.URLField(
+            max_length=1000,
+            required=True,
+        ),
         required=False,
         error_messages={"item_invalid": ""},
     )
@@ -382,7 +385,8 @@ class AutorisatieForm(forms.Form):
             )
         else:
             applicatie.autorisatie_specs.filter(
-                component=component, scopes=scopes,
+                component=component,
+                scopes=scopes,
             ).delete()
 
         autorisatie_kwargs = {

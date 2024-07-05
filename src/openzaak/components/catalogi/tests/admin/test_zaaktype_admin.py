@@ -306,7 +306,9 @@ class ZaaktypeAdminTests(
                 "kanaal": "zaaktypen",
                 "resource": "zaaktype",
                 "resourceUrl": f"http://testserver{zaaktype_new_url}",
-                "kenmerken": {"catalogus": f"http://testserver{catalogus_url}",},
+                "kenmerken": {
+                    "catalogus": f"http://testserver{catalogus_url}",
+                },
             }
         )
         # assert that sub-resources have old datum_begin_geldigheid

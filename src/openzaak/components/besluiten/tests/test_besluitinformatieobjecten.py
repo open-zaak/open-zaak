@@ -351,7 +351,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             )
 
             response = self.client.post(
-                self.list_url, {"besluit": besluit_url, "informatieobject": document},
+                self.list_url,
+                {"besluit": besluit_url, "informatieobject": document},
             )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -369,7 +370,8 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype.besluittypen.add(besluit.besluittype)
 
         response = self.client.post(
-            self.list_url, {"besluit": besluit_url, "informatieobject": document},
+            self.list_url,
+            {"besluit": besluit_url, "informatieobject": document},
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -662,7 +664,8 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=204)
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio,
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
             )
             bio_url = reverse(bio)
 
@@ -696,7 +699,8 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
             m.delete(oio, status_code=404, text="Not found")
 
             bio = BesluitInformatieObjectFactory.create(
-                informatieobject=self.document, _objectinformatieobject_url=oio,
+                informatieobject=self.document,
+                _objectinformatieobject_url=oio,
             )
             bio_url = reverse(bio)
 

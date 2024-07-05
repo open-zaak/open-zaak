@@ -72,7 +72,10 @@ class BesluitTypeAdminTests(WebTest):
 
     def test_create_besluittype_m2m_relation_popup_filters_with_catalogus(self):
         query_params = urlencode(
-            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+            {
+                "catalogus_id__exact": self.catalogus.pk,
+                "catalogus": self.catalogus.pk,
+            }
         )
         url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
         response = self.app.get(url)
@@ -151,7 +154,10 @@ class BesluitTypeAdminTests(WebTest):
 
     def test_create_besluittype(self):
         query_params = urlencode(
-            {"catalogus_id__exact": self.catalogus.pk, "catalogus": self.catalogus.pk,}
+            {
+                "catalogus_id__exact": self.catalogus.pk,
+                "catalogus": self.catalogus.pk,
+            }
         )
         url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
         response = self.app.get(url)
@@ -279,9 +285,7 @@ class BesluitTypePublishAdminTests(WebTest):
         self.assertFalse(btype.concept)
 
         messages = [str(m) for m in response.follow().context["messages"]]
-        self.assertEqual(
-            messages, [_("The resource has been published successfully!")],
-        )
+        self.assertEqual(messages, [_("The resource has been published successfully!")])
 
     def test_change_page_publish_overlap(self):
         BesluitTypeFactory.create(

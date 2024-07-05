@@ -382,5 +382,5 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 def get_expand_options_for_serializer(
     serializer_class: Type[Serializer],
 ) -> List[tuple]:
-    choices = [(opt, opt,) for opt in serializer_class.inclusion_serializers]
+    choices = [(opt, opt) for opt in serializer_class.inclusion_serializers]
     return choices

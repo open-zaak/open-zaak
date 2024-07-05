@@ -188,7 +188,11 @@ class SideEffectsMixin:
         # calls, which is a bit of a nasty hack, but necessary since the admin instance
         # is not thread safe
         with VersioningSideEffect(
-            self, request, original=original, change=change, form=form,
+            self,
+            request,
+            original=original,
+            change=change,
+            form=form,
         ) as side_effect:
             super().save_related(request, form, formsets, change)
 
@@ -263,7 +267,10 @@ class ExportMixin:
                 f"{filename}.zip"
             )
             call_command(
-                "export", response=response, resource=resource_list, ids=id_list,
+                "export",
+                response=response,
+                resource=resource_list,
+                ids=id_list,
             )
 
             response["Content-Length"] = len(response.content)
@@ -411,9 +418,11 @@ class ReadOnlyPublishedBaseMixin:
             self.render_readonly,
             adminform.form,
             list(self.get_fieldsets(request, obj)),
-            self.get_prepopulated_fields(request, obj)
-            if add or self.has_change_permission(request, obj)
-            else {},
+            (
+                self.get_prepopulated_fields(request, obj)
+                if add or self.has_change_permission(request, obj)
+                else {}
+            ),
             adminform.readonly_fields,
             model_admin=self,
         )

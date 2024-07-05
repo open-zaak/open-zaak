@@ -333,7 +333,7 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_partial_update_resultaattype_brondatum_archiefprocedure(self):
-        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL,)
+        zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         with requests_mock.Mocker() as m:
             resultaattypeomschrijving = (
                 "https://example.com/resultaattypeomschrijving/1"

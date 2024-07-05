@@ -118,13 +118,13 @@ def get_initial_for_component(
             ]
 
             if spec:
-                _initial[
-                    "related_type_selection"
-                ] = RelatedTypeSelectionMethods.all_current_and_future
+                _initial["related_type_selection"] = (
+                    RelatedTypeSelectionMethods.all_current_and_future
+                )
             elif zaaktype_ids == relevant_ids:
-                _initial[
-                    "related_type_selection"
-                ] = RelatedTypeSelectionMethods.all_current
+                _initial["related_type_selection"] = (
+                    RelatedTypeSelectionMethods.all_current
+                )
             else:
                 _initial.update(
                     {
@@ -165,13 +165,13 @@ def get_initial_for_component(
             ]
 
             if spec:
-                _initial[
-                    "related_type_selection"
-                ] = RelatedTypeSelectionMethods.all_current_and_future
+                _initial["related_type_selection"] = (
+                    RelatedTypeSelectionMethods.all_current_and_future
+                )
             elif informatieobjecttype_ids == relevant_ids:
-                _initial[
-                    "related_type_selection"
-                ] = RelatedTypeSelectionMethods.all_current
+                _initial["related_type_selection"] = (
+                    RelatedTypeSelectionMethods.all_current
+                )
             else:
                 _initial.update(
                     {
@@ -189,9 +189,9 @@ def get_initial_for_component(
         _initial = {"externe_typen": _related_objs_external}
 
         if spec:
-            _initial[
-                "related_type_selection"
-            ] = RelatedTypeSelectionMethods.all_current_and_future
+            _initial["related_type_selection"] = (
+                RelatedTypeSelectionMethods.all_current_and_future
+            )
         elif besluittype_ids == relevant_ids:
             _initial["related_type_selection"] = RelatedTypeSelectionMethods.all_current
         else:
@@ -302,7 +302,9 @@ class AutorisatiesView(AdminContextMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         catalogi = Catalogus.objects.prefetch_related(
-            "zaaktype_set", "informatieobjecttype_set", "besluittype_set",
+            "zaaktype_set",
+            "informatieobjecttype_set",
+            "besluittype_set",
         )
 
         context.update(

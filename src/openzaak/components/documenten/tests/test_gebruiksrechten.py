@@ -21,7 +21,8 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
             creatiedatum=datetime.date(2018, 12, 24)
         )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid},
+            "enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": eio.uuid},
         )
 
         eio_detail = self.client.get(eio_url)
@@ -222,7 +223,8 @@ class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
         ).json()
 
         response = self.client.get(
-            url, {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+            url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

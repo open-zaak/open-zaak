@@ -14,7 +14,8 @@ from ...bootstrap.demo import DemoUserStep
 
 
 @override_settings(
-    DEMO_CLIENT_ID="demo-client-id", DEMO_SECRET="demo-secret",
+    DEMO_CLIENT_ID="demo-client-id",
+    DEMO_SECRET="demo-secret",
 )
 class DemoConfigurationTests(TestCase):
     def test_configure(self):

@@ -19,7 +19,11 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Params:
         with_totp_device = factory.Trait(
-            device=factory.RelatedFactory(TOTPDeviceFactory, "user", name="default",)
+            device=factory.RelatedFactory(
+                TOTPDeviceFactory,
+                "user",
+                name="default",
+            )
         )
 
     class Meta:

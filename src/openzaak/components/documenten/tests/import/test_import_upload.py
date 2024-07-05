@@ -68,7 +68,7 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         import_path = Path(import_instance.import_file.path)
 
-        with open(str(import_path), "r", newline="") as import_file:
+        with open(str(import_path), newline="") as import_file:
             self.assertEqual(file_contents, import_file.read())
 
         self.addCleanup(import_path.unlink)
@@ -217,7 +217,9 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
     def test_mismatching_import_type(self):
         import_instance = self.create_import(
-            import_type="foobar", status=ImportStatusChoices.pending, total=0,
+            import_type="foobar",
+            status=ImportStatusChoices.pending,
+            total=0,
         )
 
         url = reverse(

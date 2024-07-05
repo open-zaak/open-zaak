@@ -22,7 +22,8 @@ class ZaakAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
         cls.service = Service.objects.create(
-            api_type=APITypes.drc, api_root="https://external.nl/api/v1/",
+            api_type=APITypes.drc,
+            api_root="https://external.nl/api/v1/",
         )
 
     def setUp(self):

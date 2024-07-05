@@ -36,7 +36,8 @@ class SelectielijstConfigurationTests(TestCase):
         configuration.test_configuration()
 
         self.assertEqual(
-            m.last_request.url, "https://selectielijst.example.com/api/v1/procestypen",
+            m.last_request.url,
+            "https://selectielijst.example.com/api/v1/procestypen",
         )
 
     @requests_mock.Mocker()
