@@ -6230,7 +6230,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -6251,7 +6251,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -6267,7 +6267,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9850,7 +9850,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9871,7 +9871,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -9887,7 +9887,7 @@ paths:
           type: array
           items:
             type: string
-        description: Multiple values may be separated by commas.
+        description: Meerdere waarden kunnen gescheiden worden door komma's.
         explode: false
         style: form
       - in: query
@@ -10208,7 +10208,6 @@ paths:
                     type: string
                     minLength: 1
                     format: uri
-                    maxLength: null
                   description: Array van zaaktypen.
                 identificatie:
                   type: string
@@ -10223,7 +10222,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 zaaktype:
                   type: string
                   description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
@@ -10240,7 +10239,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 archiefactiedatum:
                   type: string
                   format: date
@@ -10282,7 +10281,7 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Multiple values may be separated by commas.
+                  description: Meerdere waarden kunnen gescheiden worden door komma's.
                 startdatum:
                   type: string
                   format: date
@@ -10782,8 +10781,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -10893,8 +10892,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -10913,7 +10912,6 @@ components:
           type: string
           description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
           format: uri
-          minLength: null
           maxLength: 1000
         objectType:
           allOf:
@@ -11274,8 +11272,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -12006,17 +12004,13 @@ components:
     ObjectOverige:
       type: object
       properties:
-        overigeData:
-          type: object
-          additionalProperties: {}
+        overigeData: {}
       required:
       - overigeData
     ObjectOverigeRequest:
       type: object
       properties:
-        overigeData:
-          type: object
-          additionalProperties: {}
+        overigeData: {}
       required:
       - overigeData
     ObjectPand:
@@ -13213,8 +13207,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -13596,8 +13590,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -13971,13 +13965,9 @@ components:
       type: object
       properties:
         oud:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object zoals dat bestond voordat
             de actie heeft plaatsgevonden.
         nieuw:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object na de actie.
     WozObjectAdres:
       type: object
@@ -14064,8 +14054,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14386,8 +14376,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14496,8 +14486,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid
@@ -14987,8 +14977,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         uuid:
           type: string
           format: uuid

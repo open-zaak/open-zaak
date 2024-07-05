@@ -3864,7 +3864,7 @@ paths:
       tags:
       - import
       security:
-      - JWT-Claims
+      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -3992,7 +3992,7 @@ paths:
       tags:
       - import
       security:
-      - JWT-Claims
+      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -4154,7 +4154,7 @@ paths:
               type: string
               format: byte
       security:
-      - JWT-Claims
+      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -4295,7 +4295,7 @@ paths:
       tags:
       - import
       security:
-      - JWT-Claims
+      - JWT-Claims: []
       responses:
         '201':
           headers:

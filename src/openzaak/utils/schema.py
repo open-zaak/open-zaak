@@ -83,7 +83,7 @@ class AutoSchema(_AutoSchema):
 
         scopes = get_required_scopes(self.view.request, self.view)
         if not scopes:
-            return []
+            return [{settings.SECURITY_DEFINITION_NAME: []}]
 
         return [{settings.SECURITY_DEFINITION_NAME: [str(scopes)]}]
 
