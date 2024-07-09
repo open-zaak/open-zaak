@@ -119,7 +119,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/ci.txt
     #   drc-cmis
-commonground-api-common==1.13.0
+commonground-api-common==1.13.2
     # via
     #   -r requirements/ci.txt
     #   drc-cmis

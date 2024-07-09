@@ -3,11 +3,11 @@
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-
-from openzaak.loaders import AuthorizedRequestsLoader
-from openzaak.utils.validators import (
+from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
+
+from openzaak.loaders import AuthorizedRequestsLoader
 
 
 class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
@@ -16,7 +16,7 @@ class UniekeIdentificatieValidator(_UniekeIdentificatieValidator):
     identificatie uniek is.
     """
 
-    partial_message = _(
+    message = _(
         "Deze identificatie ({identificatie}) bestaat al voor deze verantwoordelijke organisatie"
     )
 
