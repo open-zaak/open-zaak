@@ -160,7 +160,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -1823,7 +1823,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -2829,7 +2829,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -3961,7 +3961,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -4972,7 +4972,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -5962,7 +5962,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -8982,7 +8982,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
