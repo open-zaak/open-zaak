@@ -18,8 +18,8 @@ APIs te kunnen gebruiken met Open Zaak:
 
 Deze kunnen ook gecombineerd worden - consumeren via NLX én gebruik van een API key.
 
-.. _BAG: https://www.pdok.nl/restful-api/-/article/basisregistratie-adressen-en-gebouwen-ba-1
-.. _BRT: https://www.pdok.nl/restful-api/-/article/basisregistratie-topografie-brt-topnl
+.. _BAG: https://www.pdok.nl/introductie/-/article/basisregistratie-adressen-en-gebouwen-ba-1
+.. _BRT: https://www.pdok.nl/introductie/-/article/basisregistratie-topografie-brt-topnl
 
 .. _manual_other_apis_auth:
 
