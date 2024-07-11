@@ -86,9 +86,7 @@ class JWTAuth(_JWTAuth):
             return False
 
         autorisaties = self.get_autorisaties(init_component)
-        catalogus_autorisaties = CatalogusAutorisatie.objects.filter(
-            applicatie__in=self.applicaties
-        )
+        catalogus_autorisaties = self.get_catalogus_autorisaties(init_component)
         scopes_provided = set()
 
         # filter on all additional components
