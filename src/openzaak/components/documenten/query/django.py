@@ -117,16 +117,28 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
 
         return queryset
 
-    def ids_by_auth(self, scope, authorizations, local=True) -> models.QuerySet:
-        filters = self.get_filters(scope, authorizations, local)
+    def ids_by_auth(
+        self, scope, authorizations, catalogus_authorizations=None, local=True
+    ) -> models.QuerySet:
+        filters = self.get_filters(
+            scope,
+            authorizations,
+            catalogus_authorizations=catalogus_authorizations,
+            local=local,
+        )
         queryset = self.build_queryset_cmis(filters)
         return queryset.values_list("pk", flat=True)
 
     def filter_for_authorizations(
-        self, scope: Scope, authorizations: models.QuerySet
+        self,
+        scope: Scope,
+        authorizations: models.QuerySet,
+        catalogus_authorizations: models.QuerySet,
     ) -> models.QuerySet:
         if not settings.CMIS_ENABLED:
-            return super().filter_for_authorizations(scope, authorizations)
+            return super().filter_for_authorizations(
+                scope, authorizations, catalogus_authorizations
+            )
 
         # todo implement error if no loose-fk field
 
@@ -134,7 +146,12 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
             scope, authorizations
         )
 
-        ids_local = self.ids_by_auth(scope, authorizations_local, local=True)
+        ids_local = self.ids_by_auth(
+            scope,
+            authorizations_local,
+            catalogus_authorizations=catalogus_authorizations,
+            local=True,
+        )
         ids_external = self.ids_by_auth(scope, authorizations_external, local=False)
         queryset = self.filter(pk__in=ids_local.union(ids_external))
         return queryset
