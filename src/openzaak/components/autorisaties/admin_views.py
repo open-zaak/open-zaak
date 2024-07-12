@@ -30,7 +30,7 @@ from .forms import (
     VertrouwelijkheidsAanduiding,
     get_scope_choices,
 )
-from .models import AutorisatieSpec
+from .models import AutorisatieSpec, CatalogusAutorisatie
 from .utils import get_related_object
 
 
@@ -69,6 +69,7 @@ def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
     spec: Optional[AutorisatieSpec] = None,
+    catalogus_autorisaties: Optional[List[CatalogusAutorisatie]] = None,
 ) -> List[Dict[str, Any]]:
     _related_objs = {}
     _related_objs_external = {}
@@ -104,6 +105,15 @@ def get_initial_for_component(
         if spec and spec.max_vertrouwelijkheidaanduiding not in grouped_by_va:
             grouped_by_va[spec.max_vertrouwelijkheidaanduiding] = []
 
+        if (
+            catalogus_autorisaties
+            and catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding
+            not in grouped_by_va
+        ):
+            grouped_by_va[catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding] = (
+                []
+            )
+
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
@@ -124,6 +134,16 @@ def get_initial_for_component(
             elif zaaktype_ids == relevant_ids:
                 _initial["related_type_selection"] = (
                     RelatedTypeSelectionMethods.all_current
+                )
+            elif catalogus_autorisaties:
+                _initial.update(
+                    {
+                        "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                        "catalogi": [
+                            catalogus_autorisatie.catalogus.pk
+                            for catalogus_autorisatie in catalogus_autorisaties
+                        ],
+                    }
                 )
             else:
                 _initial.update(
@@ -151,6 +171,15 @@ def get_initial_for_component(
         if spec and spec.max_vertrouwelijkheidaanduiding not in grouped_by_va:
             grouped_by_va[spec.max_vertrouwelijkheidaanduiding] = []
 
+        if (
+            catalogus_autorisaties
+            and catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding
+            not in grouped_by_va
+        ):
+            grouped_by_va[catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding] = (
+                []
+            )
+
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
@@ -171,6 +200,16 @@ def get_initial_for_component(
             elif informatieobjecttype_ids == relevant_ids:
                 _initial["related_type_selection"] = (
                     RelatedTypeSelectionMethods.all_current
+                )
+            elif catalogus_autorisaties:
+                _initial.update(
+                    {
+                        "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                        "catalogi": [
+                            catalogus_autorisatie.catalogus.pk
+                            for catalogus_autorisatie in catalogus_autorisaties
+                        ],
+                    }
                 )
             else:
                 _initial.update(
@@ -194,6 +233,16 @@ def get_initial_for_component(
             )
         elif besluittype_ids == relevant_ids:
             _initial["related_type_selection"] = RelatedTypeSelectionMethods.all_current
+        elif catalogus_autorisaties:
+            _initial.update(
+                {
+                    "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                    "catalogi": [
+                        catalogus_autorisatie.catalogus.pk
+                        for catalogus_autorisatie in catalogus_autorisaties
+                    ],
+                }
+            )
         else:
             _initial.update(
                 {
@@ -209,7 +258,9 @@ def get_initial_for_component(
     return initial
 
 
-def _get_group_key(spec: Union[Autorisatie, AutorisatieSpec]) -> Tuple[str, Tuple[str]]:
+def _get_group_key(
+    spec: Union[Autorisatie, AutorisatieSpec, CatalogusAutorisatie]
+) -> Tuple[str, Tuple[str]]:
     return (spec.component, tuple(sorted(spec.scopes)))
 
 
@@ -229,6 +280,15 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
         for spec in applicatie.autorisatie_specs.all()
     }
 
+    catalogus_autorisaties = defaultdict(list)
+    for catalogus_autorisatie in applicatie.catalogusautorisatie_set.all():
+        catalogus_autorisaties[
+            (
+                catalogus_autorisatie.component,
+                tuple(sorted(catalogus_autorisatie.scopes)),
+            )
+        ].append(catalogus_autorisatie)
+
     grouped = defaultdict(list)
     autorisaties = applicatie.autorisaties.all()
     for autorisatie in autorisaties:
@@ -244,9 +304,21 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
             continue
         grouped[key] = []
 
+    # if there's no existing records yet, there will not be any autorisaties and we
+    # have to inject the autorisatiespec itself. See #1080 for the bug report.
+    for catalogus_autorisatie in catalogus_autorisaties.values():
+        key = _get_group_key(catalogus_autorisatie[0])
+        # can happen if there's a spec but no existing records yet
+        if key in grouped:
+            continue
+        grouped[key] = []
+
     for (component, _scopes), _autorisaties in grouped.items():
         component_initial = get_initial_for_component(
-            component, _autorisaties, autorisatie_specs.get((component, _scopes))
+            component,
+            _autorisaties,
+            autorisatie_specs.get((component, _scopes)),
+            catalogus_autorisaties.get((component, _scopes)),
         )
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}

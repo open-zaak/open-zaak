@@ -6,6 +6,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from django_better_admin_arrayfield.forms.fields import DynamicArrayField
@@ -19,8 +20,10 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import SCOPE_REGISTRY
 
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.components.catalogi.models import (
     BesluitType,
+    Catalogus,
     InformatieObjectType,
     ZaakType,
 )
@@ -198,6 +201,14 @@ class AutorisatieForm(forms.Form):
         ),
         choices=VertrouwelijkheidsAanduiding.choices,
         widget=forms.RadioSelect,
+    )
+
+    catalogi = forms.ModelMultipleChoiceField(
+        label=_("catalogi"),
+        required=False,
+        help_text=_("De catalogi waarvoor deze Autorisatie geldt."),
+        queryset=Catalogus.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
     )
 
     zaaktypen = forms.ModelMultipleChoiceField(
@@ -387,6 +398,32 @@ class AutorisatieForm(forms.Form):
             applicatie.autorisatie_specs.filter(
                 component=component,
                 scopes=scopes,
+            ).delete()
+
+        if related_type_selection == RelatedTypeSelectionMethods.select_catalogus:
+            instance_pks = []
+            for catalogus in self.cleaned_data.get("catalogi", []):
+                instance, _ = CatalogusAutorisatie.objects.update_or_create(
+                    applicatie=applicatie,
+                    component=component,
+                    catalogus=catalogus,
+                    defaults={
+                        "scopes": scopes,
+                        "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
+                    },
+                )
+                instance_pks.append(instance.pk)
+
+            # Delete other catalogusautorisaties, because they weren't selected
+            applicatie.catalogusautorisatie_set.filter(
+                ~Q(pk__in=instance_pks), component=component, scopes=scopes
+            ).delete()
+
+            # In case a CatalogusAutorisatie in created, we don't want to create Autorisaties
+            return
+        else:
+            applicatie.catalogusautorisatie_set.filter(
+                component=component, scopes=scopes
             ).delete()
 
         autorisatie_kwargs = {

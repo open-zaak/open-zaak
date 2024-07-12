@@ -11,3 +11,4 @@ class RelatedTypeSelectionMethods(models.TextChoices):
         _("Alle huidige en toekomstige {verbose_name_plural}"),
     )
     manual_select = "manual_select", _("Selecteer handmatig")
+    select_catalogus = "select_catalogus", _("Selecteer catalogus")

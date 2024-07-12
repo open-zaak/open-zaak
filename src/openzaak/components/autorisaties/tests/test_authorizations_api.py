@@ -456,17 +456,25 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         zaaktype3, zaaktype4 = ZaakTypeFactory.create_batch(2, catalogus=catalogus2)
 
         besluittype1, besluittype2 = BesluitTypeFactory.create_batch(
-            2, catalogus=catalogus1, zaaktypen=[zaaktype1],
+            2,
+            catalogus=catalogus1,
+            zaaktypen=[zaaktype1],
         )
         besluittype3, besluittype4 = BesluitTypeFactory.create_batch(
-            2, catalogus=catalogus2, zaaktypen=[zaaktype3],
+            2,
+            catalogus=catalogus2,
+            zaaktypen=[zaaktype3],
         )
 
         iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(
-            2, catalogus=catalogus1, zaaktypen=[zaaktype1],
+            2,
+            catalogus=catalogus1,
+            zaaktypen=[zaaktype1],
         )
         iotype3, iotype4 = InformatieObjectTypeFactory.create_batch(
-            2, catalogus=catalogus2, zaaktypen=[zaaktype4],
+            2,
+            catalogus=catalogus2,
+            zaaktypen=[zaaktype4],
         )
 
         CatalogusAutorisatieFactory.create(

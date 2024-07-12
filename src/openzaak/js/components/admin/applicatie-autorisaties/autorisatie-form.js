@@ -49,6 +49,7 @@ const TypeSelector = (props) => {
                 verboseNamePlural={verboseNamePlural}
                 typeOptionsField={typeOptionsField}
                 initialValue={values.related_type_selection}
+                selectedCatalogi={values.catalogi}
                 selectedValues={values[typeOptionsField]}
                 externalValues={values[`externe_typen`]}
                 errors={errors[typeOptionsField]}
