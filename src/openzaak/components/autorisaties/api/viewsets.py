@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
@@ -12,9 +12,15 @@ from rest_framework.generics import get_object_or_404
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
+from ..models import CatalogusAutorisatie
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
 from .permissions import AutorisatiesAuthRequired
@@ -114,7 +120,28 @@ class ApplicatieViewSet(
             Q(heeft_alle_autorisaties=True)
             & (Q(autorisaties__isnull=False) | Q(catalogusautorisatie__isnull=False))
         )
-        .prefetch_related("autorisaties")
+        .prefetch_related(
+            "autorisaties",
+            Prefetch(
+                "catalogusautorisatie_set",
+                queryset=CatalogusAutorisatie.objects.select_related("catalogus")
+                .order_by("component")
+                .prefetch_related(
+                    Prefetch(
+                        "catalogus__zaaktype_set",
+                        queryset=ZaakType.objects.order_by("-pk"),
+                    ),
+                    Prefetch(
+                        "catalogus__informatieobjecttype_set",
+                        queryset=InformatieObjectType.objects.order_by("-pk"),
+                    ),
+                    Prefetch(
+                        "catalogus__besluittype_set",
+                        queryset=BesluitType.objects.order_by("-pk"),
+                    ),
+                ),
+            ),
+        )
         .order_by("-pk")
     )
     serializer_class = ApplicatieSerializer

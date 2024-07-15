@@ -518,7 +518,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_BESLUITEN_AANMAKEN),
                     str(SCOPE_BESLUITEN_BIJWERKEN),
                 ],
-                "besluittype": f"http://testserver{reverse(besluittype3)}",
+                "besluittype": f"http://testserver{reverse(besluittype4)}",
             },
             {
                 "component": ComponentTypes.brc,
@@ -527,17 +527,7 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                     str(SCOPE_BESLUITEN_AANMAKEN),
                     str(SCOPE_BESLUITEN_BIJWERKEN),
                 ],
-                "besluittype": f"http://testserver{reverse(besluittype4)}",
-            },
-            {
-                "component": ComponentTypes.drc,
-                "component_weergave": "Documenten API",
-                "scopes": [
-                    str(SCOPE_DOCUMENTEN_AANMAKEN),
-                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
-                ],
-                "informatieobjecttype": f"http://testserver{reverse(iotype1)}",
-                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "besluittype": f"http://testserver{reverse(besluittype3)}",
             },
             {
                 "component": ComponentTypes.drc,
@@ -550,17 +540,27 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
             {
-                "component": ComponentTypes.zrc,
-                "component_weergave": "Zaken API",
-                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
-                "zaaktype": f"http://testserver{reverse(zaaktype1)}",
-                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
+                "component": ComponentTypes.drc,
+                "component_weergave": "Documenten API",
+                "scopes": [
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                ],
+                "informatieobjecttype": f"http://testserver{reverse(iotype1)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
             {
                 "component": ComponentTypes.zrc,
                 "component_weergave": "Zaken API",
                 "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
                 "zaaktype": f"http://testserver{reverse(zaaktype2)}",
+                "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "component_weergave": "Zaken API",
+                "scopes": [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_BIJWERKEN)],
+                "zaaktype": f"http://testserver{reverse(zaaktype1)}",
                 "max_vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.confidentieel,
             },
         ]
