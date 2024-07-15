@@ -122,7 +122,7 @@ class AutorisatieSpec(models.Model):
                     component=spec.component,
                     scopes=spec.scopes,
                     max_vertrouwelijkheidaanduiding=spec.max_vertrouwelijkheidaanduiding,
-                    **{field: url}
+                    **{field: url},
                 )
                 to_add.append(autorisatie)
 
@@ -188,3 +188,6 @@ class CatalogusAutorisatie(models.Model):
         verbose_name = _("catalogus autorisatie")
         verbose_name_plural = _("catalogus autorisaties")
         unique_together = ("applicatie", "catalogus", "component")
+
+    def __str__(self):
+        return f"CatalogusAutorisatie voor {self.get_component_display()} en {self.catalogus} ({self.applicatie})"
