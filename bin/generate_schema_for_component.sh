@@ -4,7 +4,7 @@
 
 set -e
 
-if [[ -z "$VIRTUAL_ENV" ]]; then
+if [[ -z "$VIRTUAL_ENV" ]] && [[ ! -v GITHUB_ACTIONS ]]; then
     echo "You need to activate your virtual env before running this script"
     exit 1
 fi
@@ -17,9 +17,11 @@ fi
 export SUBPATH=/$1/api
 export SCHEMA_PATH=src/openzaak/components/$1
 
+OUTPUT_FILE=$2
+
 echo "Generating OAS schema for $1..."
 src/manage.py spectacular_for_component \
-    --file $SCHEMA_PATH/openapi.yaml \
+    --file ${OUTPUT_FILE:-$SCHEMA_PATH/openapi.yaml} \
     --component $1
 
 echo "Done."

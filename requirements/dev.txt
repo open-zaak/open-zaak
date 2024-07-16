@@ -419,8 +419,6 @@ idna==3.3
     #   requests
 imagesize==1.1.0
     # via sphinx
-importlib-metadata==7.2.1
-    # via build
 inflection==0.5.1
     # via
     #   -r requirements/ci.txt
@@ -830,8 +828,6 @@ zgw-consumers==0.27.0
     #   -r requirements/ci.txt
     #   notifications-api-common
     #   open-api-framework
-zipp==3.19.2
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

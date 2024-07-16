@@ -8532,13 +8532,9 @@ components:
       type: object
       properties:
         oud:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object zoals dat bestond voordat
             de actie heeft plaatsgevonden.
         nieuw:
-          type: object
-          additionalProperties: {}
           description: Volledige JSON body van het object na de actie.
   securitySchemes:
     JWT-Claims:
