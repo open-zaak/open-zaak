@@ -20,7 +20,7 @@ from zds_client import ClientAuth
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
-from .models import AutorisatieSpec, CatalogusAutorisatie
+from .models import CatalogusAutorisatie
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
@@ -142,16 +142,6 @@ class ApplicatieAdmin(admin.ModelAdmin):
             )
 
         return ""
-
-
-@admin.register(AutorisatieSpec)
-class AutorisatieSpecAdmin(admin.ModelAdmin):
-    list_display = (
-        "applicatie",
-        "component",
-    )
-    list_filter = ("component", "applicatie")
-    search_fields = ("applicatie__uuid",)
 
 
 @admin.register(CatalogusAutorisatie)

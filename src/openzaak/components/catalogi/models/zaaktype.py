@@ -14,11 +14,9 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import Service
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.utils.fields import DurationField
 
 from ..constants import InternExtern
-from ..managers import SyncAutorisatieManager
 from ..query import GeldigheidQuerySet
 from .mixins import ConceptMixin, GeldigheidMixin
 from .validators import validate_uppercase
@@ -334,7 +332,7 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
-    objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
+    objects = GeldigheidQuerySet.as_manager()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
     omschrijving_field = "identificatie"
@@ -350,10 +348,6 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        # sync after creating new objects
-        if not self.pk:
-            transaction.on_commit(AutorisatieSpec.sync)
-
         if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
             client = Service.get_client(self.selectielijst_procestype)
             response = client.retrieve(

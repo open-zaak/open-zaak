@@ -189,7 +189,7 @@ class MigrateAutorisatieSpecsToCatalogusAutorisatiesTest(TestMigrations):
 
 @tag("gh-1661")
 class MigrateCatalogusAutorisatiesToAutorisatieSpecsTest(TestMigrations):
-    migrate_from = "0011_autorisatiespec_to_catalogusautorisatie"
+    migrate_from = "0012_delete_autorisatiespec"
     migrate_to = "0010_catalogusautorisatie"
     app = "autorisaties"
 

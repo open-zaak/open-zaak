@@ -67,8 +67,8 @@ def sync_autorisaties(
         heeft_alle_autorisaties=False,
         autorisaties__isnull=True,
         # edge case via #1081 and #1080 - if there's a "blueprint", you don't want the
-        # entire application to vanish
-        autorisatie_specs__isnull=True,
+        # entire application to vanish -- this has since been replaced by CatalogusAutorisaties
+        catalogusautorisatie__isnull=True,
         id__in=app_ids,
     )
     logger.info("Deleting applications: %s", apps_to_delete)

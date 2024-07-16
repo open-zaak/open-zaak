@@ -14,11 +14,11 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
     EigenschapFactory,
     ZaakTypeFactory,
 )
@@ -531,22 +531,20 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
             Zaak.objects.all().delete()
             ZaakType.objects.all().delete()
             self.applicatie.save()
-            AutorisatieSpec.objects.all().delete()
-            # set up the authorization spec to give blanket permissions
-            AutorisatieSpec.objects.create(
+            catalogus = CatalogusFactory.create()
+
+            CatalogusAutorisatieFactory.create(
                 applicatie=self.applicatie,
                 component=self.component,
                 scopes=self.scopes,
                 max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+                catalogus=catalogus,
             )
 
             with self.subTest(num_zaaktypen=num_zaaktypen):
-                ZaakTypeFactory.create_batch(num_zaaktypen, concept=False)
-                AutorisatieSpec.sync()
-                # check that the sync worked correctly
-                assert (
-                    self.applicatie.autorisaties.count() == num_zaaktypen
-                ), "AutorisatieSpec.sync is broken"
+                ZaakTypeFactory.create_batch(
+                    num_zaaktypen, concept=False, catalogus=catalogus
+                )
                 # create a zaak for response data
                 zaaktype = ZaakType.objects.last()
                 ZaakFactory.create(zaaktype=zaaktype)

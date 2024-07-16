@@ -346,14 +346,16 @@ class AutorisatieForm(forms.Form):
         if related_type_selection:
             _field_info = COMPONENT_TO_FIELDS_MAP[component]
 
-            # pick the entire queryset and
-            if related_type_selection in [
-                RelatedTypeSelectionMethods.all_current_and_future,
-                RelatedTypeSelectionMethods.all_current,
-            ]:
-                types = self.fields[_field_info["types_field"]].queryset
-
             # only pick a queryset of the explicitly selected objects
+            if related_type_selection == RelatedTypeSelectionMethods.select_catalogus:
+                catalogi = self.cleaned_data["catalogi"]
+                types = []
+                for catalogus in catalogi:
+                    types += list(
+                        getattr(
+                            catalogus, f"{_field_info['_autorisatie_type_field']}_set"
+                        ).all()
+                    )
             elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
                 types = self.cleaned_data.get(_field_info["types_field"])
 
@@ -370,7 +372,8 @@ class AutorisatieForm(forms.Form):
             return
 
         # forms beyond initial data that haven't changed -> nothing to do
-        if not self.has_changed() and not self.initial:
+        # if the form has not changed, `full_clean` will not add data to `cleaned_data`
+        if not self.cleaned_data:
             return
 
         # Fixed fields
@@ -385,21 +388,6 @@ class AutorisatieForm(forms.Form):
         types = self.get_types(component)
         # install a handler for future objects
         related_type_selection = self.cleaned_data.get("related_type_selection")
-        if related_type_selection == RelatedTypeSelectionMethods.all_current_and_future:
-            applicatie.autorisatie_specs.update_or_create(
-                component=component,
-                scopes=scopes,
-                defaults={
-                    "scopes": scopes,
-                    "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
-                },
-            )
-        else:
-            applicatie.autorisatie_specs.filter(
-                component=component,
-                scopes=scopes,
-            ).delete()
-
         if related_type_selection == RelatedTypeSelectionMethods.select_catalogus:
             instance_pks = []
             for catalogus in self.cleaned_data.get("catalogi", []):
