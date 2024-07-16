@@ -149,6 +149,8 @@ jobs:
 
       - name: Generate OAS files
         run: ./bin/generate_schema_for_component.sh ${{ matrix.component }} openapi-${{ matrix.component }}.yaml
+        env:
+          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
 
       - name: Store generated OAS files
         uses: actions/upload-artifact@v4
