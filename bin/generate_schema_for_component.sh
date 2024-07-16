@@ -4,7 +4,7 @@
 
 set -e
 
-if [[ -z "$VIRTUAL_ENV" ]] && [[ ! -v CI_JOB ]]; then
+if [[ -z "$VIRTUAL_ENV" ]] && [[ ! -v GITHUB_ACTIONS ]]; then
     echo "You need to activate your virtual env before running this script"
     exit 1
 fi
