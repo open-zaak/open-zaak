@@ -600,7 +600,6 @@ def _get_deletion_choices():
 @extend_schema_view(
     destroy=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_destroy",
-        auth=["JWT-Claims"],
         summary=_("Een IMPORT verwijderen."),
         description=mark_experimental(
             "Een IMPORT verwijderen. Het verwijderen van een IMPORT "
