@@ -3716,8 +3716,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -3844,8 +3842,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -4006,8 +4002,6 @@ paths:
             schema:
               type: string
               format: byte
-      security:
-      - JWT-Claims: []
       responses:
         '200':
           headers:
@@ -4144,8 +4138,6 @@ paths:
         required: true
       tags:
       - import
-      security:
-      - JWT-Claims: []
       responses:
         '201':
           headers:
@@ -7576,6 +7568,26 @@ components:
       required:
       - datum
       - soort
+    PaginatedEnkelvoudigInformatieObjectList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnkelvoudigInformatieObject'
     PaginatedExpandEnkelvoudigInformatieObjectList:
       type: object
       properties:
@@ -7616,6 +7628,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandVerzending'
+    PaginatedVerzendingList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Verzending'
     PatchedEnkelvoudigInformatieObjectWithLockRequest:
       type: object
       description: |-
