@@ -17,7 +17,7 @@ def remove_imports(days_back=7):
 
     imports = Import.objects.filter(
         finished_on__lte=now - timedelta(days=days_back),
-        status__in=ImportStatusChoices.deletion_choices
+        status__in=ImportStatusChoices.deletion_choices,
     )
 
     logger.info(f"Removing imports {','.join([str(i) for i in imports])}")

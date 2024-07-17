@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from datetime import timedelta
 import os
 
 from celery.schedules import crontab
@@ -227,7 +226,7 @@ SETUP_CONFIGURATION_STEPS = [
 CELERY_BEAT_SCHEDULE = {
     "daily-remove-imports": {
         "task": "openzaak.import_data.tasks.remove_imports",
-        "schedule": crontab(hour="9")
+        "schedule": crontab(hour="9"),
     }
 }
 
