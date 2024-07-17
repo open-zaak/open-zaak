@@ -50,5 +50,4 @@ custom_settings = {
     "VERSION": settings.BESLUITEN_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/besluiten/api/v1"}],
-    "TAGS": [{"name": "besluiten"}, {"name": "besluitinformatieobjecten"}],
 }

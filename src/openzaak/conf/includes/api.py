@@ -37,7 +37,6 @@ SPECTACULAR_SETTINGS = {
         "drf_spectacular.hooks.postprocess_schema_enums",
         "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
     ],
-    "PREPROCESSING_HOOKS": ["openzaak.utils.hooks.preprocess_exclude_endpoints"],
     "SCHEMA_PATH_PREFIX": "/v1",
     "SCHEMA_PATH_PREFIX_TRIM": True,
     "APPEND_COMPONENTS": {

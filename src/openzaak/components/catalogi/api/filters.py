@@ -42,7 +42,7 @@ class StatusChoices(models.TextChoices):
     concept = "concept", _("Concept")
 
 
-def status_filter(queryset, name, value: str):
+def status_filter(queryset, name, value):
     if value == StatusChoices.concept:
         return queryset.filter(**{name: True})
     elif value == StatusChoices.definitief:

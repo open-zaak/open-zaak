@@ -50,16 +50,4 @@ custom_settings = {
     "VERSION": settings.CATALOGI_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/catalogi/api/v1"}],
-    "TAGS": [
-        {"name": "besluittypen"},
-        {"name": "catalogussen"},
-        {"name": "eigenschappen"},
-        {"name": "informatieobjecttypen"},
-        {"name": "resultaattypen"},
-        {"name": "roltypen"},
-        {"name": "statustypen"},
-        {"name": "zaakobjecttypen"},
-        {"name": "zaaktype-informatieobjecttypen"},
-        {"name": "zaaktypen"},
-    ],
 }

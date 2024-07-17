@@ -12,13 +12,10 @@ class FKOrURLFieldFieldExtension(OpenApiSerializerFieldExtension):
             self.target, direction, bypass_extensions=True
         )
 
-        extra_properties = {
+        return {
+            **default_schema,
             "type": "string",
             "format": "uri",
+            "minLength": self.target.min_length,
+            "maxLength": self.target.max_length,
         }
-        if self.target.min_length is not None:
-            extra_properties["minLength"] = self.target.min_length
-        if self.target.max_length is not None:
-            extra_properties["maxLength"] = self.target.max_length
-
-        return {**default_schema, **extra_properties}

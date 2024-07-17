@@ -2218,8 +2218,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          minLength: 1
-          maxLength: 1000
+          min_length: 1
+          max_length: 1000
         identificatie:
           type: string
           description: Identificatie van het besluit binnen de organisatie die het
@@ -2242,6 +2242,7 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
+          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2309,8 +2310,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          minLength: 1
-          maxLength: 1000
+          min_length: 1
+          max_length: 1000
         informatieobject:
           type: string
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
@@ -2375,6 +2376,7 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
+          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2544,6 +2546,7 @@ components:
           description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
             uitkomst is.
           format: uri
+          minLength: null
           maxLength: 200
         datum:
           type: string
@@ -2649,6 +2652,3 @@ components:
       bearerFormat: JWT
 servers:
 - url: /besluiten/api/v1
-tags:
-- name: besluiten
-- name: besluitinformatieobjecten

@@ -44,15 +44,4 @@ custom_settings = {
     "VERSION": settings.ZAKEN_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/zaken/api/v1"}],
-    "TAGS": [
-        {"name": "zaken"},
-        {"name": "resultaten"},
-        {"name": "rollen"},
-        {"name": "statussen"},
-        {"name": "zaakcontactmomenten"},
-        {"name": "zaakinformatieobjecten"},
-        {"name": "zaakobjecten"},
-        {"name": "zaakverzoeken"},
-        {"name": "klantcontacten"},
-    ],
 }

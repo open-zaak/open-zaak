@@ -44,5 +44,4 @@ custom_settings = {
     "VERSION": settings.AUTORISATIES_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/autorisaties/api/v1"}],
-    "TAGS": [{"name": "applicaties"}],
 }
