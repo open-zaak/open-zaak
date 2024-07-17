@@ -130,7 +130,9 @@ See the `API documentation`_ for more details.
 **Deleting an Import**
 
 When an ``Import`` instance has the status ``finished``, ``error`` or ``pending``
-and was finished 7 days ago or earlier, it can be deleted.
+and was finished 7 days ago or earlier, it can be deleted. Deletion of ``Import``
+instances that are older than 7 days and have one of the above mentioned statusses
+is done in the background through a daily ocurring task.
 
 See the `API documentation`_ for more details.
 
