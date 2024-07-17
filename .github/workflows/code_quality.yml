@@ -120,8 +120,8 @@ jobs:
           DB_NAME: postgres
           DB_PASSWORD: ''
 
-  generate-oas-files:
-    name: Generate and upload OAS files for all components
+  oas-up-to-date:
+    name: Check for unexepected OAS changes
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -152,26 +152,6 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
 
-      - name: Store generated OAS files
-        uses: actions/upload-artifact@v4
-        with:
-          name: openzaak-${{ matrix.component }}-oas
-          path: openapi-${{ matrix.component }}.yaml
-          retention-days: 1
-
-  oas-up-to-date:
-    name: Check for unexepected OAS changes
-    needs: generate-oas-files
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download generated OAS
-        uses: actions/download-artifact@v4
-        with:
-          name: openzaak-${{ matrix.component }}-oas
       - name: Check for OAS changes
         run: |
           diff openapi-${{ matrix.component }}.yaml src/openzaak/components/${{ matrix.component }}/openapi.yaml
