@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+from datetime import timedelta
 import os
 
+from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config
@@ -220,6 +222,14 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
     "openzaak.config.bootstrap.demo.DemoUserStep",
 ]
+
+# Note that by default UTC times are used here (see `nowfun` kwarg)
+CELERY_BEAT_SCHEDULE = {
+    "daily-remove-imports": {
+        "task": "openzaak.import_data.tasks.remove_imports",
+        "schedule": crontab(hour="9")
+    }
+}
 
 #
 # OpenZaak configuration
