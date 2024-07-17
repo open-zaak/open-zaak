@@ -447,7 +447,6 @@ class EnkelvoudigInformatieObjectViewSet(
 @extend_schema_view(
     create=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_create",
-        auth=["JWT-Claims"],
         summary=_("Een IMPORT creeren"),
         description=mark_experimental(
             "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
@@ -477,7 +476,6 @@ def _get_import_headers():
 @extend_schema_view(
     create=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_upload",
-        auth=["JWT-Claims"],
         summary=_("Een IMPORT bestand uploaden"),
         description=mark_experimental(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
@@ -499,7 +497,7 @@ def _get_import_headers():
             )
         ],
         responses={
-            status.HTTP_200_OK: OpenApiTypes.NONE,
+            status.HTTP_200_OK: OpenApiResponse(description=_("No response body")),
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
         },
@@ -536,7 +534,6 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
 @extend_schema_view(
     retrieve=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_status",
-        auth=["JWT-Claims"],
         summary=_("De status van een IMPORT opvragen."),
         description=mark_experimental(
             "Het opvragen van de status van een IMPORT. Deze actie is niet "
@@ -564,7 +561,6 @@ def _get_report_headers():
 @extend_schema_view(
     retrieve=extend_schema(
         operation_id="enkelvoudiginformatieobject_import_report",
-        auth=["JWT-Claims"],
         summary=_("Het reportage bestand van een IMPORT downloaden."),
         description=mark_experimental(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "

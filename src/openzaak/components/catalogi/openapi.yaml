@@ -160,7 +160,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -1275,153 +1275,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
-  /callbacks:
-    post:
-      operationId: callbacks_create
-      description: Abstract view to receive webhooks
-      parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      tags:
-      - callbacks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NotificatieRequest'
-        required: true
-      responses:
-        '201':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-            Location:
-              schema:
-                type: string
-                format: uri
-              description: URL waar de resource leeft.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Notificatie'
-          description: Created
-        '400':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ValidatieFout'
-          description: Bad request
-        '401':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unauthorized
-        '403':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Forbidden
-        '406':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Not acceptable
-        '409':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Conflict
-        '410':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Gone
-        '415':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unsupported media type
-        '429':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Too many requests
-        '500':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Internal server error
   /catalogussen:
     get:
       operationId: catalogus_list
@@ -1970,7 +1823,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -2976,7 +2829,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -4108,7 +3961,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -5119,7 +4972,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -6109,7 +5962,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -9129,7 +8982,7 @@ paths:
       - in: query
         name: status
         schema:
-          type: boolean
+          type: string
           enum:
           - alles
           - concept
@@ -10295,8 +10148,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -10763,8 +10616,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         domein:
           type: string
           description: Een afkorting waarmee wordt aangegeven voor welk domein in
@@ -10949,8 +10802,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         naam:
           type: string
           description: De naam van de EIGENSCHAP
@@ -11209,8 +11062,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         catalogus:
           type: string
           format: uri
@@ -11361,105 +11214,6 @@ components:
       - informatieobjectcategorie
       - omschrijving
       - vertrouwelijkheidaanduiding
-    Notificatie:
-      type: object
-      properties:
-        kanaal:
-          type: string
-          description: De naam van het kanaal (`KANAAL.naam`) waar het bericht op
-            moet worden gepubliceerd.
-          maxLength: 50
-        hoofdObject:
-          type: string
-          format: uri
-          title: hoofdobject
-          description: URL-referentie naar het hoofd object van de publicerende API
-            die betrekking heeft op de `resource`.
-        resource:
-          type: string
-          description: De resourcenaam waar de notificatie over gaat.
-          maxLength: 100
-        resourceUrl:
-          type: string
-          format: uri
-          description: URL-referentie naar de `resource` van de publicerende API.
-        actie:
-          type: string
-          description: De actie die door de publicerende API is gedaan. De publicerende
-            API specificeert de toegestane acties.
-          maxLength: 100
-        aanmaakdatum:
-          type: string
-          format: date-time
-          description: Datum en tijd waarop de actie heeft plaatsgevonden.
-        kenmerken:
-          type: object
-          additionalProperties:
-            type: string
-            title: kenmerk
-            description: Een waarde behorende bij de sleutel.
-            maxLength: 1000
-          description: Mapping van kenmerken (sleutel/waarde) van de notificatie.
-            De publicerende API specificeert de toegestane kenmerken.
-      required:
-      - aanmaakdatum
-      - actie
-      - hoofdObject
-      - kanaal
-      - resource
-      - resourceUrl
-    NotificatieRequest:
-      type: object
-      properties:
-        kanaal:
-          type: string
-          minLength: 1
-          description: De naam van het kanaal (`KANAAL.naam`) waar het bericht op
-            moet worden gepubliceerd.
-          maxLength: 50
-        hoofdObject:
-          type: string
-          format: uri
-          minLength: 1
-          title: hoofdobject
-          description: URL-referentie naar het hoofd object van de publicerende API
-            die betrekking heeft op de `resource`.
-        resource:
-          type: string
-          minLength: 1
-          description: De resourcenaam waar de notificatie over gaat.
-          maxLength: 100
-        resourceUrl:
-          type: string
-          format: uri
-          minLength: 1
-          description: URL-referentie naar de `resource` van de publicerende API.
-        actie:
-          type: string
-          minLength: 1
-          description: De actie die door de publicerende API is gedaan. De publicerende
-            API specificeert de toegestane acties.
-          maxLength: 100
-        aanmaakdatum:
-          type: string
-          format: date-time
-          description: Datum en tijd waarop de actie heeft plaatsgevonden.
-        kenmerken:
-          type: object
-          additionalProperties:
-            type: string
-            title: kenmerk
-            description: Een waarde behorende bij de sleutel.
-            maxLength: 1000
-          description: Mapping van kenmerken (sleutel/waarde) van de notificatie.
-            De publicerende API specificeert de toegestane kenmerken.
-      required:
-      - aanmaakdatum
-      - actie
-      - hoofdObject
-      - kanaal
-      - resource
-      - resourceUrl
     ObjecttypeEnum:
       enum:
       - adres
@@ -12480,8 +12234,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri
@@ -12754,8 +12508,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri
@@ -12869,8 +12623,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         omschrijving:
           type: string
           description: Een korte, voor de initiator van de zaak relevante, omschrijving
@@ -13095,8 +12849,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         anderObjecttype:
           type: boolean
           description: Aanduiding waarmee wordt aangegeven of het ZAAKOBJECTTYPE een
@@ -13222,8 +12976,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         identificatie:
           type: string
           description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
@@ -13515,8 +13269,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         zaaktype:
           type: string
           format: uri
@@ -13903,3 +13657,14 @@ components:
       bearerFormat: JWT
 servers:
 - url: /catalogi/api/v1
+tags:
+- name: besluittypen
+- name: catalogussen
+- name: eigenschappen
+- name: informatieobjecttypen
+- name: resultaattypen
+- name: roltypen
+- name: statustypen
+- name: zaakobjecttypen
+- name: zaaktype-informatieobjecttypen
+- name: zaaktypen

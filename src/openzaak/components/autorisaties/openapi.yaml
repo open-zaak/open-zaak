@@ -1154,8 +1154,8 @@ components:
           readOnly: true
           description: URL-referentie naar dit object. Dit is de unieke identificatie
             en locatie van dit object.
-          min_length: 1
-          max_length: 1000
+          minLength: 1
+          maxLength: 1000
         clientIds:
           type: array
           items:
@@ -1226,21 +1226,21 @@ components:
           ac: '#/components/schemas/ac_AutorisatieBaseSerializer'
     AutorisatieBaseRequest:
       oneOf:
-      - $ref: '#/components/schemas/zrc_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/drc_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/brc_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/nrc_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/ztc_AutorisatieBaseSerializer'
-      - $ref: '#/components/schemas/ac_AutorisatieBaseSerializer'
+      - $ref: '#/components/schemas/zrc_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/drc_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/brc_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/nrc_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/ztc_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/ac_AutorisatieBaseSerializerRequest'
       discriminator:
         propertyName: component
         mapping:
-          zrc: '#/components/schemas/zrc_AutorisatieBaseSerializer'
-          drc: '#/components/schemas/drc_AutorisatieBaseSerializer'
-          brc: '#/components/schemas/brc_AutorisatieBaseSerializer'
-          nrc: '#/components/schemas/nrc_AutorisatieBaseSerializer'
-          ztc: '#/components/schemas/ztc_AutorisatieBaseSerializer'
-          ac: '#/components/schemas/ac_AutorisatieBaseSerializer'
+          zrc: '#/components/schemas/zrc_AutorisatieBaseSerializerRequest'
+          drc: '#/components/schemas/drc_AutorisatieBaseSerializerRequest'
+          brc: '#/components/schemas/brc_AutorisatieBaseSerializerRequest'
+          nrc: '#/components/schemas/nrc_AutorisatieBaseSerializerRequest'
+          ztc: '#/components/schemas/ztc_AutorisatieBaseSerializerRequest'
+          ac: '#/components/schemas/ac_AutorisatieBaseSerializerRequest'
     Base_AutorisatieBaseSerializer:
       type: object
       properties:
@@ -1269,6 +1269,37 @@ components:
           type: array
           items:
             type: string
+            maxLength: 100
+          description: Lijst van scope labels. Elke scope geeft toegang tot een set
+            van acties/operaties, zoals gedocumenteerd bij de betreffende component.
+      required:
+      - component
+      - scopes
+    Base_AutorisatieBaseSerializerRequest:
+      type: object
+      properties:
+        component:
+          allOf:
+          - $ref: '#/components/schemas/ComponentEnum'
+          description: |-
+            Component waarop autorisatie van toepassing is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `ac` - Autorisaties API
+            * `nrc` - Notificaties API
+            * `zrc` - Zaken API
+            * `ztc` - Catalogi API
+            * `drc` - Documenten API
+            * `brc` - Besluiten API
+            * `cmc` - Contactmomenten API
+            * `kc` - Klanten API
+            * `vrc` - Verzoeken API
+        scopes:
+          type: array
+          items:
+            type: string
+            minLength: 1
             maxLength: 100
           description: Lijst van scope labels. Elke scope geeft toegang tot een set
             van acties/operaties, zoals gedocumenteerd bij de betreffende component.
@@ -1429,6 +1460,9 @@ components:
     ac_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+    ac_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
     brcAutorisatie:
       type: object
       properties:
@@ -1451,6 +1485,10 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
       - $ref: '#/components/schemas/brcAutorisatie'
+    brc_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/brcAutorisatieRequest'
     drcAutorisatie:
       type: object
       properties:
@@ -1483,9 +1521,16 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
       - $ref: '#/components/schemas/drcAutorisatie'
+    drc_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/drcAutorisatieRequest'
     nrc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+    nrc_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
     zrcAutorisatie:
       type: object
       properties:
@@ -1518,9 +1563,16 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
       - $ref: '#/components/schemas/zrcAutorisatie'
+    zrc_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
+      - $ref: '#/components/schemas/zrcAutorisatieRequest'
     ztc_AutorisatieBaseSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_AutorisatieBaseSerializer'
+    ztc_AutorisatieBaseSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_AutorisatieBaseSerializerRequest'
   securitySchemes:
     JWT-Claims:
       type: http
@@ -1528,3 +1580,5 @@ components:
       bearerFormat: JWT
 servers:
 - url: /autorisaties/api/v1
+tags:
+- name: applicaties

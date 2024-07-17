@@ -2,6 +2,7 @@
 # Copyright (C) 2023 Dimpact
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.plumbing import ResolvedComponent
+from drf_spectacular.settings import spectacular_settings
 from vng_api_common.utils import underscore_to_camel
 
 
@@ -22,6 +23,8 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
             self.target, direction, bypass_extensions=True
         )
         base_name = f"Base_{self.target.__class__.__name__}"
+        if direction == "request" and spectacular_settings.COMPONENT_SPLIT_REQUEST:
+            base_name = base_name + "Request"
         base_component = ResolvedComponent(
             name=base_name,
             type=ResolvedComponent.SCHEMA,
@@ -42,6 +45,8 @@ class PolymorphicSerializerExtension(OpenApiSerializerExtension):
                 schema = {"allOf": [base_component.ref, sub_component.ref]}
 
             component_name = f"{resource_type.value}_{self.target.__class__.__name__}"
+            if direction == "request" and spectacular_settings.COMPONENT_SPLIT_REQUEST:
+                component_name = component_name + "Request"
             component = ResolvedComponent(
                 name=component_name,
                 type=ResolvedComponent.SCHEMA,
