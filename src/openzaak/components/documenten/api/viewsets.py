@@ -593,7 +593,9 @@ class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
 
 def _get_deletion_choices():
     return ", ".join(
-        sorted([f"**{choice.value}**" for choice in ImportStatusChoices.deletion_choices])
+        sorted(
+            [f"**{choice.value}**" for choice in ImportStatusChoices.deletion_choices]
+        )
     )
 
 
