@@ -661,7 +661,7 @@ class ZaakAdmin(
         "zaaktype_url",
         "_zaaktype__identificatie",
         "rol__natuurlijkpersoon__inp_bsn",
-        "rol__nietnatuurlijkpersoon__inn_nnp_id"
+        "rol__nietnatuurlijkpersoon__inn_nnp_id",
     )
     readonly_fields = ("created_on",)
     form = ZaakForm

@@ -1,18 +1,26 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from urllib.parse import urlencode
+
 from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.constants import RolOmschrijving, RolTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (
+    RolOmschrijving,
+    RolTypes,
+    VertrouwelijkheidsAanduiding,
+)
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.zaken.models.betrokkenen import NatuurlijkPersoon, NietNatuurlijkPersoon
+from openzaak.components.zaken.models.betrokkenen import (
+    NatuurlijkPersoon,
+    NietNatuurlijkPersoon,
+)
 
 from ...models import ZaakBesluit
 from ..factories import RolFactory, ZaakFactory, ZaakInformatieObjectFactory
@@ -155,9 +163,7 @@ class ZaakAdminTests(WebTest):
             omschrijving_generiek=RolOmschrijving.initiator,
         )
 
-        NietNatuurlijkPersoon.objects.create(
-            rol=rol, inn_nnp_id="129117729"
-        )
+        NietNatuurlijkPersoon.objects.create(rol=rol, inn_nnp_id="129117729")
 
         zaak_list_url = reverse("admin:zaken_zaak_changelist")
 
