@@ -9,9 +9,9 @@ import dictdiffer
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.constants import ComponentTypes
 
+from openzaak.components.autorisaties.api.serializers import ApplicatieSerializer
 from openzaak.components.catalogi.models import (
     BesluitType,
     InformatieObjectType,

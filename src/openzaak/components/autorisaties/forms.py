@@ -243,6 +243,17 @@ class AutorisatieForm(forms.Form):
         error_messages={"item_invalid": ""},
     )
 
+    def has_changed(self) -> bool:
+        # We don't consider an empty form that was left empty changed
+        if not self.initial:
+            return super().has_changed()
+
+        # The mechanism to determine if notifications have to be sent relies on the forms
+        # always having access to `self.cleaned_data` in `.save()`. Previously the form seemed
+        # to always be considered `changed`, but since the AutorisatieSpec options have been
+        # removed, this was not the case, so we set `has_changed` to always be True here
+        return True
+
     def clean(self):
         super().clean()
 

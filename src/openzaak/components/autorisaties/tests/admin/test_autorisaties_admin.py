@@ -198,9 +198,10 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    def test_no_changes_no_notifications(self, m):
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_no_changes_no_notifications(self, mock_send_notif):
         zt = ZaakTypeFactory.create()
+        zt2 = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
@@ -208,9 +209,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt2.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
         data = {
             # management form
-            "form-TOTAL_FORMS": 1,
+            "form-TOTAL_FORMS": 2,
             "form-INITIAL_FORMS": 0,
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
@@ -219,19 +227,25 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-zaaktypen": [zt.id],
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": ["zaken.aanmaken"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [zt2.catalogus.id],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
         }
 
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(m.called)
+        self.assertFalse(mock_send_notif.called)
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
-    def test_changes_send_notifications(self, mock_notif):
+    def test_changes_to_regular_autorisatie_send_notifications(self, mock_notif):
         zt = ZaakTypeFactory.create()
+        zt2 = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
@@ -239,9 +253,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt2.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
         data = {
             # management form
-            "form-TOTAL_FORMS": 1,
+            "form-TOTAL_FORMS": 2,
             "form-INITIAL_FORMS": 0,
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
@@ -250,6 +271,53 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-zaaktypen": [zt.id],
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": ["zaken.aanmaken"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [zt2.catalogus.id],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,  # modified
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"http://testserver{self.applicatie_url}",
+                "resource": "applicatie",
+                "resourceUrl": f"http://testserver{self.applicatie_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
+
+    @tag("notifications")
+    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_changes_to_catalogus_autorisatie_send_notifications(self, mock_notif):
+        zt = ZaakTypeFactory.create()
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.aanmaken"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [zt.catalogus.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,  # modified
         }
 
         with self.captureOnCommitCallbacks(execute=True):
