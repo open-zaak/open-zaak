@@ -3696,7 +3696,7 @@ paths:
       operationId: enkelvoudiginformatieobject_import_destroy
       description: '**EXPERIMENTEEL** Een IMPORT verwijderen. Het verwijderen van
         een IMPORT is alleen mogelijk wanneer deze een van de volgende statussen heeft:
-        **pending**, **finished**, **error**. Deze actie is niet beschikbaar wanneer
+        **pending**, **error**, **finished**. Deze actie is niet beschikbaar wanneer
         de `CMIS_ENABLED` optie is ingeschakeld. Voor deze actie is een APPLICATIE
         nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT verwijderen.
