@@ -41,6 +41,7 @@ from openzaak.components.documenten.api.scopes import (
 )
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -890,7 +891,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             zaaktype=f"http://testserver/{_reverse(zaaktype)}",
-            scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],  # different scopes
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],  # different scopes
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
 
@@ -900,7 +901,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         expected_initial = [
             {
                 "component": ComponentTypes.zrc,
-                "scopes": [str(SCOPE_ZAKEN_ALLES_LEZEN)],
+                "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "zaaktypen": {zaaktype.pk},
@@ -957,22 +958,66 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
     @tag("gh-1661")
+    def test_load_initial_data_for_besluiten_api(self):
+        """
+        Test that it is possible to load existing CatalogusAutorisaties (along with
+        regular Autorisaties) for Besluiten API
+        """
+        scopes = [str(SCOPE_BESLUITEN_AANMAKEN), str(SCOPE_BESLUITEN_ALLES_LEZEN)]
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+        )
+        besluittype = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            besluittype=f"http://testserver/{_reverse(besluittype)}",
+            scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],  # different scopes
+        )
+
+        response = self.client.get(self.url)
+
+        # Regular Autorisatie with different scopes should be displayed separately
+        expected_initial = [
+            {
+                "component": ComponentTypes.brc,
+                "scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "besluittypen": {besluittype.pk},
+                "externe_typen": {},
+            },
+            {
+                "component": ComponentTypes.brc,
+                "scopes": scopes,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+                "externe_typen": {},
+            },
+        ]
+
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
     def test_delete_catalogus_autorisaties(self):
         """
         Test that it is possible to delete existing CatalogusAutorisaties
         """
-        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        scopes = [str(SCOPE_DOCUMENTEN_AANMAKEN), str(SCOPE_DOCUMENTEN_ALLES_LEZEN)]
         zaaktype = ZaakTypeFactory.create(concept=False)
         CatalogusAutorisatieFactory.create(
             applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
+            component=ComponentTypes.drc,
             catalogus=self.catalogus,
             scopes=scopes,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
         CatalogusAutorisatieFactory.create(
             applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
+            component=ComponentTypes.drc,
             catalogus=zaaktype.catalogus,
             scopes=scopes,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
@@ -982,7 +1027,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         expected_initial = [
             {
-                "component": ComponentTypes.zrc,
+                "component": ComponentTypes.drc,
                 "scopes": scopes,
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
                 "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
@@ -997,7 +1042,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-INITIAL_FORMS": 0,
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
+            "form-0-component": ComponentTypes.drc,
             "form-0-scopes": scopes,
             "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
             "form-0-catalogi": [self.catalogus.pk],

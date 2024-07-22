@@ -498,6 +498,14 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
+        # invalid component for CatalogusAutorisatie, should not be shown
+        CatalogusAutorisatieFactory.create(
+            applicatie=app,
+            catalogus=catalogus1,
+            component=ComponentTypes.ac,
+            scopes=[SCOPE_AUTORISATIES_BIJWERKEN],
+        )
+
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
