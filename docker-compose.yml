@@ -55,6 +55,7 @@ services:
       - DEMO_CONFIG_ENABLE=yes
       - DEMO_CLIENT_ID=demo-client-id
       - DEMO_SECRET=demo-secret
+      - DISABLE_2FA=${DISABLE_2FA:-0}
     ports:
       - 8000:8000
     volumes: &app-volumes
