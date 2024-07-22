@@ -1,16 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
+from functools import partial
 
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.mixins import APIMixin
 
+from ..managers import SyncAutorisatieManager
 from ..query import GeldigheidQuerySet
 from .mixins import ConceptMixin, GeldigheidMixin
 
@@ -112,7 +115,7 @@ class InformatieObjectType(
         ),
     )
 
-    objects = GeldigheidQuerySet.as_manager()
+    objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     class Meta:
         verbose_name = _("Informatieobjecttype")
@@ -123,3 +126,9 @@ class InformatieObjectType(
         if self.concept:
             representation = "{} (CONCEPT)".format(representation)
         return representation
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
+        super().save(*args, **kwargs)

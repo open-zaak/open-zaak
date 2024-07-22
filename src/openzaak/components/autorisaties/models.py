@@ -56,3 +56,27 @@ class CatalogusAutorisatie(models.Model):
 
     def __str__(self):
         return f"CatalogusAutorisatie voor {self.get_component_display()} en {self.catalogus} ({self.applicatie})"
+
+    @classmethod
+    def sync(cls, typen):
+        """
+        Synchronize the virtual Autorisaties for all Applicaties.
+        Invoke this method whenever a ZaakType/InformatieObjectType/BesluitType
+        is created to send the notifications to indicate that the Applicaties were updated.
+        This is best called as part of `transaction.on_commit`.
+        """
+        from .utils import send_applicatie_changed_notification
+
+        catalogi = [type.catalogus for type in typen]
+        affected_catalogus_autorisaties = cls.objects.select_related(
+            "applicatie"
+        ).filter(catalogus__in=catalogi)
+
+        # determine for which applicaties notificaties must be sent
+        changed = {
+            catalogus_autorisatie.applicatie
+            for catalogus_autorisatie in affected_catalogus_autorisaties
+        }
+
+        for applicatie in changed:
+            send_applicatie_changed_notification(applicatie)
