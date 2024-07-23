@@ -34,6 +34,7 @@ cbor2==5.6.3
     # via webauthn
 celery==5.2.7
     # via
+    #   django-celery-beat
     #   flower
     #   notifications-api-common
     #   open-api-framework
@@ -72,6 +73,8 @@ coreapi==2.3.3
     #   django-loose-fk
 coreschema==0.0.4
     # via coreapi
+cron-descriptor==1.4.3
+    # via django-celery-beat
 cryptography==41.0.5
     # via
     #   django-simple-certmanager
@@ -89,6 +92,7 @@ django==4.2.11
     #   django-admin-index
     #   django-appconf
     #   django-axes
+    #   django-celery-beat
     #   django-cors-headers
     #   django-db-logger
     #   django-extra-views
@@ -109,6 +113,7 @@ django==4.2.11
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-timezone-field
     #   django-two-factor-auth
     #   djangorestframework
     #   djangorestframework-inclusions
@@ -130,6 +135,8 @@ django-appconf==1.0.6
 django-axes==6.4.0
     # via open-api-framework
 django-better-admin-arrayfield==1.4.2
+    # via -r requirements/base.in
+django-celery-beat==2.6.0
     # via -r requirements/base.in
 django-cors-headers==4.3.1
     # via open-api-framework
@@ -188,6 +195,8 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-timezone-field==7.0
+    # via django-celery-beat
 django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
     # via maykin-2fa
 djangorestframework==3.14.0
@@ -329,11 +338,14 @@ pypng==0.20220715.0
     # via qrcode
 pyrsistent==0.18.1
     # via jsonschema
+python-crontab==3.2.0
+    # via django-celery-beat
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
     #   django-relativedelta
     #   faker
+    #   python-crontab
 python-decouple==3.8
     # via
     #   drc-cmis
@@ -395,6 +407,8 @@ typing-extensions==4.11.0
     # via
     #   pydantic
     #   qrcode
+tzdata==2024.1
+    # via django-celery-beat
 uritemplate==4.1.1
     # via
     #   coreapi

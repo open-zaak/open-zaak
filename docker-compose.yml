@@ -85,6 +85,15 @@ services:
       - db
       - redis
 
+  celery-beat:
+    build: .
+    image: openzaak/open-zaak:latest
+    environment: *app-env
+    command: /celery_beat.sh
+    depends_on:
+      - db
+      - redis
+
   celery-flower:
     build: .
     image: openzaak/open-zaak:latest

@@ -58,6 +58,7 @@ INSTALLED_APPS = (
         "django_better_admin_arrayfield",  # TODO can this be removed?
         "django_loose_fk",
         "drc_cmis",
+        "django_celery_beat",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",
@@ -222,6 +223,7 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.demo.DemoUserStep",
 ]
 
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # Note that by default UTC times are used here (see `nowfun` kwarg)
 CELERY_BEAT_SCHEDULE = {
     "daily-remove-imports": {

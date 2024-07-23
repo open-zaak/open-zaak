@@ -56,6 +56,7 @@ cbor2==5.6.3
 celery==5.2.7
     # via
     #   -r requirements/base.txt
+    #   django-celery-beat
     #   flower
     #   notifications-api-common
     #   open-api-framework
@@ -116,6 +117,10 @@ coreschema==0.0.4
     #   coreapi
 coverage==6.3.2
     # via -r requirements/test-tools.in
+cron-descriptor==1.4.3
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
 cryptography==41.0.5
     # via
     #   -r requirements/base.txt
@@ -137,6 +142,7 @@ django==4.2.11
     #   django-admin-index
     #   django-appconf
     #   django-axes
+    #   django-celery-beat
     #   django-cors-headers
     #   django-db-logger
     #   django-extra-views
@@ -157,6 +163,7 @@ django==4.2.11
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-timezone-field
     #   django-two-factor-auth
     #   djangorestframework
     #   djangorestframework-inclusions
@@ -184,6 +191,8 @@ django-axes==6.4.0
     #   -r requirements/base.txt
     #   open-api-framework
 django-better-admin-arrayfield==1.4.2
+    # via -r requirements/base.txt
+django-celery-beat==2.6.0
     # via -r requirements/base.txt
 django-cors-headers==4.3.1
     # via
@@ -269,6 +278,10 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-timezone-field==7.0
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
 django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
     # via
     #   -r requirements/base.txt
@@ -513,12 +526,17 @@ pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
     #   jsonschema
+python-crontab==3.2.0
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.txt
     #   django-relativedelta
     #   faker
     #   freezegun
+    #   python-crontab
 python-decouple==3.8
     # via
     #   -r requirements/base.txt
@@ -605,6 +623,10 @@ typing-extensions==4.11.0
     #   -r requirements/base.txt
     #   pydantic
     #   qrcode
+tzdata==2024.1
+    # via
+    #   -r requirements/base.txt
+    #   django-celery-beat
 uritemplate==4.1.1
     # via
     #   -r requirements/base.txt
