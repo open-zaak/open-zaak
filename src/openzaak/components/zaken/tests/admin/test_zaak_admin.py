@@ -1,19 +1,29 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from urllib.parse import urlencode
+
 from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (
+    RolOmschrijving,
+    RolTypes,
+    VertrouwelijkheidsAanduiding,
+)
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.zaken.models.betrokkenen import (
+    NatuurlijkPersoon,
+    NietNatuurlijkPersoon,
+)
 
 from ...models import ZaakBesluit
-from ..factories import ZaakFactory, ZaakInformatieObjectFactory
+from ..factories import RolFactory, ZaakFactory, ZaakInformatieObjectFactory
 
 
 @disable_admin_mfa()
@@ -126,3 +136,41 @@ class ZaakAdminTests(WebTest):
         submit_response = form.submit()
 
         self.assertEqual(submit_response.status_code, 302)
+
+    def test_filter_on_betrokkene_bsn(self):
+        rol = RolFactory.create(
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            omschrijving_generiek=RolOmschrijving.initiator,
+        )
+
+        NatuurlijkPersoon.objects.create(
+            rol=rol, inp_bsn="129117729"
+        )  # http://www.wilmans.com/sofinummer/
+
+        zaak_list_url = reverse("admin:zaken_zaak_changelist")
+
+        query_params = urlencode({"q": 129117729})
+
+        response = self.app.get(f"{zaak_list_url}?{query_params}")
+        result_list = response.html.find(id="result_list")
+        identificatie_element = result_list.find(class_="field-identificatie")
+
+        self.assertEqual(identificatie_element.text, rol.zaak.identificatie)
+
+    def test_filter_on_betrokkene_rsin(self):
+        rol = RolFactory.create(
+            betrokkene_type=RolTypes.niet_natuurlijk_persoon,
+            omschrijving_generiek=RolOmschrijving.initiator,
+        )
+
+        NietNatuurlijkPersoon.objects.create(rol=rol, inn_nnp_id="129117729")
+
+        zaak_list_url = reverse("admin:zaken_zaak_changelist")
+
+        query_params = urlencode({"q": 129117729})
+
+        response = self.app.get(f"{zaak_list_url}?{query_params}")
+        result_list = response.html.find(id="result_list")
+        identificatie_element = result_list.find(class_="field-identificatie")
+
+        self.assertEqual(identificatie_element.text, rol.zaak.identificatie)
