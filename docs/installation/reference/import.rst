@@ -145,6 +145,11 @@ data of the ``Import`` instance (e.g statistics) will be out-of-sync. However, l
 is done and the report file will have comments for all rows in that
 specified batch.
 
+It is **important** to note that **no notifications** will be sent during or
+after the import process. Importing documents through these endpoints can lead
+to a high number of ```EnkelvoudigInformatieObject```'s to be created which in
+turn could lead to a very high number of notifications to be sent.
+
 Examples
 ---------
 
