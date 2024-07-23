@@ -15,20 +15,16 @@ to help aid the user to import larger amounts of ``EnkelvoudigInformatieObject``
 Configuration
 --------------
 
-Environment variables related to the import functionaly are:
-- :ref:`IMPORT_DOCUMENTEN_BASE_DIR <import_documenten_base_dir>`
-- :ref:`IMPORT_DOCUMENTEN_BATCH_SIZE <import_documenten_batch_size>`
-- :ref:`IMPORT_RETENTION_DAYS <import_retention_days>`
+Environment variables related to the import functionality are also described in :ref:`Environment configuration reference <installation_env_config>`
 
-``IMPORT_DOCUMENTEN_BASE_DIR`` is used to determine the absolute import path for each
-row in the import metadata file. All file paths specified in the import metadata
-file should be relative to the directory specified for this setting.
-By default this is the same directory as the projects directory (``BASE_DIR``) and
-can either be configured through an environment variable or directly through the
-django's settings file being used.
-
-``IMPORT_DOCUMENTEN_BATCH_SIZE`` is the number of rows that will be processed
-at a time.
+* ``IMPORT_DOCUMENTEN_BASE_DIR`` is used to determine the absolute import path for each
+  row in the import metadata file. All file paths specified in the import metadata
+  file should be relative to the directory specified for this setting.
+  By default this is the same directory as the projects directory (``BASE_DIR``) and
+  can either be configured through an environment variable or directly through the
+  django's settings file being used.
+* ``IMPORT_DOCUMENTEN_BATCH_SIZE`` is the number of rows that will be processed at a time.
+* ``IMPORT_RETENTION_DAYS``: an integer which specifies the number of days after which ``Import`` instances will be deleted
 
 Process
 -------
@@ -157,7 +153,7 @@ is done and the report file will have comments for all rows in that
 specified batch.
 
 It is **important** to note that **no notifications** will be sent during or
-after the import process. If you use the import process please notify the subscribers of your API about the new documents. so they won't have inconsistent data. 
+after the import process. If you use the import process please notify the subscribers of your API about the new documents. so they won't have inconsistent data.
 
 Examples
 ---------
