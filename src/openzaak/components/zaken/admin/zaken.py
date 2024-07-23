@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin
-from django.db.models import CharField, F
+from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
@@ -648,10 +648,13 @@ class ZaakAdmin(
 ):
     list_display = (
         "identificatie",
+        "get_zaaktype",
         "registratiedatum",
         "created_on",
         "startdatum",
         "einddatum",
+        "get_status",
+        "get_resultaat",
         "archiefstatus",
     )
     list_select_related = ("_zaaktype", "_zaaktype_base_url")
@@ -686,6 +689,32 @@ class ZaakAdmin(
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
     widget = AuthorityAxisOrderOLWidget
 
+    @admin.display(description="Zaaktype")
+    def get_zaaktype(self, obj) -> str:
+        if not obj._zaaktype:
+            return ""
+
+        return obj._zaaktype.identificatie
+
+    @admin.display(description="Resultaat")
+    def get_resultaat(self, obj) -> str:
+        try:
+            resultaat = obj.resultaat
+            resultaattype = resultaat._resultaattype
+            return resultaattype.omschrijving if resultaattype else ""
+        except Resultaat.DoesNotExist:
+            return ""
+
+    @admin.display(description="Status")
+    def get_status(self, obj) -> str:
+        status = obj.current_status
+
+        if not status or not status._statustype:
+            return ""
+
+        statustype = status._statustype
+        return statustype.statustype_omschrijving
+
     def get_object_actions(self, obj):
         return (
             link_to_related_objects(Status, obj),
@@ -705,10 +734,33 @@ class ZaakAdmin(
         annotate queryset with composite url field for search purposes
         """
         queryset = super().get_queryset(request)
-        return queryset.annotate(
-            zaaktype_url=Concat(
-                F("_zaaktype_base_url__api_root"),
-                F("_zaaktype_relative_url"),
-                output_field=CharField(),
+
+        status_prefetch = Prefetch(
+            "status_set",
+            queryset=(
+                Status.objects.select_related("_statustype")
+                .filter(_statustype__isnull=False)
+                .order_by("-datum_status_gezet")
+            ),
+        )
+
+        resultaat_prefetch = Prefetch(
+            "resultaat",
+            queryset=(
+                Resultaat.objects.select_related("_resultaattype").filter(
+                    _resultaattype__isnull=False
+                )
+            ),
+        )
+
+        return (
+            queryset.select_related("_zaaktype")
+            .prefetch_related(resultaat_prefetch, status_prefetch)
+            .annotate(
+                zaaktype_url=Concat(
+                    F("_zaaktype_base_url__api_root"),
+                    F("_zaaktype_relative_url"),
+                    output_field=CharField(),
+                )
             )
         )
