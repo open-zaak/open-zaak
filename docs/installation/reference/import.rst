@@ -131,8 +131,8 @@ See the `API documentation`_ for more details.
 
 When an ``Import`` instance has the status ``finished``, ``error`` or ``pending``
 it can be deleted. Deletion of ``Import`` instances that are older than 7 days
-and have one of the above mentioned statusses is done in the background through
-a daily ocurring task.
+and have one of the above mentioned statuses is done in the background through
+a daily occurring task.
 
 See the `API documentation`_ for more details.
 
