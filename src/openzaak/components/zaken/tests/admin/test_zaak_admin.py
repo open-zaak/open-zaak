@@ -22,12 +22,10 @@ from openzaak.components.catalogi.tests.factories.resultaattype import (
 )
 from openzaak.components.catalogi.tests.factories.statustype import StatusTypeFactory
 from openzaak.components.catalogi.tests.factories.zaaktype import ZaakTypeFactory
-
 from openzaak.components.zaken.models.betrokkenen import (
     NatuurlijkPersoon,
     NietNatuurlijkPersoon,
 )
-
 
 from ...models import ZaakBesluit
 from ..factories import (
