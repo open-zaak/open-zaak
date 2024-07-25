@@ -420,7 +420,7 @@ markupsafe==2.1.1
     # via
     #   -r requirements/base.txt
     #   jinja2
-maykin-2fa==1.0.0
+maykin-2fa==1.0.1
     # via
     #   -r requirements/base.txt
     #   open-api-framework
