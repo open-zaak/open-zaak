@@ -3,6 +3,7 @@
 import logging
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils import timezone
 
 from openzaak import celery_app
@@ -12,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 @celery_app.task()
-def remove_imports(days_back=7):
+def remove_imports():
     now = timezone.now()
 
     imports = Import.objects.filter(
-        finished_on__lte=now - timedelta(days=days_back),
+        finished_on__lte=now - timedelta(days=settings.IMPORT_RETENTION_DAYS),
         status__in=ImportStatusChoices.deletion_choices,
     )
 
