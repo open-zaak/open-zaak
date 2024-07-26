@@ -146,9 +146,7 @@ is done and the report file will have comments for all rows in that
 specified batch.
 
 It is **important** to note that **no notifications** will be sent during or
-after the import process. Importing documents through these endpoints can lead
-to a high number of ```EnkelvoudigInformatieObject```'s to be created which in
-turn could lead to a very high number of notifications to be sent.
+after the import process. If you use the import process please notify the subscribers of your API about the new documents. so they won't have inconsistent data. 
 
 Examples
 ---------
