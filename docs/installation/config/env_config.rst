@@ -186,6 +186,11 @@ Optional
 * ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde``
   property would be validated against the related ``Eigenschap.specificatie``. Defaults to ``False``.
 
+.. _import_retention_days:
+
+* ``IMPORT_RETENTION_DAYS``: an integer which specifies the duration after which
+  ``Import`` instances will be deleted. Defaults to ``7`` days.
+
 .. _import_documenten_base_dir:
 
 * ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path

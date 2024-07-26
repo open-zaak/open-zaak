@@ -18,6 +18,7 @@ Configuration
 Environment variables related to the import functionaly are:
 - :ref:`IMPORT_DOCUMENTEN_BASE_DIR <import_documenten_base_dir>`
 - :ref:`IMPORT_DOCUMENTEN_BATCH_SIZE <import_documenten_batch_size>`
+- :ref:`IMPORT_RETENTION_DAYS <import_retention_days>`
 
 ``IMPORT_DOCUMENTEN_BASE_DIR`` is used to determine the absolute import path for each
 row in the import metadata file. All file paths specified in the import metadata
@@ -130,9 +131,9 @@ See the `API documentation`_ for more details.
 **Deleting an Import**
 
 When an ``Import`` instance has the status ``finished``, ``error`` or ``pending``
-it can be deleted. Deletion of ``Import`` instances that are older than 7 days
-and have one of the above mentioned statuses is done in the background through
-a daily occurring task.
+it can be deleted. Deletion of ``Import`` instances that are older than the environment
+variable ``IMPORT_RENTENTION_DAYS`` days and have one of the above mentioned
+statuses is done in the background through a daily occurring task.
 
 See the `API documentation`_ for more details.
 
