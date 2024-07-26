@@ -17,7 +17,7 @@ def remove_imports():
     now = timezone.now()
 
     imports = Import.objects.filter(
-        finished_on__lte=now - timedelta(days=settings.IMPORT_RETENTION_DAYS),
+        finished_on__lt=now - timedelta(days=settings.IMPORT_RETENTION_DAYS),
         status__in=ImportStatusChoices.deletion_choices,
     )
 
