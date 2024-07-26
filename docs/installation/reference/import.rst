@@ -145,6 +145,9 @@ data of the ``Import`` instance (e.g statistics) will be out-of-sync. However, l
 is done and the report file will have comments for all rows in that
 specified batch.
 
+It is **important** to note that **no notifications** will be sent during or
+after the import process. If you use the import process please notify the subscribers of your API about the new documents. so they won't have inconsistent data. 
+
 Examples
 ---------
 
