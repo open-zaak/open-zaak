@@ -3,6 +3,7 @@
 import tempfile
 
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
@@ -136,3 +137,36 @@ class EioAdminInlineTests(WebTest):
 
         new_data = audittrail.nieuw
         self.assertEqual(new_data["identificatie"], "12345")
+
+    def test_eio_add_no_version(self):
+
+        get_response = self.app.get(self.change_url)
+
+        response = get_response.form.submit()
+        self.assertEqual(response.status_code, 200)
+
+        version_form = response.context["inline_admin_formsets"][0].forms[0]
+
+        self.assertEqual(
+            version_form.errors["bronorganisatie"], [_("This field is required.")]
+        )
+        self.assertEqual(
+            version_form.errors["creatiedatum"], [_("This field is required.")]
+        )
+        self.assertEqual(version_form.errors["titel"], [_("This field is required.")])
+        self.assertEqual(version_form.errors["auteur"], [_("This field is required.")])
+        self.assertEqual(version_form.errors["taal"], [_("This field is required.")])
+        self.assertEqual(
+            version_form.errors["bestandsomvang"], [_("This field is required.")]
+        )
+        self.assertEqual(version_form.errors["inhoud"], [_("This field is required.")])
+        self.assertEqual(
+            version_form.errors["__all__"],
+            [
+                _("Constraint “%(name)s” is violated.")
+                % {
+                    "name": "documenten_enkelvoudiginformatieobject__informatieobjecttype_or"
+                    "__informatieobjecttype_base_url_filled"
+                }
+            ],
+        )
