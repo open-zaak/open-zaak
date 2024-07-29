@@ -30,19 +30,17 @@ class FuzzyPaginator(DjangoPaginator):
         super().__init__(object_list, per_page, orphans, allow_empty_first_page)
         self.page_number = None
 
-    def validate_number(self, number):
-        page_number = super().validate_number(number)
-
+    def page(self, number):
         # Pass the page number to the paginator, to calculate the limit in count
-        self.page_number = page_number
+        self.page_number = number
 
-        return page_number
+        return super().page(number)
 
     @cached_property
     def count(self):
         offset = (_positive_int(self.page_number) - 1) * self.per_page
         return self.object_list.values("pk")[
-            : offset + settings.PAGINATION_COUNT_LIMIT
+            : offset + settings.FUZZY_PAGINATION_COUNT_LIMIT
         ].count()
 
 
