@@ -9,6 +9,8 @@ from django.utils.functional import cached_property
 from rest_framework.pagination import PageNumberPagination, _positive_int
 from rest_framework.response import Response
 
+from .help_text import mark_experimental
+
 
 class ExactPaginator(DjangoPaginator):
     @cached_property
@@ -59,6 +61,18 @@ class FuzzyPagination(PageNumberPagination):
         response_data.insert(3, ("count_exact", count_exact))
 
         return Response(OrderedDict(response_data))
+
+    def get_paginated_response_schema(self, schema):
+        paginated_schema = super().get_paginated_response_schema(schema)
+        paginated_schema["properties"]["countExact"] = {
+            "type": "boolean",
+            "description": mark_experimental(
+                "Geeft aan of de `count` exact is, of dat deze wegens "
+                "performance doeleinden niet exact berekend is."
+            ),
+        }
+
+        return paginated_schema
 
 
 OptimizedPagination = FuzzyPagination if settings.FUZZY_PAGINATION else ExactPagination
