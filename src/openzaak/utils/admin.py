@@ -4,9 +4,11 @@ from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
+from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
@@ -447,3 +449,26 @@ class AdminContextMixin:
         context = super().get_context_data(**kwargs)
         context.update(self.admin_site.each_context(self.request))
         return context
+
+
+admin.site.unregister(AuditTrail)
+
+
+@admin.register(AuditTrail)
+class AuditTrailAdmin(admin.ModelAdmin):
+    list_display = (
+        "uuid",
+        "resource",
+        "actie",
+        "bron",
+        "resultaat",
+        "applicatie_weergave",
+    )
+    list_filter = ("bron", "resource", "actie", "applicatie_id", "resultaat")
+    date_hierarchy = "aanmaakdatum"
+
+    def has_change_permission(self, request: HttpRequest, obj=None):
+        return False
+
+    def has_add_permission(self, request: HttpRequest):
+        return False

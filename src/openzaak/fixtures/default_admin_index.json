@@ -153,6 +153,10 @@
             [
                 "log_outgoing_requests",
                 "outgoingrequestslog"
+            ],
+            [
+                "audittrails",
+                "audittrail"
             ]
         ]
     }
