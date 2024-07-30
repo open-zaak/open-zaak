@@ -4,6 +4,7 @@ from django.conf import settings
 from django.urls import reverse
 
 import requests
+from django_setup_configuration.config_settings import ConfigSettings
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
 from notifications_api_common.constants import (
@@ -35,8 +36,14 @@ class AuthNotificationStep(BaseConfigurationStep):
     """
 
     verbose_name = "Notification Autorisaties API Configuration"
-    required_settings = ["NOTIF_OPENZAAK_CLIENT_ID", "NOTIF_OPENZAAK_SECRET"]
-    enable_setting = "NOTIF_OPENZAAK_CONFIG_ENABLE"
+
+    config_settings = ConfigSettings(
+        enable_setting="NOTIF_OPENZAAK_CONFIG_ENABLE",
+        display_name="Notification Autorisaties API Configuration",
+        namespace="NOTIF_OPENZAAK",
+        update_fields=True,
+        required_settings=["NOTIF_OPENZAAK_CLIENT_ID", "NOTIF_OPENZAAK_SECRET"],
+    )
 
     def is_configured(self) -> bool:
         return (
@@ -133,12 +140,17 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
     """
 
     verbose_name = "Notification API Configuration"
-    required_settings = [
-        "NOTIF_API_ROOT",
-        "OPENZAAK_NOTIF_CLIENT_ID",
-        "OPENZAAK_NOTIF_SECRET",
-    ]
-    enable_setting = "OPENZAAK_NOTIF_CONFIG_ENABLE"
+    config_settings = ConfigSettings(
+        enable_setting="OPENZAAK_NOTIF_CONFIG_ENABLE",
+        display_name="Notification API Configuration",
+        namespace="OPENZAAK_NOTIF",
+        update_fields=True,
+        required_settings=[
+            "NOTIF_API_ROOT",
+            "OPENZAAK_NOTIF_CLIENT_ID",
+            "OPENZAAK_NOTIF_SECRET",
+        ],
+    )
 
     def is_enabled(self) -> bool:
         result = super().is_enabled()

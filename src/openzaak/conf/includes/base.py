@@ -222,7 +222,9 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
     "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
     "openzaak.config.bootstrap.demo.DemoUserStep",
+    "mozilla_django_oidc_db.setupconfig.bootstrap.AdminOIDCConfigurationStep",
 ]
+OIDC_CALLBACK_CLASS = "mozilla_django_oidc_db.views.OIDCCallbackView"
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # Note that by default UTC times are used here (see `nowfun` kwarg)

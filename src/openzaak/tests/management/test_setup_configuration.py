@@ -9,6 +9,8 @@ from django.test import override_settings
 import requests
 import requests_mock
 from jwt import decode
+from mozilla_django_oidc_db.models import OpenIDConnectConfig
+from mozilla_django_oidc_db.setupconfig.bootstrap import AdminOIDCConfigurationStep
 from notifications_api_common.models import NotificationsConfig
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -39,6 +41,13 @@ from openzaak.config.bootstrap.site import SiteConfigurationStep
     DEMO_CONFIG_ENABLE=True,
     DEMO_CLIENT_ID="demo-client-id",
     DEMO_SECRET="demo-secret",
+    OIDC_DB_SETUP_CONFIG_ADMIN_AUTH={
+        "oidc_rp_client_id": "client-id",
+        "oidc_rp_client_secret": "secret",
+        "oidc_op_authorization_endpoint": "https://oidc.example.com/protocol/openid-connect/auth",
+        "oidc_op_token_endpoint": "https://oidc.example.com/protocol/openid-connect/token",
+        "oidc_op_user_endpoint": "https://oidc.example.com/protocol/openid-connect/userinfo",
+    },
 )
 class SetupConfigurationTests(APITestCase):
     def setUp(self):
@@ -69,7 +78,7 @@ class SetupConfigurationTests(APITestCase):
                 "Configuration will be set up with following steps: "
                 f"[{SiteConfigurationStep()}, {AuthNotificationStep()}, "
                 f"{NotificationsAPIConfigurationStep()}, {SelectielijstAPIConfigurationStep()}, "
-                f"{DemoUserStep()}]",
+                f"{DemoUserStep()}, {AdminOIDCConfigurationStep()}]",
                 f"Configuring {SiteConfigurationStep()}...",
                 f"{SiteConfigurationStep()} is successfully configured",
                 f"Configuring {AuthNotificationStep()}...",
@@ -79,6 +88,8 @@ class SetupConfigurationTests(APITestCase):
                 f"Step {SelectielijstAPIConfigurationStep()} is skipped, because the configuration already exists.",
                 f"Configuring {DemoUserStep()}...",
                 f"{DemoUserStep()} is successfully configured",
+                f"Configuring {AdminOIDCConfigurationStep()}...",
+                f"{AdminOIDCConfigurationStep()} is successfully configured",
                 "Instance configuration completed.",
             ]
             self.assertEqual(command_output, expected_output)
@@ -123,6 +134,24 @@ class SetupConfigurationTests(APITestCase):
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        with self.subTest("OpenID Connect configured correctly"):
+            config = OpenIDConnectConfig.get_solo()
+
+            self.assertEqual(config.oidc_rp_client_id, "client-id")
+            self.assertEqual(config.oidc_rp_client_secret, "secret")
+            self.assertEqual(
+                config.oidc_op_authorization_endpoint,
+                "https://oidc.example.com/protocol/openid-connect/auth",
+            )
+            self.assertEqual(
+                config.oidc_op_user_endpoint,
+                "https://oidc.example.com/protocol/openid-connect/userinfo",
+            )
+            self.assertEqual(
+                config.oidc_op_token_endpoint,
+                "https://oidc.example.com/protocol/openid-connect/token",
+            )
 
     @requests_mock.Mocker()
     def test_setup_configuration_selftest_fails(self, m):

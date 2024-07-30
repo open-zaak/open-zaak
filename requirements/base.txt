@@ -185,8 +185,10 @@ django-rest-framework-condition==0.1.1
     # via commonground-api-common
 django-sendfile2==0.7.0
     # via django-privates
-django-setup-configuration==0.1.0
-    # via open-api-framework
+django-setup-configuration==0.3.0
+    # via
+    #   mozilla-django-oidc-db
+    #   open-api-framework
 django-simple-certmanager==1.3.0
     # via zgw-consumers
 django-sniplates==0.7.2
@@ -296,8 +298,10 @@ maykin-2fa==1.0.1
     # via open-api-framework
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.19.0
-    # via open-api-framework
+mozilla-django-oidc-db[setupconfig] @ git+https://github.com/maykinmedia/mozilla-django-oidc-db.git@8d6a36c2d48da3b4ecf9ff9ea713b8f371d9c3fa
+    # via
+    #   -r requirements/base.in
+    #   open-api-framework
 notifications-api-common==0.2.2
     # via
     #   -r requirements/base.in
