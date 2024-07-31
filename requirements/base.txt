@@ -279,7 +279,7 @@ markdown==3.3.6
     # via -r requirements/base.in
 markupsafe==2.1.1
     # via jinja2
-maykin-2fa==1.0.0
+maykin-2fa==1.0.1
     # via open-api-framework
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db

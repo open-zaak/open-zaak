@@ -34,6 +34,8 @@ from .includes.base import *  # noqa isort:skip
 #
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 LOGGING["loggers"].update(
     {
         "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
