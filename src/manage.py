@@ -8,6 +8,8 @@ from openzaak.setup import setup_env
 if __name__ == "__main__":
     setup_env()
 
+    print("foo")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
