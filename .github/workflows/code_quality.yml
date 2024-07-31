@@ -15,152 +15,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  isort:
-    name: Code imports
-    runs-on: ubuntu-latest
+  open-api-workflow-code-quality:
+    uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@v1
+    with:
+      apt-packages: 'libgdal-dev gdal-bin'
+      python-version: '3.11'
+      node-version: '18'
+      postgres-image: 'postgis/postgis:12-2.5'
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
-      - name: Run isort
-        run: isort --check-only --diff .
+      django-settings-module: 'openzaak.conf.ci'
+      django-secret-key: dummy
 
-  black:
-    name: Code format
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
-      - name: Run black
-        run: black --check --diff src docs
-
-  flake8:
-    name: Code style
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
-      - name: Run flake8
-        run: flake8 src
-
+  # openzaak specific
   spdx:
     name: SPDX header check
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: maykinmedia/setup-django-backend@v1.3
         with:
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
+          setup-node: false
       - name: Run check
         run: ./bin/check_spdx.py src
-
-  migrations:
-    name: Check for model changes not present in the migrations
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgis/postgis:12-2.5
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # Needed because the postgres container does not provide a healthcheck
-        options:
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install system packages
-        run: |
-          sudo apt-get update \
-          && sudo apt-get install -y --no-install-recommends \
-            libgdal-dev \
-            gdal-bin
-
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
-
-      - name: Check for missing migrations
-        run: src/manage.py makemigrations --check --dry-run
-        env:
-          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
-          SECRET_KEY: dummy
-          DB_USER: postgres
-          DB_NAME: postgres
-          DB_PASSWORD: ''
-
-  oas-up-to-date:
-    name: Check for unexepected OAS changes
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install system packages
-        run: |
-          sudo apt-get update \
-          && sudo apt-get install -y --no-install-recommends \
-            libgdal-dev \
-            gdal-bin
-
-      - name: Install dependencies
-        run: pip install -r requirements/ci.txt
-
-      - name: Generate OAS files
-        run: ./bin/generate_schema_for_component.sh ${{ matrix.component }} openapi-${{ matrix.component }}.yaml
-        env:
-          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
-
-      - name: Check for OAS changes
-        run: |
-          diff openapi-${{ matrix.component }}.yaml src/openzaak/components/${{ matrix.component }}/openapi.yaml
-      - name: Write failure markdown
-        if: ${{ failure() }}
-        run: |
-          echo 'Run the following command locally and commit the changes' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo './bin/generate_schema_for_component.sh ${{ matrix.component }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-

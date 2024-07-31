@@ -32,12 +32,14 @@ pip-compile \
     --output-file requirements/ci.txt \
     "$@" \
     requirements/base.txt \
-    requirements/test-tools.in
+    requirements/test-tools.in \
+    requirements/ci.in
 
 # Dev depedencies - exact same set as CI + some extra tooling
 pip-compile \
     --no-emit-index-url \
     --output-file requirements/dev.txt \
     "$@" \
-    requirements/ci.txt \
+    requirements/base.txt \
+    requirements/test-tools.in \
     requirements/dev.in

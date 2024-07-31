@@ -10,21 +10,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
+  open-api-workflow-lint-oas:
+    uses: maykinmedia/open-api-workflows/.github/workflows/lint-oas.yml@v1
     strategy:
       matrix:
-        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
-
-    name: Run with component ${{ matrix.component }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install spectral
-        run: npm install -g @stoplight/spectral@5
-      - name: Run OAS linter
-        run: spectral lint ./src/openzaak/components/${{ matrix.component }}/openapi.yaml
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+    with:
+      schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'

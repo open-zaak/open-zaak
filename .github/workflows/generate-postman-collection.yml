@@ -10,23 +10,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
+  open-api-workflow-generate-postman-collection:
+    uses: maykinmedia/open-api-workflows/.github/workflows/generate-postman-collection.yml@v1
     strategy:
       matrix:
-        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
-
-    name: Run with component ${{ matrix.component }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install dependencies
-        run: npm install -g openapi-to-postmanv2
-      - name: Create tests folder
-        run: mkdir -p ./tests/postman
-      - name: Generate Postman collection
-        run: openapi2postmanv2 -s ./src/openzaak/components/${{ matrix.component }}/openapi.yaml -o ./tests/postman/collection.json --pretty
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+    with:
+      schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'

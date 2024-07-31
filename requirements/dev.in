@@ -9,13 +9,6 @@ django-extensions
 django-silk
 whitenoise
 
-# Documentation
-sphinx
-sphinx-rtd-theme
-recommonmark
-sphinx-markdown-tables
-sphinx-tabs
-
 # Deployment
 
 -r ../deployment/requirements.in
