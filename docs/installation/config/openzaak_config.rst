@@ -43,7 +43,7 @@ There are 2 things to keep in mind:
    must be consulted by the Notificaties API to check for **autorisations**.
 2. Each component handles **authentication** themselves and thus we need to store
    the Client IDs and secrets in each component that wants to communicate with
-   eachother.
+   each other.
 
 Open Zaak
 ---------
@@ -99,14 +99,14 @@ The configuration steps below need to be performed in Open Zaak itself.
 **The Notificaties API consumes Open Zaak's Autorisaties API**
 
 Open Notificaties checks the authorizations of its consumers by querying an
-Autorisaties API, which Open Zaak provides. Open Notificaties therefor is also a client
+Autorisaties API, which Open Zaak provides. Open Notificaties therefore is also a client
 of Open Zaak.
 
 When Open Zaak publishes a notification, the Notifications API checks that Open Zaak is
 allowed to do this, via the Autorisaties API. Open Zaak must exist as an application in
 this API with the correct permissions.
 
-1. Configure the Notificaties API access to the Autorisaties API:
+3. Configure the Notificaties API access to the Autorisaties API:
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
@@ -123,7 +123,7 @@ this API with the correct permissions.
       *notificaties.consumeren* and *notificaties.publiceren*.
    h. Click **Opslaan**
 
-2. Finally, create an application with the correct permissions for Open Zaak itself:
+4. Finally, create an application with the correct permissions for Open Zaak itself:
 
    a. Navigate to **API Autorisaties > Applicaties**
    b. Click **Applicatie toevoegen**.
@@ -132,7 +132,7 @@ this API with the correct permissions.
       - **Label**: *For example:* ``Open Zaak``
 
       - **Client ID**: *The same Client ID as given in Open Zaak consuming the
-        Notificaties API, step 1c*
+        Notificaties API, step 1c*.  *For example:* ``open-zaak``
       - **Secret**: *The same Secret as given in Open Zaak consuming the
         Notificaties API, step 1c*
 
@@ -150,8 +150,8 @@ We're not there yet! We need to configure Open Notificaties too.
 Open Notificaties
 -----------------
 
-1. Configure the Open Zaak Autorisaties API endpoint (so Open Notificaties
-   knows where to check for the proper autorisations):
+5. Configure the Open Zaak Autorisaties API endpoint (so Open Notificaties
+   knows where to check for the proper authorizations):
 
    a. Navigate to **Configuratie > Autorisatiecomponentconfiguratie**
    b. Fill out the form:
@@ -162,7 +162,71 @@ Open Notificaties
 
    c. Click **Opslaan**.
 
-2. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
+6. Configure the credentials for the Open Zaak Autorisaties API (so Open
+   Notificaties can access the Autorisaties API):
+
+   a. Navigate to **API Autorisaties > Externe API credentials**
+   b. Click **Externe API credential toevoegen**.
+   c. Fill out the form:
+
+      - **API root**: *Same URL as used in step 1b.*
+      - **Label**: *For example:* ``Open Zaak``
+
+      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      - **Secret**: *The same Secret as given in Open Zaak step 3c*
+      - **User ID**: *Same as the Client ID*
+      - **User representation**: *For example:* ``Open Notificaties``
+
+   d. Click **Opslaan**.
+
+7. We need to allow Open Zaak to access Open Notificaties (for
+   authentication purposes, so we can then check its authorisations):
+
+   a. Navigate to **API Autorisaties > Client credentials**
+   b. Click **Client credential toevoegen**.
+   c. Fill out the form:
+
+      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
+      - **Secret**: *The same Secret as given in Open Zaak step 2c*
+
+   d. Click **Opslaan**.
+
+All done!
+Now Open Zaak and Open Notificaties can access each other.
+
+
+Register notification channels
+==============================
+
+Open Zaak
+---------
+
+Before notifications can be sent to ``kanalen`` in Open Notificaties, these ``kanalen``
+must first be registered via Open Zaak.
+
+Register the required channels:
+
+.. code-block:: bash
+
+    python src/manage.py register_kanalen
+
+Registering webhooks
+====================
+
+Open Zaak
+---------
+
+As discussed earlier Open Zaak does not require any webhook subscriptions, for now it published
+notifications, but doesn't consume them.
+
+Open Notificaties
+-----------------
+
+Open Notifications uses Open Zaak Authorization API, therefore it should subscribe to changes in the
+``autorisaties`` channel. Hence Open Notificaties consumes itself and treats itself as an external service,
+which required configuring related credentials.
+
+8. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
    receives changes made in the autorisation component of Open Zaak ):
 
    a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
@@ -180,24 +244,7 @@ Open Notificaties
       -  **Client Secret**: *The same Secret as given in Open Zaak step 3c*
       -  **Channels**: ``autorisaties``
 
-3. Configure the credentials for the Open Zaak Autorisaties API (so Open
-   Notificaties can access the Autorisaties API):
-
-   a. Navigate to **API Autorisaties > Externe API credentials**
-   b. Click **Externe API credential toevoegen**.
-   c. Fill out the form:
-
-      - **API root**: *Same URL as used in step 1b.*
-      - **Label**: *For example:* ``Open Zaak``
-
-      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
-      - **Secret**: *The same Secret as given in Open Zaak step 3c*
-      - **User ID**: *Same as the Client ID*
-      - **User representation**: *For example:* ``Open Notificaties``
-
-   d. Click **Opslaan**.
-
-4. Configure the credentials for the Open Notificaties API (so Open
+9. Configure the credentials for the Open Notificaties API (so Open
    Notificaties can access itself):
 
    a. Navigate to **API Autorisaties > Externe API credentials**
@@ -215,47 +262,24 @@ Open Notificaties
 
    d. Click **Opslaan**.
 
-5. We need to allow Open Zaak to access Open Notificaties (for
-   authentication purposes, so we can then check its authorisations):
+10. Configure the credentials for the Open Notificaties API (so Open
+    Notificaties can access itself):
 
-   a. Navigate to **API Autorisaties > Client credentials**
-   b. Click **Client credential toevoegen**.
-   c. Fill out the form:
+    a. Navigate to **API Autorisaties > Client credentials**
+    b. Click **Client credential toevoegen**.
+    c. Fill out the form:
 
-      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
-      - **Secret**: *The same Secret as given in Open Zaak step 2c*
+       - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+       - **Secret**: *The same Secret as given in Open Zaak step 3c*
 
-   d. Click **Opslaan**.
+    d. Click **Opslaan**.
 
-6. Finally, we need to allow Open Notificaties to access Open Notificaties (for
-   notifications purposes, so we can receive notificaties):
-
-   a. Navigate to **API Autorisaties > Client credentials**
-   b. Click **Client credential toevoegen**.
-   c. Fill out the form:
-
-      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
-      - **Secret**: *The same Secret as given in Open Zaak step 3c*
-
-   d. Click **Opslaan**.
-
-All done!
-
-Register notification channels
-==============================
-
-Before notifications can be sent to ``kanalen`` in Open Notificaties, these ``kanalen``
-must first be registered via Open Zaak.
-
-Register the required channels:
-
-.. code-block:: bash
-
-    python src/manage.py register_kanalen
 
 Create an API token
 ===================
 
+Open Zaak
+---------
 By creating an API token, we can perform an API test call to verify the succesful
 installation.
 
@@ -283,6 +307,8 @@ shown under **Client credentials**, which is required to make an API call.
 Making an API call
 ==================
 
+Open Zaak
+---------
 We can now make an HTTP request to one of the APIs of Open Zaak. For this example, we
 have used `Postman`_ to make the request.
 
