@@ -8,7 +8,9 @@ from django.db import migrations
 
 def forward(apps, schema_editor):
 
-    call_command("delete_empty_eioc", "--noinput")
+    call_command(
+        "delete_empty_eioc",
+    )
 
 
 class Migration(migrations.Migration):
