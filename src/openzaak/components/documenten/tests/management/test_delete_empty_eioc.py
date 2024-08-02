@@ -29,12 +29,15 @@ class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
 
     def test_basic(self):
 
-        eioc = EnkelvoudigInformatieObjectCanonicalFactory(latest_version=None)
+        eioc = EnkelvoudigInformatieObjectCanonicalFactory()
+        latest = eioc.latest_version
         zaak = ZaakFactory()
         zio = ZaakInformatieObjectFactory(informatieobject=eioc, zaak=zaak)
 
         besluit = BesluitFactory()
         bio = BesluitInformatieObjectFactory(informatieobject=eioc, besluit=besluit)
+
+        latest.delete()
 
         zio_url = reverse(zio)
         with self.assertRaises(AttributeError):

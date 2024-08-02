@@ -9,6 +9,7 @@ from uuid import UUID
 from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.crypto import get_random_string
@@ -1236,6 +1237,15 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
     def save(self, *args, **kwargs):
         # override to set aard_relatie
         self.aard_relatie = RelatieAarden.from_object_type("zaak")
+
+        if (
+            self._informatieobject is not None
+            and self._informatieobject.latest_version is None
+        ):
+            raise ValidationError(
+                "Related InformatieObject must have at least one version"
+            )
+
         super().save(*args, **kwargs)
 
 
