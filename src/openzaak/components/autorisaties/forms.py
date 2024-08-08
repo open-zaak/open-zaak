@@ -415,14 +415,19 @@ class AutorisatieForm(forms.Form):
 
             # Delete other catalogusautorisaties, because they weren't selected
             applicatie.catalogusautorisatie_set.filter(
-                ~Q(pk__in=instance_pks), component=component, scopes=scopes
+                ~Q(pk__in=instance_pks),
+                component=component,
+                scopes=scopes,
+                max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
             ).delete()
 
             # In case a CatalogusAutorisatie in created, we don't want to create Autorisaties
             return
         else:
             applicatie.catalogusautorisatie_set.filter(
-                component=component, scopes=scopes
+                component=component,
+                scopes=scopes,
+                max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
             ).delete()
 
         autorisatie_kwargs = {

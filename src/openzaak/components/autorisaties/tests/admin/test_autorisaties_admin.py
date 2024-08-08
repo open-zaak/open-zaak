@@ -150,6 +150,8 @@ class ApplicatieInlinesAdminTests(WebTest):
 @freeze_time("2022-01-01")
 @disable_admin_mfa()
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -1046,7 +1048,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-scopes": scopes,
             "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
             "form-0-catalogi": [self.catalogus.pk],
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
         }
 
         response = self.client.post(self.url, data=data)
@@ -1055,3 +1057,81 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         catalogus_autorisatie = CatalogusAutorisatie.objects.get()
 
         self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+
+    @tag("gh-1661")
+    def test_regular_and_catalogus_autorisatie_with_different_va(self):
+        """
+        Test that it is possible to have regular and catalogus autorisaties exist, if they have
+        different vertrouwelijkheidaanduiding
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": scopes,
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-zaaktypen": [zaaktype.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        catalogus_autorisatie = CatalogusAutorisatie.objects.get()
+
+        # New autorisatie was created
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, scopes)
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        # New CatalogusAutorisatie was created
+        self.assertEqual(catalogus_autorisatie.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Load the page again to check if the initial data is as expected
+        response = self.client.get(self.url)
+
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)

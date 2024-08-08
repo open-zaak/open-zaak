@@ -116,14 +116,16 @@ def get_initial_for_component(
                 if autorisatie.pk in _related_objs_external
             ]
 
-            if catalogus_autorisaties:
+            catalogus_autorisaties_for_va = [
+                catalogus_autorisatie.catalogus.pk
+                for catalogus_autorisatie in catalogus_autorisaties or []
+                if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
+            ]
+            if catalogus_autorisaties_for_va:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                        "catalogi": [
-                            catalogus_autorisatie.catalogus.pk
-                            for catalogus_autorisatie in catalogus_autorisaties
-                        ],
+                        "catalogi": catalogus_autorisaties_for_va,
                     }
                 )
             else:
@@ -167,14 +169,16 @@ def get_initial_for_component(
                 if autorisatie.pk in _related_objs_external
             ]
 
-            if catalogus_autorisaties:
+            catalogus_autorisaties_for_va = [
+                catalogus_autorisatie.catalogus.pk
+                for catalogus_autorisatie in catalogus_autorisaties or []
+                if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
+            ]
+            if catalogus_autorisaties_for_va:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                        "catalogi": [
-                            catalogus_autorisatie.catalogus.pk
-                            for catalogus_autorisatie in catalogus_autorisaties
-                        ],
+                        "catalogi": catalogus_autorisaties_for_va,
                     }
                 )
             else:
