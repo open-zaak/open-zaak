@@ -37,6 +37,10 @@
                 "applicatie"
             ],
             [
+                "autorisaties",
+                "catalogusautorisatie"
+            ],
+            [
                 "zgw_consumers",
                 "certificate"
             ],
