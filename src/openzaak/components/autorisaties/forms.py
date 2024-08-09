@@ -506,6 +506,7 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         self._validate_authorizations_have_scopes()
         # validate overlap zaaktypen between different auths
         self._validate_overlapping_types()
+        self._validate_catalogus_autorisaties_overlapping_component_and_catalogus()
 
     def _validate_authorizations_have_scopes(self):
         for form in self.forms:
@@ -545,6 +546,31 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                         )
 
                     scope_types[scope] = previous_types.union(types)
+
+    def _validate_catalogus_autorisaties_overlapping_component_and_catalogus(self):
+        """
+        Raise errors if there are any CatalogusAutorisaties with the same component and
+        catalogus
+        """
+        catalogus_and_component_combinations = []
+        for form in self.forms:
+            if (data := form.cleaned_data) and data.get(
+                "related_type_selection"
+            ) == RelatedTypeSelectionMethods.select_catalogus:
+                for catalogus in data.get("catalogi", []):
+                    catalogus_and_component = (catalogus.pk, data["component"])
+                    if catalogus_and_component in catalogus_and_component_combinations:
+                        raise ValidationError(
+                            _(
+                                "You cannot create multiple CatalogusAutorisaties with the "
+                                "same component and catalogus: {component}, {catalogus}"
+                            ).format(component=data["component"], catalogus=catalogus),
+                            code="overlapped_component_and_catalogus",
+                        )
+                    else:
+                        catalogus_and_component_combinations.append(
+                            catalogus_and_component
+                        )
 
 
 # TODO: support external zaaktypen

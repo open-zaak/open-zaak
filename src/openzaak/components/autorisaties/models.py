@@ -8,17 +8,11 @@ from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 
-COMPONENT_TO_MODEL = {
-    ComponentTypes.zrc: "catalogi.ZaakType",
-    ComponentTypes.drc: "catalogi.InformatieObjectType",
-    ComponentTypes.brc: "catalogi.BesluitType",
-}
-
-COMPONENT_TO_FIELD = {
-    ComponentTypes.zrc: "zaaktype",
-    ComponentTypes.drc: "informatieobjecttype",
-    ComponentTypes.brc: "besluittype",
-}
+CATALOGUS_AUTORISATIE_COMPONENTS = [
+    ComponentTypes.zrc,
+    ComponentTypes.drc,
+    ComponentTypes.brc,
+]
 
 
 class CatalogusAutorisatie(models.Model):
@@ -36,7 +30,11 @@ class CatalogusAutorisatie(models.Model):
     component = models.CharField(
         _("component"),
         max_length=50,
-        choices=ComponentTypes.choices,
+        choices=[
+            choice
+            for choice in ComponentTypes.choices
+            if choice[0] in CATALOGUS_AUTORISATIE_COMPONENTS
+        ],
         help_text=_("Component waarop autorisatie van toepassing is."),
     )
     scopes = ArrayField(

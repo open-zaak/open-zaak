@@ -29,6 +29,10 @@ from .serializers import ApplicatieSerializer
 
 logger = logging.getLogger(__name__)
 
+IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
+HAS_AUTORISATIES = Q(autorisaties__isnull=False)
+HAS_CATALOGUS_AUTORISATIES = Q(catalogusautorisatie__isnull=False)
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -112,14 +116,9 @@ class ApplicatieViewSet(
 
     queryset = (
         Applicatie.objects.exclude(
-            Q(heeft_alle_autorisaties=False)
-            & ~Q(autorisaties__isnull=False)
-            & ~Q(catalogusautorisatie__isnull=False)
+            ~IS_SUPERUSER & ~HAS_AUTORISATIES & ~HAS_CATALOGUS_AUTORISATIES
         )
-        .exclude(
-            Q(heeft_alle_autorisaties=True)
-            & (Q(autorisaties__isnull=False) | Q(catalogusautorisatie__isnull=False))
-        )
+        .exclude(IS_SUPERUSER & (HAS_AUTORISATIES | HAS_CATALOGUS_AUTORISATIES))
         .prefetch_related(
             "autorisaties",
             Prefetch(

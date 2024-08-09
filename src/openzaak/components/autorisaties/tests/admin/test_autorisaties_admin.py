@@ -1223,3 +1223,120 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             changed.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.openbaar,
         )
+
+    @tag("gh-1661")
+    def test_catalogus_autorisaties_same_component_and_catalogus_different_scopes_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create two CatalogusAutorisaties with the same component
+        and Catalogus, but different scopes
+        """
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _(
+                "You cannot create multiple CatalogusAutorisaties with the "
+                "same component and catalogus: {component}, {catalogus}"
+            ).format(component=ComponentTypes.drc, catalogus=self.catalogus),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_catalogus_autorisaties_same_component_and_catalogus_different_vertrouwelijkheidaanduing_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create two CatalogusAutorisaties with the same component,
+        Catalogus and scopes, but different vertrouwelijkheidaanduiding
+        """
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _("Scopes in {component} may not be duplicated.").format(
+                component=ComponentTypes.drc
+            ),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_autorisatie_with_type_catalogus_in_catalogus_autorisatie_should_fail(self):
+        iot = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=self.catalogus
+        )
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-informatieobjecttypen": {iot.pk},
+            "form-0-externe_typen": [],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _("{field} may not have overlapping scopes.").format(
+                field="informatieobjecttypen"
+            ),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+        self.assertFalse(Autorisatie.objects.exists())

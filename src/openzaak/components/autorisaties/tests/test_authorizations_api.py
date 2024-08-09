@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import tag
+from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -428,6 +429,21 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+        app.heeft_alle_autorisaties = True
+        app.save()
+        CatalogusAutorisatieFactory.create(applicatie=app, component=ComponentTypes.brc)
+
+        with self.subTest(case="list"):
+            response = self.client.get(url)
+
+            app_urls = [app["url"] for app in response.json()["results"]]
+            self.assertNotIn(app_url, app_urls)
+
+        with self.subTest(case="detail"):
+            response = self.client.get(app_url)
+
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     @tag("gh-1661")
     def test_fetch_applicatie_with_catalogus_autorisaties_and_regular_autorisaties(
         self,
@@ -496,14 +512,6 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             component=ComponentTypes.drc,
             scopes=[SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        # invalid component for CatalogusAutorisatie, should not be shown
-        CatalogusAutorisatieFactory.create(
-            applicatie=app,
-            catalogus=catalogus1,
-            component=ComponentTypes.ac,
-            scopes=[SCOPE_AUTORISATIES_BIJWERKEN],
         )
 
         response = self.client.get(url)
@@ -624,11 +632,13 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
+        cls.zaaktype = ZaakTypeFactory.create()
+
         autorisatie = AutorisatieFactory.create(
             applicatie__client_ids=["id1", "id2"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype="https://example.com",
+            zaaktype=f"http://testserver{reverse(cls.zaaktype)}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         cls.applicatie = autorisatie.applicatie
@@ -719,3 +729,45 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         credential = JWTSecret.objects.get(identifier="id2")
 
         self.assertEqual(credential.secret, "")
+
+    @override_settings(ALLOWED_HOSTS=["testserver.com"])
+    def test_update_authorization_with_existing_catalogus_autorisatie(self):
+        zaaktype = ZaakTypeFactory.create()
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            catalogus=zaaktype.catalogus,
+            component=ComponentTypes.zrc,
+            scopes=["dummy.scope"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url = get_operation_url("applicatie_partial_update", uuid=self.applicatie.uuid)
+
+        response = self.client.patch(
+            url,
+            {
+                "autorisaties": [
+                    {
+                        "component": ComponentTypes.zrc,
+                        "scopes": ["dummy.scope"],
+                        "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                        "zaaktype": f"http://testserver.com{reverse(zaaktype)}",
+                    },
+                ]
+            },
+            headers={"host": "testserver.com"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "catalogus-autorisatie-exists")
+        self.assertEqual(
+            error["reason"],
+            _(
+                "Cannot create Autorisatie for component {component} and type {type}, there is "
+                "a CatalogusAutorisatie with overlapping scopes"
+            ).format(
+                component=ComponentTypes.zrc,
+                type=f"http://testserver.com{reverse(zaaktype)}",
+            ),
+        )

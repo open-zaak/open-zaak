@@ -11,6 +11,7 @@ from openzaak.components.besluiten.api.scopes import (
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
 )
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -58,11 +59,18 @@ class MigrateAutorisatieSpecsToCatalogusAutorisatiesTest(TestMigrations):
             scopes=[SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN, SCOPE_DOCUMENTEN_AANMAKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
         )
+        # different scopes and vertrouwelijkheidaanduiding, scope should be added to scopes
+        # above
+        AutorisatieSpec.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_DOCUMENTEN_BIJWERKEN],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
         AutorisatieSpec.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
             scopes=[SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_VERWIJDEREN],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         # Autorisaties added by the first spec, should be deleted after migration
         Autorisatie.objects.create(
@@ -143,21 +151,29 @@ class MigrateAutorisatieSpecsToCatalogusAutorisatiesTest(TestMigrations):
         self.assertEqual(drc_autorisatie1.applicatie.pk, self.applicatie.pk)
         self.assertEqual(
             drc_autorisatie1.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.geheim,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         self.assertEqual(
             drc_autorisatie1.scopes,
-            [str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN), str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            [
+                str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                str(SCOPE_DOCUMENTEN_AANMAKEN),
+                str(SCOPE_DOCUMENTEN_BIJWERKEN),
+            ],
         )
         self.assertEqual(drc_autorisatie1.catalogus.naam, self.catalogus1.naam)
         self.assertEqual(drc_autorisatie2.applicatie.pk, self.applicatie.pk)
         self.assertEqual(
             drc_autorisatie2.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.geheim,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
         self.assertEqual(
             drc_autorisatie2.scopes,
-            [str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN), str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            [
+                str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                str(SCOPE_DOCUMENTEN_AANMAKEN),
+                str(SCOPE_DOCUMENTEN_BIJWERKEN),
+            ],
         )
         self.assertEqual(drc_autorisatie2.catalogus.naam, self.catalogus2.naam)
 
@@ -167,19 +183,11 @@ class MigrateAutorisatieSpecsToCatalogusAutorisatiesTest(TestMigrations):
 
         self.assertEqual(brc_autorisatie1.applicatie.pk, self.applicatie.pk)
         self.assertEqual(
-            brc_autorisatie1.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-        self.assertEqual(
             brc_autorisatie1.scopes,
             [str(SCOPE_BESLUITEN_AANMAKEN), str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN)],
         )
         self.assertEqual(brc_autorisatie1.catalogus.naam, self.catalogus1.naam)
         self.assertEqual(brc_autorisatie2.applicatie.pk, self.applicatie.pk)
-        self.assertEqual(
-            brc_autorisatie2.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
         self.assertEqual(
             brc_autorisatie2.scopes,
             [str(SCOPE_BESLUITEN_AANMAKEN), str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN)],
@@ -189,7 +197,7 @@ class MigrateAutorisatieSpecsToCatalogusAutorisatiesTest(TestMigrations):
 
 @tag("gh-1661")
 class MigrateCatalogusAutorisatiesToAutorisatieSpecsTest(TestMigrations):
-    migrate_from = "0012_delete_autorisatiespec"
+    migrate_from = "0013_alter_catalogusautorisatie_component"
     migrate_to = "0010_catalogusautorisatie"
     app = "autorisaties"
 
