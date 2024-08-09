@@ -31,9 +31,10 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tasks import import_documents
-from openzaak.import_data.models import ImportTypeChoices
+from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.views import (
     ImportCreateview,
+    ImportDestroyView,
     ImportReportView,
     ImportStatusView,
     ImportUploadView,
@@ -588,6 +589,42 @@ class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
         return super().retrieve(request, *args, **kwargs)
+
+
+def _get_deletion_choices():
+    return ", ".join(
+        sorted(
+            [f"**{choice.value}**" for choice in ImportStatusChoices.deletion_choices]
+        )
+    )
+
+
+@extend_schema_view(
+    destroy=extend_schema(
+        operation_id="enkelvoudiginformatieobject_import_destroy",
+        summary=_("Een IMPORT verwijderen."),
+        description=mark_experimental(
+            "Een IMPORT verwijderen. Het verwijderen van een IMPORT "
+            "is alleen mogelijk wanneer deze een van de volgende statussen heeft: "
+            f"{_get_deletion_choices()}. Deze actie is niet beschikbaar wanneer "
+            "de `CMIS_ENABLED` optie is ingeschakeld. Voor deze actie is een "
+            "APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
+        ),
+        responses={
+            status.HTTP_204_NO_CONTENT: None,
+            **COMMON_ERROR_RESPONSES,
+        },
+    )
+)
+class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
+    import_type = ImportTypeChoices.documents
+
+    required_scopes = {}
+
+    def destroy(self, request, *args, **kwargs):
+        if settings.CMIS_ENABLED:
+            raise CMISNotSupportedException()
+        return super().destroy(request, *args, **kwargs)
 
 
 @extend_schema_view(

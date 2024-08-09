@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 import os
 
+from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config
@@ -57,6 +58,7 @@ INSTALLED_APPS = (
         "django_better_admin_arrayfield",  # TODO can this be removed?
         "django_loose_fk",
         "drc_cmis",
+        "django_celery_beat",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",
@@ -221,6 +223,15 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.bootstrap.demo.DemoUserStep",
 ]
 
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# Note that by default UTC times are used here (see `nowfun` kwarg)
+CELERY_BEAT_SCHEDULE = {
+    "daily-remove-imports": {
+        "task": "openzaak.import_data.tasks.remove_imports",
+        "schedule": crontab(hour="9"),
+    }
+}
+
 #
 # OpenZaak configuration
 #
@@ -249,6 +260,8 @@ ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
 )
 
 # Import settings
+IMPORT_RETENTION_DAYS = config("IMPORT_RETENTION_DAYS", 7)
+
 IMPORT_DOCUMENTEN_BASE_DIR = config("IMPORT_DOCUMENTEN_BASE_DIR", BASE_DIR)
 IMPORT_DOCUMENTEN_BATCH_SIZE = config("IMPORT_DOCUMENTEN_BATCH_SIZE", 500)
 

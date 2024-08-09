@@ -32,6 +32,10 @@ class ImportStatusChoices(models.TextChoices):
     def report_choices(cls):
         return {cls.finished, cls.error}
 
+    @classproperty
+    def deletion_choices(cls):
+        return {cls.finished, cls.error, cls.pending}
+
 
 class ImportRowResultChoices(models.TextChoices):
     imported = "imported", _("Geïmporteerd")

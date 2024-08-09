@@ -15,6 +15,7 @@ django-extra-views
 django-loose-fk
 django-privates
 django-relativedelta
+django-celery-beat
 
 # Admin and UI libraries
 django-sniplates

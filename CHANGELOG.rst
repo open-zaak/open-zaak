@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.x.x (TBD)
+-------------------
+
+**New features**
+
+* [#1692] Added a ``DELETE`` endpoint for the ``Import`` resource. Additionally
+  added a periodic task was added which removes ``Import`` instances older than the
+  days specified in the environment variable ``IMPORT_RETENTION_DAYS``. This requires
+  a separate Celery Beat container to be ran (see ``docker-compose.yml``).
+
+
 1.13.0 (2024-06-19)
 -------------------
 
