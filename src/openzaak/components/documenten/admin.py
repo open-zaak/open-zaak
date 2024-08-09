@@ -262,7 +262,8 @@ class EnkelvoudigInformatieObjectInline(
     model = EnkelvoudigInformatieObject
     raw_id_fields = ("canonical", "_informatieobjecttype")
     readonly_fields = ("uuid",)
-    extra = 1
+    extra = 0
+    min_num = 1
     verbose_name = _("versie")
     verbose_name_plural = _("versies")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
