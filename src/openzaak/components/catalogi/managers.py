@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2024 Dimpact
+from functools import partial
+
 from django.db import models, transaction
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 
 
 class SyncAutorisatieManager(models.Manager):
     @transaction.atomic
-    def bulk_create(self, *args, **kwargs):
-        transaction.on_commit(AutorisatieSpec.sync)
-        return super().bulk_create(*args, **kwargs)
+    def bulk_create(self, objs, *args, **kwargs):
+        transaction.on_commit(partial(CatalogusAutorisatie.sync, objs))
+        return super().bulk_create(objs, *args, **kwargs)

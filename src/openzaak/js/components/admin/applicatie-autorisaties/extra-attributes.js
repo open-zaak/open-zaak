@@ -11,7 +11,7 @@ import { RadioSelect } from './radio-select';
 import { Err, Pk } from '../../../forms/types';
 
 
-const CatalogusOptions = (props) => {
+const TypeOptions = (props) => {
     const { typeOptionsField, typeOptions, display, selectedValues, onChange } = props;
     const choices = typeOptions.map(
         ({id, str}) => [id.toString(), str]
@@ -30,7 +30,26 @@ const CatalogusOptions = (props) => {
 };
 
 
-CatalogusOptions.propTypes = {
+const CatalogusOptions = (props) => {
+    const { selectedValues, onChange } = props;
+    const catalogi = useContext(CatalogiContext);
+    const choices = catalogi.map(
+        ({id, naam}) => [id.toString(), naam]
+    );
+    return (
+        <div className="catalogus-options">
+            <CheckboxSelect
+                choices={ choices }
+                name={"catalogi"}
+                initialValue={ selectedValues.map(val => val.toString()) }
+                onChange={ onChange }
+            />
+        </div>
+    );
+};
+
+
+TypeOptions.propTypes = {
     typeOptionsField: PropTypes.string.isRequired,
     typeOptions: PropTypes.arrayOf(PropTypes.object).isRequired,
     display: PropTypes.string.isRequired,
@@ -38,7 +57,7 @@ CatalogusOptions.propTypes = {
     onChange: PropTypes.func,
 };
 
-CatalogusOptions.defaultProps = {
+TypeOptions.defaultProps = {
     selectedValues: [],
 };
 
@@ -114,13 +133,13 @@ const ExternalTypes = (props) => {
 };
 
 
-const TypeOptions = (props) => {
+const CatalogusTypeOptions = (props) => {
     const { typeOptionsField, selectedValues, externalValues, onChange, errorsExternal } = props;
     const catalogi = useContext(CatalogiContext);
     return (
         <Fragment>
             { catalogi.map(catalogus => (
-                <CatalogusOptions
+                <TypeOptions
                     key={ catalogus.id }
                     typeOptionsField={ typeOptionsField }
                     typeOptions={ catalogus[typeOptionsField] }
@@ -134,21 +153,31 @@ const TypeOptions = (props) => {
     )
 };
 
-TypeOptions.propTypes = {
+CatalogusTypeOptions.propTypes = {
     typeOptionsField: PropTypes.string.isRequired,
     selectedValues: PropTypes.arrayOf(Pk),
     onChange: PropTypes.func,
 };
 
-TypeOptions.defaultProps = {
+CatalogusTypeOptions.defaultProps = {
     selectedValues: [],
 };
 
 
 const TypesSelection = (props) => {
-    const { verboseNamePlural, typeOptionsField, initialValue, selectedValues, externalValues, errors, errorsExternal } = props;
+    const {
+        verboseNamePlural,
+        typeOptionsField,
+        initialValue,
+        selectedCatalogi,
+        selectedValues,
+        externalValues,
+        errors,
+        errorsExternal
+    } = props;
     const { relatedTypeSelectionMethods } = useContext(ConstantsContext);
     const [ showTypeOptions, setShowTypeOptions ] = useState(initialValue === 'manual_select');
+    const [ showCatalogusOptions, setShowCatalogusOptions ] = useState(initialValue === 'select_catalogus');
 
     const [ _errors, setErrors ] = useState(errors);
 
@@ -167,21 +196,32 @@ const TypesSelection = (props) => {
                 onChange={(relatedTypeSelectioNMethod) => {
                     // only show the explicit type selection if manual selection is picked
                     setShowTypeOptions(relatedTypeSelectioNMethod === 'manual_select');
+                    setShowCatalogusOptions(relatedTypeSelectioNMethod === 'select_catalogus');
                 }}
             />
 
-            <div className="type-options">
-                {
-                    showTypeOptions ?
-                        <TypeOptions
-                            typeOptionsField={typeOptionsField}
-                            selectedValues={selectedValues || []}
-                            externalValues={externalValues || []}
-                            errorsExternal={errorsExternal || []}
-                            onChange={() => setErrors([])}
-                        /> : null
-                }
-            </div>
+            {
+                showTypeOptions ?
+                <div className="type-options">
+                    <CatalogusTypeOptions
+                        typeOptionsField={typeOptionsField}
+                        selectedValues={selectedValues || []}
+                        externalValues={externalValues || []}
+                        errorsExternal={errorsExternal || []}
+                        onChange={() => setErrors([])}
+                    />
+                </div> : null
+            }
+
+            {
+                showCatalogusOptions ?
+                <div className="type-options">
+                    <CatalogusOptions
+                        selectedValues={selectedCatalogi || []}
+                        onChange={() => setErrors([])}
+                    />
+                </div> : null
+            }
 
         </Fragment>
 

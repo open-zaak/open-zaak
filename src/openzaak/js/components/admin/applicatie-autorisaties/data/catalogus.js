@@ -5,7 +5,7 @@ import { InformatieObjectType } from './informatieobjecttype';
 import { BesluitType } from './besluittype';
 
 class Catalogus {
-    constructor({ id, _admin_name, uuid, domein, zaaktypen, informatieobjecttypen, besluittypen }) {
+    constructor({ id, naam, uuid, domein, zaaktypen, informatieobjecttypen, besluittypen }) {
         zaaktypen = zaaktypen.map(zt => new ZaakType(zt));
         informatieobjecttypen = informatieobjecttypen.map(iot => new InformatieObjectType(iot));
         besluittypen = besluittypen.map(bt => new BesluitType(bt));
@@ -14,7 +14,7 @@ class Catalogus {
             this,
             {
                 id,
-                _admin_name,
+                naam,
                 uuid,
                 domein,
                 zaaktypen,
@@ -25,7 +25,7 @@ class Catalogus {
     }
 
     get str() {
-        return this._admin_name;
+        return this.naam;
     }
 }
 
