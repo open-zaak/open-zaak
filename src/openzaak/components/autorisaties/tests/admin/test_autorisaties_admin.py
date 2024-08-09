@@ -1135,3 +1135,91 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
+    def test_catalogus_autorisatie_switch_component(self):
+        """
+        Test that it is possible to switch the component of a catalogus autorisatie
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+        # unrelated, should stay the same
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype=f"http://testserver/{_reverse(zaaktype)}",
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        # will be kept the same
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            catalogus=self.catalogus,
+            scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+        )
+        # component will be changed
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 3,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zaaktype.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+            "form-1-component": ComponentTypes.brc,
+            "form-1-scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-2-component": ComponentTypes.drc,
+            "form-2-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-2-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-2-catalogi": [self.catalogus.pk],
+            "form-2-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        unchanged, changed = CatalogusAutorisatie.objects.order_by("component")
+
+        # autorisatie is the same
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_BIJWERKEN)])
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        # brc CatalogusAutorisatie stays the same
+        self.assertEqual(unchanged.applicatie, self.applicatie)
+        self.assertEqual(unchanged.catalogus, self.catalogus)
+        self.assertEqual(unchanged.component, ComponentTypes.brc)
+        self.assertEqual(unchanged.scopes, [str(SCOPE_BESLUITEN_ALLES_LEZEN)])
+
+        # New CatalogusAutorisatie was created for changed component
+        self.assertEqual(changed.applicatie, self.applicatie)
+        self.assertEqual(changed.catalogus, self.catalogus)
+        self.assertEqual(changed.component, ComponentTypes.drc)
+        self.assertEqual(changed.scopes, [str(SCOPE_DOCUMENTEN_AANMAKEN)])
+        self.assertEqual(
+            changed.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )

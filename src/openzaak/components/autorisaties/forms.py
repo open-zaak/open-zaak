@@ -486,6 +486,12 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         ).data
 
         self.applicatie.autorisaties.all().delete()
+        # In case a component was changed for an existing CatalogusAutorisatie, we don't
+        # want to have to figure out which row was changed and delete that row. Instead
+        # we delete all existing CatalogusAutorisaties and save all the forms in the
+        # formset, because the end result should always be the same as the submitted form
+        # data
+        self.applicatie.catalogusautorisatie_set.all().delete()
         for form in self.forms:
             form.save(applicatie=self.applicatie, request=self.request, commit=commit)
 
