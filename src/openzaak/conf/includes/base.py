@@ -258,6 +258,10 @@ IMPORT_REQUESTS_CACHE_NAME = config("IMPORT_REQUESTS_CACHE_NAME", "import_reques
 ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
     "ZAAK_EIGENSCHAP_WAARDE_VALIDATION", default=False
 )
+# improve performance by removing exact count from pagination
+FUZZY_PAGINATION = config("FUZZY_PAGINATION", default=False)
+# maximum number of objects where exact count is calculated in pagination when FUZZY_PAGINATION is on
+FUZZY_PAGINATION_COUNT_LIMIT = config("FUZZY_PAGINATION_COUNT_LIMIT", default=500)
 
 # Import settings
 IMPORT_RETENTION_DAYS = config("IMPORT_RETENTION_DAYS", 7)
