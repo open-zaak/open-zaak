@@ -9,6 +9,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 import factory.fuzzy
+import vcr
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
@@ -64,6 +65,19 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
+from openzaak.selectielijst.models import ReferentieLijstConfig
+
+
+@vcr.use_cassette("src/openzaak/tests/cassettes/selectielijst_resultaten.yaml")
+def get_sl_resultaten() -> list[dict]:
+    """
+    get first 100 objects from Selectielijst.resultaten endpoint
+    use only for test purposes
+    """
+
+    client = ReferentieLijstConfig.get_client()
+    response = client.list("resultaat")
+    return response["results"]
 
 
 # django doesn't allow bulk crate for multitable inheritance, so
@@ -78,6 +92,7 @@ class ZaakBulkFactory(factory.django.DjangoModelFactory):
     bronorganisatie = factory.Faker("ssn", locale="nl_NL")
     verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
     identificatie = factory.Sequence(lambda n: "ZAAK_{}".format(n))
+    archiefactiedatum = factory.Faker("future_date", end_date="+5y")
 
     class Meta:
         model = "zaken.Zaak"
@@ -171,7 +186,6 @@ def split_every(n, iterable):
 
 
 class Command(BaseCommand):
-
     help = (
         "Generate data for performance testing. "
         "Can be used only on test and development environments."
@@ -302,6 +316,10 @@ class Command(BaseCommand):
         self.log_created(besluittypen)
 
     def generate_zaken(self):
+        # get 100 Selectielijst resultaten which will be used in Zaak.selectielijstklasse
+        sl_resultaten = get_sl_resultaten()
+        sl_resultaat_urls = [result["url"] for result in sl_resultaten]
+
         # 1mln zaken
         zaken_per_zaaktype = self.zaken_amount // self.zaaktypen_amount
         zaaktypen = ZaakType.objects.order_by("id").all()
@@ -314,6 +332,7 @@ class Command(BaseCommand):
                 zaken_per_zaaktype,
                 _zaaktype=zaaktype,
                 zaakgeometrie=Point(random.uniform(1, 50), random.uniform(50, 100)),
+                selectielijstklasse=random.choice(sl_resultaat_urls),
             )
 
             ZaakBulk.objects_bulk.bulk_create(zaken)
