@@ -56,6 +56,15 @@ services:
       - DEMO_CLIENT_ID=demo-client-id
       - DEMO_SECRET=demo-secret
       - DISABLE_2FA=${DISABLE_2FA:-0}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # This should allow for enough time for migrations to run before the max
+      # retries have passed. This healthcheck in turn allows other containers
+      # to wait for the database migrations.
+      start_period: 30s
     ports:
       - 8000:8000
     volumes: &app-volumes
@@ -80,10 +89,16 @@ services:
     image: openzaak/open-zaak:latest
     environment: *app-env
     command: /celery_worker.sh
+    healthcheck:
+      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     volumes: *app-volumes
     depends_on:
-      - db
-      - redis
+      web.local:
+        condition: service_healthy
 
   celery-beat:
     build: .

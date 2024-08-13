@@ -67,9 +67,10 @@ COPY ./bin/uninstall_adfs.sh \
     ./bin/uninstall_django_auth_adfs_db.sql \
     ./bin/dump_configuration.sh \
     /app/bin/
+COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
 
-RUN mkdir /app/log /app/config /app/media /app/private-media
+RUN mkdir /app/log /app/config /app/media /app/private-media /app/tmp
 # prevent writing to the container layer, which would degrade performance.
 # This also serves as a hint for the intended volumes.
 VOLUME ["/app/log", "/app/media", "/app/private-media"]
