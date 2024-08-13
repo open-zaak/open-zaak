@@ -169,10 +169,12 @@ Open Notificaties
    b. Click **Externe API credential toevoegen**.
    c. Fill out the form:
 
-      - **API root**: *Same URL as used in step 1b.*
+      - **API root**: *Same URL as used in step 5b. For example:*
+        ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
       - **Label**: *For example:* ``Open Zaak``
 
-      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
+      - **Client ID**: *The same Client ID as given in Open Zaak step 3c.
+        For example:* ``open-notificaties``
       - **Secret**: *The same Secret as given in Open Zaak step 3c*
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
@@ -182,12 +184,13 @@ Open Notificaties
 7. We need to allow Open Zaak to access Open Notificaties (for
    authentication purposes, so we can then check its authorisations):
 
-   a. Navigate to **API Autorisaties > Client credentials**
-   b. Click **Client credential toevoegen**.
+   a. Navigate to **API Autorisaties > Autorisatiegegeven**
+   b. Click **Autorisatiegegeven toevoegen**.
    c. Fill out the form:
 
-      - **Client ID**: *The same Client ID as given in Open Zaak step 2c*
-      - **Secret**: *The same Secret as given in Open Zaak step 2c*
+      - **Client ID**: *The same Client ID as given in Open Zaak step 1c*.
+        *For example:* ``open-zaak``
+      - **Secret**: *The same Secret as given in Open Zaak step 1c*
 
    d. Click **Opslaan**.
 
@@ -216,7 +219,7 @@ Registering webhooks
 Open Zaak
 ---------
 
-As discussed earlier Open Zaak does not require any webhook subscriptions, for now it published
+As discussed earlier Open Zaak does not require any webhook subscriptions, for now it publishes
 notifications, but doesn't consume them.
 
 Open Notificaties
@@ -226,53 +229,69 @@ Open Notifications uses Open Zaak Authorization API, therefore it should subscri
 ``autorisaties`` channel. Hence Open Notificaties consumes itself and treats itself as an external service,
 which required configuring related credentials.
 
-8. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
-   receives changes made in the autorisation component of Open Zaak ):
-
-   a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
-   b. Fill out the form:
-
-      - **API root**: *The URL to the Notificaties API. For example:*
-        ``https://open-notificaties.gemeente.local/api/v1/``.
-
-   c. Click **Opslaan**.
-   d. Webhook subscription toevoegen:
-
-      -  **Callback Url**: *The Callback URL to the Notificaties Callback API. For example:*
-         ``https://open-notificaties.gemeente.local/api/v1/callbacks``.
-      -  **Client ID**: *The same Client ID as given in Open Zaak step 3c*
-      -  **Client Secret**: *The same Secret as given in Open Zaak step 3c*
-      -  **Channels**: ``autorisaties``
-
-9. Configure the credentials for the Open Notificaties API (so Open
+8. Configure the credentials for the Open Notificaties API (so Open
    Notificaties can access itself):
 
-   a. Navigate to **API Autorisaties > Externe API credentials**
-   b. Click **Externe API credential toevoegen**.
-   c. Fill out the form:
+   a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
+   b. Click on the plus icon besides **Service voor notificaties-api** dropdown.
+   c. Fill out the form **Service toevoegen**:
 
-      - **API root**: *The URL to the Notificaties API. For example:*
-        ``https://open-notificaties.gemeente.local/api/v1/``.
-      - **Label**: *For example:* ``Eigen API``
-
-      - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
-      - **Secret**: *The same Secret as given in Open Zaak step 3c*
+      - **Label**: *For example:* ``Open Notificaties``
+      - **Type**: Select the option: ``NRC (Notifications)``
+      - **API root url**: the full URL to the Notificaties API root, e.g.
+        ``https://notificaties.gemeente.local/api/v1/``
+      - **Client ID**: We can reuse the existing Client Id from step 3c, since it already has
+        all required permissions to consume notifications. *For example:* ``open-notificaties``
+      - **Secret**: *The same Secret as given in step 3c*
+      - **Authorization type**: Select the option: ``ZGW client_id + secret``
+      - **OAS url**: URL that points to the OpenAPI specification. This is typically
+        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
+        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
 
    d. Click **Opslaan**.
 
-10. Configure the credentials for the Open Notificaties API (so Open
-    Notificaties can access itself):
+9. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
+   receives changes made in the authorisation component of Open Zaak ):
 
-    a. Navigate to **API Autorisaties > Client credentials**
-    b. Click **Client credential toevoegen**.
-    c. Fill out the form:
+   a. After the previous step 8d you should be on **Configuratie > Notificatiescomponentconfiguratie** page.
+   b. Select the service from the previous step in the **Service voor notificaties-api**
+      dropdown, if it's not selected.
+   c. Sending notifications support autoretry mechanism, which can be also configured here.
+      Fill out the following properties:
 
-       - **Client ID**: *The same Client ID as given in Open Zaak step 3c*
-       - **Secret**: *The same Secret as given in Open Zaak step 3c*
+      - **Notification delivery max retries**: the maximum number of retries the task queue
+        will do if sending a notification failed. Default is ``5``.
+      - **Notification delivery retry backoff**: a boolean or a number. If this option is set to
+        ``True``, autoretries will be delayed following the rules of exponential backoff. If
+        this option is set to a number, it is used as a delay factor. Default is ``3``.
+      - **Notification delivery retry backoff max**: an integer, specifying number of seconds.
+        If ``Notification delivery retry backoff`` is enabled, this option will set a maximum
+        delay in seconds between task autoretries. Default is ``48`` seconds.
+   d. Click **Opslaan**.
 
-    d. Click **Opslaan**.
+10. Create an abonnement for Open Notificaties API. The easiest way to do it in the Admin is by
+    creating and registering a webhook.
+
+   a. Navigate to  **Configuratie > Webhook-abonnementen**.
+   b. Click on **Webhook-abonnement toevoegen**.
+   c. Fill out the form:
+
+      -  **Callback Url**: *The Callback URL to the Notificaties Callback API. For example:*
+         ``https://open-notificaties.gemeente.local/api/v1/callbacks``. *For example:* ``open-notificaties``
+      -  **Client ID**: *The same Client ID as given in step 3c*
+      -  **Client Secret**: *The same Secret as given in step 3c*
+      -  **Channels**: ``autorisaties``
+
+   d. Click **Opslaan**.
+   e. You will be redirected back to the page **Configuratie > Webhook-abonnementen**.
+      Click on the checkbox and select the webhook which has been just created.
+   f. In the dropdown **Actie** select *Webhooks registeren*.
+   g. Click **Uitvoeren** button.
+
+Now Notifications API has subscribed to the notifications from ``autorisaties`` channel.
+You can navigate to **Notificaties > Abonnementen** to check that a new abonnement has been added.
 
 
 Create an API token
@@ -280,7 +299,7 @@ Create an API token
 
 Open Zaak
 ---------
-By creating an API token, we can perform an API test call to verify the succesful
+By creating an API token, we can perform an API test call to verify the successful
 installation.
 
 Navigate to **API Autorisaties** > **Applicaties** and click on **Applicatie toevoegen**
