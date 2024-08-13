@@ -11395,6 +11395,50 @@ components:
             items:
               $ref: '#/components/schemas/Point2D'
             minItems: 2
+    MedewerkerIdentificatie:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: Een korte unieke aanduiding van de MEDEWERKER.
+          maxLength: 24
+        achternaam:
+          type: string
+          description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
+            gebruikt.
+          maxLength: 200
+        voorletters:
+          type: string
+          description: De verzameling letters die gevormd wordt door de eerste letter
+            van alle in volgorde voorkomende voornamen.
+          maxLength: 20
+        voorvoegselAchternaam:
+          type: string
+          description: Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA),
+            voorvoegseltabel, en door een spatie van de geslachtsnaam is
+          maxLength: 10
+    MedewerkerIdentificatieRequest:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: Een korte unieke aanduiding van de MEDEWERKER.
+          maxLength: 24
+        achternaam:
+          type: string
+          description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
+            gebruikt.
+          maxLength: 200
+        voorletters:
+          type: string
+          description: De verzameling letters die gevormd wordt door de eerste letter
+            van alle in volgorde voorkomende voornamen.
+          maxLength: 20
+        voorvoegselAchternaam:
+          type: string
+          description: Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA),
+            voorvoegseltabel, en door een spatie van de geslachtsnaam is
+          maxLength: 10
     MultiLineString:
       type: object
       description: GeoJSON multi-line-string geometry
@@ -11446,6 +11490,195 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/Point2D'
+    NatuurlijkPersoonAuthContext:
+      type: object
+      properties:
+        dummy:
+          type: string
+    NatuurlijkPersoonAuthContextRequest:
+      type: object
+      properties:
+        dummy:
+          type: string
+          minLength: 1
+    NatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        inpBsn:
+          type: string
+          description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
+            algemene bepalingen burgerservicenummer.
+          maxLength: 9
+        anpIdentificatie:
+          type: string
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NATUURLIJK PERSOON
+          maxLength: 17
+        inpA_nummer:
+          type: string
+          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+          pattern: ^[1-9][0-9]{9}$
+          maxLength: 10
+        geslachtsnaam:
+          type: string
+          description: De stam van de geslachtsnaam.
+          maxLength: 200
+        voorvoegselGeslachtsnaam:
+          type: string
+          maxLength: 80
+        voorletters:
+          type: string
+          description: De verzameling letters die gevormd wordt door de eerste letter
+            van alle in volgorde voorkomende voornamen.
+          maxLength: 20
+        voornamen:
+          type: string
+          description: Voornamen bij de naam die de persoon wenst te voeren.
+          maxLength: 200
+        geslachtsaanduiding:
+          description: |-
+            Een aanduiding die aangeeft of de persoon een man of een vrouw is, of dat het geslacht nog onbekend is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `m` - Man
+            * `v` - Vrouw
+            * `o` - Onbekend
+          oneOf:
+          - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        geboortedatum:
+          type: string
+          maxLength: 18
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdres'
+          nullable: true
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenland'
+          nullable: true
+    NatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        inpBsn:
+          type: string
+          description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
+            algemene bepalingen burgerservicenummer.
+          maxLength: 9
+        anpIdentificatie:
+          type: string
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NATUURLIJK PERSOON
+          maxLength: 17
+        inpA_nummer:
+          type: string
+          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
+          pattern: ^[1-9][0-9]{9}$
+          maxLength: 10
+        geslachtsnaam:
+          type: string
+          description: De stam van de geslachtsnaam.
+          maxLength: 200
+        voorvoegselGeslachtsnaam:
+          type: string
+          maxLength: 80
+        voorletters:
+          type: string
+          description: De verzameling letters die gevormd wordt door de eerste letter
+            van alle in volgorde voorkomende voornamen.
+          maxLength: 20
+        voornamen:
+          type: string
+          description: Voornamen bij de naam die de persoon wenst te voeren.
+          maxLength: 200
+        geslachtsaanduiding:
+          description: |-
+            Een aanduiding die aangeeft of de persoon een man of een vrouw is, of dat het geslacht nog onbekend is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `m` - Man
+            * `v` - Vrouw
+            * `o` - Onbekend
+          oneOf:
+          - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        geboortedatum:
+          type: string
+          maxLength: 18
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdresRequest'
+          nullable: true
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
+          nullable: true
+    NietNatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        innNnpId:
+          type: string
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON
+          maxLength: 9
+        annIdentificatie:
+          type: string
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NIET-NATUURLIJK PERSOON
+          maxLength: 17
+        statutaireNaam:
+          type: string
+          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
+            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
+            (Vennootschap onder firma of Commanditaire vennootschap).
+          maxLength: 500
+        innRechtsvorm:
+          description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
+          oneOf:
+          - $ref: '#/components/schemas/InnRechtsvormEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        bezoekadres:
+          type: string
+          description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
+          maxLength: 1000
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenland'
+          nullable: true
+    NietNatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        innNnpId:
+          type: string
+          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+            NIET-NATUURLIJK PERSOON
+          maxLength: 9
+        annIdentificatie:
+          type: string
+          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
+            NIET-NATUURLIJK PERSOON
+          maxLength: 17
+        statutaireNaam:
+          type: string
+          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
+            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
+            (Vennootschap onder firma of Commanditaire vennootschap).
+          maxLength: 500
+        innRechtsvorm:
+          description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
+          oneOf:
+          - $ref: '#/components/schemas/InnRechtsvormEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        bezoekadres:
+          type: string
+          description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
+          maxLength: 1000
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
+          nullable: true
     NullEnum:
       enum:
       - null
@@ -12498,6 +12731,34 @@ components:
       required:
       - indicatie
       - reden
+    OrganisatorischeEenheidIdentificatie:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: Een korte identificatie van de organisatorische eenheid.
+          maxLength: 24
+        naam:
+          type: string
+          description: De feitelijke naam van de organisatorische eenheid.
+          maxLength: 50
+        isGehuisvestIn:
+          type: string
+          maxLength: 24
+    OrganisatorischeEenheidIdentificatieRequest:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: Een korte identificatie van de organisatorische eenheid.
+          maxLength: 24
+        naam:
+          type: string
+          description: De feitelijke naam van de organisatorische eenheid.
+          maxLength: 50
+        isGehuisvestIn:
+          type: string
+          maxLength: 24
     PaginatedExpandZaakList:
       type: object
       required:
@@ -13233,253 +13494,61 @@ components:
     RolMedewerker:
       type: object
       properties:
-        identificatie:
-          type: string
-          description: Een korte unieke aanduiding van de MEDEWERKER.
-          maxLength: 24
-        achternaam:
-          type: string
-          description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
-            gebruikt.
-          maxLength: 200
-        voorletters:
-          type: string
-          description: De verzameling letters die gevormd wordt door de eerste letter
-            van alle in volgorde voorkomende voornamen.
-          maxLength: 20
-        voorvoegselAchternaam:
-          type: string
-          description: Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA),
-            voorvoegseltabel, en door een spatie van de geslachtsnaam is
-          maxLength: 10
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/MedewerkerIdentificatie'
     RolMedewerkerRequest:
       type: object
       properties:
-        identificatie:
-          type: string
-          description: Een korte unieke aanduiding van de MEDEWERKER.
-          maxLength: 24
-        achternaam:
-          type: string
-          description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
-            gebruikt.
-          maxLength: 200
-        voorletters:
-          type: string
-          description: De verzameling letters die gevormd wordt door de eerste letter
-            van alle in volgorde voorkomende voornamen.
-          maxLength: 20
-        voorvoegselAchternaam:
-          type: string
-          description: Dat deel van de geslachtsnaam dat voorkomt in Tabel 36 (GBA),
-            voorvoegseltabel, en door een spatie van de geslachtsnaam is
-          maxLength: 10
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/MedewerkerIdentificatieRequest'
     RolNatuurlijkPersoon:
       type: object
       properties:
-        inpBsn:
-          type: string
-          description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
-            algemene bepalingen burgerservicenummer.
-          maxLength: 9
-        anpIdentificatie:
-          type: string
-          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-            NATUURLIJK PERSOON
-          maxLength: 17
-        inpA_nummer:
-          type: string
-          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
-          pattern: ^[1-9][0-9]{9}$
-          maxLength: 10
-        geslachtsnaam:
-          type: string
-          description: De stam van de geslachtsnaam.
-          maxLength: 200
-        voorvoegselGeslachtsnaam:
-          type: string
-          maxLength: 80
-        voorletters:
-          type: string
-          description: De verzameling letters die gevormd wordt door de eerste letter
-            van alle in volgorde voorkomende voornamen.
-          maxLength: 20
-        voornamen:
-          type: string
-          description: Voornamen bij de naam die de persoon wenst te voeren.
-          maxLength: 200
-        geslachtsaanduiding:
-          description: |-
-            Een aanduiding die aangeeft of de persoon een man of een vrouw is, of dat het geslacht nog onbekend is.
-
-            Uitleg bij mogelijke waarden:
-
-            * `m` - Man
-            * `v` - Vrouw
-            * `o` - Onbekend
-          oneOf:
-          - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        geboortedatum:
-          type: string
-          maxLength: 18
-        verblijfsadres:
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatie'
+        authenticatieContext:
           allOf:
-          - $ref: '#/components/schemas/VerblijfsAdres'
-          nullable: true
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenland'
-          nullable: true
+          - $ref: '#/components/schemas/NatuurlijkPersoonAuthContext'
+          title: authentication context
+          description: Information about the authentication and mandate (if relevant)
+            that applied when the role was added to the case. It is essential when
+            you later want to retrieve information again which should match certain
+            authentication guarantees, like minimum level of assurance. The exact
+            shape of data depends on the selected `betrokkeneType`.
     RolNatuurlijkPersoonRequest:
       type: object
       properties:
-        inpBsn:
-          type: string
-          description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
-            algemene bepalingen burgerservicenummer.
-          maxLength: 9
-        anpIdentificatie:
-          type: string
-          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-            NATUURLIJK PERSOON
-          maxLength: 17
-        inpA_nummer:
-          type: string
-          description: Het administratienummer van de persoon, bedoeld in de Wet BRP
-          pattern: ^[1-9][0-9]{9}$
-          maxLength: 10
-        geslachtsnaam:
-          type: string
-          description: De stam van de geslachtsnaam.
-          maxLength: 200
-        voorvoegselGeslachtsnaam:
-          type: string
-          maxLength: 80
-        voorletters:
-          type: string
-          description: De verzameling letters die gevormd wordt door de eerste letter
-            van alle in volgorde voorkomende voornamen.
-          maxLength: 20
-        voornamen:
-          type: string
-          description: Voornamen bij de naam die de persoon wenst te voeren.
-          maxLength: 200
-        geslachtsaanduiding:
-          description: |-
-            Een aanduiding die aangeeft of de persoon een man of een vrouw is, of dat het geslacht nog onbekend is.
-
-            Uitleg bij mogelijke waarden:
-
-            * `m` - Man
-            * `v` - Vrouw
-            * `o` - Onbekend
-          oneOf:
-          - $ref: '#/components/schemas/GeslachtsaanduidingEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        geboortedatum:
-          type: string
-          maxLength: 18
-        verblijfsadres:
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatieRequest'
+        authenticatieContext:
           allOf:
-          - $ref: '#/components/schemas/VerblijfsAdresRequest'
-          nullable: true
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
-          nullable: true
+          - $ref: '#/components/schemas/NatuurlijkPersoonAuthContextRequest'
+          title: authentication context
+          description: Information about the authentication and mandate (if relevant)
+            that applied when the role was added to the case. It is essential when
+            you later want to retrieve information again which should match certain
+            authentication guarantees, like minimum level of assurance. The exact
+            shape of data depends on the selected `betrokkeneType`.
     RolNietNatuurlijkPersoon:
       type: object
       properties:
-        innNnpId:
-          type: string
-          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-            NIET-NATUURLIJK PERSOON
-          maxLength: 9
-        annIdentificatie:
-          type: string
-          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-            NIET-NATUURLIJK PERSOON
-          maxLength: 17
-        statutaireNaam:
-          type: string
-          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
-            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
-            (Vennootschap onder firma of Commanditaire vennootschap).
-          maxLength: 500
-        innRechtsvorm:
-          description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          oneOf:
-          - $ref: '#/components/schemas/InnRechtsvormEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        bezoekadres:
-          type: string
-          description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
-          maxLength: 1000
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenland'
-          nullable: true
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatie'
     RolNietNatuurlijkPersoonRequest:
       type: object
       properties:
-        innNnpId:
-          type: string
-          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-            NIET-NATUURLIJK PERSOON
-          maxLength: 9
-        annIdentificatie:
-          type: string
-          description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
-            NIET-NATUURLIJK PERSOON
-          maxLength: 17
-        statutaireNaam:
-          type: string
-          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
-            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
-            (Vennootschap onder firma of Commanditaire vennootschap).
-          maxLength: 500
-        innRechtsvorm:
-          description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
-          oneOf:
-          - $ref: '#/components/schemas/InnRechtsvormEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-        bezoekadres:
-          type: string
-          description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
-          maxLength: 1000
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
-          nullable: true
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatieRequest'
     RolOrganisatorischeEenheid:
       type: object
       properties:
-        identificatie:
-          type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
-        naam:
-          type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
-        isGehuisvestIn:
-          type: string
-          maxLength: 24
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/OrganisatorischeEenheidIdentificatie'
     RolOrganisatorischeEenheidRequest:
       type: object
       properties:
-        identificatie:
-          type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
-        naam:
-          type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
-        isGehuisvestIn:
-          type: string
-          maxLength: 24
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/OrganisatorischeEenheidIdentificatieRequest'
     RolRequest:
       oneOf:
       - $ref: '#/components/schemas/natuurlijk_persoon_RolSerializerRequest'
@@ -13498,53 +13567,13 @@ components:
     RolVestiging:
       type: object
       properties:
-        vestigingsNummer:
-          type: string
-          description: Een korte unieke aanduiding van de Vestiging.
-          maxLength: 24
-        handelsnaam:
-          type: array
-          items:
-            type: string
-            maxLength: 625
-          description: De naam van de vestiging waaronder gehandeld wordt.
-        verblijfsadres:
-          allOf:
-          - $ref: '#/components/schemas/VerblijfsAdres'
-          nullable: true
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenland'
-          nullable: true
-        kvkNummer:
-          type: string
-          description: Een uniek nummer gekoppeld aan de onderneming.
-          maxLength: 8
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/VestigingIdentificatie'
     RolVestigingRequest:
       type: object
       properties:
-        vestigingsNummer:
-          type: string
-          description: Een korte unieke aanduiding van de Vestiging.
-          maxLength: 24
-        handelsnaam:
-          type: array
-          items:
-            type: string
-            maxLength: 625
-          description: De naam van de vestiging waaronder gehandeld wordt.
-        verblijfsadres:
-          allOf:
-          - $ref: '#/components/schemas/VerblijfsAdresRequest'
-          nullable: true
-        subVerblijfBuitenland:
-          allOf:
-          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
-          nullable: true
-        kvkNummer:
-          type: string
-          description: Een uniek nummer gekoppeld aan de onderneming.
-          maxLength: 8
+        betrokkeneIdentificatie:
+          $ref: '#/components/schemas/VestigingIdentificatieRequest'
     Status:
       type: object
       properties:
@@ -13925,6 +13954,56 @@ components:
       - geheim
       - zeer_geheim
       type: string
+    VestigingIdentificatie:
+      type: object
+      properties:
+        vestigingsNummer:
+          type: string
+          description: Een korte unieke aanduiding van de Vestiging.
+          maxLength: 24
+        handelsnaam:
+          type: array
+          items:
+            type: string
+            maxLength: 625
+          description: De naam van de vestiging waaronder gehandeld wordt.
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdres'
+          nullable: true
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenland'
+          nullable: true
+        kvkNummer:
+          type: string
+          description: Een uniek nummer gekoppeld aan de onderneming.
+          maxLength: 8
+    VestigingIdentificatieRequest:
+      type: object
+      properties:
+        vestigingsNummer:
+          type: string
+          description: Een korte unieke aanduiding van de Vestiging.
+          maxLength: 24
+        handelsnaam:
+          type: array
+          items:
+            type: string
+            maxLength: 625
+          description: De naam van de vestiging waaronder gehandeld wordt.
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdresRequest'
+          nullable: true
+        subVerblijfBuitenland:
+          allOf:
+          - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'
+          nullable: true
+        kvkNummer:
+          type: string
+          description: Een uniek nummer gekoppeld aan de onderneming.
+          maxLength: 8
     Wijzigingen:
       type: object
       properties:
@@ -14980,16 +15059,16 @@ components:
       type: object
       properties:
         natuurlijkPersoon:
-          $ref: '#/components/schemas/RolNatuurlijkPersoon'
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatie'
         nietNatuurlijkPersoon:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatie'
     ZakelijkRechtHeeftAlsGerechtigdeRequest:
       type: object
       properties:
         natuurlijkPersoon:
-          $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatieRequest'
         nietNatuurlijkPersoon:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatieRequest'
     adres_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -15004,56 +15083,6 @@ components:
     besluit_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-    betrokkene_identificatie_RolMedewerker:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolMedewerker'
-    betrokkene_identificatie_RolMedewerkerRequest:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolMedewerkerRequest'
-    betrokkene_identificatie_RolNatuurlijkPersoon:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolNatuurlijkPersoon'
-    betrokkene_identificatie_RolNatuurlijkPersoonRequest:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
-    betrokkene_identificatie_RolNietNatuurlijkPersoon:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
-    betrokkene_identificatie_RolNietNatuurlijkPersoonRequest:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
-    betrokkene_identificatie_RolOrganisatorischeEenheid:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolOrganisatorischeEenheid'
-    betrokkene_identificatie_RolOrganisatorischeEenheidRequest:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
-    betrokkene_identificatie_RolVestiging:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolVestiging'
-    betrokkene_identificatie_RolVestigingRequest:
-      type: object
-      properties:
-        betrokkeneIdentificatie:
-          $ref: '#/components/schemas/RolVestigingRequest'
     buurt_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -15127,51 +15156,81 @@ components:
     medewerker_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolMedewerker'
+      - $ref: '#/components/schemas/RolMedewerker'
     medewerker_RolSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolMedewerkerRequest'
+      - $ref: '#/components/schemas/RolMedewerkerRequest'
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_RolMedewerker'
+      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatie'
     medewerker_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_RolMedewerkerRequest'
+      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatieRequest'
     natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolNatuurlijkPersoon'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoon'
     natuurlijk_persoon_RolSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolNatuurlijkPersoonRequest'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_RolNatuurlijkPersoon'
+      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatie'
     natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_RolNatuurlijkPersoonRequest'
+      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatieRequest'
     niet_natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolNietNatuurlijkPersoon'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
     niet_natuurlijk_persoon_RolSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolNietNatuurlijkPersoonRequest'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_RolNietNatuurlijkPersoon'
+      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatie'
     niet_natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_RolNietNatuurlijkPersoonRequest'
+      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
+    object_identificatie_MedewerkerIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/MedewerkerIdentificatie'
+    object_identificatie_MedewerkerIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/MedewerkerIdentificatieRequest'
+    object_identificatie_NatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatie'
+    object_identificatie_NatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/NatuurlijkPersoonIdentificatieRequest'
+    object_identificatie_NietNatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatie'
+    object_identificatie_NietNatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatieRequest'
     object_identificatie_ObjectAdres:
       type: object
       properties:
@@ -15402,56 +15461,26 @@ components:
       properties:
         objectIdentificatie:
           $ref: '#/components/schemas/ObjectZakelijkRechtRequest'
-    object_identificatie_RolMedewerker:
+    object_identificatie_OrganisatorischeEenheidIdentificatie:
       type: object
       properties:
         objectIdentificatie:
-          $ref: '#/components/schemas/RolMedewerker'
-    object_identificatie_RolMedewerkerRequest:
+          $ref: '#/components/schemas/OrganisatorischeEenheidIdentificatie'
+    object_identificatie_OrganisatorischeEenheidIdentificatieRequest:
       type: object
       properties:
         objectIdentificatie:
-          $ref: '#/components/schemas/RolMedewerkerRequest'
-    object_identificatie_RolNatuurlijkPersoon:
+          $ref: '#/components/schemas/OrganisatorischeEenheidIdentificatieRequest'
+    object_identificatie_VestigingIdentificatie:
       type: object
       properties:
         objectIdentificatie:
-          $ref: '#/components/schemas/RolNatuurlijkPersoon'
-    object_identificatie_RolNatuurlijkPersoonRequest:
+          $ref: '#/components/schemas/VestigingIdentificatie'
+    object_identificatie_VestigingIdentificatieRequest:
       type: object
       properties:
         objectIdentificatie:
-          $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
-    object_identificatie_RolNietNatuurlijkPersoon:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
-    object_identificatie_RolNietNatuurlijkPersoonRequest:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
-    object_identificatie_RolOrganisatorischeEenheid:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolOrganisatorischeEenheid'
-    object_identificatie_RolOrganisatorischeEenheidRequest:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
-    object_identificatie_RolVestiging:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolVestiging'
-    object_identificatie_RolVestigingRequest:
-      type: object
-      properties:
-        objectIdentificatie:
-          $ref: '#/components/schemas/RolVestigingRequest'
+          $ref: '#/components/schemas/VestigingIdentificatieRequest'
     openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -15463,19 +15492,19 @@ components:
     organisatorische_eenheid_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolOrganisatorischeEenheid'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheid'
     organisatorische_eenheid_RolSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolOrganisatorischeEenheidRequest'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_RolOrganisatorischeEenheid'
+      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatie'
     organisatorische_eenheid_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_RolOrganisatorischeEenheidRequest'
+      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
     overige_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -15525,19 +15554,19 @@ components:
     vestiging_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolVestiging'
+      - $ref: '#/components/schemas/RolVestiging'
     vestiging_RolSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
-      - $ref: '#/components/schemas/betrokkene_identificatie_RolVestigingRequest'
+      - $ref: '#/components/schemas/RolVestigingRequest'
     vestiging_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_RolVestiging'
+      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatie'
     vestiging_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_RolVestigingRequest'
+      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatieRequest'
     waterdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'

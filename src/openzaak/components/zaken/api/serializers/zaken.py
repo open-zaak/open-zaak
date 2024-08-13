@@ -901,7 +901,6 @@ class RolSerializer(PolymorphicSerializer):
             RolTypes.organisatorische_eenheid: RolOrganisatorischeEenheidSerializer(),
             RolTypes.medewerker: RolMedewerkerSerializer(),
         },
-        group_field="betrokkene_identificatie",
         same_model=False,
     )
     contactpersoon_rol = ContactPersoonRolSerializer(
