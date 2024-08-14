@@ -32,21 +32,21 @@ jobs:
 
       - name: Get changed PY files
         id: changed-py-files
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v41
         with:
           files: |
             ^src/.+\.py
 
       - name: Get changed JS files
         id: changed-js-files
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v41
         with:
           files: |
             ^src/.+\.js
 
       - name: Get changed requirements files
         id: changed-requirements
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v41
         with:
           files: ^requirements/.+\.txt$
 
@@ -219,7 +219,7 @@ jobs:
         with:
           fetch-depth: 2
       - id: files
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v41
         with:
           files: ^requirements/.+\.txt$
 
