@@ -152,6 +152,10 @@ cryptography==41.0.7
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
+cssselect==1.2.0
+    # via
+    #   -r requirements/ci.txt
+    #   pyquery
 deprecated==1.2.14
     # via
     #   -r requirements/ci.txt
@@ -436,6 +440,7 @@ idna==3.7
     # via
     #   -r requirements/ci.txt
     #   requests
+    #   yarl
 imagesize==1.1.0
     # via sphinx
 inflection==0.5.1
@@ -489,6 +494,10 @@ kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
+lxml==5.3.0
+    # via
+    #   -r requirements/ci.txt
+    #   pyquery
 markdown==3.3.6
     # via
     #   -r requirements/ci.txt
@@ -513,6 +522,10 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
+multidict==6.0.5
+    # via
+    #   -r requirements/ci.txt
+    #   yarl
 mypy-extensions==1.0.0
     # via
     #   -r requirements/ci.txt
@@ -624,6 +637,8 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
+pyquery==2.0.0
+    # via -r requirements/ci.txt
 pyrsistent==0.18.1
     # via
     #   -r requirements/ci.txt
@@ -671,6 +686,7 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+    #   vcrpy
 qrcode==7.4.2
     # via
     #   -r requirements/ci.txt
@@ -811,6 +827,8 @@ uwsgi==2.0.26
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
+vcrpy==6.0.1
+    # via -r requirements/ci.txt
 vine==5.1.0
     # via
     #   -r requirements/ci.txt
@@ -833,7 +851,7 @@ webencodings==0.5.1
     # via
     #   -r requirements/ci.txt
     #   bleach
-webob==1.8.7
+webob==1.8.8
     # via
     #   -r requirements/ci.txt
     #   webtest
@@ -852,6 +870,11 @@ wrapt==1.16.0
     #   -r requirements/ci.txt
     #   deprecated
     #   elastic-apm
+    #   vcrpy
+yarl==1.9.4
+    # via
+    #   -r requirements/ci.txt
+    #   vcrpy
 zgw-consumers==0.27.0
     # via
     #   -r requirements/ci.txt
