@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 from django.conf import settings
-from django.test import override_settings, tag
+from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -23,16 +23,11 @@ from openzaak.components.documenten.tests.factories import (
     DocumentRowReportFactory,
 )
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.utils import (
-    ImportTestMixin,
-    get_csv_data,
-    get_temporary_dir,
-)
+from openzaak.import_data.tests.utils import ImportTestMixin, get_csv_data
 from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-report")
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
 class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True

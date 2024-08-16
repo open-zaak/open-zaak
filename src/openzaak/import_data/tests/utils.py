@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from django.conf import settings
+from django.test import override_settings
 
 from celery.utils.text import StringIO
 
@@ -20,6 +21,15 @@ class ImportTestMixin(TestCase):
 
     def setUp(self):
         super().setUp()
+
+        self.temp_dir = get_temporary_dir()
+        self.override = override_settings(IMPORT_DOCUMENTEN_BASE_DIR=self.temp_dir)
+        self.override.enable()
+
+        def _remove_temp_dir():
+            shutil.rmtree(self.temp_dir)
+
+        self.addCleanup(_remove_temp_dir)
 
         if self.clean_documenten_files:
             self.addCleanup(self.remove_documenten_files)
