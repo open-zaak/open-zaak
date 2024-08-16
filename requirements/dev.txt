@@ -79,7 +79,7 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2024.7.4
+certifi==2023.7.22
     # via
     #   -r requirements/ci.txt
     #   django-simple-certmanager
@@ -418,7 +418,7 @@ gemma-zds-client==1.0.1
     #   zgw-consumers
 gitdb==4.0.5
     # via gitpython
-gitpython==3.1.40
+gitpython==3.1.41
     # via -r requirements/dev.in
 glom==23.5.0
     # via
