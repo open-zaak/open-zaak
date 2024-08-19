@@ -13,14 +13,14 @@ from openzaak.components.zaken.models import ZaakInformatieObject
 
 
 class Command(BaseCommand):
-    help = "Check for any empty document identities (no related document)."
+    help = "Delete any empty Document identities and delete related Besluit/ZaakInformatieObjecten"
 
     def handle(self, *args, **options):
         if settings.CMIS_ENABLED:
-            self.stdout.write(_("This command does not run with CMIS enabled."))
+            self.stdout.write("This command does not run with CMIS enabled.")
             return
 
-        msg = _("Checking {count} records ...").format(
+        msg = "Checking {count} records ...".format(
             count=EnkelvoudigInformatieObjectCanonical.objects.count()
         )
         self.stdout.write(msg)
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         )
 
         if len(duplicates) == 0:
-            self.stdout.write(_("Found no empty records."))
+            self.stdout.write("Found no empty records.")
             return
 
         msg = _("Found {count} empty records.").format(count=len(duplicates))
@@ -43,18 +43,18 @@ class Command(BaseCommand):
             _informatieobject__in=duplicates
         )
 
-        msg = _(
-            "Found {biot_count} related BesluitInformatieObject and ZaakInformatieObject related {ziot_count}."
+        msg = (
+            "Found {biot_count} related BesluitInformatieObject "
+            "and ZaakInformatieObject related {ziot_count}."
         ).format(biot_count=related_biots.count(), ziot_count=related_ziots.count())
         self.stdout.write(msg)
 
-        delete_empties(related_ziots)
-        delete_empties(related_biots)
-        delete_empties(duplicates)
+        with transaction.atomic():
+            delete_empties(related_ziots)
+            delete_empties(related_biots)
+            delete_empties(duplicates)
 
 
-@transaction.atomic
 def delete_empties(empties: List) -> None:
     for document_id in empties:
         document_id.delete()
-    return
