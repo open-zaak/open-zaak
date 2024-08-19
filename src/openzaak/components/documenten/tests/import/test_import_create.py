@@ -20,12 +20,11 @@ from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_LOCK,
 )
 from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
+from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-start")
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
 class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     url = reverse_lazy("documenten-import:create")
 

@@ -28,14 +28,12 @@ from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.tests.utils import (
     ImportTestMixin,
     get_csv_data,
-    get_temporary_dir,
     get_temporary_file,
 )
 from openzaak.tests.utils.auth import JWTAuthMixin
 
 
 @tag("documenten-import-upload")
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
 class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
@@ -476,9 +474,11 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         import_document_task_mock.delay.assert_not_called()
 
-    @override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_file())
     @patch("openzaak.components.documenten.api.viewsets.import_documents")
     def test_import_dir_is_file(self, import_document_task_mock):
+        override = override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_file())
+        override.enable()
+
         import_dir = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
 
         self.assertTrue(import_dir.is_file())

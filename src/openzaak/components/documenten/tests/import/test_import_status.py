@@ -18,12 +18,11 @@ from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_LOCK,
 )
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
+from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-status")
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
 class ImportDocumentenStatustTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True

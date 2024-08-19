@@ -9,12 +9,11 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.import_data.models import Import, ImportStatusChoices, ImportTypeChoices
-from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
+from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("documenten-import-delete")
-@override_settings(IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir())
 class ImportDocumentenDestroyTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True

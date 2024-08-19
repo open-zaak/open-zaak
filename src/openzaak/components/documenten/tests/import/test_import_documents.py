@@ -37,11 +37,7 @@ def _get_test_dir() -> Path:
     return import_test_dir / "files"
 
 
-@override_settings(
-    ALLOWED_HOSTS=["testserver"],
-    IMPORT_DOCUMENTEN_BASE_DIR=str(_get_test_dir()),
-    IMPORT_DOCUMENTEN_BATCH_SIZE=2,
-)
+@override_settings(ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BATCH_SIZE=2)
 class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
 
@@ -88,6 +84,11 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.addCleanup(self.requests_mock.stop)
 
         super().setUp()
+
+        # This override is also applied in ImportTestMixin.setUp, so we have to override
+        # it here
+        override = override_settings(IMPORT_DOCUMENTEN_BASE_DIR=_get_test_dir())
+        override.enable()
 
     def test_simple_import(self):
         ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")

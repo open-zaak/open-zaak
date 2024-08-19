@@ -31,14 +31,12 @@ from openzaak.components.documenten.tests.utils import (
     get_informatieobjecttype_response,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.import_data.tests.utils import ImportTestMixin, get_temporary_dir
+from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
-@override_settings(
-    ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BASE_DIR=get_temporary_dir()
-)
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
 
