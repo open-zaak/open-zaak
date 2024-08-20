@@ -9,7 +9,6 @@ from django.db import models, transaction
 from django.utils import timezone
 
 import factory.fuzzy
-import vcr
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
@@ -68,13 +67,11 @@ from openzaak.components.zaken.tests.factories import (
 from openzaak.selectielijst.models import ReferentieLijstConfig
 
 
-@vcr.use_cassette("src/openzaak/tests/cassettes/selectielijst_resultaten.yaml")
 def get_sl_resultaten() -> list[dict]:
     """
     get first 100 objects from Selectielijst.resultaten endpoint
     use only for test purposes
     """
-
     client = ReferentieLijstConfig.get_client()
     response = client.list("resultaat")
     return response["results"]
