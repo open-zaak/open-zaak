@@ -5,11 +5,43 @@ from unittest.mock import patch
 from django.apps import apps
 from django.core.management import CommandError, call_command
 
+import requests_mock
 from rest_framework.test import APITestCase
+
+from openzaak.components.zaken.models import Zaak
+from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 
 
 class GenerateDataTests(APITestCase):
-    def test_generate_data_yes(self):
+    @requests_mock.Mocker()
+    def test_generate_data_yes(self, m):
+        # mocks for Selectielijst API calls
+        config = ReferentieLijstConfig.get_solo()
+        mock_selectielijst_oas_get(m)
+        m.get(
+            f"{config.api_root}resultaten",
+            json={
+                "previous": None,
+                "next": None,
+                "count": 1,
+                "results": [
+                    {
+                        "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "nummer": 1,
+                        "volledigNummer": "1.1",
+                        "naam": "Ingericht",
+                        "omschrijving": "",
+                        "procestermijn": "nihil",
+                        "procestermijnWeergave": "Nihil",
+                        "bewaartermijn": "P10Y",
+                        "toelichting": "Invoering nieuwe werkwijze",
+                    }
+                ],
+            },
+        )
+
         with patch("builtins.input", lambda *args: "yes"):
             call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
 
@@ -34,11 +66,23 @@ class GenerateDataTests(APITestCase):
             "documenten.EnkelvoudigInformatieObject": 2,
             "documenten.ObjectInformatieObject": 4,
         }
-        # catalogi
+
         for model_name, obj_count in generated_objects_count.items():
             with self.subTest(model_name):
                 model = apps.get_model(model_name)
                 self.assertEqual(model.objects.count(), obj_count)
+
+        # assert that some attributes are filled
+        for zaak in Zaak.objects.all():
+            with self.subTest(zaak):
+                self.assertEqual(
+                    zaak.selectielijstklasse,
+                    f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                )
+                self.assertIsNotNone(zaak.archiefactiedatum)
+
+        # checks external calls
+        self.assertEqual(m.last_request.url, f"{config.api_root}resultaten")
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
