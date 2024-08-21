@@ -17,6 +17,7 @@ from ...models import (
     Vestiging,
 )
 from .address import VerblijfsAdresSerializer
+from .authentication_context import DigiDAuthContextSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -80,25 +81,20 @@ class NatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
         return natuurlijkpersoon
 
 
-class NatuurlijkPersoonAuthContextSerializer(serializers.ModelSerializer):
-    dummy = serializers.CharField(label="dummy", required=False)
-
-    class Meta:
-        model = NatuurlijkPersoon
-        fields = ("dummy",)
-
-
 class RolNatuurlijkPersoonSerializer(serializers.ModelSerializer):
     betrokkene_identificatie = NatuurlijkPersoonIdentificatieSerializer(required=False)
-    authenticatie_context = NatuurlijkPersoonAuthContextSerializer(
-        required=False,
+    authenticatie_context = DigiDAuthContextSerializer(
         label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
         help_text=_(
             "Information about the authentication and mandate (if relevant) that "
             "applied when the role was added to the case. It is essential when you "
             "later want to retrieve information again which should match certain "
             "authentication guarantees, like minimum level of assurance. The exact "
-            "shape of data depends on the selected `betrokkeneType`."
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
         ),
     )
 

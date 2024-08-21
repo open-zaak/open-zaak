@@ -11103,6 +11103,151 @@ components:
           maxLength: 200
       required:
       - naam
+    DigiDAuthContext:
+      type: object
+      properties:
+        source:
+          allOf:
+          - $ref: '#/components/schemas/SourceEnum'
+          description: DigiD is the only way a Natural Person can be identified.
+        levelOfAssurance:
+          allOf:
+          - $ref: '#/components/schemas/LevelOfAssuranceEnum'
+          description: |-
+            Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+
+            Uitleg bij mogelijke waarden:
+
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport` - DigiD Basis
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract` - DigiD Midden
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` - DigiD Substantieel
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI` - DigiD Hoog
+        representee:
+          allOf:
+          - $ref: '#/components/schemas/DigiDRepresentee'
+          title: represented person
+          description: When registering the role for the authorizee, you should include
+            the representee to make clear a mandate applies. This also requires you
+            to specify the `mandate` key and its context. If you provide a representee,
+            You should also create an additional `rol` with `rolomschrijvingGeneriek`
+            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+        mandate:
+          allOf:
+          - $ref: '#/components/schemas/DigiDMandate'
+          title: mandate context
+          description: |-
+            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
+
+            The `mandate` key is required if a `representee` is specified.
+      required:
+      - source
+    DigiDAuthContextRequest:
+      type: object
+      properties:
+        source:
+          allOf:
+          - $ref: '#/components/schemas/SourceEnum'
+          description: DigiD is the only way a Natural Person can be identified.
+        levelOfAssurance:
+          allOf:
+          - $ref: '#/components/schemas/LevelOfAssuranceEnum'
+          description: |-
+            Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+
+            Uitleg bij mogelijke waarden:
+
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport` - DigiD Basis
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract` - DigiD Midden
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` - DigiD Substantieel
+            * `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI` - DigiD Hoog
+        representee:
+          allOf:
+          - $ref: '#/components/schemas/DigiDRepresenteeRequest'
+          title: represented person
+          description: When registering the role for the authorizee, you should include
+            the representee to make clear a mandate applies. This also requires you
+            to specify the `mandate` key and its context. If you provide a representee,
+            You should also create an additional `rol` with `rolomschrijvingGeneriek`
+            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+        mandate:
+          allOf:
+          - $ref: '#/components/schemas/DigiDMandateRequest'
+          title: mandate context
+          description: |-
+            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
+
+            The `mandate` key is required if a `representee` is specified.
+      required:
+      - source
+    DigiDMandate:
+      type: object
+      properties:
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigiDMandateService'
+      required:
+      - services
+    DigiDMandateRequest:
+      type: object
+      properties:
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigiDMandateServiceRequest'
+      required:
+      - services
+    DigiDMandateService:
+      type: object
+      properties:
+        id:
+          type: string
+          title: service ID
+      required:
+      - id
+    DigiDMandateServiceRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          title: service ID
+      required:
+      - id
+    DigiDRepresentee:
+      type: object
+      properties:
+        identifierType:
+          allOf:
+          - $ref: '#/components/schemas/IdentifierTypeEnum'
+          description: Determines how to interpret the `identifier` value. DigiD and
+            DigiD Machtigen only support BSNs.
+        identifier:
+          type: string
+          description: BSN of the person being represented. BSNs must satisfy the
+            11-proef.
+          maxLength: 9
+          minLength: 9
+      required:
+      - identifier
+      - identifierType
+    DigiDRepresenteeRequest:
+      type: object
+      properties:
+        identifierType:
+          allOf:
+          - $ref: '#/components/schemas/IdentifierTypeEnum'
+          description: Determines how to interpret the `identifier` value. DigiD and
+            DigiD Machtigen only support BSNs.
+        identifier:
+          type: string
+          minLength: 9
+          description: BSN of the person being represented. BSNs must satisfy the
+            11-proef.
+          maxLength: 9
+      required:
+      - identifier
+      - identifierType
     ExpandZaak:
       allOf:
       - $ref: '#/components/schemas/Zaak'
@@ -11278,6 +11423,10 @@ components:
       - v
       - o
       type: string
+    IdentifierTypeEnum:
+      enum:
+      - bsn
+      type: string
     IndicatieMachtigingEnum:
       enum:
       - gemachtigde
@@ -11379,6 +11528,13 @@ components:
       required:
       - datumtijd
       - zaak
+    LevelOfAssuranceEnum:
+      enum:
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+      type: string
     LineString:
       type: object
       description: GeoJSON line-string geometry
@@ -11490,17 +11646,6 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/Point2D'
-    NatuurlijkPersoonAuthContext:
-      type: object
-      properties:
-        dummy:
-          type: string
-    NatuurlijkPersoonAuthContextRequest:
-      type: object
-      properties:
-        dummy:
-          type: string
-          minLength: 1
     NatuurlijkPersoonIdentificatie:
       type: object
       properties:
@@ -13508,13 +13653,13 @@ components:
           $ref: '#/components/schemas/NatuurlijkPersoonIdentificatie'
         authenticatieContext:
           allOf:
-          - $ref: '#/components/schemas/NatuurlijkPersoonAuthContext'
+          - $ref: '#/components/schemas/DigiDAuthContext'
+          nullable: true
           title: authentication context
-          description: Information about the authentication and mandate (if relevant)
-            that applied when the role was added to the case. It is essential when
-            you later want to retrieve information again which should match certain
-            authentication guarantees, like minimum level of assurance. The exact
-            shape of data depends on the selected `betrokkeneType`.
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
     RolNatuurlijkPersoonRequest:
       type: object
       properties:
@@ -13522,13 +13667,13 @@ components:
           $ref: '#/components/schemas/NatuurlijkPersoonIdentificatieRequest'
         authenticatieContext:
           allOf:
-          - $ref: '#/components/schemas/NatuurlijkPersoonAuthContextRequest'
+          - $ref: '#/components/schemas/DigiDAuthContextRequest'
+          nullable: true
           title: authentication context
-          description: Information about the authentication and mandate (if relevant)
-            that applied when the role was added to the case. It is essential when
-            you later want to retrieve information again which should match certain
-            authentication guarantees, like minimum level of assurance. The exact
-            shape of data depends on the selected `betrokkeneType`.
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
     RolNietNatuurlijkPersoon:
       type: object
       properties:
@@ -13574,6 +13719,10 @@ components:
       properties:
         betrokkeneIdentificatie:
           $ref: '#/components/schemas/VestigingIdentificatieRequest'
+    SourceEnum:
+      enum:
+      - digid
+      type: string
     Status:
       type: object
       properties:

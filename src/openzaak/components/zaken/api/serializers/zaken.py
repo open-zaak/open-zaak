@@ -997,11 +997,13 @@ class RolSerializer(PolymorphicSerializer):
 
         rol = super().create(validated_data)
 
+        discriminated_serializer = self.discriminator.mapping[
+            validated_data["betrokkene_type"]
+        ]
+        assert isinstance(discriminated_serializer, serializers.ModelSerializer)
+
         if group_data:
-            group_serializer = self.discriminator.mapping[
-                validated_data["betrokkene_type"]
-            ]
-            serializer = group_serializer.get_fields()["betrokkene_identificatie"]
+            serializer = discriminated_serializer.fields["betrokkene_identificatie"]
             group_data["rol"] = rol
             serializer.create(group_data)
 

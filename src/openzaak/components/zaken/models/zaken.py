@@ -710,6 +710,15 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
         )
 
 
+_SUPPORTS_AUTH_CONTEXT = models.Q(
+    betrokkene_type__in=[
+        RolTypes.natuurlijk_persoon,
+        RolTypes.niet_natuurlijk_persoon,
+        RolTypes.vestiging,
+    ]
+)
+
+
 class Rol(ETagMixin, APIMixin, models.Model):
     """
     Modelleer de rol van een BETROKKENE bij een ZAAK.
@@ -853,11 +862,32 @@ class Rol(ETagMixin, APIMixin, models.Model):
         ),
     )
 
+    authenticatie_context = models.JSONField(
+        _("authentication context"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Metadata about the authentication context and mandate that applied when "
+            "the role was added to the case."
+        ),
+    )
+
     objects = ZaakRelatedQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Rol"
         verbose_name_plural = "Rollen"
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    _SUPPORTS_AUTH_CONTEXT
+                    | models.Q(
+                        ~_SUPPORTS_AUTH_CONTEXT, authenticatie_context__isnull=True
+                    )
+                ),
+                name="rol_auth_context_support_check",
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         self._derive_roltype_attributes()
@@ -910,13 +940,6 @@ class Rol(ETagMixin, APIMixin, models.Model):
     def betrokkene_identificatie(self):
         """
         Expose ``betrokkene_identificatie`` accessor to API serializers.
-        """
-        return self._get_relation_for_betrokkene_type()
-
-    @property
-    def authenticatie_context(self):
-        """
-        Expose ``authenticatie_context`` accessor to API serializers.
         """
         return self._get_relation_for_betrokkene_type()
 

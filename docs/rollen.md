@@ -249,6 +249,14 @@ If `representee` is provided in auth context, then:
     * `indicatieMachtiging` **MUST** be set to "gemachtigde"
     * `mandate` **MUST** be provided in auth context
 
+Natuurlijk persoon authContext:
+    * can not have source `eherkenning` - it must be `digid` when provided
+
+NNP/VES authContext:
+    * can only have eherkenning source
+
+Can auth_context only be set on initiator?
+
 ## What about other betrokkene types:
 
 * organisatorische_eenheid: auth context not meaningful + is internal
