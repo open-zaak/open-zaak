@@ -133,7 +133,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "telefoonnummer": "061234567890",
                 },
                 "statussen": [f"http://testserver{reverse(status_)}"],
-                "authenticatieContext": {},
+                "authenticatieContext": None,
             },
         )
 
