@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
+from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from django import forms
@@ -122,13 +123,17 @@ def get_initial_for_component(
                 if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
             ]
             if catalogus_autorisaties_for_va:
-                _initial.update(
+                _initial_catalogus_auth = deepcopy(_initial)
+                _initial_catalogus_auth.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
                         "catalogi": catalogus_autorisaties_for_va,
                     }
                 )
-            else:
+                # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
+                # because they have a different `related_type_selection` value
+                initial.append(_initial_catalogus_auth)
+            if _autorisaties:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
@@ -136,7 +141,7 @@ def get_initial_for_component(
                         "externe_typen": relevant_external,
                     }
                 )
-            initial.append(_initial)
+                initial.append(_initial)
 
     elif component == ComponentTypes.drc:
         grouped_by_va = defaultdict(list)
@@ -175,13 +180,17 @@ def get_initial_for_component(
                 if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
             ]
             if catalogus_autorisaties_for_va:
-                _initial.update(
+                _initial_catalogus_auth = deepcopy(_initial)
+                _initial_catalogus_auth.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
                         "catalogi": catalogus_autorisaties_for_va,
                     }
                 )
-            else:
+                # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
+                # because they have a different `related_type_selection` value
+                initial.append(_initial_catalogus_auth)
+            if _autorisaties:
                 _initial.update(
                     {
                         "related_type_selection": RelatedTypeSelectionMethods.manual_select,
@@ -189,7 +198,7 @@ def get_initial_for_component(
                         "externe_typen": relevant_external,
                     }
                 )
-            initial.append(_initial)
+                initial.append(_initial)
 
     elif component == ComponentTypes.brc:
         relevant_ids = set(related_objs.values())
@@ -197,7 +206,8 @@ def get_initial_for_component(
         _initial = {"externe_typen": _related_objs_external}
 
         if catalogus_autorisaties:
-            _initial.update(
+            _initial_catalogus_auth = deepcopy(_initial)
+            _initial_catalogus_auth.update(
                 {
                     "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
                     "catalogi": [
@@ -206,14 +216,17 @@ def get_initial_for_component(
                     ],
                 }
             )
-        else:
+            # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
+            # because they have a different `related_type_selection` value
+            initial.append(_initial_catalogus_auth)
+        if relevant_ids:
             _initial.update(
                 {
                     "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                     "besluittypen": relevant_ids,
                 }
             )
-        initial.append(_initial)
+            initial.append(_initial)
     else:
         # The other components do not have any extra options
         initial.append({})
@@ -240,29 +253,24 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
 
     catalogus_autorisaties = defaultdict(list)
     for catalogus_autorisatie in applicatie.catalogusautorisatie_set.all():
-        catalogus_autorisaties[
-            (
-                catalogus_autorisatie.component,
-                tuple(sorted(catalogus_autorisatie.scopes)),
-            )
-        ].append(catalogus_autorisatie)
+        key = _get_group_key(catalogus_autorisatie)
+        catalogus_autorisaties[key].append(catalogus_autorisatie)
 
-    grouped = defaultdict(list)
-    autorisaties = applicatie.autorisaties.all()
-    for autorisatie in autorisaties:
+    grouped_autorisaties = defaultdict(list)
+    for autorisatie in applicatie.autorisaties.all():
         key = _get_group_key(autorisatie)
-        grouped[key].append(autorisatie)
+        grouped_autorisaties[key].append(autorisatie)
 
     # if there's no existing records yet, there will not be any autorisaties and we
     # have to inject the CatalogusAutorisatie itself. See #1080 for the bug report.
-    for catalogus_autorisatie in catalogus_autorisaties.values():
-        key = _get_group_key(catalogus_autorisatie[0])
+    for key, catalogus_autorisatie_list in catalogus_autorisaties.items():
+        key = _get_group_key(catalogus_autorisatie_list[0])
         # can happen if there's a spec but no existing records yet
-        if key in grouped:
+        if key in grouped_autorisaties:
             continue
-        grouped[key] = []
+        grouped_autorisaties[key] = []
 
-    for (component, _scopes), _autorisaties in grouped.items():
+    for (component, _scopes), _autorisaties in grouped_autorisaties.items():
         component_initial = get_initial_for_component(
             component,
             _autorisaties,

@@ -22,6 +22,7 @@ from vng_api_common.tests import reverse as _reverse
 from zgw_consumers.test import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -203,6 +204,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_no_changes_no_notifications(self, mock_send_notif):
+        """
+        Verify that saving the form without any changes does not result in notifications
+        """
         zt = ZaakTypeFactory.create()
         zt2 = ZaakTypeFactory.create()
         Autorisatie.objects.create(
@@ -1137,6 +1141,87 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.context["formset"].initial, expected_initial)
 
     @tag("gh-1661")
+    def test_regular_and_catalogus_autorisatie_with_same_va(self):
+        """
+        Test that it is possible to have regular and catalogus autorisaties exist, if they have
+        the same vertrouwelijkheidaanduiding
+
+        They should show up in separate rows, they cannot be grouped in the same
+        row because related_type_selection is different
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": scopes,
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-zaaktypen": [zaaktype.pk],  # not from the same catalogus
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        catalogus_autorisatie = CatalogusAutorisatie.objects.get()
+
+        # New autorisatie was created
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, scopes)
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # New CatalogusAutorisatie was created
+        self.assertEqual(catalogus_autorisatie.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Load the page again to check if the initial data is as expected
+        response = self.client.get(self.url)
+
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
+            },
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
     def test_catalogus_autorisatie_switch_component(self):
         """
         Test that it is possible to switch the component of a catalogus autorisatie
@@ -1230,7 +1315,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     ):
         """
         It should not be possible to create two CatalogusAutorisaties with the same component
-        and Catalogus, but different scopes
+        and Catalogus, regardless of different scopes
         """
         response = self.client.get(self.url)
 
@@ -1258,9 +1343,54 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(
             response.context["formset"]._non_form_errors[0],
             _(
-                "You cannot create multiple CatalogusAutorisaties with the "
+                "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
                 "same component and catalogus: {component}, {catalogus}"
             ).format(component=ComponentTypes.drc, catalogus=self.catalogus),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_regular_autorisatie_and_catalogus_autorisaties_same_component_and_catalogus_different_scopes_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create a CatalogusAutorisatie and a regular Autorisatie
+        with a type from the same catalogus and the same component, even if the scopes are different
+        """
+        iot = InformatieObjectTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 3,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            # Unrelated autorisatie
+            "form-0-component": ComponentTypes.ac,
+            "form-0-scopes": [str(SCOPE_AUTORISATIES_BIJWERKEN)],
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-informatieobjecttypen": [iot.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-2-component": ComponentTypes.drc,
+            "form-2-scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            "form-2-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-2-catalogi": [iot.catalogus.pk],
+            "form-2-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _(
+                "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
+                "same component and catalogus: {component}, {catalogus}"
+            ).format(component=ComponentTypes.drc, catalogus=iot.catalogus),
         )
         self.assertFalse(CatalogusAutorisatie.objects.exists())
 

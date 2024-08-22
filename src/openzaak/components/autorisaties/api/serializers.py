@@ -5,12 +5,7 @@ import logging
 from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 
-from django_loose_fk.loaders import BaseLoader
-from django_loose_fk.utils import get_resource_for_path
-from furl import furl
-from rest_framework.exceptions import ValidationError
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.serializers import (
     ApplicatieSerializer as _ApplicatieSerializer,
@@ -119,41 +114,3 @@ class ApplicatieSerializer(_ApplicatieSerializer):
         self.create_missing_credentials(applicatie)
 
         return applicatie
-
-    def validate(self, attrs):
-        # Check overlap between autorisaties *typen and CatalogusAutorisaties
-        if self.instance and self.instance.catalogusautorisatie_set.exists():
-            from ..forms import COMPONENT_TO_FIELDS_MAP
-
-            catalogus_autorisatie_mapping = {
-                catalogus_autorisatie.catalogus: catalogus_autorisatie
-                for catalogus_autorisatie in self.instance.catalogusautorisatie_set.all()
-            }
-            loader = BaseLoader()
-            for autorisatie in attrs.get("autorisaties", []):
-                type_field = COMPONENT_TO_FIELDS_MAP.get(
-                    autorisatie["component"], {}
-                ).get("_autorisatie_type_field")
-
-                if type_field and loader.is_local_url(autorisatie[type_field]):
-                    path = str(furl(autorisatie[type_field]).path)
-                    instance = loader.load_local_object(
-                        path, get_resource_for_path(path)
-                    )
-                    if matching_autorisatie := catalogus_autorisatie_mapping.get(
-                        instance.catalogus
-                    ):
-                        if set(matching_autorisatie.scopes).intersection(
-                            set(autorisatie["scopes"])
-                        ):
-                            raise ValidationError(
-                                _(
-                                    "Cannot create Autorisatie for component {component} and type {type}, there is "
-                                    "a CatalogusAutorisatie with overlapping scopes"
-                                ).format(
-                                    component=autorisatie["component"],
-                                    type=autorisatie[type_field],
-                                ),
-                                code="catalogus-autorisatie-exists",
-                            )
-        return super().validate(attrs)

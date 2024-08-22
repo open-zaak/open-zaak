@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.test import override_settings, tag
-from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -730,50 +729,6 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
         credential = JWTSecret.objects.get(identifier="id2")
 
         self.assertEqual(credential.secret, "")
-
-    @tag("gh-1661")
-    @override_settings(ALLOWED_HOSTS=["testserver.com"])
-    def test_update_authorization_with_existing_catalogus_autorisatie(self):
-        zaaktype = ZaakTypeFactory.create()
-        CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie,
-            catalogus=zaaktype.catalogus,
-            component=ComponentTypes.zrc,
-            scopes=["dummy.scope"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        url = get_operation_url("applicatie_partial_update", uuid=self.applicatie.uuid)
-
-        response = self.client.patch(
-            url,
-            {
-                "autorisaties": [
-                    {
-                        "component": ComponentTypes.zrc,
-                        "scopes": ["dummy.scope"],
-                        "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-                        # Zaaktype is part of the same catalogus as the CatalogusAutorisatie
-                        "zaaktype": f"http://testserver.com{reverse(zaaktype)}",
-                    },
-                ]
-            },
-            headers={"host": "testserver.com"},
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "catalogus-autorisatie-exists")
-        self.assertEqual(
-            error["reason"],
-            _(
-                "Cannot create Autorisatie for component {component} and type {type}, there is "
-                "a CatalogusAutorisatie with overlapping scopes"
-            ).format(
-                component=ComponentTypes.zrc,
-                type=f"http://testserver.com{reverse(zaaktype)}",
-            ),
-        )
 
     @tag("gh-1661")
     @override_settings(ALLOWED_HOSTS=["testserver.com"])
