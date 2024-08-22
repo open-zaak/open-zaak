@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from collections import defaultdict
-from copy import deepcopy
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from django import forms
 from django.core.exceptions import PermissionDenied
@@ -64,7 +63,6 @@ def is_local_url(autorisatie):
 def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
-    catalogus_autorisaties: Optional[List[CatalogusAutorisatie]] = None,
 ) -> List[Dict[str, Any]]:
     _related_objs = {}
     _related_objs_external = {}
@@ -93,17 +91,6 @@ def get_initial_for_component(
                 autorisatie
             )
 
-        # if only a CatalogusAutorisatie exists, there are no real Autorisaties, so we need
-        # to inject one here
-        if (
-            catalogus_autorisaties
-            and catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding
-            not in grouped_by_va
-        ):
-            grouped_by_va[catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding] = (
-                []
-            )
-
         for va, _autorisaties in grouped_by_va.items():
             _initial = {"vertrouwelijkheidaanduiding": va}
             relevant_ids = {
@@ -117,22 +104,6 @@ def get_initial_for_component(
                 if autorisatie.pk in _related_objs_external
             ]
 
-            catalogus_autorisaties_for_va = [
-                catalogus_autorisatie.catalogus.pk
-                for catalogus_autorisatie in catalogus_autorisaties or []
-                if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
-            ]
-            if catalogus_autorisaties_for_va:
-                _initial_catalogus_auth = deepcopy(_initial)
-                _initial_catalogus_auth.update(
-                    {
-                        "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                        "catalogi": catalogus_autorisaties_for_va,
-                    }
-                )
-                # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
-                # because they have a different `related_type_selection` value
-                initial.append(_initial_catalogus_auth)
             if _autorisaties:
                 _initial.update(
                     {
@@ -141,24 +112,13 @@ def get_initial_for_component(
                         "externe_typen": relevant_external,
                     }
                 )
-                initial.append(_initial)
+            initial.append(_initial)
 
     elif component == ComponentTypes.drc:
         grouped_by_va = defaultdict(list)
         for autorisatie in internal_autorisaties + external_autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
-            )
-
-        # if only a CatalogusAutorisatie exists, there are no real Autorisaties, so we need
-        # to inject one here
-        if (
-            catalogus_autorisaties
-            and catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding
-            not in grouped_by_va
-        ):
-            grouped_by_va[catalogus_autorisaties[0].max_vertrouwelijkheidaanduiding] = (
-                []
             )
 
         for va, _autorisaties in grouped_by_va.items():
@@ -174,22 +134,6 @@ def get_initial_for_component(
                 if autorisatie.pk in _related_objs_external
             ]
 
-            catalogus_autorisaties_for_va = [
-                catalogus_autorisatie.catalogus.pk
-                for catalogus_autorisatie in catalogus_autorisaties or []
-                if catalogus_autorisatie.max_vertrouwelijkheidaanduiding == va
-            ]
-            if catalogus_autorisaties_for_va:
-                _initial_catalogus_auth = deepcopy(_initial)
-                _initial_catalogus_auth.update(
-                    {
-                        "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                        "catalogi": catalogus_autorisaties_for_va,
-                    }
-                )
-                # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
-                # because they have a different `related_type_selection` value
-                initial.append(_initial_catalogus_auth)
             if _autorisaties:
                 _initial.update(
                     {
@@ -198,38 +142,60 @@ def get_initial_for_component(
                         "externe_typen": relevant_external,
                     }
                 )
-                initial.append(_initial)
+            initial.append(_initial)
 
     elif component == ComponentTypes.brc:
         relevant_ids = set(related_objs.values())
+        _initial = {
+            "externe_typen": list(_related_objs_external.values()),
+            "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "besluittypen": relevant_ids,
+        }
+        initial.append(_initial)
+    else:
+        # The other components do not have any extra options
+        initial.append({})
 
-        _initial = {"externe_typen": _related_objs_external}
+    return initial
 
-        if catalogus_autorisaties:
-            _initial_catalogus_auth = deepcopy(_initial)
-            _initial_catalogus_auth.update(
+
+def get_initial_for_component_for_catalogus_autorisaties(
+    component: str,
+    catalogus_autorisaties: list[CatalogusAutorisatie],
+) -> List[Dict[str, Any]]:
+    initial = []
+
+    match component:
+        case ComponentTypes.zrc | ComponentTypes.drc:
+            grouped_by_va = defaultdict(list)
+            for autorisatie in catalogus_autorisaties:
+                grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
+                    autorisatie
+                )
+
+            for va, _autorisaties in grouped_by_va.items():
+                _initial = {"vertrouwelijkheidaanduiding": va}
+                catalogus_autorisaties_for_va = [
+                    catalogus_autorisatie.catalogus.pk
+                    for catalogus_autorisatie in _autorisaties or []
+                ]
+                _initial.update(
+                    {
+                        "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                        "catalogi": catalogus_autorisaties_for_va,
+                    }
+                )
+                initial.append(_initial)
+        case ComponentTypes.brc:
+            initial = [
                 {
                     "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
                     "catalogi": [
                         catalogus_autorisatie.catalogus.pk
-                        for catalogus_autorisatie in catalogus_autorisaties
+                        for catalogus_autorisatie in catalogus_autorisaties or []
                     ],
                 }
-            )
-            # Group CatalogusAutorisaties in a separate row from regular Autorisaties,
-            # because they have a different `related_type_selection` value
-            initial.append(_initial_catalogus_auth)
-        if relevant_ids:
-            _initial.update(
-                {
-                    "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                    "besluittypen": relevant_ids,
-                }
-            )
-            initial.append(_initial)
-    else:
-        # The other components do not have any extra options
-        initial.append({})
+            ]
 
     return initial
 
@@ -251,30 +217,33 @@ def get_initial(applicatie: Applicatie) -> List[Dict[str, Any]]:
     """
     initial = []
 
-    catalogus_autorisaties = defaultdict(list)
+    grouped_catalogus_autorisaties = defaultdict(list)
     for catalogus_autorisatie in applicatie.catalogusautorisatie_set.all():
         key = _get_group_key(catalogus_autorisatie)
-        catalogus_autorisaties[key].append(catalogus_autorisatie)
+        grouped_catalogus_autorisaties[key].append(catalogus_autorisatie)
 
     grouped_autorisaties = defaultdict(list)
     for autorisatie in applicatie.autorisaties.all():
         key = _get_group_key(autorisatie)
         grouped_autorisaties[key].append(autorisatie)
 
-    # if there's no existing records yet, there will not be any autorisaties and we
-    # have to inject the CatalogusAutorisatie itself. See #1080 for the bug report.
-    for key, catalogus_autorisatie_list in catalogus_autorisaties.items():
-        key = _get_group_key(catalogus_autorisatie_list[0])
-        # can happen if there's a spec but no existing records yet
-        if key in grouped_autorisaties:
-            continue
-        grouped_autorisaties[key] = []
+    for (
+        component,
+        _scopes,
+    ), catalogus_autorisaties in grouped_catalogus_autorisaties.items():
+        component_initial = get_initial_for_component_for_catalogus_autorisaties(
+            component,
+            catalogus_autorisaties,
+        )
+        initial += [
+            {"component": component, "scopes": list(_scopes), **_initial}
+            for _initial in component_initial
+        ]
 
     for (component, _scopes), _autorisaties in grouped_autorisaties.items():
         component_initial = get_initial_for_component(
             component,
             _autorisaties,
-            catalogus_autorisaties.get((component, _scopes)),
         )
         initial += [
             {"component": component, "scopes": list(_scopes), **_initial}

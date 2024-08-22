@@ -734,6 +734,63 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
         self.assertEqual(Applicatie.objects.count(), 0)
 
+    def test_load_initial_data_external_types(self):
+        """
+        Test that external types for ZRC/BRC/DRC load properly, even if there are no local
+        types linked to Autorisaties
+        """
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype="http://ztc.com/1234",
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            informatieobjecttype="http://ztc.com/5678",
+            scopes=[str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            besluittype="http://ztc.com/4321",
+            scopes=[str(SCOPE_BESLUITEN_AANMAKEN)],
+        )
+
+        response = self.client.get(self.url)
+
+        # Regular Autorisatie with different scopes should be displayed separately
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": set(),
+                "externe_typen": ["http://ztc.com/1234"],
+            },
+            {
+                "component": ComponentTypes.drc,
+                "scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "informatieobjecttypen": set(),
+                "externe_typen": ["http://ztc.com/5678"],
+            },
+            {
+                "component": ComponentTypes.brc,
+                "scopes": [str(SCOPE_BESLUITEN_AANMAKEN)],
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "besluittypen": set(),
+                "externe_typen": ["http://ztc.com/4321"],
+            },
+        ]
+
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
     @tag("gh-1661")
     def test_create_catalogus_autorisatie_for_zaken_api(self):
         """
@@ -907,18 +964,18 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         expected_initial = [
             {
                 "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.zrc,
                 "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
                 "related_type_selection": RelatedTypeSelectionMethods.manual_select,
                 "zaaktypen": {zaaktype.pk},
                 "externe_typen": [],
-            },
-            {
-                "component": ComponentTypes.zrc,
-                "scopes": scopes,
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
-                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                "catalogi": [self.catalogus.pk],
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
@@ -991,17 +1048,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         expected_initial = [
             {
                 "component": ComponentTypes.brc,
-                "scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
-                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                "besluittypen": {besluittype.pk},
-                "externe_typen": {},
-            },
-            {
-                "component": ComponentTypes.brc,
                 "scopes": scopes,
                 "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
                 "catalogi": [self.catalogus.pk],
-                "externe_typen": {},
+            },
+            {
+                "component": ComponentTypes.brc,
+                "scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "besluittypen": {besluittype.pk},
+                "externe_typen": [],
             },
         ]
 
@@ -1125,17 +1181,17 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             {
                 "component": ComponentTypes.zrc,
                 "scopes": scopes,
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
-                "zaaktypen": {zaaktype.pk},
-                "externe_typen": [],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
             },
             {
                 "component": ComponentTypes.zrc,
                 "scopes": scopes,
-                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
-                "catalogi": [self.catalogus.pk],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
             },
         ]
         self.assertEqual(response.context["formset"].initial, expected_initial)
