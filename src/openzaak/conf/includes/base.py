@@ -507,11 +507,11 @@ DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "", add_to_docs=False)
 DEMO_SECRET = config("DEMO_SECRET", "", add_to_docs=False)
 
 AUTHORIZATIONS_CONFIG_ENABLE = config(
-    "AUTHORIZATIONS_CONFIG_ENABLE", default=True, add_to_docs=False
+    "AUTHORIZATIONS_CONFIG_ENABLE", default=False, add_to_docs=False
 )
 AUTHORIZATIONS_CONFIG_FIXTURE_PATH = config(
     "AUTHORIZATIONS_CONFIG_FIXTURE_PATH", default="", add_to_docs=False
 )
 AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH = config(
-    "AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH", default=""
+    "AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH", default="", add_to_docs=False
 )

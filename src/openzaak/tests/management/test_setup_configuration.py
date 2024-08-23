@@ -4,6 +4,7 @@ from io import StringIO
 from pathlib import Path
 
 from django.contrib.sites.models import Site
+from openzaak.components.catalogi.tests.factories import CatalogusFactory
 from django.core.management import CommandError, call_command
 from django.test import override_settings
 
@@ -52,12 +53,16 @@ AUTH_FIXTURE_PATH = Path(__file__).parents[2] / "config/tests/bootstrap/files/au
     DEMO_CONFIG_ENABLE=True,
     DEMO_CLIENT_ID="demo-client-id",
     DEMO_SECRET="demo-secret",
+    AUTHORIZATIONS_CONFIG_ENABLE=True,
     AUTHORIZATIONS_CONFIG_FIXTURE_PATH=AUTH_FIXTURE_PATH,
 )
 class SetupConfigurationTests(APITestCase):
     def setUp(self):
         super().setUp()
 
+        self.catalogus = CatalogusFactory.create(
+            uuid="6de0b166-8e76-477c-901d-123244e4d020"
+        )
         self.addCleanup(Site.objects.clear_cache)
 
     @requests_mock.Mocker()
