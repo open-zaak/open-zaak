@@ -79,7 +79,9 @@ class LooseFkAuthorizationsFilterMixin:
             queryset = self.filter(_local_filters | _external_filters)
         return queryset
 
-    def get_filters(self, scope, authorizations, local=True) -> dict:
+    def get_filters(
+        self, scope, authorizations, catalogus_authorizations=None, local=True
+    ) -> dict:
         prefix = self.prefix
         loose_fk_field = (
             f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
@@ -130,6 +132,29 @@ class LooseFkAuthorizationsFilterMixin:
                     )
                 )
 
+        if catalogus_authorizations:
+            for catalogus_authorisation in catalogus_authorizations:
+                resources = getattr(
+                    catalogus_authorisation.catalogus, f"{self.loose_fk_field}_set"
+                ).all()
+
+                for instance in resources:
+                    loose_fk_objecten.append(instance)
+
+                    # extract the order and map it to the database value
+                    if catalogus_authorisation.max_vertrouwelijkheidaanduiding:
+                        choice_item_order = (
+                            VertrouwelijkheidsAanduiding.get_choice_order(
+                                catalogus_authorisation.max_vertrouwelijkheidaanduiding
+                            )
+                        )
+                        vertrouwelijkheidaanduiding_whens.append(
+                            When(
+                                **{f"{prefix}{loose_fk_field}": instance},
+                                then=Value(choice_item_order),
+                            )
+                        )
+
         # filtering:
         # * only allow the white-listed loose-fk objects, explicitly
         # * apply the filtering to limit cases within case-types to the maximal
@@ -161,7 +186,10 @@ class LooseFkAuthorizationsFilterMixin:
         return authorizations_local, authorizations_external
 
     def filter_for_authorizations(
-        self, scope: Scope, authorizations: models.QuerySet
+        self,
+        scope: Scope,
+        authorizations: models.QuerySet,
+        catalogus_authorizations: models.QuerySet,
     ) -> models.QuerySet:
 
         # todo implement error if no loose-fk field
@@ -170,7 +198,11 @@ class LooseFkAuthorizationsFilterMixin:
             scope, authorizations
         )
 
-        local_filters = self.get_filters(scope, authorizations_local, True)
-        external_filters = self.get_filters(scope, authorizations_external, False)
-
+        local_filters = self.get_filters(
+            scope,
+            authorizations_local,
+            catalogus_authorizations=catalogus_authorizations,
+            local=True,
+        )
+        external_filters = self.get_filters(scope, authorizations_external, local=False)
         return self.build_queryset(local_filters, external_filters)

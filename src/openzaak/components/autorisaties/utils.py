@@ -2,21 +2,24 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from typing import Any, Dict, Optional, Union
 
+from django.conf import settings
 from django.db.models.base import ModelBase
 from django.http import HttpRequest
+from django.urls import reverse
 
 import dictdiffer
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
-from vng_api_common.authorizations.serializers import ApplicatieSerializer
 from vng_api_common.constants import ComponentTypes
 
+from openzaak.components.autorisaties.api.serializers import ApplicatieSerializer
 from openzaak.components.catalogi.models import (
     BesluitType,
     InformatieObjectType,
     ZaakType,
 )
+from openzaak.utils import build_absolute_url
 
 from .api.viewsets import ApplicatieViewSet
 
@@ -102,5 +105,24 @@ def send_applicatie_changed_notification(
     viewset.action = "update"
     if new_version is None:
         request = build_fake_request(method="put")
-        new_version = get_applicatie_serializer(applicatie, request).data
-    viewset.notify(status_code=200, data=new_version, instance=applicatie)
+        # The notification message only includes the URL of the applicatie, so construct that instead
+        # of serializing the complete Applicatie. The latter would lead to a lot of queries, because
+        # all the CatalogusAutorisaties need to be fetched to construct virtual Autorisaties as well.
+        viewset.notify(
+            status_code=200,
+            data={
+                "url": build_absolute_url(
+                    reverse(
+                        "applicatie-detail",
+                        kwargs={
+                            "uuid": str(applicatie.uuid),
+                            "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
+                        },
+                    ),
+                    request=request,
+                )
+            },
+            instance=applicatie,
+        )
+    else:
+        viewset.notify(status_code=200, data=new_version, instance=applicatie)

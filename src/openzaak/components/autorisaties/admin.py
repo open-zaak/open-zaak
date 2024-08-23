@@ -20,7 +20,7 @@ from zds_client import ClientAuth
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
 from .forms import ApplicatieForm, CredentialsFormSet
-from .models import AutorisatieSpec
+from .models import CatalogusAutorisatie
 
 admin.site.unregister(AuthorizationsConfig)
 admin.site.unregister(Applicatie)
@@ -79,7 +79,12 @@ class ApplicatieAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         autorisaties = Autorisatie.objects.filter(applicatie=OuterRef("pk"))
-        return qs.annotate(has_authorizations=Exists(autorisaties))
+        catalogus_autorisaties = CatalogusAutorisatie.objects.filter(
+            applicatie=OuterRef("pk")
+        )
+        return qs.annotate(
+            has_authorizations=Exists(autorisaties) | Exists(catalogus_autorisaties)
+        )
 
     def get_urls(self) -> list:
         urls = super().get_urls()
@@ -139,11 +144,15 @@ class ApplicatieAdmin(admin.ModelAdmin):
         return ""
 
 
-@admin.register(AutorisatieSpec)
-class AutorisatieSpecAdmin(admin.ModelAdmin):
+@admin.register(CatalogusAutorisatie)
+class CatalogusAutorisatieAdmin(admin.ModelAdmin):
     list_display = (
         "applicatie",
         "component",
+        "catalogus",
     )
-    list_filter = ("component", "applicatie")
-    search_fields = ("applicatie__uuid",)
+    list_filter = ("component", "applicatie", "catalogus")
+    search_fields = (
+        "applicatie__uuid",
+        "catalogus__naam",
+    )

@@ -12,6 +12,7 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
+from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
@@ -19,7 +20,12 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..api.scopes import SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_DOCUMENTEN_ALLES_LEZEN
+from ..api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+)
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from .factories import (
@@ -136,6 +142,97 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
+    @tag("gh-1661")
+    def test_eio_list_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to see EnkelvoudigInformatieObjecten in the list view
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        self.applicatie.autorisaties.all().delete()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=self.informatieobjecttype.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        # Should be visible
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Different catalogus, should not be visible
+        EnkelvoudigInformatieObjectFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        # Correct catalogus, but VA is too high, should not be visible
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        # Different catalogus, should not be visible
+        EnkelvoudigInformatieObjectFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
+        )
+        url = reverse("enkelvoudiginformatieobject-list")
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["informatieobjecttype"],
+            f"http://testserver{reverse(self.informatieobjecttype)}",
+        )
+        self.assertEqual(
+            results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_eio_retrieve_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to read EnkelvoudigInformatieObjecten
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        self.applicatie.autorisaties.all().delete()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=self.informatieobjecttype.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        # Not part of catalogus
+        eio_incorrect_catalogus = EnkelvoudigInformatieObjectFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        # vertrouwelijkheidaanduiding too high
+        eio_incorrect_va = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        # allowed to access!
+        eio_allowed = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response_not_allowed1 = self.client.get(reverse(eio_incorrect_catalogus))
+        response_not_allowed2 = self.client.get(reverse(eio_incorrect_va))
+        response_allowed = self.client.get(reverse(eio_allowed))
+
+        self.assertEqual(response_not_allowed1.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response_not_allowed2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response_allowed.status_code, status.HTTP_200_OK)
+
     def test_read_superuser(self):
         """
         superuser read everything
@@ -167,6 +264,233 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 4)
 
 
+class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
+    scopes = [
+        SCOPE_DOCUMENTEN_BIJWERKEN,
+        SCOPE_DOCUMENTEN_AANMAKEN,
+        SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    ]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+    component = ComponentTypes.drc
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+        super().setUpTestData()
+
+        # Different catalogus, should not be allowed
+        cls.informatieobjecttype_not_allowed = InformatieObjectTypeFactory.create(
+            concept=False
+        )
+        cls.applicatie.autorisaties.all().delete()
+        CatalogusAutorisatieFactory.create(
+            catalogus=cls.informatieobjecttype.catalogus,
+            applicatie=cls.applicatie,
+            component=cls.component,
+            scopes=cls.scopes,
+            max_vertrouwelijkheidaanduiding=cls.max_vertrouwelijkheidaanduiding,
+        )
+        cls.eio_allowed = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=cls.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        cls.eio_incorrect_catalogus = EnkelvoudigInformatieObjectFactory.create()
+        cls.eio_incorrect_va = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=cls.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.confidentieel,
+        )
+
+    @tag("gh-1661")
+    def test_eio_create_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to create EnkelvoudigInformatieObjecten
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        url = reverse("enkelvoudiginformatieobject-list")
+
+        with self.subTest("correct VA but incorrect catalogus"):
+            response = self.client.post(
+                url,
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype_not_allowed)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("correct catalogus but incorrect VA"):
+            response = self.client.post(
+                url,
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("success"):
+            response = self.client.post(
+                url,
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+    @tag("gh-1661")
+    def test_eio_update_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to update EnkelvoudigInformatieObjecten
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        # To allow updates
+        self.eio_allowed.canonical.lock = "foo"
+        self.eio_allowed.canonical.save()
+
+        with self.subTest("correct VA but incorrect catalogus"):
+            response = self.client.put(
+                reverse(self.eio_incorrect_catalogus),
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("correct catalogus but incorrect VA"):
+            response = self.client.put(
+                reverse(self.eio_incorrect_va),
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("success"):
+            response = self.client.put(
+                reverse(self.eio_allowed),
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                    "lock": "foo",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @tag("gh-1661")
+    def test_eio_partially_update_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to partially update EnkelvoudigInformatieObjecten
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        # To allow updates
+        self.eio_allowed.canonical.lock = "foo"
+        self.eio_allowed.canonical.save()
+
+        with self.subTest("correct VA but incorrect catalogus"):
+            response = self.client.patch(
+                reverse(self.eio_incorrect_catalogus), {"titel": "foo"}
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("correct catalogus but incorrect VA"):
+            response = self.client.patch(
+                reverse(self.eio_incorrect_va), {"titel": "foo"}
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("success"):
+            response = self.client.patch(
+                reverse(self.eio_allowed), {"titel": "foo", "lock": "foo"}
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @tag("gh-1661")
+    def test_eio_delete_with_catalogus_autorisatie(self):
+        """
+        Assert that CatalogusAutorisatie gives permission to delete EnkelvoudigInformatieObjecten
+        that belong to Informatieobjecttypen in the Catalogus
+        """
+        with self.subTest("correct VA but incorrect catalogus"):
+            response = self.client.delete(reverse(self.eio_incorrect_catalogus))
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("correct catalogus but incorrect VA"):
+            response = self.client.delete(reverse(self.eio_incorrect_va))
+
+            self.assertEqual(
+                response.status_code, status.HTTP_403_FORBIDDEN, response.data
+            )
+
+        with self.subTest("success"):
+            response = self.client.delete(reverse(self.eio_allowed))
+
+            self.assertEqual(
+                response.status_code, status.HTTP_204_NO_CONTENT, response.data
+            )
+
+
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
@@ -182,6 +506,45 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
+        url = reverse("gebruiksrechten-list")
+        # must show up
+        gebruiksrechten1 = GebruiksrechtenFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        GebruiksrechtenFactory.create(
+            informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        # must not show up
+        GebruiksrechtenFactory.create(
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(
+            response_data[0]["url"], f"http://testserver{reverse(gebruiksrechten1)}"
+        )
+
+    @tag("gh-1661")
+    def test_list_gebruiksrechten_limited_to_authorized_zaken_with_catalogus_autorisatie(
+        self,
+    ):
+        self.applicatie.autorisaties.all().delete()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=self.informatieobjecttype.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
         url = reverse("gebruiksrechten-list")
         # must show up
         gebruiksrechten1 = GebruiksrechtenFactory.create(
@@ -264,6 +627,61 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_oio_limited_to_authorized_zaken(self):
+        url = reverse("objectinformatieobject-list")
+        zaak = ZaakFactory.create()
+        # must show up
+        eio1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        oio1 = ObjectInformatieObject.objects.create(
+            informatieobject=eio1.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
+        )
+
+        # must not show up
+        eio2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio2.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
+        )
+
+        # must not show up
+        eio3 = EnkelvoudigInformatieObjectFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        ObjectInformatieObject.objects.create(
+            informatieobject=eio3.canonical,
+            zaak=zaak,
+            object_type=ObjectInformatieObjectTypes.zaak,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response_data = response.json()
+
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
+
+    @tag("gh-1661")
+    def test_list_oio_limited_to_authorized_zaken_with_catalogus_autorisatie(self):
+        self.applicatie.autorisaties.all().delete()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=self.informatieobjecttype.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
         url = reverse("objectinformatieobject-list")
         zaak = ZaakFactory.create()
         # must show up

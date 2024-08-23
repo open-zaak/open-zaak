@@ -225,26 +225,6 @@
                 "autorisatie"
             ],
             [
-                "add_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "change_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "delete_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "view_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
                 "add_accessattempt",
                 "axes",
                 "accessattempt"
@@ -1671,26 +1651,6 @@
                 "view_autorisatie",
                 "authorizations",
                 "autorisatie"
-            ],
-            [
-                "add_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "change_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "delete_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "view_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
             ]
         ]
     }
@@ -2906,11 +2866,6 @@
                 "view_autorisatie",
                 "authorizations",
                 "autorisatie"
-            ],
-            [
-                "view_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
             ]
         ]
     }
@@ -3314,26 +3269,6 @@
                 "view_autorisatie",
                 "authorizations",
                 "autorisatie"
-            ],
-            [
-                "add_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "change_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "delete_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
-            ],
-            [
-                "view_autorisatiespec",
-                "autorisaties",
-                "autorisatiespec"
             ],
             [
                 "add_jwtsecret",

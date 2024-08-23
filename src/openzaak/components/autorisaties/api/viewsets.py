@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 
+from django.db.models import Prefetch, Q
+
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -10,9 +12,15 @@ from rest_framework.generics import get_object_or_404
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES
 
+from ..models import CatalogusAutorisatie
 from .filters import ApplicatieFilter, ApplicatieRetrieveFilter
 from .kanalen import KANAAL_AUTORISATIES
 from .permissions import AutorisatiesAuthRequired
@@ -20,6 +28,10 @@ from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from .serializers import ApplicatieSerializer
 
 logger = logging.getLogger(__name__)
+
+IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
+HAS_AUTORISATIES = Q(autorisaties__isnull=False)
+HAS_CATALOGUS_AUTORISATIES = Q(catalogusautorisatie__isnull=False)
 
 
 @extend_schema_view(
@@ -104,10 +116,31 @@ class ApplicatieViewSet(
 
     queryset = (
         Applicatie.objects.exclude(
-            heeft_alle_autorisaties=False, autorisaties__isnull=True
+            ~IS_SUPERUSER & ~HAS_AUTORISATIES & ~HAS_CATALOGUS_AUTORISATIES
         )
-        .exclude(heeft_alle_autorisaties=True, autorisaties__isnull=False)
-        .prefetch_related("autorisaties")
+        .exclude(IS_SUPERUSER & (HAS_AUTORISATIES | HAS_CATALOGUS_AUTORISATIES))
+        .prefetch_related(
+            "autorisaties",
+            Prefetch(
+                "catalogusautorisatie_set",
+                queryset=CatalogusAutorisatie.objects.select_related("catalogus")
+                .order_by("component")
+                .prefetch_related(
+                    Prefetch(
+                        "catalogus__zaaktype_set",
+                        queryset=ZaakType.objects.order_by("-pk"),
+                    ),
+                    Prefetch(
+                        "catalogus__informatieobjecttype_set",
+                        queryset=InformatieObjectType.objects.order_by("-pk"),
+                    ),
+                    Prefetch(
+                        "catalogus__besluittype_set",
+                        queryset=BesluitType.objects.order_by("-pk"),
+                    ),
+                ),
+            ),
+        )
         .order_by("-pk")
     )
     serializer_class = ApplicatieSerializer

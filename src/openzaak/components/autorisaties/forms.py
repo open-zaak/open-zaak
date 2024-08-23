@@ -19,8 +19,10 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import SCOPE_REGISTRY
 
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.components.catalogi.models import (
     BesluitType,
+    Catalogus,
     InformatieObjectType,
     ZaakType,
 )
@@ -200,6 +202,14 @@ class AutorisatieForm(forms.Form):
         widget=forms.RadioSelect,
     )
 
+    catalogi = forms.ModelMultipleChoiceField(
+        label=_("catalogi"),
+        required=False,
+        help_text=_("De catalogi waarvoor deze Autorisatie geldt."),
+        queryset=Catalogus.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     zaaktypen = forms.ModelMultipleChoiceField(
         label=_("zaaktypen"),
         required=False,
@@ -231,6 +241,23 @@ class AutorisatieForm(forms.Form):
         required=False,
         error_messages={"item_invalid": ""},
     )
+
+    def has_changed(self) -> bool:
+        # We don't consider an empty form that was left empty changed
+        if not self.initial:
+            return super().has_changed()
+
+        # When saving the AutorisatieBaseFormSet, we delete all of the existing
+        # Autorisaties/CatalogusAutorisaties and subsequently save the submitted forms
+        # to save the changes that were made. In case certain AutorisatieForms were left
+        # unchanged, the default behavior of `BaseForm.has_changed` would be to return `False`.
+        # However, `has_changed=False` means that the `AutorisatieForm.save` will not
+        # have access to `cleaned_data` and exit early, which means that the Autorisatie
+        # will not be created.
+
+        # For this reason we always want to ensure `has_changed` is True here, to ensure
+        # the Autorisatie/CatalogusAutorisatie is (re)created, no matter what
+        return True
 
     def clean(self):
         super().clean()
@@ -335,14 +362,16 @@ class AutorisatieForm(forms.Form):
         if related_type_selection:
             _field_info = COMPONENT_TO_FIELDS_MAP[component]
 
-            # pick the entire queryset and
-            if related_type_selection in [
-                RelatedTypeSelectionMethods.all_current_and_future,
-                RelatedTypeSelectionMethods.all_current,
-            ]:
-                types = self.fields[_field_info["types_field"]].queryset
-
             # only pick a queryset of the explicitly selected objects
+            if related_type_selection == RelatedTypeSelectionMethods.select_catalogus:
+                catalogi = self.cleaned_data["catalogi"]
+                types = []
+                for catalogus in catalogi:
+                    types += list(
+                        getattr(
+                            catalogus, f"{_field_info['_autorisatie_type_field']}_set"
+                        ).all()
+                    )
             elif related_type_selection == RelatedTypeSelectionMethods.manual_select:
                 types = self.cleaned_data.get(_field_info["types_field"])
 
@@ -359,7 +388,8 @@ class AutorisatieForm(forms.Form):
             return
 
         # forms beyond initial data that haven't changed -> nothing to do
-        if not self.has_changed() and not self.initial:
+        # if the form has not changed, `full_clean` will not add data to `cleaned_data`
+        if not self.cleaned_data:
             return
 
         # Fixed fields
@@ -374,20 +404,20 @@ class AutorisatieForm(forms.Form):
         types = self.get_types(component)
         # install a handler for future objects
         related_type_selection = self.cleaned_data.get("related_type_selection")
-        if related_type_selection == RelatedTypeSelectionMethods.all_current_and_future:
-            applicatie.autorisatie_specs.update_or_create(
-                component=component,
-                scopes=scopes,
-                defaults={
-                    "scopes": scopes,
-                    "max_vertrouwelijkheidaanduiding": vertrouwelijkheidaanduiding,
-                },
-            )
-        else:
-            applicatie.autorisatie_specs.filter(
-                component=component,
-                scopes=scopes,
-            ).delete()
+        if related_type_selection == RelatedTypeSelectionMethods.select_catalogus:
+            instance_pks = []
+            for catalogus in self.cleaned_data.get("catalogi", []):
+                instance = CatalogusAutorisatie.objects.create(
+                    applicatie=applicatie,
+                    component=component,
+                    catalogus=catalogus,
+                    scopes=scopes,
+                    max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
+                )
+                instance_pks.append(instance.pk)
+
+            # In case a CatalogusAutorisatie in created, we don't want to create Autorisaties
+            return
 
         autorisatie_kwargs = {
             "applicatie": applicatie,
@@ -445,6 +475,12 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         ).data
 
         self.applicatie.autorisaties.all().delete()
+        # In case a component was changed for an existing CatalogusAutorisatie, we don't
+        # want to have to figure out which row was changed and delete that row. Instead
+        # we delete all existing CatalogusAutorisaties and save all the forms in the
+        # formset, because the end result should always be the same as the submitted form
+        # data
+        self.applicatie.catalogusautorisatie_set.all().delete()
         for form in self.forms:
             form.save(applicatie=self.applicatie, request=self.request, commit=commit)
 
@@ -459,6 +495,7 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         self._validate_authorizations_have_scopes()
         # validate overlap zaaktypen between different auths
         self._validate_overlapping_types()
+        self._validate_catalogus_autorisaties_overlapping_component_and_catalogus()
 
     def _validate_authorizations_have_scopes(self):
         for form in self.forms:
@@ -498,6 +535,66 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                         )
 
                     scope_types[scope] = previous_types.union(types)
+
+    def _validate_catalogus_autorisaties_overlapping_component_and_catalogus(self):
+        """
+        Raise errors if there are any CatalogusAutorisaties with the same component and
+        catalogus (or regular Autorisaties with the same component and types from the same catalogus)
+        regardless of scopes
+        """
+        error_msg = _(
+            "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
+            "same component and catalogus: {component}, {catalogus}"
+        )
+        catalogus_and_component_combinations = []
+        for form in self.forms:
+            data = form.cleaned_data
+
+            if not data:
+                continue
+
+            match data.get("related_type_selection"):
+                case RelatedTypeSelectionMethods.select_catalogus:
+                    for catalogus in data.get("catalogi", []):
+                        catalogus_and_component = (catalogus.pk, data["component"])
+                        if (
+                            catalogus_and_component
+                            in catalogus_and_component_combinations
+                        ):
+                            raise ValidationError(
+                                error_msg.format(
+                                    component=data["component"], catalogus=catalogus
+                                ),
+                                code="overlapped_component_and_catalogus",
+                            )
+                        else:
+                            catalogus_and_component_combinations.append(
+                                catalogus_and_component
+                            )
+                case RelatedTypeSelectionMethods.manual_select:
+                    _field_info = COMPONENT_TO_FIELDS_MAP.get(data["component"])
+                    if not _field_info:
+                        continue
+
+                    for _type in data.get(_field_info["types_field"], []):
+                        catalogus_and_component = (
+                            _type.catalogus.pk,
+                            data["component"],
+                        )
+                        if (
+                            catalogus_and_component
+                            in catalogus_and_component_combinations
+                        ):
+                            raise ValidationError(
+                                error_msg.format(
+                                    component=data["component"], catalogus=catalogus
+                                ),
+                                code="overlapped_component_and_catalogus",
+                            )
+                        else:
+                            catalogus_and_component_combinations.append(
+                                catalogus_and_component
+                            )
 
 
 # TODO: support external zaaktypen

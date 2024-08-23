@@ -5,7 +5,6 @@ Test the custom admin view to manage autorisaties for an application.
 """
 
 from unittest.mock import patch
-from urllib.parse import urlparse
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
@@ -17,26 +16,46 @@ import requests_mock
 from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.tests import reverse as _reverse
 from zgw_consumers.test import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
+from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+)
 from openzaak.components.catalogi.models.informatieobjecttype import (
     InformatieObjectType,
 )
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
+    CatalogusFactory,
     InformatieObjectTypeFactory,
     ZaakTypeFactory,
+)
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+)
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
-from ...models import AutorisatieSpec
-from ..factories import ApplicatieFactory, AutorisatieFactory, AutorisatieSpecFactory
+from ...models import CatalogusAutorisatie
+from ..factories import (
+    ApplicatieFactory,
+    AutorisatieFactory,
+    CatalogusAutorisatieFactory,
+)
 
 ZTC_URL = "https://ztc.com/api/v1"
 ZAAKTYPE1 = f"{ZTC_URL}/zaaktypen/1"
@@ -132,6 +151,8 @@ class ApplicatieInlinesAdminTests(WebTest):
 @freeze_time("2022-01-01")
 @disable_admin_mfa()
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -158,6 +179,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.applicatie_url = reverse(
             "applicatie-detail", kwargs={"version": 1, "uuid": self.applicatie.uuid}
         )
+        self.catalogus = CatalogusFactory.create()
 
     def test_page_returns_on_get(self):
         # set up some initial data
@@ -169,11 +191,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             informatieobjecttype=build_absolute_url(iot.get_absolute_api_url()),
         )
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
-        )
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.nrc,
@@ -184,359 +201,14 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_add_autorisatie_all_current_zaaktypen(self):
-        zt1 = ZaakTypeFactory.create(concept=False)
-        zt2 = ZaakTypeFactory.create(concept=True)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-        urls = [
-            reverse("zaaktype-detail", kwargs={"version": 1, "uuid": zt1.uuid}),
-            reverse("zaaktype-detail", kwargs={"version": 1, "uuid": zt2.uuid}),
-        ]
-
-        for autorisatie in Autorisatie.objects.all():
-            with self.subTest(autorisatie=autorisatie):
-                self.assertEqual(autorisatie.component, ComponentTypes.zrc)
-                self.assertEqual(autorisatie.scopes, ["zaken.lezen"])
-                self.assertEqual(
-                    autorisatie.max_vertrouwelijkheidaanduiding,
-                    VertrouwelijkheidsAanduiding.beperkt_openbaar,
-                )
-                self.assertIsInstance(autorisatie.zaaktype, str)
-                parsed = urlparse(autorisatie.zaaktype)
-                self.assertEqual(parsed.scheme, "http")
-                self.assertEqual(parsed.netloc, "testserver")
-                self.assertIn(parsed.path, urls)
-
-    def test_add_autorisatie_all_current_and_future_zaaktypen(self):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Autorisatie.objects.exists())
-
-        # create a ZaakType - this should trigger a new autorisatie being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            ZaakTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-    def test_noop_all_current_and_future_zaaktypen(self):
-        zt = ZaakTypeFactory.create()
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=["zaken.lezen"],
-            zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-        # create a ZaakType - this should trigger a new autorisatie being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            ZaakTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-    def test_add_autorisatie_all_current_informatieobjecttypen(self):
-        iot1 = InformatieObjectTypeFactory.create(concept=False)
-        iot2 = InformatieObjectTypeFactory.create(concept=True)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.drc,
-            "form-0-scopes": ["documenten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-        urls = [
-            reverse(
-                "informatieobjecttype-detail", kwargs={"version": 1, "uuid": iot1.uuid}
-            ),
-            reverse(
-                "informatieobjecttype-detail", kwargs={"version": 1, "uuid": iot2.uuid}
-            ),
-        ]
-
-        for autorisatie in Autorisatie.objects.all():
-            with self.subTest(autorisatie=autorisatie):
-                self.assertEqual(autorisatie.component, ComponentTypes.drc)
-                self.assertEqual(autorisatie.scopes, ["documenten.lezen"])
-                self.assertEqual(
-                    autorisatie.max_vertrouwelijkheidaanduiding,
-                    VertrouwelijkheidsAanduiding.beperkt_openbaar,
-                )
-                self.assertIsInstance(autorisatie.informatieobjecttype, str)
-                parsed = urlparse(autorisatie.informatieobjecttype)
-                self.assertEqual(parsed.scheme, "http")
-                self.assertEqual(parsed.netloc, "testserver")
-                self.assertIn(parsed.path, urls)
-
-    def test_add_autorisatie_all_current_and_future_informatieobjecttypen(self):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.drc,
-            "form-0-scopes": ["documenten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Autorisatie.objects.exists())
-
-        # create a informatieobjecttype - this should trigger a new autorisatie being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            InformatieObjectTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-    def test_noop_all_current_and_future_informatieobjecttypen(self):
-        iot = InformatieObjectTypeFactory.create()
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-            informatieobjecttype=f"http://testserver{iot.get_absolute_api_url()}",
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.drc,
-            "form-0-scopes": ["documenten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-        # create a InformatieObjectType - this should trigger a new autorisatie
-        # being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            InformatieObjectTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-    def test_add_autorisatie_all_current_besluittypen(self):
-        bt1 = BesluitTypeFactory.create(concept=False)
-        bt2 = BesluitTypeFactory.create(concept=True)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-        urls = [
-            reverse("besluittype-detail", kwargs={"version": 1, "uuid": bt1.uuid}),
-            reverse("besluittype-detail", kwargs={"version": 1, "uuid": bt2.uuid}),
-        ]
-
-        for autorisatie in Autorisatie.objects.all():
-            with self.subTest(autorisatie=autorisatie):
-                self.assertEqual(autorisatie.component, ComponentTypes.brc)
-                self.assertEqual(autorisatie.scopes, ["besluiten.lezen"])
-                self.assertEqual(autorisatie.max_vertrouwelijkheidaanduiding, "")
-                self.assertIsInstance(autorisatie.besluittype, str)
-                parsed = urlparse(autorisatie.besluittype)
-                self.assertEqual(parsed.scheme, "http")
-                self.assertEqual(parsed.netloc, "testserver")
-                self.assertIn(parsed.path, urls)
-
-    def test_add_autorisatie_all_current_and_future_besluittypen(self):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Autorisatie.objects.exists())
-
-        # create a besluittype - this should trigger a new autorisatie being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            BesluitTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-    def test_noop_all_current_and_future_besluittypen(self):
-        bt = BesluitTypeFactory.create()
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
-            informatieobjecttype=f"http://testserver{bt.get_absolute_api_url()}",
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-        # create a InformatieObjectType - this should trigger a new autorisatie
-        # being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            BesluitTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-        # creating other types should not trigger anything, nor error
-        with self.captureOnCommitCallbacks(execute=True):
-            ZaakTypeFactory.create()
-            InformatieObjectTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 2)
-
-    @tag("notifications")
-    @override_settings(
-        NOTIFICATIONS_DISABLED=False,
-        OPENZAAK_DOMAIN="openzaak.example.com",
-        OPENZAAK_REWRITE_HOST=True,
-        ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
-    )
-    def test_add_autorisatie_send_notificatie_with_rewrite_host(self):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Autorisatie.objects.exists())
-
-        with patch(
-            "notifications_api_common.viewsets.send_notification.delay"
-        ) as mock_notif:
-            # create a besluittype - this should trigger a new autorisatie being installed
-            # We need to capture on_commit callbacks twice, because the `AutorisatieSpec.sync`
-            # itself is executed on_commit and the notification sending as well
-            with self.captureOnCommitCallbacks(
-                execute=True
-            ), self.captureOnCommitCallbacks(execute=True):
-                BesluitTypeFactory.create()
-
-            self.assertEqual(self.applicatie.autorisaties.count(), 1)
-            self.assertEqual(response.status_code, 302)
-
-            mock_notif.assert_called_with(
-                {
-                    "kanaal": "autorisaties",
-                    "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
-                    "resource": "applicatie",
-                    "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
-                    "actie": "update",
-                    "aanmaakdatum": "2022-01-01T00:00:00Z",
-                    "kenmerken": {},
-                }
-            )
-
     @override_settings(NOTIFICATIONS_DISABLED=False)
-    @requests_mock.Mocker()
-    def test_no_changes_no_notifications(self, m):
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_no_changes_no_notifications(self, mock_send_notif):
+        """
+        Verify that saving the form without any changes does not result in notifications
+        """
         zt = ZaakTypeFactory.create()
+        zt2 = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
@@ -544,9 +216,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt2.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
         data = {
             # management form
-            "form-TOTAL_FORMS": 1,
+            "form-TOTAL_FORMS": 2,
             "form-INITIAL_FORMS": 0,
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
@@ -555,19 +234,25 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-zaaktypen": [zt.id],
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": ["zaken.aanmaken"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [zt2.catalogus.id],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
         }
 
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(m.called)
+        self.assertFalse(mock_send_notif.called)
 
     @tag("notifications")
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
-    def test_changes_send_notifications(self, mock_notif):
+    def test_changes_to_regular_autorisatie_send_notifications(self, mock_notif):
         zt = ZaakTypeFactory.create()
+        zt2 = ZaakTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
@@ -575,9 +260,16 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             zaaktype=f"http://testserver{zt.get_absolute_api_url()}",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt2.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
         data = {
             # management form
-            "form-TOTAL_FORMS": 1,
+            "form-TOTAL_FORMS": 2,
             "form-INITIAL_FORMS": 0,
             "form-MIN_NUM_FORMS": 0,
             "form-MAX_NUM_FORMS": 1000,
@@ -586,6 +278,53 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-zaaktypen": [zt.id],
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": ["zaken.aanmaken"],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [zt2.catalogus.id],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,  # modified
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+
+        mock_notif.assert_called_with(
+            {
+                "kanaal": "autorisaties",
+                "hoofdObject": f"http://testserver{self.applicatie_url}",
+                "resource": "applicatie",
+                "resourceUrl": f"http://testserver{self.applicatie_url}",
+                "actie": "update",
+                "aanmaakdatum": "2022-01-01T00:00:00Z",
+                "kenmerken": {},
+            }
+        )
+
+    @tag("notifications")
+    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_changes_to_catalogus_autorisatie_send_notifications(self, mock_notif):
+        zt = ZaakTypeFactory.create()
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=["zaken.aanmaken"],
+            catalogus=zt.catalogus,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": ["zaken.aanmaken"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [zt.catalogus.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,  # modified
         }
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -645,97 +384,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
                 "resource": "applicatie",
                 "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
-                "actie": "update",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "kenmerken": {},
-            }
-        )
-
-    @tag("notifications")
-    @override_settings(NOTIFICATIONS_DISABLED=False)
-    @patch("notifications_api_common.viewsets.send_notification.delay")
-    def test_new_zt_all_current_and_future_send_notifications(self, mock_notif):
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(self.url, data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Autorisatie.objects.exists())
-
-        # create a ZaakType - this should trigger a new autorisatie being installed
-        with self.captureOnCommitCallbacks(execute=True):
-            with self.captureOnCommitCallbacks(execute=True):
-                ZaakTypeFactory.create()
-        self.assertEqual(self.applicatie.autorisaties.count(), 1)
-
-        mock_notif.assert_called_with(
-            {
-                "kanaal": "autorisaties",
-                "hoofdObject": f"http://testserver{self.applicatie_url}",
-                "resource": "applicatie",
-                "resourceUrl": f"http://testserver{self.applicatie_url}",
-                "actie": "update",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "kenmerken": {},
-            }
-        )
-
-        with self.subTest("OPENZAAK_DOMAIN setting"):
-            with override_settings(
-                OPENZAAK_DOMAIN="openzaak.example.com",
-                ALLOWED_HOSTS=["openzaak.example.com", "testserver"],
-            ):
-                with self.captureOnCommitCallbacks(execute=True):
-                    with self.captureOnCommitCallbacks(execute=True):
-                        ZaakTypeFactory.create()
-
-                mock_notif.assert_called_with(
-                    {
-                        "kanaal": "autorisaties",
-                        "hoofdObject": f"http://openzaak.example.com{self.applicatie_url}",
-                        "resource": "applicatie",
-                        "resourceUrl": f"http://openzaak.example.com{self.applicatie_url}",
-                        "actie": "update",
-                        "aanmaakdatum": "2022-01-01T00:00:00Z",
-                        "kenmerken": {},
-                    }
-                )
-
-    @tag("notifications")
-    @override_settings(NOTIFICATIONS_DISABLED=False, IS_HTTPS=True)
-    @patch("notifications_api_common.viewsets.send_notification.delay")
-    def test_notification_body_current_and_future(self, mock_notif):
-        applicatie = ApplicatieFactory.create()
-        AutorisatieSpecFactory.create(
-            applicatie=applicatie,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-        )
-        with self.captureOnCommitCallbacks(execute=True):
-            with self.captureOnCommitCallbacks(execute=True):
-                InformatieObjectTypeFactory.create()
-
-        path = reverse(
-            "applicatie-detail", kwargs={"version": 1, "uuid": applicatie.uuid}
-        )
-        mock_notif.assert_called_with(
-            {
-                "kanaal": "autorisaties",
-                "hoofdObject": f"https://testserver{path}",
-                "resource": "applicatie",
-                "resourceUrl": f"https://testserver{path}",
                 "actie": "update",
                 "aanmaakdatum": "2022-01-01T00:00:00Z",
                 "kenmerken": {},
@@ -900,8 +548,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(autorisatie.scopes, ["catalogi.lezen"])
 
     def test_add_autorisatie_zaaktypen_overlap(self):
-        zt1 = ZaakTypeFactory.create()
-        ZaakTypeFactory.create()
+        zt = ZaakTypeFactory.create()
 
         data = {
             # management form
@@ -911,12 +558,13 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-MAX_NUM_FORMS": 1000,
             "form-0-component": ComponentTypes.zrc,
             "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-catalogi": [zt.catalogus.pk],
             "form-1-component": ComponentTypes.zrc,
             "form-1-scopes": ["zaken.aanmaken", "zaken.lezen"],
             "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-1-zaaktypen": [zt1.id],
+            "form-1-zaaktypen": [zt.id],
             "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
         }
 
@@ -982,84 +630,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             [_("This field is required.")],
         )
 
-    @tag("gh-1080")
-    def test_autorisaties_visible_even_if_only_a_spec_exists_brc(self):
-        """
-        Assert that the initial form data contains autorisatiespecs if only the spec exists.
-
-        Regression test for Github issue #1080.
-        """
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        initial_data = response.context["formdata"]
-        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
-        form_data = initial_data[0]
-        self.assertEqual(form_data["values"]["component"], ComponentTypes.brc)
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(form_data["values"]["scopes"], ["besluiten.lezen"])
-
-    def test_autorisaties_visible_even_if_only_a_spec_exists_zrc(self):
-        """
-        Assert that the initial form data contains autorisatiespecs if only the spec exists.
-
-        Regression test for Github issue #978.
-        """
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=["zaken.lezen"],
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        initial_data = response.context["formdata"]
-        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
-        form_data = initial_data[0]
-
-        self.assertEqual(form_data["values"]["component"], ComponentTypes.zrc)
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(form_data["values"]["scopes"], ["zaken.lezen"])
-
-    def test_autorisaties_visible_even_if_only_a_spec_exists_drc(self):
-        """
-        Assert that the initial form data contains autorisatiespecs if only the spec exists.
-
-        Regression test for Github issue #978.
-        """
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        initial_data = response.context["formdata"]
-        self.assertEqual(len(initial_data), 2)  # 1 form, 1 empty form
-        form_data = initial_data[0]
-
-        self.assertEqual(form_data["values"]["component"], ComponentTypes.drc)
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(form_data["values"]["scopes"], ["documenten.lezen"])
-
     @tag("gh-1081")
     def test_remove_iotype_with_autorisaties_linked(self):
         """
@@ -1070,11 +640,13 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         Note that there is a similar test in
         openzaak.components.catalogi.tests.test_zaaktype.ZaaktypeDeleteAutorisatieTests
         """
-        # set up unrelated other authorization spec
-        AutorisatieSpecFactory.create(
+        # create unrelated CatalogusAutorisatie
+        CatalogusAutorisatieFactory.create(
             applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
+            component=ComponentTypes.zrc,
+            scopes=["zaken.lezen"],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            catalogus=self.catalogus,
         )
 
         # set up reproduction case
@@ -1096,7 +668,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         initial_data = response.context["formdata"]
-        self.assertEqual(len(initial_data), 2)  # 1 empty form, 1 unrelated auth spec
+        self.assertEqual(
+            len(initial_data), 2
+        )  # 1 empty form, 1 unrelated catalogusautorisatie
 
     @tag("gh-1584")
     def test_related_object_does_not_exist(self):
@@ -1117,262 +691,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    @tag("gh-1636")
-    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_besluittype(
-        self,
-    ):
-
-        BesluitTypeFactory.create(concept=False)
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, 302)
-
-        self.assertEqual(AutorisatieSpec.objects.count(), 0)
-
-        response = self.client.get(self.url)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current,
-        )
-
-    @tag("gh-1636")
-    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_zaaktype(self):
-
-        ZaakTypeFactory.create(concept=False)
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.zrc,
-            scopes=["zaken.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.zrc,
-            "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(AutorisatieSpec.objects.count(), 0)
-
-        response = self.client.get(self.url)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current,
-        )
-
-    @tag("gh-1636")
-    def test_autorisatie_spec_is_removed_when_all_and_future_unselected_documenten(
-        self,
-    ):
-
-        iot = InformatieObjectTypeFactory.create(concept=False)
-        InformatieObjectTypeFactory.create(concept=False)
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.drc,
-            scopes=["documenten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.drc,
-            "form-0-scopes": ["documenten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
-            "form-0-informatieobjecttypen": [iot.id],
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data=data)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(AutorisatieSpec.objects.count(), 0)
-
-        response = self.client.get(self.url)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.manual_select,
-        )
-
-    @tag("gh-1636")
-    def test_autorisatie_spec_is_not_shared_within_component(self):
-
-        BesluitTypeFactory.create(concept=False)
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.bijwerken"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.status_code, 200)
-        form_data = response.context["formdata"][0]
-        self.assertEqual(
-            form_data["values"]["related_type_selection"],
-            RelatedTypeSelectionMethods.all_current_and_future,
-        )
-        self.assertEqual(AutorisatieSpec.objects.count(), 2)
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 2,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.bijwerken"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-1-component": ComponentTypes.brc,
-            "form-1-scopes": ["besluiten.lezen"],
-            "form-1-related_type_selection": RelatedTypeSelectionMethods.all_current_and_future,
-            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-        }
-
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, 302)
-
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
-
-        response = self.client.get(self.url)
-
-        self.assertEqual(len(response.context["formdata"]), 3)
-        related_type_selection_1 = response.context["formdata"][0]["values"][
-            "related_type_selection"
-        ]
-        related_type_selection_2 = response.context["formdata"][1]["values"][
-            "related_type_selection"
-        ]
-
-        # assert both types should be present initially
-        related_type_selections = [related_type_selection_1, related_type_selection_2]
-        self.assertIn(RelatedTypeSelectionMethods.all_current, related_type_selections)
-        self.assertIn(
-            RelatedTypeSelectionMethods.all_current_and_future, related_type_selections
-        )
-
-    @tag("gh-1636")
-    def test_autorisatie_spec_scope_order_does_not_matter(self):
-
-        BesluitTypeFactory.create(concept=False)
-
-        AutorisatieSpecFactory.create(
-            applicatie=self.applicatie,
-            component=ComponentTypes.brc,
-            scopes=["besluiten.lezen", "besluiten.bijwerken"],
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        )
-
-        data = {
-            # management form
-            "form-TOTAL_FORMS": 2,
-            "form-INITIAL_FORMS": 0,
-            "form-MIN_NUM_FORMS": 0,
-            "form-MAX_NUM_FORMS": 1000,
-            "form-0-component": ComponentTypes.brc,
-            "form-0-scopes": ["besluiten.bijwerken", "besluiten.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
-            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-        }
-
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, 302)
-
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
-
-        data["form-1-component"] = ComponentTypes.brc
-        data["form-1-scopes"] = ["besluiten.lezen", "besluiten.bijwerken"]
-        data["form-1-related_type_selection"] = (
-            RelatedTypeSelectionMethods.all_current_and_future
-        )
-        data["form-1-vertrouwelijkheidaanduiding"] = (
-            VertrouwelijkheidsAanduiding.openbaar
-        )
-
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(
-            response.context_data["formset"]._non_form_errors[0],
-            _("{field} may not have overlapping scopes.").format(field="besluittypen"),
-        )
-
     @tag("gh-1584")
     @override_settings(
         ALLOWED_HOSTS=["testserver", "differenttestserver"],
@@ -1392,8 +710,9 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-MAX_NUM_FORMS": 1000,
             "form-0-component": ComponentTypes.zrc,
             "form-0-scopes": ["zaken.lezen"],
-            "form-0-related_type_selection": RelatedTypeSelectionMethods.all_current,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+            "form-0-zaaktypen": [zaaktype.pk],
         }
 
         response = self.client.post(self.url, data, SERVER_NAME="differenttestserver")
@@ -1412,3 +731,798 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         with self.assertRaises(Autorisatie.DoesNotExist):
             autorisatie.refresh_from_db()
         self.assertEqual(Autorisatie.objects.count(), 0)
+        # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
+        self.assertEqual(Applicatie.objects.count(), 0)
+
+    def test_load_initial_data_external_types(self):
+        """
+        Test that external types for ZRC/BRC/DRC load properly, even if there are no local
+        types linked to Autorisaties
+        """
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype="http://ztc.com/1234",
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            informatieobjecttype="http://ztc.com/5678",
+            scopes=[str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            besluittype="http://ztc.com/4321",
+            scopes=[str(SCOPE_BESLUITEN_AANMAKEN)],
+        )
+
+        response = self.client.get(self.url)
+
+        # Regular Autorisatie with different scopes should be displayed separately
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": set(),
+                "externe_typen": ["http://ztc.com/1234"],
+            },
+            {
+                "component": ComponentTypes.drc,
+                "scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "informatieobjecttypen": set(),
+                "externe_typen": ["http://ztc.com/5678"],
+            },
+            {
+                "component": ComponentTypes.brc,
+                "scopes": [str(SCOPE_BESLUITEN_AANMAKEN)],
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "besluittypen": set(),
+                "externe_typen": ["http://ztc.com/4321"],
+            },
+        ]
+
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
+    def test_create_catalogus_autorisatie_for_zaken_api(self):
+        """
+        Assert that it is possible to create a CatalogusAutorisatie for Zaken API
+        """
+        scopes = [str(SCOPE_ZAKEN_ALLES_LEZEN), str(SCOPE_ZAKEN_CREATE)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk, zaaktype.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(Autorisatie.objects.count(), 0)
+
+        catalogus_autorisatie1, catalogus_autorisatie2 = (
+            CatalogusAutorisatie.objects.order_by("catalogus")
+        )
+
+        self.assertEqual(catalogus_autorisatie1.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie1.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie1.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie1.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie1.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        self.assertEqual(catalogus_autorisatie2.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie2.catalogus, zaaktype.catalogus)
+        self.assertEqual(catalogus_autorisatie2.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie2.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie2.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_create_catalogus_autorisatie_for_documenten_api(self):
+        """
+        Assert that it is possible to create a CatalogusAutorisatie for Documenten API
+        """
+        scopes = [str(SCOPE_DOCUMENTEN_ALLES_LEZEN), str(SCOPE_DOCUMENTEN_AANMAKEN)]
+        iotype = InformatieObjectTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk, iotype.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(Autorisatie.objects.count(), 0)
+
+        catalogus_autorisatie1, catalogus_autorisatie2 = (
+            CatalogusAutorisatie.objects.order_by("catalogus")
+        )
+
+        self.assertEqual(catalogus_autorisatie1.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie1.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie1.component, ComponentTypes.drc)
+        self.assertEqual(catalogus_autorisatie1.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie1.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        self.assertEqual(catalogus_autorisatie2.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie2.catalogus, iotype.catalogus)
+        self.assertEqual(catalogus_autorisatie2.component, ComponentTypes.drc)
+        self.assertEqual(catalogus_autorisatie2.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie2.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_create_catalogus_autorisatie_for_besluiten_api(self):
+        """
+        Assert that it is possible to create a CatalogusAutorisatie for Besluiten API
+        """
+        scopes = [str(SCOPE_BESLUITEN_AANMAKEN), str(SCOPE_BESLUITEN_ALLES_LEZEN)]
+        besluittype = BesluitTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.brc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk, besluittype.catalogus.pk],
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(Autorisatie.objects.count(), 0)
+
+        catalogus_autorisatie1, catalogus_autorisatie2 = (
+            CatalogusAutorisatie.objects.order_by("catalogus")
+        )
+
+        self.assertEqual(catalogus_autorisatie1.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie1.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie1.component, ComponentTypes.brc)
+        self.assertEqual(catalogus_autorisatie1.scopes, scopes)
+        self.assertEqual(catalogus_autorisatie1.max_vertrouwelijkheidaanduiding, "")
+
+        self.assertEqual(catalogus_autorisatie2.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie2.catalogus, besluittype.catalogus)
+        self.assertEqual(catalogus_autorisatie2.component, ComponentTypes.brc)
+        self.assertEqual(catalogus_autorisatie2.scopes, scopes)
+        self.assertEqual(catalogus_autorisatie2.max_vertrouwelijkheidaanduiding, "")
+
+    @tag("gh-1661")
+    def test_load_initial_data_and_update_catalogus_autorisaties(self):
+        """
+        Test that it is possible to load existing CatalogusAutorisaties (along with
+        regular Autorisaties) and update them
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype=f"http://testserver/{_reverse(zaaktype)}",
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],  # different scopes
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        response = self.client.get(self.url)
+
+        # Regular Autorisatie with different scopes should be displayed separately
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
+            },
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk, zaaktype.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        catalogus_autorisatie1, catalogus_autorisatie2 = (
+            CatalogusAutorisatie.objects.order_by("catalogus")
+        )
+
+        self.assertEqual(catalogus_autorisatie1.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie1.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie1.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie1.scopes, scopes)
+        # Max VA was changed
+        self.assertEqual(
+            catalogus_autorisatie1.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        # New CatalogusAutorisatie was created
+        self.assertEqual(catalogus_autorisatie2.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie2.catalogus, zaaktype.catalogus)
+        self.assertEqual(catalogus_autorisatie2.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie2.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie2.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_load_initial_data_for_besluiten_api(self):
+        """
+        Test that it is possible to load existing CatalogusAutorisaties (along with
+        regular Autorisaties) for Besluiten API
+        """
+        scopes = [str(SCOPE_BESLUITEN_AANMAKEN), str(SCOPE_BESLUITEN_ALLES_LEZEN)]
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+        )
+        besluittype = BesluitTypeFactory.create(concept=False)
+        BesluitTypeFactory.create(concept=False)
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            besluittype=f"http://testserver/{_reverse(besluittype)}",
+            scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],  # different scopes
+        )
+
+        response = self.client.get(self.url)
+
+        # Regular Autorisatie with different scopes should be displayed separately
+        expected_initial = [
+            {
+                "component": ComponentTypes.brc,
+                "scopes": scopes,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.brc,
+                "scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "besluittypen": {besluittype.pk},
+                "externe_typen": [],
+            },
+        ]
+
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
+    def test_delete_catalogus_autorisaties(self):
+        """
+        Test that it is possible to delete existing CatalogusAutorisaties
+        """
+        scopes = [str(SCOPE_DOCUMENTEN_AANMAKEN), str(SCOPE_DOCUMENTEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            catalogus=zaaktype.catalogus,
+            scopes=scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        response = self.client.get(self.url)
+
+        expected_initial = [
+            {
+                "component": ComponentTypes.drc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk, zaaktype.catalogus.pk],
+            }
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        catalogus_autorisatie = CatalogusAutorisatie.objects.get()
+
+        self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+
+    @tag("gh-1661")
+    def test_regular_and_catalogus_autorisatie_with_different_va(self):
+        """
+        Test that it is possible to have regular and catalogus autorisaties exist, if they have
+        different vertrouwelijkheidaanduiding
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": scopes,
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-zaaktypen": [zaaktype.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        catalogus_autorisatie = CatalogusAutorisatie.objects.get()
+
+        # New autorisatie was created
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, scopes)
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        # New CatalogusAutorisatie was created
+        self.assertEqual(catalogus_autorisatie.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Load the page again to check if the initial data is as expected
+        response = self.client.get(self.url)
+
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
+            },
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
+    def test_regular_and_catalogus_autorisatie_with_same_va(self):
+        """
+        Test that it is possible to have regular and catalogus autorisaties exist, if they have
+        the same vertrouwelijkheidaanduiding
+
+        They should show up in separate rows, they cannot be grouped in the same
+        row because related_type_selection is different
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": scopes,
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.zrc,
+            "form-1-scopes": scopes,
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-zaaktypen": [zaaktype.pk],  # not from the same catalogus
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        catalogus_autorisatie = CatalogusAutorisatie.objects.get()
+
+        # New autorisatie was created
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, scopes)
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # New CatalogusAutorisatie was created
+        self.assertEqual(catalogus_autorisatie.applicatie, self.applicatie)
+        self.assertEqual(catalogus_autorisatie.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(catalogus_autorisatie.scopes, scopes)
+        self.assertEqual(
+            catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Load the page again to check if the initial data is as expected
+        response = self.client.get(self.url)
+
+        expected_initial = [
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+                "catalogi": [self.catalogus.pk],
+            },
+            {
+                "component": ComponentTypes.zrc,
+                "scopes": scopes,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "related_type_selection": RelatedTypeSelectionMethods.manual_select,
+                "zaaktypen": {zaaktype.pk},
+                "externe_typen": [],
+            },
+        ]
+        self.assertEqual(response.context["formset"].initial, expected_initial)
+
+    @tag("gh-1661")
+    def test_catalogus_autorisatie_switch_component(self):
+        """
+        Test that it is possible to switch the component of a catalogus autorisatie
+        """
+        scopes = [str(SCOPE_ZAKEN_CREATE), str(SCOPE_ZAKEN_ALLES_LEZEN)]
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeFactory.create(concept=False)
+        # unrelated, should stay the same
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            zaaktype=f"http://testserver/{_reverse(zaaktype)}",
+            scopes=[str(SCOPE_ZAKEN_BIJWERKEN)],
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        # will be kept the same
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.brc,
+            catalogus=self.catalogus,
+            scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+        )
+        # component will be changed
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            catalogus=self.catalogus,
+            scopes=scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 3,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.zrc,
+            "form-0-scopes": [str(SCOPE_ZAKEN_BIJWERKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-zaaktypen": [zaaktype.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
+            "form-1-component": ComponentTypes.brc,
+            "form-1-scopes": [str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-2-component": ComponentTypes.drc,
+            "form-2-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-2-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-2-catalogi": [self.catalogus.pk],
+            "form-2-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 302)
+
+        autorisatie = Autorisatie.objects.get()
+        unchanged, changed = CatalogusAutorisatie.objects.order_by("component")
+
+        # autorisatie is the same
+        self.assertEqual(autorisatie.applicatie, self.applicatie)
+        self.assertEqual(autorisatie.zaaktype, f"http://testserver{_reverse(zaaktype)}")
+        self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+        self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_BIJWERKEN)])
+        self.assertEqual(
+            autorisatie.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.geheim,
+        )
+
+        # brc CatalogusAutorisatie stays the same
+        self.assertEqual(unchanged.applicatie, self.applicatie)
+        self.assertEqual(unchanged.catalogus, self.catalogus)
+        self.assertEqual(unchanged.component, ComponentTypes.brc)
+        self.assertEqual(unchanged.scopes, [str(SCOPE_BESLUITEN_ALLES_LEZEN)])
+
+        # New CatalogusAutorisatie was created for changed component
+        self.assertEqual(changed.applicatie, self.applicatie)
+        self.assertEqual(changed.catalogus, self.catalogus)
+        self.assertEqual(changed.component, ComponentTypes.drc)
+        self.assertEqual(changed.scopes, [str(SCOPE_DOCUMENTEN_AANMAKEN)])
+        self.assertEqual(
+            changed.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_catalogus_autorisaties_same_component_and_catalogus_different_scopes_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create two CatalogusAutorisaties with the same component
+        and Catalogus, regardless of different scopes
+        """
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _(
+                "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
+                "same component and catalogus: {component}, {catalogus}"
+            ).format(component=ComponentTypes.drc, catalogus=self.catalogus),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_regular_autorisatie_and_catalogus_autorisaties_same_component_and_catalogus_different_scopes_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create a CatalogusAutorisatie and a regular Autorisatie
+        with a type from the same catalogus and the same component, even if the scopes are different
+        """
+        iot = InformatieObjectTypeFactory.create(concept=False)
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 3,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            # Unrelated autorisatie
+            "form-0-component": ComponentTypes.ac,
+            "form-0-scopes": [str(SCOPE_AUTORISATIES_BIJWERKEN)],
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-1-informatieobjecttypen": [iot.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-2-component": ComponentTypes.drc,
+            "form-2-scopes": [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+            "form-2-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-2-catalogi": [iot.catalogus.pk],
+            "form-2-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _(
+                "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
+                "same component and catalogus: {component}, {catalogus}"
+            ).format(component=ComponentTypes.drc, catalogus=iot.catalogus),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_catalogus_autorisaties_same_component_and_catalogus_different_vertrouwelijkheidaanduing_should_fail(
+        self,
+    ):
+        """
+        It should not be possible to create two CatalogusAutorisaties with the same component,
+        Catalogus and scopes, but different vertrouwelijkheidaanduiding
+        """
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-0-catalogi": [self.catalogus.pk],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _("Scopes in {component} may not be duplicated.").format(
+                component=ComponentTypes.drc
+            ),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+
+    @tag("gh-1661")
+    def test_autorisatie_with_type_catalogus_in_catalogus_autorisatie_should_fail(self):
+        iot = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=self.catalogus
+        )
+
+        response = self.client.get(self.url)
+
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 2,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-informatieobjecttypen": {iot.pk},
+            "form-0-externe_typen": [],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "form-1-component": ComponentTypes.drc,
+            "form-1-scopes": [str(SCOPE_DOCUMENTEN_AANMAKEN)],
+            "form-1-related_type_selection": RelatedTypeSelectionMethods.select_catalogus,
+            "form-1-catalogi": [self.catalogus.pk],
+            "form-1-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["formset"]._non_form_errors[0],
+            _("{field} may not have overlapping scopes.").format(
+                field="informatieobjecttypen"
+            ),
+        )
+        self.assertFalse(CatalogusAutorisatie.objects.exists())
+        self.assertFalse(Autorisatie.objects.exists())

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
+from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -14,7 +15,7 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import Service
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.fields import DurationField
 
 from ..constants import InternExtern
@@ -352,7 +353,7 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
     def save(self, *args, **kwargs):
         # sync after creating new objects
         if not self.pk:
-            transaction.on_commit(AutorisatieSpec.sync)
+            transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
 
         if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
             client = Service.get_client(self.selectielijst_procestype)

@@ -33,7 +33,7 @@ src/manage.py dumpdata \
     mozilla_django_oidc_db.OpenIDConnectConfig \
     drc_cmis.CMISConfig \
     authorizations.Applicatie \
-    autorisaties.AutorisatieSpec \
+    autorisaties.CatalogusAutorisatie \
     config.FeatureFlags \
     notifications.NotificationsConfig \
     notifications.Subscription \

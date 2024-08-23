@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from typing import List, Union
+from urllib.parse import urlparse
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 import jwt
+from django_loose_fk.loaders import get_loader_class
+from django_loose_fk.utils import get_resource_for_path
 from rest_framework.exceptions import PermissionDenied
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.middleware import (
@@ -13,7 +16,10 @@ from vng_api_common.middleware import (
     JWTAuth as _JWTAuth,
 )
 
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.constants import COMPONENT_MAPPING
+
+loader = get_loader_class()()
 
 
 class JWTAuth(_JWTAuth):
@@ -52,6 +58,32 @@ class JWTAuth(_JWTAuth):
             applicatie_id__in=app_ids, component=component
         )
 
+    def get_catalogus_autorisaties(self, init_component: str) -> models.QuerySet:
+        """
+        Retrieve all CatalogusAutorisaties relevant to this component.
+        """
+        # Cache the result on the JWTAuth instance to avoid duplicate queries
+        # when filtering data for the list endpoints
+        if not hasattr(self, "_autorisaties"):
+            if not self.applicaties:
+                self._autorisaties = CatalogusAutorisatie.objects.none()
+                return self._autorisaties
+
+            component = COMPONENT_MAPPING.get(init_component, init_component)
+            app_ids = [app.id for app in self.applicaties]
+            self._autorisaties = (
+                CatalogusAutorisatie.objects.filter(
+                    applicatie_id__in=app_ids, component=component
+                )
+                .select_related("catalogus")
+                .prefetch_related(
+                    "catalogus__zaaktype_set",
+                    "catalogus__informatieobjecttype_set",
+                    "catalogus__besluittype_set",
+                )
+            )
+        return self._autorisaties
+
     def has_auth(self, scopes: List[str], init_component: str = None, **fields) -> bool:
         if scopes is None:
             return False
@@ -67,6 +99,8 @@ class JWTAuth(_JWTAuth):
             return False
 
         autorisaties = self.get_autorisaties(init_component)
+        catalogus_autorisaties = self.get_catalogus_autorisaties(init_component)
+        has_catalogus_autorisaties = catalogus_autorisaties.exists()
         scopes_provided = set()
 
         # filter on all additional components
@@ -75,13 +109,25 @@ class JWTAuth(_JWTAuth):
                 autorisaties = getattr(self, f"filter_{field_name}")(
                     autorisaties, field_value
                 )
+                if has_catalogus_autorisaties:
+                    catalogus_autorisaties = getattr(self, f"filter_{field_name}")(
+                        catalogus_autorisaties, field_value
+                    )
             else:
                 autorisaties = self.filter_default(
                     autorisaties, field_name, field_value
                 )
+                if has_catalogus_autorisaties and loader.is_local_url(field_value):
+                    resolved = get_resource_for_path(urlparse(field_value).path)
+                    catalogus_autorisaties = self.filter_default(
+                        catalogus_autorisaties, "catalogus", resolved.catalogus
+                    )
 
         for autorisatie in autorisaties:
             scopes_provided.update(autorisatie.scopes)
+
+        for catalogus_autorisatie in catalogus_autorisaties:
+            scopes_provided.update(catalogus_autorisatie.scopes)
 
         return scopes.is_contained_in(list(scopes_provided))
 

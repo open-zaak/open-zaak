@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid as _uuid
+from functools import partial
 
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.fields import DurationField
 from openzaak.utils.mixins import APIMixin
 
@@ -146,5 +147,5 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
     @transaction.atomic
     def save(self, *args, **kwargs):
         if not self.pk:
-            transaction.on_commit(AutorisatieSpec.sync)
+            transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
         super().save(*args, **kwargs)
