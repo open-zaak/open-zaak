@@ -32,20 +32,20 @@ class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
         eioc = EnkelvoudigInformatieObjectCanonicalFactory()
         latest = eioc.latest_version
         zaak = ZaakFactory()
-        ZaakInformatieObjectFactory(informatieobject=eioc, zaak=zaak)
+        zio = ZaakInformatieObjectFactory(informatieobject=eioc, zaak=zaak)
 
         besluit = BesluitFactory()
-        BesluitInformatieObjectFactory(informatieobject=eioc, besluit=besluit)
+        bio = BesluitInformatieObjectFactory(informatieobject=eioc, besluit=besluit)
 
         latest.delete()
 
-        # zio_url = reverse(zio)
-        # with self.assertRaises(AttributeError):
-        #     self.client.get(zio_url, **ZAAK_WRITE_KWARGS)
-        #
-        # bio_url = reverse(bio)
-        # with self.assertRaises(AttributeError):
-        #     self.client.get(bio_url)
+        zio_url = reverse(zio)
+        with self.assertRaises(AttributeError):
+            self.client.get(zio_url, **ZAAK_WRITE_KWARGS)
+
+        bio_url = reverse(bio)
+        with self.assertRaises(AttributeError):
+            self.client.get(bio_url)
 
         response = self.client.get(reverse(besluit))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
