@@ -110,20 +110,24 @@ Keuze relevante typen
 Voor de *Zaken API*, *Documenten API* en *Besluiten API* worden de autorisaties
 ingericht per *type* - Zaaktype, Informatieobjecttype en Besluittype respectievelijk.
 
-De type-selectie heeft drie mogelijke opties:
-
-Alle huidige \*typen:
-    Dit selecteert alle huidige typen, ook de typen die nog niet gepubliceerd zijn. Voor
-    de *Zaken API* gelden de autorisaties dan voor alle zaaktypen uit alle catalogi in
-    Open Zaak.
-
-Alle huidige en toekomstige \*typen:
-    Dit is dezelfde situatie als ``Alle huidige *typen``, met het verschil dat \*typen
-    die aangemaakt worden *na* het instellen van de autorisaties hier ook binnen vallen.
+De type-selectie heeft twee mogelijke opties:
 
 Selecteer handmatig:
     Bij handmatige selectie worden alle \*typen per catalogus opgelijst. Kies de relevante
     \*typen aan door het vinkje aan te zetten.
+
+Selecteer catalogus:
+    Bij catalogus selectie worden alle catalogi opgelijst. Als er één of meerdere catalogi
+    geselecteerd zijn, heeft deze Autorisatie betrekking op alle \*typen binnen die catalogi
+    (afhankelijk van het geselecteerde component). Dit betekent dat deze Autorisatie dus ook
+    geldig is voor \*typen die later aan deze catalogi toegevoegd worden.
+
+.. warning::
+    Let op: autorisaties op catalogus-niveau zijn **niet** onderdeel van de Autorisaties API
+    standaard, het is een mechanisme in Open Zaak om het instellen van autorisaties te versimpelen.
+
+    Dit betekent dat het aanpassen van de ``Autorisaties`` van een ``Applicatie`` op API niveau (door middel van een PUT/PATCH request)
+    ervoor zorgt dat via de admin ingestelde autorisaties op catalogus-niveau verwijderd worden, om conflicten te voorkomen.
 
 .. image:: assets/auth_app_select_types.png
     :width: 100%
