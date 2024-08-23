@@ -22,6 +22,7 @@ asgiref==3.8.1
     # via
     #   -r requirements/ci.txt
     #   django
+    #   django-axes
     #   django-cors-headers
 asn1crypto==1.5.1
     # via
@@ -42,7 +43,7 @@ beautifulsoup4==4.10.0
     # via
     #   -r requirements/ci.txt
     #   webtest
-billiard==3.6.4.0
+billiard==4.2.0
     # via
     #   -r requirements/ci.txt
     #   celery
@@ -71,7 +72,7 @@ cbor2==5.6.3
     # via
     #   -r requirements/ci.txt
     #   webauthn
-celery==5.2.7
+celery==5.4.0
     # via
     #   -r requirements/ci.txt
     #   django-celery-beat
@@ -95,7 +96,7 @@ charset-normalizer==2.0.12
     # via
     #   -r requirements/ci.txt
     #   requests
-click==8.0.4
+click==8.1.7
     # via
     #   -r requirements/ci.txt
     #   black
@@ -157,7 +158,7 @@ deprecated==1.2.14
     #   redis
 dictdiffer==0.9.0
     # via -r requirements/ci.txt
-django==4.2.11
+django==4.2.15
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
@@ -166,6 +167,7 @@ django==4.2.11
     #   django-axes
     #   django-celery-beat
     #   django-cors-headers
+    #   django-csp
     #   django-db-logger
     #   django-debug-toolbar
     #   django-extensions
@@ -211,7 +213,7 @@ django-appconf==1.0.6
     # via
     #   -r requirements/ci.txt
     #   django-log-outgoing-requests
-django-axes==6.4.0
+django-axes==6.5.1
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
@@ -219,7 +221,11 @@ django-better-admin-arrayfield==1.4.2
     # via -r requirements/ci.txt
 django-celery-beat==2.6.0
     # via -r requirements/ci.txt
-django-cors-headers==4.3.1
+django-cors-headers==4.4.0
+    # via
+    #   -r requirements/ci.txt
+    #   open-api-framework
+django-csp==3.8
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
@@ -319,7 +325,7 @@ django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
     #   maykin-2fa
 django-webtest==1.9.10
     # via -r requirements/ci.txt
-djangorestframework==3.14.0
+djangorestframework==3.15.2
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
@@ -475,7 +481,7 @@ jsonschema==4.7.2
     #   -r requirements/ci.txt
     #   drf-spectacular
     #   kubernetes-validate
-kombu==5.2.4
+kombu==5.4.0
     # via
     #   -r requirements/ci.txt
     #   celery
@@ -503,7 +509,7 @@ mozilla-django-oidc==4.0.1
     # via
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.16.0
+mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
@@ -517,7 +523,7 @@ notifications-api-common==0.2.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.5.0
+open-api-framework==0.8.0
     # via -r requirements/ci.txt
 openshift==0.11.2
     # via -r requirements/../deployment/requirements.in
@@ -629,6 +635,7 @@ python-crontab==3.2.0
 python-dateutil==2.8.2
     # via
     #   -r requirements/ci.txt
+    #   celery
     #   django-relativedelta
     #   django-silk
     #   faker
@@ -650,9 +657,7 @@ pytz==2022.6
     # via
     #   -r requirements/ci.txt
     #   babel
-    #   celery
     #   django-silk
-    #   djangorestframework
     #   drf-yasg
     #   flower
 pyyaml==6.0
@@ -676,7 +681,7 @@ redis==4.1.4
     # via
     #   -r requirements/ci.txt
     #   django-redis
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
@@ -708,7 +713,7 @@ ruamel-yaml==0.17.21
     # via openshift
 self-certifi==1.0.0
     # via -r requirements/ci.txt
-sentry-sdk==2.3.1
+sentry-sdk==2.13.0
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
@@ -776,11 +781,13 @@ tornado==6.4
 typing-extensions==4.11.0
     # via
     #   -r requirements/ci.txt
+    #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
 tzdata==2024.1
     # via
     #   -r requirements/ci.txt
+    #   celery
     #   django-celery-beat
 uritemplate==4.1.1
     # via
@@ -804,7 +811,7 @@ uwsgi==2.0.26
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
-vine==5.0.0
+vine==5.1.0
     # via
     #   -r requirements/ci.txt
     #   amqp

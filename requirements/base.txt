@@ -11,6 +11,7 @@ appdirs==1.4.4
 asgiref==3.8.1
     # via
     #   django
+    #   django-axes
     #   django-cors-headers
 asn1crypto==1.5.1
     # via webauthn
@@ -20,7 +21,7 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
-billiard==3.6.4.0
+billiard==4.2.0
     # via celery
 bleach==6.1.0
     # via open-api-framework
@@ -32,7 +33,7 @@ cattrs==1.10.0
     # via requests-cache
 cbor2==5.6.3
     # via webauthn
-celery==5.2.7
+celery==5.4.0
     # via
     #   django-celery-beat
     #   flower
@@ -49,7 +50,7 @@ cffi==1.16.0
     # via cryptography
 charset-normalizer==2.0.12
     # via requests
-click==8.0.4
+click==8.1.7
     # via
     #   celery
     #   click-didyoumean
@@ -86,7 +87,7 @@ deprecated==1.2.14
     # via redis
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==4.2.11
+django==4.2.15
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -94,6 +95,7 @@ django==4.2.11
     #   django-axes
     #   django-celery-beat
     #   django-cors-headers
+    #   django-csp
     #   django-db-logger
     #   django-extra-views
     #   django-filter
@@ -132,13 +134,15 @@ django-admin-index==3.1.1
     # via open-api-framework
 django-appconf==1.0.6
     # via django-log-outgoing-requests
-django-axes==6.4.0
+django-axes==6.5.1
     # via open-api-framework
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/base.in
 django-celery-beat==2.6.0
     # via -r requirements/base.in
-django-cors-headers==4.3.1
+django-cors-headers==4.4.0
+    # via open-api-framework
+django-csp==3.8
     # via open-api-framework
 django-db-logger==0.1.12
     # via -r requirements/base.in
@@ -199,7 +203,7 @@ django-timezone-field==7.0
     # via django-celery-beat
 django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
     # via maykin-2fa
-djangorestframework==3.14.0
+djangorestframework==3.15.2
     # via
     #   commonground-api-common
     #   django-loose-fk
@@ -282,7 +286,7 @@ jsonschema==4.7.2
     # via
     #   -r requirements/base.in
     #   drf-spectacular
-kombu==5.2.4
+kombu==5.4.0
     # via celery
 markdown==3.3.6
     # via -r requirements/base.in
@@ -292,13 +296,13 @@ maykin-2fa==1.0.1
     # via open-api-framework
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.16.0
+mozilla-django-oidc-db==0.19.0
     # via open-api-framework
 notifications-api-common==0.2.2
     # via
     #   -r requirements/base.in
     #   commonground-api-common
-open-api-framework==0.5.0
+open-api-framework==0.8.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
@@ -343,6 +347,7 @@ python-crontab==3.2.0
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
+    #   celery
     #   django-relativedelta
     #   faker
     #   python-crontab
@@ -354,8 +359,6 @@ python-dotenv==1.0.1
     # via open-api-framework
 pytz==2022.6
     # via
-    #   celery
-    #   djangorestframework
     #   drf-yasg
     #   flower
 pyyaml==6.0
@@ -368,7 +371,7 @@ qrcode==7.4.2
     # via django-two-factor-auth
 redis==4.1.4
     # via django-redis
-requests==2.31.0
+requests==2.32.3
     # via
     #   commonground-api-common
     #   coreapi
@@ -385,7 +388,7 @@ requests-mock==1.11.0
     # via zgw-consumers
 self-certifi==1.0.0
     # via -r requirements/base.in
-sentry-sdk==2.3.1
+sentry-sdk==2.13.0
     # via open-api-framework
 six==1.16.0
     # via
@@ -405,10 +408,13 @@ tornado==6.4
     # via flower
 typing-extensions==4.11.0
     # via
+    #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
 tzdata==2024.1
-    # via django-celery-beat
+    # via
+    #   celery
+    #   django-celery-beat
 uritemplate==4.1.1
     # via
     #   coreapi
@@ -424,7 +430,7 @@ urllib3==1.26.18
     #   sentry-sdk
 uwsgi==2.0.26
     # via open-api-framework
-vine==5.0.0
+vine==5.1.0
     # via
     #   amqp
     #   celery
