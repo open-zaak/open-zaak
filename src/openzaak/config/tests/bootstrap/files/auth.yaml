@@ -30,13 +30,15 @@
     informatieobjecttype: ''
     besluittype: ''
     max_vertrouwelijkheidaanduiding: openbaar
-- model: autorisaties.autorisatiespec
+- model: autorisaties.catalogusautorisatie
   fields:
     applicatie:
     - aedd8e94-48b9-4d10-9b6f-1247bc4a61cb
-    component: brc
-    scopes: '["besluiten.lezen"]'
-    max_vertrouwelijkheidaanduiding: geheim
+    catalogus:
+    - 6de0b166-8e76-477c-901d-123244e4d020
+    component: drc
+    scopes: '["documenten.lezen"]'
+    max_vertrouwelijkheidaanduiding: beperkt_openbaar
 - model: vng_api_common.jwtsecret
   fields:
     identifier: open-zaak

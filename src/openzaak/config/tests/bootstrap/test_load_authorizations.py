@@ -5,12 +5,19 @@ from pathlib import Path
 
 from django.test import TestCase, override_settings
 
+from django_setup_configuration.exceptions import ConfigurationRunFailed
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
-from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.autorisaties.tests.factories import (
+    ApplicatieFactory,
+    AutorisatieFactory,
+    CatalogusAutorisatieFactory,
+)
+from openzaak.components.catalogi.tests.factories import CatalogusFactory
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_CREATE,
@@ -31,14 +38,20 @@ DOMAIN_MAPPING_PATH = Path(__file__).parent / "files/domain_mapping.yaml"
 class AuthorizationConfigurationTests(TestCase):
     maxDiff = None
 
+    def setUp(self):
+        super().setUp()
+
+        self.catalogus = CatalogusFactory.create(
+            uuid="6de0b166-8e76-477c-901d-123244e4d020"
+        )
+
     def test_configure(self):
         AuthorizationConfigurationStep().configure()
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
-        self.assertEqual(Applicatie.objects.count(), 2)
         self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
 
         jwt_secret_oz = JWTSecret.objects.get(identifier="open-zaak")
         self.assertEqual(jwt_secret_oz.secret, "oz-secret")
@@ -60,12 +73,15 @@ class AuthorizationConfigurationTests(TestCase):
             VertrouwelijkheidsAanduiding.geheim,
         )
 
-        autorisatiespec_oz = applicatie_oz.autorisatie_specs.get()
-        self.assertEqual(autorisatiespec_oz.component, ComponentTypes.brc)
-        self.assertEqual(autorisatiespec_oz.scopes, [str(SCOPE_BESLUITEN_ALLES_LEZEN)])
+        catalogus_autorisatie_oz = applicatie_oz.catalogusautorisatie_set.get()
+        self.assertEqual(catalogus_autorisatie_oz.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie_oz.component, ComponentTypes.drc)
         self.assertEqual(
-            autorisatiespec_oz.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.geheim,
+            catalogus_autorisatie_oz.scopes, [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)]
+        )
+        self.assertEqual(
+            catalogus_autorisatie_oz.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
 
         applicatie_on = Applicatie.objects.get(client_ids=["open-notificaties"])
@@ -88,9 +104,8 @@ class AuthorizationConfigurationTests(TestCase):
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
-        self.assertEqual(Applicatie.objects.count(), 2)
         self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
 
         jwt_secret_oz = JWTSecret.objects.get(identifier="open-zaak")
         self.assertEqual(jwt_secret_oz.secret, "oz-secret")
@@ -112,12 +127,15 @@ class AuthorizationConfigurationTests(TestCase):
             VertrouwelijkheidsAanduiding.geheim,
         )
 
-        autorisatiespec_oz = applicatie_oz.autorisatie_specs.get()
-        self.assertEqual(autorisatiespec_oz.component, ComponentTypes.brc)
-        self.assertEqual(autorisatiespec_oz.scopes, [str(SCOPE_BESLUITEN_ALLES_LEZEN)])
+        catalogus_autorisatie_oz = applicatie_oz.catalogusautorisatie_set.get()
+        self.assertEqual(catalogus_autorisatie_oz.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie_oz.component, ComponentTypes.drc)
         self.assertEqual(
-            autorisatiespec_oz.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.geheim,
+            catalogus_autorisatie_oz.scopes, [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)]
+        )
+        self.assertEqual(
+            catalogus_autorisatie_oz.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
 
         applicatie_on = Applicatie.objects.get(client_ids=["open-notificaties"])
@@ -133,10 +151,26 @@ class AuthorizationConfigurationTests(TestCase):
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
+    def test_configure_catalogus_does_not_exist(self):
+        """
+        Running `.configure` while some of the expected data (Catalogus) does not exist
+        should raise errors
+        """
+        self.catalogus.delete()
+
+        # Attempt to run the import
+        with self.assertRaises(ConfigurationRunFailed):
+            AuthorizationConfigurationStep().configure()
+
+        self.assertEqual(JWTSecret.objects.count(), 0)
+        self.assertEqual(Applicatie.objects.count(), 0)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 0)
+
     def test_configure_overwrite(self):
         """
         Running `.configure` twice should overwrite any changes made to the configurated
-        Applicaties, Autorisaties, AutorisatieSpecs and JWTSecrets
+        Applicaties, Autorisaties, CatalogusAutorisaties and JWTSecrets
         """
         AuthorizationConfigurationStep().configure()
 
@@ -161,21 +195,20 @@ class AuthorizationConfigurationTests(TestCase):
         autorisatie_on.zaaktype = ZAAKTYPE4
         autorisatie_on.save()
 
-        autorisatiespec_oz = applicatie_oz.autorisatie_specs.first()
+        catalogus_autorisatie_oz = applicatie_oz.catalogusautorisatie_set.first()
 
-        autorisatiespec_oz.max_vertrouwelijkheidaanduiding = (
+        catalogus_autorisatie_oz.max_vertrouwelijkheidaanduiding = (
             VertrouwelijkheidsAanduiding.openbaar
         )
-        autorisatiespec_oz.save()
+        catalogus_autorisatie_oz.save()
 
         # Overwrite the changes
         AuthorizationConfigurationStep().configure()
 
         self.assertEqual(JWTSecret.objects.count(), 2)
         self.assertEqual(Applicatie.objects.count(), 2)
-        self.assertEqual(Applicatie.objects.count(), 2)
         self.assertEqual(Autorisatie.objects.count(), 2)
-        self.assertEqual(AutorisatieSpec.objects.count(), 1)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
 
         jwt_secret_oz = JWTSecret.objects.get(identifier="open-zaak")
         self.assertEqual(jwt_secret_oz.secret, "oz-secret")
@@ -197,12 +230,15 @@ class AuthorizationConfigurationTests(TestCase):
             VertrouwelijkheidsAanduiding.geheim,
         )
 
-        autorisatiespec_oz = applicatie_oz.autorisatie_specs.get()
-        self.assertEqual(autorisatiespec_oz.component, ComponentTypes.brc)
-        self.assertEqual(autorisatiespec_oz.scopes, [str(SCOPE_BESLUITEN_ALLES_LEZEN)])
+        catalogus_autorisatie_oz = applicatie_oz.catalogusautorisatie_set.get()
+        self.assertEqual(catalogus_autorisatie_oz.catalogus, self.catalogus)
+        self.assertEqual(catalogus_autorisatie_oz.component, ComponentTypes.drc)
         self.assertEqual(
-            autorisatiespec_oz.max_vertrouwelijkheidaanduiding,
-            VertrouwelijkheidsAanduiding.geheim,
+            catalogus_autorisatie_oz.scopes, [str(SCOPE_DOCUMENTEN_ALLES_LEZEN)]
+        )
+        self.assertEqual(
+            catalogus_autorisatie_oz.max_vertrouwelijkheidaanduiding,
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
 
         applicatie_on = Applicatie.objects.get(client_ids=["open-notificaties"])
@@ -215,6 +251,39 @@ class AuthorizationConfigurationTests(TestCase):
             autorisatie_on.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.openbaar,
         )
+
+    def test_configure_overwrite_with_existing_other_configuration(self):
+        """
+        Running `.configure` should preserve data that was not present in the fixture
+        """
+        AuthorizationConfigurationStep().configure()
+
+        applicatie_oz, _ = Applicatie.objects.all()
+
+        new_autorisatie = AutorisatieFactory.create(
+            applicatie=applicatie_oz,
+            component=ComponentTypes.brc,
+            besluittype="http://foo.bar",
+            scopes=["besluiten.lezen"],
+        )
+
+        new_applicatie = ApplicatieFactory.create()
+        new_catalogus_auth = CatalogusAutorisatieFactory.create(
+            applicatie=new_applicatie
+        )
+
+        # Overwrite the changes
+        AuthorizationConfigurationStep().configure()
+
+        # Check if the added data that was not present in the .yaml file still exists
+        new_autorisatie.refresh_from_db()
+        new_applicatie.refresh_from_db()
+        new_catalogus_auth.refresh_from_db()
+
+        self.assertEqual(JWTSecret.objects.count(), 2)
+        self.assertEqual(Applicatie.objects.count(), 3)
+        self.assertEqual(Autorisatie.objects.count(), 3)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 2)
 
     def test_is_configured(self):
         configuration = AuthorizationConfigurationStep()
@@ -245,11 +314,11 @@ class AuthorizationConfigurationTests(TestCase):
         autorisatie_on.zaaktype = ZAAKTYPE4
         autorisatie_on.save()
 
-        autorisatiespec_oz = applicatie_oz.autorisatie_specs.first()
+        catalogus_autorisatie_oz = applicatie_oz.catalogusautorisatie_set.first()
 
-        autorisatiespec_oz.max_vertrouwelijkheidaanduiding = (
+        catalogus_autorisatie_oz.max_vertrouwelijkheidaanduiding = (
             VertrouwelijkheidsAanduiding.openbaar
         )
-        autorisatiespec_oz.save()
+        catalogus_autorisatie_oz.save()
 
         self.assertTrue(configuration.is_configured())

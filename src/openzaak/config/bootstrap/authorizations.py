@@ -6,9 +6,11 @@ from io import StringIO
 
 from django.conf import settings
 from django.core.management import call_command
+from django.core.serializers.base import DeserializationError
 
 import yaml
 from django_setup_configuration.configuration import BaseConfigurationStep
+from django_setup_configuration.exceptions import ConfigurationRunFailed
 from vng_api_common.models import JWTSecret
 
 from openzaak.components.autorisaties.models import Applicatie
@@ -84,7 +86,9 @@ class AuthorizationConfigurationStep(BaseConfigurationStep):
 
             # Load via stdin to avoid having to write to a temporary file
             with override_stdin(StringIO(content)):
-                call_command("loaddata", "-", format="yaml")
+                try:
+                    call_command("loaddata", "-", format="yaml")
+                except DeserializationError as e:
+                    raise ConfigurationRunFailed from e.__cause__
 
-    def test_configuration(self):
-        ...
+    def test_configuration(self): ...

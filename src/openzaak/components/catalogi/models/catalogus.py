@@ -13,6 +13,11 @@ from openzaak.utils.mixins import APIMixin
 from .validators import validate_uppercase
 
 
+class CatalogusManager(models.Manager):
+    def get_by_natural_key(self, uuid):
+        return self.get(uuid=uuid)
+
+
 class Catalogus(ETagMixin, APIMixin, models.Model):
     """
     De verzameling van ZAAKTYPEn - incl. daarvoor relevante objecttypen - voor
@@ -103,10 +108,15 @@ class Catalogus(ETagMixin, APIMixin, models.Model):
         ),
     )
 
+    objects = CatalogusManager()
+
     class Meta:
         unique_together = ("domein", "rsin")
         verbose_name = _("catalogus")
         verbose_name_plural = _("catalogi")
+
+    def natural_key(self):
+        return (str(self.uuid),)
 
     def __str__(self):
         return self.naam

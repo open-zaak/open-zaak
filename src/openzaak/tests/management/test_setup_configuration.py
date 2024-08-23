@@ -19,7 +19,7 @@ from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth
 from zgw_consumers.test import mock_service_oas_get
 
-from openzaak.components.autorisaties.models import AutorisatieSpec
+from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.bootstrap.authorizations import AuthorizationConfigurationStep
 from openzaak.config.bootstrap.demo import DemoUserStep
@@ -145,7 +145,7 @@ class SetupConfigurationTests(APITestCase):
             # One for OZ itself, notif-client, one for demo-client, one from auth config
             self.assertEqual(Autorisatie.objects.count(), 5)
             # One from auth config
-            self.assertEqual(AutorisatieSpec.objects.count(), 1)
+            self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
 
     @requests_mock.Mocker()
     def test_setup_configuration_selftest_fails(self, m):
