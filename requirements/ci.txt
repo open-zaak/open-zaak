@@ -638,7 +638,7 @@ tornado==6.4.1
     # via
     #   -r requirements/base.txt
     #   flower
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
