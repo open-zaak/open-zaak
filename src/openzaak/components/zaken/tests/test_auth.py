@@ -180,7 +180,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
         cls.autorisatie.delete()
         # strip out some queries that we don't normally have to run
         cls.patcher = patch(
-            "mozilla_django_oidc_db.mixins.OpenIDConnectConfig.get_solo",
+            "mozilla_django_oidc_db.models.OpenIDConnectConfig.get_solo",
             return_value=OpenIDConnectConfig(enabled=False),
         )
 
