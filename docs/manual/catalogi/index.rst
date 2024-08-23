@@ -82,6 +82,8 @@ buiten de Catalogi API.
     :width: 100%
     :alt: Lijst met alle zaaktypen van catalogus
 
+.. _manual_import_export_catalogi:
+
 Exporteren/importeren van een catalogus
 =======================================
 
