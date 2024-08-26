@@ -12458,6 +12458,9 @@ components:
       - reden
     PaginatedExpandZaakList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12478,6 +12481,9 @@ components:
             $ref: '#/components/schemas/ExpandZaak'
     PaginatedKlantContactList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12498,6 +12504,9 @@ components:
             $ref: '#/components/schemas/KlantContact'
     PaginatedResultaatList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12518,6 +12527,9 @@ components:
             $ref: '#/components/schemas/Resultaat'
     PaginatedRolList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12538,6 +12550,9 @@ components:
             $ref: '#/components/schemas/Rol'
     PaginatedStatusList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12558,6 +12573,9 @@ components:
             $ref: '#/components/schemas/Status'
     PaginatedZaakList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -12578,6 +12596,9 @@ components:
             $ref: '#/components/schemas/Zaak'
     PaginatedZaakObjectList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
