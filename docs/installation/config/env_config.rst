@@ -203,6 +203,13 @@ Optional
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed
   at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s.
 
+* ``SESSION_COOKIE_SAMESITE``: The value of the SameSite flag on the session cookie.
+  This flag prevents the cookie from being sent in cross-site requests thus preventing CSRF attacks
+  and making some methods of stealing session cookie impossible. Defaults to: ``Strict``.
+
+* ``CSRF_COOKIE_SAMESITE``: The value of the SameSite flag on the CSRF cookie. This flag prevents the cookie
+  from being sent in cross-site requests. Defaults to: ``Strict``.
+
 
 Initial superuser creation
 --------------------------
@@ -258,6 +265,19 @@ The following parameters control the CORS policy.
   request. By default, ``Authorization``, ``Accept-Crs`` and ``Content-Crs`` are already
   included. The value of this variable is added to these already included headers.
   Defaults to an empty list.
+
+Content Security Policy
+-----------------------
+
+* ``CSP_EXTRA_DEFAULT_SRC``: Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``. Defaults to: ``[]``.
+* ``CSP_REPORT_URI``: URI of the``report-uri`` directive. Defaults to: ``None``.
+* ``CSP_REPORT_PERCENTAGE``: Percentage of requests that get the ``report-uri`` directive. Defaults to: ``0``.
+* ``CSP_EXTRA_FORM_ACTION``: Add additional ``form-action`` source to the default . Defaults to: ``[]``.
+* ``CSP_FORM_ACTION``: Override the default ``form-action`` source. Defaults to: ``['"\'self\'"']``.
+* ``CSP_EXTRA_IMG_SRC``: Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``. Defaults to: ``[]``.
+* ``CSP_OBJECT_SRC``: ``object-src`` urls. Defaults to: ``['"\'none\'"']``.
+
+
 
 Initial configuration
 ---------------------
