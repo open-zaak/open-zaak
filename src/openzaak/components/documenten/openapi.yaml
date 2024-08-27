@@ -7691,34 +7691,8 @@ components:
       required:
       - datum
       - soort
-    PaginatedEnkelvoudigInformatieObjectList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnkelvoudigInformatieObject'
     PaginatedExpandEnkelvoudigInformatieObjectList:
       type: object
-      required:
-      - count
-      - results
       properties:
         count:
           type: integer
@@ -7739,9 +7713,6 @@ components:
             $ref: '#/components/schemas/ExpandEnkelvoudigInformatieObject'
     PaginatedExpandVerzendingList:
       type: object
-      required:
-      - count
-      - results
       properties:
         count:
           type: integer
@@ -7760,29 +7731,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandVerzending'
-    PaginatedVerzendingList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Verzending'
     PatchedEnkelvoudigInformatieObjectWithLockRequest:
       type: object
       description: |-

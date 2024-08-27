@@ -2493,9 +2493,6 @@ components:
       - title
     PaginatedBesluitList:
       type: object
-      required:
-      - count
-      - results
       properties:
         count:
           type: integer
