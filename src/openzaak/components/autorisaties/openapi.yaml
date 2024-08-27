@@ -1380,6 +1380,9 @@ components:
       type: string
     PaginatedApplicatieList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer

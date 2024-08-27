@@ -11327,6 +11327,9 @@ components:
       - informatieobjecttypeOmschrijvingGeneriek
     PaginatedBesluitTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11347,6 +11350,9 @@ components:
             $ref: '#/components/schemas/BesluitType'
     PaginatedCatalogusList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11367,6 +11373,9 @@ components:
             $ref: '#/components/schemas/Catalogus'
     PaginatedEigenschapList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11387,6 +11396,9 @@ components:
             $ref: '#/components/schemas/Eigenschap'
     PaginatedInformatieObjectTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11407,6 +11419,9 @@ components:
             $ref: '#/components/schemas/InformatieObjectType'
     PaginatedResultaatTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11427,6 +11442,9 @@ components:
             $ref: '#/components/schemas/ResultaatType'
     PaginatedRolTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11447,6 +11465,9 @@ components:
             $ref: '#/components/schemas/RolType'
     PaginatedStatusTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11467,6 +11488,9 @@ components:
             $ref: '#/components/schemas/StatusType'
     PaginatedZaakObjectTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11487,6 +11511,9 @@ components:
             $ref: '#/components/schemas/ZaakObjectType'
     PaginatedZaakTypeInformatieObjectTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -11507,6 +11534,9 @@ components:
             $ref: '#/components/schemas/ZaakTypeInformatieObjectType'
     PaginatedZaakTypeList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer

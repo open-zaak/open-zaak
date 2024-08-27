@@ -7693,6 +7693,9 @@ components:
       - soort
     PaginatedEnkelvoudigInformatieObjectList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7713,6 +7716,9 @@ components:
             $ref: '#/components/schemas/EnkelvoudigInformatieObject'
     PaginatedExpandEnkelvoudigInformatieObjectList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7733,6 +7739,9 @@ components:
             $ref: '#/components/schemas/ExpandEnkelvoudigInformatieObject'
     PaginatedExpandVerzendingList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
@@ -7753,6 +7762,9 @@ components:
             $ref: '#/components/schemas/ExpandVerzending'
     PaginatedVerzendingList:
       type: object
+      required:
+      - count
+      - results
       properties:
         count:
           type: integer
