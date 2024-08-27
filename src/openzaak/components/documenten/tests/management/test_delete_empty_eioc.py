@@ -27,6 +27,10 @@ from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
+    def setUp(self):
+        super().setUp()
+        self.client.raise_request_exception = False
+
     def test_basic(self):
 
         eioc = EnkelvoudigInformatieObjectCanonicalFactory()
@@ -39,23 +43,23 @@ class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
 
         latest.delete()
 
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
+        self.assertEqual(ZaakInformatieObject.objects.count(), 1)
+        self.assertEqual(BesluitInformatieObject.objects.count(), 1)
+
         zio_url = reverse(zio)
-        with self.assertRaises(AttributeError):
-            self.client.get(zio_url, **ZAAK_WRITE_KWARGS)
+        response = self.client.get(zio_url, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         bio_url = reverse(bio)
-        with self.assertRaises(AttributeError):
-            self.client.get(bio_url)
+        response = self.client.get(bio_url)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         response = self.client.get(reverse(besluit))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.get(reverse(zaak), **ZAAK_WRITE_KWARGS)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
-        self.assertEqual(ZaakInformatieObject.objects.count(), 1)
-        self.assertEqual(BesluitInformatieObject.objects.count(), 1)
 
         call_command("delete_empty_eioc")
 
