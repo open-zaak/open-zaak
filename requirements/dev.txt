@@ -417,7 +417,7 @@ furl==2.1.3
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-gemma-zds-client==1.0.1
+gemma-zds-client==2.0.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common

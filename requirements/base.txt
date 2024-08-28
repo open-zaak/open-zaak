@@ -253,7 +253,7 @@ flower==2.0.1
     # via open-api-framework
 furl==2.1.3
     # via drc-cmis
-gemma-zds-client==1.0.1
+gemma-zds-client==2.0.0
     # via
     #   commonground-api-common
     #   notifications-api-common
