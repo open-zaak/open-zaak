@@ -2,7 +2,8 @@
 # Copyright (C) 2020 Dimpact
 from django.conf import settings
 
-from zgw_consumers.client import UnknownService
+# TODO: remove legacy import of ZGWClient
+from zgw_consumers.legacy.client import UnknownService
 from zgw_consumers.models import Service
 
 from openzaak.components.documenten.models import ObjectInformatieObject
