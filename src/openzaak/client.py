@@ -3,7 +3,8 @@
 """
 Provide utilities to interact with other APIs as a client.
 """
-from zgw_consumers.client import UnknownService, ZGWClient
+# TODO: remove legacy import of ZGWClient
+from zgw_consumers.legacy.client import UnknownService, ZGWClient
 from zgw_consumers.models import Service
 
 

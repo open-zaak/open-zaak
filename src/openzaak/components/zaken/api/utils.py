@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from vng_api_common.utils import get_uuid_from_path
-from zgw_consumers.client import UnknownService
+
+# TODO: remove legacy import of ZGWClient
+from zgw_consumers.legacy.client import UnknownService
 from zgw_consumers.models import Service
 
 
