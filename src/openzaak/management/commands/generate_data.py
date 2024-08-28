@@ -16,6 +16,7 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
 )
+from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.models import (
     BesluitType,
     Eigenschap,
@@ -90,6 +91,7 @@ class ZaakBulkFactory(factory.django.DjangoModelFactory):
     verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
     identificatie = factory.Sequence(lambda n: "ZAAK_{}".format(n))
     archiefactiedatum = factory.Faker("future_date", end_date="+5y")
+    archiefnominatie = factory.fuzzy.FuzzyChoice(choices=ArchiefNominatieChoices.values)
 
     class Meta:
         model = "zaken.Zaak"
