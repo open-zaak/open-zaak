@@ -11,7 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 WORKDIR /app
 
 COPY ./requirements /app/requirements
-RUN pip install pip -U
+RUN pip install pip "setuptools>=70.0.0"
 RUN pip install -r requirements/production.txt
 
 
@@ -53,7 +53,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install pip -U
+RUN pip install pip "setuptools>=70.0.0"
 
 WORKDIR /app
 COPY ./cache /app/cache
