@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 
 from maykin_2fa import monkeypatch_admin
 from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
+from mozilla_django_oidc_db.views import AdminLoginFailure
 
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
@@ -27,6 +28,7 @@ urlpatterns = [
     path(
         "admin/api/v1/catalogi/", include("openzaak.components.catalogi.api.admin.urls")
     ),
+    path("admin/login/failure/", AdminLoginFailure.as_view(), name="admin-oidc-error"),
     # 2fa
     path("admin/", include((urlpatterns, "maykin_2fa"))),
     path("admin/", include((webauthn_urlpatterns, "two_factor"))),

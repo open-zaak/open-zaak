@@ -76,7 +76,7 @@ coreschema==0.0.4
     # via coreapi
 cron-descriptor==1.4.3
     # via django-celery-beat
-cryptography==41.0.5
+cryptography==41.0.7
     # via
     #   django-simple-certmanager
     #   josepy
@@ -260,7 +260,7 @@ humanize==4.0.0
     # via
     #   -r requirements/base.in
     #   flower
-idna==3.3
+idna==3.7
     # via requests
 inflection==0.5.1
     # via
@@ -276,7 +276,7 @@ isodate==0.6.1
     # via commonground-api-common
 itypes==1.2.0
     # via coreapi
-jinja2==3.0.3
+jinja2==3.1.4
     # via coreschema
 josepy==1.14.0
     # via mozilla-django-oidc
@@ -402,9 +402,9 @@ six==1.16.0
     #   python-dateutil
     #   requests-mock
     #   url-normalize
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via django
-tornado==6.4
+tornado==6.4.1
     # via flower
 typing-extensions==4.11.0
     # via
@@ -422,7 +422,7 @@ uritemplate==4.1.1
     #   drf-yasg
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   elastic-apm
     #   requests

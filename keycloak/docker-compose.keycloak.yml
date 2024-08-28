@@ -1,0 +1,36 @@
+# Config taken from https://stackoverflow.com/a/77257732
+#
+# This docker-compose is for development and test purposes. Tests are recorded with
+# VCR against this instance.
+#
+#   Log in to http://localhost:8080/admin/master/console/ with `admin`/`admin`
+#   credentials.
+#
+# DO NOT USE THIS IN PRODUCTION.
+#
+# Start a Keycloak instance in your local environment from the parent directory:
+# 
+#     docker compose -f docker-compose.keycloak.yml up -d
+# 
+
+version: '3'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    volumes:
+      - ./data:/opt/keycloak/data/import
+    ports:
+      - 8080:8080
+    networks:
+      openzaak-dev:
+        aliases:
+          - keycloak.openzaak.local
+
+networks:
+  openzaak-dev:
+    name: openzaak-dev
