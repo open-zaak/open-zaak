@@ -285,6 +285,44 @@ class AuthorizationConfigurationTests(TestCase):
         self.assertEqual(Autorisatie.objects.count(), 3)
         self.assertEqual(CatalogusAutorisatie.objects.count(), 2)
 
+    @override_settings(AUTHORIZATIONS_CONFIG_DELETE_EXISTING=True)
+    def test_configure_overwrite_delete_existing_other_configuration(self):
+        """
+        Running `.configure` with AUTHORIZATIONS_CONFIG_DELETE_EXISTING=True should
+        delete data that was not present in the fixture
+        """
+        AuthorizationConfigurationStep().configure()
+
+        applicatie_oz, _ = Applicatie.objects.all()
+
+        new_autorisatie = AutorisatieFactory.create(
+            applicatie=applicatie_oz,
+            component=ComponentTypes.brc,
+            besluittype="http://foo.bar",
+            scopes=["besluiten.lezen"],
+        )
+
+        new_applicatie = ApplicatieFactory.create()
+        new_catalogus_auth = CatalogusAutorisatieFactory.create(
+            applicatie=new_applicatie
+        )
+
+        # Overwrite the changes
+        AuthorizationConfigurationStep().configure()
+
+        # Check if the added data that was not present in the .yaml file still exists
+        with self.assertRaises(Autorisatie.DoesNotExist):
+            new_autorisatie.refresh_from_db()
+        with self.assertRaises(Applicatie.DoesNotExist):
+            new_applicatie.refresh_from_db()
+        with self.assertRaises(CatalogusAutorisatie.DoesNotExist):
+            new_catalogus_auth.refresh_from_db()
+
+        self.assertEqual(JWTSecret.objects.count(), 2)
+        self.assertEqual(Applicatie.objects.count(), 2)
+        self.assertEqual(Autorisatie.objects.count(), 2)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
+
     def test_is_configured(self):
         configuration = AuthorizationConfigurationStep()
 

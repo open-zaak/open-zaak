@@ -71,3 +71,7 @@ Some things to keep in mind:
 * if you always want the content of the fixture to be applied, make sure to run the ``setup_configuration``
   command with ``--overwrite``. This will ensure that the fixture is always loaded and any existing data
   will be updated.
+
+* if you want to use the fixture as the single source of truth, you can set ``AUTHORIZATIONS_CONFIG_DELETE_EXISTING`` to ``True``.
+  Do note that this will remove all existing Applicaties/autorisaties, credentials and CatalogusAutorisaties before loading the fixture.
+  This option should only be used if this configuration is **not** managed via the admin or API.

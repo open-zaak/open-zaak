@@ -4,7 +4,6 @@ from io import StringIO
 from pathlib import Path
 
 from django.contrib.sites.models import Site
-from openzaak.components.catalogi.tests.factories import CatalogusFactory
 from django.core.management import CommandError, call_command
 from django.test import override_settings
 
@@ -21,6 +20,7 @@ from zds_client import ClientAuth
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.catalogi.tests.factories import CatalogusFactory
 from openzaak.components.zaken.tests.utils import ZAAK_READ_KWARGS
 from openzaak.config.bootstrap.authorizations import AuthorizationConfigurationStep
 from openzaak.config.bootstrap.demo import DemoUserStep

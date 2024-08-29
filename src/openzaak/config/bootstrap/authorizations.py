@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
+import logging
 import sys
 from contextlib import contextmanager
 from io import StringIO
@@ -7,13 +8,17 @@ from io import StringIO
 from django.conf import settings
 from django.core.management import call_command
 from django.core.serializers.base import DeserializationError
+from django.db import transaction
 
 import yaml
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import ConfigurationRunFailed
+from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.models import JWTSecret
 
-from openzaak.components.autorisaties.models import Applicatie
+from openzaak.components.autorisaties.models import Applicatie, CatalogusAutorisatie
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -24,6 +29,15 @@ def override_stdin(data):
         yield
     finally:
         sys.stdin = original_stdin
+
+
+def delete_existing_configuration() -> None:
+    logger.info("Removing all existing authorization configuration")
+
+    Applicatie.objects.all().delete()
+    Autorisatie.objects.all().delete()
+    CatalogusAutorisatie.objects.all().delete()
+    JWTSecret.objects.all().delete()
 
 
 class AuthorizationConfigurationStep(BaseConfigurationStep):
@@ -66,7 +80,11 @@ class AuthorizationConfigurationStep(BaseConfigurationStep):
 
         return applicaties_configured and secrets_configured
 
+    @transaction.atomic
     def configure(self):
+        if settings.AUTHORIZATIONS_CONFIG_DELETE_EXISTING:
+            delete_existing_configuration()
+
         with open(settings.AUTHORIZATIONS_CONFIG_FIXTURE_PATH) as original_file:
             content = original_file.read()
 
@@ -85,10 +103,16 @@ class AuthorizationConfigurationStep(BaseConfigurationStep):
                             )
 
             # Load via stdin to avoid having to write to a temporary file
+            logger.info(
+                "Loading authorization configuration from %s",
+                settings.AUTHORIZATIONS_CONFIG_FIXTURE_PATH,
+            )
             with override_stdin(StringIO(content)):
                 try:
                     call_command("loaddata", "-", format="yaml")
                 except DeserializationError as e:
                     raise ConfigurationRunFailed from e.__cause__
+
+            logger.info("Authorization configuration successfully loaded!")
 
     def test_configuration(self): ...

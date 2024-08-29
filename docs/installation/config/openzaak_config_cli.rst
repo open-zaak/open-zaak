@@ -103,6 +103,9 @@ environments, for more detailed information about how this works, see :ref:`Auth
 * ``AUTHORIZATIONS_CONFIG_FIXTURE_PATH``: the full path of the fixture ``.yaml`` file containing the
   configuration (for more information about how to generate this file, see :ref:`Generating the fixture <authorization_config_generate_fixture>`).
 * ``AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH``: the full path to the file with the domain mapping.
+* ``AUTHORIZATIONS_CONFIG_DELETE_EXISTING``: a boolean indicating whether or not the existing configuration should be removed before loading the fixture.
+  set this to ``True``, ``true`` or ``1`` if you want to use the fixture as a single source of truth. Make sure to only do this if you are **not**
+  managing any Applicaties/credentials via the admin or API. Defaults to ``False``.
 * ``ENVIRONMENT``: the environment name of this Open Zaak instance. This is used to determine what the target domain is in the domain mapping.
 
 .. _setup_config_execution:
