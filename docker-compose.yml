@@ -57,6 +57,7 @@ services:
       - DEMO_CLIENT_ID=demo-client-id
       - DEMO_SECRET=demo-secret
       - DISABLE_2FA=${DISABLE_2FA:-0}
+      - AUTHORIZATIONS_CONFIG_ENABLE=True
       - AUTHORIZATIONS_CONFIG_FIXTURE_PATH=/data/auth.yaml
       - AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH=/data/domain_mapping.yaml
     healthcheck:
@@ -75,6 +76,7 @@ services:
       - private-media:/app/private-media
       - ./import-data:/app/import-data
       - ./docker/data:/data
+      - ./docker/fixtures/catalogi.json:/app/fixtures/catalogi.json
     depends_on:
       web-init:
         condition: service_completed_successfully

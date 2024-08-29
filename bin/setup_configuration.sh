@@ -9,4 +9,5 @@ set -e
 ${SCRIPTPATH}/wait_for_db.sh
 
 src/manage.py migrate
+${SCRIPTPATH}/load_fixtures.sh
 src/manage.py setup_configuration --no-selftest
