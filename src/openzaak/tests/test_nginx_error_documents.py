@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 """
-Test that the error documents configured in nGINX are available.
+Test that the error documents configured in Nginx are available.
 
-nGINX configuration:
+Nginx configuration:
 
     error_page  413              /413.json;
     error_page   500 502 503 504  /500.json;
