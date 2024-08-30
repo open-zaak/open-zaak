@@ -4,6 +4,7 @@ import logging
 import uuid as _uuid
 
 from django.apps import apps
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -324,3 +325,15 @@ class BesluitInformatieObject(ETagMixin, models.Model):
             doc_identificatie = self.informatieobject.latest_version.identificatie
 
         return f"({besluit_repr}) - {doc_identificatie}"
+
+    def save(self, *args, **kwargs):
+
+        if (
+            self._informatieobject is not None
+            and self._informatieobject.latest_version is None
+        ):
+            raise ValidationError(
+                "Related InformatieObject must have at least one version"
+            )
+
+        super().save(*args, **kwargs)
