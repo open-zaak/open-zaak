@@ -11,7 +11,7 @@ amqp==5.1.1
     #   -r requirements/base.txt
     #   kombu
 ansible==8.5.0
-    # via -r requirements/../deployment/requirements.in
+    # via -r /home/steven/Documents/VNG/open-zaak/deployment/requirements.in
 ansible-core==2.15.5
     # via ansible
 ape-pie==0.2.0
@@ -501,7 +501,7 @@ kombu==5.4.0
 kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
-    # via -r requirements/../deployment/requirements.in
+    # via -r /home/steven/Documents/VNG/open-zaak/deployment/requirements.in
 lxml==5.3.0
     # via pyquery
 markdown==3.3.6
@@ -530,7 +530,7 @@ multidict==6.1.0
     # via yarl
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.3.1
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@feature/register-kanalen-update
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -539,7 +539,7 @@ oauthlib==3.1.0
 open-api-framework==0.9.0
     # via -r requirements/base.txt
 openshift==0.11.2
-    # via -r requirements/../deployment/requirements.in
+    # via -r /home/steven/Documents/VNG/open-zaak/deployment/requirements.in
 orderedmultidict==1.0.1
     # via
     #   -r requirements/base.txt
@@ -558,7 +558,7 @@ packaging==24.0
     #   redis
     #   sphinx
 passlib==1.7.2
-    # via -r requirements/../deployment/requirements.in
+    # via -r /home/steven/Documents/VNG/open-zaak/deployment/requirements.in
 pathspec==0.9.0
     # via black
 phonenumberslite==8.13.35
@@ -670,7 +670,7 @@ pytz==2022.6
     #   flower
 pyyaml==6.0
     # via
-    #   -r requirements/../deployment/requirements.in
+    #   -r /home/steven/Documents/VNG/open-zaak/deployment/requirements.in
     #   -r requirements/base.txt
     #   ansible-core
     #   drf-spectacular
