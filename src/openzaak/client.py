@@ -4,8 +4,12 @@
 Provide utilities to interact with other APIs as a client.
 """
 # TODO: remove legacy import of ZGWClient
-from zgw_consumers.legacy.client import UnknownService, ZGWClient
+from zgw_consumers.legacy.client import ZGWClient
 from zgw_consumers.models import Service
+
+
+class NoServiceConfigured(RuntimeError):
+    pass
 
 
 def fetch_object(resource: str, url: str) -> dict:
@@ -14,7 +18,7 @@ def fetch_object(resource: str, url: str) -> dict:
     """
     client = Service.get_client(url)
     if not client:
-        raise UnknownService(f"{url} API should be added to Service model")
+        raise NoServiceConfigured(f"{url} API should be added to Service model")
     obj = client.retrieve(resource, url=url)
     return obj
 
