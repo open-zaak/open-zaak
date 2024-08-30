@@ -71,6 +71,7 @@ info:
 
     * `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
     * `zaaktype`: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+    * `zaaktype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
     * `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is.
 
     **Resources en acties**
