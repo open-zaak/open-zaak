@@ -2,17 +2,18 @@
 # Copyright (C) 2020 Dimpact
 from django.conf import settings
 
-# TODO: remove legacy import of ZGWClient
-from zgw_consumers.legacy.client import UnknownService
 from zgw_consumers.models import Service
 
+from openzaak.client import NoServiceConfigured
 from openzaak.components.documenten.models import ObjectInformatieObject
 
 
 def delete_remote_resource(resource: str, resource_url: str) -> None:
     client = Service.get_client(resource_url)
     if client is None:
-        raise UnknownService(f"{resource_url} API should be added to Service model")
+        raise NoServiceConfigured(
+            f"{resource_url} API should be added to Service model"
+        )
 
     client.delete(resource, resource_url)
 
@@ -32,7 +33,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
     else:
         client = Service.get_client(io_url)
         if client is None:
-            raise UnknownService(f"{io_url} API should be added to Service model")
+            raise NoServiceConfigured(f"{io_url} API should be added to Service model")
 
         body = {
             "informatieobject": io_url,
@@ -53,7 +54,7 @@ def create_remote_objectcontactmoment(
 ) -> dict:
     client = Service.get_client(contactmoment_url)
     if client is None:
-        raise UnknownService(
+        raise NoServiceConfigured(
             f"{contactmoment_url} API should be added to Service model"
         )
 
@@ -77,7 +78,7 @@ def create_remote_objectverzoek(
 ) -> dict:
     client = Service.get_client(verzoek_url)
     if client is None:
-        raise UnknownService(f"{verzoek_url} API should be added to Service model")
+        raise NoServiceConfigured(f"{verzoek_url} API should be added to Service model")
 
     body = {
         "verzoek": verzoek_url,

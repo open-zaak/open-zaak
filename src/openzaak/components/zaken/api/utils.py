@@ -1,16 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from vng_api_common.utils import get_uuid_from_path
-
-# TODO: remove legacy import of ZGWClient
-from zgw_consumers.legacy.client import UnknownService
 from zgw_consumers.models import Service
+
+from openzaak.client import NoServiceConfigured
 
 
 def create_remote_zaakbesluit(besluit_url: str, zaak_url: str) -> dict:
     client = Service.get_client(zaak_url)
     if client is None:
-        raise UnknownService(f"{zaak_url} API should be added to Service model")
+        raise NoServiceConfigured(f"{zaak_url} API should be added to Service model")
 
     zaak_uuid = get_uuid_from_path(zaak_url)
     body = {"besluit": besluit_url}
@@ -23,6 +22,8 @@ def create_remote_zaakbesluit(besluit_url: str, zaak_url: str) -> dict:
 def delete_remote_zaakbesluit(zaakbesluit_url: str) -> None:
     client = Service.get_client(zaakbesluit_url)
     if client is None:
-        raise UnknownService(f"{zaakbesluit_url} API should be added to Service model")
+        raise NoServiceConfigured(
+            f"{zaakbesluit_url} API should be added to Service model"
+        )
 
     client.delete("zaakbesluit", zaakbesluit_url)
