@@ -1,15 +1,68 @@
 Changelog
 =========
 
-1.x.x (TBD)
+1.14.0 (2024-09-02)
 -------------------
 
 **New features**
 
-* [#1692] Added a ``DELETE`` endpoint for the ``Import`` resource. Additionally
-  added a periodic task was added which removes ``Import`` instances older than the
-  days specified in the environment variable ``IMPORT_RETENTION_DAYS``. This requires
-  a separate Celery Beat container to be ran (see ``docker-compose.yml``).
+* API:
+
+    * [#1692] Added a ``DELETE`` endpoint for the ``Import`` resource and a periodic task  which removes
+      ``Import`` instances older than the days specified in the environment variable ``IMPORT_RETENTION_DAYS``
+    * [#1353] Allowed nested ``datumkenmerk`` for "afleidingswijze" zaakobject
+    * [#1574] Optimized list endpoints by implementing fuzzy pagination which doesn't calculate "count".
+      It can be turned on with ``FUZZY_PAGINATION`` environment variable
+    * [#1707] Restricted creating ZaakInformatieObject and BesluitInformatieObject when EnkelvoudigInformatieObject
+      canonical object doesn't have versions
+
+* Admin:
+
+    * [#1648] Added an option to keep same UUIDs when importing zaaktypen in the Admin
+    * [#1650] Registered Audittrail model in the Admin
+    * [#1661] Assigned authorizations on a per-catalogus basis
+    * [#1707] Restricted creating EnkelvoudigInformatieObject canonical object without versions
+
+.. warning::
+
+    A periodic task to remove finished import processes required Celery Beat and
+    a separate Celery Beat container to be ran (see ``docker-compose.yml``).
+
+
+**Bugfixes and QOL**
+
+* [1306] Removed non-alphanumeric validation from ``ZaakType.identificatie`` and
+  ``EnkelvoudigInformatieObject.identificatie``
+* [#1686] Fixed 500 status when publishing overlapping informatieobjecttypen
+* [#1705] Fixed CSS style for help-text icon in the Admin
+* [#1256] Showed conflicting identification number when returning a "identificatie-niet-uniek" error
+* [#1695] Fixed redirect after 2FA
+* [#1743] Fixed 2FA app title
+* [#1737] Cleaned temporary folders in import tests
+
+**Documentation**
+
+* [#1691] Updated documentation for Open Zaak and Open Notificaties configuration
+* [#1742] Updated documentation for Authorizations based on Catalogi
+
+**Project maintenance**
+
+* [#1629] Refactored Settings module to use generic settings provided by Open API Framework
+* [#1701] Updated Python to 3.11
+* [#1747] updated open-api-framework to 0.8.0, which includes adding CSRF, CSP and HSTS settings.
+* [#1747, #1738] Bumped python dependencies due to security issues: celery, django, djangorestframework,
+  mozilla-django-oidc-db, requests, sentry-sdk, setuptools, sqlparse and others
+* [#1708] Added OAS checks to CI
+* [#1721] Added ``DISABLE_2FA`` environment variable into "docker-compose.yml"
+* [#1727] Added celery healthcheck, the example how to use it can be found in ``docker-compose.yml``
+* [#1732] Filled more zaaktype attributes with ``generate_data`` command
+
+.. warning::
+
+    SECURE_HSTS_SECONDS has been added with a default of 31536000 seconds, ensure that
+    before upgrading to this version of open-api-framework, your entire application is served
+    over HTTPS, otherwise this setting can break parts of your application (see https://docs.djangoproject.com/en/4.2/ref/middleware/#http-strict-transport-security)
+
 
 
 1.13.0 (2024-06-19)
