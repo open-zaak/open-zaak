@@ -8,6 +8,7 @@ from django.core.management import CommandError, call_command
 import requests_mock
 from rest_framework.test import APITestCase
 
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -73,6 +74,10 @@ class GenerateDataTests(APITestCase):
                 self.assertEqual(model.objects.count(), obj_count)
 
         # assert that some attributes are filled
+        # catalogi
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.identificatie, "ZAAKTYPE_0")
+        # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
                 self.assertEqual(
