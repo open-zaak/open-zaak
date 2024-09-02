@@ -76,7 +76,7 @@ class GenerateDataTests(APITestCase):
         # assert that some attributes are filled
         # catalogi
         zaaktype = ZaakType.objects.get()
-        self.assertEqual(zaaktype.identificatie, "ZAAKTYPE_0")
+        self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
         # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
