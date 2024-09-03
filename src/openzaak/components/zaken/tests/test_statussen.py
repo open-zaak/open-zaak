@@ -12,7 +12,10 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
 
-from openzaak.components.catalogi.tests.factories import StatusTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    StatusTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..models import Status
@@ -144,6 +147,28 @@ class StatusTests(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaak-mismatch")
+
+    def test_create_status_with_wrong_object(self):
+        url = reverse("status-list")
+        zaaktype = ZaakTypeFactory()
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        StatusTypeFactory.create(zaaktype=zaaktype)
+        rol = RolFactory.create()
+
+        data = {
+            "zaak": f"http://testserver{reverse(zaaktype)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2023-01-01T00:00:00",
+            "gezetdoor": f"http://testserver{reverse(rol)}",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "wrong-object")
 
 
 @tag("external-urls")
