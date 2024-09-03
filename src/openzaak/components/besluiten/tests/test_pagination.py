@@ -41,3 +41,18 @@ class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response_data["count"], 2)
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
+
+    def test_pagination_pagesize_param(self):
+        BesluitFactory.create_batch(10)
+        besluit_list_url = get_operation_url("besluit_list")
+
+        response = self.client.get(besluit_list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{besluit_list_url}?page=2&pageSize=5"
+        )

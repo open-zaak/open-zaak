@@ -880,3 +880,17 @@ class EigenschapPaginationTestCase(APITestCase):
         self.assertEqual(response_data["count"], 2)
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
+
+    def test_pagination_pagesize_param(self):
+        EigenschapFactory.create_batch(10, zaaktype__concept=False)
+        eigenschap_list_url = reverse("eigenschap-list")
+
+        response = self.client.get(eigenschap_list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{eigenschap_list_url}?page=2&pageSize=5"
+        )

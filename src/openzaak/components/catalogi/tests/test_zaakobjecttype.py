@@ -408,3 +408,14 @@ class ZaakObjectTypePaginationTests(APITestCase):
         self.assertEqual(response_data["count"], 2)
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
+
+    def test_pagination_pagesize_param(self):
+        ZaakObjectTypeFactory.create_batch(10, zaaktype__concept=False)
+
+        response = self.client.get(self.url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(data["next"], f"http://testserver{self.url}?page=2&pageSize=5")

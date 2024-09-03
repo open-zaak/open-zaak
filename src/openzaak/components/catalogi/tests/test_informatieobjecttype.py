@@ -769,3 +769,17 @@ class InformatieObjectTypePaginationTestCase(APITestCase):
         self.assertEqual(response_data["count"], 2)
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
+
+    def test_pagination_pagesize_param(self):
+        InformatieObjectTypeFactory.create_batch(10, concept=False)
+        iotype_list_url = get_operation_url("informatieobjecttype_list")
+
+        response = self.client.get(iotype_list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{iotype_list_url}?page=2&pageSize=5"
+        )

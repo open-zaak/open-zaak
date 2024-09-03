@@ -145,6 +145,19 @@ class StatusTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "zaak-mismatch")
 
+    def test_pagination_pagesize_param(self):
+        StatusFactory.create_batch(10)
+        url = reverse("status-list")
+
+        response = self.client.get(url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])

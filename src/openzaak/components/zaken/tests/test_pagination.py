@@ -46,6 +46,20 @@ class ZaakPaginationTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["next"])
         self.assertNotIn("countExact", response_data)
 
+    def test_pagination_pagesize_param(self):
+        ZaakFactory.create_batch(10)
+
+        response = self.client.get(self.list_url, {"pageSize": 5}, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
+        )
+
 
 # can't use override_settings here because it overrides after class init
 @patch(
@@ -110,3 +124,18 @@ class ZaakFuzzyPaginationTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
         self.assertTrue(response_data["countExact"])
+
+    def test_pagination_pagesize_param(self):
+        ZaakFactory.create_batch(11)
+
+        response = self.client.get(self.list_url, {"pageSize": 5}, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 11)
+        self.assertEqual(
+            data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
+        )
+        self.assertTrue(data["countExact"])

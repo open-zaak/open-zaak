@@ -923,7 +923,7 @@ class VerzendingViewSet(
 
     queryset = Verzending.objects.select_related("informatieobject").order_by("-pk")
     serializer_class = VerzendingSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = OptimizedPagination
     lookup_field = "uuid"
     notifications_kanaal = KANAAL_DOCUMENTEN
     notifications_main_resource_key = "informatieobject"
