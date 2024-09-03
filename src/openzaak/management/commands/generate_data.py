@@ -10,6 +10,7 @@ from django.utils import timezone
 
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from zds_client.client import ClientError
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -224,12 +225,7 @@ class Command(BaseCommand):
         if confirm != "yes":
             raise CommandError("Data generation cancelled.")
 
-        # request SL resultaten
-        sl_resultaten = get_sl_resultaten()
-        self.sl_result_mapping = {
-            res["procesType"]: res["url"] for res in sl_resultaten
-        }
-
+        self.get_sl_results()
         self.generate_catalogi()
         self.generate_zaken()
         self.generate_besluiten()
@@ -247,6 +243,19 @@ class Command(BaseCommand):
             model.objects.bulk_create(objs_batch)
             self.stdout.write(f"Creating {obj_name_plural} for partition {i + 1}")
         self.stdout.write(f"Finished creating {obj_name_plural}")
+
+    def get_sl_results(self):
+        # request SL resultaten
+        try:
+            sl_resultaten = get_sl_resultaten()
+        except ClientError:
+            raise CommandError(
+                "Selectielijst API is not available. Check its configuration"
+            )
+
+        self.sl_result_mapping = {
+            res["procesType"]: res["url"] for res in sl_resultaten
+        }
 
     def generate_catalogi(self):
         #  catalog - 1
