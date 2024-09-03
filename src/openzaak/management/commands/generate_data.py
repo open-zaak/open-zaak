@@ -224,6 +224,12 @@ class Command(BaseCommand):
         if confirm != "yes":
             raise CommandError("Data generation cancelled.")
 
+        # request SL resultaten
+        sl_resultaten = get_sl_resultaten()
+        self.sl_result_mapping = {
+            res["procesType"]: res["url"] for res in sl_resultaten
+        }
+
         self.generate_catalogi()
         self.generate_zaken()
         self.generate_besluiten()
@@ -250,6 +256,7 @@ class Command(BaseCommand):
         # zaaktype - 100
         zaaktypen = ZaakTypeFactory.build_batch(
             self.zaaktypen_amount,
+            selectielijst_procestype=random.choice(list(self.sl_result_mapping.keys())),
             catalogus=catalog,
             concept=False,
             with_identificatie=True,
@@ -318,10 +325,6 @@ class Command(BaseCommand):
         self.log_created(besluittypen)
 
     def generate_zaken(self):
-        # get 100 Selectielijst resultaten which will be used in Zaak.selectielijstklasse
-        sl_resultaten = get_sl_resultaten()
-        sl_resultaat_urls = [result["url"] for result in sl_resultaten]
-
         # 1mln zaken
         zaken_per_zaaktype = self.zaken_amount // self.zaaktypen_amount
         zaaktypen = ZaakType.objects.order_by("id").all()
@@ -334,7 +337,9 @@ class Command(BaseCommand):
                 zaken_per_zaaktype,
                 _zaaktype=zaaktype,
                 zaakgeometrie=Point(random.uniform(1, 50), random.uniform(50, 100)),
-                selectielijstklasse=random.choice(sl_resultaat_urls),
+                selectielijstklasse=self.sl_result_mapping[
+                    zaaktype.selectielijst_procestype
+                ],
             )
 
             ZaakBulk.objects_bulk.bulk_create(zaken)
