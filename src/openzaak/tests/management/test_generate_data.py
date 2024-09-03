@@ -77,6 +77,10 @@ class GenerateDataTests(APITestCase):
         # catalogi
         zaaktype = ZaakType.objects.get()
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
+        self.assertEqual(
+            zaaktype.selectielijst_procestype,
+            f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        )
         # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
