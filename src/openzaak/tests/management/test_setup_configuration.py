@@ -17,6 +17,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth
+from zgw_consumers.client import build_client
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
@@ -117,10 +118,14 @@ class SetupConfigurationTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         with self.subTest("Notifications API client configured correctly"):
-            notificaties_client = NotificationsConfig.get_client()
+            config = NotificationsConfig.get_solo()
+            notificaties_client = build_client(config.notifications_api_service)
+
             self.assertIsNotNone(notificaties_client)
 
-            notificaties_client.create("notificaties", data={"foo": "bar"})
+            notificaties_client.request(
+                url="notificaties", method="POST", data={"foo": "bar"}
+            )
 
             create_call = m.last_request
             self.assertEqual(

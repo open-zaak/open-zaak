@@ -10,7 +10,7 @@ from django.utils import timezone
 
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from zds_client.client import ClientError
+from zgw_consumers.client import build_client
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -75,8 +75,12 @@ def get_sl_resultaten() -> list[dict]:
     get first 100 objects from Selectielijst.resultaten endpoint
     use only for test purposes
     """
-    client = ReferentieLijstConfig.get_client()
-    response = client.list("resultaat")
+    client = build_client(ReferentieLijstConfig)
+
+    try:
+        response = client.get("resultaat").json()
+    except JSONDecodeError:
+        raise SelfTestFailed(f"Object type version didn't have any data")
     return response["results"]
 
 

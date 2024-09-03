@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zds_client import ClientError
+from zgw_consumers.client import build_client
 
 
 @requires_csrf_token
@@ -56,45 +57,54 @@ def _test_nrc_config() -> list:
 
     nrc_config = NotificationsConfig.get_solo()
 
-    nrc_client = NotificationsConfig.get_client()
+    nrc_client = (
+        build_client(nrc_config.notifications_api_service)
+        if nrc_config.notifications_api_service
+        else None
+    )
 
-    has_nrc_auth = nrc_client.auth is not None
+    checks = []
 
-    if not nrc_config.notifications_api_service:
-        checks = [((_("NRC"), _("Missing"), False))]
-        return checks
+    if nrc_client:
+        has_nrc_auth = nrc_client.auth is not None
 
-    checks = [
-        (
-            _("NRC"),
-            nrc_config.notifications_api_service.api_root,
-            nrc_config.notifications_api_service.api_root.endswith("/"),
-        ),
-        (
-            _("Credentials for NRC"),
-            _("Configured") if has_nrc_auth else _("Missing"),
-            has_nrc_auth,
-        ),
-    ]
+        if not nrc_config.notifications_api_service:
+            checks = [((_("NRC"), _("Missing"), False))]
+            return checks
 
-    # check if permissions in AC are fine
-    if has_nrc_auth:
-        error = False
+        checks.append(
+            (
+                _("NRC"),
+                nrc_config.notifications_api_service.api_root,
+                nrc_config.notifications_api_service.api_root.endswith("/"),
+            ),
+            (
+                _("Credentials for NRC"),
+                _("Configured") if has_nrc_auth else _("Missing"),
+                has_nrc_auth,
+            ),
+        )
 
-        try:
-            nrc_client.list("kanaal")
-        except requests.ConnectionError:
-            error = True
-            message = _("Could not connect with NRC")
-        except ClientError as exc:
-            error = True
-            message = _(
-                "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
-        else:
-            message = _("Can retrieve kanalen")
+        # check if permissions in AC are fine
+        if has_nrc_auth:
+            error = False
 
-        checks.append((_("NRC connection and authorizations"), message, not error))
+            try:
+                nrc_client.request(url="kanaal")
+            except requests.ConnectionError:
+                error = True
+                message = _("Could not connect with NRC")
+            except ClientError as exc:
+                error = True
+                message = _(
+                    "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
+                ).format(
+                    status_code=exc.args[0]["status"], error_code=exc.args[0]["code"]
+                )
+            else:
+                message = _("Can retrieve kanalen")
+
+            checks.append((_("NRC connection and authorizations"), message, not error))
 
     return checks
 

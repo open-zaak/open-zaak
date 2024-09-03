@@ -1577,7 +1577,6 @@ class ResultaatTypeValidationTests(APITestCase):
 
                 with requests_mock.Mocker() as m:
                     self._setup_mock_responses(m)
-
                     response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [
