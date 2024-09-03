@@ -29,7 +29,9 @@ def get_procestypen(procestype_jaar=None) -> ResultList:
         query_params = query_params = (
             {"jaar": procestype_jaar} if procestype_jaar else {}
         )
-        return client.list("procestype", query_params=query_params)
+        return client.request(
+            url="procestypen", method="GET", params=query_params
+        ).json()
 
     return inner()
 
