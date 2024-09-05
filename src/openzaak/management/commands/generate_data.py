@@ -249,7 +249,10 @@ class Command(BaseCommand):
 
         # zaaktype - 100
         zaaktypen = ZaakTypeFactory.build_batch(
-            self.zaaktypen_amount, catalogus=catalog, concept=False
+            self.zaaktypen_amount,
+            catalogus=catalog,
+            concept=False,
+            with_identificatie=True,
         )
         zaaktypen = ZaakType.objects.bulk_create(zaaktypen)
         self.log_created(zaaktypen)
