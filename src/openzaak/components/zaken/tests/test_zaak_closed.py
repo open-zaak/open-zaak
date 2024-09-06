@@ -22,6 +22,7 @@ from openzaak.components.besluiten.models import Besluit
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
+    InformatieObjectTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -188,15 +189,14 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
         self.addCleanup(m.stop)
 
     def test_zaakinformatieobjecten(self):
-        io = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
-            informatieobjecttype__catalogus=self.zaaktype.catalogus,
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.zaaktype.catalogus, zaaktypen__zaaktype=self.zaaktype
         )
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io_url = reverse(io)
         zio = ZaakInformatieObjectFactory(
             zaak=self.zaak,
-            informatieobject__latest_version__informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
-            informatieobject__latest_version__informatieobjecttype__catalogus=self.zaaktype.catalogus,
+            informatieobject__latest_version__informatieobjecttype=iotype,
         )
         zio_url = reverse(zio)
 
@@ -352,15 +352,14 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
         self.addCleanup(m.stop)
 
     def test_zaakinformatieobjecten(self):
-        io = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
-            informatieobjecttype__catalogus=self.zaaktype.catalogus,
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.zaaktype.catalogus, zaaktypen__zaaktype=self.zaaktype
         )
+        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io_url = reverse(io)
         zio = ZaakInformatieObjectFactory(
             zaak=self.zaak,
-            informatieobject__latest_version__informatieobjecttype__zaaktypen__zaaktype=self.zaaktype,
-            informatieobject__latest_version__informatieobjecttype__catalogus=self.zaaktype.catalogus,
+            informatieobject=iotype,
         )
         zio_url = reverse(zio)
 
