@@ -129,12 +129,7 @@ class ClosedZaakRelatedDataAllowedCMISTests(
 
         io2 = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io2_url = f"http://testserver{reverse(io2)}"
-        zio = ZaakInformatieObjectFactory(
-            zaak=self.zaak,
-            informatieobject=io2_url,
-            informatieobject__informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobject__informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
-        )
+        zio = ZaakInformatieObjectFactory(zaak=self.zaak, informatieobject=io2_url)
         zio_url = reverse(zio)
 
         self.assertCreateAllowed(

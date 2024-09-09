@@ -355,11 +355,15 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
         iotype = InformatieObjectTypeFactory.create(
             catalogus=self.zaaktype.catalogus, zaaktypen__zaaktype=self.zaaktype
         )
-        io = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iotype,
+        )
         io_url = reverse(io)
+        io2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=iotype,
+        )
         zio = ZaakInformatieObjectFactory(
-            zaak=self.zaak,
-            informatieobject=iotype,
+            zaak=self.zaak, informatieobject=io2.canonical
         )
         zio_url = reverse(zio)
 
