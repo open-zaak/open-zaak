@@ -27,4 +27,3 @@ drf-writable-nested
 notifications-api-common
 humanize
 drc-cmis
-git+https://github.com/maykinmedia/commonground-api-common.git@feature/dynamic-pagination
