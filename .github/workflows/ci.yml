@@ -200,7 +200,6 @@ jobs:
     uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@initial-setup
     needs:
       - store-reusable-workflow-vars
-      - tests
     with:
       main-branch: 'main'
       python-version: '3.11'
