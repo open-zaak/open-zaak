@@ -587,13 +587,10 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                         ):
                             raise ValidationError(
                                 error_msg.format(
-                                    component=data["component"], catalogus=catalogus
+                                    component=data["component"],
+                                    catalogus=_type.catalogus,
                                 ),
                                 code="overlapped_component_and_catalogus",
-                            )
-                        else:
-                            catalogus_and_component_combinations.append(
-                                catalogus_and_component
                             )
 
 
