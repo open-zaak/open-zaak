@@ -6,7 +6,7 @@ If you want to contribute to Open Zaak, we ask you to follow these guidelines.
 If you have encountered a bug in Open Zaak, please check if an issue already exists in the list of existing [issues](https://github.com/open-zaak/open-zaak/issues), if such an issue does not exist, you can create one [here](https://github.com/open-zaak/open-zaak/issues/new/choose). When writing the bug report, try to add a clear example that shows how to reproduce said bug.
 
 ## Adding new features
-Before making making changes to the code, we advise you to first check the list of existing [issues](https://github.com/open-zaak/open-zaak/issues) for Open Zaak to see if an issue for the suggested changes already exists. If such an issue does not exist, you can create one [here](https://github.com/open-zaak/open-zaak/issues/new/choose). Creating an issue gives an opportunity for other developers to give tips even before you start coding. If you are in the early idea phase, or if your feature requires larger changes, you can also discuss it on [the mailing list](https://lists.publiccode.net/mailman/postorius/lists/openzaak-discuss.lists.publiccode.net/) to make sure you are heading in the right direction.
+Before making making changes to the code, we advise you to first check the list of existing [issues](https://github.com/open-zaak/open-zaak/issues) for Open Zaak to see if an issue for the suggested changes already exists. If such an issue does not exist, you can create one [here](https://github.com/open-zaak/open-zaak/issues/new/choose). Creating an issue gives an opportunity for other developers to give tips even before you start coding.
 
 ### Code style
 To keep the code clean and readable, Open Zaak uses:
