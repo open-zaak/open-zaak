@@ -28,14 +28,18 @@ from openzaak.config.bootstrap.site import SiteConfigurationStep
 
 @override_settings(
     NOTIFICATIONS_DISABLED=False,
+    SITES_CONFIG_ENABLE=True,
     OPENZAAK_DOMAIN="open-zaak.example.com",
     OPENZAAK_ORGANIZATION="ACME",
     NOTIF_API_ROOT="https://notifs.example.com/api/v1/",
     NOTIF_API_OAS="https://notifs.example.com/api/v1/schema/openapi.yaml",
+    OPENZAAK_NOTIF_CONFIG_ENABLE=True,
     OPENZAAK_NOTIF_CLIENT_ID="oz-client-id",
     OPENZAAK_NOTIF_SECRET="oz-secret",
+    NOTIF_OPENZAAK_CONFIG_ENABLE=True,
     NOTIF_OPENZAAK_CLIENT_ID="notif-client-id",
     NOTIF_OPENZAAK_SECRET="notif-secret",
+    OPENZAAK_SELECTIELIJST_CONFIG_ENABLE=True,
     DEMO_CONFIG_ENABLE=True,
     DEMO_CLIENT_ID="demo-client-id",
     DEMO_SECRET="demo-secret",
