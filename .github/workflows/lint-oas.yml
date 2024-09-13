@@ -21,5 +21,4 @@ jobs:
           - documenten
           - zaken
     with:
-      schema-path: 'src/openzaak/components/{}'
-      schema-item: ${{ matrix.component }}
+      schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'
