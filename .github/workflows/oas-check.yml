@@ -1,17 +1,17 @@
-name: generate-sdks
+name: check-oas
 
 on:
   push:
     paths:
       - "src/openzaak/components/*/openapi.yaml"
-      - ".github/workflows/generate-sdks.yml"
+      - .github/workflows/oas-check.yml
     branches:
       - '**'
   workflow_dispatch:
 
 jobs:
-  open-api-workflow-generate-sdks:
-    uses: maykinmedia/open-api-workflows/.github/workflows/generate-sdks.yml@initial-setup
+  open-api-workflow-check-oas:
+    uses: maykinmedia/open-api-workflows/.github/workflows/oas-check.yml@initial-setup
     strategy:
       matrix:
         component:
@@ -23,3 +23,5 @@ jobs:
     with:
       schema-path: 'src/openzaak/components/{}'
       schema-item: ${{ matrix.component }}
+      schema-command: 'spectacular_for_component'
+      schema-options: "--component ${{ matrix.component }}"

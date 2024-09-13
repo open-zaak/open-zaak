@@ -12,3 +12,14 @@ on:
 jobs:
   open-api-workflow-generate-postman-collection:
     uses: maykinmedia/open-api-workflows/.github/workflows/generate-postman-collection.yml@initial-setup
+    strategy:
+      matrix:
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+    with:
+      schema-path: 'src/openzaak/components/{}'
+      schema-item: ${{ matrix.component }}

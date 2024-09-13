@@ -12,3 +12,14 @@ on:
 jobs:
   open-api-workflow-lint-oas:
     uses: maykinmedia/open-api-workflows/.github/workflows/lint-oas.yml@initial-setup
+    strategy:
+      matrix:
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+    with:
+      schema-path: 'src/openzaak/components/{}'
+      schema-item: ${{ matrix.component }}
