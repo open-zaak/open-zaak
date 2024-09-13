@@ -23,11 +23,6 @@ jobs:
       node-version: '18'
       postgres-version: '12-2.5'
 
-      # TODO: use defaults
-      isort-src-pattern: 'src'
-      black-src-pattern: 'src docs'
-      flake8-src-pattern: 'src'
-
       django-settings-module: 'openzaak.conf.ci'
       django-secret-key: dummy
 
