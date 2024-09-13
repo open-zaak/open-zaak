@@ -24,3 +24,6 @@ jobs:
       schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'
       schema-command: 'spectacular_for_component'
       schema-options: "--component ${{ matrix.component }}"
+      python-version: '3.11'
+      django-settings-module: 'openzaak.conf.ci'
+      apt-packages: 'libgdal-dev gdal-bin'
