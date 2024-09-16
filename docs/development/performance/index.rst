@@ -11,6 +11,5 @@ Performance is measured using different types of scenarios.
    :caption: Further reading
 
    profiling
-   scenarios
    apachebench
    notifications
