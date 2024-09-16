@@ -70,6 +70,22 @@ Content Security Policy
 * ``CSP_OBJECT_SRC``: ``object-src`` urls. Defaults to: ``['"\'none\'"']``.
 
 
+CMIS
+----
+
+* ``CMIS_ENABLED``: whether to enable the CMIS adapter. Defaults to: ``False``.
+* ``CMIS_MAPPER_FILE``: name of the file containing the mapping between the Django and Document Management System names for document properties. See the installation section for more details. Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``.
+* ``CMIS_URL_MAPPING_ENABLED``: enable the URL shortener when using the CMIS adapter. Defaults to: ``False``.
+
+
+Documenten import
+-----------------
+
+* ``IMPORT_RETENTION_DAYS``: an integer which specifies the number of days after which ``Import`` instances will be deleted. Defaults to: ``7``.
+* ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This value is used to determine the file path for each row in the import metadata file. By default this is the same directory as the projects directory (``BASE_DIR``).
+* ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s. Defaults to: ``500``.
+
+
 Optional
 --------
 
@@ -114,15 +130,9 @@ Optional
 * ``CURL_CA_BUNDLE``: if this variable is set to an empty string, it disables SSL/TLS certificate verification. Even calls from Open Zaak to other services such as the `Selectie Lijst`_ will be disabled, so this variable should be used with care to prevent unwanted side-effects.
 * ``JWT_EXPIRY``: duration a JWT is considered to be valid, in seconds. Defaults to: ``3600``.
 * ``JWT_LEEWAY``: JWT validation has a time aspect, usually in the form of the ``iat`` and ``nbf`` claims. Clock drift between server and client can occur. This setting allows specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to not make this larger than a couple of minutes.
-* ``CMIS_ENABLED``: whether to enable the CMIS adapter. Defaults to: ``False``.
-* ``CMIS_MAPPER_FILE``: name of the file containing the mapping between the Django and Document Management System names for document properties. See the installation section for more details. Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``.
-* ``CMIS_URL_MAPPING_ENABLED``: enable the URL shortener when using the CMIS adapter. Defaults to: ``False``.
 * ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` property would be validated against the related ``Eigenschap.specificatie``. Defaults to: ``False``.
 * ``FUZZY_PAGINATION``: if this variable is set to ``true``, ``yes`` or ``1``, fuzzy pagination will be applied to all paginated API endpoints. This is to optimize performance of the endpoints and results in the ``count`` property to return a non-exact (fuzzy) value. Defaults to: ``False``.
 * ``FUZZY_PAGINATION_COUNT_LIMIT``: an integer value to indicate the maximum number of objects where the exact count is calculated in pagination when ``FUZZY_PAGINATION`` is enabled. Defaults to: ``500``.
-* ``IMPORT_RETENTION_DAYS``: an integer which specifies the number of days after which ``Import`` instances will be deleted. Defaults to: ``7``.
-* ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This value is used to determine the file path for each row in the import metadata file. By default this is the same directory as the projects directory (``BASE_DIR``).
-* ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s. Defaults to: ``500``.
 
 
 

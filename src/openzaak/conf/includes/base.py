@@ -363,7 +363,10 @@ JWT_LEEWAY = config(
 CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
 
 CMIS_ENABLED = config(
-    "CMIS_ENABLED", default=False, help_text=("whether to enable the CMIS adapter")
+    "CMIS_ENABLED",
+    default=False,
+    help_text=("whether to enable the CMIS adapter"),
+    group="CMIS",
 )
 CMIS_MAPPER_FILE = config(
     "CMIS_MAPPER_FILE",
@@ -374,11 +377,13 @@ CMIS_MAPPER_FILE = config(
         "Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``."
     ),
     auto_display_default=False,
+    group="CMIS",
 )
 CMIS_URL_MAPPING_ENABLED = config(
     "CMIS_URL_MAPPING_ENABLED",
     default=False,
     help_text="enable the URL shortener when using the CMIS adapter",
+    group="CMIS",
 )
 
 # Name of the cache used to store responses for requests made when importing catalogi
@@ -421,6 +426,7 @@ IMPORT_RETENTION_DAYS = config(
         "an integer which specifies the number of days after which ``Import`` "
         "instances will be deleted."
     ),
+    group="Documenten import",
 )
 IMPORT_DOCUMENTEN_BASE_DIR = config(
     "IMPORT_DOCUMENTEN_BASE_DIR",
@@ -432,6 +438,7 @@ IMPORT_DOCUMENTEN_BASE_DIR = config(
         "file. By default this is the same directory as the projects directory (``BASE_DIR``)."
     ),
     auto_display_default=False,
+    group="Documenten import",
 )
 IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     "IMPORT_DOCUMENTEN_BATCH_SIZE",
@@ -440,6 +447,7 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
         "is the number of rows that will be processed at a time. "
         "Used for bulk importing ``EnkelvoudigInformatieObject``'s."
     ),
+    group="Documenten import",
 )
 
 # Settings for setup_configuration command
