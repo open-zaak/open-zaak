@@ -5,6 +5,7 @@ from django.core.management import BaseCommand, CommandError, call_command
 
 from notifications_api_common.kanalen import Kanaal
 from notifications_api_common.models import NotificationsConfig
+from zgw_consumers.client import build_client
 
 TEST_CHANNEL_NAME = "test"
 
@@ -13,7 +14,14 @@ class Command(BaseCommand):
     help = "Send a test notification to verify if notifications are properly configured"
 
     def handle(self, **options):
-        nrc_client = NotificationsConfig.get_client()
+        nrc_config = NotificationsConfig.get_solo()
+        if not nrc_config.notifications_api_service:
+            raise CommandError(
+                "Notifications are not properly configured. Please configure "
+                "them via the admin interface or the ``setup_configuration`` command."
+            )
+
+        nrc_client = build_client(nrc_config.notifications_api_service)
         if not nrc_client:
             raise CommandError(
                 "Notifications are not properly configured. Please configure "
@@ -40,7 +48,7 @@ class Command(BaseCommand):
         }
 
         try:
-            nrc_client.create("notificaties", data)
+            nrc_client.request(url="notificaties", method="POST", data=data)
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Notification successfully sent to {nrc_client.base_url}"

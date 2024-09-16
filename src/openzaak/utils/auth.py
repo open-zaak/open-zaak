@@ -3,7 +3,8 @@
 import logging
 from typing import Optional
 
-from zgw_consumers.client import ZGWClient
+# TODO: remove legacy import of ZGWClient
+from zgw_consumers.legacy.client import ZGWClient
 from zgw_consumers.models import Service
 
 logger = logging.getLogger(__name__)

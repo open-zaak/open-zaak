@@ -170,7 +170,7 @@ class ProcesTypeValidator:
         if not selectielijstklasse_url:
             return
 
-        selectielijstklasse = fetch_object("resultaat", selectielijstklasse_url)
+        selectielijstklasse = fetch_object(selectielijstklasse_url).json()
 
         if selectielijstklasse["procesType"] != zaaktype.selectielijst_procestype:
             raise ValidationError(
@@ -200,7 +200,7 @@ class ProcestermijnAfleidingswijzeValidator:
         if not selectielijstklasse_url or not archiefprocedure:
             return
 
-        selectielijstklasse = fetch_object("resultaat", selectielijstklasse_url)
+        selectielijstklasse = fetch_object(selectielijstklasse_url).json()
         procestermijn = selectielijstklasse["procestermijn"]
         afleidingswijze = archiefprocedure["afleidingswijze"]
 
