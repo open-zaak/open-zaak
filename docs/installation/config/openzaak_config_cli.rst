@@ -34,7 +34,7 @@ Sites configuration
 
 Configure the domain where Open Zaak is hosted
 
-* ``SITES_CONFIG_ENABLE``: enable Site configuration. Defaults to ``True``.
+* ``SITES_CONFIG_ENABLE``: enable Site configuration. Defaults to ``False``.
 * ``OPENZAAK_DOMAIN``:  a ``[host]:[port]`` or ``[host]`` value. Required.
 * ``OPENZAAK_ORGANIZATION``: name of Open Zaak organization. Required.
 
@@ -45,7 +45,7 @@ Open Notificaties uses Open Zaak Autorisaties API to check authorizations
 of its consumers, therefore Open Notificaties should be able to request Open Zaak
 
 * ``NOTIF_OPENZAAK_CONFIG_ENABLE``: enable Notification credentials configuration. Defaults
-  to ``True``.
+  to ``False``.
 * ``NOTIF_OPENZAAK_CLIENT_ID``: a client id, which Open Notificaties uses to request
   Open Zaak, for example, ``open-notificaties``. Required.
 * ``NOTIF_OPENZAAK_SECRET``: some random string. Required.
@@ -55,7 +55,7 @@ Notification configuration
 
 Open Zaak publishes notifications to the Open Notificaties.
 
-* ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``True``.
+* ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``False``.
 * ``NOTIF_API_ROOT``: full URL to the Notificaties API root, for example
   ``https://notificaties.gemeente.local/api/v1/``. Required.
 * ``NOTIF_API_OAS``: full URL to the Notificaties OpenAPI specification in YAML format.
@@ -69,7 +69,7 @@ Selectielijst configuration
 Open Zaak requests Selectielijst API in the Catalogi API component.
 The Selectielijst API is not expected to require any authentication.
 
-* ``OPENZAAK_SELECTIELIJST_CONFIG_ENABLE``: enable Selectielijst configuration. Defaults to ``True``.
+* ``OPENZAAK_SELECTIELIJST_CONFIG_ENABLE``: enable Selectielijst configuration. Defaults to ``False``.
 * ``SELECTIELIJST_API_ROOT``: full url to the Selectielijst API root. Defaults to
   ``https://selectielijst.openzaak.nl/api/v1/``
 * ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification in YAML format. Defaults to
@@ -83,7 +83,7 @@ Demo user configuration
 Demo user can be created to check if Open Zaak APIs work. It has superuser permissions, 
 so its creation is not recommended on production environment.
 
-* ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to the value of the ``DEBUG`` setting. 
+* ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to ``False``.
 * ``DEMO_CLIENT_ID``: demo client id. Required.
 * ``DEMO_SECRET``: demo secret. Required.
 
