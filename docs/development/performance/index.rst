@@ -32,6 +32,40 @@ There should be enough data in the database for the performance testing:
 * 1.000.000 Besluiten in the Besluiten API
 * 1 Catalogus with 100 Zaaktypen in the Catalogi API
 
+Performance test results
+------------------------
+
+1 user
+^^^^^^
+
+================= ========= ======================
+OZ version        Role      Median time (in ms)
+================= ========= ======================
+1.9.0             Superuser 740
+1.9.0             Regular   2500
+1.10.2            Superuser 790
+1.10.2            Regular   1600
+1.13.0            Superuser 860
+1.13.0            Regular   1700
+1.14.0 (fuzzy on) Superuser 640
+1.14.0 (fuzzy on) Regular   690
+================= ========= ======================
+
+16 users
+^^^^^^^^
+
+================= ========= ======================
+OZ version        Role      Median time (in ms)
+================= ========= ======================
+1.9.0             Superuser 2300
+1.9.0             Regular   13000
+1.10.2            Superuser 3200
+1.10.2            Regular   11000
+1.13.0            Superuser 3400
+1.13.0            Regular   11000
+1.14.0 (fuzzy on) Superuser 2600
+1.14.0 (fuzzy on) Regular   3400
+================= ========= ======================
 
 
 .. toctree::

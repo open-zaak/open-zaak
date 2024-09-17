@@ -3,7 +3,7 @@
 Data generation
 ===============
 
-To fill in the test environment with data (for example for :ref:`performance_scenarios`)
+To fill in the test environment with data (for example for :ref:`performance_index`)
 ``generate_data`` management command can be used.
 It generates resources for Zaken, Catalogi, Documenten and Besluiten APIs and relations between them.
 
