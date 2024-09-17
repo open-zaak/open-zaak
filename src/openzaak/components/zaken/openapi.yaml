@@ -115,6 +115,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: zaak
         schema:
@@ -564,6 +570,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -1666,6 +1678,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: roltype
         schema:
@@ -2330,6 +2348,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -4519,6 +4543,12 @@ paths:
         description: Een pagina binnen de gepagineerde set resultaten.
         schema:
           type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
+        schema:
+          type: integer
       - in: query
         name: zaak
         schema:
@@ -6259,6 +6289,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query
@@ -9879,6 +9915,12 @@ paths:
         required: false
         in: query
         description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Het aantal resultaten terug te geven per pagina.
         schema:
           type: integer
       - in: query

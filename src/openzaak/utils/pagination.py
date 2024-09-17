@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 
 from rest_framework.pagination import PageNumberPagination, _positive_int
 from rest_framework.response import Response
+from vng_api_common.pagination import DynamicPageSizeMixin
 
 from .help_text import mark_experimental
 
@@ -21,7 +22,7 @@ class ExactPaginator(DjangoPaginator):
         return self.object_list.values("pk").count()
 
 
-class ExactPagination(PageNumberPagination):
+class ExactPagination(DynamicPageSizeMixin, PageNumberPagination):
     django_paginator_class = ExactPaginator
 
 
@@ -44,7 +45,7 @@ class FuzzyPaginator(DjangoPaginator):
         ].count()
 
 
-class FuzzyPagination(PageNumberPagination):
+class FuzzyPagination(DynamicPageSizeMixin, PageNumberPagination):
     django_paginator_class = FuzzyPaginator
 
     def get_paginated_response(self, data):

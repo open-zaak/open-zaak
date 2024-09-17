@@ -1199,6 +1199,20 @@ class ResultaatTypePaginationTestCase(APITestCase):
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
 
+    def test_pagination_pagesize_param(self):
+        ResultaatTypeFactory.create_batch(10, zaaktype__concept=False)
+        resultaattype_list_url = reverse("resultaattype-list")
+
+        response = self.client.get(resultaattype_list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{resultaattype_list_url}?page=2&pageSize=5"
+        )
+
 
 @override_settings(SOLO_CACHE=None)
 class ResultaatTypeValidationTests(APITestCase):

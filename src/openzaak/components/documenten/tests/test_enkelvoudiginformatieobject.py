@@ -931,6 +931,19 @@ class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
 
+    def test_pagination_pagesize_param(self):
+        EnkelvoudigInformatieObjectFactory.create_batch(10)
+
+        response = self.client.get(self.list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
+        )
+
 
 @tag("external-urls")
 @temp_private_root()

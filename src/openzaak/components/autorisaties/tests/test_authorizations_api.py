@@ -623,6 +623,27 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.data["autorisaties"], expected)
 
+    def test_list_with_page_size_in_query(self):
+        AutorisatieFactory.create_batch(
+            10,
+            applicatie__client_ids=["id3"],
+            component=ComponentTypes.zrc,
+            scopes=["dummy.scope"],
+            zaaktype="https://example.com",
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url = get_operation_url("applicatie_list")
+        response = self.client.get(url, {"clientIds": "id3", "pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{url}?clientIds=id3&page=2&pageSize=5"
+        )
+
 
 class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]

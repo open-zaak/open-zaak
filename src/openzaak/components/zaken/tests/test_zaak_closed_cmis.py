@@ -14,7 +14,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
-from ...catalogi.tests.factories import ZaakTypeFactory
+from ...catalogi.tests.factories import InformatieObjectTypeFactory, ZaakTypeFactory
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_BIJWERKEN,
@@ -68,16 +68,13 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         )
 
     def test_zaakinformatieobjecten(self):
-        io1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.zaaktype.catalogus, zaaktypen__zaaktype=self.zaaktype
         )
+        io1 = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io1_url = f"http://testserver{reverse(io1)}"
 
-        io2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
-        )
+        io2 = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io2_url = f"http://testserver{reverse(io2)}"
 
         zio = ZaakInformatieObjectFactory(
@@ -124,23 +121,15 @@ class ClosedZaakRelatedDataAllowedCMISTests(
         site.save()
 
     def test_zaakinformatieobjecten(self):
-        io1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
+        iotype = InformatieObjectTypeFactory.create(
+            catalogus=self.zaaktype.catalogus, zaaktypen__zaaktype=self.zaaktype
         )
+        io1 = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io1_url = f"http://testserver{reverse(io1)}"
 
-        io2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
-        )
+        io2 = EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iotype)
         io2_url = f"http://testserver{reverse(io2)}"
-        zio = ZaakInformatieObjectFactory(
-            zaak=self.zaak,
-            informatieobject=io2_url,
-            informatieobject__informatieobjecttype__zaaktypen__zaaktype=self.zaak.zaaktype,
-            informatieobject__informatieobjecttype__catalogus=self.zaak.zaaktype.catalogus,
-        )
+        zio = ZaakInformatieObjectFactory(zaak=self.zaak, informatieobject=io2_url)
         zio_url = reverse(zio)
 
         self.assertCreateAllowed(

@@ -152,6 +152,19 @@ class ZaakObjectBaseTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ZaakObject.objects.count(), 0)
 
+    def test_pagination_pagesize_param(self):
+        ZaakObjectFactory.create_batch(10)
+        url = get_operation_url("zaakobject_create")
+
+        response = self.client.get(url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
+
 
 class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
     """

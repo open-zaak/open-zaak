@@ -764,6 +764,20 @@ class BesluitTypePaginationTestCase(APITestCase):
         self.assertIsNone(response_data["previous"])
         self.assertIsNone(response_data["next"])
 
+    def test_pagination_pagesize_param(self):
+        BesluitTypeFactory.create_batch(10, concept=False)
+        besluittype_list_url = reverse("besluittype-list")
+
+        response = self.client.get(besluittype_list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{besluittype_list_url}?page=2&pageSize=5"
+        )
+
 
 class BesluitTypeValidationTests(APITestCase):
     maxDiff = None

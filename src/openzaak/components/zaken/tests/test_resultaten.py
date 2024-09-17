@@ -11,7 +11,7 @@ from zgw_consumers.models import Service
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
-from .factories import ZaakFactory
+from .factories import ResultaatFactory, ZaakFactory
 from .utils import get_operation_url, get_resultaattype_response, get_zaaktype_response
 
 
@@ -169,3 +169,17 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "resultaattype")
         self.assertEqual(error["code"], "unknown-service")
+
+    def test_pagination_pagesize_param(self):
+        ResultaatFactory.create_batch(10)
+
+        response = self.client.get(self.list_url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(
+            data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
+        )

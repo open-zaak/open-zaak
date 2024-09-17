@@ -45,6 +45,18 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(verzending1)}",
         )
 
+    def test_pagination_pagesize_param(self):
+        VerzendingFactory.create_batch(10)
+        url = reverse(Verzending)
+
+        response = self.client.get(url, {"pageSize": 5})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(data["count"], 10)
+        self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
+
     def test_read_with_inner_address(self):
         verzending = VerzendingFactory.create(has_inner_address=True)
         url = reverse(verzending)
