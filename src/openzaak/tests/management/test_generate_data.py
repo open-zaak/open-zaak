@@ -77,6 +77,10 @@ class GenerateDataTests(APITestCase):
         # catalogi
         zaaktype = ZaakType.objects.get()
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
+        self.assertEqual(
+            zaaktype.selectielijst_procestype,
+            f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        )
         # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
@@ -91,5 +95,16 @@ class GenerateDataTests(APITestCase):
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
+            with self.assertRaises(CommandError):
+                call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
+
+    @requests_mock.Mocker()
+    def test_generate_data_sl_error(self, m):
+        # mocks for Selectielijst API calls
+        config = ReferentieLijstConfig.get_solo()
+        mock_selectielijst_oas_get(m)
+        m.get(f"{config.api_root}resultaten", status_code=404)
+
+        with patch("builtins.input", lambda *args: "yes"):
             with self.assertRaises(CommandError):
                 call_command("generate_data", partition=1, zaaktypen=1, zaken=2)

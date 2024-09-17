@@ -10,6 +10,7 @@ from django.utils import timezone
 
 import factory.fuzzy
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from zds_client.client import ClientError
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -224,6 +225,7 @@ class Command(BaseCommand):
         if confirm != "yes":
             raise CommandError("Data generation cancelled.")
 
+        self.get_sl_results()
         self.generate_catalogi()
         self.generate_zaken()
         self.generate_besluiten()
@@ -242,6 +244,19 @@ class Command(BaseCommand):
             self.stdout.write(f"Creating {obj_name_plural} for partition {i + 1}")
         self.stdout.write(f"Finished creating {obj_name_plural}")
 
+    def get_sl_results(self):
+        # request SL resultaten
+        try:
+            sl_resultaten = get_sl_resultaten()
+        except ClientError:
+            raise CommandError(
+                "Selectielijst API is not available. Check its configuration"
+            )
+
+        self.sl_result_mapping = {
+            res["procesType"]: res["url"] for res in sl_resultaten
+        }
+
     def generate_catalogi(self):
         #  catalog - 1
         catalog = CatalogusFactory.create(naam="performance test")
@@ -250,6 +265,7 @@ class Command(BaseCommand):
         # zaaktype - 100
         zaaktypen = ZaakTypeFactory.build_batch(
             self.zaaktypen_amount,
+            selectielijst_procestype=random.choice(list(self.sl_result_mapping.keys())),
             catalogus=catalog,
             concept=False,
             with_identificatie=True,
@@ -318,10 +334,6 @@ class Command(BaseCommand):
         self.log_created(besluittypen)
 
     def generate_zaken(self):
-        # get 100 Selectielijst resultaten which will be used in Zaak.selectielijstklasse
-        sl_resultaten = get_sl_resultaten()
-        sl_resultaat_urls = [result["url"] for result in sl_resultaten]
-
         # 1mln zaken
         zaken_per_zaaktype = self.zaken_amount // self.zaaktypen_amount
         zaaktypen = ZaakType.objects.order_by("id").all()
@@ -334,7 +346,9 @@ class Command(BaseCommand):
                 zaken_per_zaaktype,
                 _zaaktype=zaaktype,
                 zaakgeometrie=Point(random.uniform(1, 50), random.uniform(50, 100)),
-                selectielijstklasse=random.choice(sl_resultaat_urls),
+                selectielijstklasse=self.sl_result_mapping[
+                    zaaktype.selectielijst_procestype
+                ],
             )
 
             ZaakBulk.objects_bulk.bulk_create(zaken)
