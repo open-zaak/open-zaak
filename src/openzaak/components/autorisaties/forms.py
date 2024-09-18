@@ -541,12 +541,17 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         Raise errors if there are any CatalogusAutorisaties with the same component and
         catalogus (or regular Autorisaties with the same component and types from the same catalogus)
         regardless of scopes
+
+        * if there are the 2 same catalogi for CatalogusAutorisaties - error
+        * if there is a catalog for CatalogusAutorisaties and a type of the same catalog for Autorisaties - error
+        * If there are types of the same catalog for Autorisaties - no error
         """
         error_msg = _(
             "You cannot create multiple Autorisaties/CatalogusAutorisaties with the "
             "same component and catalogus: {component}, {catalogus}"
         )
         catalogus_and_component_combinations = []
+        type_catalogus_and_component_combinations = []
         for form in self.forms:
             data = form.cleaned_data
 
@@ -560,6 +565,9 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                         if (
                             catalogus_and_component
                             in catalogus_and_component_combinations
+                        ) or (
+                            catalogus_and_component
+                            in type_catalogus_and_component_combinations
                         ):
                             raise ValidationError(
                                 error_msg.format(
@@ -587,12 +595,13 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
                         ):
                             raise ValidationError(
                                 error_msg.format(
-                                    component=data["component"], catalogus=catalogus
+                                    component=data["component"],
+                                    catalogus=_type.catalogus,
                                 ),
                                 code="overlapped_component_and_catalogus",
                             )
                         else:
-                            catalogus_and_component_combinations.append(
+                            type_catalogus_and_component_combinations.append(
                                 catalogus_and_component
                             )
 

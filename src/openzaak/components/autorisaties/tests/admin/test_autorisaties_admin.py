@@ -1526,3 +1526,30 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
         self.assertFalse(CatalogusAutorisatie.objects.exists())
         self.assertFalse(Autorisatie.objects.exists())
+
+    def test_add_autorisatie_with_iotypen_without_catalogus(self):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1718
+
+        When manual iotypen are added, the form should not fail
+        """
+        iot1, iot2 = InformatieObjectTypeFactory.create_batch(
+            2, concept=False, catalogus=self.catalogus
+        )
+        data = {
+            # management form
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-MIN_NUM_FORMS": 0,
+            "form-MAX_NUM_FORMS": 1000,
+            "form-0-component": ComponentTypes.drc,
+            "form-0-scopes": ["notificaties.consumeren"],
+            "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
+            "form-0-informatieobjecttypen": [iot1.id, iot2.id],
+            "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.applicatie.autorisaties.count(), 2)
