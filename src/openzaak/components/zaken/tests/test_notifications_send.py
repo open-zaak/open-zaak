@@ -12,6 +12,7 @@ from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.models import NotificationsConfig
 from notifications_api_common.tasks import NotificationException, send_notification
+from requests.exceptions import RequestException
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie
@@ -22,6 +23,8 @@ from vng_api_common.constants import (
 )
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.models import Service
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -38,7 +41,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..models import Zaak
 from .factories import (
@@ -49,7 +52,12 @@ from .factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url
+from .utils import (
+    ZAAK_WRITE_KWARGS,
+    get_catalogus_response,
+    get_operation_url,
+    get_zaaktype_response,
+)
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
@@ -68,6 +76,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
+        catalogus_url = reverse(zaaktype.catalogus)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -100,6 +109,134 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "bronorganisatie": "517439943",
                     "zaaktype": f"http://testserver{zaaktype_url}",
+                    "zaaktype.catalogus": f"http://testserver{catalogus_url}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+            },
+        )
+
+    @tag("external-urls")
+    def test_send_notif_create_zaak_external_zaaktype(self, mock_notif):
+        """
+        Check if the zaaktype.catalogus kenmerk is correctly sent if the Zaak
+        has an external zaaktype
+        """
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
+        url = get_operation_url("zaak_create")
+        zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
+        catalogus_url = "https://externe.catalogus.nl/api/v1/catalogi/1"
+        data = {
+            "zaaktype": zaaktype_url,
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            with requests_mock.Mocker() as m:
+                mock_ztc_oas_get(m)
+                m.get(
+                    zaaktype_url,
+                    json=get_zaaktype_response(catalogus_url, zaaktype_url),
+                )
+                m.get(
+                    catalogus_url,
+                    json=get_catalogus_response(catalogus_url, zaaktype_url),
+                )
+
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        mock_notif.assert_called_once_with(
+            {
+                "kanaal": "zaken",
+                "hoofdObject": data["url"],
+                "resource": "zaak",
+                "resourceUrl": data["url"],
+                "actie": "create",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": "517439943",
+                    "zaaktype": zaaktype_url,
+                    "zaaktype.catalogus": catalogus_url,
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+            },
+        )
+
+    @tag("external-urls")
+    def test_send_notif_create_zaak_external_zaaktype_failed_to_fetch_catalogus(
+        self, mock_notif
+    ):
+        """
+        Check if the zaaktype.catalogus kenmerk is left empty sent if the Zaak
+        has an external zaaktype and the Catalogus could not be fetched
+        """
+        Service.objects.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
+        url = get_operation_url("zaak_create")
+        zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
+        catalogus_url = "https://externe.catalogus.nl/api/v1/catalogi/1"
+        data = {
+            "zaaktype": zaaktype_url,
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            with requests_mock.Mocker() as m:
+                mock_ztc_oas_get(m)
+                m.get(
+                    zaaktype_url,
+                    json=get_zaaktype_response(catalogus_url, zaaktype_url),
+                )
+                m.get(
+                    catalogus_url,
+                    # json=get_catalogus_response(catalogus_url, zaaktype_url),
+                    exc=RequestException,
+                )
+
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        mock_notif.assert_called_once_with(
+            {
+                "kanaal": "zaken",
+                "hoofdObject": data["url"],
+                "resource": "zaak",
+                "resourceUrl": data["url"],
+                "actie": "create",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": "517439943",
+                    "zaaktype": zaaktype_url,
+                    "zaaktype.catalogus": "",  # could not be fetched
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
