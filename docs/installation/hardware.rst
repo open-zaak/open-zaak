@@ -31,8 +31,7 @@ Inhabitants     Expected concurrent users
 
 **Performance**
 
-Based on functional :ref:`performance test scenario's<performance_scenarios>` and
-requirements, we made a translation to technical performance requirements (requests per
+We made a translation to technical performance requirements (requests per
 second). We used the following numbers to make the translation:
 
 1. Average number of requests per functional scenario: **7** (higher means more
