@@ -1,11 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from vng_api_common.conf.api import *  # noqa - imports white-listed
+from vng_api_common.conf.api import BASE_REST_FRAMEWORK, ZDS_CLIENT_CLASS  # noqa: F401
 
 from openzaak.api_standards import APIStandard
-
-# Remove the reference - we don't have a single API version.
-del API_VERSION  # noqa
 
 AUTORISATIES_API_VERSION = "1.0.0"
 BESLUITEN_API_VERSION = "1.1.0"
@@ -55,8 +52,6 @@ SPECTACULAR_SETTINGS = {
     "DEFAULT_GENERATOR_CLASS": "openzaak.utils.generators.SchemaGenerator",
 }
 
-
-GEMMA_URL_INFORMATIEMODEL_VERSIE = "1.0"
 
 COMMONGROUND_API_COMMON_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
 
