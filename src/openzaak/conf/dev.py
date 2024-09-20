@@ -82,7 +82,7 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
 #
 # DJANGO-SILK
 #
-if config("PROFILE", default=False):
+if config("PROFILE", default=False, add_to_docs=False):
     INSTALLED_APPS += ["silk"]
     MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
     security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
@@ -107,7 +107,7 @@ if "test" in sys.argv:
 
     warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")
 
-ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True)
+ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, add_to_docs=False)
 
 # Override settings with local settings.
 try:

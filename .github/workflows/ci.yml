@@ -203,6 +203,24 @@ jobs:
           cache-dependency-path: 'requirements/*.txt'
       - name: Install dependencies
         run: pip install -r requirements/dev.txt pytest
+      - name: Install system packages
+        run: |
+          sudo apt-get update \
+          && sudo apt-get install -y --no-install-recommends \
+            libgdal-dev \
+            gdal-bin
+      - name: Generate environment variable documentation using OAf and check if it was updated
+        run: |
+          bin/generate_envvar_docs.sh
+          changes=$(git diff docs/installation/config/env_config.rst)
+          if [ ! -z "$changes" ]; then
+              echo $changes
+              echo "Please update the environment documentation by running \`bin/generate_envvar_docs.sh\`"
+              cat docs/installation/config/env_config.rst
+              exit 1
+          fi
+        env:
+          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
       - name: Build and test docs
         run: |
           export OPENSSL_CONF=$(pwd)/openssl.conf
