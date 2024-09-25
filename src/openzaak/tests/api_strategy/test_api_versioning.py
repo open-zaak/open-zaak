@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.test import override_settings
 
 import yaml
+from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
@@ -24,6 +25,7 @@ class APIVersioningTests(APITestCase):
                 url = reverse(f"schema-{component}")
 
                 response = self.client.get(f"{url}?format=json")
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
                 self.assertIn(
                     "application/vnd.oai.openapi+json", response["Content-Type"]
@@ -37,6 +39,7 @@ class APIVersioningTests(APITestCase):
                 url = reverse(f"schema-{component}")
 
                 response = self.client.get(url)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
                 self.assertIn("application/vnd.oai.openapi", response["Content-Type"])
                 doc = yaml.safe_load(response.content)
