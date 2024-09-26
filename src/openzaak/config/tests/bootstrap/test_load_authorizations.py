@@ -22,7 +22,10 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
     SCOPE_ZAKEN_CREATE,
 )
-from openzaak.config.bootstrap.authorizations import AuthorizationConfigurationStep
+from openzaak.config.bootstrap.authorizations import (
+    DISALLOWED_SETTINGS,
+    AuthorizationConfigurationStep,
+)
 
 ZAAKTYPE1 = "https://acc.openzaak.nl/zaaktypen/1"
 ZAAKTYPE2 = "https://external.acc.openzaak.nl/zaaktypen/2"
@@ -31,6 +34,7 @@ ZAAKTYPE4 = "https://acc.openzaak.nl/zaaktypen/4"
 
 
 AUTH_FIXTURE_PATH = Path(__file__).parent / "files/auth.yaml"
+INVALID_AUTH_FIXTURE_PATH = Path(__file__).parent / "files/auth_invalid.yaml"
 DOMAIN_MAPPING_PATH = Path(__file__).parent / "files/domain_mapping.yaml"
 
 
@@ -94,6 +98,23 @@ class AuthorizationConfigurationTests(TestCase):
             autorisatie_on.max_vertrouwelijkheidaanduiding,
             VertrouwelijkheidsAanduiding.openbaar,
         )
+
+    @override_settings(AUTHORIZATIONS_CONFIG_FIXTURE_PATH=INVALID_AUTH_FIXTURE_PATH)
+    def test_configure_validate_fixture_fails(self):
+        with self.assertRaises(ConfigurationRunFailed) as cm:
+            AuthorizationConfigurationStep().configure()
+
+        expected_error_msg = (
+            "The following errors occurred while validating the authorization "
+            "configuration fixture: \n"
+            "* One or more authorizations are missing scopes."
+        )
+
+        self.assertEqual(str(cm.exception), expected_error_msg)
+        self.assertEqual(JWTSecret.objects.count(), 0)
+        self.assertEqual(Applicatie.objects.count(), 0)
+        self.assertEqual(Autorisatie.objects.count(), 0)
+        self.assertEqual(CatalogusAutorisatie.objects.count(), 0)
 
     @override_settings(
         AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH=DOMAIN_MAPPING_PATH,
@@ -322,6 +343,21 @@ class AuthorizationConfigurationTests(TestCase):
         self.assertEqual(Applicatie.objects.count(), 2)
         self.assertEqual(Autorisatie.objects.count(), 2)
         self.assertEqual(CatalogusAutorisatie.objects.count(), 1)
+
+    @override_settings(AUTHORIZATIONS_CONFIG_DELETE_EXISTING=True)
+    def test_configure_delete_existing_config_not_allowed_if_other_steps_load_auth_data(
+        self,
+    ):
+        """
+        Running `.configure` with AUTHORIZATIONS_CONFIG_DELETE_EXISTING=True should raise an error
+        if other steps that load authorization data (secrets/applicaties) are enabled
+        """
+        for setting_name in DISALLOWED_SETTINGS:
+            with self.subTest(setting_name=setting_name), override_settings(
+                **{setting_name: True}
+            ):
+                with self.assertRaises(ConfigurationRunFailed):
+                    AuthorizationConfigurationStep().configure()
 
     def test_is_configured(self):
         configuration = AuthorizationConfigurationStep()

@@ -37,6 +37,7 @@ from .utils import (
     send_applicatie_changed_notification,
     versions_equivalent,
 )
+from .validators import validate_authorizations_have_scopes
 
 
 class ApplicatieForm(forms.ModelForm):
@@ -498,13 +499,8 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
         self._validate_catalogus_autorisaties_overlapping_component_and_catalogus()
 
     def _validate_authorizations_have_scopes(self):
-        for form in self.forms:
-            if form.cleaned_data:
-                if "scopes" not in form.cleaned_data:
-                    raise ValidationError(
-                        _("One or more authorizations are missing scopes."),
-                        code="missing_scopes",
-                    )
+        data = [form.cleaned_data for form in self.forms if form.cleaned_data]
+        validate_authorizations_have_scopes(data)
 
     def _validate_overlapping_types(self):
         scope_types = {}

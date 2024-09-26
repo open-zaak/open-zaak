@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from io import StringIO
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.serializers.base import DeserializationError
 from django.db import transaction
@@ -17,8 +18,17 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.models import JWTSecret
 
 from openzaak.components.autorisaties.models import Applicatie, CatalogusAutorisatie
+from openzaak.components.autorisaties.validators import (
+    validate_authorizations_have_scopes,
+)
 
 logger = logging.getLogger(__name__)
+
+DISALLOWED_SETTINGS = [
+    "OPENZAAK_NOTIF_CONFIG_ENABLE",
+    "NOTIF_OPENZAAK_CONFIG_ENABLE",
+    "DEMO_CONFIG_ENABLE",
+]
 
 
 @contextmanager
@@ -38,6 +48,36 @@ def delete_existing_configuration() -> None:
     Autorisatie.objects.all().delete()
     CatalogusAutorisatie.objects.all().delete()
     JWTSecret.objects.all().delete()
+
+
+def filter_entries(fixture: list[dict], models: list[str]) -> list[dict]:
+    """
+    Filter and prepare the fixture for validation
+    """
+    return [entry["fields"] for entry in fixture if entry["model"] in models]
+
+
+def validate_fixture(fixture: list[dict]) -> None:
+    """
+    Validate the fixture using the same validation methods used by the Autorisaties admin
+    """
+    errors = []
+    try:
+        data = filter_entries(
+            fixture,
+            ["autorisaties.catalogusautorisatie", "authorizations.autorisatie"],
+        )
+        validate_authorizations_have_scopes(data)
+    except ValidationError as e:
+        errors.append(e.message)
+
+    if errors:
+        formatted_errors = "\n".join(f"* {error}" for error in errors)
+        raise ConfigurationRunFailed(
+            "The following errors occurred while validating the authorization "
+            "configuration fixture: \n"
+            f"{formatted_errors}"
+        )
 
 
 class AuthorizationConfigurationStep(BaseConfigurationStep):
@@ -83,10 +123,24 @@ class AuthorizationConfigurationStep(BaseConfigurationStep):
     @transaction.atomic
     def configure(self):
         if settings.AUTHORIZATIONS_CONFIG_DELETE_EXISTING:
+            if any(getattr(settings, name) for name in DISALLOWED_SETTINGS):
+                setting_names = "\n".join(
+                    [f"* `{setting}`" for setting in DISALLOWED_SETTINGS]
+                )
+                raise ConfigurationRunFailed(
+                    "AuthorizationConfigurationStep with AUTHORIZATIONS_CONFIG_DELETE_EXISTING=True "
+                    "is mutually exclusive with other steps that configure authorization configuration. "
+                    "Please set the following settings to False to resolve this: \n"
+                    f"{setting_names}"
+                )
+
             delete_existing_configuration()
 
         with open(settings.AUTHORIZATIONS_CONFIG_FIXTURE_PATH) as original_file:
             content = original_file.read()
+
+            fixture_data = yaml.safe_load(content)
+            validate_fixture(fixture_data)
 
             if settings.AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH:
                 with open(
