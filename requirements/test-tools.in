@@ -13,5 +13,12 @@ isort
 black
 flake8
 
+# Documentation
+sphinx
+sphinx-rtd-theme
+recommonmark
+sphinx-markdown-tables
+sphinx-tabs
+
 # SPDX header checks
 click
