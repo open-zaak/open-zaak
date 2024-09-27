@@ -186,12 +186,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
