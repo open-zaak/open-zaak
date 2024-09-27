@@ -202,6 +202,7 @@ django==4.2.15
     #   drf-extra-fields
     #   drf-nested-routers
     #   drf-spectacular
+    #   drf-spectacular-sidecar
     #   drf-yasg
     #   maykin-2fa
     #   mozilla-django-oidc
@@ -369,10 +370,14 @@ drf-nested-routers==0.93.4
     # via
     #   -r requirements/ci.txt
     #   commonground-api-common
-drf-spectacular==0.27.2
+drf-spectacular[sidecar]==0.27.2
     # via
     #   -r requirements/ci.txt
     #   open-api-framework
+drf-spectacular-sidecar==2024.7.1
+    # via
+    #   -r requirements/ci.txt
+    #   drf-spectacular
 drf-writable-nested==0.6.3
     # via -r requirements/ci.txt
 drf-yasg==1.21.7
@@ -536,7 +541,7 @@ notifications-api-common==0.2.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.8.0
+open-api-framework==0.8.1
     # via -r requirements/ci.txt
 openshift==0.11.2
     # via -r requirements/../deployment/requirements.in

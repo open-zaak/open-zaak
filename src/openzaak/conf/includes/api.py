@@ -25,6 +25,7 @@ OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 
 SPECTACULAR_SETTINGS = {
+    "REDOC_DIST": "SIDECAR",
     # info object
     "TITLE": "Open Zaak API",
     "LICENSE": {"name": "EUPL 1.2", "url": "https://opensource.org/licenses/EUPL-1.2"},

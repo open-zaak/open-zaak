@@ -134,7 +134,7 @@ Navigate to the correct deployment directory:
 
 Create the ``vars/open-zaak.yml`` file - you can find an example in
 ``vars/open-zaak.yml.example``. Generate a secret key using the
-`Django secret key generator`_ and put the value between single quotes.
+Django secret key generator and put the value between single quotes.
 
 Configure the host by creating the ``hosts`` file from the example:
 
@@ -307,7 +307,6 @@ The port number must be available on the host - i.e. you may not have other
 services already listening on that port.
 
 .. _Docker hub: https://hub.docker.com/u/openzaak
-.. _Django secret key generator: https://miniwebtool.com/django-secret-key-generator/
 .. _Ansible role: https://github.com/open-zaak/ansible-collection/blob/master/roles/open_zaak_docker/defaults/main.yml
 
 Next steps

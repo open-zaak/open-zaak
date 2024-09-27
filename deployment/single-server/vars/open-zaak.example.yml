@@ -13,7 +13,7 @@ openzaak_db_username: open-zaak
 openzaak_db_password: change-me
 
 # Used to provide cryptographic signing (tokens, cookies, etc.)
-openzaak_secret_key: 'generate-me'  # use https://miniwebtool.com/django-secret-key-generator/
+openzaak_secret_key: 'generate-me'
 
 openzaak_replicas:
   - name: openzaak-0

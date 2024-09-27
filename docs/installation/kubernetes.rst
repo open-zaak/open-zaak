@@ -154,7 +154,7 @@ For a list of all the available variables, check the
 To deploy Open Zaak, some variables need to be set (in ``vars/open-zaak.yml``):
 
 * ``openzaak_domain``: the domain name, e.g. ``open-zaak.gemeente.nl``
-* ``openzaak_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
+* ``openzaak_secret_key``: generate a key via.
   Make sure to put the value between single quotes!
 
 You might want to tweak environment variables in order to
@@ -165,7 +165,7 @@ You might want to tweak environment variables in order to
 To deploy Open Notificaties, some variables need to be set (in ``vars/open-notificaties.yml``):
 
 * ``opennotificaties_domain``: the domain name, e.g. ``open-notificaties.gemeente.nl``
-* ``opennotificaties_secret_key``: generate a key via https://miniwebtool.com/django-secret-key-generator/.
+* ``opennotificaties_secret_key``: generate a key.
   Make sure to put the value between single quotes!
 
 Next steps

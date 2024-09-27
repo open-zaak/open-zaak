@@ -498,3 +498,5 @@ SELECTIELIJST_DEFAULT_YEAR = config(
 DEMO_CONFIG_ENABLE = config("DEMO_CONFIG_ENABLE", default=False, add_to_docs=False)
 DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "", add_to_docs=False)
 DEMO_SECRET = config("DEMO_SECRET", "", add_to_docs=False)
+
+CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
