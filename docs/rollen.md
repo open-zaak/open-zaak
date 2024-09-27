@@ -243,6 +243,65 @@ Content-Type: application/json
 }
 ```
 
+## eHerkenning / With mandate (ketenmachtiging)
+
+### eHerkenning - initiator (branch)
+
+```http
+POST /zaken/api/v1/rollen
+Content-Type: application/json
+
+{
+  "zaak": "http://example.com",
+  "betrokkeneType": "vestiging",
+  "roltype": "http://example.com/roltype-initiator",
+  "roltoelichting": "Created zaak",
+  "contactpersoonRol": {
+    "naam": "acting subject name"
+  },
+  "indicatieMachtiging": "gemachtigde",
+  "betrokkeneIdentificatie": {
+    "kvkNummer": "12345678",
+    "vestigingsNummer": "123456789012"
+  },
+  "authenticatieContext": {
+    "source": "eherkenning",
+    "levelOfAssurance": "urn:etoegang:core:assurance-class:loa2plus",
+    "representee": {
+      "identifierType": "kvkNummer",
+      "identifier": "99998888"
+    },
+    "actingSubject": "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018@2D8FF1EF10279BC2643F376D89835151"
+    "mandate": {      
+      "services": [{
+        "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+        "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc"
+      }]
+    }
+  }
+}
+```
+
+### eHerkenning - belanghebbende
+
+```http
+POST /zaken/api/v1/rollen
+Content-Type: application/json
+
+{
+  "zaak": "http://example.com",
+  "betrokkeneType": "niet_natuurlijk_persoon",
+  "roltype": "http://example.com/roltype-belanghebbende",
+  "roltoelichting": "Bedrijf dat de intermediair machtigt",
+  "indicatieMachtiging": "machtiginggever",
+  "betrokkeneIdentificatie": {
+    "kvkNummer": "99998888"
+  },
+  "authenticatieContext": null
+}
+```
+
+
 ## Validation rules
 
 If `representee` is provided in auth context, then:
