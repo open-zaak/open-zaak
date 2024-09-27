@@ -14,10 +14,10 @@ black
 flake8
 
 # Documentation
-sphinx
+sphinx~=4.4.0
 sphinx-rtd-theme
 recommonmark
-sphinx-markdown-tables
+sphinx-markdown-tables==0.0.15
 sphinx-tabs
 
 # SPDX header checks
