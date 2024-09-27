@@ -1,5 +1,5 @@
 DJANGO_SETTINGS_MODULE=openzaak.conf.production
-# generate one on https://www.miniwebtool.com/django-secret-key-generator/
+# generate one
 SECRET_KEY=replace-me-because-i-am-insecure
 ALLOWED_HOSTS=open-zaak.gemeente.nl
 

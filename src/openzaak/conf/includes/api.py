@@ -25,8 +25,6 @@ OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
 
 SPECTACULAR_SETTINGS = {
-    "SWAGGER_UI_DIST": "SIDECAR",
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
     # info object
     "TITLE": "Open Zaak API",
