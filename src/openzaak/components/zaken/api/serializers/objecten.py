@@ -37,7 +37,10 @@ from ...models import (
     ZakelijkRechtHeeftAlsGerechtigde,
 )
 from .address import TerreinGebouwdObjectAdresSerializer, WozObjectAdresSerializer
-from .zaken import RolNatuurlijkPersoonSerializer, RolNietNatuurlijkPersoonSerializer
+from .betrokkenen import (
+    NatuurlijkPersoonIdentificatieSerializer,
+    NietNatuurlijkPersoonIdentificatieSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -254,10 +257,10 @@ class ObjectKadastraleOnroerendeZaakSerializer(serializers.ModelSerializer):
 
 
 class ZakelijkRechtHeeftAlsGerechtigdeSerializer(serializers.ModelSerializer):
-    natuurlijk_persoon = RolNatuurlijkPersoonSerializer(
+    natuurlijk_persoon = NatuurlijkPersoonIdentificatieSerializer(
         required=False, source="natuurlijkpersoon"
     )
-    niet_natuurlijk_persoon = RolNietNatuurlijkPersoonSerializer(
+    niet_natuurlijk_persoon = NietNatuurlijkPersoonIdentificatieSerializer(
         required=False, source="nietnatuurlijkpersoon"
     )
 
@@ -274,13 +277,15 @@ class ZakelijkRechtHeeftAlsGerechtigdeSerializer(serializers.ModelSerializer):
             natuurlijk_persoon_data["zakelijk_rechtHeeft_als_gerechtigde"] = (
                 heeft_als_gerechtigde
             )
-            RolNatuurlijkPersoonSerializer().create(natuurlijk_persoon_data)
+            NatuurlijkPersoonIdentificatieSerializer().create(natuurlijk_persoon_data)
 
         if niet_natuurlijk_persoon_data:
             niet_natuurlijk_persoon_data["zakelijk_rechtHeeft_als_gerechtigde"] = (
                 heeft_als_gerechtigde
             )
-            RolNietNatuurlijkPersoonSerializer().create(niet_natuurlijk_persoon_data)
+            NietNatuurlijkPersoonIdentificatieSerializer().create(
+                niet_natuurlijk_persoon_data
+            )
 
         return heeft_als_gerechtigde
 

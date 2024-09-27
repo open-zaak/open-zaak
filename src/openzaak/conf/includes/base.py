@@ -71,6 +71,7 @@ INSTALLED_APPS = (
         "django_loose_fk",
         "drc_cmis",
         "django_celery_beat",
+        "drf_polymorphic",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",

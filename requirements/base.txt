@@ -122,6 +122,7 @@ django==4.2.15
     #   drc-cmis
     #   drf-extra-fields
     #   drf-nested-routers
+    #   drf-polymorphic
     #   drf-spectacular
     #   drf-yasg
     #   maykin-2fa
@@ -211,6 +212,7 @@ djangorestframework==3.15.2
     #   djangorestframework-inclusions
     #   drf-extra-fields
     #   drf-nested-routers
+    #   drf-polymorphic
     #   drf-spectacular
     #   drf-yasg
     #   notifications-api-common
@@ -229,6 +231,8 @@ drf-extra-fields==3.4.0
     # via -r requirements/base.in
 drf-nested-routers==0.93.4
     # via commonground-api-common
+drf-polymorphic==1.0.0
+    # via -r requirements/base.in
 drf-spectacular==0.27.2
     # via open-api-framework
 drf-writable-nested==0.6.3

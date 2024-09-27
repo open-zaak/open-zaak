@@ -16,6 +16,8 @@ from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.fields import BSNField, RSINField
 
+from openzaak.utils.help_text import mark_experimental
+
 from ..constants import GeslachtsAanduiding, SoortRechtsvorm
 from .objecten import ZakelijkRechtHeeftAlsGerechtigde
 from .zaken import Rol, ZaakObject
@@ -137,7 +139,8 @@ class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
 class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inn_nnp_id = RSINField(
         blank=True,
-        help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
+        help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON. "
+        "Het is het RSIN veld.",
         db_index=True,
     )
 
@@ -166,6 +169,11 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
         max_length=1000,
         blank=True,
         help_text="De gegevens over het adres van de NIET-NATUURLIJK PERSOON",
+    )
+    kvk_nummer = models.CharField(
+        max_length=8,
+        blank=True,
+        help_text=mark_experimental("Een Kamer van Koophandel uniek nummer"),
     )
 
     class Meta:
