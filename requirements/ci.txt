@@ -673,27 +673,34 @@ sphinx==4.4.0
     #   recommonmark
     #   sphinx-rtd-theme
     #   sphinx-tabs
-    #   sphinxcontrib-jquery
 sphinx-markdown-tables==0.0.15
     # via -r requirements/test-tools.in
-sphinx-rtd-theme==1.3.0
+sphinx-rtd-theme==1.0.0
     # via -r requirements/test-tools.in
-sphinx-tabs==3.4.5
+sphinx-tabs==3.3.1
     # via -r requirements/test-tools.in
-sphinxcontrib-applehelp==2.0.0
-    # via sphinx
-sphinxcontrib-devhelp==2.0.0
-    # via sphinx
-sphinxcontrib-htmlhelp==2.1.0
-    # via sphinx
-sphinxcontrib-jquery==4.1
-    # via sphinx-rtd-theme
+sphinxcontrib-applehelp==1.0.1
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
+sphinxcontrib-devhelp==1.0.1
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
+sphinxcontrib-htmlhelp==2.0.0
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==2.0.0
-    # via sphinx
-sphinxcontrib-serializinghtml==2.0.0
-    # via sphinx
+sphinxcontrib-qthelp==1.0.2
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
+sphinxcontrib-serializinghtml==1.1.5
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sqlparse==0.5.0
     # via
     #   -r requirements/base.txt

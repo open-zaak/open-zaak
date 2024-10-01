@@ -373,7 +373,7 @@ drf-spectacular[sidecar]==0.27.2
     #   open-api-framework
 drf-spectacular-sidecar==2024.7.1
     # via
-    #   -r requirements/ci.txt
+    #   -r requirements/base.txt
     #   drf-spectacular
 drf-writable-nested==0.6.3
     # via -r requirements/base.txt
@@ -757,17 +757,27 @@ sphinx-rtd-theme==1.0.0
 sphinx-tabs==3.3.1
     # via -r requirements/test-tools.in
 sphinxcontrib-applehelp==1.0.1
-    # via sphinx
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sphinxcontrib-devhelp==1.0.1
-    # via sphinx
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sphinxcontrib-htmlhelp==2.0.0
-    # via sphinx
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==1.0.2
-    # via sphinx
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sphinxcontrib-serializinghtml==1.1.5
-    # via sphinx
+    # via
+    #   -r requirements/test-tools.in
+    #   sphinx
 sqlparse==0.5.0
     # via
     #   -r requirements/base.txt
