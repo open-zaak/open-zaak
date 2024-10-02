@@ -4,7 +4,10 @@ from django.conf import settings
 from django.urls import reverse
 
 import requests
-from django_setup_configuration.configuration import BaseConfigurationStep
+from django_setup_configuration.configuration import (
+    BaseConfigurationStep,
+    ConfigSettings,
+)
 from django_setup_configuration.exceptions import SelfTestFailed
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.models import JWTSecret
@@ -26,8 +29,13 @@ class DemoUserStep(BaseConfigurationStep):
     # todo load permissions with yaml file and env var?
 
     verbose_name = "Demo User Configuration"
-    required_settings = ["DEMO_CLIENT_ID", "DEMO_SECRET", "OPENZAAK_DOMAIN"]
-    enable_setting = "DEMO_CONFIG_ENABLE"
+    config_settings = ConfigSettings(
+        enable_setting="DEMO_CONFIG_ENABLE",
+        display_name="Demo User Configuration",
+        namespace="DEMO",
+        update_fields=True,
+        required_settings=["DEMO_CLIENT_ID", "DEMO_SECRET", "OPENZAAK_DOMAIN"],
+    )
 
     def is_configured(self) -> bool:
         return (

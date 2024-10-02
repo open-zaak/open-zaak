@@ -3,6 +3,7 @@
 from django.conf import settings
 
 import requests
+from django_setup_configuration.config_settings import ConfigSettings
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
 from zds_client import ClientError
@@ -25,7 +26,14 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
     """
 
     verbose_name = "Selectielijst API Configuration"
-    enable_setting = "OPENZAAK_SELECTIELIJST_CONFIG_ENABLE"
+
+    config_settings = ConfigSettings(
+        enable_setting="OPENZAAK_SELECTIELIJST_CONFIG_ENABLE",
+        display_name="Selectielijst API Configuration",
+        namespace="OPENZAAK_SELECTIELIJST",
+        update_fields=True,
+        required_settings=[],
+    )
 
     def is_configured(self) -> bool:
         service = Service.objects.filter(api_root=settings.SELECTIELIJST_API_ROOT)

@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 from django.urls import reverse
 
 import requests
+from django_setup_configuration.config_settings import ConfigSettings
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
 
@@ -21,8 +22,13 @@ class SiteConfigurationStep(BaseConfigurationStep):
     """
 
     verbose_name = "Site Configuration"
-    required_settings = ["OPENZAAK_DOMAIN", "OPENZAAK_ORGANIZATION"]
-    enable_setting = "SITES_CONFIG_ENABLE"
+    config_settings = ConfigSettings(
+        enable_setting="SITES_CONFIG_ENABLE",
+        display_name="Site Configuration",
+        namespace="SITES_CONFIG",
+        update_fields=True,
+        required_settings=["OPENZAAK_DOMAIN", "OPENZAAK_ORGANIZATION"],
+    )
 
     def is_configured(self) -> bool:
         site = Site.objects.get_current()
