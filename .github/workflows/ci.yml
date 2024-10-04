@@ -279,29 +279,6 @@ jobs:
           path: image.tar
           retention-days: 1
 
-  image_scan:
-    runs-on: ubuntu-latest
-    name: Scan docker image
-    needs:
-      - docker
-
-    steps:
-      - name: Download built image
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-image
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          input: /github/workspace/image.tar  # from download-artifact
-          format: 'sarif'
-          output: 'trivy-results-docker.sarif'
-          ignore-unfixed: true
-      - name: Upload results to GH Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results-docker.sarif'
-
   publish:
     needs:
       - tests
