@@ -1,6 +1,44 @@
 Changelog
 =========
 
+1.15.0 (2024-10-04)
+-------------------
+
+**New features**
+
+* API:
+
+  * [#1762] add dynamic pagination with ``pageSize`` parameter
+
+**Bugfixes and QOL**
+
+* [#1772] Change SameSite session cookie to lax to fix OIDC login not working
+* [#1772] Fix API schema not showing caused by CSP errors
+* [#1771] Fix migration to delete canonical documenten objects without latest versions
+* [#1781] Fix setting NOTIFICATIONS_DISABLED via envvar
+* [#1769] Fixed adding Autorization with catalog in the admin page
+* [#1768] Change all setup configuration to disabled by default
+
+.. warning::
+
+    If you use configuration steps you need to explicitly set \*_ENABLE environment variables to True
+    (such as SITES_CONFIG_ENABLE or NOTIF_OPENZAAK_CONFIG_ENABLE. You can find them in the documentation https://open-zaak.readthedocs.io/en/latest/installation/config/openzaak_config_cli.html )
+
+**Documentation**
+
+* [#1725] Document envvars
+* [#1775] Add performance results for OZ versions
+* [#1768] Change setup configuraiton description
+* [#1790, #1772, #1770] remove broken links from docs
+
+**Project maintenance**
+
+* [#1791] Temporaliity Disable trivy image scan
+* [#1782] Fix failing CI due to openapitools issue
+* [#1763] Add zaaktype.selectielijst_procestype into generate_data command
+* [#1761] Add zaaktype.identificatie into generate_data command
+
+
 1.14.0 (2024-09-02)
 -------------------
 
