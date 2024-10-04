@@ -13,5 +13,17 @@ isort
 black
 flake8
 
+# Documentation
+recommonmark
+sphinx==4.4.0
+sphinx-markdown-tables==0.0.15
+sphinx-rtd-theme==1.0.0
+sphinxcontrib-applehelp==1.0.1
+sphinxcontrib-devhelp==1.0.1
+sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-qthelp==1.0.2
+sphinxcontrib-serializinghtml==1.1.5
+sphinx-tabs==3.3.1
+
 # SPDX header checks
 click

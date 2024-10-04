@@ -10,33 +10,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
+  open-api-workflow-generate-sdks:
+    uses: maykinmedia/open-api-workflows/.github/workflows/generate-sdks.yml@v1
     strategy:
       matrix:
-        component: ['autorisaties', 'besluiten', 'catalogi', 'documenten', 'zaken']
-
-    name: Run with component ${{ matrix.component }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install dependencies
-        run: npm install -g @openapitools/openapi-generator-cli
-      - name: Determining oas path
-        id: vars
-        run: echo ::set-output name=oas::./src/openzaak/components/${{ matrix.component }}/openapi.yaml
-      - name: Validate schema
-        run: openapi-generator-cli validate -i ${{ steps.vars.outputs.oas }}
-      - name: Generate Java client
-        run: openapi-generator-cli generate -i ${{ steps.vars.outputs.oas }} --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \
-          -o ./sdks/java -g java --additional-properties=dateLibrary=java8,java8=true,optionalProjectFile=false,optionalAssemblyInfo=false
-      - name: Generate .NET client
-        run: openapi-generator-cli generate -i ${{ steps.vars.outputs.oas }} --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \
-          -o ./sdks/net -g csharp --additional-properties=optionalProjectFile=false,optionalAssemblyInfo=false
-      - name: Generate Python client
-        run: openapi-generator-cli generate -i ${{ steps.vars.outputs.oas }} --global-property=modelTests=false,apiTests=false,modelDocs=false,apiDocs=false \
-          -o ./sdks/python -g python --additional-properties=optionalProjectFile=false,optionalAssemblyInfo=false+
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+    with:
+      schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'
