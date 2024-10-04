@@ -11,7 +11,7 @@ on:
 
 jobs:
   open-api-workflow-lint-oas:
-    uses: maykinmedia/open-api-workflows/.github/workflows/lint-oas.yml@initial-setup
+    uses: maykinmedia/open-api-workflows/.github/workflows/lint-oas.yml@v1
     strategy:
       matrix:
         component:

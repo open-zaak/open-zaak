@@ -11,7 +11,7 @@ on:
 
 jobs:
   open-api-workflow-generate-postman-collection:
-    uses: maykinmedia/open-api-workflows/.github/workflows/generate-postman-collection.yml@initial-setup
+    uses: maykinmedia/open-api-workflows/.github/workflows/generate-postman-collection.yml@v1
     strategy:
       matrix:
         component:
