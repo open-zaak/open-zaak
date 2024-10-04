@@ -100,9 +100,3 @@ Keycloak is a multi-tenant IDP which itself can configure other IDPs.
 
 To use Keycloak, you need to know your relevant ``realm``. The discovery URL has the form
 ``https://keycloak.gemeente.nl/auth/realms/${realm}/.well-known/openid-configuration``.
-
-Other
------
-
-You may also find some configuration hints for other Identity Providers using OIDC
-in the NLX Reference documentation: https://docs.nlx.io/reference-information/oidc
