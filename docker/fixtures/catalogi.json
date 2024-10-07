@@ -1,0 +1,17 @@
+[
+    {
+        "model": "catalogi.catalogus",
+        "fields": {
+            "_etag": "2e769524c13e3282c7fbb72ab01c6bb4",
+            "naam": "Mijn catalogus",
+            "uuid": "6de0b166-8e76-477c-901d-123244e4d020",
+            "domein": "AAAAA",
+            "rsin": "000000000",
+            "contactpersoon_beheer_naam": "Test persoon",
+            "contactpersoon_beheer_telefoonnummer": "",
+            "contactpersoon_beheer_emailadres": "",
+            "versie": "",
+            "begindatum_versie": null
+        }
+    }
+]

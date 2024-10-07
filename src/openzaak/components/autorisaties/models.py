@@ -15,6 +15,11 @@ CATALOGUS_AUTORISATIE_COMPONENTS = [
 ]
 
 
+class CatalogusAutorisatieManager(models.Manager):
+    def get_by_natural_key(self, applicatie, catalogus, component):
+        return self.get(applicatie=applicatie, catalogus=catalogus, component=component)
+
+
 class CatalogusAutorisatie(models.Model):
     applicatie = models.ForeignKey(
         Applicatie,
@@ -46,6 +51,15 @@ class CatalogusAutorisatie(models.Model):
         help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
         blank=True,
     )
+
+    objects = CatalogusAutorisatieManager()
+
+    def natural_key(self):
+        return (
+            self.applicatie,
+            self.catalogus,
+            self.component,
+        )
 
     class Meta:
         verbose_name = _("catalogus autorisatie")

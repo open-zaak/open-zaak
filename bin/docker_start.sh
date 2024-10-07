@@ -7,8 +7,6 @@ set -ex
 export PGHOST=${DB_HOST:-db}
 export PGPORT=${DB_PORT:-5432}
 
-fixtures_dir=${FIXTURES_DIR:-/app/fixtures}
-
 uwsgi_port=${UWSGI_PORT:-8000}
 uwsgi_processes=${UWSGI_PROCESSES:-2}
 uwsgi_threads=${UWSGI_THREADS:-2}
@@ -22,16 +20,7 @@ ${SCRIPTPATH}/wait_for_db.sh
 >&2 echo "Apply database migrations"
 python src/manage.py migrate
 
-# Load any JSON fixtures present
-if [ -d $fixtures_dir ]; then
-    echo "Loading fixtures from $fixtures_dir"
-
-    for fixture in $(ls "$fixtures_dir/"*.json)
-    do
-        echo "Loading fixture $fixture"
-        python src/manage.py loaddata $fixture
-    done
-fi
+${SCRIPTPATH}/load_fixtures.sh
 
 # Create superuser
 # specify password by setting DJANGO_SUPERUSER_PASSWORD in the env

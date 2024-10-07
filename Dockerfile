@@ -69,6 +69,8 @@ COPY ./bin/uninstall_adfs.sh \
     /app/bin/
 COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
+COPY ./bin/load_fixtures.sh /load_fixtures.sh
+COPY ./bin/dump_auth_config.sh /dump_auth_config.sh
 
 RUN mkdir /app/log /app/config /app/media /app/private-media /app/tmp
 # prevent writing to the container layer, which would degrade performance.

@@ -26,8 +26,8 @@ Preparation
 
 The command executes the list of pluggable configuration steps, and each step
 has required specific environment variables, that should be prepared.
-Here is the description of all available configuration steps and the environment variables, 
-used by each step. 
+Here is the description of all available configuration steps and the environment variables,
+used by each step.
 
 Sites configuration
 ------------------------
@@ -80,7 +80,7 @@ The Selectielijst API is not expected to require any authentication.
 Demo user configuration
 -----------------------
 
-Demo user can be created to check if Open Zaak APIs work. It has superuser permissions, 
+Demo user can be created to check if Open Zaak APIs work. It has superuser permissions,
 so its creation is not recommended on production environment.
 
 * ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to ``False``.
@@ -89,6 +89,26 @@ so its creation is not recommended on production environment.
 
 .. note:: You can generate these Client IDs and Secrets using any password generation
    tool, as long as you configure the same values in the Notifications API.
+
+
+.. _setup_config_auth:
+
+Authorization configuration
+---------------------------
+
+It is possible to load authorization configuration to avoid manual configuration across
+environments, for more detailed information about how this works, see :ref:`Authorization configuration <installation_configuration_auth_cicd>`.
+
+* ``AUTHORIZATIONS_CONFIG_ENABLE``: enable authorization configuration, defaults to ``False``.
+* ``AUTHORIZATIONS_CONFIG_FIXTURE_PATH``: the full path of the fixture ``.yaml`` file containing the
+  configuration (for more information about how to generate this file, see :ref:`Generating the fixture <authorization_config_generate_fixture>`).
+* ``AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH``: the full path to the file with the domain mapping.
+* ``AUTHORIZATIONS_CONFIG_DELETE_EXISTING``: a boolean indicating whether or not the existing configuration should be removed before loading the fixture.
+  set this to ``True``, ``true`` or ``1`` if you want to use the fixture as a single source of truth. Make sure to only do this if you are **not**
+  managing any Applicaties/credentials via the admin or API. Defaults to ``False``.
+* ``ENVIRONMENT``: the environment name of this Open Zaak instance. This is used to determine what the target domain is in the domain mapping.
+
+.. _setup_config_execution:
 
 Execution
 =========
