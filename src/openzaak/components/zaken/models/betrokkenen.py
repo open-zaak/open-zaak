@@ -139,8 +139,7 @@ class NatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
 class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     inn_nnp_id = RSINField(
         blank=True,
-        help_text="Het door een kamer toegekend uniek nummer voor de INGESCHREVEN NIET-NATUURLIJK PERSOON. "
-        "Het is het RSIN veld.",
+        help_text="Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK PERSOON",
         db_index=True,
     )
 

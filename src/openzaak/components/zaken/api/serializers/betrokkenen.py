@@ -17,7 +17,10 @@ from ...models import (
     Vestiging,
 )
 from .address import VerblijfsAdresSerializer
-from .authentication_context import DigiDAuthContextSerializer
+from .authentication_context import (
+    DigiDAuthContextSerializer,
+    eHerkenningAuthContextSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -140,10 +143,24 @@ class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
     betrokkene_identificatie = NietNatuurlijkPersoonIdentificatieSerializer(
         required=False
     )
+    authenticatie_context = eHerkenningAuthContextSerializer(
+        label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_(
+            "Information about the authentication and mandate (if relevant) that "
+            "applied when the role was added to the case. It is essential when you "
+            "later want to retrieve information again which should match certain "
+            "authentication guarantees, like minimum level of assurance. The exact "
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
+        ),
+    )
 
     class Meta:
         model = NietNatuurlijkPersoon
-        fields = ("betrokkene_identificatie",)
+        fields = ("betrokkene_identificatie", "authenticatie_context")
 
 
 class VestigingIdentificatieSerializer(serializers.ModelSerializer):
@@ -181,10 +198,24 @@ class VestigingIdentificatieSerializer(serializers.ModelSerializer):
 
 class RolVestigingSerializer(serializers.ModelSerializer):
     betrokkene_identificatie = VestigingIdentificatieSerializer(required=False)
+    authenticatie_context = eHerkenningAuthContextSerializer(
+        label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_(
+            "Information about the authentication and mandate (if relevant) that "
+            "applied when the role was added to the case. It is essential when you "
+            "later want to retrieve information again which should match certain "
+            "authentication guarantees, like minimum level of assurance. The exact "
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
+        ),
+    )
 
     class Meta:
         model = Vestiging
-        fields = ("betrokkene_identificatie",)
+        fields = ("betrokkene_identificatie", "authenticatie_context")
 
 
 class OrganisatorischeEenheidIdentificatieSerializer(serializers.ModelSerializer):
