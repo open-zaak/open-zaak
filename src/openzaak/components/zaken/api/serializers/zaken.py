@@ -76,6 +76,7 @@ from ..validators import (
     HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
+    RolIndicatieMachtigingValidator,
     RolOccurenceValidator,
     StatusRolValidator,
     UniekeIdentificatieValidator,
@@ -937,6 +938,7 @@ class RolSerializer(PolymorphicSerializer):
             RolOccurenceValidator(RolOmschrijving.zaakcoordinator, max_amount=1),
             CorrectZaaktypeValidator("roltype"),
             ZaakArchiefStatusValidator(),
+            RolIndicatieMachtigingValidator(),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

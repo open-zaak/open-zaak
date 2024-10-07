@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
+from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.exceptions import ErrorDetail
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import validate_rsin as validate_bsn
+
+from ..validators import AuthContextMandateValidator
 
 
 class AuthSource(models.TextChoices):
@@ -49,7 +51,20 @@ class eHerkenningLevelOfAssurance(models.TextChoices):
     high = "urn:etoegang:core:assurance-class:loa4", _("High (4)")
 
 
-class DigiDRepresentee(serializers.Serializer):
+# According to https://afsprakenstelsel.etoegang.nl/Startpagina/v2/entityconcernedid-rsin
+# RSIN is not allowed for Intermediair
+class eHerkenningRepresenteeIdentifier(models.TextChoices):
+    bsn = "bsn", _("BSN")
+    kvk_nummer = "kvk_nummer", _("KVK-nummer")
+
+
+class eHerkenningMandateRole(models.TextChoices):
+    bewindvoerder = "bewindvoerder", "Bewindvoerder"
+    curator = "curator", "Curator"
+    mentor = "mentor", "Mentor"
+
+
+class DigiDRepresenteeSerializer(serializers.Serializer):
     identifier_type = serializers.ChoiceField(
         label=_("Identifier type"),
         required=True,
@@ -71,12 +86,64 @@ class DigiDRepresentee(serializers.Serializer):
     )
 
 
+class eHerkenningRepresenteeSerializer(serializers.Serializer):
+    identifier_type = serializers.ChoiceField(
+        label=_("Identifier type"),
+        required=True,
+        choices=eHerkenningRepresenteeIdentifier.choices,
+        help_text=_(
+            "Determines how to interpret the `identifier` value. EHerkenning "
+            "only supports BSN and KVK-nummer."
+        ),
+    )
+    identifier = serializers.CharField(
+        label=_("Identifier"),
+        required=True,
+        help_text=_("Identifier of the represented person or the company"),
+        max_length=9,
+    )
+
+    def validate(self, attrs):
+        valid_attrs = super().validate(attrs)
+
+        identifier_type = valid_attrs["identifier_type"]
+        identifier = valid_attrs["identifier"]
+        if identifier_type == eHerkenningRepresenteeIdentifier.bsn:
+            validate_bsn(identifier)
+        elif identifier_type == eHerkenningRepresenteeIdentifier.kvk_nummer:
+            # KVK-nummer has only 8 chars
+            MaxLengthValidator(limit_value=8)(identifier)
+
+        return valid_attrs
+
+
 class DigiDMandateServiceSerializer(serializers.Serializer):
     id = serializers.CharField(label=_("service ID"))
 
 
-class DigiDMandate(serializers.Serializer):
+class DigiDMandateSerializer(serializers.Serializer):
     services = DigiDMandateServiceSerializer(many=True)
+
+
+class eHerkenningServiceSerializer(serializers.Serializer):
+    id = serializers.CharField(
+        label=_("Service ID"), help_text=_("The ServiceID from the service catalog")
+    )
+    uuid = serializers.UUIDField(
+        label=_("Service UUID"), help_text=_("The ServiceUUID from the service catalog")
+    )
+
+
+class eHerkenningMandateSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(
+        required=False,
+        label=_("Role"),
+        choices=eHerkenningMandateRole.choices,
+        help_text=_(
+            "The role of a mandate, typically assigned through judicial procedures"
+        ),
+    )
+    services = eHerkenningServiceSerializer(many=True)
 
 
 class DigiDAuthContextSerializer(serializers.Serializer):
@@ -98,7 +165,7 @@ class DigiDAuthContextSerializer(serializers.Serializer):
             "context."
         ),
     )
-    representee = DigiDRepresentee(
+    representee = DigiDRepresenteeSerializer(
         label=_("represented person"),
         required=False,
         help_text=_(
@@ -110,7 +177,7 @@ class DigiDAuthContextSerializer(serializers.Serializer):
             "`machtiginggever`."
         ),
     )
-    mandate = DigiDMandate(
+    mandate = DigiDMandateSerializer(
         label=_("mandate context"),
         required=False,
         help_text=_(
@@ -122,6 +189,9 @@ class DigiDAuthContextSerializer(serializers.Serializer):
         ),
     )
 
+    class Meta:
+        validators = [AuthContextMandateValidator()]
+
     def get_fields(self):
         fields = super().get_fields()
 
@@ -130,12 +200,66 @@ class DigiDAuthContextSerializer(serializers.Serializer):
 
         return fields
 
-    def validate(self, attrs):
-        if attrs.get("representee") and not attrs.get("mandate"):
-            error = ErrorDetail(
-                _("The mandate context is required when a representee is specified."),
-                code="required",
-            )
-            raise serializers.ValidationError({"mandate": error})
 
-        return attrs
+class eHerkenningAuthContextSerializer(serializers.Serializer):
+    source = serializers.ChoiceField(
+        required=True,
+        label=_("Source"),
+        choices=((AuthSource.eherkenning.value, AuthSource.eherkenning.label),),
+        help_text=_(
+            "eHerkenning is the only way a Non-Natural Person or the Branch can be identified."
+        ),
+    )
+    level_of_assurance = serializers.ChoiceField(
+        required=False,
+        label=_("Level of assurance"),
+        choices=eHerkenningLevelOfAssurance.choices,
+        help_text=_(
+            "Indicates how strong the identity claim is. Elektronische Toegangsdiensten "
+            "defines the available levels of assurance. Recording this context allows "
+            "portals to only display cases with a lower or equal level of assurance "
+            "in the currently active portal authentication context."
+        ),
+    )
+    acting_subject = serializers.CharField(
+        required=False,
+        max_length=100,
+        help_text=_(
+            "The identifier is always some encrypted form, specific to the service provider. "
+            "I.e. the same physical person gets different identifier values when authenticating "
+            "with different service providers. Unencrypted details of the acting subject can be "
+            "added to the `contactpersoonRol.naam` attribute"
+        ),
+    )
+    representee = eHerkenningRepresenteeSerializer(
+        label=_("represented party"),
+        required=False,
+        help_text=_(
+            "When registering the role for the authorizee, you should include the "
+            "representee to make clear a mandate applies. This also requires you to "
+            "specify the `mandate` key and its context. If you provide a representee, "
+            "You should also create an additional `rol` with `rolomschrijvingGeneriek` "
+            "equal to `belanghebbende`, and set `indicatieMachtiging` to "
+            "`machtiginggever`."
+        ),
+    )
+    mandate = eHerkenningMandateSerializer(
+        label=_("mandate context"),
+        required=False,
+        help_text=_(
+            "The mandate ('machtiging') describes the extent of the mandate granted "
+            "from the representee to the authorizee. "
+            "The `mandate` key is required if a `representee` is specified."
+        ),
+    )
+
+    class Meta:
+        validators = [AuthContextMandateValidator()]
+
+    def get_fields(self):
+        fields = super().get_fields()
+
+        value_display_mapping = add_choice_values_help_text(eHerkenningLevelOfAssurance)
+        fields["level_of_assurance"].help_text += f"\n\n{value_display_mapping}"
+
+        return fields
