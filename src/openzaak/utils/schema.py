@@ -13,10 +13,17 @@ from drf_spectacular.openapi import (
     ResolvedComponent,
     append_meta,
     build_array_type,
+    build_media_type_object,
     build_object_type,
+    force_instance,
     is_list_serializer,
 )
-from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    OpenApiTypes,
+)
 from furl import furl
 from rest_framework import exceptions, serializers, status
 from vng_api_common.caching.introspection import has_cache_header
@@ -185,12 +192,20 @@ class AutoSchema(_AutoSchema):
             else:
                 media_types = ["application/json"]
 
-        response = super()._get_response_for_code(
-            serializer, status_code, media_types, direction
-        )
+        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
+        if (
+            200 <= int(status_code) < 300
+            and isinstance(self.view, ExpandMixin)
+            and include_allowed
+        ):
+            response = self.get_expand_response(
+                serializer, status_code, media_types, direction
+            )
 
-        if 200 <= int(status_code) < 300 and isinstance(self.view, ExpandMixin):
-            response = self.get_expand_response(serializer, response, direction)
+        else:
+            response = super()._get_response_for_code(
+                serializer, status_code, media_types, direction
+            )
 
         # add description based on the status code
         if not response.get("description"):
@@ -228,22 +243,26 @@ class AutoSchema(_AutoSchema):
 
         return super()._get_paginator()
 
-    def get_expand_response(self, serializer, base_response, direction):
+    def get_expand_response(self, serializer, status_code, media_types, direction):
         """
-        add '_expand' into response schema
+        add '_expand' into AutoSchema._get_response_for_code
         """
+        if isinstance(serializer, OpenApiResponse):
+            serializer, description = (serializer.response, serializer.description)
+        else:
+            description = ""
 
-        include_allowed = getattr(self.view, "include_allowed", lambda: False)()
+        # headers
+        headers = self._get_response_headers_for_code(status_code, direction)
+        headers = {"headers": headers} if headers else {}
+
+        # schema
+        serializer = force_instance(serializer)
         base_serializer = (
             serializer.child if is_list_serializer(serializer) else serializer
         )
         inclusion_serializers = getattr(base_serializer, "inclusion_serializers", {})
 
-        if not include_allowed or not inclusion_serializers:
-            return base_response
-
-        response = base_response.copy()
-        # rewrite schema from response
         expand_properties = {}
         for name, serializer_class in inclusion_serializers.items():
             # create schema for top-level inclusions for now
@@ -311,9 +330,17 @@ class AutoSchema(_AutoSchema):
                 self.registry.register_on_missing(paginated_component)
                 expand_schema = paginated_component.ref
 
-        response["content"]["application/json"]["schema"] = expand_schema
-
-        return response
+        # response
+        return {
+            **headers,
+            "content": {
+                media_type: build_media_type_object(
+                    expand_schema,
+                )
+                for media_type in media_types
+            },
+            "description": description,
+        }
 
     def get_override_parameters(self):
         """Add request and response headers"""
