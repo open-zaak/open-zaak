@@ -22,6 +22,15 @@ for example 4 processes and 4 threads.
 
 Each run should last at least 5 minutes.
 
+Hardware
+--------
+
+The dedicated service where all the tests are run has the following configuration:
+
+* Processor: 4 CPUs at 3.2 GHz
+* RAM: 16 GB
+* Storage: 4 TB SATA
+
 Open Zaak data
 --------------
 
