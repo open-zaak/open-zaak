@@ -500,3 +500,14 @@ DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "", add_to_docs=False)
 DEMO_SECRET = config("DEMO_SECRET", "", add_to_docs=False)
 
 CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
+
+from log_outgoing_requests.datastructures import ContentType
+
+LOG_OUTGOING_REQUESTS_CONTENT_TYPES = [
+    ContentType(pattern="application/json", default_encoding="utf-8"),
+    ContentType(pattern="application/cloudevents+json", default_encoding="utf-8"),
+    ContentType(pattern="application/soap+xml", default_encoding="utf-8"),
+    ContentType(pattern="application/xml", default_encoding="utf-8"),
+    ContentType(pattern="text/xml", default_encoding="iso-8859-1"),
+    ContentType(pattern="text/*", default_encoding="utf-8"),
+]
