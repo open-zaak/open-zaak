@@ -15,7 +15,6 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from furl import furl
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationDestroyMixin,
@@ -71,7 +70,7 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
-from .cloud_events import send_cloud_event
+from .cloud_events import create_cloud_event, send_cloud_event
 from .filters import (
     KlantContactFilter,
     ResultaatFilter,
@@ -362,12 +361,12 @@ class ZaakViewSet(
         ):
             self._generate_zaakidentificatie(request.data)
 
-        with transaction.atomic():
-            response = super().create(request, *args, **kwargs)
-            if response.status_code == 201:
-                base_url = furl(request.build_absolute_uri())
-                send_cloud_event.delay(base_url.host, response.data)
-            return response
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        cloud_event = create_cloud_event(self.request, serializer.instance)
+        send_cloud_event.delay(cloud_event)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
