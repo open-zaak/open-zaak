@@ -12,7 +12,7 @@ from celery import shared_task
 from furl import furl
 from vng_api_common.tests import reverse
 
-from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models import Rol
 from openzaak.config.models import CloudEventConfig
 
 logger = logging.getLogger(__name__)
@@ -25,17 +25,18 @@ def get_headers(spec: dict, tags: str) -> dict:
     return {}
 
 
-def create_cloud_event(request: HttpRequest, zaak: Zaak) -> dict[str, Any]:
+def create_cloud_event(request: HttpRequest, rol: Rol) -> dict[str, Any]:
+    zaak = rol.zaak
     config = CloudEventConfig.get_solo()
     base_url = furl(request.build_absolute_uri())
     return {
         "specversion": "1.0",
         "type": config.type,
-        "source": f"urn:nld:oin:{config.oin}:systeem:{base_url.host}",
-        "subject": zaak.identificatie,  # TODO
+        "source": f"urn:nld:oin:{rol.zaak.bronorganisatie}:systeem:{base_url.host}",
+        "subject": rol.natuurlijkpersoon.inp_bsn,
         "id": str(uuid4()),
         "time": timezone.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "dataref": request.build_absolute_uri(reverse(zaak)),
+        "dataref": request.build_absolute_uri(reverse(rol)),
         "datacontenttype": "application/json",
         "data": {
             "zaakId": str(zaak.uuid),

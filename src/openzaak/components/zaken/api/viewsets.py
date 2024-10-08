@@ -363,11 +363,6 @@ class ZaakViewSet(
 
         return super().create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        super().perform_create(serializer)
-        cloud_event = create_cloud_event(self.request, serializer.instance)
-        send_cloud_event.delay(cloud_event)
-
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
         serializer = GenerateZaakIdentificatieSerializer(data=data)
@@ -978,6 +973,12 @@ class RolViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        if serializer.instance.roltype.omschrijving_generiek == "initiator":
+            cloud_event = create_cloud_event(self.request, serializer.instance)
+            send_cloud_event.delay(cloud_event)
 
 
 @extend_schema_view(
