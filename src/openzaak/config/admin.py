@@ -8,7 +8,7 @@ from drc_cmis.admin import CMISConfigAdmin as _CMISConfigAdmin
 from drc_cmis.models import CMISConfig
 from solo.admin import SingletonModelAdmin
 
-from .models import FeatureFlags, InternalService
+from .models import CloudEventConfig, FeatureFlags, InternalService
 
 
 @admin.register(InternalService)
@@ -54,3 +54,8 @@ class CMISConfigAdmin(_CMISConfigAdmin):
 
     def has_change_permission(self, *args, **kwargs):
         return self.cmis_enabled()
+
+
+@admin.register(CloudEventConfig)
+class CloudEventConfigAdmin(SingletonModelAdmin):
+    pass

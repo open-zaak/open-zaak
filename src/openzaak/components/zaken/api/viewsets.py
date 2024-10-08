@@ -70,6 +70,7 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
+from .cloud_events import create_cloud_event, send_cloud_event
 from .filters import (
     KlantContactFilter,
     ResultaatFilter,
@@ -361,6 +362,11 @@ class ZaakViewSet(
             self._generate_zaakidentificatie(request.data)
 
         return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        cloud_event = create_cloud_event(self.request, serializer.instance)
+        send_cloud_event.delay(cloud_event)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
