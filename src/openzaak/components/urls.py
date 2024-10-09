@@ -2,7 +2,7 @@
 # Copyright (C) 2022 Dimpact
 from django.urls import include, path
 
-from .views import ComponentIndexView
+from .views import ComponentIndexView, NotificatiesView
 
 urlpatterns = [
     # autorisaties
@@ -40,4 +40,10 @@ urlpatterns = [
         name="index-zaken",
     ),
     path("zaken/api/", include("openzaak.components.zaken.api.urls")),
+    # notification documentation
+    path(
+        "notificaties/",
+        NotificatiesView.as_view(),
+        name="notificaties",
+    ),
 ]

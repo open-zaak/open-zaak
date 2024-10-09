@@ -467,7 +467,7 @@ multidict==6.0.5
     # via yarl
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@feature/kanaal-kenmerken-nested-fields
     # via
     #   -r requirements/base.txt
     #   commonground-api-common

@@ -24,6 +24,6 @@ django-better-admin-arrayfield
 # API libraries
 drf-extra-fields
 drf-writable-nested
-notifications-api-common
+git+https://github.com/maykinmedia/notifications-api-common@feature/kanaal-kenmerken-nested-fields#egg=notifications_api_common
 humanize
 drc-cmis

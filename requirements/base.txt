@@ -301,7 +301,7 @@ mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.19.0
     # via open-api-framework
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@feature/kanaal-kenmerken-nested-fields
     # via
     #   -r requirements/base.in
     #   commonground-api-common
