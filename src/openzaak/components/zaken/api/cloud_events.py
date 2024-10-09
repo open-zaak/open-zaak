@@ -62,6 +62,8 @@ def status_create_cloud_event(request: HttpRequest, status) -> dict[str, Any]:
         "datacontenttype": "application/json",
         "data": {
             "zaakId": str(zaak.uuid),
+            "kenmerk": zaak.identificatie,
+            "titel": zaak.zaaktype.zaaktype_omschrijving,
             "statustoelichting": status.statustoelichting,
             "omschrijving": status.statustype.statustype_omschrijving,
         },
