@@ -25,13 +25,13 @@ def get_headers(spec: dict, tags: str) -> dict:
     return {}
 
 
-def create_cloud_event(request: HttpRequest, rol: Rol) -> dict[str, Any]:
+def rol_create_cloud_event(request: HttpRequest, rol: Rol) -> dict[str, Any]:
     zaak = rol.zaak
     config = CloudEventConfig.get_solo()
     base_url = furl(request.build_absolute_uri())
     return {
         "specversion": "1.0",
-        "type": config.type,
+        "type": config.zaak_create_event_type,
         "source": f"urn:nld:oin:{rol.zaak.bronorganisatie}:systeem:{base_url.host}",
         "subject": rol.natuurlijkpersoon.inp_bsn,
         "id": str(uuid4()),
@@ -42,6 +42,28 @@ def create_cloud_event(request: HttpRequest, rol: Rol) -> dict[str, Any]:
             "zaakId": str(zaak.uuid),
             "kenmerk": zaak.identificatie,
             "titel": zaak.zaaktype.zaaktype_omschrijving,
+        },
+    }
+
+
+def status_create_cloud_event(request: HttpRequest, status) -> dict[str, Any]:
+    zaak = status.zaak
+    rol = zaak.rol_set.get(_roltype__omschrijving_generiek="initiator")
+    config = CloudEventConfig.get_solo()
+    base_url = furl(request.build_absolute_uri())
+    return {
+        "specversion": "1.0",
+        "type": config.status_update_event_type,
+        "source": f"urn:nld:oin:{zaak.bronorganisatie}:systeem:{base_url.host}",
+        "subject": rol.natuurlijkpersoon.inp_bsn,
+        "id": str(uuid4()),
+        "time": timezone.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "dataref": request.build_absolute_uri(reverse(rol)),
+        "datacontenttype": "application/json",
+        "data": {
+            "zaakId": str(zaak.uuid),
+            "statustoelichting": status.statustoelichting,
+            "omschrijving": status.statustype.statustype_omschrijving,
         },
     }
 

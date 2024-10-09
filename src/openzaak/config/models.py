@@ -83,10 +83,16 @@ class CloudEventConfig(SingletonModel):
         help_text=_("The OIN that will be used in the source field of the cloudevent."),
         max_length=20,
     )
-    type = models.CharField(
-        _("Cloud event type"),
-        help_text=_("The type that will be used for the cloudevent"),
+    zaak_create_event_type = models.CharField(
+        _("Zaak create cloud event type"),
+        help_text=_("The type that will be used for the zaak create cloudevent"),
         max_length=64,
+    )
+    status_update_event_type = models.CharField(
+        _("Status update cloud event type"),
+        help_text=_("The type that will be used for the status update cloudevent"),
+        max_length=64,
+        default="zaak-status-update",
     )
 
     class Meta:

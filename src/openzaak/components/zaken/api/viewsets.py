@@ -70,7 +70,11 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
-from .cloud_events import create_cloud_event, send_cloud_event
+from .cloud_events import (
+    rol_create_cloud_event,
+    send_cloud_event,
+    status_create_cloud_event,
+)
 from .filters import (
     KlantContactFilter,
     ResultaatFilter,
@@ -535,6 +539,9 @@ class StatusViewSet(
 
         super().perform_create(serializer)
 
+        cloud_event = status_create_cloud_event(self.request, serializer.instance)
+        send_cloud_event.delay(cloud_event)
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -977,7 +984,7 @@ class RolViewSet(
     def perform_create(self, serializer):
         super().perform_create(serializer)
         if serializer.instance.roltype.omschrijving_generiek == "initiator":
-            cloud_event = create_cloud_event(self.request, serializer.instance)
+            cloud_event = rol_create_cloud_event(self.request, serializer.instance)
             send_cloud_event.delay(cloud_event)
 
 
