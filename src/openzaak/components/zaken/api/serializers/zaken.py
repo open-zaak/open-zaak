@@ -370,6 +370,8 @@ class ZaakSerializer(
             "processobjectaard",
             "startdatum_bewaartermijn",
             "processobject",
+            "laatst_gelezen",
+            "is_gelezen",
         )
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},

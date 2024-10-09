@@ -94,6 +94,12 @@ class CloudEventConfig(SingletonModel):
         max_length=64,
         default="zaak-status-update",
     )
+    zaak_read_event_type = models.CharField(
+        _("Zaak read cloud event type"),
+        help_text=_("The type that will be used for the zaak read cloudevent"),
+        max_length=64,
+        default="zaak-read",
+    )
 
     class Meta:
         verbose_name = _("CloudEvents configuration")

@@ -436,6 +436,18 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         _("created on"),
         auto_now_add=True,
     )
+    laatst_gelezen = models.DateTimeField(
+        _("laatst gelezen"),
+        auto_now_add=False,
+        null=True,
+        blank=True,
+    )
+
+    @property
+    def is_gelezen(self):
+        if not self.laatst_gelezen or not self.current_status:
+            return False
+        return self.laatst_gelezen >= self.current_status.datum_status_gezet
 
     objects = ZaakQuerySet.as_manager()
 

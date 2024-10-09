@@ -68,6 +68,26 @@ def status_create_cloud_event(request: HttpRequest, status) -> dict[str, Any]:
     }
 
 
+def zaak_read_cloud_event(request: HttpRequest, zaak) -> dict[str, Any]:
+    rol = zaak.rol_set.get(_roltype__omschrijving_generiek="initiator")
+    config = CloudEventConfig.get_solo()
+    base_url = furl(request.build_absolute_uri())
+    return {
+        "specversion": "1.0",
+        "type": config.zaak_read_event_type,
+        "source": f"urn:nld:oin:{zaak.bronorganisatie}:systeem:{base_url.host}",
+        "subject": rol.natuurlijkpersoon.inp_bsn,
+        "id": str(uuid4()),
+        "time": timezone.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "dataref": request.build_absolute_uri(reverse(rol)),
+        "datacontenttype": "application/json",
+        "data": {
+            "zaakId": str(zaak.uuid),
+            "laatst_gelezen": zaak.laatst_gelezen.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        },
+    }
+
+
 @shared_task(bind=True)
 def send_cloud_event(self, cloud_event: dict[str, Any]) -> None:
     config = CloudEventConfig.get_solo()

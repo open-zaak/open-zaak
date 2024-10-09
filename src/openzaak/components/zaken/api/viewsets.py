@@ -6,6 +6,7 @@ from typing import Optional
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -74,6 +75,7 @@ from .cloud_events import (
     rol_create_cloud_event,
     send_cloud_event,
     status_create_cloud_event,
+    zaak_read_cloud_event,
 )
 from .filters import (
     KlantContactFilter,
@@ -289,6 +291,15 @@ class ZaakViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
     _generated_identificatie: Optional[ZaakIdentificatie] = None
+
+    def retrieve(self, request, *args, **kwargs):
+        if request.headers.get("X-Subject", "").lower() == "self":
+            zaak = self.get_object()
+            zaak.laatst_gelezen = timezone.now()
+            zaak.save()
+            cloud_event = zaak_read_cloud_event(self.request, zaak)
+            send_cloud_event.delay(cloud_event)
+        return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super().get_queryset()
