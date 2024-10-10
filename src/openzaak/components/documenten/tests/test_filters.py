@@ -296,6 +296,33 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                     getattr(first_information_object, order_option),
                 )
 
+    def test_trefwoorden(self):
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["foo"])
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["foo", "bar"])
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["bar", "baz"])
+        EnkelvoudigInformatieObjectFactory.create(trefwoorden=["zzz"])
+
+        with self.subTest("contains"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject), {"trefwoorden": "foo,bar"}
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 1)
+            self.assertEqual(data["results"][0]["trefwoorden"], ["foo", "bar"])
+
+        with self.subTest("overlap"):
+            response = self.client.get(
+                reverse(EnkelvoudigInformatieObject),
+                {"trefwoorden__overlap": "foo,bar"},
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.json()
+            self.assertEqual(data["count"], 3)
+            self.assertEqual(data["results"][0]["trefwoorden"], ["foo"])
+            self.assertEqual(data["results"][1]["trefwoorden"], ["foo", "bar"])
+            self.assertEqual(data["results"][2]["trefwoorden"], ["bar", "baz"])
+
     @override_settings(
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )

@@ -421,6 +421,17 @@ paths:
         explode: false
         style: form
       - in: query
+        name: trefwoorden__overlap
+        schema:
+          type: array
+          items:
+            type: string
+        description: '**EXPERIMENTEEL** Een lijst van trefwoorden gescheiden door
+          komma''s, geeft alle EnkelvoudigInformatieObjecten terug die ten minste
+          een van de opgegeven trefwoorden hebben'
+        explode: false
+        style: form
+      - in: query
         name: vertrouwelijkheidaanduiding
         schema:
           type: string
@@ -2354,6 +2365,17 @@ paths:
         explode: false
         style: form
       - in: query
+        name: trefwoorden__overlap
+        schema:
+          type: array
+          items:
+            type: string
+        description: '**EXPERIMENTEEL** Een lijst van trefwoorden gescheiden door
+          komma''s, geeft alle EnkelvoudigInformatieObjecten terug die ten minste
+          een van de opgegeven trefwoorden hebben'
+        explode: false
+        style: form
+      - in: query
         name: vertrouwelijkheidaanduiding
         schema:
           type: string
@@ -2450,6 +2472,13 @@ paths:
                   items:
                     type: string
                   description: Een lijst van trefwoorden gescheiden door comma's.
+                trefwoorden__overlap:
+                  type: array
+                  items:
+                    type: string
+                  description: '**EXPERIMENTEEL** Een lijst van trefwoorden gescheiden
+                    door komma''s, geeft alle EnkelvoudigInformatieObjecten terug
+                    die ten minste een van de opgegeven trefwoorden hebben'
                 vertrouwelijkheidaanduiding:
                   type: string
                   enum:

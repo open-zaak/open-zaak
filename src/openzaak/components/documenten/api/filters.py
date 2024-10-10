@@ -110,6 +110,14 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
         field_name="trefwoorden",
         lookup_expr="contains",
     )
+    trefwoorden__overlap = CharArrayFilter(
+        help_text=mark_experimental(
+            "Een lijst van trefwoorden gescheiden door komma's, "
+            "geeft alle EnkelvoudigInformatieObjecten terug die ten minste een van de opgegeven trefwoorden hebben"
+        ),
+        field_name="trefwoorden",
+        lookup_expr="overlap",
+    )
     vertrouwelijkheidaanduiding = filters.ChoiceFilter(
         help_text=mark_experimental(
             "De vertrouwelijkheidaanduiding van het informatie object"
@@ -169,6 +177,7 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
             "ordering",
             "titel",
             "trefwoorden",
+            "trefwoorden__overlap",
             "vertrouwelijkheidaanduiding",
             "objectinformatieobjecten__object",
             "objectinformatieobjecten__object_type",
