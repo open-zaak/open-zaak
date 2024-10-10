@@ -603,6 +603,52 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(data["count"], 10)
         self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
 
+    def test_update_rol(self):
+        zaak = ZaakFactory.create()
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(roltype=roltype)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene": BETROKKENE,
+            "betrokkene_type": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "aangepast",
+            "contactpersoonRol": {
+                "emailadres": "test@mail.nl",
+                "functie": "test function",
+                "naam": "test name",
+                "telefoonnummer": "061234567890",
+            },
+        }
+
+        response = self.client.put(reverse(rol), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(Rol.objects.count(), 1)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.roltoelichting, "aangepast")
+
+    def test_partial_update_rol(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(
+            contactpersoon_rol_naam="foo", zaak=zaak, roltype=roltype
+        )
+        data = {"roltoelichting": "aangepast"}
+
+        response = self.client.patch(reverse(rol), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(Rol.objects.count(), 1)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.roltoelichting, "aangepast")
+
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
