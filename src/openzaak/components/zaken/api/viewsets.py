@@ -957,9 +957,7 @@ class RolViewSet(
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.ReadOnlyModelViewSet,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van ROL relatie tussen een ZAAK en een BETROKKENE.
@@ -987,6 +985,8 @@ class RolViewSet(
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "partial_update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_ZAKEN

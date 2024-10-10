@@ -1014,6 +1014,19 @@ class RolSerializer(PolymorphicSerializer):
 
         return rol
 
+    def to_internal_value(self, data):
+        # Inject this to avoid keyerrors when determining the polymorphic serializer
+        # TODO there has to be a better way to do this
+        if self.discriminator.discriminator_field not in data:
+            data[self.discriminator.discriminator_field] = getattr(
+                self.instance, self.discriminator.discriminator_field
+            )
+            current_data = self.to_representation(self.instance)
+            for name, field in self.get_fields().items():
+                if not field.read_only and name not in data:
+                    data[name] = current_data[name]
+        return super().to_internal_value(data)
+
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
