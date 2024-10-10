@@ -10104,6 +10104,13 @@ paths:
                     minLength: 1
                     format: uri
                   description: Array van zaaktypen.
+                zaaktype__not_in:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    format: uri
+                  description: '**EXPERIMENTEEL** Array van zaaktypen.'
                 identificatie:
                   type: string
                   description: De unieke identificatie van de ZAAK binnen de organisatie
