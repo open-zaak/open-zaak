@@ -69,7 +69,7 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2024.7.4
+certifi==2023.7.22
     # via
     #   -r requirements/base.txt
     #   elastic-apm
@@ -135,7 +135,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
-cryptography==42.0.4
+cryptography==41.0.5
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
@@ -143,8 +143,6 @@ cryptography==42.0.4
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
-cssselect==1.2.0
-    # via pyquery
 deprecated==1.2.14
     # via
     #   -r requirements/base.txt
@@ -290,7 +288,7 @@ django-setup-configuration==0.1.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-django-simple-certmanager==2.3.0
+django-simple-certmanager==2.4.1
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
@@ -416,7 +414,7 @@ humanize==4.0.0
     # via
     #   -r requirements/base.txt
     #   flower
-idna==3.7
+idna==3.3
     # via
     #   -r requirements/base.txt
     #   requests
@@ -449,7 +447,7 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==3.1.4
+jinja2==3.0.3
     # via
     #   -r requirements/base.txt
     #   coreschema
@@ -468,8 +466,6 @@ kombu==5.4.0
     # via
     #   -r requirements/base.txt
     #   celery
-lxml==5.3.0
-    # via pyquery
 markdown==3.3.6
     # via
     #   -r requirements/base.txt
@@ -492,8 +488,6 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-multidict==6.0.5
-    # via yarl
 mypy-extensions==1.0.0
     # via black
 notifications-api-common==0.2.2
@@ -562,7 +556,7 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==24.0.0
+pyopenssl==23.3.0
     # via
     #   -r requirements/base.txt
     #   josepy
@@ -576,8 +570,6 @@ pypng==0.20220715.0
     # via
     #   -r requirements/base.txt
     #   qrcode
-pyquery==2.0.0
-    # via -r requirements/test-tools.in
 pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
@@ -617,7 +609,6 @@ pyyaml==6.0
     #   drf-yasg
     #   gemma-zds-client
     #   oyaml
-    #   vcrpy
 qrcode==7.4.2
     # via
     #   -r requirements/base.txt
@@ -710,7 +701,7 @@ sqlparse==0.5.0
     #   django
 tblib==1.7.0
     # via -r requirements/test-tools.in
-tornado==6.4.1
+tornado==6.4
     # via
     #   -r requirements/base.txt
     #   flower
@@ -735,7 +726,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==1.26.19
+urllib3==1.26.18
     # via
     #   -r requirements/base.txt
     #   elastic-apm
@@ -746,8 +737,6 @@ uwsgi==2.0.26
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-vcrpy==6.0.1
-    # via -r requirements/test-tools.in
 vine==5.1.0
     # via
     #   -r requirements/base.txt
@@ -768,7 +757,7 @@ webencodings==0.5.1
     # via
     #   -r requirements/base.txt
     #   bleach
-webob==1.8.8
+webob==1.8.7
     # via webtest
 webtest==3.0.0
     # via django-webtest
@@ -777,9 +766,6 @@ wrapt==1.16.0
     #   -r requirements/base.txt
     #   deprecated
     #   elastic-apm
-    #   vcrpy
-yarl==1.9.4
-    # via vcrpy
 zgw-consumers==0.28.0
     # via
     #   -r requirements/base.txt

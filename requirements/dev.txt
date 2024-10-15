@@ -12,7 +12,7 @@ amqp==5.1.1
     #   kombu
 ansible==8.5.0
     # via -r requirements/../deployment/requirements.in
-ansible-core==2.15.9
+ansible-core==2.15.5
     # via ansible
 ape-pie==0.2.0
     # via
@@ -81,7 +81,7 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2024.7.4
+certifi==2023.7.22
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
@@ -146,7 +146,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
-cryptography==42.0.4
+cryptography==41.0.5
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -311,7 +311,7 @@ django-setup-configuration==0.1.0
     #   open-api-framework
 django-silk==4.3.0
     # via -r requirements/dev.in
-django-simple-certmanager==2.3.0
+django-simple-certmanager==2.4.1
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
@@ -429,7 +429,7 @@ gemma-zds-client==2.0.0
     #   zgw-consumers
 gitdb==4.0.5
     # via gitpython
-gitpython==3.1.41
+gitpython==3.1.40
     # via -r requirements/dev.in
 glom==23.5.0
     # via
@@ -447,11 +447,10 @@ humanize==4.0.0
     # via
     #   -r requirements/base.txt
     #   flower
-idna==3.7
+idna==3.3
     # via
     #   -r requirements/base.txt
     #   requests
-    #   yarl
 imagesize==1.1.0
     # via sphinx
 inflection==0.5.1
@@ -478,7 +477,7 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==3.1.4
+jinja2==3.0.3
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -505,8 +504,16 @@ kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
+<<<<<<< HEAD
 lxml==5.3.0
     # via pyquery
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+lxml==5.3.0
+    # via
+    #   -r requirements/ci.txt
+    #   pyquery
+=======
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 markdown==3.3.6
     # via
     #   -r requirements/base.txt
@@ -529,8 +536,16 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+<<<<<<< HEAD
 multidict==6.0.5
     # via yarl
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+multidict==6.0.5
+    # via
+    #   -r requirements/ci.txt
+    #   yarl
+=======
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 mypy-extensions==1.0.0
     # via black
 notifications-api-common==0.2.2
@@ -614,7 +629,7 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
-pyopenssl==24.0.0
+pyopenssl==23.3.0
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
@@ -633,8 +648,14 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
+<<<<<<< HEAD
 pyquery==2.0.0
     # via -r requirements/test-tools.in
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+pyquery==2.0.0
+    # via -r requirements/ci.txt
+=======
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
@@ -682,7 +703,6 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
-    #   vcrpy
 qrcode==7.4.2
     # via
     #   -r requirements/base.txt
@@ -785,18 +805,34 @@ sphinxcontrib-qthelp==1.0.2
     #   -r requirements/test-tools.in
     #   sphinx
 sphinxcontrib-serializinghtml==1.1.5
+<<<<<<< HEAD
     # via
     #   -r requirements/test-tools.in
     #   sphinx
 sqlparse==0.5.0
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+    # via sphinx
+sqlparse==0.5.0
+=======
+    # via sphinx
+sqlparse==0.4.4
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
     # via
     #   -r requirements/base.txt
     #   django
     #   django-debug-toolbar
     #   django-silk
 tblib==1.7.0
+<<<<<<< HEAD
     # via -r requirements/test-tools.in
 tornado==6.4.1
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+    # via -r requirements/ci.txt
+tornado==6.4.1
+=======
+    # via -r requirements/ci.txt
+tornado==6.4
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
     # via
     #   -r requirements/base.txt
     #   flower
@@ -821,7 +857,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==1.26.19
+urllib3==1.26.18
     # via
     #   -r requirements/base.txt
     #   elastic-apm
@@ -833,8 +869,14 @@ uwsgi==2.0.26
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+<<<<<<< HEAD
 vcrpy==6.0.1
     # via -r requirements/test-tools.in
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+vcrpy==6.0.1
+    # via -r requirements/ci.txt
+=======
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 vine==5.1.0
     # via
     #   -r requirements/base.txt
@@ -855,8 +897,20 @@ webencodings==0.5.1
     # via
     #   -r requirements/base.txt
     #   bleach
+<<<<<<< HEAD
 webob==1.8.8
     # via webtest
+||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
+webob==1.8.8
+    # via
+    #   -r requirements/ci.txt
+    #   webtest
+=======
+webob==1.8.7
+    # via
+    #   -r requirements/ci.txt
+    #   webtest
+>>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 websocket-client==0.57.0
     # via kubernetes
 webtest==3.0.0
@@ -873,7 +927,7 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.9.4
     # via vcrpy
-zgw-consumers==0.27.0
+zgw-consumers==0.28.0
     # via
     #   -r requirements/base.txt
     #   notifications-api-common
