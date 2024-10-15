@@ -65,46 +65,48 @@ def _test_nrc_config() -> list:
 
     checks = []
 
-    if nrc_client:
-        has_nrc_auth = nrc_client.auth is not None
+    if not nrc_client:
+        return checks
 
-        if not nrc_config.notifications_api_service:
-            checks = [((_("NRC"), _("Missing"), False))]
-            return checks
+    has_nrc_auth = nrc_client.auth is not None
 
-        checks.append(
-            (
-                _("NRC"),
-                nrc_config.notifications_api_service.api_root,
-                nrc_config.notifications_api_service.api_root.endswith("/"),
-            ),
-            (
-                _("Credentials for NRC"),
-                _("Configured") if has_nrc_auth else _("Missing"),
-                has_nrc_auth,
-            ),
-        )
+    if not nrc_config.notifications_api_service:
+        checks = [((_("NRC"), _("Missing"), False))]
+        return checks
 
-        # check if permissions in AC are fine
-        if has_nrc_auth:
-            error = False
+    checks.append(
+        (
+            _("NRC"),
+            nrc_config.notifications_api_service.api_root,
+            nrc_config.notifications_api_service.api_root.endswith("/"),
+        ),
+        (
+            _("Credentials for NRC"),
+            _("Configured") if has_nrc_auth else _("Missing"),
+            has_nrc_auth,
+        ),
+    )
 
-            try:
-                nrc_client.request(url="kanaal")
-            except requests.ConnectionError:
-                error = True
-                message = _("Could not connect with NRC")
-            except ClientError as exc:
-                error = True
-                message = _(
-                    "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-                ).format(
-                    status_code=exc.args[0]["status"], error_code=exc.args[0]["code"]
-                )
-            else:
-                message = _("Can retrieve kanalen")
+    # check if permissions in AC are fine
+    if has_nrc_auth:
+        error = False
 
-            checks.append((_("NRC connection and authorizations"), message, not error))
+        try:
+            nrc_client.request(url="kanaal")
+        except requests.ConnectionError:
+            error = True
+            message = _("Could not connect with NRC")
+        except ClientError as exc:
+            error = True
+            message = _(
+                "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
+            ).format(
+                status_code=exc.args[0]["status"], error_code=exc.args[0]["code"]
+            )
+        else:
+            message = _("Can retrieve kanalen")
+
+        checks.append((_("NRC connection and authorizations"), message, not error))
 
     return checks
 
