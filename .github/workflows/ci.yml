@@ -32,27 +32,18 @@ jobs:
 
       - name: Get changed PY files
         id: changed-py-files
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v45
         with:
-          files: |
-            ^src/.+\.py
-
-      - name: Get changed JS files
-        id: changed-js-files
-        uses: tj-actions/changed-files@v8.5
-        with:
-          files: |
-            ^src/.+\.js
+          files: src/{,**/}*.py
 
       - name: Get changed requirements files
         id: changed-requirements
-        uses: tj-actions/changed-files@v8.5
+        uses: tj-actions/changed-files@v45
         with:
-          files: ^requirements/.+\.txt$
+          files: requirements/*.txt
 
     outputs:
       changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
-      changed-js-files: ${{ steps.changed-js-files.outputs.any_changed }}
       changed-requirements: ${{ steps.changed-requirements.outputs.any_changed }}
 
   cmis-init:  # regression check for #972
@@ -171,7 +162,7 @@ jobs:
           docker ps -q | xargs  docker stats --no-stream
 
       - name: Install dependencies
-        run: pip install -r requirements/ci.txt
+        run: pip install --requirement requirements/ci.txt
 
       - name: Build frontend
         run: |
@@ -191,24 +182,16 @@ jobs:
         uses: codecov/codecov-action@v3
 
   docs:
+    name: Documentation check
     runs-on: ubuntu-latest
-    name: Documentation build
-
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - name: Set up backend environment
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
+          apt-packages: 'libgdal-dev gdal-bin'
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - name: Install dependencies
-        run: pip install -r requirements/dev.txt pytest
-      - name: Install system packages
-        run: |
-          sudo apt-get update \
-          && sudo apt-get install -y --no-install-recommends \
-            libgdal-dev \
-            gdal-bin
+
       - name: Generate environment variable documentation using OAf and check if it was updated
         run: |
           bin/generate_envvar_docs.sh
@@ -221,100 +204,41 @@ jobs:
           fi
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
-      - name: Build and test docs
-        run: |
-          export OPENSSL_CONF=$(pwd)/openssl.conf
-          pytest check_sphinx.py -v --tb=auto
-        working-directory: docs
 
-  check_requirements:
+  store-reusable-workflow-vars:
+    name: create values which can be passed through a reusable workflow
     runs-on: ubuntu-latest
-    name: Check requirements files
-    if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+    outputs:
+      image-name: ${{ steps.image-name.outputs.image-name }}
+      sphinx-ssl-conf: ${{ steps.sphinx-ssl-conf.outputs.sphinx-ssl-conf }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-      - id: files
-        uses: tj-actions/changed-files@v8.5
-        with:
-          files: ^requirements/.+\.txt$
+      - run: echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+        name: 'Store the docker image name'
+        id: image-name
+      - run: echo "sphinx-ssl-conf=${{ github.workspace }}/docs/openssl.conf" >> $GITHUB_OUTPUT
+        name: 'Store the sphinx openssl configuration path'
+        id: sphinx-ssl-conf
 
-      - name: Check requirements
-        run: bin/check_requirements.sh "${{ steps.files.outputs.modified_files }}"
-
-  docker:
-    runs-on: ubuntu-latest
-    name: Docker image build
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Determine tag/commit hash
-        id: vars
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name (if present at all)
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
-          echo "git_hash=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-      - name: Build the Docker image
-        run: |
-          docker build \
-            --tag $IMAGE_NAME:${{ steps.vars.outputs.tag }} \
-            --build-arg COMMIT_HASH=${{ steps.vars.outputs.git_hash }} \
-            --build-arg RELEASE=${{ steps.vars.outputs.tag }} \
-            .
-      - run: docker image save -o image.tar $IMAGE_NAME:${{ steps.vars.outputs.tag }}
-      - name: Store image artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-image
-          path: image.tar
-          retention-days: 1
-
-  publish:
+  open-api-ci:
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v1
     needs:
+      - store-reusable-workflow-vars
+    with:
+      main-branch: 'main'
+      python-version: '3.11'
+      docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
+      docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
+
+  open-api-publish:
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v1
+    needs:
+      - store-reusable-workflow-vars
+      - open-api-ci
       - tests
-      - docker
-
-    name: Push Docker image
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository_owner == 'open-zaak'  # exclude PRs/forks
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download built image
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-image
-
-      - name: Determine tag/commit hash
-        id: vars
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name (if present at all)
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Load image
-        run: |
-          docker image load -i image.tar
-
-      - name: Log into registry
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Push the Docker image
-        run: docker push $IMAGE_NAME:${{ steps.vars.outputs.tag }}
+    with:
+      docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
+      repository-owner: 'open-zaak'
+    secrets:
+      docker-username: ${{ secrets.DOCKER_USERNAME }}
+      docker-token: ${{ secrets.DOCKER_TOKEN }}
