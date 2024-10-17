@@ -41,6 +41,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
@@ -546,6 +547,11 @@ class ZaakZoekSerializer(serializers.Serializer):
         child=FKOrServiceUrlField(),
         required=False,
         help_text=_("Array van zaaktypen."),
+    )
+    zaaktype__not_in = serializers.ListField(
+        child=FKOrServiceUrlField(),
+        required=False,
+        help_text=mark_experimental("Array van zaaktypen."),
     )
 
     class Meta:
