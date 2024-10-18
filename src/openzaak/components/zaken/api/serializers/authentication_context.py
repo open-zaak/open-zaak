@@ -55,7 +55,7 @@ class eHerkenningLevelOfAssurance(models.TextChoices):
 # RSIN is not allowed for Intermediair
 class eHerkenningRepresenteeIdentifier(models.TextChoices):
     bsn = "bsn", _("BSN")
-    kvk_nummer = "kvk_nummer", _("KVK-nummer")
+    kvk_nummer = "kvkNummer", _("KVK-nummer")
 
 
 class eHerkenningMandateRole(models.TextChoices):
