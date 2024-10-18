@@ -239,6 +239,8 @@ CELERY_BEAT_SCHEDULE = {
 
 
 STORE_FAILED_NOTIFS = True
+# silence using upper case in enums
+SILENCED_SYSTEM_CHECKS = SILENCED_SYSTEM_CHECKS + ["vng_api_common.enums.W001"]
 
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config("JWT_EXPIRY", default=3600)
