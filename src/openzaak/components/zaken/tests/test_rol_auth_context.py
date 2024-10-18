@@ -15,10 +15,16 @@ from openzaak.tests.utils import JWTAuthMixin
 from ..api.serializers.authentication_context import (
     DigiDLevelOfAssurance,
     eHerkenningLevelOfAssurance,
+    eHerkenningRepresenteeIdentifier,
 )
 from ..constants import IndicatieMachtiging
 from ..models import Rol
 from .factories import ZaakFactory
+
+ACTING_SUBJECT = (
+    "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018"
+    "@2D8FF1EF10279BC2643F376D89835151"
+)
 
 
 class AuthContextDigidTests(JWTAuthMixin, APITestCase):
@@ -161,3 +167,301 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "authenticatieContext.mandate")
         self.assertEqual(error["code"], "required")
+
+
+class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
+    """
+    tests for Rol with eHerkenning without mandate:
+    """
+
+    maxDiff = None
+    heeft_alle_autorisaties = True
+    url = reverse_lazy(Rol)
+
+    def test_create_eherkenning_nnp_without_mandate(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "betrokkeneIdentificatie": {"kvkNummer": "12345678"},
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "actingSubject": ACTING_SUBJECT,
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
+        self.assertEqual(rol.betrokkene_type, RolTypes.niet_natuurlijk_persoon)
+        self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
+        self.assertEqual(rol.indicatie_machtiging, "")
+        self.assertEqual(
+            rol.authenticatie_context,
+            {
+                "source": "eherkenning",
+                "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
+                "acting_subject": ACTING_SUBJECT,
+            },
+        )
+        self.assertEqual(rol.nietnatuurlijkpersoon.kvk_nummer, "12345678")
+
+    def test_create_eherkenning_vestiging_without_mandate(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.vestiging,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "betrokkeneIdentificatie": {
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "123456789012",
+            },
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "actingSubject": ACTING_SUBJECT,
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
+        self.assertEqual(rol.betrokkene_type, RolTypes.vestiging)
+        self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
+        self.assertEqual(rol.indicatie_machtiging, "")
+        self.assertEqual(
+            rol.authenticatie_context,
+            {
+                "source": "eherkenning",
+                "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
+                "acting_subject": ACTING_SUBJECT,
+            },
+        )
+        self.assertEqual(rol.vestiging.kvk_nummer, "12345678")
+        self.assertEqual(rol.vestiging.vestigings_nummer, "123456789012")
+
+    def test_create_eherkenning_nnp_with_mandate_np(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "indicatieMachtiging": IndicatieMachtiging.gemachtigde,
+            "betrokkeneIdentificatie": {"kvkNummer": "12345678"},
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifierType": eHerkenningRepresenteeIdentifier.bsn,
+                    "identifier": "111222333",
+                },
+                "actingSubject": ACTING_SUBJECT,
+                "mandate": {
+                    "role": "bewindvoerder",
+                    "services": [
+                        {
+                            "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+                            "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc",
+                        }
+                    ],
+                },
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
+        self.assertEqual(rol.betrokkene_type, RolTypes.niet_natuurlijk_persoon)
+        self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
+        self.assertEqual(rol.indicatie_machtiging, IndicatieMachtiging.gemachtigde)
+        self.assertEqual(
+            rol.authenticatie_context,
+            {
+                "source": "eherkenning",
+                "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifier_type": eHerkenningRepresenteeIdentifier.bsn,
+                    "identifier": "111222333",
+                },
+                "acting_subject": ACTING_SUBJECT,
+                "mandate": {
+                    "role": "bewindvoerder",
+                    "services": [
+                        {
+                            "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+                            "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc",
+                        }
+                    ],
+                },
+            },
+        )
+        self.assertEqual(rol.nietnatuurlijkpersoon.kvk_nummer, "12345678")
+
+    def test_create_eherkenning_vestiging_with_mandate_company(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.vestiging,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "indicatieMachtiging": IndicatieMachtiging.gemachtigde,
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "betrokkeneIdentificatie": {
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "123456789012",
+            },
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifierType": eHerkenningRepresenteeIdentifier.kvk_nummer,
+                    "identifier": "99998888",
+                },
+                "actingSubject": ACTING_SUBJECT,
+                "mandate": {
+                    "services": [
+                        {
+                            "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+                            "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc",
+                        }
+                    ]
+                },
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rol = Rol.objects.get()
+
+        self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
+        self.assertEqual(rol.betrokkene_type, RolTypes.vestiging)
+        self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
+        self.assertEqual(rol.indicatie_machtiging, IndicatieMachtiging.gemachtigde)
+        self.assertEqual(
+            rol.authenticatie_context,
+            {
+                "source": "eherkenning",
+                "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifier_type": eHerkenningRepresenteeIdentifier.kvk_nummer,
+                    "identifier": "99998888",
+                },
+                "acting_subject": ACTING_SUBJECT,
+                "mandate": {
+                    "services": [
+                        {
+                            "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+                            "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc",
+                        }
+                    ]
+                },
+            },
+        )
+        self.assertEqual(rol.vestiging.kvk_nummer, "12345678")
+        self.assertEqual(rol.vestiging.vestigings_nummer, "123456789012")
+
+    def test_create_eherkenning_with_mandate_empty_mandate(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "indicatieMachtiging": IndicatieMachtiging.gemachtigde,
+            "betrokkeneIdentificatie": {"kvkNummer": "12345678"},
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifierType": eHerkenningRepresenteeIdentifier.bsn,
+                    "identifier": "111222333",
+                },
+                "actingSubject": ACTING_SUBJECT,
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "authenticatieContext.mandate")
+        self.assertEqual(error["code"], "required")
+
+    def test_create_eherkenning_with_mandate_incorrect_indicatie_machtigen(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.vestiging,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "betrokkeneIdentificatie": {
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "123456789012",
+            },
+            "authenticatieContext": {
+                "source": "eherkenning",
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "representee": {
+                    "identifierType": eHerkenningRepresenteeIdentifier.kvk_nummer,
+                    "identifier": "99998888",
+                },
+                "actingSubject": ACTING_SUBJECT,
+                "mandate": {
+                    "services": [
+                        {
+                            "id": "urn:etoegang:DV:00000001002308836000:services:9113",
+                            "uuid": "34085d78-21aa-4481-a219-b28d7f3282fc",
+                        }
+                    ]
+                },
+            },
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "indicatie-machtiging-invalid")
