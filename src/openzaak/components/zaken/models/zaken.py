@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.crypto import get_random_string
@@ -866,6 +867,7 @@ class Rol(ETagMixin, APIMixin, models.Model):
         _("authentication context"),
         blank=True,
         null=True,
+        encoder=DjangoJSONEncoder,
         help_text=_(
             "Metadata about the authentication context and mandate that applied when "
             "the role was added to the case."

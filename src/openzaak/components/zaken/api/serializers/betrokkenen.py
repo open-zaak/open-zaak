@@ -119,6 +119,7 @@ class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
         fields = (
             "inn_nnp_id",
             "ann_identificatie",
+            "kvk_nummer",
             "statutaire_naam",
             "inn_rechtsvorm",
             "bezoekadres",
