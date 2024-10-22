@@ -7,7 +7,9 @@
 amqp==5.1.1
     # via kombu
 ape-pie==0.2.0
-    # via zgw-consumers
+    # via
+    #   notifications-api-common
+    #   zgw-consumers
 appdirs==1.4.4
     # via requests-cache
 asgiref==3.8.1
@@ -255,10 +257,7 @@ furl==2.1.3
     #   ape-pie
     #   drc-cmis
 gemma-zds-client==2.0.0
-    # via
-    #   commonground-api-common
-    #   notifications-api-common
-    #   zgw-consumers
+    # via commonground-api-common
 glom==23.5.0
     # via mozilla-django-oidc-db
 httplib2==0.20.4
@@ -305,7 +304,7 @@ mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.19.0
     # via open-api-framework
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@e1c9f77eba0a77ce73f83b2277620e578b6f4189
     # via
     #   -r requirements/base.in
     #   commonground-api-common
@@ -337,11 +336,11 @@ pyjwt==2.4.0
     # via
     #   commonground-api-common
     #   gemma-zds-client
+    #   zgw-consumers
 pyopenssl==23.3.0
     # via
     #   josepy
     #   webauthn
-    #   zgw-consumers
 pyparsing==3.0.7
     # via httplib2
 pypng==0.20220715.0
@@ -413,6 +412,7 @@ typing-extensions==4.12.2
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
+    #   zgw-consumers
 tzdata==2024.1
     # via
     #   celery
@@ -447,7 +447,7 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.28.0
+zgw-consumers==0.35.1
     # via
     #   notifications-api-common
     #   open-api-framework

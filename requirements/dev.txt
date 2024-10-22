@@ -17,6 +17,7 @@ ansible-core==2.15.5
 ape-pie==0.2.0
     # via
     #   -r requirements/ci.txt
+    #   notifications-api-common
     #   zgw-consumers
 appdirs==1.4.4
     # via
@@ -425,8 +426,6 @@ gemma-zds-client==2.0.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
-    #   notifications-api-common
-    #   zgw-consumers
 gitdb==4.0.5
     # via gitpython
 gitpython==3.1.40
@@ -504,16 +503,8 @@ kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
-<<<<<<< HEAD
 lxml==5.3.0
     # via pyquery
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-lxml==5.3.0
-    # via
-    #   -r requirements/ci.txt
-    #   pyquery
-=======
->>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 markdown==3.3.6
     # via
     #   -r requirements/base.txt
@@ -536,19 +527,11 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-<<<<<<< HEAD
 multidict==6.0.5
     # via yarl
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-multidict==6.0.5
-    # via
-    #   -r requirements/ci.txt
-    #   yarl
-=======
->>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@e1c9f77eba0a77ce73f83b2277620e578b6f4189
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -629,13 +612,13 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
+    #   zgw-consumers
 pyopenssl==23.3.0
     # via
     #   -r requirements/base.txt
     #   django-simple-certmanager
     #   josepy
     #   webauthn
-    #   zgw-consumers
 pyparsing==3.0.7
     # via
     #   -r requirements/base.txt
@@ -648,14 +631,8 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-<<<<<<< HEAD
 pyquery==2.0.0
     # via -r requirements/test-tools.in
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-pyquery==2.0.0
-    # via -r requirements/ci.txt
-=======
->>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
@@ -805,31 +782,18 @@ sphinxcontrib-qthelp==1.0.2
     #   -r requirements/test-tools.in
     #   sphinx
 sphinxcontrib-serializinghtml==1.1.5
-<<<<<<< HEAD
     # via
     #   -r requirements/test-tools.in
     #   sphinx
 sqlparse==0.5.0
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-    # via sphinx
-sqlparse==0.5.0
-=======
-    # via sphinx
-sqlparse==0.4.4
->>>>>>> b4ea62c7 ([#66] regenerate dependencies)
     # via
     #   -r requirements/base.txt
     #   django
     #   django-debug-toolbar
     #   django-silk
 tblib==1.7.0
-<<<<<<< HEAD
     # via -r requirements/test-tools.in
 tornado==6.4.1
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-    # via -r requirements/ci.txt
-tornado==6.4.1
-=======
     # via -r requirements/ci.txt
 tornado==6.4
 >>>>>>> b4ea62c7 ([#66] regenerate dependencies)
@@ -842,6 +806,7 @@ typing-extensions==4.12.2
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
+    #   zgw-consumers
 tzdata==2024.1
     # via
     #   -r requirements/base.txt
@@ -869,14 +834,8 @@ uwsgi==2.0.26
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-<<<<<<< HEAD
 vcrpy==6.0.1
     # via -r requirements/test-tools.in
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-vcrpy==6.0.1
-    # via -r requirements/ci.txt
-=======
->>>>>>> b4ea62c7 ([#66] regenerate dependencies)
 vine==5.1.0
     # via
     #   -r requirements/base.txt
@@ -897,15 +856,8 @@ webencodings==0.5.1
     # via
     #   -r requirements/base.txt
     #   bleach
-<<<<<<< HEAD
 webob==1.8.8
     # via webtest
-||||||| parent of b4ea62c7 ([#66] regenerate dependencies)
-webob==1.8.8
-    # via
-    #   -r requirements/ci.txt
-    #   webtest
-=======
 webob==1.8.7
     # via
     #   -r requirements/ci.txt
@@ -927,7 +879,7 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.9.4
     # via vcrpy
-zgw-consumers==0.28.0
+zgw-consumers==0.35.1
     # via
     #   -r requirements/base.txt
     #   notifications-api-common
