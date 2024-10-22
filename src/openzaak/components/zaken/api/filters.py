@@ -17,6 +17,7 @@ from openzaak.utils.filters import (
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
 from openzaak.utils.filterset import FilterSet
+from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
     KlantContact,
@@ -29,6 +30,28 @@ from ..models import (
     ZaakObject,
     ZaakVerzoek,
 )
+
+# custom filter to show cases for authorizee and representee
+MACHTIGING_HELP_TEXT = mark_experimental(
+    """filter objects depending on their `IndicatieMachtiging`:
+* `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
+* `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
+* `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+"""
+)
+
+
+class MachtigingChoices(models.TextChoices):
+    eigen = "eigen", _("Eigen")
+    gemachtigde = "gemachtigde", _("Gemachtigde")
+    machtiginggever = "machtiginggever", _("Machtiginggever")
+
+
+def machtiging_filter(queryset, name, value: str):
+    if value == MachtigingChoices.eigen:
+        return queryset.filter(**{name: ""})
+
+    return queryset.filter(**{name: value})
 
 
 class ZaakFilter(FilterSet):
@@ -80,12 +103,26 @@ class ZaakFilter(FilterSet):
             ),
         )
     )
+    rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer = (
+        filters.CharFilter(
+            field_name="rol__nietnatuurlijkpersoon__kvk_nummer",
+            help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
+            max_length=get_field_attribute(
+                "zaken.NietNatuurlijkPersoon", "kvk_nummer", "max_length"
+            ),
+        )
+    )
     rol__betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="rol__vestiging__vestigings_nummer",
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
         max_length=get_field_attribute(
             "zaken.Vestiging", "vestigings_nummer", "max_length"
         ),
+    )
+    rol__betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
+        field_name="rol__vestiging__vestigings_nummer",
+        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
+        max_length=get_field_attribute("zaken.Vestiging", "kvk_nummer", "max_length"),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
@@ -99,6 +136,12 @@ class ZaakFilter(FilterSet):
             field_name="rol__organisatorischeeenheid__identificatie",
             help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
         )
+    )
+    rol__machtiging = filters.ChoiceFilter(
+        field_name="rol__indicatie_machtiging",
+        method=machtiging_filter,
+        help_text=MACHTIGING_HELP_TEXT,
+        choices=MachtigingChoices.choices,
     )
     ordering = filters.OrderingFilter(
         fields=(
@@ -164,9 +207,17 @@ class RolFilter(FilterSet):
             help_text=get_help_text("zaken.NietNatuurlijkPersoon", "ann_identificatie"),
         )
     )
+    betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer = filters.CharFilter(
+        field_name="nietnatuurlijkpersoon__kvk_nummer",
+        help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
+    )
     betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="vestiging__vestigings_nummer",
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
+    )
+    betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
+        field_name="vestiging__vestigings_nummer",
+        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
     )
     betrokkene_identificatie__organisatorische_eenheid__identificatie = (
         filters.CharFilter(
@@ -177,6 +228,12 @@ class RolFilter(FilterSet):
     betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
+    )
+    machtiging = filters.ChoiceFilter(
+        field_name="indicatie_machtiging",
+        method=machtiging_filter,
+        help_text=MACHTIGING_HELP_TEXT,
+        choices=MachtigingChoices.choices,
     )
 
     class Meta:
@@ -190,12 +247,15 @@ class RolFilter(FilterSet):
             "betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer",
             "betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
             "betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
+            "betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
             "betrokkene_identificatie__vestiging__vestigings_nummer",
+            "betrokkene_identificatie__vestiging__kvk_nummer",
             "betrokkene_identificatie__organisatorische_eenheid__identificatie",
             "betrokkene_identificatie__medewerker__identificatie",
             "roltype",
             "omschrijving",
             "omschrijving_generiek",
+            "machtiging",
         )
 
 
