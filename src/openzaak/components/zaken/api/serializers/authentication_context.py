@@ -8,6 +8,8 @@ from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import validate_rsin as validate_bsn
 
+from openzaak.utils.choices import OrderedTextChoices
+
 from ..validators import AuthContextMandateValidator
 
 
@@ -23,7 +25,7 @@ class AuthSource(models.TextChoices):
 
 
 # Taken from django-digid-eherkenning: ``digid_eherkenning.choices``
-class DigiDLevelOfAssurance(models.TextChoices):
+class DigiDLevelOfAssurance(OrderedTextChoices):
     base = (
         "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
         _("DigiD Basis"),
@@ -43,7 +45,7 @@ class DigiDLevelOfAssurance(models.TextChoices):
 
 
 # Taken from django-digid-eherkenning: ``digid_eherkenning.choices``
-class eHerkenningLevelOfAssurance(models.TextChoices):
+class eHerkenningLevelOfAssurance(OrderedTextChoices):
     non_existent = "urn:etoegang:core:assurance-class:loa1", _("Non existent (1)")
     low = "urn:etoegang:core:assurance-class:loa2", _("Low (2)")
     low_plus = "urn:etoegang:core:assurance-class:loa2plus", _("Low (2+)")

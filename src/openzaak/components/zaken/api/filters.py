@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
+from drf_spectacular.plumbing import build_choice_description_list
 from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
@@ -29,6 +30,10 @@ from ..models import (
     ZaakInformatieObject,
     ZaakObject,
     ZaakVerzoek,
+)
+from .serializers.authentication_context import (
+    DigiDLevelOfAssurance,
+    eHerkenningLevelOfAssurance,
 )
 
 # custom filter to show cases for authorizee and representee
@@ -52,6 +57,47 @@ def machtiging_filter(queryset, name, value: str):
         return queryset.filter(**{name: ""})
 
     return queryset.filter(**{name: value})
+
+
+class MaxLoAFilter(filters.ChoiceFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "choices",
+            DigiDLevelOfAssurance.choices + eHerkenningLevelOfAssurance.choices,
+        )
+        kwargs.setdefault("lookup_expr", "lte")
+
+        # add choice description
+        help_text = kwargs.get("help_text", "")
+        help_text += (
+            "\n \n **Digid:** \n"
+            + build_choice_description_list(DigiDLevelOfAssurance.choices)
+            + "\n \n **eHerkenning:** \n"
+            + build_choice_description_list(eHerkenningLevelOfAssurance.choices)
+        )
+        kwargs["help_text"] = help_text
+
+        super().__init__(*args, **kwargs)
+
+        # rewrite the field_name correctly
+        self._field_name = self.field_name
+        self.field_name = f"_{self._field_name}_order"
+
+    def filter(self, qs, value):
+        if value in filters.EMPTY_VALUES:
+            return qs
+
+        choices = (
+            DigiDLevelOfAssurance
+            if value in DigiDLevelOfAssurance
+            else eHerkenningLevelOfAssurance
+        )
+
+        order_expression = choices.get_order_expression(self._field_name)
+        numeric_value = choices.get_choice_order(value)
+
+        qs = qs.annotate(**{self.field_name: order_expression})
+        return super().filter(qs, numeric_value)
 
 
 class ZaakFilter(FilterSet):
@@ -142,6 +188,13 @@ class ZaakFilter(FilterSet):
         method=machtiging_filter,
         help_text=MACHTIGING_HELP_TEXT,
         choices=MachtigingChoices.choices,
+    )
+    rol__machtiging__loa = MaxLoAFilter(
+        field_name="rol__authenticatie_context__level_of_assurance",
+        help_text=mark_experimental(
+            "Zaken met een `rol.authenticatieContext.levelOfAssurance` die beperkter is dan de "
+            "aangegeven aanduiding worden uit de resultaten gefiltered."
+        ),
     )
     ordering = filters.OrderingFilter(
         fields=(
@@ -235,6 +288,13 @@ class RolFilter(FilterSet):
         help_text=MACHTIGING_HELP_TEXT,
         choices=MachtigingChoices.choices,
     )
+    machtiging__loa = MaxLoAFilter(
+        field_name="authenticatie_context__level_of_assurance",
+        help_text=mark_experimental(
+            "Rollen met een 'authenticatieContext.levelOfAssurance' die beperkter is dan de "
+            "aangegeven aanduiding worden uit de resultaten gefiltered."
+        ),
+    )
 
     class Meta:
         model = Rol
@@ -256,6 +316,7 @@ class RolFilter(FilterSet):
             "omschrijving",
             "omschrijving_generiek",
             "machtiging",
+            "machtiging__loa",
         )
 
 
