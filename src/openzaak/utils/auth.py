@@ -2,10 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import time
-from typing import Optional
 
 import jwt
-from ape_pie import APIClient
 from zgw_consumers.constants import AuthTypes
 
 
@@ -40,17 +38,3 @@ def get_auth(url: str) -> dict:
 
     logger.warning("Could not authenticate for %s", url)
     return {}
-
-
-# TODO: remove this function (replaced by openzaak.client.get_client)?
-def get_client(url: str) -> Optional[APIClient]:
-    from zgw_consumers.client import build_client
-    from zgw_consumers.models import Service
-    from openzaak.client import NoServiceConfigured
-
-    service = Service.get_service(url)
-
-    if not service:
-        raise NoServiceConfigured(f"{url} API should be added to Service model")
-
-    return build_client(service, client_factory=APIClient)
