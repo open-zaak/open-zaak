@@ -3,8 +3,16 @@
 """
 Provide utilities to interact with other APIs as a client.
 """
+import logging
+
 from ape_pie import APIClient
+
+from requests import JSONDecodeError, RequestException, Response
 from zgw_consumers.models import Service
+from zgw_consumers.client import build_client
+
+
+logger = logging.getLogger(__name__)
 
 
 class NoServiceConfigured(RuntimeError):
@@ -15,11 +23,24 @@ def fetch_object(url: str) -> dict:
     """
     Fetch a remote object by URL.
     """
-    client = Service.get_client(url)
-    if not client:
+    service = Service.get_service(url)
+
+    if not service:
         raise NoServiceConfigured(f"{url} API should be added to Service model")
-    return client.request(url=url, method="GET")
 
+    client: APIClient = build_client(service, client_factory=APIClient)
 
-class OpenZaakClient(APIClient):
-    pass
+    with client:
+        response: Response = client.request(method="GET", url=url)
+
+    try:
+        response.raise_for_status()
+    except RequestException:
+        logger.exception(f"Failed retrieving {url}")
+        raise
+
+    try:
+        return response.json()
+    except JSONDecodeError:
+        logger.exception(f"Failed decoding json from response for {url}")
+        raise
