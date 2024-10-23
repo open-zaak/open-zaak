@@ -21,6 +21,7 @@ from vng_api_common.tests import reverse as _reverse
 from zds_client import ClientError
 from zgw_consumers.models import Service
 
+from openzaak.client import get_client
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -149,14 +150,14 @@ class ZaakTypeForm(forms.ModelForm):
 
         # fetch the selectielijstklasse and compare that relations are still consistent
         for url in selectielijstklassen:
-            client = Service.get_client(url)
+            client = get_client(url, raise_exceptions=False)
             if client is None:
                 self.add_error(
                     None, _("Could not build a client for {url}").format(url=url)
                 )
                 continue
 
-            resultaat = client.retrieve("resultaat", url=url)
+            resultaat = client.get(url)
 
             if resultaat["procesType"] != procestype_url:
                 raise forms.ValidationError(
@@ -225,7 +226,7 @@ class ResultaatTypeForm(forms.ModelForm):
             # nothing to do
             return
 
-        client = Service.get_client(selectielijstklasse)
+        client = get_client(selectielijstklasse, raise_exceptions=False)
         if client is None:
             self.add_error(
                 "selectielijstklasse",
@@ -239,10 +240,8 @@ class ResultaatTypeForm(forms.ModelForm):
             return
 
         try:
-            selectielijst_resultaat = client.retrieve(
-                "resultaat", url=selectielijstklasse
-            )
-        except ClientError as exc:
+            selectielijst_resultaat = client.get(selectielijstklasse)
+        except (ClientError, requests.RequestException) as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")
                 % selectielijstklasse

@@ -32,7 +32,7 @@ def resend_notification(notification: FailedNotification) -> None:
     client = config.get_client()
 
     try:
-        client.create("notificaties", notification.message)
+        client.post("notificaties", notification.message)
     except ClientError as error:
         notifs_logger.warning(
             "Could not deliver message to %s",

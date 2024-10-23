@@ -360,7 +360,7 @@ JWT_LEEWAY = config(
     auto_display_default=False,
 )
 
-CUSTOM_CLIENT_FETCHER = "openzaak.utils.auth.get_client"
+CUSTOM_CLIENT_FETCHER = "openzaak.client.get_client"
 
 CMIS_ENABLED = config(
     "CMIS_ENABLED",

@@ -38,6 +38,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 from zgw_consumers.models import Service
 
+from openzaak.client import get_client
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
     delete_remote_objectverzoek,
@@ -416,11 +417,11 @@ class ZaakViewSet(
         oio_urls = instance.zaakinformatieobject_set.filter(
             Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)
-        delete_params = [(url, Service.get_client(url)) for url in oio_urls]
+        delete_params = [(url, get_client(url)) for url in oio_urls]
 
         def _delete_oios():
             for url, client in delete_params:
-                client.delete("objectinformatieobject", url=url)
+                client.delete(url)
 
         transaction.on_commit(_delete_oios)
 
