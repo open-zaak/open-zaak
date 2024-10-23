@@ -100,9 +100,7 @@ def _test_nrc_config() -> list:
             error = True
             message = _(
                 "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-            ).format(
-                status_code=exc.args[0]["status"], error_code=exc.args[0]["code"]
-            )
+            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
         else:
             message = _("Can retrieve kanalen")
 

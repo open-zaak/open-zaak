@@ -67,7 +67,10 @@ class OpenZaakClient(APIClient):
     def delete(self, url, **kwargs) -> dict | list | None:
         return super().delete(url, **kwargs)
 
-def get_client(url: str, raise_exceptions: bool = True, **client_kwargs) -> Optional[OpenZaakClient]:
+
+def get_client(
+    url: str, raise_exceptions: bool = True, **client_kwargs
+) -> Optional[OpenZaakClient]:
     service = Service.get_service(url)
 
     if not service:

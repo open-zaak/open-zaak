@@ -12,6 +12,7 @@ from .models import ReferentieLijstConfig
 JsonPrimitive = Union[str, int, float, bool]
 ResultList = List[Dict[str, JsonPrimitive]]
 
+
 def get_procestypen(procestype_jaar=None) -> ResultList:
     """
     Fetch a list of Procestypen.
