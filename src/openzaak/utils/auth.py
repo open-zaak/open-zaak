@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 import time
-
 from typing import Optional
 
 import jwt
