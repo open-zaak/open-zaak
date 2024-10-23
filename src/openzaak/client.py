@@ -6,11 +6,9 @@ Provide utilities to interact with other APIs as a client.
 import logging
 
 from ape_pie import APIClient
-
 from requests import JSONDecodeError, RequestException, Response
-from zgw_consumers.models import Service
 from zgw_consumers.client import build_client
-
+from zgw_consumers.models import Service
 
 logger = logging.getLogger(__name__)
 
