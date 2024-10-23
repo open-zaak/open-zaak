@@ -1,29 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from vng_api_common.utils import get_uuid_from_path
-from zgw_consumers.models import Service
-
-from openzaak.client import NoServiceConfigured
+from openzaak.client import get_client
 
 
 def create_remote_zaakbesluit(besluit_url: str, zaak_url: str) -> dict:
-    client = Service.get_client(zaak_url)
-    if client is None:
-        raise NoServiceConfigured(f"{zaak_url} API should be added to Service model")
-
-    zaak_uuid = get_uuid_from_path(zaak_url)
+    client = get_client(zaak_url)
     body = {"besluit": besluit_url}
 
-    response = client.create("zaakbesluit", data=body, zaak_uuid=zaak_uuid)
-
-    return response
+    # TODO: is this (nested) constructed URL correct? see get_zaakbesluit_response
+    return client.post(f"{zaak_url}/besluiten", data=body)
 
 
 def delete_remote_zaakbesluit(zaakbesluit_url: str) -> None:
-    client = Service.get_client(zaakbesluit_url)
-    if client is None:
-        raise NoServiceConfigured(
-            f"{zaakbesluit_url} API should be added to Service model"
-        )
-
-    client.delete("zaakbesluit", zaakbesluit_url)
+    client = get_client(zaakbesluit_url)
+    client.delete(zaakbesluit_url)

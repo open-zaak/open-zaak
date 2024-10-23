@@ -15,6 +15,7 @@ from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import Service
 
+from openzaak.client import get_client
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.fields import DurationField
 
@@ -356,10 +357,8 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
 
         if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
-            client = Service.get_client(self.selectielijst_procestype)
-            response = client.retrieve(
-                "selectielijst_procestype", url=self.selectielijst_procestype
-            )
+            client = get_client(self.selectielijst_procestype)
+            response = client.get(self.selectielijst_procestype)
             self.selectielijst_procestype_jaar = response["jaar"]
 
         if not self.identificatie:

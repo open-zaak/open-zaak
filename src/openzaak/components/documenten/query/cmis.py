@@ -22,6 +22,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.models import Service
 
+from openzaak.client import get_client
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -1155,10 +1156,11 @@ def get_related_data_for_oio_create(
         return (*_format_zaak_and_zaaktype_data(zaak), None)
 
     if object_type == ObjectInformatieObjectTypes.verzoek:
-        client = Service.get_client(object_url)
+        client = get_client(object_url, raise_exceptions=False)
+
         if client is None:
             return None, None, None
-        other_data = client.retrieve("verzoek", url=object_url)
+        other_data = client.get(object_url)
         return None, None, other_data
 
     return None, None, None

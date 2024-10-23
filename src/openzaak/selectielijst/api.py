@@ -12,7 +12,6 @@ from .models import ReferentieLijstConfig
 JsonPrimitive = Union[str, int, float, bool]
 ResultList = List[Dict[str, JsonPrimitive]]
 
-
 def get_procestypen(procestype_jaar=None) -> ResultList:
     """
     Fetch a list of Procestypen.
@@ -29,9 +28,7 @@ def get_procestypen(procestype_jaar=None) -> ResultList:
         query_params = query_params = (
             {"jaar": procestype_jaar} if procestype_jaar else {}
         )
-        return client.request(
-            url="procestypen", method="GET", params=query_params
-        ).json()
+        return client.get("procestypen", params=query_params)
 
     return inner()
 
@@ -56,7 +53,7 @@ def get_resultaten(proces_type: Optional[str] = None) -> ResultList:
             query_params["procesType"] = proces_type
 
         client = ReferentieLijstConfig.get_client()
-        result_list = client.list("resultaat", query_params=query_params)
+        result_list = client.get("resultaat", params=query_params)
         results = result_list["results"]
         while result_list["next"]:
             parsed = urlparse(result_list["next"])
@@ -76,7 +73,7 @@ def get_resultaattype_omschrijvingen() -> ResultList:
     Results are cached for an hour.
     """
     client = ReferentieLijstConfig.get_client()
-    return client.list("resultaattypeomschrijvinggeneriek")
+    return client.get("resultaattypeomschrijvinggeneriek")
 
 
 @cache_uuid("selectielijst:procestypen", timeout=60 * 60 * 24)
@@ -87,7 +84,7 @@ def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
     Results are cached for 24 hours.
     """
     client = ReferentieLijstConfig.get_client()
-    return client.retrieve("procestype", url)
+    return client.get(url)
 
 
 @cache_uuid("selectielijst:resultaten", timeout=60 * 60 * 24)
@@ -98,7 +95,7 @@ def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
     Results are cached for 24 hours.
     """
     client = ReferentieLijstConfig.get_client()
-    return client.retrieve("resultaat", url)
+    return client.get(url)
 
 
 @cache_uuid("referentielijsten:resultaattypeomschrijvinggeneriek", timeout=60 * 60)
@@ -109,4 +106,4 @@ def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
     Results are cached for an hours.
     """
     client = ReferentieLijstConfig.get_client()
-    return client.retrieve("resultaattypeomschrijvinggeneriek", url)
+    return client.get(url)

@@ -43,6 +43,7 @@ def get_auth(url: str) -> dict:
     return {}
 
 
+# TODO: remove this function (replaced by openzaak.client.get_client)?
 def get_client(url: str) -> Optional[APIClient]:
     service = Service.get_service(url)
 

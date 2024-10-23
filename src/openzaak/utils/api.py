@@ -4,18 +4,13 @@ from django.conf import settings
 
 from zgw_consumers.models import Service
 
-from openzaak.client import NoServiceConfigured
+from openzaak.client import get_client
 from openzaak.components.documenten.models import ObjectInformatieObject
 
 
 def delete_remote_resource(resource: str, resource_url: str) -> None:
-    client = Service.get_client(resource_url)
-    if client is None:
-        raise NoServiceConfigured(
-            f"{resource_url} API should be added to Service model"
-        )
-
-    client.delete(resource, resource_url)
+    client = get_client(resource_url)
+    client.delete(resource_url)
 
 
 def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -> dict:
@@ -31,9 +26,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
 
         response = {"url": oio.get_url()}
     else:
-        client = Service.get_client(io_url)
-        if client is None:
-            raise NoServiceConfigured(f"{io_url} API should be added to Service model")
+        client = get_client(io_url)
 
         body = {
             "informatieobject": io_url,
@@ -41,7 +34,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
             "objectType": object_type,
         }
 
-        response = client.create("objectinformatieobject", data=body)
+        response = client.post("objectinformatieobject", data=body)
     return response
 
 
@@ -52,11 +45,7 @@ def delete_remote_oio(oio_url: str) -> None:
 def create_remote_objectcontactmoment(
     contactmoment_url: str, object_url: str, object_type: str = "zaak"
 ) -> dict:
-    client = Service.get_client(contactmoment_url)
-    if client is None:
-        raise NoServiceConfigured(
-            f"{contactmoment_url} API should be added to Service model"
-        )
+    client = get_client(contactmoment_url)
 
     body = {
         "contactmoment": contactmoment_url,
@@ -64,8 +53,7 @@ def create_remote_objectcontactmoment(
         "objectType": object_type,
     }
 
-    response = client.create("objectcontactmoment", data=body)
-
+    response = client.post("objectcontactmoment", data=body)
     return response
 
 
@@ -76,9 +64,7 @@ def delete_remote_objectcontactmoment(objectcontactmoment_url: str) -> None:
 def create_remote_objectverzoek(
     verzoek_url: str, object_url: str, object_type: str = "zaak"
 ) -> dict:
-    client = Service.get_client(verzoek_url)
-    if client is None:
-        raise NoServiceConfigured(f"{verzoek_url} API should be added to Service model")
+    client = get_client(verzoek_url)
 
     body = {
         "verzoek": verzoek_url,
@@ -86,8 +72,7 @@ def create_remote_objectverzoek(
         "objectType": object_type,
     }
 
-    response = client.create("objectverzoek", data=body)
-
+    response = client.post("objectverzoek", data=body)
     return response
 
 
