@@ -6,11 +6,8 @@ from typing import Optional
 
 import jwt
 from ape_pie import APIClient
-from zgw_consumers.client import build_client
 from zgw_consumers.constants import AuthTypes
-from zgw_consumers.models import Service
 
-from openzaak.client import NoServiceConfigured
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +15,8 @@ JWT_ALG = "HS256"
 
 
 def get_auth(url: str) -> dict:
+    from zgw_consumers.models import Service
+
     logger.info("Authenticating for %s", url)
     service = Service.get_service(url)
 
@@ -45,6 +44,10 @@ def get_auth(url: str) -> dict:
 
 # TODO: remove this function (replaced by openzaak.client.get_client)?
 def get_client(url: str) -> Optional[APIClient]:
+    from zgw_consumers.client import build_client
+    from zgw_consumers.models import Service
+    from openzaak.client import NoServiceConfigured
+
     service = Service.get_service(url)
 
     if not service:
