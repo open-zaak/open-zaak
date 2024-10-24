@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
 
+from django.utils.translation import gettext_lazy as _
+
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
@@ -15,6 +17,10 @@ from ...models import (
     Vestiging,
 )
 from .address import VerblijfsAdresSerializer
+from .authentication_context import (
+    DigiDAuthContextSerializer,
+    eHerkenningAuthContextSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,7 @@ class SubVerblijfBuitenlandSerializer(serializers.ModelSerializer):
         )
 
 
-class RolNatuurlijkPersoonSerializer(serializers.ModelSerializer):
+class NatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
     verblijfsadres = VerblijfsAdresSerializer(required=False, allow_null=True)
     sub_verblijf_buitenland = SubVerblijfBuitenlandSerializer(
         required=False, allow_null=True
@@ -78,7 +84,32 @@ class RolNatuurlijkPersoonSerializer(serializers.ModelSerializer):
         return natuurlijkpersoon
 
 
-class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
+class RolNatuurlijkPersoonSerializer(serializers.ModelSerializer):
+    betrokkene_identificatie = NatuurlijkPersoonIdentificatieSerializer(required=False)
+    authenticatie_context = DigiDAuthContextSerializer(
+        label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_(
+            "Information about the authentication and mandate (if relevant) that "
+            "applied when the role was added to the case. It is essential when you "
+            "later want to retrieve information again which should match certain "
+            "authentication guarantees, like minimum level of assurance. The exact "
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
+        ),
+    )
+
+    class Meta:
+        model = NatuurlijkPersoon
+        fields = (
+            "betrokkene_identificatie",
+            "authenticatie_context",
+        )
+
+
+class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
     sub_verblijf_buitenland = SubVerblijfBuitenlandSerializer(
         required=False, allow_null=True
     )
@@ -88,6 +119,7 @@ class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
         fields = (
             "inn_nnp_id",
             "ann_identificatie",
+            "kvk_nummer",
             "statutaire_naam",
             "inn_rechtsvorm",
             "bezoekadres",
@@ -108,7 +140,31 @@ class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
         return nietnatuurlijkpersoon
 
 
-class RolVestigingSerializer(serializers.ModelSerializer):
+class RolNietNatuurlijkPersoonSerializer(serializers.ModelSerializer):
+    betrokkene_identificatie = NietNatuurlijkPersoonIdentificatieSerializer(
+        required=False
+    )
+    authenticatie_context = eHerkenningAuthContextSerializer(
+        label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_(
+            "Information about the authentication and mandate (if relevant) that "
+            "applied when the role was added to the case. It is essential when you "
+            "later want to retrieve information again which should match certain "
+            "authentication guarantees, like minimum level of assurance. The exact "
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
+        ),
+    )
+
+    class Meta:
+        model = NietNatuurlijkPersoon
+        fields = ("betrokkene_identificatie", "authenticatie_context")
+
+
+class VestigingIdentificatieSerializer(serializers.ModelSerializer):
     verblijfsadres = VerblijfsAdresSerializer(required=False, allow_null=True)
     sub_verblijf_buitenland = SubVerblijfBuitenlandSerializer(
         required=False, allow_null=True
@@ -141,13 +197,45 @@ class RolVestigingSerializer(serializers.ModelSerializer):
         return vestiging
 
 
-class RolOrganisatorischeEenheidSerializer(serializers.ModelSerializer):
+class RolVestigingSerializer(serializers.ModelSerializer):
+    betrokkene_identificatie = VestigingIdentificatieSerializer(required=False)
+    authenticatie_context = eHerkenningAuthContextSerializer(
+        label=_("authentication context"),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_(
+            "Information about the authentication and mandate (if relevant) that "
+            "applied when the role was added to the case. It is essential when you "
+            "later want to retrieve information again which should match certain "
+            "authentication guarantees, like minimum level of assurance. The exact "
+            "shape of data depends on the selected `betrokkeneType`.\n\n"
+            "Use `null` if unknown or when creating a role other than the `initiator`."
+        ),
+    )
+
+    class Meta:
+        model = Vestiging
+        fields = ("betrokkene_identificatie", "authenticatie_context")
+
+
+class OrganisatorischeEenheidIdentificatieSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganisatorischeEenheid
         fields = ("identificatie", "naam", "is_gehuisvest_in")
 
 
-class RolMedewerkerSerializer(serializers.ModelSerializer):
+class RolOrganisatorischeEenheidSerializer(serializers.ModelSerializer):
+    betrokkene_identificatie = OrganisatorischeEenheidIdentificatieSerializer(
+        required=False
+    )
+
+    class Meta:
+        model = OrganisatorischeEenheid
+        fields = ("betrokkene_identificatie",)
+
+
+class MedewerkerIdentificatieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medewerker
         fields = (
@@ -156,3 +244,11 @@ class RolMedewerkerSerializer(serializers.ModelSerializer):
             "voorletters",
             "voorvoegsel_achternaam",
         )
+
+
+class RolMedewerkerSerializer(serializers.ModelSerializer):
+    betrokkene_identificatie = MedewerkerIdentificatieSerializer(required=False)
+
+    class Meta:
+        model = Medewerker
+        fields = ("betrokkene_identificatie",)

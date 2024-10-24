@@ -347,6 +347,8 @@ CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
 
 
 STORE_FAILED_NOTIFS = True
+# silence using upper case in enums
+SILENCED_SYSTEM_CHECKS = SILENCED_SYSTEM_CHECKS + ["vng_api_common.enums.W001"]
 
 # Expiry time in seconds for JWT
 JWT_EXPIRY = config(

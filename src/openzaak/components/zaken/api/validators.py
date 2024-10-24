@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 import jq
 import jsonschema
 from rest_framework import serializers
+from rest_framework.exceptions import ErrorDetail
 from vng_api_common.constants import Archiefstatus
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
@@ -30,6 +31,7 @@ from openzaak.components.documenten.models import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
+from ..constants import IndicatieMachtiging
 from ..models import Zaak
 
 logger = logging.getLogger(__name__)
@@ -587,3 +589,34 @@ class ZaakEigenschapValueValidator:
             raise serializers.ValidationError(
                 self.message.format(spec=spec), code=self.code
             )
+
+
+class AuthContextMandateValidator:
+    code = "required"
+    message = _("The mandate context is required when a representee is specified.")
+
+    def __call__(self, attrs: dict):
+        if attrs.get("representee") and not attrs.get("mandate"):
+            raise serializers.ValidationError(
+                {"mandate": ErrorDetail(self.message, code=self.code)}
+            )
+
+
+class RolIndicatieMachtigingValidator:
+    code = "indicatie-machtiging-invalid"
+    message = _(
+        "`indicatieMachtiging` must be set to 'gemachtigde' when a representee is specified"
+    )
+
+    def __call__(self, attrs: dict):
+        indicatie_machtiging = attrs.get("indicatie_machtiging")
+        authenticatie_context = attrs.get("authenticatie_context")
+
+        if not authenticatie_context:
+            return
+
+        if (
+            authenticatie_context.get("representee")
+            and indicatie_machtiging != IndicatieMachtiging.gemachtigde
+        ):
+            raise serializers.ValidationError(self.message, code=self.code)
