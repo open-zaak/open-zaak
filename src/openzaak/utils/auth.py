@@ -1,25 +1,40 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
-from typing import Optional
+import time
 
-from zgw_consumers.client import ZGWClient
-from zgw_consumers.models import Service
+import jwt
+from zgw_consumers.constants import AuthTypes
+
 
 logger = logging.getLogger(__name__)
 
+JWT_ALG = "HS256"
+
 
 def get_auth(url: str) -> dict:
-    logger.info("Authenticating for %s", url)
-    auth_header = Service.get_auth_header(url)
+    from zgw_consumers.models import Service
 
-    if auth_header is not None:
-        return auth_header
+    logger.info("Authenticating for %s", url)
+    service = Service.get_service(url)
+
+    if not service:
+        logger.warning(f"No service found for {url}")
+        return {}
+
+    if service.auth_type == AuthTypes.zgw:
+        payload = {
+            "iss": service.client_id,
+            "iat": int(time.time()),
+            "client_id": service.client_id,
+            "user_id": service.user_id,
+            "user_representation": service.user_representation,
+        }
+
+        encoded = jwt.encode(payload, service.secret, algorithm=JWT_ALG)
+        return {"Authorization": f"Bearer {encoded}"}
+    elif service.auth_type == AuthTypes.api_key:
+        return {service.header_key: service.header_value}
 
     logger.warning("Could not authenticate for %s", url)
     return {}
-
-
-def get_client(url: str) -> Optional[ZGWClient]:
-    client = Service.get_client(url)
-    return client

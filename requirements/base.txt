@@ -6,6 +6,10 @@
 #
 amqp==5.1.1
     # via kombu
+ape-pie==0.2.0
+    # via
+    #   notifications-api-common
+    #   zgw-consumers
 appdirs==1.4.4
     # via requests-cache
 asgiref==3.8.1
@@ -39,9 +43,8 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2024.7.4
+certifi==2023.7.22
     # via
-    #   django-simple-certmanager
     #   elastic-apm
     #   requests
     #   self-certifi
@@ -76,7 +79,7 @@ coreschema==0.0.4
     # via coreapi
 cron-descriptor==1.4.3
     # via django-celery-beat
-cryptography==41.0.7
+cryptography==41.0.5
     # via
     #   django-simple-certmanager
     #   josepy
@@ -188,7 +191,7 @@ django-sendfile2==0.7.0
     # via django-privates
 django-setup-configuration==0.1.0
     # via open-api-framework
-django-simple-certmanager==1.3.0
+django-simple-certmanager==2.4.1
     # via zgw-consumers
 django-sniplates==0.7.2
     # via -r requirements/base.in
@@ -244,17 +247,14 @@ elastic-apm==6.22.2
     # via open-api-framework
 face==20.1.1
     # via glom
-faker==19.11.0
-    # via zgw-consumers
 flower==2.0.1
     # via open-api-framework
 furl==2.1.3
-    # via drc-cmis
-gemma-zds-client==1.0.1
     # via
-    #   commonground-api-common
-    #   notifications-api-common
-    #   zgw-consumers
+    #   ape-pie
+    #   drc-cmis
+gemma-zds-client==2.0.0
+    # via commonground-api-common
 glom==23.5.0
     # via mozilla-django-oidc-db
 httplib2==0.20.4
@@ -263,7 +263,7 @@ humanize==4.0.0
     # via
     #   -r requirements/base.in
     #   flower
-idna==3.7
+idna==3.3
     # via requests
 inflection==0.5.1
     # via
@@ -279,7 +279,7 @@ isodate==0.6.1
     # via commonground-api-common
 itypes==1.2.0
     # via coreapi
-jinja2==3.1.4
+jinja2==3.0.3
     # via coreschema
 josepy==1.14.0
     # via mozilla-django-oidc
@@ -301,7 +301,7 @@ mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.19.0
     # via open-api-framework
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@e1c9f77eba0a77ce73f83b2277620e578b6f4189
     # via
     #   -r requirements/base.in
     #   commonground-api-common
@@ -333,12 +333,11 @@ pyjwt==2.4.0
     # via
     #   commonground-api-common
     #   gemma-zds-client
+    #   zgw-consumers
 pyopenssl==23.3.0
     # via
-    #   django-simple-certmanager
     #   josepy
     #   webauthn
-    #   zgw-consumers
 pyparsing==3.0.7
     # via httplib2
 pypng==0.20220715.0
@@ -352,7 +351,6 @@ python-dateutil==2.8.2
     #   -r requirements/base.in
     #   celery
     #   django-relativedelta
-    #   faker
     #   python-crontab
 python-decouple==3.8
     # via
@@ -376,6 +374,7 @@ redis==4.1.4
     # via django-redis
 requests==2.32.3
     # via
+    #   ape-pie
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
@@ -383,12 +382,9 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
-    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
-requests-mock==1.11.0
-    # via zgw-consumers
 self-certifi==1.0.0
     # via -r requirements/base.in
 sentry-sdk==2.13.0
@@ -403,17 +399,17 @@ six==1.16.0
     #   isodate
     #   orderedmultidict
     #   python-dateutil
-    #   requests-mock
     #   url-normalize
-sqlparse==0.5.0
+sqlparse==0.4.4
     # via django
-tornado==6.4.1
+tornado==6.4
     # via flower
 typing-extensions==4.12.2
     # via
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
+    #   zgw-consumers
 tzdata==2024.1
     # via
     #   celery
@@ -425,7 +421,7 @@ uritemplate==4.1.1
     #   drf-yasg
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.19
+urllib3==1.26.18
     # via
     #   elastic-apm
     #   requests
@@ -448,7 +444,7 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.27.0
+zgw-consumers==0.35.1
     # via
     #   notifications-api-common
     #   open-api-framework

@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zds_client import ClientError
+from zgw_consumers.client import build_client
 
 
 @requires_csrf_token
@@ -56,7 +57,16 @@ def _test_nrc_config() -> list:
 
     nrc_config = NotificationsConfig.get_solo()
 
-    nrc_client = NotificationsConfig.get_client()
+    nrc_client = (
+        build_client(nrc_config.notifications_api_service)
+        if nrc_config.notifications_api_service
+        else None
+    )
+
+    checks = []
+
+    if not nrc_client:
+        return checks
 
     has_nrc_auth = nrc_client.auth is not None
 
@@ -64,7 +74,7 @@ def _test_nrc_config() -> list:
         checks = [((_("NRC"), _("Missing"), False))]
         return checks
 
-    checks = [
+    checks.append(
         (
             _("NRC"),
             nrc_config.notifications_api_service.api_root,
@@ -75,14 +85,14 @@ def _test_nrc_config() -> list:
             _("Configured") if has_nrc_auth else _("Missing"),
             has_nrc_auth,
         ),
-    ]
+    )
 
     # check if permissions in AC are fine
     if has_nrc_auth:
         error = False
 
         try:
-            nrc_client.list("kanaal")
+            nrc_client.request(url="kanaal")
         except requests.ConnectionError:
             error = True
             message = _("Could not connect with NRC")

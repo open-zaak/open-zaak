@@ -14,6 +14,7 @@ from notifications_api_common.models import NotificationsConfig
 from vng_api_common.authorizations.models import Applicatie, Autorisatie, ComponentTypes
 from vng_api_common.models import JWTSecret
 from zds_client import ClientAuth, ClientError
+from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
@@ -225,10 +226,9 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
         fetch kanalen
         """
         # check if we can fetch list of kanalen
-        service = Service.objects.get(api_root=settings.NOTIF_API_ROOT)
-        client = service.build_client()
+        client = build_client(Service.objects.get(api_root=settings.NOTIF_API_ROOT))
         try:
-            client.list("kanaal")
+            client.get("kanaal")
         except (ClientError, requests.RequestException) as exc:
             raise SelfTestFailed(
                 "Could not retrieve list of kanalen from Notificaties API."

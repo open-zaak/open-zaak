@@ -155,7 +155,7 @@ class ResultaatTypeAdmin(
                 "get proper filtering of selectielijstklasses"
             )
         client = ReferentieLijstConfig.get_client()
-        procestype = client.retrieve("procestype", url)
+        procestype = client.get(url)
         return f"{procestype['nummer']} - {procestype['naam']}"
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):

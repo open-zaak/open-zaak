@@ -12,8 +12,13 @@ amqp==5.1.1
     #   kombu
 ansible==8.5.0
     # via -r requirements/../deployment/requirements.in
-ansible-core==2.15.9
+ansible-core==2.15.5
     # via ansible
+ape-pie==0.2.0
+    # via
+    #   -r requirements/base.txt
+    #   notifications-api-common
+    #   zgw-consumers
 appdirs==1.4.4
     # via
     #   -r requirements/base.txt
@@ -77,10 +82,9 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2024.7.4
+certifi==2023.7.22
     # via
     #   -r requirements/base.txt
-    #   django-simple-certmanager
     #   elastic-apm
     #   kubernetes
     #   requests
@@ -142,7 +146,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
-cryptography==41.0.7
+cryptography==41.0.5
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -151,8 +155,6 @@ cryptography==41.0.7
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
-cssselect==1.2.0
-    # via pyquery
 deprecated==1.2.14
     # via
     #   -r requirements/base.txt
@@ -302,7 +304,7 @@ django-setup-configuration==0.1.0
     #   open-api-framework
 django-silk==4.3.0
     # via -r requirements/dev.in
-django-simple-certmanager==1.3.0
+django-simple-certmanager==2.4.1
     # via
     #   -r requirements/base.txt
     #   zgw-consumers
@@ -396,10 +398,7 @@ face==20.1.1
 factory-boy==3.2.1
     # via -r requirements/test-tools.in
 faker==19.11.0
-    # via
-    #   -r requirements/base.txt
-    #   factory-boy
-    #   zgw-consumers
+    # via factory-boy
 flake8==3.8.3
     # via -r requirements/test-tools.in
 flower==2.0.1
@@ -411,16 +410,15 @@ freezegun==1.2.1
 furl==2.1.3
     # via
     #   -r requirements/base.txt
+    #   ape-pie
     #   drc-cmis
-gemma-zds-client==1.0.1
+gemma-zds-client==2.0.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
-    #   notifications-api-common
-    #   zgw-consumers
 gitdb==4.0.5
     # via gitpython
-gitpython==3.1.41
+gitpython==3.1.40
     # via -r requirements/dev.in
 glom==23.5.0
     # via
@@ -438,11 +436,10 @@ humanize==4.0.0
     # via
     #   -r requirements/base.txt
     #   flower
-idna==3.7
+idna==3.3
     # via
     #   -r requirements/base.txt
     #   requests
-    #   yarl
 imagesize==1.1.0
     # via sphinx
 inflection==0.5.1
@@ -469,7 +466,7 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==3.1.4
+jinja2==3.0.3
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -496,8 +493,6 @@ kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
-lxml==5.3.0
-    # via pyquery
 markdown==3.3.6
     # via
     #   -r requirements/base.txt
@@ -520,11 +515,9 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-multidict==6.0.5
-    # via yarl
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.2.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@e1c9f77eba0a77ce73f83b2277620e578b6f4189
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -605,13 +598,12 @@ pyjwt==2.4.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   gemma-zds-client
+    #   zgw-consumers
 pyopenssl==23.3.0
     # via
     #   -r requirements/base.txt
-    #   django-simple-certmanager
     #   josepy
     #   webauthn
-    #   zgw-consumers
 pyparsing==3.0.7
     # via
     #   -r requirements/base.txt
@@ -624,8 +616,6 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
-pyquery==2.0.0
-    # via -r requirements/test-tools.in
 pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
@@ -673,7 +663,6 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
-    #   vcrpy
 qrcode==7.4.2
     # via
     #   -r requirements/base.txt
@@ -687,6 +676,7 @@ redis==4.1.4
 requests==2.32.3
     # via
     #   -r requirements/base.txt
+    #   ape-pie
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
@@ -703,10 +693,7 @@ requests==2.32.3
 requests-cache==0.9.4
     # via -r requirements/base.txt
 requests-mock==1.11.0
-    # via
-    #   -r requirements/base.txt
-    #   -r requirements/test-tools.in
-    #   zgw-consumers
+    # via -r requirements/test-tools.in
 requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
@@ -778,7 +765,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sqlparse==0.5.0
+sqlparse==0.4.4
     # via
     #   -r requirements/base.txt
     #   django
@@ -786,7 +773,7 @@ sqlparse==0.5.0
     #   django-silk
 tblib==1.7.0
     # via -r requirements/test-tools.in
-tornado==6.4.1
+tornado==6.4
     # via
     #   -r requirements/base.txt
     #   flower
@@ -796,6 +783,7 @@ typing-extensions==4.12.2
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
+    #   zgw-consumers
 tzdata==2024.1
     # via
     #   -r requirements/base.txt
@@ -811,7 +799,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==1.26.19
+urllib3==1.26.18
     # via
     #   -r requirements/base.txt
     #   elastic-apm
@@ -823,8 +811,6 @@ uwsgi==2.0.26
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-vcrpy==6.0.1
-    # via -r requirements/test-tools.in
 vine==5.1.0
     # via
     #   -r requirements/base.txt
@@ -860,10 +846,7 @@ wrapt==1.16.0
     #   -r requirements/base.txt
     #   deprecated
     #   elastic-apm
-    #   vcrpy
-yarl==1.9.4
-    # via vcrpy
-zgw-consumers==0.27.0
+zgw-consumers==0.35.1
     # via
     #   -r requirements/base.txt
     #   notifications-api-common

@@ -3,69 +3,90 @@
 """
 Provide utilities to interact with other APIs as a client.
 """
-from typing import IO, Dict, Optional
+import logging
+from typing import Optional
 
-from zds_client.registry import registry
-from zgw_consumers.client import UnknownService, ZGWClient
+from ape_pie import APIClient
+from requests import JSONDecodeError, RequestException, Response
+from zgw_consumers.client import build_client
 from zgw_consumers.models import Service
 
+logger = logging.getLogger(__name__)
 
-def fetch_object(resource: str, url: str) -> dict:
+
+class NoServiceConfigured(RuntimeError):
+    pass
+
+
+class ClientError(RuntimeError):
+    pass
+
+
+class OpenZaakClient(APIClient):
+    def request(
+        self, method: str | bytes, url: str | bytes, *args, **kwargs
+    ) -> dict | list | None:
+        response: Response = super().request(method, url, *args, **kwargs)
+
+        try:
+            response_json = response.json()
+        except JSONDecodeError:
+            response_json = None
+
+        try:
+            response.raise_for_status()
+        except RequestException as exc:
+            if response.status_code >= 500:
+                raise
+            raise ClientError(response_json) from exc
+
+        assert response_json
+        return response_json
+
+    def head(self, url, **kwargs) -> dict | list | None:
+        return super().head(url, **kwargs)
+
+    def options(self, url, **kwargs) -> dict | list | None:
+        return super().options(url, **kwargs)
+
+    def get(self, url, **kwargs) -> dict | list | None:
+        return super().get(url, **kwargs)
+
+    def post(self, url, **kwargs) -> dict | list | None:
+        data = kwargs.pop("data", None)
+        return super().post(url, {"json": data, **kwargs})
+
+    def put(self, url, **kwargs) -> dict | list | None:
+        data = kwargs.pop("data", None)
+        return super().put(url, {"json": data, **kwargs})
+
+    def patch(self, url, **kwargs) -> dict | list | None:
+        data = kwargs.pop("data", None)
+        return super().patch(url, {"json": data, **kwargs})
+
+    def delete(self, url, **kwargs) -> dict | list | None:
+        return super().delete(url, **kwargs)
+
+
+def get_client(
+    url: str, raise_exceptions: bool = True, **client_kwargs
+) -> Optional[OpenZaakClient]:
+    service = Service.get_service(url)
+
+    if not service:
+        if raise_exceptions:
+            raise NoServiceConfigured(f"{url} API should be added to Service model")
+
+        return
+
+    return build_client(service, client_factory=OpenZaakClient, **client_kwargs)
+
+
+def fetch_object(url: str) -> dict | list | None:
     """
     Fetch a remote object by URL.
     """
-    client = Service.get_client(url)
-    if not client:
-        raise UnknownService(f"{url} API should be added to Service model")
-    obj = client.retrieve(resource, url=url)
-    return obj
+    client: OpenZaakClient = get_client(url, raise_exceptions=True)
 
-
-class OpenZaakClient(ZGWClient):
-    def __init__(
-        self,
-        service: str,
-        base_path: str = "/api/v1/",
-        auth_value: Optional[Dict[str, str]] = None,
-        schema_url: str = "",
-        schema_file: IO = None,
-        client_certificate_path=None,
-        client_private_key_path=None,
-        server_certificate_path=None,
-    ):
-        """
-        TODO: should be removed after zds_client is bumped to 2.0.0
-
-        This class has been added because ZGWClient doesn't invoke __init__ of its parent class
-        this class has been created solely to fix it
-        """
-        try:
-            self._config = registry[service]
-        except KeyError:
-            raise RuntimeError(
-                "Service '{service}' is not known in the client registry. "
-                "Did you load the config first through `Client.load_config(path, **manual)`?".format(
-                    service=service
-                )
-            )
-
-        self.service = service
-        self.base_path = base_path
-
-        self._base_url = None
-
-        self.auth = self._config.auth
-
-        self.auth_value = auth_value
-        self.schema_url = schema_url
-        self.schema_file = schema_file
-        self.client_certificate_path = client_certificate_path
-        self.client_private_key_path = client_private_key_path
-        self.server_certificate_path = server_certificate_path
-
-    @property
-    def api_root(self) -> str:
-        """
-        work-around for libs which use new client
-        """
-        return self.base_url
+    with client:
+        return client.get(url=url)
