@@ -166,7 +166,7 @@ class ZaakFilter(FilterSet):
         ),
     )
     rol__betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
-        field_name="rol__vestiging__vestigings_nummer",
+        field_name="rol__vestiging__kvk_nummer",
         help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
         max_length=get_field_attribute("zaken.Vestiging", "kvk_nummer", "max_length"),
     )
@@ -269,7 +269,7 @@ class RolFilter(FilterSet):
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
     )
     betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
-        field_name="vestiging__vestigings_nummer",
+        field_name="vestiging__kvk_nummer",
         help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
     )
     betrokkene_identificatie__organisatorische_eenheid__identificatie = (
