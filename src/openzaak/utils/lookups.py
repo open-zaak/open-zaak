@@ -150,6 +150,7 @@ class In(FkOrServiceUrlFieldMixin, _In):
     """
 
     lookup_name = "in"
+    _connective = "OR"  # the connective used to connect the URL field query and the FK field query
 
     def process_rhs(self, compiler, connection):
         """
@@ -190,6 +191,14 @@ class In(FkOrServiceUrlFieldMixin, _In):
 
         return url_rhs_sql, url_rhs_params, fk_rhs_sql, fk_rhs_params
 
+    def build_fk_sql_if_url_sql_empty(self, fk_sql, fk_params, fk_lhs_sql):
+        return fk_sql, fk_params
+
+    def build_url_sql_if_fk_sql_empty(
+        self, url_sql, url_params, base_lhs_sql, relative_lhs_sql
+    ):
+        return url_sql, url_params
+
     def as_sql(self, compiler, connection):
         # process lhs
         (
@@ -226,12 +235,45 @@ class In(FkOrServiceUrlFieldMixin, _In):
             url_params = []
 
         if not fk_sql:
-            return url_sql, url_params
+            return self.build_url_sql_if_fk_sql_empty(
+                url_sql, url_params, base_lhs_sql, relative_lhs_sql
+            )
 
         if not url_sql:
-            return fk_sql, fk_params
+            return self.build_fk_sql_if_url_sql_empty(fk_sql, fk_params, fk_lhs_sql)
 
         params = url_params + list(fk_params)
-        sql = "({} OR {})".format(url_sql, fk_sql)
+        sql = "({} {} {})".format(url_sql, self._connective, fk_sql)
 
+        return sql, params
+
+
+@FkOrServiceUrlField.register_lookup
+class NotIn(In):
+    lookup_name = "not_in"
+    # using an AND here, because negation of the entire __in operation means that OR turns
+    # into AND
+    _connective = "AND"
+
+    def build_fk_sql_if_url_sql_empty(self, fk_sql, fk_params, fk_lhs_sql):
+        """
+        If no filter on URLs is there, make sure that rows with empty FK fields
+        show up as well
+        """
+        fk_sql = f"{fk_sql} OR {fk_lhs_sql} IS NULL"
+        return fk_sql, fk_params
+
+    def build_url_sql_if_fk_sql_empty(
+        self, url_sql, url_params, base_lhs_sql, relative_lhs_sql
+    ):
+        """
+        If no filter on FKs is there, make sure that rows with empty URL fields
+        show up as well
+        """
+        url_sql = f"{url_sql} OR {base_lhs_sql} IS NULL AND {relative_lhs_sql} IS NULL"
+        return url_sql, url_params
+
+    def as_sql(self, compiler, connection):
+        sql, params = super().as_sql(compiler, connection)
+        sql = "NOT {}".format(sql)
         return sql, params
