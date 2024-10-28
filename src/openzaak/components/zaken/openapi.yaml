@@ -1626,13 +1626,23 @@ paths:
         name: betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
         schema:
           type: string
-        description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-          NIET-NATUURLIJK PERSOON
+        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+          PERSOON
+      - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
       - in: query
         name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
         description: Een korte identificatie van de organisatorische eenheid.
+      - in: query
+        name: betrokkeneIdentificatie__vestiging__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
@@ -1651,6 +1661,46 @@ paths:
         description: |+
           Type van de `betrokkene`.
 
+      - in: query
+        name: machtiging
+        schema:
+          type: string
+          enum:
+          - eigen
+          - gemachtigde
+          - machtiginggever
+        description: |+
+          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+
+
+      - in: query
+        name: machtiging__loa
+        schema:
+          type: string
+          enum:
+          - urn:etoegang:core:assurance-class:loa1
+          - urn:etoegang:core:assurance-class:loa2
+          - urn:etoegang:core:assurance-class:loa2plus
+          - urn:etoegang:core:assurance-class:loa3
+          - urn:etoegang:core:assurance-class:loa4
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+        description: "**EXPERIMENTEEL** Rollen met een 'authenticatieContext.levelOfAssurance'\
+          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
+          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
+          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
+          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
+          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
+          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
+          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
+          \n"
       - in: query
         name: omschrijving
         schema:
@@ -6358,13 +6408,23 @@ paths:
         name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
         schema:
           type: string
-        description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-          NIET-NATUURLIJK PERSOON
+        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+          PERSOON
+      - in: query
+        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
       - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
         description: Een korte identificatie van de organisatorische eenheid.
+      - in: query
+        name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
@@ -6383,6 +6443,46 @@ paths:
         description: |+
           Type van de `betrokkene`.
 
+      - in: query
+        name: rol__machtiging
+        schema:
+          type: string
+          enum:
+          - eigen
+          - gemachtigde
+          - machtiginggever
+        description: |+
+          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+
+
+      - in: query
+        name: rol__machtiging__loa
+        schema:
+          type: string
+          enum:
+          - urn:etoegang:core:assurance-class:loa1
+          - urn:etoegang:core:assurance-class:loa2
+          - urn:etoegang:core:assurance-class:loa2plus
+          - urn:etoegang:core:assurance-class:loa3
+          - urn:etoegang:core:assurance-class:loa4
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+        description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
+          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
+          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
+          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
+          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
+          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
+          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
+          \n"
       - in: query
         name: rol__omschrijvingGeneriek
         schema:
@@ -9984,13 +10084,23 @@ paths:
         name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId
         schema:
           type: string
-        description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-          NIET-NATUURLIJK PERSOON
+        description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+          PERSOON
+      - in: query
+        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
       - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
         description: Een korte identificatie van de organisatorische eenheid.
+      - in: query
+        name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
@@ -10009,6 +10119,46 @@ paths:
         description: |+
           Type van de `betrokkene`.
 
+      - in: query
+        name: rol__machtiging
+        schema:
+          type: string
+          enum:
+          - eigen
+          - gemachtigde
+          - machtiginggever
+        description: |+
+          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+
+
+      - in: query
+        name: rol__machtiging__loa
+        schema:
+          type: string
+          enum:
+          - urn:etoegang:core:assurance-class:loa1
+          - urn:etoegang:core:assurance-class:loa2
+          - urn:etoegang:core:assurance-class:loa2plus
+          - urn:etoegang:core:assurance-class:loa3
+          - urn:etoegang:core:assurance-class:loa4
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+          - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+        description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
+          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+          \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
+          \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
+          \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
+          \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
+          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
+          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
+          \n"
       - in: query
         name: rol__omschrijvingGeneriek
         schema:
@@ -10321,21 +10471,65 @@ paths:
                     de Wet BRP
                 rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId:
                   type: string
-                  description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
+                  description: Het door een kamer toegekend RSIN voor de INGESCHREVEN
                     NIET-NATUURLIJK PERSOON
                 rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__annIdentificatie:
                   type: string
                   description: Het door de gemeente uitgegeven unieke nummer voor
                     een ANDER NIET-NATUURLIJK PERSOON
+                rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer:
+                  type: string
+                  description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
                 rol__betrokkeneIdentificatie__vestiging__vestigingsNummer:
                   type: string
                   description: Een korte unieke aanduiding van de Vestiging.
+                rol__betrokkeneIdentificatie__vestiging__kvkNummer:
+                  type: string
+                  description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de
+                    onderneming.'
                 rol__betrokkeneIdentificatie__medewerker__identificatie:
                   type: string
                   description: Een korte unieke aanduiding van de MEDEWERKER.
                 rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
                   type: string
                   description: Een korte identificatie van de organisatorische eenheid.
+                rol__machtiging:
+                  type: string
+                  enum:
+                  - eigen
+                  - gemachtigde
+                  - machtiginggever
+                  description: |+
+                    **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
+                    * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
+                    * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
+                    * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+
+
+                rol__machtiging__loa:
+                  type: string
+                  enum:
+                  - urn:etoegang:core:assurance-class:loa1
+                  - urn:etoegang:core:assurance-class:loa2
+                  - urn:etoegang:core:assurance-class:loa2plus
+                  - urn:etoegang:core:assurance-class:loa3
+                  - urn:etoegang:core:assurance-class:loa4
+                  - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+                  - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+                  - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+                  - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+                  description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+                    \ die beperkter is dan de aangegeven aanduiding worden uit de\
+                    \ resultaten gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+                    \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
+                    \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard`\
+                    \ - DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
+                    \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
+                    \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2`\
+                    \ - Low (2)\n* `urn:etoegang:core:assurance-class:loa2plus` -\
+                    \ Low (2+)\n* `urn:etoegang:core:assurance-class:loa3` - Substantial\
+                    \ (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
+                    \n"
                 ordering:
                   type: array
                   items:
@@ -11108,11 +11302,11 @@ components:
       properties:
         source:
           allOf:
-          - $ref: '#/components/schemas/SourceEnum'
+          - $ref: '#/components/schemas/DigiDAuthContextSourceEnum'
           description: DigiD is the only way a Natural Person can be identified.
         levelOfAssurance:
           allOf:
-          - $ref: '#/components/schemas/LevelOfAssuranceEnum'
+          - $ref: '#/components/schemas/DigiDAuthContextLevelOfAssuranceEnum'
           description: |-
             Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
 
@@ -11141,16 +11335,23 @@ components:
             The `mandate` key is required if a `representee` is specified.
       required:
       - source
+    DigiDAuthContextLevelOfAssuranceEnum:
+      enum:
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
+      - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+      type: string
     DigiDAuthContextRequest:
       type: object
       properties:
         source:
           allOf:
-          - $ref: '#/components/schemas/SourceEnum'
+          - $ref: '#/components/schemas/DigiDAuthContextSourceEnum'
           description: DigiD is the only way a Natural Person can be identified.
         levelOfAssurance:
           allOf:
-          - $ref: '#/components/schemas/LevelOfAssuranceEnum'
+          - $ref: '#/components/schemas/DigiDAuthContextLevelOfAssuranceEnum'
           description: |-
             Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
 
@@ -11179,6 +11380,10 @@ components:
             The `mandate` key is required if a `representee` is specified.
       required:
       - source
+    DigiDAuthContextSourceEnum:
+      enum:
+      - digid
+      type: string
     DigiDMandate:
       type: object
       properties:
@@ -11219,7 +11424,7 @@ components:
       properties:
         identifierType:
           allOf:
-          - $ref: '#/components/schemas/IdentifierTypeEnum'
+          - $ref: '#/components/schemas/DigiDRepresenteeIdentifierTypeEnum'
           description: Determines how to interpret the `identifier` value. DigiD and
             DigiD Machtigen only support BSNs.
         identifier:
@@ -11231,12 +11436,16 @@ components:
       required:
       - identifier
       - identifierType
+    DigiDRepresenteeIdentifierTypeEnum:
+      enum:
+      - bsn
+      type: string
     DigiDRepresenteeRequest:
       type: object
       properties:
         identifierType:
           allOf:
-          - $ref: '#/components/schemas/IdentifierTypeEnum'
+          - $ref: '#/components/schemas/DigiDRepresenteeIdentifierTypeEnum'
           description: Determines how to interpret the `identifier` value. DigiD and
             DigiD Machtigen only support BSNs.
         identifier:
@@ -11248,6 +11457,23 @@ components:
       required:
       - identifier
       - identifierType
+    EHerkenningAuthContextLevelOfAssuranceEnum:
+      enum:
+      - urn:etoegang:core:assurance-class:loa1
+      - urn:etoegang:core:assurance-class:loa2
+      - urn:etoegang:core:assurance-class:loa2plus
+      - urn:etoegang:core:assurance-class:loa3
+      - urn:etoegang:core:assurance-class:loa4
+      type: string
+    EHerkenningAuthContextSourceEnum:
+      enum:
+      - eherkenning
+      type: string
+    EHerkenningRepresenteeIdentifierTypeEnum:
+      enum:
+      - bsn
+      - kvkNummer
+      type: string
     ExpandZaak:
       allOf:
       - $ref: '#/components/schemas/Zaak'
@@ -11423,10 +11649,6 @@ components:
       - v
       - o
       type: string
-    IdentifierTypeEnum:
-      enum:
-      - bsn
-      type: string
     IndicatieMachtigingEnum:
       enum:
       - gemachtigde
@@ -11528,13 +11750,6 @@ components:
       required:
       - datumtijd
       - zaak
-    LevelOfAssuranceEnum:
-      enum:
-      - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
-      - urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
-      - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
-      - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-      type: string
     LineString:
       type: object
       description: GeoJSON line-string geometry
@@ -11765,14 +11980,18 @@ components:
       properties:
         innNnpId:
           type: string
-          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-            NIET-NATUURLIJK PERSOON
+          description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+            PERSOON
           maxLength: 9
         annIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
             NIET-NATUURLIJK PERSOON
           maxLength: 17
+        kvkNummer:
+          type: string
+          description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+          maxLength: 8
         statutaireNaam:
           type: string
           description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
@@ -11797,14 +12016,18 @@ components:
       properties:
         innNnpId:
           type: string
-          description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
-            NIET-NATUURLIJK PERSOON
+          description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
+            PERSOON
           maxLength: 9
         annIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
             NIET-NATUURLIJK PERSOON
           maxLength: 17
+        kvkNummer:
+          type: string
+          description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+          maxLength: 8
         statutaireNaam:
           type: string
           description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
@@ -13679,11 +13902,29 @@ components:
       properties:
         betrokkeneIdentificatie:
           $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatie'
+        authenticatieContext:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningAuthContext'
+          nullable: true
+          title: authentication context
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
     RolNietNatuurlijkPersoonRequest:
       type: object
       properties:
         betrokkeneIdentificatie:
           $ref: '#/components/schemas/NietNatuurlijkPersoonIdentificatieRequest'
+        authenticatieContext:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
+          nullable: true
+          title: authentication context
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
     RolOrganisatorischeEenheid:
       type: object
       properties:
@@ -13714,14 +13955,34 @@ components:
       properties:
         betrokkeneIdentificatie:
           $ref: '#/components/schemas/VestigingIdentificatie'
+        authenticatieContext:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningAuthContext'
+          nullable: true
+          title: authentication context
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
     RolVestigingRequest:
       type: object
       properties:
         betrokkeneIdentificatie:
           $ref: '#/components/schemas/VestigingIdentificatieRequest'
-    SourceEnum:
+        authenticatieContext:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
+          nullable: true
+          title: authentication context
+          description: |-
+            Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
+
+            Use `null` if unknown or when creating a role other than the `initiator`.
+    RoleEnum:
       enum:
-      - digid
+      - bewindvoerder
+      - curator
+      - mentor
       type: string
     Status:
       type: object
@@ -15240,6 +15501,191 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
       - $ref: '#/components/schemas/object_identificatie_ObjectBuurtRequest'
+    eHerkenningAuthContext:
+      type: object
+      properties:
+        source:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
+          description: eHerkenning is the only way a Non-Natural Person or the Branch
+            can be identified.
+        levelOfAssurance:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'
+          description: |-
+            Indicates how strong the identity claim is. Elektronische Toegangsdiensten defines the available levels of assurance. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+
+            Uitleg bij mogelijke waarden:
+
+            * `urn:etoegang:core:assurance-class:loa1` - Non existent (1)
+            * `urn:etoegang:core:assurance-class:loa2` - Low (2)
+            * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)
+            * `urn:etoegang:core:assurance-class:loa3` - Substantial (3)
+            * `urn:etoegang:core:assurance-class:loa4` - High (4)
+        actingSubject:
+          type: string
+          description: The identifier is always some encrypted form, specific to the
+            service provider. I.e. the same physical person gets different identifier
+            values when authenticating with different service providers. Unencrypted
+            details of the acting subject can be added to the `contactpersoonRol.naam`
+            attribute
+          maxLength: 100
+        representee:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningRepresentee'
+          title: represented party
+          description: When registering the role for the authorizee, you should include
+            the representee to make clear a mandate applies. This also requires you
+            to specify the `mandate` key and its context. If you provide a representee,
+            You should also create an additional `rol` with `rolomschrijvingGeneriek`
+            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+        mandate:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningMandate'
+          title: mandate context
+          description: The mandate ('machtiging') describes the extent of the mandate
+            granted from the representee to the authorizee. The `mandate` key is required
+            if a `representee` is specified.
+      required:
+      - source
+    eHerkenningAuthContextRequest:
+      type: object
+      properties:
+        source:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
+          description: eHerkenning is the only way a Non-Natural Person or the Branch
+            can be identified.
+        levelOfAssurance:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'
+          description: |-
+            Indicates how strong the identity claim is. Elektronische Toegangsdiensten defines the available levels of assurance. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+
+            Uitleg bij mogelijke waarden:
+
+            * `urn:etoegang:core:assurance-class:loa1` - Non existent (1)
+            * `urn:etoegang:core:assurance-class:loa2` - Low (2)
+            * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)
+            * `urn:etoegang:core:assurance-class:loa3` - Substantial (3)
+            * `urn:etoegang:core:assurance-class:loa4` - High (4)
+        actingSubject:
+          type: string
+          minLength: 1
+          description: The identifier is always some encrypted form, specific to the
+            service provider. I.e. the same physical person gets different identifier
+            values when authenticating with different service providers. Unencrypted
+            details of the acting subject can be added to the `contactpersoonRol.naam`
+            attribute
+          maxLength: 100
+        representee:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningRepresenteeRequest'
+          title: represented party
+          description: When registering the role for the authorizee, you should include
+            the representee to make clear a mandate applies. This also requires you
+            to specify the `mandate` key and its context. If you provide a representee,
+            You should also create an additional `rol` with `rolomschrijvingGeneriek`
+            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+        mandate:
+          allOf:
+          - $ref: '#/components/schemas/eHerkenningMandateRequest'
+          title: mandate context
+          description: The mandate ('machtiging') describes the extent of the mandate
+            granted from the representee to the authorizee. The `mandate` key is required
+            if a `representee` is specified.
+      required:
+      - source
+    eHerkenningMandate:
+      type: object
+      properties:
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: The role of a mandate, typically assigned through judicial
+            procedures
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/eHerkenningService'
+      required:
+      - services
+    eHerkenningMandateRequest:
+      type: object
+      properties:
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: The role of a mandate, typically assigned through judicial
+            procedures
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/eHerkenningServiceRequest'
+      required:
+      - services
+    eHerkenningRepresentee:
+      type: object
+      properties:
+        identifierType:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningRepresenteeIdentifierTypeEnum'
+          description: Determines how to interpret the `identifier` value. EHerkenning
+            only supports BSN and KVK-nummer.
+        identifier:
+          type: string
+          description: Identifier of the represented person or the company
+          maxLength: 9
+      required:
+      - identifier
+      - identifierType
+    eHerkenningRepresenteeRequest:
+      type: object
+      properties:
+        identifierType:
+          allOf:
+          - $ref: '#/components/schemas/EHerkenningRepresenteeIdentifierTypeEnum'
+          description: Determines how to interpret the `identifier` value. EHerkenning
+            only supports BSN and KVK-nummer.
+        identifier:
+          type: string
+          minLength: 1
+          description: Identifier of the represented person or the company
+          maxLength: 9
+      required:
+      - identifier
+      - identifierType
+    eHerkenningService:
+      type: object
+      properties:
+        id:
+          type: string
+          title: Service ID
+          description: The ServiceID from the service catalog
+        uuid:
+          type: string
+          format: uuid
+          title: Service UUID
+          description: The ServiceUUID from the service catalog
+      required:
+      - id
+      - uuid
+    eHerkenningServiceRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          title: Service ID
+          description: The ServiceID from the service catalog
+        uuid:
+          type: string
+          format: uuid
+          title: Service UUID
+          description: The ServiceUUID from the service catalog
+      required:
+      - id
+      - uuid
     enkelvoudig_document_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
