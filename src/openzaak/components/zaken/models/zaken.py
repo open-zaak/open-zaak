@@ -14,6 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.loaders import FetchError
@@ -914,15 +915,14 @@ class Rol(ETagMixin, APIMixin, models.Model):
         )
         return f"({self.zaak.unique_representation()}) - {betrokkene.rsplit('/')[-1]}"
 
-    def _get_relation_for_betrokkene_type(self):
+    @cached_property
+    def betrokkene_identificatie(self):
         """
         Return the details of the related betrokkene.
 
         Depending on the betrokkeneType, return the related object holding the
         ``betrokkeneIdentificatie`` details. This relation may not be set if a
         betrokkene URL is specified.
-
-        TODO: check amount of DB queries on repeated calls.
         """
         match self.betrokkene_type:
             case RolTypes.natuurlijk_persoon:
@@ -937,13 +937,6 @@ class Rol(ETagMixin, APIMixin, models.Model):
                 return self.medewerker
             case _:
                 raise ValueError("Unknown rol betrokkene type")
-
-    @property
-    def betrokkene_identificatie(self):
-        """
-        Expose ``betrokkene_identificatie`` accessor to API serializers.
-        """
-        return self._get_relation_for_betrokkene_type()
 
 
 class ZaakObject(APIMixin, models.Model):
