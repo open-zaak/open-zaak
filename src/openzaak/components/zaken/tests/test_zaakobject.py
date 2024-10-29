@@ -1111,6 +1111,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
                         "nietNatuurlijkPersoon": {
                             "innNnpId": "",
                             "annIdentificatie": "123456",
+                            "kvkNummer": "",
                             "statutaireNaam": "",
                             "innRechtsvorm": "",
                             "bezoekadres": "",

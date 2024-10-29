@@ -323,6 +323,7 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
                     "telefoonnummer": "",
                     "naam": "",
                 },
+                "authenticatieContext": None,
                 "statussen": [],
             },
         )

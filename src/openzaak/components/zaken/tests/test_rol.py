@@ -185,6 +185,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "betrokkeneIdentificatie": {
                     "innNnpId": "",
                     "annIdentificatie": "123456",
+                    "kvkNummer": "",
                     "statutaireNaam": "",
                     "innRechtsvorm": "",
                     "bezoekadres": "",
@@ -202,6 +203,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "",
                     "telefoonnummer": "",
                 },
+                "authenticatieContext": None,
                 "statussen": [],
             },
         )
@@ -252,7 +254,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 "zaak": f"http://testserver{zaak_url}",
                 "afwijkendeNaamBetrokkene": "",
                 "betrokkene": BETROKKENE,
-                "betrokkeneType": RolTypes.vestiging,
+                "betrokkeneType": str(RolTypes.vestiging),
                 "roltype": f"http://testserver{roltype_url}",
                 "omschrijving": "Beslisser",
                 "omschrijvingGeneriek": "Beslisser",
@@ -287,6 +289,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "",
                     "telefoonnummer": "",
                 },
+                "authenticatieContext": None,
                 "statussen": [],
             },
         )

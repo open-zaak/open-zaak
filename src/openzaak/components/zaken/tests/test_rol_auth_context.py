@@ -103,7 +103,7 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
             {
                 "source": "digid",
                 "level_of_assurance": DigiDLevelOfAssurance.middle,
-                "representee": {"identifierType": "bsn", "identifier": "111222333"},
+                "representee": {"identifier_type": "bsn", "identifier": "111222333"},
                 "mandate": {
                     "services": [{"id": "5628edbd-333e-460d-8a69-8f083b8cf1b8"}]
                 },
