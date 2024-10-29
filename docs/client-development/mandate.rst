@@ -58,10 +58,10 @@ Validation rules
     * ``indicatieMachtiging`` **MUST** be set to "gemachtigde"
     * ``mandate`` **MUST** be provided in the ``authenticatieContext``
 
-* if ``betrokkeneType`` is ``niet_natuurlijk_persoon``, then ``Rol.authenticatieContext.source``
+* if ``betrokkeneType`` is ``natuurlijk_persoon``, then ``Rol.authenticatieContext.source``
   **MUST** be set to "digid"
 
-* if ``betrokkeneType`` is ``natuurlijk_persoon`` or ``vestiging``, then
+* if ``betrokkeneType`` is ``niet_natuurlijk_persoon`` or ``vestiging``, then
   ``Rol.authenticatieContext.source`` **MUST** be set to "eherkenning"
 
 
