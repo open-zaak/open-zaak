@@ -347,6 +347,17 @@ Below are examples how to request zaken, authorized by different parties.
              &rol__machtiging=eigen
 
 
+    Additionally ``rol.omschrijvingGeneriek`` can be used to determine the "initiator"
+    of the case.
+
+    .. code::
+
+        POST /zaken/api/v1/zaken?
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             &rol__machtiging=eigen
+             &rol__omschrijvingGeneriek=initiator
+
+
 2. Show me my cases (based on my BSN) opened by an authorizee on my behalf:
 
     .. code::
@@ -354,6 +365,16 @@ Below are examples how to request zaken, authorized by different parties.
         POST /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=machtiginggever
+
+
+    Additionally ``rol.omschrijvingGeneriek`` can be used to determine the "belanghebbende"
+    of the case.
+
+    .. code::
+
+        POST /zaken/api/v1/zaken?
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             &rol__omschrijvingGeneriek=belanghebbende
 
 
 3. Show me the cases (based on my BSN) where I represent another party:
@@ -405,6 +426,17 @@ there are two examples for each option.
              &rol__machtiging=eigen
 
 
+    Additionally ``rol.omschrijvingGeneriek`` can be used to determine the "initiator"
+    of the case
+
+    .. code::
+
+        POST /zaken/api/v1/zaken?
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             &rol__machtiging=eigen
+             &rol__omschrijvingGeneriek=initiator
+
+
 2. Show me my cases (based on my KVK nummer) opened by an authorizee on my behalf:
 
     .. code::
@@ -418,6 +450,17 @@ there are two examples for each option.
         POST /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
              &rol__machtiging=machtiginggever
+
+
+    Additionally ``rol.omschrijvingGeneriek`` can be used to determine the "belanghebbende"
+    of the case.
+
+    .. code::
+
+        # organization
+        POST /zaken/api/v1/zaken?
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             &rol__omschrijvingGeneriek=belanghebbende
 
 
 3. Show me the cases (based on my KVK nummer) where I represent another party:
@@ -457,6 +500,15 @@ to retrieve details of the parties. For example, show me the rollen (based on my
              betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &machtiging=gemachtigde
              &machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
+
+
+.. note::
+
+   If it's possible that your case has several autorizees and representees, use ``zaken/api/v1/rollen`` endpoint
+   for searching such cases. Filters for the ``zaken/api/v1/zaken`` endpoint don't depend on each other, so
+   it's possible to show cases where one query parameter belongs to one role and another parameter belongs to
+   another role. In such cases either use ``zaken/api/v1/zaken`` endpoint and add extra filtering on the client
+   side or use ``zaken/api/v1/rollen`` endpoint, where all query parameters are applied to each role.
 
 
 Useful documentation
