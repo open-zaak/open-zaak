@@ -342,7 +342,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=eigen
 
@@ -352,7 +352,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=eigen
              &rol__omschrijvingGeneriek=initiator
@@ -362,7 +362,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=machtiginggever
 
@@ -372,7 +372,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__omschrijvingGeneriek=belanghebbende
 
@@ -381,7 +381,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=gemachtigde
 
@@ -391,7 +391,7 @@ Below are examples how to request zaken, authorized by different parties.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &rol__machtiging=gemachtigde
              &rol__machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
@@ -407,12 +407,12 @@ there are two examples for each option.
     .. code::
 
         # organization
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__machtiging=eigen
 
         # branch
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
              &rol__machtiging=eigen
 
@@ -421,7 +421,7 @@ there are two examples for each option.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=<ownRsin>
              &rol__machtiging=eigen
 
@@ -431,7 +431,7 @@ there are two examples for each option.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__machtiging=eigen
              &rol__omschrijvingGeneriek=initiator
@@ -442,12 +442,12 @@ there are two examples for each option.
     .. code::
 
         # organization
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__machtiging=machtiginggever
 
         # branch
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
              &rol__machtiging=machtiginggever
 
@@ -458,7 +458,7 @@ there are two examples for each option.
     .. code::
 
         # organization
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__omschrijvingGeneriek=belanghebbende
 
@@ -468,12 +468,12 @@ there are two examples for each option.
     .. code::
 
         # organization
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__machtiging=gemachtigde
 
         # branch
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
              &rol__machtiging=gemachtigde
 
@@ -483,7 +483,7 @@ there are two examples for each option.
 
     .. code::
 
-        POST /zaken/api/v1/zaken?
+        GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
              &rol__machtiging=gemachtigde
              &rol__machtiging__loa=urn:etoegang:core:assurance-class:loa2plus
@@ -496,7 +496,7 @@ to retrieve details of the parties. For example, show me the rollen (based on my
 
     .. code::
 
-        POST /zaken/api/v1/rollen?
+        GET /zaken/api/v1/rollen?
              betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
              &machtiging=gemachtigde
              &machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
