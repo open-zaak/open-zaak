@@ -343,7 +343,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__machtiging=eigen
 
 
@@ -353,7 +353,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__machtiging=eigen
              &rol__omschrijvingGeneriek=initiator
 
@@ -363,7 +363,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__machtiging=machtiginggever
 
 
@@ -373,7 +373,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__omschrijvingGeneriek=belanghebbende
 
 
@@ -382,7 +382,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__machtiging=gemachtigde
 
 
@@ -392,7 +392,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &rol__machtiging=gemachtigde
              &rol__machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
 
@@ -408,12 +408,14 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__machtiging=eigen
+
+    .. code::
 
         # branch
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
+             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
              &rol__machtiging=eigen
 
 
@@ -422,7 +424,7 @@ there are two examples for each option.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=<ownRsin>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__innNnpId=<own_rsin>
              &rol__machtiging=eigen
 
 
@@ -432,7 +434,7 @@ there are two examples for each option.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__machtiging=eigen
              &rol__omschrijvingGeneriek=initiator
 
@@ -443,12 +445,14 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__machtiging=machtiginggever
+
+    .. code::
 
         # branch
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
+             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
              &rol__machtiging=machtiginggever
 
 
@@ -459,7 +463,7 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__omschrijvingGeneriek=belanghebbende
 
 
@@ -469,12 +473,14 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__machtiging=gemachtigde
+
+    .. code::
 
         # branch
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<ownKvk>
+             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
              &rol__machtiging=gemachtigde
 
 
@@ -484,7 +490,7 @@ there are two examples for each option.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<ownKvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
              &rol__machtiging=gemachtigde
              &rol__machtiging__loa=urn:etoegang:core:assurance-class:loa2plus
 
@@ -497,7 +503,7 @@ to retrieve details of the parties. For example, show me the rollen (based on my
     .. code::
 
         GET /zaken/api/v1/rollen?
-             betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<ownBsn>
+             betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
              &machtiging=gemachtigde
              &machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
 
