@@ -8,7 +8,7 @@ Management of cases on behalf of other party
 
 
 Cases can be initiated and managed by different parties. They can be individuals, organizations,
-municipality employees, etc. ``Rol`` resource from Zaken API is used to store information
+municipality employees, etc. The ``Rol`` resource from Zaken API is used to store information
 about such parties.
 
 If the user is authenticated with Digid or eHerkenning, the meta information about it can be
@@ -42,13 +42,13 @@ General rules
 ^^^^^^^^^^^^^
 
 * all information about mandates is stored in ``Rol.authenticatieContext``
-* mandates are supported only for ``natuurlijk_persoon``, ``niet_natuurlijk_persoon`` and
+* mandates are supported only for the ``natuurlijk_persoon``, ``niet_natuurlijk_persoon`` and
   ``vestiging`` values of ``Rol.betrokkeneType``
 * only ``digid`` and ``eherkenning`` are supported as sources for mandates
 * an authorizee (``gemachtigde``) and a representee (``machtiginggever``) are defined by
   ``Rol.indicatieMachtiging`` attribute. If it's blank, that means that the party initiates
   their own case.
-* for eHerkenning cases the employee details should be added to ``Rol.contactpersoonRol``
+* for eHerkenning cases, the employee details should be added to ``Rol.contactpersoonRol``
   attributes.
 
 Validation rules
