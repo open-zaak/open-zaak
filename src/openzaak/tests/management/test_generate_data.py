@@ -3,12 +3,17 @@
 from unittest.mock import patch
 
 from django.apps import apps
+from django.contrib.sites.models import Site
 from django.core.management import CommandError, call_command
+from django.urls import reverse
 
 import requests_mock
+from django_webtest import WebTest
+from maykin_2fa.test import disable_admin_mfa
 from rest_framework.test import APITestCase
 
-from openzaak.components.catalogi.models import ZaakType
+from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.catalogi.models import ResultaatType, ZaakType
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -38,9 +43,27 @@ class GenerateDataTests(APITestCase):
                         "procestermijnWeergave": "Nihil",
                         "bewaartermijn": "P10Y",
                         "toelichting": "Invoering nieuwe werkwijze",
+                        "waardering": "vernietigen",
                     }
                 ],
             },
+        )
+        m.get(
+            f"{config.api_root}resultaattypeomschrijvingen",
+            json=[
+                {
+                    "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "omschrijving": "Afgebroken",
+                    "definitie": "Afgebroken",
+                    "opmerking": "",
+                },
+                {
+                    "url": f"{config.api_root}resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+                    "omschrijving": "Afgehandeld",
+                    "definitie": "Afgehandeld",
+                    "opmerking": "",
+                },
+            ],
         )
 
         with patch("builtins.input", lambda *args: "yes"):
@@ -90,9 +113,6 @@ class GenerateDataTests(APITestCase):
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
 
-        # checks external calls
-        self.assertEqual(m.last_request.url, f"{config.api_root}resultaten")
-
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
             with self.assertRaises(CommandError):
@@ -108,3 +128,114 @@ class GenerateDataTests(APITestCase):
         with patch("builtins.input", lambda *args: "yes"):
             with self.assertRaises(CommandError):
                 call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
+
+
+@disable_admin_mfa()
+class GenerateDataAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+        site = Site.objects.get_current()
+        site.domain = "testserver"
+        site.save()
+
+        self.app.set_user(self.user)
+
+    @requests_mock.Mocker()
+    def test_resultaattype_admin(self, m):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1798
+        """
+        config = ReferentieLijstConfig.get_solo()
+        mock_selectielijst_oas_get(m)
+        m.get(
+            f"{config.api_root}resultaten",
+            json={
+                "previous": None,
+                "next": None,
+                "count": 1,
+                "results": [
+                    {
+                        "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "nummer": 1,
+                        "volledigNummer": "1.1",
+                        "naam": "Ingericht",
+                        "omschrijving": "",
+                        "procestermijn": "nihil",
+                        "procestermijnWeergave": "Nihil",
+                        "bewaartermijn": "P10Y",
+                        "toelichting": "Invoering nieuwe werkwijze",
+                        "waardering": "vernietigen",
+                    }
+                ],
+            },
+        )
+        m.get(
+            f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+            json={
+                "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "nummer": 1,
+                "volledigNummer": "1.1",
+                "naam": "Ingericht",
+                "omschrijving": "",
+                "procestermijn": "nihil",
+                "procestermijnWeergave": "Nihil",
+                "bewaartermijn": "P10Y",
+                "toelichting": "Invoering nieuwe werkwijze",
+                "waardering": "vernietigen",
+            },
+        )
+        m.get(
+            f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            json={
+                "url": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "nummer": 1,
+                "jaar": 2017,
+                "naam": "Instellen en inrichten organisatie",
+                "omschrijving": "Instellen en inrichten organisatie",
+                "toelichting": "Dit procestype betreft het instellen van een nieuw organisatieonderdeel",
+                "procesobject": "De vastgestelde organisatie inrichting",
+            },
+        )
+        m.get(
+            f"{config.api_root}resultaattypeomschrijvingen",
+            json=[
+                {
+                    "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "omschrijving": "Afgebroken",
+                    "definitie": "Afgebroken",
+                    "opmerking": "",
+                },
+            ],
+        )
+        m.get(
+            f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+            json={
+                "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                "omschrijving": "Afgebroken",
+                "definitie": "Afgebroken",
+                "opmerking": "",
+            },
+        )
+
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
+
+        self.assertEqual(ResultaatType.objects.count(), 2)
+
+        for resultaattype in ResultaatType.objects.all():
+            with self.subTest(resultaattype):
+                self.assertIsNotNone(resultaattype.resultaattypeomschrijving)
+
+                response = self.app.get(
+                    reverse(
+                        "admin:catalogi_resultaattype_change", args=(resultaattype.pk,)
+                    )
+                )
+                self.assertEqual(response.status_code, 200)
