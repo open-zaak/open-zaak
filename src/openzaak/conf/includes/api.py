@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from vng_api_common.conf.api import BASE_REST_FRAMEWORK, ZDS_CLIENT_CLASS  # noqa: F401
+from vng_api_common.conf.api import BASE_REST_FRAMEWORK  # noqa: F401
 
 from openzaak.api_standards import APIStandard
 

@@ -6,7 +6,6 @@ import time
 import jwt
 from zgw_consumers.constants import AuthTypes
 
-
 logger = logging.getLogger(__name__)
 
 JWT_ALG = "HS256"
