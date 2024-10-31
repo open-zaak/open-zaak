@@ -249,6 +249,15 @@ SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
 SENDFILE_URL = PRIVATE_MEDIA_URL
 
 #
+# ZGW-CONSUMERS-OAS
+#
+ZGW_CONSUMERS_TEST_SCHEMA_DIRS = [
+    os.path.join(DJANGO_PROJECT_DIR, "tests", "schemas"),
+    os.path.join(DJANGO_PROJECT_DIR, "selectielijst", "tests", "files"),
+    os.path.join(DJANGO_PROJECT_DIR, "notifications", "tests", "files"),
+]
+
+#
 # DJANGO-LOOSE-FK -- handle internal and external API resources
 #
 DEFAULT_LOOSE_FK_LOADER = "openzaak.loaders.AuthorizedRequestsLoader"

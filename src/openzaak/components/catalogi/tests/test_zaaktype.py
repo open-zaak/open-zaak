@@ -19,6 +19,7 @@ from vng_api_common.tests import (
 )
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.utils import build_absolute_url
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
@@ -1911,7 +1912,7 @@ class ZaakTypePaginationTestCase(APITestCase):
         )
 
 
-class ZaaktypeValidationTests(APITestCase):
+class ZaaktypeValidationTests(SelectieLijstMixin, APITestCase):
     maxDiff = None
 
     @classmethod

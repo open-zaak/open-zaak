@@ -19,7 +19,9 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse as _reverse
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test import generate_oas_component
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
@@ -505,10 +507,15 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
+    @patch("vng_api_common.oas.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
     def test_add_autorisatie_external_zaaktype_invalid_resource(self, *mocks):
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="https://external.catalogi.com/api/v1/",
+            label="external catalogi",
+            auth_type=AuthTypes.no_auth,
+        )
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -519,7 +526,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-scopes": ["zaken.lezen"],
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": ["https://example.com"],
+            "form-0-externe_typen": ["https://external.catalogi.com/api/v1/1234"],
         }
 
         response = self.client.post(self.url, data)

@@ -12,8 +12,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
@@ -210,7 +210,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.drc_service = Service.objects.create(
+        cls.drc_service = ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
@@ -219,8 +219,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_bio_external_document(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://openzaak.nl/catalogi/api/v1/",
         )
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
@@ -304,7 +305,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_create_bio_fail_not_json(self, m):
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="http://example.com/",
             auth_type=AuthTypes.no_auth,
@@ -324,8 +325,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_bio_fail_invalid_schema(self):
-        Service.objects.create(
-            api_type=APITypes.ztc, api_root="http://openzaak.nl/catalogi/api/v1/"
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://openzaak.nl/catalogi/api/v1/",
         )
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
@@ -391,7 +393,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
@@ -459,13 +461,13 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(api_type=APITypes.ztc, api_root="http://openbesluit.nl/")
+        ServiceFactory.create(api_type=APITypes.ztc, api_root="http://openbesluit.nl/")
 
     def test_besluittype_internal_iotype_internal_fail(self):
         besluit = BesluitFactory.create()
@@ -641,7 +643,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",

@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_zrc_oas_get
@@ -30,11 +30,13 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
-            api_root="https://externe.zaken.nl/api/v1/", api_type=APITypes.zrc
+        ServiceFactory.create(
+            api_root="https://externe.zaken.nl/api/v1/",
+            api_type=APITypes.zrc,
         )
-        Service.objects.create(
-            api_root="http://testserver.com/catalogi/api/v1/", api_type=APITypes.ztc
+        ServiceFactory.create(
+            api_root="http://testserver.com/catalogi/api/v1/",
+            api_type=APITypes.ztc,
         )
 
     def test_create_external_relevante_andere_zaak(self):
@@ -102,7 +104,10 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_relevante_zaak_fail_no_json_url(self):
-        Service.objects.create(api_root="http://example.com/", api_type=APITypes.zrc)
+        ServiceFactory.create(
+            api_root="http://example.com/",
+            api_type=APITypes.zrc,
+        )
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
 

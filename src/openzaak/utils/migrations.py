@@ -76,10 +76,12 @@ def fill_service_urls(
         else:
             service = get_service(Service, url)
             if not service:
+                api_root = calculate_api_root(url)
                 # create service to avoid breakage
                 service = Service.objects.create(
                     label="FIXME",
-                    api_root=calculate_api_root(url),
+                    slug=api_root,
+                    api_root=api_root,
                     api_type=APITypes.orc,
                 )
                 cache_get_service[url] = service

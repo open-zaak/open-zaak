@@ -36,7 +36,6 @@ from vng_api_common.geo import GeoMixin
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
-from zgw_consumers.models import Service
 
 from openzaak.client import get_client
 from openzaak.utils.api import (

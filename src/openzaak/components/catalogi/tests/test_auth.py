@@ -18,7 +18,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import AuthCheckMixin, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -537,15 +537,15 @@ class PublishedTypesForcedWriteTests(APITestCase):
         selectielijstklasse_url = "http://example.com/resultaten/1234"
         procestype_url = "http://referentielijsten.nl/procestypen/1234"
         resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
-        config = ReferentieLijstConfig.get_solo()
-        config.api_root = "http://example.com"
-        config.save()
-        Service.objects.create(
+        service = ServiceFactory.create(
             api_root="http://example.com/",
             api_type=APITypes.orc,
             auth_type=AuthTypes.no_auth,
             label="Selectielijst",
         )
+        config = ReferentieLijstConfig.get_solo()
+        config.service = service
+        config.save()
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=procestype_url, concept=False
         )
@@ -589,15 +589,15 @@ class PublishedTypesForcedWriteTests(APITestCase):
         selectielijstklasse_url = "http://example.com/resultaten/1234"
         procestype_url = "http://referentielijsten.nl/procestypen/1234"
         resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
-        config = ReferentieLijstConfig.get_solo()
-        config.api_root = "http://example.com"
-        config.save()
-        Service.objects.create(
+        service = ServiceFactory.create(
             api_root="http://example.com/",
             api_type=APITypes.orc,
             auth_type=AuthTypes.no_auth,
             label="Selectielijst",
         )
+        config = ReferentieLijstConfig.get_solo()
+        config.service = service
+        config.save()
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=procestype_url, concept=False
         )

@@ -58,6 +58,8 @@ AUTH_FIXTURE_PATH = Path(__file__).parents[2] / "config/tests/bootstrap/files/au
     AUTHORIZATIONS_CONFIG_FIXTURE_PATH=AUTH_FIXTURE_PATH,
 )
 class SetupConfigurationTests(APITestCase):
+    maxDiff = None
+
     def setUp(self):
         super().setUp()
 
@@ -73,6 +75,7 @@ class SetupConfigurationTests(APITestCase):
         m.get("http://open-zaak.example.com/", status_code=200)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
         m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
+        m.get("https://selectielijst.openzaak.nl/api/v1/procestypen", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
@@ -94,6 +97,8 @@ class SetupConfigurationTests(APITestCase):
                 f"Configuring {NotificationsAPIConfigurationStep()}...",
                 f"{NotificationsAPIConfigurationStep()} is successfully configured",
                 f"Step {SelectielijstAPIConfigurationStep()} is skipped, because the configuration already exists.",
+                # f"Configuring {SelectielijstAPIConfigurationStep()}...",
+                # f'{SelectielijstAPIConfigurationStep()} is successfully configured',
                 f"Configuring {DemoUserStep()}...",
                 f"{DemoUserStep()} is successfully configured",
                 f"Configuring {AuthorizationConfigurationStep()}...",
@@ -162,6 +167,7 @@ class SetupConfigurationTests(APITestCase):
         m.get("http://open-zaak.example.com/", exc=requests.ConnectionError)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
         m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
+        m.get("https://selectielijst.openzaak.nl/api/v1/procestypen", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)

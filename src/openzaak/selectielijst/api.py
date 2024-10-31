@@ -3,6 +3,7 @@
 from typing import Dict, List, Optional, Union
 from urllib.parse import parse_qs, urlparse
 
+from openzaak.client import get_client
 from openzaak.utils.decorators import cache, cache_uuid
 
 from .models import ReferentieLijstConfig
@@ -25,7 +26,10 @@ def get_procestypen(procestype_jaar=None) -> ResultList:
 
     @cache(key, timeout=60 * 60 * 24)
     def inner():
-        client = ReferentieLijstConfig.get_client()
+        config = ReferentieLijstConfig.get_solo()
+        assert config.service
+        # TODO allow passing of service directly
+        client = get_client(config.service.api_root)
         query_params = query_params = (
             {"jaar": procestype_jaar} if procestype_jaar else {}
         )
@@ -53,13 +57,16 @@ def get_resultaten(proces_type: Optional[str] = None) -> ResultList:
         if proces_type:
             query_params["procesType"] = proces_type
 
-        client = ReferentieLijstConfig.get_client()
-        result_list = client.get("resultaat", params=query_params)
+        config = ReferentieLijstConfig.get_solo()
+        assert config.service
+        # TODO allow passing of service directly
+        client = get_client(config.service.api_root)
+        result_list = client.get("resultaten", params=query_params)
         results = result_list["results"]
         while result_list["next"]:
             parsed = urlparse(result_list["next"])
             query = parse_qs(parsed.query)
-            result_list = client.list("resultaat", query_params=query)
+            result_list = client.get("resultaten", params=query)
             results += result_list["results"]
         return results
 
@@ -73,8 +80,11 @@ def get_resultaattype_omschrijvingen() -> ResultList:
 
     Results are cached for an hour.
     """
-    client = ReferentieLijstConfig.get_client()
-    return client.get("resultaattypeomschrijvinggeneriek")
+    config = ReferentieLijstConfig.get_solo()
+    assert config.service
+    # TODO allow passing of service directly
+    client = get_client(config.service.api_root)
+    return client.get("resultaattypeomschrijvingen")
 
 
 @cache_uuid("selectielijst:procestypen", timeout=60 * 60 * 24)
@@ -84,7 +94,10 @@ def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for 24 hours.
     """
-    client = ReferentieLijstConfig.get_client()
+    config = ReferentieLijstConfig.get_solo()
+    assert config.service
+    # TODO allow passing of service directly
+    client = get_client(config.service.api_root)
     return client.get(url)
 
 
@@ -95,7 +108,10 @@ def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for 24 hours.
     """
-    client = ReferentieLijstConfig.get_client()
+    config = ReferentieLijstConfig.get_solo()
+    assert config.service
+    # TODO allow passing of service directly
+    client = get_client(config.service.api_root)
     return client.get(url)
 
 
@@ -106,5 +122,8 @@ def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
 
     Results are cached for an hours.
     """
-    client = ReferentieLijstConfig.get_client()
+    config = ReferentieLijstConfig.get_solo()
+    assert config.service
+    # TODO allow passing of service directly
+    client = get_client(config.service.api_root)
     return client.get(url)

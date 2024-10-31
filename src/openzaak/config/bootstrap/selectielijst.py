@@ -5,10 +5,10 @@ from django.conf import settings
 import requests
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
-from zds_client import ClientError
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
+from openzaak.client import ClientError
 from openzaak.selectielijst.api import get_procestypen
 from openzaak.selectielijst.models import ReferentieLijstConfig
 
@@ -28,12 +28,11 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
     enable_setting = "OPENZAAK_SELECTIELIJST_CONFIG_ENABLE"
 
     def is_configured(self) -> bool:
-        service = Service.objects.filter(api_root=settings.SELECTIELIJST_API_ROOT)
+        service = Service.objects.filter(
+            api_root=settings.SELECTIELIJST_API_ROOT
+        ).first()
         selectielijst_config = ReferentieLijstConfig.get_solo()
-
-        return service.exists() and bool(
-            selectielijst_config.api_root == settings.SELECTIELIJST_API_ROOT
-        )
+        return bool(service) and selectielijst_config.service == service
 
     def configure(self):
         # 1. Set up a service for the Selectielijst API so Open Zaak can request it
@@ -41,6 +40,7 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
             api_root=settings.SELECTIELIJST_API_ROOT,
             defaults={
                 "label": "Selectielijst API",
+                "slug": settings.SELECTIELIJST_API_ROOT,
                 "api_type": APITypes.orc,
                 "oas": settings.SELECTIELIJST_API_OAS,
                 "auth_type": AuthTypes.no_auth,
@@ -52,11 +52,14 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep):
 
         # 2. Set up configuration
         config = ReferentieLijstConfig.get_solo()
-        if config.api_root != settings.SELECTIELIJST_API_ROOT:
-            config.api_root = settings.SELECTIELIJST_API_ROOT
+        if (
+            getattr(getattr(config, "service", None), "api_root", None)
+            != settings.SELECTIELIJST_API_ROOT
+        ):
+            config.service = service
             config.allowed_years = settings.SELECTIELIJST_ALLOWED_YEARS
             config.default_year = settings.SELECTIELIJST_DEFAULT_YEAR
-            config.save(update_fields=["api_root", "allowed_years", "default_year"])
+            config.save(update_fields=["service", "allowed_years", "default_year"])
 
     def test_configuration(self):
         """

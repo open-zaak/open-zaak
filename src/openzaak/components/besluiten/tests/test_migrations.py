@@ -22,11 +22,13 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
         )
         self.zrc_known = Service.objects.create(
             label="external Zaken",
+            slug="external-zaken",
             api_type=APITypes.zrc,
             api_root="https://externe.zaken.nl/api/v1/",
         )
         self.drc_known = Service.objects.create(
             label="external Documenten",
+            slug="external-documenten",
             api_type=APITypes.drc,
             api_root="https://externe.documenten.nl/api/v1/",
         )
@@ -64,17 +66,19 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
         self.besluit_known.refresh_from_db()
         self.bio_known.refresh_from_db()
 
-        self.assertEqual(self.besluit_known._besluittype_base_url, self.ztc_known)
+        self.assertEqual(self.besluit_known._besluittype_base_url.pk, self.ztc_known.pk)
         self.assertEqual(
             self.besluit_known._besluittype_relative_url,
             "besluittypen/56750100-c537-45cb-a1d8-f39c2385a868",
         )
-        self.assertEqual(self.besluit_known._zaak_base_url, self.zrc_known)
+        self.assertEqual(self.besluit_known._zaak_base_url.pk, self.zrc_known.pk)
         self.assertEqual(
             self.besluit_known._zaak_relative_url,
             "zaken/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",
         )
-        self.assertEqual(self.bio_known._informatieobject_base_url, self.drc_known)
+        self.assertEqual(
+            self.bio_known._informatieobject_base_url.pk, self.drc_known.pk
+        )
         self.assertEqual(
             self.bio_known._informatieobject_relative_url,
             "informatieobjecten/50c9a565-51dc-49ec-804c-99ac72f9ae6e",
@@ -106,17 +110,17 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
         self.besluit_unknown.refresh_from_db()
         self.bio_unknown.refresh_from_db()
 
-        self.assertEqual(self.besluit_unknown._besluittype_base_url.id, ztc_new.id)
+        self.assertEqual(self.besluit_unknown._besluittype_base_url.pk, ztc_new.pk)
         self.assertEqual(
             self.besluit_unknown._besluittype_relative_url,
             "besluittypen/56750100-c537-45cb-a1d8-f39c2385a868",
         )
-        self.assertEqual(self.besluit_unknown._zaak_base_url.id, zrc_new.id)
+        self.assertEqual(self.besluit_unknown._zaak_base_url.pk, zrc_new.pk)
         self.assertEqual(
             self.besluit_unknown._zaak_relative_url,
             "zaken/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",
         )
-        self.assertEqual(self.bio_unknown._informatieobject_base_url.id, drc_new.id)
+        self.assertEqual(self.bio_unknown._informatieobject_base_url.pk, drc_new.pk)
         self.assertEqual(
             self.bio_unknown._informatieobject_relative_url,
             "informatieobjecten/50c9a565-51dc-49ec-804c-99ac72f9ae6e",

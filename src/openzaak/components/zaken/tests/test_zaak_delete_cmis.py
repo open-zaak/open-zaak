@@ -46,6 +46,7 @@ class US349TestCase(JWTAuthMixin, APICMISTransactionTestCase):
         Service.objects.update_or_create(
             api_root=cls.base,
             defaults=dict(
+                slug=cls.base,
                 api_type=APITypes.drc,
                 label="external documents",
                 auth_type=AuthTypes.no_auth,

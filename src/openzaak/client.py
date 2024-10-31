@@ -40,32 +40,32 @@ class OpenZaakClient(APIClient):
                 raise
             raise ClientError(response_json) from exc
 
-        assert response_json
+        # assert response_json
         return response_json
 
-    def head(self, url, **kwargs) -> dict | list | None:
-        return super().head(url, **kwargs)
+    # def head(self, url, **kwargs) -> dict | list | None:
+    #     return super().head(url, **kwargs)
 
-    def options(self, url, **kwargs) -> dict | list | None:
-        return super().options(url, **kwargs)
+    # def options(self, url, **kwargs) -> dict | list | None:
+    #     return super().options(url, **kwargs)
 
-    def get(self, url, **kwargs) -> dict | list | None:
-        return super().get(url, **kwargs)
+    # def get(self, url, **kwargs) -> dict | list | None:
+    #     return super().get(url, **kwargs)
 
-    def post(self, url, **kwargs) -> dict | list | None:
-        data = kwargs.pop("data", None)
-        return super().post(url, {"json": data, **kwargs})
+    # def post(self, url, **kwargs) -> dict | list | None:
+    #     data = kwargs.pop("data", None)
+    #     return super().post(url, {"json": data, **kwargs})
 
-    def put(self, url, **kwargs) -> dict | list | None:
-        data = kwargs.pop("data", None)
-        return super().put(url, {"json": data, **kwargs})
+    # def put(self, url, **kwargs) -> dict | list | None:
+    #     data = kwargs.pop("data", None)
+    #     return super().put(url, {"json": data, **kwargs})
 
-    def patch(self, url, **kwargs) -> dict | list | None:
-        data = kwargs.pop("data", None)
-        return super().patch(url, {"json": data, **kwargs})
+    # def patch(self, url, **kwargs) -> dict | list | None:
+    #     data = kwargs.pop("data", None)
+    #     return super().patch(url, {"json": data, **kwargs})
 
-    def delete(self, url, **kwargs) -> dict | list | None:
-        return super().delete(url, **kwargs)
+    # def delete(self, url, **kwargs) -> dict | list | None:
+    #     return super().delete(url, **kwargs)
 
 
 def get_client(

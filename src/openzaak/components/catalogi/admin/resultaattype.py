@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.client import get_client
 from openzaak.selectielijst.admin_fields import (
     get_resultaat_readonly_field,
     get_resultaattype_omschrijving_field,
@@ -154,7 +155,10 @@ class ResultaatTypeAdmin(
                 "Please select a Procestype for the related ZaakType to "
                 "get proper filtering of selectielijstklasses"
             )
-        client = ReferentieLijstConfig.get_client()
+        config = ReferentieLijstConfig.get_solo()
+        assert config.service
+        # TODO allow passing of service directly
+        client = get_client(config.service.api_root)
         procestype = client.get(url)
         return f"{procestype['nummer']} - {procestype['naam']}"
 

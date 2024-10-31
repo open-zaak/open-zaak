@@ -2,8 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from django.conf import settings
 
-from zgw_consumers.models import Service
-
 from openzaak.client import get_client
 from openzaak.components.documenten.models import ObjectInformatieObject
 
@@ -34,7 +32,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
             "objectType": object_type,
         }
 
-        response = client.post("objectinformatieobject", data=body)
+        response = client.post("objectinformatieobjecten", json=body)
     return response
 
 
@@ -53,7 +51,7 @@ def create_remote_objectcontactmoment(
         "objectType": object_type,
     }
 
-    response = client.post("objectcontactmoment", data=body)
+    response = client.post("objectcontactmomenten", json=body)
     return response
 
 
@@ -72,7 +70,7 @@ def create_remote_objectverzoek(
         "objectType": object_type,
     }
 
-    response = client.post("objectverzoek", data=body)
+    response = client.post("objectverzoeken", json=body)
     return response
 
 

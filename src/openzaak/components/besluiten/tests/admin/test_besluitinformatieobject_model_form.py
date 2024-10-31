@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.admin import BesluitInformatieObjectForm
 
@@ -27,7 +27,7 @@ class TestBesluitInformatieObjectForm(TestCase):
     def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_url_is_given(
         self,
     ):
-        service = Service.objects.create(
+        service = ServiceFactory.create(
             api_root="http://example.org/catalogi/", api_type=APITypes.drc
         )
         form = BesluitInformatieObjectForm()

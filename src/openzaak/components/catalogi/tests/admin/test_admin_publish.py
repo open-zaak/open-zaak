@@ -472,6 +472,8 @@ class PublishWithGeldigheidTests(
     ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
 ):
     def setUp(self):
+        super().setUp()
+
         self.user = SuperUserFactory.create()
         self.app.set_user(self.user)
 

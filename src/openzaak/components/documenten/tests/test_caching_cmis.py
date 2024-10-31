@@ -8,7 +8,7 @@ from django.test import override_settings
 from rest_framework import status
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import (
@@ -227,7 +227,7 @@ class EnkelvoudigInformatieObjectCacheTransactionTests(
         Because changes are made to the informatieobject, a code 200 should be
         returned
         """
-        Service.objects.create(api_root="http://testserver/", api_type=APITypes.orc)
+        ServiceFactory.create(api_root="http://testserver/", api_type=APITypes.orc)
         eio = EnkelvoudigInformatieObjectFactory.create(titel="bla")
 
         key = get_etag_cache_key(eio)

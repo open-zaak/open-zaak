@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.documenten.admin import ObjectInformatieObjectForm
 
@@ -18,7 +18,7 @@ class TestObjectInformatieObjectForm(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.service = Service.objects.create(
+        cls.service = ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 

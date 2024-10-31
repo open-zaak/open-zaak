@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import io
-from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
@@ -51,10 +50,10 @@ mock_selectielijst_client = Service(
 ).build_client()
 
 
-@patch(
-    "openzaak.components.catalogi.models.zaaktype.Service.get_client",
-    return_value=mock_selectielijst_client,
-)
+# @patch(
+#     "openzaak.components.catalogi.models.zaaktype.Service.get_client",
+#     return_value=mock_selectielijst_client,
+# )
 @disable_admin_mfa()
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod

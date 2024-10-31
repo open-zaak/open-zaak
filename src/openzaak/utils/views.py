@@ -12,8 +12,9 @@ from rest_framework import exceptions, viewsets
 from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
-from zds_client import ClientError
 from zgw_consumers.client import build_client
+
+from openzaak.client import ClientError
 
 
 @requires_csrf_token

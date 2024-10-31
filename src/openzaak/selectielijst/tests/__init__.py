@@ -17,7 +17,8 @@ MOCK_FILES_DIR = Path(__file__).parent / "files"
 
 def _get_base_url() -> str:
     config = ReferentieLijstConfig.get_solo()
-    return config.api_root
+    assert config.service
+    return config.service.api_root
 
 
 def mock_selectielijst_oas_get(m: Mocker) -> None:

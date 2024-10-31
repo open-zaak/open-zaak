@@ -17,24 +17,25 @@ from openzaak.components.catalogi.models import ResultaatType, ZaakType
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 
-class GenerateDataTests(APITestCase):
+class GenerateDataTests(SelectieLijstMixin, APITestCase):
     @requests_mock.Mocker()
     def test_generate_data_yes(self, m):
         # mocks for Selectielijst API calls
         config = ReferentieLijstConfig.get_solo()
         mock_selectielijst_oas_get(m)
         m.get(
-            f"{config.api_root}resultaten",
+            f"{config.service.api_root}resultaten",
             json={
                 "previous": None,
                 "next": None,
                 "count": 1,
                 "results": [
                     {
-                        "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-                        "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
                         "nummer": 1,
                         "volledigNummer": "1.1",
                         "naam": "Ingericht",
@@ -49,16 +50,16 @@ class GenerateDataTests(APITestCase):
             },
         )
         m.get(
-            f"{config.api_root}resultaattypeomschrijvingen",
+            f"{config.service.api_root}resultaattypeomschrijvingen",
             json=[
                 {
-                    "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
                     "omschrijving": "Afgebroken",
                     "definitie": "Afgebroken",
                     "opmerking": "",
                 },
                 {
-                    "url": f"{config.api_root}resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
                     "omschrijving": "Afgehandeld",
                     "definitie": "Afgehandeld",
                     "opmerking": "",
@@ -102,14 +103,14 @@ class GenerateDataTests(APITestCase):
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
         self.assertEqual(
             zaaktype.selectielijst_procestype,
-            f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
         # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
                 self.assertEqual(
                     zaak.selectielijstklasse,
-                    f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                    f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
 
@@ -123,7 +124,7 @@ class GenerateDataTests(APITestCase):
         # mocks for Selectielijst API calls
         config = ReferentieLijstConfig.get_solo()
         mock_selectielijst_oas_get(m)
-        m.get(f"{config.api_root}resultaten", status_code=404)
+        m.get(f"{config.service.api_root}resultaten", status_code=404)
 
         with patch("builtins.input", lambda *args: "yes"):
             with self.assertRaises(CommandError):
@@ -153,15 +154,15 @@ class GenerateDataAdminTests(WebTest):
         config = ReferentieLijstConfig.get_solo()
         mock_selectielijst_oas_get(m)
         m.get(
-            f"{config.api_root}resultaten",
+            f"{config.service.api_root}resultaten",
             json={
                 "previous": None,
                 "next": None,
                 "count": 1,
                 "results": [
                     {
-                        "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-                        "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
                         "nummer": 1,
                         "volledigNummer": "1.1",
                         "naam": "Ingericht",
@@ -176,10 +177,10 @@ class GenerateDataAdminTests(WebTest):
             },
         )
         m.get(
-            f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+            f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
             json={
-                "url": f"{config.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-                "procesType": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
                 "nummer": 1,
                 "volledigNummer": "1.1",
                 "naam": "Ingericht",
@@ -192,9 +193,9 @@ class GenerateDataAdminTests(WebTest):
             },
         )
         m.get(
-            f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
             json={
-                "url": f"{config.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                "url": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
                 "nummer": 1,
                 "jaar": 2017,
                 "naam": "Instellen en inrichten organisatie",
@@ -204,10 +205,10 @@ class GenerateDataAdminTests(WebTest):
             },
         )
         m.get(
-            f"{config.api_root}resultaattypeomschrijvingen",
+            f"{config.service.api_root}resultaattypeomschrijvingen",
             json=[
                 {
-                    "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
                     "omschrijving": "Afgebroken",
                     "definitie": "Afgebroken",
                     "opmerking": "",
@@ -215,9 +216,9 @@ class GenerateDataAdminTests(WebTest):
             ],
         )
         m.get(
-            f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+            f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
             json={
-                "url": f"{config.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
                 "omschrijving": "Afgebroken",
                 "definitie": "Afgebroken",
                 "opmerking": "",

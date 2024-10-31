@@ -13,7 +13,6 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
-from zgw_consumers.models import Service
 
 from openzaak.client import get_client
 from openzaak.components.autorisaties.models import CatalogusAutorisatie

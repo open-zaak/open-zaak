@@ -13,11 +13,12 @@ from notifications_api_common.constants import (
 from notifications_api_common.models import NotificationsConfig
 from vng_api_common.authorizations.models import Applicatie, Autorisatie, ComponentTypes
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth, ClientError
+from zds_client import ClientAuth
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 
+from openzaak.client import ClientError
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 from openzaak.utils import build_absolute_url
 
@@ -198,6 +199,7 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
             api_root=settings.NOTIF_API_ROOT,
             defaults={
                 "label": "Notificaties API",
+                "slug": settings.NOTIF_API_ROOT,
                 "api_type": APITypes.nrc,
                 "oas": settings.NOTIF_API_OAS,
                 "auth_type": AuthTypes.zgw,

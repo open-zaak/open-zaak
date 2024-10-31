@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
@@ -71,7 +71,10 @@ class ResultaatCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory()
         zaak_url = reverse(zaak)
 
-        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(
+            api_root="http://example.com/",
+            api_type=APITypes.ztc,
+        )
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/", status_code=200, text="<html></html>")

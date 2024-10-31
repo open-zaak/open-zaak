@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.factories import ZaakFactory, ZaakVerzoekFactory
@@ -31,7 +31,7 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.orc,
             api_root=VERZOEKEN_BASE,
             label="verzoeken",

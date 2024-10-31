@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -213,7 +213,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         catalogi_api = "https://externe.catalogus.nl/api/v1/"
         catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        Service.objects.create(api_type=APITypes.ztc, api_root=catalogi_api)
+        ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
 
         url = get_operation_url("besluit_create")
 
@@ -280,7 +280,10 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_besluittype_fail_not_json_url(self):
-        Service.objects.create(api_type=APITypes.ztc, api_root="http://example.com")
+        ServiceFactory.create(
+            api_type=APITypes.ztc,
+            api_root="http://example.com",
+        )
 
         url = reverse(Besluit)
 
@@ -310,7 +313,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         catalogi_api = "https://externe.catalogus.nl/api/v1/"
         catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        Service.objects.create(api_type=APITypes.ztc, api_root=catalogi_api)
+        ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
 
         url = get_operation_url("besluit_create")
 

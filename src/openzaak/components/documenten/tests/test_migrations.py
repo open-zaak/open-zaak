@@ -29,11 +29,13 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
 
         self.ztc_known = Service.objects.create(
             label="external Catalogi",
+            slug="external-catalogi",
             api_type=APITypes.ztc,
             api_root="https://externe.catalogus.nl/api/v1/",
         )
         self.zrc_known = Service.objects.create(
             label="external Zaken",
+            slug="external-zaken",
             api_type=APITypes.zrc,
             api_root="https://externe.zaken.nl/api/v1/",
         )
@@ -92,7 +94,7 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             self.io_known._informatieobjecttype_relative_url,
             "informatieobjecttypen/56750100-c537-45cb-a1d8-f39c2385a868",
         )
-        self.assertEqual(self.oio_known._object_base_url, self.zrc_known)
+        self.assertEqual(self.oio_known._object_base_url.pk, self.zrc_known.pk)
         self.assertEqual(
             self.oio_known._object_relative_url,
             "zaken/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",
@@ -125,7 +127,7 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             self.io_known._informatieobjecttype_relative_url,
             "informatieobjecttypen/56750100-c537-45cb-a1d8-f39c2385a868",
         )
-        self.assertEqual(self.oio_known._object_base_url, self.zrc_known)
+        self.assertEqual(self.oio_known._object_base_url.pk, self.zrc_known.pk)
         self.assertEqual(
             self.oio_known._object_relative_url,
             "zaken/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",

@@ -6,7 +6,7 @@ import warnings
 from django.utils import timezone
 
 from notifications_api_common.models import NotificationsConfig
-from zds_client import ClientError
+from requests.exceptions import RequestException
 
 from .models import FailedNotification
 
@@ -32,8 +32,9 @@ def resend_notification(notification: FailedNotification) -> None:
     client = config.get_client()
 
     try:
-        client.post("notificaties", notification.message)
-    except ClientError as error:
+        response = client.post("notificaties", json=notification.message)
+        response.raise_for_status()
+    except RequestException as error:
         notifs_logger.warning(
             "Could not deliver message to %s",
             client.base_url,

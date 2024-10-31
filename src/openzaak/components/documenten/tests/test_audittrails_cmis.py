@@ -12,7 +12,7 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -37,7 +37,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def _create_enkelvoudiginformatieobject(self, **HEADERS):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

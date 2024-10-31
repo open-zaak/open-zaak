@@ -140,7 +140,7 @@ class RemoteRelationValidator:
 
         try:
             zios: list = client.get(
-                f"{oio.object_type}informatieobject",
+                f"{oio.object_type}informatieobjecten",
                 params={
                     "informatieobject": document_url,
                     oio.object_type: object_url,
@@ -183,7 +183,7 @@ class CreateRemoteRelationValidator:
 
         try:
             remote_relations: list = client.get(
-                f"{object_type}informatieobject",
+                f"{object_type}informatieobjecten",
                 params={
                     "informatieobject": document_url,
                     object_type: object_url,

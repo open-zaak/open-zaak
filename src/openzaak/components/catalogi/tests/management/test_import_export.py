@@ -12,10 +12,9 @@ from django.test import TestCase, override_settings, tag
 
 import requests_cache
 import requests_mock
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
 from openzaak.selectielijst.tests import mock_resource_get, mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
 
 from ...models import (
@@ -209,21 +208,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
 
 
 @tag("catalogi-import")
-class ImportCatalogiTests(ImportExportMixin, TestCase):
-    base = "https://selectielijst.openzaak.nl/api/v1/"
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        Service.objects.update_or_create(
-            api_root=cls.base,
-            defaults=dict(
-                api_type=APITypes.orc,
-                label="external selectielijst",
-                auth_type=AuthTypes.no_auth,
-            ),
-        )
-
+class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
         call_command(
@@ -297,7 +282,7 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
         roltype = RolTypeFactory.create(zaaktype=zaaktype)
 
         resultaattypeomschrijving = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         selectielijstklasse = (
@@ -427,7 +412,7 @@ class ImportCatalogiTests(ImportExportMixin, TestCase):
         )
 
         resultaattypeomschrijving = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         mock_resource_get(m, "resultaattypeomschrijvingen", resultaattypeomschrijving)

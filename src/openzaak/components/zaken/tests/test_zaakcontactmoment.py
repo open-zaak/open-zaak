@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import patch_resource_validator
 
@@ -32,7 +32,7 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.orc,
             api_root=CONTACTMOMENTEN_BASE,
             label="contactmomenten",

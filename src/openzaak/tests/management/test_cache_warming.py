@@ -11,6 +11,7 @@ import requests_mock
 from vng_api_common.oas import fetcher
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 from ..utils import (
     ClearCachesMixin,
@@ -28,7 +29,7 @@ CACHE_DIR = SCHEMAS / "cache"
 
 @override_settings(BASE_DIR=str(SCHEMAS))
 @requests_mock.Mocker()
-class WarmCacheCommandTests(ClearCachesMixin, TestCase):
+class WarmCacheCommandTests(SelectieLijstMixin, ClearCachesMixin, TestCase):
     maxDiff = None
 
     def setUp(self):

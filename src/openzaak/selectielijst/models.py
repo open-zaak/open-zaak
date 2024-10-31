@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django_better_admin_arrayfield.models.fields import ArrayField
 from solo.models import SingletonModel
-from vng_api_common.decorators import field_default
 from zgw_consumers.constants import APITypes
 
 

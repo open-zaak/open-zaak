@@ -13,8 +13,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -242,7 +242,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
             short_pattern="https://xcat.nl",
             config=config,
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="https://externe.catalogus.nl/api/v1/",
             label="external zaken",
@@ -288,7 +288,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
             short_pattern="https://xcat.nl",
             config=config,
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="https://externe.catalogus.nl/api/v1/",
             label="external zaken",

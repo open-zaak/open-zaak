@@ -19,7 +19,7 @@ from vng_api_common.constants import (
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
@@ -49,7 +49,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_informatieobject_invalid(self):
-        Service.objects.create(api_root="https://drc.nl/", api_type=APITypes.drc)
+        ServiceFactory.create(api_root="https://drc.nl/", api_type=APITypes.drc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -159,7 +159,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(api_root="https://external.nl/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="https://external.nl/", api_type=APITypes.ztc)
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)
@@ -195,7 +195,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_bad_url(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://ander.statustype.nl/", api_type=APITypes.ztc
         )
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
@@ -218,7 +218,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_statustype_invalid_resource(self):
-        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
         list_url = reverse("status-list")
@@ -393,7 +393,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_bad_url(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
         zaak = ZaakFactory.create()
@@ -415,7 +415,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_resultaattype_invalid_resource(self):
-        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
         list_url = reverse("resultaat-list")
@@ -550,7 +550,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_eigenschap_invalid_resource(self):
-        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 

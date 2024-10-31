@@ -9,6 +9,8 @@ from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -21,9 +23,7 @@ from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
 from ..models import BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
-BESLUITTYPE_EXTERNAL = (
-    "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
-)
+BESLUITTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 
 
 @require_cmis
@@ -136,6 +136,12 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.besluittype = BesluitTypeFactory.create()
+
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
+
         super().setUpTestData()
 
     def test_bio_list(self):
@@ -204,6 +210,15 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
+
     def test_bio_list(self):
         url = reverse(BesluitInformatieObject)
         # must show up
@@ -221,7 +236,7 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         BesluitInformatieObjectFactory.create(
             informatieobject=eio2_url,
             besluit=BesluitFactory.create(
-                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluiten/1"}
+                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluittypen/1"}
             ),
         )
 
@@ -250,7 +265,7 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
         bio2 = BesluitInformatieObjectFactory.create(
             informatieobject=eio2_url,
             besluit=BesluitFactory.create(
-                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluiten/1"}
+                **{"besluittype": "https://externe.catalogus.nl/api/v1/besluittypen/1"}
             ),
         )
 

@@ -20,7 +20,6 @@ from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
-from zgw_consumers.models import Service
 
 from openzaak.client import get_client
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes

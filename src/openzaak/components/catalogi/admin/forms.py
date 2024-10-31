@@ -18,10 +18,8 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.tests import reverse as _reverse
-from zds_client import ClientError
-from zgw_consumers.models import Service
 
-from openzaak.client import get_client
+from openzaak.client import ClientError, get_client
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig

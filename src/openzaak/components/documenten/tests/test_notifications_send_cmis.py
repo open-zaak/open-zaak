@@ -14,7 +14,7 @@ from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.notifications.models import FailedNotification
@@ -95,7 +95,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
 

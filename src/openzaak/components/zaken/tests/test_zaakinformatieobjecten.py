@@ -20,6 +20,7 @@ from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -247,7 +248,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         document1 = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         document2 = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=base,
             label="external documents",
@@ -445,7 +446,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
@@ -533,7 +534,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
     def test_create_zio_fail_not_json(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="http://example.com/",
             auth_type=AuthTypes.no_auth,
@@ -708,13 +709,13 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.ztc,
             api_root="http://openzaak.nl/catalogi/api/v1/",
         )
@@ -892,13 +893,13 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="http://openzaak.nl/catalogi/api/v1/",
         )
@@ -991,7 +992,7 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
         document_api_root = "http://api.example.nl/ozgv-t/documenten/service/drc/v1/"
         document = f"{document_api_root}enkelvoudiginformatieobjecten/be0a31c7-6c9c-4d75-aefd-db950be62267"
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.drc,
             api_root=document_api_root,
             label="external documents",

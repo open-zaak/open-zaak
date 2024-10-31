@@ -23,7 +23,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -961,7 +961,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
@@ -1009,7 +1009,7 @@ class ZaakCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_zaaktype_fail_not_json_url(self):
-        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
         with requests_mock.Mocker() as m:
             m.get("http://example.com/", status_code=200, text="<html></html>")
             response = self.client.post(

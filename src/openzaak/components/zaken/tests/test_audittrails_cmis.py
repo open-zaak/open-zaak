@@ -8,8 +8,8 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
@@ -47,20 +47,21 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
         base_zaak = "http://testserver/zaken/api/v1/"
         base_zaaktype = "http://testserver/catalogi/api/v1/"
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root=base_zaak,
             label="external zaken",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.ztc,
             api_root=base_zaaktype,
             label="external zaaktypen",
             auth_type=AuthTypes.no_auth,
         )
-        Service.objects.create(
-            api_root="http://testserver/documenten/", api_type=APITypes.drc
+        ServiceFactory.create(
+            api_root="http://testserver/documenten/",
+            api_type=APITypes.drc,
         )
         mock_service_oas_get(self.adapter, base_zaak, APITypes.zrc)
         mock_service_oas_get(self.adapter, base_zaaktype, APITypes.ztc)

@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import random
 from itertools import groupby, islice
+from json import JSONDecodeError
 
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
@@ -9,9 +10,12 @@ from django.db import models, transaction
 from django.utils import timezone
 
 import factory.fuzzy
+from django_setup_configuration.exceptions import SelfTestFailed
+from requests.exceptions import RequestException
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from zgw_consumers.client import build_client
 
+from openzaak.client import ClientError
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -75,12 +79,13 @@ def get_sl_resultaten() -> list[dict]:
     get first 100 objects from Selectielijst.resultaten endpoint
     use only for test purposes
     """
-    client = build_client(ReferentieLijstConfig)
+    config = ReferentieLijstConfig.get_solo()
+    client = build_client(config.service)
 
     try:
-        response = client.get("resultaat").json()
+        response = client.get("resultaten").json()
     except JSONDecodeError:
-        raise SelfTestFailed(f"Object type version didn't have any data")
+        raise SelfTestFailed("Object type version didn't have any data")
     return response["results"]
 
 
@@ -253,7 +258,8 @@ class Command(BaseCommand):
         # request SL resultaten
         try:
             sl_resultaten = get_sl_resultaten()
-        except ClientError:
+        # TODO do we need all these?
+        except (RequestException, ClientError, SelfTestFailed):
             raise CommandError(
                 "Selectielijst API is not available. Check its configuration"
             )

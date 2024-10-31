@@ -16,8 +16,8 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -343,11 +343,11 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
-        cls.zrc_service = Service.objects.create(
+        cls.zrc_service = ServiceFactory.create(
             label="Remote Zaken API",
             api_type=APITypes.zrc,
             api_root="https://extern.zrc.nl/api/v1/",
@@ -355,7 +355,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             client_id="test",
             secret="test",
         )
-        cls.brc_service = Service.objects.create(
+        cls.brc_service = ServiceFactory.create(
             label="Remote Besluiten API",
             api_type=APITypes.brc,
             api_root="https://extern.brc.nl/api/v1/",
@@ -363,7 +363,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             client_id="test",
             secret="test",
         )
-        cls.vrc_service = Service.objects.create(
+        cls.vrc_service = ServiceFactory.create(
             label="Remote Verzoeken API",
             api_type=APITypes.vrc,
             api_root="https://extern.vrc.nl/api/v1/",

@@ -11,7 +11,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -93,7 +93,7 @@ class ExternalZaaktypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.ztc,
             api_root="https://externe.catalogus.nl/api/v1/",
             label="external zaaktypen",

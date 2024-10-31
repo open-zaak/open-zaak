@@ -11,7 +11,7 @@ from rest_framework import status
 from vng_api_common.constants import Archiefnominatie, Archiefstatus
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
@@ -34,13 +34,13 @@ class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/documenten/api/v1/", api_type=APITypes.drc
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/zaken/api/v1/", api_type=APITypes.zrc
         )
 

@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
@@ -662,7 +662,7 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "bad-url")
 
     def test_create_external_roltype_fail_not_json_url(self):
-        Service.objects.create(api_root="http://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 

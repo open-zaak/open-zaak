@@ -12,7 +12,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
@@ -45,7 +45,7 @@ class SmallFileUpload(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -549,7 +549,7 @@ class LargeFileAPITests(JWTAuthMixin, APICMISTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

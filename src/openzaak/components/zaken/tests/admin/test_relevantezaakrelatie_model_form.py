@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.admin import RelevanteZaakRelatieForm
 
@@ -27,7 +27,7 @@ class TestRelevanteZaakRelatieForm(TestCase):
     def test_relevantezaakrelatie_form_clean_does_not_throw_exception_if_relevant_zaak_url_is_given(
         self,
     ):
-        zrc_service = Service.objects.create(
+        zrc_service = ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="https://external.zaken.nl/api/v1/",
         )
