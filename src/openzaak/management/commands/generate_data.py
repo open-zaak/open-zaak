@@ -66,6 +66,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
+from openzaak.selectielijst.api import get_resultaattype_omschrijvingen
 from openzaak.selectielijst.models import ReferentieLijstConfig
 
 
@@ -225,7 +226,7 @@ class Command(BaseCommand):
         if confirm != "yes":
             raise CommandError("Data generation cancelled.")
 
-        self.get_sl_results()
+        self.get_sl_data()
         self.generate_catalogi()
         self.generate_zaken()
         self.generate_besluiten()
@@ -244,7 +245,7 @@ class Command(BaseCommand):
             self.stdout.write(f"Creating {obj_name_plural} for partition {i + 1}")
         self.stdout.write(f"Finished creating {obj_name_plural}")
 
-    def get_sl_results(self):
+    def get_sl_data(self):
         # request SL resultaten
         try:
             sl_resultaten = get_sl_resultaten()
@@ -256,6 +257,11 @@ class Command(BaseCommand):
         self.sl_result_mapping = {
             res["procesType"]: res["url"] for res in sl_resultaten
         }
+
+        # request SL resultaattype omschrijvingen
+        self.sl_rt_omschrijvingen = [
+            res["url"] for res in get_resultaattype_omschrijvingen()
+        ]
 
     def generate_catalogi(self):
         #  catalog - 1
@@ -283,7 +289,16 @@ class Command(BaseCommand):
         # resultaattype - 200
         resultaatypen = []
         for zaaktype in zaaktypen:
-            resultaatypen.extend(ResultaatTypeFactory.build_batch(2, zaaktype=zaaktype))
+            resultaatypen.extend(
+                ResultaatTypeFactory.build_batch(
+                    2,
+                    zaaktype=zaaktype,
+                    selectielijstklasse=self.sl_result_mapping[
+                        zaaktype.selectielijst_procestype
+                    ],
+                    resultaattypeomschrijving=random.choice(self.sl_rt_omschrijvingen),
+                )
+            )
         resultaatypen = ResultaatType.objects.bulk_create(resultaatypen)
         self.log_created(resultaatypen)
 

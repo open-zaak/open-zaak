@@ -173,7 +173,7 @@ class ResultaatTypeAdmin(
 
     def render_readonly(self, field, result_repr, value):
         if not value:
-            super().render_readonly(field, result_repr, value)
+            return super().render_readonly(field, result_repr, value)
 
         if field.name == "selectielijstklasse":
             res = get_resultaat_readonly_field(value)
