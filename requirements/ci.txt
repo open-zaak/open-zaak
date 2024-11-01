@@ -347,7 +347,7 @@ docutils==0.17.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
-drc-cmis==1.9.0
+drc-cmis==1.9.1
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt

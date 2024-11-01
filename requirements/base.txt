@@ -232,7 +232,7 @@ djangorestframework-gis==1.0
     # via open-api-framework
 djangorestframework-inclusions==1.2.0
     # via open-api-framework
-drc-cmis==1.9.0
+drc-cmis==1.9.1
     # via -r requirements/base.in
 drf-extra-fields==3.4.0
     # via -r requirements/base.in
