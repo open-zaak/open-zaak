@@ -13,7 +13,6 @@ from notifications_api_common.constants import (
 from notifications_api_common.models import NotificationsConfig
 from vng_api_common.authorizations.models import Applicatie, Autorisatie, ComponentTypes
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth
 from zgw_consumers.client import build_client
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
@@ -21,6 +20,7 @@ from zgw_consumers.models import Service
 from openzaak.client import ClientError
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_LEZEN
 from openzaak.utils import build_absolute_url
+from openzaak.utils.auth import generate_jwt
 
 
 class AuthNotificationStep(BaseConfigurationStep):
@@ -103,14 +103,16 @@ class AuthNotificationStep(BaseConfigurationStep):
     def test_configuration(self) -> None:
         endpoint = reverse("applicatie-list", kwargs={"version": "1"})
         full_url = build_absolute_url(endpoint, request=None)
-        auth = ClientAuth(
-            client_id=settings.NOTIF_OPENZAAK_CLIENT_ID,
-            secret=settings.NOTIF_OPENZAAK_SECRET,
+        token = generate_jwt(
+            settings.NOTIF_OPENZAAK_CLIENT_ID,
+            settings.NOTIF_OPENZAAK_SECRET,
+            settings.NOTIF_OPENZAAK_CLIENT_ID,
+            settings.NOTIF_OPENZAAK_CLIENT_ID,
         )
 
         try:
             response = requests.get(
-                full_url, headers={**auth.credentials(), "Accept": "application/json"}
+                full_url, headers={"Authorization": token, "Accept": "application/json"}
             )
             response.raise_for_status()
         except requests.RequestException as exc:

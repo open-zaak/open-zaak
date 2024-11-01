@@ -7,7 +7,6 @@ ontvangen, zodat ik voldoende details weet om de melding op te volgen.
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/52
 """
 from django.test import override_settings, tag
-from django.utils import timezone
 
 import requests_mock
 from freezegun import freeze_time
@@ -22,7 +21,8 @@ from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,
     ZaakTypeFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.auth import generate_jwt
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory
@@ -443,12 +443,11 @@ class ZaakEigenschapJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 

@@ -16,7 +16,6 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth
 from zgw_consumers.client import build_client
 from zgw_consumers.test import mock_service_oas_get
 
@@ -31,6 +30,7 @@ from openzaak.config.bootstrap.notifications import (
 )
 from openzaak.config.bootstrap.selectielijst import SelectielijstAPIConfigurationStep
 from openzaak.config.bootstrap.site import SiteConfigurationStep
+from openzaak.utils.auth import generate_jwt
 
 ZAAKTYPE = "https://acc.openzaak.nl/zaaktypen/1"
 
@@ -113,11 +113,13 @@ class SetupConfigurationTests(APITestCase):
             self.assertEqual(site.name, "Open Zaak ACME")
 
         with self.subTest("Notifications API can query Autorisaties API"):
-            auth = ClientAuth("notif-client-id", "notif-secret")
+            token = generate_jwt(
+                "notif-client-id", "notif-secret", "notif-client-id", "notif-client-id"
+            )
 
             response = self.client.get(
                 reverse("applicatie-list", kwargs={"version": 1}),
-                headers={"authorization": auth.credentials()["Authorization"]},
+                headers={"authorization": token},
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -142,12 +144,14 @@ class SetupConfigurationTests(APITestCase):
             self.assertEqual(decoded_jwt["client_id"], "oz-client-id")
 
         with self.subTest("Demo user configured correctly"):
-            auth = ClientAuth("demo-client-id", "demo-secret")
+            token = generate_jwt(
+                "demo-client-id", "demo-secret", "demo-client-id", "demo-client-id"
+            )
 
             response = self.client.get(
                 reverse("zaak-list", kwargs={"version": 1}),
                 **ZAAK_READ_KWARGS,
-                HTTP_AUTHORIZATION=auth.credentials()["Authorization"],
+                HTTP_AUTHORIZATION=token,
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
 from django.test import override_settings
-from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -11,7 +10,8 @@ from vng_api_common.tests import reverse
 from openzaak.components.autorisaties.middleware import JWTAuth
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.auth import generate_jwt
 
 
 class JWTExpiredTests(JWTAuthMixin, APITestCase):
@@ -21,12 +21,11 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
@@ -57,7 +56,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        response = self.client.get(zaak_url)
+        response = self.client.get(zaak_url, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -68,12 +67,11 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
@@ -82,7 +80,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        response = self.client.get(zaak_url)
+        response = self.client.get(zaak_url, **ZAAK_WRITE_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["code"], "jwt-immaturesignatureerror")
@@ -93,7 +91,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        response = self.client.get(zaak_url)
+        response = self.client.get(zaak_url, **ZAAK_WRITE_KWARGS)
 
         self.assertNotEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -107,12 +105,11 @@ class JWTRegressionTests(JWTAuthMixin, APITestCase):
 
         Regression test for https://github.com/open-zaak/open-zaak/issues/936
         """
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=None,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            None,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
         zaak = ZaakFactory.create()

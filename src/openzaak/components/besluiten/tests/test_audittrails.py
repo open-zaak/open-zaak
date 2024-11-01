@@ -3,7 +3,6 @@
 from copy import deepcopy
 
 from django.test import override_settings
-from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -16,7 +15,8 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.auth import generate_jwt
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory
@@ -219,12 +219,11 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
