@@ -17,6 +17,7 @@ ansible-core==2.15.5
 ape-pie==0.2.0
     # via
     #   -r requirements/base.txt
+    #   commonground-api-common
     #   notifications-api-common
     #   zgw-consumers
 appdirs==1.4.4
@@ -124,7 +125,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common==1.13.3
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/client-changes
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -370,7 +371,7 @@ drc-cmis==1.9.0
     # via -r requirements/base.txt
 drf-extra-fields==3.4.0
     # via -r requirements/base.txt
-drf-nested-routers==0.93.4
+drf-nested-routers==0.94.1
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -402,7 +403,7 @@ face==20.1.1
     #   glom
 factory-boy==3.2.1
     # via -r requirements/test-tools.in
-faker==19.11.0
+faker==32.1.0
     # via factory-boy
 flake8==3.8.3
     # via -r requirements/test-tools.in
@@ -417,10 +418,6 @@ furl==2.1.3
     #   -r requirements/base.txt
     #   ape-pie
     #   drc-cmis
-gemma-zds-client==2.0.0
-    # via
-    #   -r requirements/base.txt
-    #   commonground-api-common
 gitdb==4.0.5
     # via gitpython
 gitpython==3.1.40
@@ -522,7 +519,7 @@ mozilla-django-oidc-db==0.19.0
     #   open-api-framework
 mypy-extensions==1.0.0
     # via black
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common@e1c9f77eba0a77ce73f83b2277620e578b6f4189
+notifications-api-common==0.3.1
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
@@ -602,7 +599,6 @@ pyjwt==2.4.0
     # via
     #   -r requirements/base.txt
     #   commonground-api-common
-    #   gemma-zds-client
     #   zgw-consumers
 pyopenssl==23.3.0
     # via
@@ -664,7 +660,6 @@ pyyaml==6.0
     #   ansible-core
     #   drf-spectacular
     #   drf-yasg
-    #   gemma-zds-client
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
@@ -686,7 +681,6 @@ requests==2.32.3
     #   coreapi
     #   django-log-outgoing-requests
     #   django-silk
-    #   gemma-zds-client
     #   kubernetes
     #   mozilla-django-oidc
     #   open-api-framework
@@ -697,8 +691,11 @@ requests==2.32.3
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.txt
-requests-mock==1.11.0
-    # via -r requirements/test-tools.in
+requests-mock==1.12.1
+    # via
+    #   -r requirements/base.txt
+    #   -r requirements/test-tools.in
+    #   commonground-api-common
 requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
@@ -727,7 +724,6 @@ six==1.16.0
     #   openshift
     #   orderedmultidict
     #   python-dateutil
-    #   requests-mock
     #   url-normalize
     #   websocket-client
 smmap==3.0.4
@@ -785,6 +781,7 @@ tornado==6.4
 typing-extensions==4.12.2
     # via
     #   -r requirements/base.txt
+    #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
@@ -854,6 +851,7 @@ wrapt==1.16.0
 zgw-consumers==0.35.1
     # via
     #   -r requirements/base.txt
+    #   commonground-api-common
     #   notifications-api-common
     #   open-api-framework
 
