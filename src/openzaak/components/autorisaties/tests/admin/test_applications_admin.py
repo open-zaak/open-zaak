@@ -135,3 +135,31 @@ class ApplicationsTests(WebTest):
         self.assertEqual(applicatie.client_ids, ["foo"])
         self.assertEqual(credential.identifier, "foo")
         self.assertEqual(credential.secret, "")
+
+    def test_delete_selected_jwt_secret(self):
+        """
+        check that jwtsecrets are deleted when delete_selected admin action is used
+        regression test for https://github.com/open-zaak/open-zaak/issues/1741
+        """
+        app1 = Applicatie.objects.create(label="test1", client_ids=["foo1"])
+        app2 = Applicatie.objects.create(label="test2", client_ids=["foo2"])
+        JWTSecret.objects.create(identifier="foo1", secret="bar1")
+        JWTSecret.objects.create(identifier="foo2", secret="bar2")
+        url = reverse("admin:authorizations_applicatie_changelist")
+
+        form = self.app.get(url).form
+
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [app1.id, app2.id]
+
+        response = form.submit()
+
+        # confirmation page
+        form = response.form
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(JWTSecret.objects.exists())
