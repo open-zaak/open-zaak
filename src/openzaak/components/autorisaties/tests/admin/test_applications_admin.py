@@ -142,9 +142,10 @@ class ApplicationsTests(WebTest):
         regression test for https://github.com/open-zaak/open-zaak/issues/1741
         """
         app1 = Applicatie.objects.create(label="test1", client_ids=["foo1"])
-        app2 = Applicatie.objects.create(label="test2", client_ids=["foo2"])
+        app2 = Applicatie.objects.create(label="test2", client_ids=["foo2", "foo3"])
         JWTSecret.objects.create(identifier="foo1", secret="bar1")
         JWTSecret.objects.create(identifier="foo2", secret="bar2")
+        JWTSecret.objects.create(identifier="foo3", secret="bar3")
         url = reverse("admin:authorizations_applicatie_changelist")
 
         form = self.app.get(url).form
