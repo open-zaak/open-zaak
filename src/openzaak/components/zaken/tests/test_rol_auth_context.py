@@ -168,6 +168,35 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "authenticatieContext.mandate")
         self.assertEqual(error["code"], "required")
 
+    def test_create_digid_with_mandate_incorrect_source(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "betrokkeneIdentificatie": {"inpBsn": "123456782"},
+            "authenticatieContext": {
+                "levelOfAssurance": DigiDLevelOfAssurance.middle,
+            },
+        }
+
+        for source in ["", "eherkenning", "invalid"]:
+            with self.subTest(source):
+                data["authenticatieContext"]["source"] = source
+
+                response = self.client.post(self.url, data)
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+                )
+
+                error = get_validation_errors(response, "authenticatieContext.source")
+                self.assertEqual(error["code"], "invalid_choice")
+
 
 class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
     """
@@ -465,3 +494,68 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "indicatie-machtiging-invalid")
+
+    def test_create_eherkenning_nnp_with_mandate_incorrect_source(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "betrokkeneIdentificatie": {"kvkNummer": "12345678"},
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "authenticatieContext": {
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "actingSubject": ACTING_SUBJECT,
+            },
+        }
+
+        for source in ["", "digid", "invalid"]:
+            with self.subTest(source):
+                data["authenticatieContext"]["source"] = source
+
+                response = self.client.post(self.url, data)
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+                )
+
+                error = get_validation_errors(response, "authenticatieContext.source")
+                self.assertEqual(error["code"], "invalid_choice")
+
+    def test_create_eherkenning_vestiging_with_mandate_incorrect_source(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.vestiging,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "Created zaak",
+            "betrokkeneIdentificatie": {
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "123456789012",
+            },
+            "contactpersoonRol": {"naam": "acting subject name"},
+            "authenticatieContext": {
+                "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
+                "actingSubject": ACTING_SUBJECT,
+            },
+        }
+
+        for source in ["", "digid", "invalid"]:
+            with self.subTest(source):
+                data["authenticatieContext"]["source"] = source
+
+                response = self.client.post(self.url, data)
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+                )
+
+                error = get_validation_errors(response, "authenticatieContext.source")
+                self.assertEqual(error["code"], "invalid_choice")

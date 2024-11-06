@@ -7,7 +7,7 @@ The related US - https://github.com/open-zaak/open-zaak/issues/1733
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory, ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -184,6 +184,17 @@ class FilterDigidTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.json()["count"], 2)
+
+        with self.subTest("invalid"):
+            response = self.client.get(
+                self.url,
+                {"rol__machtiging__loa": "invalid"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "rol__machtiging__loa")
+            self.assertEqual(error["code"], "invalid_choice")
 
 
 class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
@@ -374,6 +385,17 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.json()["count"], 2)
+
+        with self.subTest("invalid"):
+            response = self.client.get(
+                self.url,
+                {"rol__machtiging__loa": "invalid"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "rol__machtiging__loa")
+            self.assertEqual(error["code"], "invalid_choice")
 
     def test_filter_rol_nnp_kvk(self):
         zaaktype = ZaakTypeFactory.create()
