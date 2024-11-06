@@ -19,5 +19,5 @@ class OrderedTextChoices(models.TextChoices):
 
     @classmethod
     def get_choice_order(cls, value) -> int | None:
-        orders = {value: order for order, value in enumerate(cls.values)}
+        orders = {val: order for order, val in enumerate(cls.values)}
         return orders.get(value)
