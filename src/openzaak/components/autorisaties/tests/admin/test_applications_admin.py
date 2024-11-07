@@ -146,6 +146,9 @@ class ApplicationsTests(WebTest):
         JWTSecret.objects.create(identifier="foo1", secret="bar1")
         JWTSecret.objects.create(identifier="foo2", secret="bar2")
         JWTSecret.objects.create(identifier="foo3", secret="bar3")
+        jwt_no_delete = JWTSecret.objects.create(
+            identifier="no-delete", secret="no-delete"
+        )
         url = reverse("admin:authorizations_applicatie_changelist")
 
         form = self.app.get(url).form
@@ -163,4 +166,5 @@ class ApplicationsTests(WebTest):
         response = form.submit()
 
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(JWTSecret.objects.exists())
+        self.assertEqual(JWTSecret.objects.count(), 1)
+        self.assertEqual(JWTSecret.objects.get(), jwt_no_delete)
