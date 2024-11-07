@@ -40,6 +40,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         ServiceFactory.create(
             api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
         )
+        ServiceFactory.create(
+            api_root="https://external.nl/documenten/", api_type=APITypes.drc
+        )
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_end = StatusTypeFactory.create(zaaktype=cls.zaaktype)

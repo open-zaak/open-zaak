@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
@@ -159,6 +161,14 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
+    def setUp(self):
+        super().setUp()
+
+        self.service = ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
+
     def test_read_with_zaakobjecttype_external(self):
         zaakobject = ZaakObjectFactory.create(
             object=OBJECT,
@@ -306,6 +316,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(zaakobject.zaakobjecttype, self.zaakobjecttype)
 
     def test_create_with_zaakobjecttype_unknown_service(self):
+        self.service.delete()
         zaak = ZaakFactory.create()
         url = reverse("zaakobject-list")
         data = {

@@ -11,6 +11,8 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -795,6 +797,10 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
         super().setUpTestData()
 
     def test_eio_list(self):
@@ -975,6 +981,10 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
         return super().setUp()
 
     def test_eio_list(self):

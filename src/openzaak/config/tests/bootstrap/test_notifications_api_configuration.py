@@ -10,7 +10,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from zgw_consumers.constants import AuthTypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.notifications.tests import mock_nrc_oas_get
 from openzaak.tests.utils.auth import JWTAuthMixin
@@ -39,7 +39,7 @@ class NotificationsAPIConfigurationTests(TestCase):
 
     def test_update_existing_configuration(self):
         # set up service to be replaced
-        old_service = Service.objects.create(
+        old_service = ServiceFactory.create(
             api_root="http://old-notifs.example.com/api/v1", api_type="nrc"
         )
         config = NotificationsConfig.get_solo()
@@ -58,7 +58,7 @@ class NotificationsAPIConfigurationTests(TestCase):
 
     def test_update_existing_configuration_no_new_service(self):
         # set up service to be replaced
-        old_service = Service.objects.create(
+        old_service = ServiceFactory.create(
             api_root="https://notifs.example.com/api/v1",
             api_type="nrc",
             auth_type=AuthTypes.zgw,

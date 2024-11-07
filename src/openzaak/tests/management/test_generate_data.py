@@ -53,13 +53,19 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             f"{config.service.api_root}resultaattypeomschrijvingen",
             json=[
                 {
-                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
+                    ),
                     "omschrijving": "Afgebroken",
                     "definitie": "Afgebroken",
                     "opmerking": "",
                 },
                 {
-                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3"
+                    ),
                     "omschrijving": "Afgehandeld",
                     "definitie": "Afgehandeld",
                     "opmerking": "",
@@ -208,7 +214,10 @@ class GenerateDataAdminTests(WebTest):
             f"{config.service.api_root}resultaattypeomschrijvingen",
             json=[
                 {
-                    "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
+                    ),
                     "omschrijving": "Afgebroken",
                     "definitie": "Afgebroken",
                     "opmerking": "",
@@ -216,9 +225,13 @@ class GenerateDataAdminTests(WebTest):
             ],
         )
         m.get(
-            f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+            (
+                f"{config.service.api_root}resultaattypeomschrijvingen"
+                "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
+            ),
             json={
-                "url": f"{config.service.api_root}resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
+                "url": f"{config.service.api_root}resultaattypeomschrijvingen"
+                "/ce8cf476-0b59-496f-8eee-957a7c6e2506",
                 "omschrijving": "Afgebroken",
                 "definitie": "Afgebroken",
                 "opmerking": "",

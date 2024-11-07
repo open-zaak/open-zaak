@@ -10,6 +10,8 @@ from rest_framework import status
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
@@ -30,6 +32,13 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+
+        ServiceFactory.create(
+            api_root="http://example.com/documenten/api/v1/", api_type=APITypes.drc
+        )
 
     @freeze_time("2018-09-19T12:25:19+0200")
     def test_create(self):
@@ -404,12 +413,12 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     def test_delete_document_unrelated_to_zaak(self):
         # Create a document related to a zaak
         eio_related = EnkelvoudigInformatieObjectFactory.create()
-        eio_related_url = f"http://openzaak.nl{reverse(eio_related)}"
+        eio_related_url = f"http://example.com{reverse(eio_related)}"
         ZaakInformatieObjectFactory.create(informatieobject=eio_related_url)
 
         # Create a document unrelated to a zaak
         eio_unrelated = EnkelvoudigInformatieObjectFactory.create()
-        eio_unrelated_url = f"http://openzaak.nl{reverse(eio_unrelated)}"
+        eio_unrelated_url = f"http://example.com{reverse(eio_unrelated)}"
 
         response = self.client.delete(eio_unrelated_url)
 

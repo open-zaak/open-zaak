@@ -232,7 +232,8 @@ class NotificationsAPIConfigurationStep(BaseConfigurationStep):
         # check if we can fetch list of kanalen
         client = build_client(Service.objects.get(api_root=settings.NOTIF_API_ROOT))
         try:
-            client.get("kanaal")
+            response = client.get("kanaal")
+            response.raise_for_status()
         except (ClientError, requests.RequestException) as exc:
             raise SelfTestFailed(
                 "Could not retrieve list of kanalen from Notificaties API."

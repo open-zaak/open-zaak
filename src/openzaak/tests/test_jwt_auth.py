@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
 from django.test import override_settings
+from django.utils import timezone
 
+import jwt
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -21,12 +23,20 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt(
-            self.client_id,
-            self.secret,
-            self.user_id,
-            self.user_representation,
-        )
+
+        # zgw-consumers ZGWAuth doesn't allow passing of extra claims (like `nbf`)
+        payload = {
+            # standard claims
+            "iss": self.client_id,
+            "iat": int(timezone.now().timestamp()),
+            "nbf": int(timezone.now().timestamp()),
+            # custom claims
+            "client_id": self.client_id,
+            "user_id": self.user_id,
+            "user_representation": self.user_representation,
+        }
+
+        token: str = f"Bearer {jwt.encode(payload, self.secret, algorithm='HS256')}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @override_settings(JWT_EXPIRY=60 * 60)
@@ -67,12 +77,20 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt(
-            self.client_id,
-            self.secret,
-            self.user_id,
-            self.user_representation,
-        )
+
+        # zgw-consumers ZGWAuth doesn't allow passing of extra claims (like `nbf`)
+        payload = {
+            # standard claims
+            "iss": self.client_id,
+            "iat": int(timezone.now().timestamp()),
+            "nbf": int(timezone.now().timestamp()),
+            # custom claims
+            "client_id": self.client_id,
+            "user_id": self.user_id,
+            "user_representation": self.user_representation,
+        }
+
+        token: str = f"Bearer {jwt.encode(payload, self.secret, algorithm='HS256')}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @freeze_time("2019-01-01T11:59:59")

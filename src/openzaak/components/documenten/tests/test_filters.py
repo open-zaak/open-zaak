@@ -445,6 +445,11 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )
     def test_internal_informatieobjecttype_filter(self):
+        ServiceFactory.create(
+            api_root="http://externe.catalogi.com/catalogi/",
+            api_type=APITypes.ztc,
+        )
+
         iot = "http://externe.catalogi.com/catalogi/api/v1/informatieobjecttypen/a7a49f9e-3de9-43f0-b2b6-1a59d307f01a"
         EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iot, titel="one")
         EnkelvoudigInformatieObjectFactory.create(titel="two")

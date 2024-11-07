@@ -17,6 +17,7 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
 
         self.ztc_known = Service.objects.create(
             label="external Catalogi",
+            slug="externe-catalogi",
             api_type=APITypes.ztc,
             api_root="https://externe.catalogus.nl/api/v1/",
         )
