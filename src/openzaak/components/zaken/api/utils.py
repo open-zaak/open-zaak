@@ -7,7 +7,6 @@ def create_remote_zaakbesluit(besluit_url: str, zaak_url: str) -> dict:
     client = get_client(zaak_url)
     body = {"besluit": besluit_url}
 
-    # TODO: is this (nested) constructed URL correct? see get_zaakbesluit_response
     return client.post(f"{zaak_url}/besluiten", json=body)
 
 

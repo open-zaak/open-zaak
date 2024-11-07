@@ -97,8 +97,6 @@ class SetupConfigurationTests(APITestCase):
                 f"Configuring {NotificationsAPIConfigurationStep()}...",
                 f"{NotificationsAPIConfigurationStep()} is successfully configured",
                 f"Step {SelectielijstAPIConfigurationStep()} is skipped, because the configuration already exists.",
-                # f"Configuring {SelectielijstAPIConfigurationStep()}...",
-                # f'{SelectielijstAPIConfigurationStep()} is successfully configured',
                 f"Configuring {DemoUserStep()}...",
                 f"{DemoUserStep()} is successfully configured",
                 f"Configuring {AuthorizationConfigurationStep()}...",

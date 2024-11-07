@@ -40,38 +40,19 @@ class OpenZaakClient(APIClient):
                 raise
             raise ClientError(response_json) from exc
 
-        # assert response_json
         return response_json
-
-    # def head(self, url, **kwargs) -> dict | list | None:
-    #     return super().head(url, **kwargs)
-
-    # def options(self, url, **kwargs) -> dict | list | None:
-    #     return super().options(url, **kwargs)
-
-    # def get(self, url, **kwargs) -> dict | list | None:
-    #     return super().get(url, **kwargs)
-
-    # def post(self, url, **kwargs) -> dict | list | None:
-    #     data = kwargs.pop("data", None)
-    #     return super().post(url, {"json": data, **kwargs})
-
-    # def put(self, url, **kwargs) -> dict | list | None:
-    #     data = kwargs.pop("data", None)
-    #     return super().put(url, {"json": data, **kwargs})
-
-    # def patch(self, url, **kwargs) -> dict | list | None:
-    #     data = kwargs.pop("data", None)
-    #     return super().patch(url, {"json": data, **kwargs})
-
-    # def delete(self, url, **kwargs) -> dict | list | None:
-    #     return super().delete(url, **kwargs)
 
 
 def get_client(
-    url: str, raise_exceptions: bool = True, **client_kwargs
+    url: str | None = None,
+    service: Service | None = None,
+    raise_exceptions: bool = True,
+    **client_kwargs,
 ) -> Optional[OpenZaakClient]:
-    service = Service.get_service(url)
+    if not service:
+        if not url:
+            raise ValueError("Either `url` or `service` must be specified")
+        service = Service.get_service(url)
 
     if not service:
         if raise_exceptions:

@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlsplit, urlunsplit
 
 from django.db.models.functions import Length
+from django.utils.text import slugify
 
 from zgw_consumers.constants import APITypes
 
@@ -80,7 +81,7 @@ def fill_service_urls(
                 # create service to avoid breakage
                 service = Service.objects.create(
                     label="FIXME",
-                    slug=api_root,
+                    slug=slugify(api_root),
                     api_root=api_root,
                     api_type=APITypes.orc,
                 )

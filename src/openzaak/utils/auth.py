@@ -49,7 +49,7 @@ def generate_jwt(client_id, secret, user_id, user_representation):
                 setattr(self, key, value)
 
     auth = ZGWAuth(
-        service=FakeService(
+        service=FakeService(  # type: ignore
             client_id=client_id,
             secret=secret,
             user_id=user_id,

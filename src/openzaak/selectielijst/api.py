@@ -28,8 +28,7 @@ def get_procestypen(procestype_jaar=None) -> ResultList:
     def inner():
         config = ReferentieLijstConfig.get_solo()
         assert config.service
-        # TODO allow passing of service directly
-        client = get_client(config.service.api_root)
+        client = get_client(service=config.service)
         query_params = query_params = (
             {"jaar": procestype_jaar} if procestype_jaar else {}
         )
@@ -59,8 +58,7 @@ def get_resultaten(proces_type: Optional[str] = None) -> ResultList:
 
         config = ReferentieLijstConfig.get_solo()
         assert config.service
-        # TODO allow passing of service directly
-        client = get_client(config.service.api_root)
+        client = get_client(service=config.service)
         result_list = client.get("resultaten", params=query_params)
         results = result_list["results"]
         while result_list["next"]:
@@ -82,8 +80,7 @@ def get_resultaattype_omschrijvingen() -> ResultList:
     """
     config = ReferentieLijstConfig.get_solo()
     assert config.service
-    # TODO allow passing of service directly
-    client = get_client(config.service.api_root)
+    client = get_client(service=config.service)
     return client.get("resultaattypeomschrijvingen")
 
 
@@ -96,8 +93,7 @@ def retrieve_procestype(url: str) -> Dict[str, JsonPrimitive]:
     """
     config = ReferentieLijstConfig.get_solo()
     assert config.service
-    # TODO allow passing of service directly
-    client = get_client(config.service.api_root)
+    client = get_client(service=config.service)
     return client.get(url)
 
 
@@ -110,8 +106,7 @@ def retrieve_resultaat(url: str) -> Dict[str, JsonPrimitive]:
     """
     config = ReferentieLijstConfig.get_solo()
     assert config.service
-    # TODO allow passing of service directly
-    client = get_client(config.service.api_root)
+    client = get_client(service=config.service)
     return client.get(url)
 
 
@@ -124,6 +119,5 @@ def retrieve_resultaattype_omschrijvingen(url: str) -> Dict[str, JsonPrimitive]:
     """
     config = ReferentieLijstConfig.get_solo()
     assert config.service
-    # TODO allow passing of service directly
-    client = get_client(config.service.api_root)
+    client = get_client(service=config.service)
     return client.get(url)

@@ -157,8 +157,7 @@ class ResultaatTypeAdmin(
             )
         config = ReferentieLijstConfig.get_solo()
         assert config.service
-        # TODO allow passing of service directly
-        client = get_client(config.service.api_root)
+        client = get_client(service=config.service)
         procestype = client.get(url)
         return f"{procestype['nummer']} - {procestype['naam']}"
 

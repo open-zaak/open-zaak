@@ -7,7 +7,6 @@ from vng_api_common.tests.schema import get_spec as _read_spec
 
 
 def get_spec(component: str) -> dict:
-    # FIXME for some reason settings.DJANGO_PROJECT_DIR has `/conf` added to it?
     project_dir = get_django_project_dir()
     full_path = Path(project_dir) / "components" / component / "openapi.yaml"
     return _read_spec(str(full_path))

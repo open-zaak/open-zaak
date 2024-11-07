@@ -258,7 +258,6 @@ class Command(BaseCommand):
         # request SL resultaten
         try:
             sl_resultaten = get_sl_resultaten()
-        # TODO do we need all these?
         except (RequestException, ClientError, SelfTestFailed):
             raise CommandError(
                 "Selectielijst API is not available. Check its configuration"

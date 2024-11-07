@@ -10,36 +10,15 @@ from . import mock_resource_list, mock_selectielijst_oas_get
 
 
 class SelectieLijstMixin:
-    # @classmethod
-    # def setUpTestData(cls):
-    #     super().setUpTestData()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
-    #     # there are TransactionTestCases that truncate the DB, so we need to ensure
-    #     # there are available years
-    #     config = ReferentieLijstConfig.get_solo()
-    #     config.default_year = 2020
-    #     config.allowed_years = [2017, 2020]
-    #     config.save()
-    #     cls.base = config.api_root
-
-    #     Service.objects.update_or_create(
-    #         api_root=cls.base,
-    #         defaults=dict(
-    #             api_type=APITypes.orc,
-    #             label="external selectielijst",
-    #             auth_type=AuthTypes.no_auth,
-    #         ),
-    #     )
-
-    def setUp(self):
-        super().setUp()
-
-        # TODO somehow fix this without adding it to setUp
-        self.base = "https://selectielijst.openzaak.nl/api/v1/"
+        cls.base = "https://selectielijst.openzaak.nl/api/v1/"
         service, _ = Service.objects.update_or_create(
-            api_root=self.base,
+            api_root=cls.base,
             defaults=dict(
-                slug=self.base,
+                slug=cls.base,
                 api_type=APITypes.orc,
                 label="external selectielijst",
                 auth_type=AuthTypes.no_auth,
@@ -53,6 +32,9 @@ class SelectieLijstMixin:
         config.allowed_years = [2017, 2020]
         config.service = service
         config.save()
+
+    def setUp(self):
+        super().setUp()
 
         mocker = requests_mock.Mocker()
         mocker.start()
