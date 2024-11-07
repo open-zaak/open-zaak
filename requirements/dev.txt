@@ -83,7 +83,7 @@ celery==5.4.0
     #   flower
     #   notifications-api-common
     #   open-api-framework
-certifi==2023.7.22
+certifi==2024.7.4
     # via
     #   -r requirements/base.txt
     #   elastic-apm
@@ -147,7 +147,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
-cryptography==41.0.5
+cryptography==41.0.7
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -438,7 +438,7 @@ humanize==4.0.0
     # via
     #   -r requirements/base.txt
     #   flower
-idna==3.3
+idna==3.7
     # via
     #   -r requirements/base.txt
     #   requests
@@ -468,7 +468,7 @@ itypes==1.2.0
     # via
     #   -r requirements/base.txt
     #   coreapi
-jinja2==3.0.3
+jinja2==3.1.4
     # via
     #   -r requirements/base.txt
     #   ansible-core
@@ -766,7 +766,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements/base.txt
     #   django
@@ -774,7 +774,7 @@ sqlparse==0.4.4
     #   django-silk
 tblib==1.7.0
     # via -r requirements/test-tools.in
-tornado==6.4
+tornado==6.4.1
     # via
     #   -r requirements/base.txt
     #   flower
@@ -801,7 +801,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   -r requirements/base.txt
     #   elastic-apm
