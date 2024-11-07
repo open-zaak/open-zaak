@@ -307,6 +307,7 @@ class ResultaatTypeForm(forms.ModelForm):
         if not selectielijstklasse or not afleidingswijze:
             return
 
+        # TODO should this use a proper client?
         response = requests.get(selectielijstklasse)
         procestermijn = response.json()["procestermijn"]
 

@@ -10,6 +10,7 @@ import requests_cache
 from requests_cache import BaseCache, clear, install_cache, uninstall_cache
 from requests_cache.backends.base import KEY_FN
 from requests_cache.cache_keys import create_key
+from requests_cache.session import CachedSession
 
 
 class DjangoCacheStorage(requests_cache.BaseStorage):
@@ -97,14 +98,28 @@ class DjangoRequestsCache(requests_cache.BaseCache):
 
 
 @contextmanager
-def requests_cache_enabled(*args, **kwargs):
+def requests_cache_enabled(cache_name, backend=None, *args, **kwargs):
     """
     Custom context manager for requests-cache, to actually clear the contents of
     the cache, before uninstalling it
     """
+    # Unfortunately requests-cache does not work out of the box for custom clients that
+    # inherit from `requests.Session`, so we have to monkeypatch the `OpenZaakClient` to
+    # ensure requests made with that client are cached as well
+    import openzaak.client
+
+    original_client = openzaak.client.OpenZaakClient
+
+    class CustomOpenZaakClient(original_client, CachedSession):
+        def __init__(self, *args, **kwargs):
+            # Initialize CachedSession with the custom backend
+            super().__init__(cache_name=cache_name, backend=backend, *args, **kwargs)
+
+    openzaak.client.OpenZaakClient = CustomOpenZaakClient
     install_cache(*args, **kwargs)
     try:
         yield
     finally:
+        openzaak.client.OpenZaakClient = original_client
         clear()
         uninstall_cache()

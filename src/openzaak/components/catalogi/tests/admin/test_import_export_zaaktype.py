@@ -1913,12 +1913,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
 
-# @patch(
-#     "openzaak.selectielijst.api.get_client",
-#     return_value=mock_selectielijst_client,
-# )
 @disable_admin_mfa()
-@override_settings(CUSTOM_CLIENT_FETCHER=None)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()
