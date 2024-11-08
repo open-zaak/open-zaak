@@ -225,14 +225,14 @@ class MigrateCatalogusAutorisatiesToAutorisatieSpecsTest(TestMigrations):
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            catalogus=self.catalogus1,
+            catalogus_id=self.catalogus1.id,
         )
         CatalogusAutorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-            catalogus=self.catalogus2,
+            catalogus_id=self.catalogus2.id,
         )
 
     def test_autorisatiespecs_created(self):
