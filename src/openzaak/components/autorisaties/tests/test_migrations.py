@@ -225,14 +225,14 @@ class MigrateCatalogusAutorisatiesToAutorisatieSpecsTest(TestMigrations):
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            catalogus=self.catalogus1,
+            catalogus_id=self.catalogus1.id,
         )
         CatalogusAutorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-            catalogus=self.catalogus2,
+            catalogus_id=self.catalogus2.id,
         )
 
     def test_autorisatiespecs_created(self):
@@ -248,3 +248,23 @@ class MigrateCatalogusAutorisatiesToAutorisatieSpecsTest(TestMigrations):
             spec.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN), str(SCOPE_ZAKEN_BIJWERKEN)]
         )
         self.assertEqual(spec.component, ComponentTypes.zrc)
+
+
+class RemoveOrphanedJwtSecretsTest(TestMigrations):
+    migrate_from = "0013_alter_catalogusautorisatie_component"
+    migrate_to = "0014_remove_orphaned_jwtsecrets"
+    app = "autorisaties"
+
+    def setUpBeforeMigration(self, apps):
+        Applicatie = apps.get_model("authorizations", "Applicatie")
+        JWTSecret = apps.get_model("vng_api_common", "JWTSecret")
+
+        Applicatie.objects.create(label="test1", client_ids=["keep"])
+        self.jwt_keep = JWTSecret.objects.create(identifier="keep", secret="secret1")
+        JWTSecret.objects.create(identifier="to-remove", secret="secret2")
+
+    def test_jwtsecrets_removed(self):
+        JWTSecret = self.apps.get_model("vng_api_common", "JWTSecret")
+
+        self.assertEqual(JWTSecret.objects.count(), 1)
+        self.assertEqual(JWTSecret.objects.get().id, self.jwt_keep.id)

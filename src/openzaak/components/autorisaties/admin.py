@@ -117,6 +117,17 @@ class ApplicatieAdmin(admin.ModelAdmin):
         secrets.delete()
         super().delete_model(request, obj)
 
+    @transaction.atomic
+    def delete_queryset(self, request, queryset):
+        """Given a queryset, delete it from the database."""
+        client_ids = queryset.values_list("client_ids", flat=True)
+        client_ids = sum(list(client_ids), [])
+
+        secrets = JWTSecret.objects.filter(identifier__in=client_ids)
+        secrets.delete()
+
+        super().delete_queryset(request, queryset)
+
     @admin.display(
         description=_("Ready?"),
         boolean=True,
