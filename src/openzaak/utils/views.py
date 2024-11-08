@@ -14,8 +14,6 @@ from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrail
 from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
 from zgw_consumers.client import build_client
 
-from openzaak.client import ClientError
-
 
 @requires_csrf_token
 def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
@@ -75,7 +73,7 @@ def _test_nrc_config() -> list:
         checks = [((_("NRC"), _("Missing"), False))]
         return checks
 
-    checks.append(
+    checks += [
         (
             _("NRC"),
             nrc_config.notifications_api_service.api_root,
@@ -86,22 +84,23 @@ def _test_nrc_config() -> list:
             _("Configured") if has_nrc_auth else _("Missing"),
             has_nrc_auth,
         ),
-    )
+    ]
 
     # check if permissions in AC are fine
     if has_nrc_auth:
         error = False
 
         try:
-            nrc_client.request(url="kanaal")
+            response = nrc_client.get("kanaal")
+            response.raise_for_status()
         except requests.ConnectionError:
             error = True
             message = _("Could not connect with NRC")
-        except ClientError as exc:
+        except requests.HTTPError as exc:
             error = True
-            message = _(
-                "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
+            message = _("Cannot retrieve kanalen: HTTP {status_code}").format(
+                status_code=exc.response.status_code
+            )
         else:
             message = _("Can retrieve kanalen")
 
