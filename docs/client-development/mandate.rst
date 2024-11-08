@@ -1,42 +1,44 @@
 .. _client-development-mandate:
 
-Management of cases on behalf of other party
-============================================
+Registering and querying cases created on behalf of another party
+=================================================================
 
 .. note::
     This is an experimental feature and it doesn't rely on existing ZGW standards.
 
 
-Cases can be initiated and managed by different parties. They can be individuals, organizations,
-municipality employees, etc. The ``Rol`` resource from Zaken API is used to store information
-about such parties.
+Cases for an entity (like a person or a company, the beneficiary) can be initiated and managed by other parties, such as individuals (voluntary mandate), organizations (voluntary or forced mandate) or municipality employees assisting. The ``Rol`` resource in the Zaken API is used to record the details of this other party acting on behalf of the beneficiary.
 
-If the user is authenticated with Digid or eHerkenning, the meta information about it can be
-saved into ``Rol.authenticatieContext``. The user can initiate the case on their own behalf,
-but it's also possible to represent another party. Both Digid and eHerkenning support such mandates.
+In such scenario's, the user authenticates with DigiD or eHerkenning in an application. They can
+do this for themselves, or represent another entity. The application where they authenticate creates
+(or reads/updates) the case and adds this *authentication context* to the case via 
+``Rol.authenticatieContext`` to persist the meta information about the authentication and mandate itself.
+
+DigiD and eHerkenning both support mandates, albeit in different flavours.
 
 .. image:: _assets/machtiging.png
     :width: 100%
     :alt: Digid and eHerkenning authorized parties with and without mandates.
 
 
-In the schema you can see all possible options for mandates for users:
+The image above describes some typical scenario's involving mandates.
 
-1. An individual (``natuurlijk_persoon``) is authorized with Digid and initiates their own cases
-2. An individual (``natuurlijk_persoon``) is authorized with Digid and initiates the case on
-   behalf of another individual (Digid machtiging)
-3. An employee of the organization (``niet_natuurlijk_persoon`` or ``vestiging``) is authorized with
-   eHerkenning and initiates their own cases
-4. An employee of the organization (``niet_natuurlijk_persoon`` or ``vestiging``) is authorized with
-   eHerkenning and initiates the case on behalf of another individual (eHerkenning bewindvoering)
+1. An individual (``natuurlijk_persoon``) is authorized with Digid and starts a case for themselves.
+2. An individual (``natuurlijk_persoon``) is authorized with DigiD and starts a case on
+   behalf of another individual (DigiD Machtigen).
+3. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningmiddel*
+   which allows them to start a case for their company/organisation.
+4. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningmiddel*
+   for their company/organisation. This company/organisation represents an individual, and the employee can start a
+   case for the individual. Legally, the company/organisation is liable, not the employee.
 5. An employee of the organization (``niet_natuurlijk_persoon`` or ``vestiging``) is authorized with
    eHerkenning and initiates the case on behalf of another organization (eHerkenning ketenmachtiging)
 
 
-Open Zaak ``/zaken/api/v1/rollen`` endpoint supports all these options. Here are examples how to use it.
+In Open Zaak, the API endpoint ``/zaken/api/v1/rollen`` has experimental support for these scenarios. You can find examples on how to use these below.
 
-Recipies to create rollen with mandates
----------------------------------------
+Recipes for "rollen" with mandates
+----------------------------------
 
 General rules
 ^^^^^^^^^^^^^
@@ -98,7 +100,7 @@ Example API calls below are provided with required fields and dummy data, the fo
 
 **DigiD - initiator**
 
-The authorizee is the "initiator" of the case (cleared up from VNG github), the representee
+The authorizee is the "initiator" of the case, the representee
 is a "belanghebbende".
 
 .. code:: http
@@ -142,7 +144,7 @@ is a "belanghebbende".
         "zaak": "http://example.com",
         "betrokkeneType": "natuurlijk_persoon",
         "roltype": "http://example.com/roltype-belanghebbende",
-        "roltoelichting": "Voogd",
+        "roltoelichting": "Beneficiary",
         "indicatieMachtiging": "machtiginggever",
         "betrokkeneIdentificatie": {
             "inpBsn": "111222333"
@@ -387,7 +389,9 @@ Below are examples how to request zaken, authorized by different parties.
 
 
     It's also possible to filter cases based on the level of assurance and to exclude
-    results where levelOfAssurance is below some required value.
+    results where levelOfAssurance is higher (=more strict) than some required reference value. The example
+    below excludes cases that were created in a "DigiD Substantieel" or "DigiD Hoog" authentication context,
+    but returns cases for "DigiD Basis" and "DigiD Midden".
 
     .. code::
 
