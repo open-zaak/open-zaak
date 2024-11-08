@@ -6,6 +6,7 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -13,7 +14,6 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
-from openzaak.utils.auth import generate_jwt
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory

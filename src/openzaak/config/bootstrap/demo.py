@@ -7,10 +7,10 @@ import requests
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
 from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
 
 from openzaak.utils import build_absolute_url
-from openzaak.utils.auth import generate_jwt
 
 
 class DemoUserStep(BaseConfigurationStep):

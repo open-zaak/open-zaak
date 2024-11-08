@@ -14,9 +14,8 @@ from vng_api_common.authorizations.models import (
     AuthorizationsConfig,
     Autorisatie,
 )
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
-
-from openzaak.utils.auth import generate_jwt
 
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView

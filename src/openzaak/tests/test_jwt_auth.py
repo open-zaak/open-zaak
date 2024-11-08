@@ -7,13 +7,13 @@ import jwt
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import reverse
 
 from openzaak.components.autorisaties.middleware import JWTAuth
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.utils.auth import generate_jwt
 
 
 class JWTExpiredTests(JWTAuthMixin, APITestCase):

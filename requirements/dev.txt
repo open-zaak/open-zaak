@@ -156,6 +156,8 @@ cryptography==41.0.7
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
+cssselect==1.2.0
+    # via pyquery
 deprecated==1.2.14
     # via
     #   -r requirements/base.txt
@@ -442,6 +444,7 @@ idna==3.7
     # via
     #   -r requirements/base.txt
     #   requests
+    #   yarl
 imagesize==1.1.0
     # via sphinx
 inflection==0.5.1
@@ -495,6 +498,8 @@ kubernetes==11.0.0
     # via openshift
 kubernetes-validate==1.18.0
     # via -r requirements/../deployment/requirements.in
+lxml==5.3.0
+    # via pyquery
 markdown==3.3.6
     # via
     #   -r requirements/base.txt
@@ -517,6 +522,8 @@ mozilla-django-oidc-db==0.19.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+multidict==6.1.0
+    # via yarl
 mypy-extensions==1.0.0
     # via black
 notifications-api-common==0.3.1
@@ -566,6 +573,8 @@ prompt-toolkit==3.0.31
     # via
     #   -r requirements/base.txt
     #   click-repl
+propcache==0.2.0
+    # via yarl
 psycopg2==2.9.9
     # via
     #   -r requirements/base.txt
@@ -617,6 +626,8 @@ pyproject-hooks==1.0.0
     # via
     #   build
     #   pip-tools
+pyquery==2.0.1
+    # via -r requirements/test-tools.in
 pyrsistent==0.18.1
     # via
     #   -r requirements/base.txt
@@ -663,6 +674,8 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+    #   vcrpy
+    #   zgw-consumers-oas
 qrcode==7.4.2
     # via
     #   -r requirements/base.txt
@@ -809,10 +822,13 @@ urllib3==1.26.19
     #   requests
     #   requests-cache
     #   sentry-sdk
+    #   vcrpy
 uwsgi==2.0.26
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+vcrpy==6.0.2
+    # via -r requirements/test-tools.in
 vine==5.1.0
     # via
     #   -r requirements/base.txt
@@ -848,6 +864,9 @@ wrapt==1.16.0
     #   -r requirements/base.txt
     #   deprecated
     #   elastic-apm
+    #   vcrpy
+yarl==1.17.1
+    # via vcrpy
 zgw-consumers==0.35.1
     # via
     #   -r requirements/base.txt

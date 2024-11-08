@@ -15,6 +15,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
 from zgw_consumers.client import build_client
 from zgw_consumers.test import mock_service_oas_get
@@ -30,7 +31,6 @@ from openzaak.config.bootstrap.notifications import (
 )
 from openzaak.config.bootstrap.selectielijst import SelectielijstAPIConfigurationStep
 from openzaak.config.bootstrap.site import SiteConfigurationStep
-from openzaak.utils.auth import generate_jwt
 
 ZAAKTYPE = "https://acc.openzaak.nl/zaaktypen/1"
 
