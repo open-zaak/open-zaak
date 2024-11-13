@@ -7,7 +7,10 @@ Registering and querying cases created on behalf of another party
     This is an experimental feature and it doesn't rely on existing ZGW standards.
 
 
-Cases for an entity (like a person or a company, the beneficiary) can be initiated and managed by other parties, such as individuals (voluntary mandate), organizations (voluntary or forced mandate) or municipality employees assisting. The ``Rol`` resource in the Zaken API is used to record the details of this other party acting on behalf of the beneficiary.
+Cases for an entity (like a person or a company, the beneficiary) can be initiated and managed by other
+parties, such as individuals (voluntary mandate), organizations (voluntary or forced mandate) or
+municipality employees assisting. The ``Rol`` resource in the Zaken API is used to record the details
+of this other party acting on behalf of the beneficiary.
 
 In such scenario's, the user authenticates with DigiD or eHerkenning in an application. They can
 do this for themselves, or represent another entity. The application where they authenticate creates
@@ -21,18 +24,19 @@ DigiD and eHerkenning both support mandates, albeit in different flavours.
     :alt: Digid and eHerkenning authorized parties with and without mandates.
 
 
-The image above describes some typical scenario's involving mandates.
+The image above describes some typical scenario's involving mandates:
 
 1. An individual (``natuurlijk_persoon``) is authorized with Digid and starts a case for themselves.
 2. An individual (``natuurlijk_persoon``) is authorized with DigiD and starts a case on
    behalf of another individual (DigiD Machtigen).
-3. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningmiddel*
+3. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
    which allows them to start a case for their company/organisation.
-4. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningmiddel*
+4. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
    for their company/organisation. This company/organisation represents an individual, and the employee can start a
    case for the individual. Legally, the company/organisation is liable, not the employee.
-5. An employee of the organization (``niet_natuurlijk_persoon`` or ``vestiging``) is authorized with
-   eHerkenning and initiates the case on behalf of another organization (eHerkenning ketenmachtiging)
+5. An employee of the company/organization (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
+   for their company/organisation. This company/organisation represents another company, and the employee can start a
+   case for the other company (eHerkenning ketenmachtiging).
 
 
 In Open Zaak, the API endpoint ``/zaken/api/v1/rollen`` has experimental support for these scenarios. You can find examples on how to use these below.
@@ -213,6 +217,8 @@ is a "belanghebbende".
 4. eHerkenning / With mandate (bewindvoering)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. note:: This shape also applies to roles `curator` and `mentor`.
+
 **eHerkenning - initiator**
 
 .. code:: http
@@ -240,7 +246,7 @@ is a "belanghebbende".
                 "identifierType": "bsn",
                 "identifier": "111222333"
             },
-            "actingSubject": "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018@2D8FF1EF10279BC2643F376D89835151"
+            "actingSubject": "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018@2D8FF1EF10279BC2643F376D89835151",
             "mandate": {
                 "role": "bewindvoerder",
                 "services": [{
@@ -275,6 +281,11 @@ is a "belanghebbende".
 5. eHerkenning / With mandate (ketenmachtiging)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. warning::
+   For "ketenmachtiging" only KVK nummers are supported by eHerkenning. Therefore
+   it's not possible to use the branch ("vestiging") identified by `vestigingsNummer`
+
+
 **eHerkenning - initiator**
 
 .. code:: http
@@ -284,7 +295,7 @@ is a "belanghebbende".
 
     {
         "zaak": "http://example.com",
-        "betrokkeneType": "vestiging",
+        "betrokkeneType": "niet_natuurlijk_persoon",
         "roltype": "http://example.com/roltype-initiator",
         "roltoelichting": "Created zaak",
         "contactpersoonRol": {
@@ -293,7 +304,6 @@ is a "belanghebbende".
         "indicatieMachtiging": "gemachtigde",
         "betrokkeneIdentificatie": {
             "kvkNummer": "12345678",
-            "vestigingsNummer": "123456789012"
         },
         "authenticatieContext": {
         "source": "eherkenning",
@@ -302,7 +312,7 @@ is a "belanghebbende".
             "identifierType": "kvkNummer",
             "identifier": "99998888"
         },
-        "actingSubject": "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018@2D8FF1EF10279BC2643F376D89835151"
+        "actingSubject": "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018@2D8FF1EF10279BC2643F376D89835151",
         "mandate": {
             "services": [{
                 "id": "urn:etoegang:DV:00000001002308836000:services:9113",
@@ -524,7 +534,7 @@ to retrieve details of the parties. For example, show me the rollen (based on my
 Useful documentation
 --------------------
 
-* the shape of ``Rol.authenticatieContext`` is based on `authentication-context-schemas <https://github.com/maykinmedia/authentication-context-schemas/>`_
+* the shape of ``Rol.authenticatieContext`` is based on `datadefinities voor authenticatiecontext <https://dienstverleningsplatform.gitbook.io/platform-generieke-dienstverlening-public/patronen/vertegenwoordiging-en-machtiging/datadefinities>`_
 * Clarifications on mandates for roles at `VNG Github <https://github.com/VNG-Realisatie/gemma-zaken/issues/2435>`_
 * `Digid machtiging  <https://www.logius.nl/domeinen/toegang/digid-machtigen/documentatie/digid-machtigen-functionele-beschrijving>`_
 * `eHerkenning ketenmachtiging <https://www.eherkenning.nl/nl/machtigen/ketenmachtiging>`_

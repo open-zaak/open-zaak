@@ -1670,10 +1670,10 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
-          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
-          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
-          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
 
 
       - in: query
@@ -6452,10 +6452,10 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
-          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
-          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
-          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
 
 
       - in: query
@@ -10128,10 +10128,10 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
-          * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
-          * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
-          * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+          * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+          * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
 
 
       - in: query
@@ -10500,10 +10500,10 @@ paths:
                   - gemachtigde
                   - machtiginggever
                   description: |+
-                    **EXPERIMENTEEL** filter objects depending on their `IndicatieMachtiging`:
-                    * `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
-                    * `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
-                    * `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+                    **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+                    * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+                    * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+                    * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
 
 
                 rol__machtiging__loa:
@@ -11330,7 +11330,7 @@ components:
           - $ref: '#/components/schemas/DigiDMandate'
           title: mandate context
           description: |-
-            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
+            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
 
             The `mandate` key is required if a `representee` is specified.
       required:
@@ -11375,7 +11375,7 @@ components:
           - $ref: '#/components/schemas/DigiDMandateRequest'
           title: mandate context
           description: |-
-            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
+            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
 
             The `mandate` key is required if a `representee` is specified.
       required:
@@ -15508,7 +15508,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
           description: eHerkenning is the only way a Non-Natural Person or the Branch
-            can be identified.
+            of a company can be identified.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'
@@ -15555,7 +15555,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
           description: eHerkenning is the only way a Non-Natural Person or the Branch
-            can be identified.
+            of a company can be identified.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'

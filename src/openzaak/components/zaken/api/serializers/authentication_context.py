@@ -185,7 +185,7 @@ class DigiDAuthContextSerializer(serializers.Serializer):
         help_text=_(
             "The mandate (\"machtiging') describes the extent of the mandate granted "
             "from the representee to the authorizee. For DigiD, the mandate is tied "
-            "to a a service or a set of services. Each service is identified by an "
+            "to a service or a set of services. Each service is identified by an "
             "ID, passed along by Logius in the authentication flow.\n\n"
             "The `mandate` key is required if a `representee` is specified."
         ),
@@ -209,7 +209,8 @@ class eHerkenningAuthContextSerializer(serializers.Serializer):
         label=_("Source"),
         choices=((AuthSource.eherkenning.value, AuthSource.eherkenning.label),),
         help_text=_(
-            "eHerkenning is the only way a Non-Natural Person or the Branch can be identified."
+            "eHerkenning is the only way a Non-Natural Person or the Branch of a company "
+            "can be identified."
         ),
     )
     level_of_assurance = serializers.ChoiceField(
@@ -223,6 +224,7 @@ class eHerkenningAuthContextSerializer(serializers.Serializer):
             "in the currently active portal authentication context."
         ),
     )
+    # Specification by eHerkenning - https://afsprakenstelsel.etoegang.nl/Startpagina/v3/specific-pseudonym
     acting_subject = serializers.CharField(
         required=False,
         max_length=100,

@@ -84,7 +84,6 @@ linkcheck_ignore = [
     r"http://localhost:\d+/",
     r"http://127\.0\.0\.1:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
-    "https://github.com/maykinmedia/authentication-context-schemas/",
 ]
 
 sphinx_tabs_valid_builders = ["linkcheck"]

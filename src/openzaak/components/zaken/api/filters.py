@@ -38,10 +38,10 @@ from .serializers.authentication_context import (
 
 # custom filter to show cases for authorizee and representee
 MACHTIGING_HELP_TEXT = mark_experimental(
-    """filter objects depending on their `IndicatieMachtiging`:
-* `eigen`: Toon objecten waarvan het attribuut `IndicatieMachtiging` leeg is.
-* `gemachtigde`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'gemachtigde' is.
-* `machtiginggever`: Toon objecten waarvan het attribuut `IndicatieMachtiging` 'machtiginggever'
+    """filter objects depending on their `indicatieMachtiging`:
+* `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+* `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+* `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
 """
 )
 
