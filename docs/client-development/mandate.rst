@@ -375,7 +375,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<representee_bsn>
              &rol__machtiging=machtiginggever
 
 
@@ -385,7 +385,7 @@ Below are examples how to request zaken, authorized by different parties.
     .. code::
 
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<own_bsn>
+             rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn=<representee_bsn>
              &rol__omschrijvingGeneriek=belanghebbende
 
 
@@ -430,6 +430,7 @@ there are two examples for each option.
         # branch
         GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
+             &rol__betrokkeneIdentificatie__vestiging__vestigingsNummer=<own_vestigings_nummer>
              &rol__machtiging=eigen
 
 
@@ -459,14 +460,7 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
-             &rol__machtiging=machtiginggever
-
-    .. code::
-
-        # branch
-        GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<representee_kvk_nummer>
              &rol__machtiging=machtiginggever
 
 
@@ -477,8 +471,12 @@ there are two examples for each option.
 
         # organization
         GET /zaken/api/v1/zaken?
-             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<own_kvk>
+             rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvk_Nummer=<representee_kvk>
              &rol__omschrijvingGeneriek=belanghebbende
+
+    .. warning::
+       For "ketenmachtiging" only KVK nummers are supported by eHerkenning. Therefore
+       it's not possible to use the branch ("vestiging") identified by `vestigingsNummer`
 
 
 3. Show me the cases (based on my KVK nummer) where I represent another party:
@@ -495,11 +493,15 @@ there are two examples for each option.
         # branch
         GET /zaken/api/v1/zaken?
              rol__betrokkeneIdentificatie__vestiging__kvkNummer=<own_kvk>
+             &rol__betrokkeneIdentificatie__vestiging__vestigingsNummer=<own_vestigings_nummer>
              &rol__machtiging=gemachtigde
 
 
-    It's also possible to filter cases based on the level of assurance and to exclude
-    results where levelOfAssurance is below some required value.
+        It's also possible to filter cases based on the level of assurance and to exclude
+        results where levelOfAssurance is higher (=more strict) than some required reference value. The example
+        below excludes cases that were created in a "eHerkenning Substantial (3)" or "eHerkenning High (4)"
+        authentication context, but returns cases for "eHerkenning Low (2+)", "eHerkenning Low (2)" and
+        "eHerkenning Non existent (1)".
 
     .. code::
 
