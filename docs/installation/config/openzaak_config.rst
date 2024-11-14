@@ -61,6 +61,7 @@ The configuration steps below need to be performed in Open Zaak itself.
    c. Fill out the form:
 
       - **Label**: *For example:* ``Open Notificaties``
+      - **Service slug**: *For example:* ``open-notificaties``
       - **Type**: Select the option: ``NRC (Notifications)``
       - **API root url**: the full URL to the Notificaties API root, e.g.
         ``https://notificaties.gemeente.local/api/v1/``
@@ -156,26 +157,24 @@ Open Notificaties
    a. Navigate to **Configuratie > Autorisatiecomponentconfiguratie**
    b. Fill out the form:
 
-      - **API root**: *The URL to the Autorisaties API. For example:*
-        ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
       - **Component**: ``Notificatierouteringscomponent``
+      - **Autorisations api service**: click the plus icon to add a service
 
-   c. Click **Opslaan**.
-
-6. Configure the credentials for the Open Zaak Autorisaties API (so Open
-   Notificaties can access the Autorisaties API):
-
-   a. Navigate to **API Autorisaties > Externe API credentials**
-   b. Click **Externe API credential toevoegen**.
    c. Fill out the form:
 
-      - **API root**: *Same URL as used in step 5b. For example:*
-        ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
       - **Label**: *For example:* ``Open Zaak``
+      - **Service slug**: *For example:* ``open-zaak``
+      - **Type**: Select the option: ``NRC (Notifications)``
+      - **API root url**: *The URL to the Autorisaties API. For example:*
+        ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
 
       - **Client ID**: *The same Client ID as given in Open Zaak step 3c.
         For example:* ``open-notificaties``
       - **Secret**: *The same Secret as given in Open Zaak step 3c*
+      - **Authorization type**: Select the option: ``ZGW client_id + secret``
+      - **OAS url**: URL that points to the OpenAPI specification. This is typically
+        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
+        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
 

@@ -17,6 +17,7 @@ example, this guide describes the necessary configuration steps in Open Zaak.
    c. Fill out the form:
 
       - **Label**: For example: ``External Documenten``
+      - **Service slug**: *For example:* ``external-documenten``
       - **Type**: Select the option: ``DRC (Informetieobjecten)``
       - **API root url**: the full URL to the external API root, e.g.
         ``https://documenten.gemeente.external/api/v1/``
@@ -42,6 +43,7 @@ example, this guide describes the necessary configuration steps in Open Zaak.
    c. Fill out the form:
 
       - **Label**: For example: ``Local Catalogi``
+      - **Service slug**: *For example:* ``local-catalogi``
       - **Type**: Select the option: ``ZTC (Zaaktypen)``
       - **API root url**: the full URL to the local Catalogi API root, e.g.
         ``https://open-zaak.gemeente.external/catalog/api/v1/``
