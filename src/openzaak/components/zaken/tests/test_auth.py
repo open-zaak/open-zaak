@@ -1389,12 +1389,15 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         cls.zaaktype = ZaakTypeFactory.create()
 
+        super().setUpTestData()
+
+    def setUp(self):
+        super().setUp()
+
         ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/",
             api_type=APITypes.ztc,
         )
-
-        super().setUpTestData()
 
     def test_zaak_list_internal_and_external(self):
         external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"

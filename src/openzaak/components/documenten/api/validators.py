@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
-from requests import RequestException
+from requests import RequestException, Response
 from rest_framework import serializers
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
@@ -180,9 +180,10 @@ class CreateRemoteRelationValidator:
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)
         client = get_client(object_url)
+        assert client
 
         try:
-            remote_relations: list = client.get(
+            remote_relations: Response = client.get(
                 f"{object_type}informatieobjecten",
                 params={
                     "informatieobject": document_url,

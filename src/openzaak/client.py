@@ -49,10 +49,10 @@ def get_client(
     raise_exceptions: bool = True,
     **client_kwargs,
 ) -> Optional[OpenZaakClient]:
-    if not service:
-        if not url:
-            raise ValueError("Either `url` or `service` must be specified")
-        service = Service.get_service(url)
+    if not service and not url:
+        raise ValueError("Either `url` or `service` must be specified")
+
+    service = service or Service.get_service(url)
 
     if not service:
         if raise_exceptions:

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 import requests_mock
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
 
@@ -15,14 +15,10 @@ class SelectieLijstMixin:
         super().setUpTestData()
 
         cls.base = "https://selectielijst.openzaak.nl/api/v1/"
-        service, _ = Service.objects.update_or_create(
+        service = ServiceFactory(
             api_root=cls.base,
-            defaults=dict(
-                slug=cls.base,
-                api_type=APITypes.orc,
-                label="external selectielijst",
-                auth_type=AuthTypes.no_auth,
-            ),
+            api_type=APITypes.orc,
+            label="external selectielijst",
         )
 
         # there are TransactionTestCases that truncate the DB, so we need to ensure

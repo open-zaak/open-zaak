@@ -458,11 +458,16 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.besluittype = BesluitTypeFactory.create()
+
+        super().setUpTestData()
+
+    def setUp(self):
+        super().setUp()
+
         ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/",
             api_type=APITypes.ztc,
         )
-        super().setUpTestData()
 
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
@@ -580,9 +585,8 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
+    def setUp(self):
+        super().setUp()
 
         ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/",

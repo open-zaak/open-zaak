@@ -33,9 +33,13 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
+
+    def setUp(self):
+        super().setUp()
+
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_bad_url(self):
@@ -565,8 +569,12 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     @tag("gh-992", "external-urls")
     def test_validate_hoofdzaaktype_deelzaaktypen_remote_zaaktype(self):
         """
-        Assert that the zaatkype allowed deelzaaktypen is validated.
+        Assert that the zaaktype allowed deelzaaktypen is validated.
         """
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
         # set up zaaktypen
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"

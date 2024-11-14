@@ -4,6 +4,9 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def set_selectielijst_service(apps, _):
@@ -14,6 +17,14 @@ def set_selectielijst_service(apps, _):
 
     # This service should be created by `0003_move_config_to_service_model`
     svc = Service.objects.filter(api_root=config.api_root).first()
+    if not svc:
+        logger.error(
+            "No Service found for Selectielijst API with api root %s, this Service must be "
+            "created manually to ensure the Selectielijst integration works",
+            config.api_root,
+        )
+        return
+
     config.service = svc
     config.save()
 

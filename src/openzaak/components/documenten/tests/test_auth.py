@@ -797,11 +797,15 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+        super().setUpTestData()
+
+    def setUp(self):
+        super().setUp()
+
         ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/",
             api_type=APITypes.ztc,
         )
-        super().setUpTestData()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(
