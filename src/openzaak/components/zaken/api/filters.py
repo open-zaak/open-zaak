@@ -17,7 +17,7 @@ from openzaak.utils.filters import (
     ExpandFilter,
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
-from openzaak.utils.filterset import FilterSet
+from openzaak.utils.filterset import FilterGroup, FilterSet, FilterSetWithGroups
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
@@ -100,7 +100,29 @@ class MaxLoAFilter(filters.ChoiceFilter):
         return super().filter(qs, numeric_value)
 
 
-class ZaakFilter(FilterSet):
+class ZaakFilter(FilterSetWithGroups):
+    groups = [
+        FilterGroup(
+            [
+                "rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn",
+                "rol__betrokkene_identificatie__natuurlijk_persoon__anp_identificatie",
+                "rol__betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
+                "rol__betrokkene_identificatie__vestiging__vestigings_nummer",
+                "rol__betrokkene_identificatie__vestiging__kvk_nummer",
+                "rol__betrokkene_identificatie__medewerker__identificatie",
+                "rol__betrokkene_identificatie__organisatorische_eenheid__identificatie",
+                "rol__machtiging",
+                "rol__machtiging__loa",
+                "rol__betrokkene_type",
+                "rol__betrokkene",
+                "rol__omschrijving_generiek",
+            ]
+        )
+    ]
+
     maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
         field_name="vertrouwelijkheidaanduiding",
         help_text=(

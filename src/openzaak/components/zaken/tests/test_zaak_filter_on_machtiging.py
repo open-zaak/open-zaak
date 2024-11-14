@@ -20,7 +20,7 @@ from ..api.serializers.authentication_context import (
     eHerkenningRepresenteeIdentifier,
 )
 from ..constants import IndicatieMachtiging
-from ..models import NietNatuurlijkPersoon, Vestiging, Zaak
+from ..models import NatuurlijkPersoon, NietNatuurlijkPersoon, Vestiging, Zaak
 from .factories import RolFactory, ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS
 
@@ -457,4 +457,188 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.json()["results"][0]["url"],
             f"http://testserver{reverse(rol1.zaak)}",
+        )
+
+
+class FilterRolSpanningTests(JWTAuthMixin, APITestCase):
+    """
+    check that all reverse-fk filters "rol__*" are ANDed and
+    applies to the same rollen
+    Related django doc - https://docs.djangoproject.com/en/4.2/topics/db/queries/#spanning-multi-valued-relationships
+    """
+
+    heeft_alle_autorisaties = True
+    url = reverse_lazy(Zaak)
+
+    def test_filter_rol_machtiging_and_bsn(self):
+        """
+        Zaak1:
+          * has rolA indicatieMachtiging="gemachtigde" bsn=123456782
+          * has rolB indicatieMachtiging="machtiginggever" bsn=111222333
+
+        Zaak2:
+          * has rolC indicatieMachtiging="gemachtigde" bsn=111222333
+          * has rolD indicatieMachtiging="machtiginggever" bsn=123456782
+
+        If we filter on indicatieMachtiging="gemachtigde" bsn=123456782
+        only zaak1 should be shown
+        """
+
+        zaaktype = ZaakTypeFactory.create()
+        roltype_initiator = RolTypeFactory.create(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        roltype_belanghebbende = RolTypeFactory.create(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
+        )
+        zaak1, zaak2 = ZaakFactory.create_batch(2, zaaktype=zaaktype)
+
+        rol_a = RolFactory.create(
+            zaak=zaak1,
+            roltype=roltype_initiator,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.gemachtigde,
+            roltoelichting="Rol A",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.middle,
+                "representee": {"identifier_type": "bsn", "identifier": "111222333"},
+                "mandate": {
+                    "services": [{"id": "5628edbd-333e-460d-8a69-8f083b8cf1b8"}]
+                },
+            },
+        )
+        NatuurlijkPersoon.objects.create(rol=rol_a, inp_bsn="123456782")
+        rol_b = RolFactory.create(
+            zaak=zaak1,
+            roltype=roltype_belanghebbende,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.machtiginggever,
+            roltoelichting="Rol B",
+        )
+        NatuurlijkPersoon.objects.create(rol=rol_b, inp_bsn="111222333")
+        rol_c = RolFactory.create(
+            zaak=zaak2,
+            roltype=roltype_initiator,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.gemachtigde,
+            roltoelichting="Rol C",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.middle,
+                "representee": {"identifier_type": "bsn", "identifier": "123456782"},
+                "mandate": {
+                    "services": [{"id": "5628edbd-333e-460d-8a69-8f083b8cf1b8"}]
+                },
+            },
+        )
+        NatuurlijkPersoon.objects.create(rol=rol_c, inp_bsn="111222333")
+        rol_d = RolFactory.create(
+            zaak=zaak2,
+            roltype=roltype_belanghebbende,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.machtiginggever,
+            roltoelichting="Rol D",
+        )
+        NatuurlijkPersoon.objects.create(rol=rol_d, inp_bsn="123456782")
+
+        response = self.client.get(
+            self.url,
+            {
+                "rol__machtiging": MachtigingChoices.gemachtigde,
+                "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "123456782",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak1)}"
+        )
+
+    def test_filter_rol_machtiging_and_loa(self):
+        """
+        Zaak1:
+          * has rolA indicatieMachtiging="gemachtigde" loa=middle
+          * has rolB indicatieMachtiging="" loa=base
+
+        Zaak2:
+          * has rolC indicatieMachtiging="gemachtigde" loa=high
+          * has rolD indicatieMachtiging="" loa=middle
+
+        If we filter on indicatieMachtiging="gemachtigde" loa=middle
+        only zaak1 should be shown
+        """
+
+        zaaktype = ZaakTypeFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        zaak1, zaak2 = ZaakFactory.create_batch(2, zaaktype=zaaktype)
+
+        RolFactory.create(
+            zaak=zaak1,
+            roltype=roltype,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.gemachtigde,
+            roltoelichting="Rol A",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.middle,
+                "representee": {"identifier_type": "bsn", "identifier": "111222333"},
+                "mandate": {
+                    "services": [{"id": "5628edbd-333e-460d-8a69-8f083b8cf1b8"}]
+                },
+            },
+        )
+        RolFactory.create(
+            zaak=zaak1,
+            roltype=roltype,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltoelichting="Rol B",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.base,
+            },
+        )
+        RolFactory.create(
+            zaak=zaak2,
+            roltype=roltype,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            indicatie_machtiging=IndicatieMachtiging.gemachtigde,
+            roltoelichting="Rol C",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.high,
+                "representee": {"identifier_type": "bsn", "identifier": "111222333"},
+                "mandate": {
+                    "services": [{"id": "5628edbd-333e-460d-8a69-8f083b8cf1b8"}]
+                },
+            },
+        )
+        RolFactory.create(
+            zaak=zaak2,
+            roltype=roltype,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltoelichting="Rol D",
+            authenticatie_context={
+                "source": "digid",
+                "level_of_assurance": DigiDLevelOfAssurance.middle,
+            },
+        )
+
+        response = self.client.get(
+            self.url,
+            {
+                "rol__machtiging": MachtigingChoices.gemachtigde,
+                "rol__machtiging__loa": DigiDLevelOfAssurance.middle,
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak1)}"
         )
