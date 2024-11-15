@@ -12,7 +12,7 @@ parties, such as individuals (voluntary mandate), organizations (voluntary or fo
 municipality employees assisting. The ``Rol`` resource in the Zaken API is used to record the details
 of this other party acting on behalf of the beneficiary.
 
-In such scenario's, the user authenticates with DigiD or eHerkenning in an application. They can
+In such scenarios, the user authenticates with DigiD or eHerkenning in an application. They can
 do this for themselves, or represent another entity. The application where they authenticate creates
 (or reads/updates) the case and adds this *authentication context* to the case via 
 ``Rol.authenticatieContext`` to persist the meta information about the authentication and mandate itself.
