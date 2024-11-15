@@ -11334,6 +11334,7 @@ components:
 
             The `mandate` key is required if a `representee` is specified.
       required:
+      - levelOfAssurance
       - source
     DigiDAuthContextLevelOfAssuranceEnum:
       enum:
@@ -11379,6 +11380,7 @@ components:
 
             The `mandate` key is required if a `representee` is specified.
       required:
+      - levelOfAssurance
       - source
     DigiDAuthContextSourceEnum:
       enum:
@@ -15547,6 +15549,8 @@ components:
             granted from the representee to the authorizee. The `mandate` key is required
             if a `representee` is specified.
       required:
+      - actingSubject
+      - levelOfAssurance
       - source
     eHerkenningAuthContextRequest:
       type: object
@@ -15595,6 +15599,8 @@ components:
             granted from the representee to the authorizee. The `mandate` key is required
             if a `representee` is specified.
       required:
+      - actingSubject
+      - levelOfAssurance
       - source
     eHerkenningMandate:
       type: object
