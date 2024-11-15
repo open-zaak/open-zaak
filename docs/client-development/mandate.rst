@@ -524,15 +524,6 @@ to retrieve details of the parties. For example, show me the rollen (based on my
              &machtiging__loa=urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract
 
 
-.. note::
-
-   If it's possible that your case has several autorizees and representees, use ``zaken/api/v1/rollen`` endpoint
-   for searching such cases. Filters for the ``zaken/api/v1/zaken`` endpoint don't depend on each other, so
-   it's possible to show cases where one query parameter belongs to one role and another parameter belongs to
-   another role. In such cases either use ``zaken/api/v1/zaken`` endpoint and add extra filtering on the client
-   side or use ``zaken/api/v1/rollen`` endpoint, where all query parameters are applied to each role.
-
-
 Useful documentation
 --------------------
 

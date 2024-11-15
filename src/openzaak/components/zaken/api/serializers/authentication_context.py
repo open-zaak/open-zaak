@@ -156,7 +156,7 @@ class DigiDAuthContextSerializer(serializers.Serializer):
         help_text=_("DigiD is the only way a Natural Person can be identified."),
     )
     level_of_assurance = serializers.ChoiceField(
-        required=False,
+        required=True,
         label=_("Level of assurance"),
         choices=DigiDLevelOfAssurance.choices,
         help_text=_(
@@ -214,7 +214,7 @@ class eHerkenningAuthContextSerializer(serializers.Serializer):
         ),
     )
     level_of_assurance = serializers.ChoiceField(
-        required=False,
+        required=True,
         label=_("Level of assurance"),
         choices=eHerkenningLevelOfAssurance.choices,
         help_text=_(
@@ -226,7 +226,7 @@ class eHerkenningAuthContextSerializer(serializers.Serializer):
     )
     # Specification by eHerkenning - https://afsprakenstelsel.etoegang.nl/Startpagina/v3/specific-pseudonym
     acting_subject = serializers.CharField(
-        required=False,
+        required=True,
         max_length=100,
         help_text=_(
             "The identifier is always some encrypted form, specific to the service provider. "

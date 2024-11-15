@@ -1,16 +1,23 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import json
 import uuid
 from datetime import datetime
+from pathlib import Path
 
 from django.conf import settings
 from django.utils import timezone
 
+from jsonschema import ValidationError, Validator
+from jsonschema.validators import validator_for
 from vng_api_common.tests import get_operation_url as _get_operation_url
 
 ZAAK_READ_KWARGS = {"HTTP_ACCEPT_CRS": "EPSG:4326"}
 
 ZAAK_WRITE_KWARGS = {"HTTP_ACCEPT_CRS": "EPSG:4326", "HTTP_CONTENT_CRS": "EPSG:4326"}
+AUTH_JSON_SCHEMA_PATH = (
+    Path(__file__).parents[3] / "tests/json_schemas/auth_context_schema.json"
+)
 
 
 def utcdatetime(*args, **kwargs) -> datetime:
@@ -226,3 +233,23 @@ def get_zaakobjecttype_response(
         "catalogus": "http://example.org/catalogussen/1",
         **overrides,
     }
+
+
+# copied from Open Forms
+def _get_auth_schema_validator() -> Validator:
+    with AUTH_JSON_SCHEMA_PATH.open("r") as infile:
+        schema = json.load(infile)
+    return validator_for(schema)(schema)
+
+
+auth_schema_validator = _get_auth_schema_validator()
+
+
+class AuthContextAssertMixin:
+    def assertValidContext(self, context):
+        try:
+            auth_schema_validator.validate(context)
+        except ValidationError as exc:
+            raise self.failureException(
+                "Context is not valid according to schema"
+            ) from exc

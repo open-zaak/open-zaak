@@ -20,6 +20,7 @@ from ..api.serializers.authentication_context import (
 from ..constants import IndicatieMachtiging
 from ..models import Rol
 from .factories import ZaakFactory
+from .utils import AuthContextAssertMixin
 
 ACTING_SUBJECT = (
     "4B75A0EA107B3D36C82FD675B5B78CC2F181B22E33D85F2D4A5DA63452EE3018"
@@ -27,7 +28,7 @@ ACTING_SUBJECT = (
 )
 
 
-class AuthContextDigidTests(JWTAuthMixin, APITestCase):
+class AuthContextDigidTests(AuthContextAssertMixin, JWTAuthMixin, APITestCase):
     """
     tests for Rol with Digid authenticatie context
     """
@@ -66,6 +67,10 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
             {"source": "digid", "level_of_assurance": DigiDLevelOfAssurance.middle},
         )
         self.assertEqual(rol.natuurlijkpersoon.inp_bsn, "123456782")
+
+        # check that we can construct auth context valid against the auth context JSON schema
+        context = rol.construct_auth_context_data()
+        self.assertValidContext(context)
 
     def test_create_digid_with_mandate(self):
         zaak = ZaakFactory.create()
@@ -110,6 +115,11 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(rol.natuurlijkpersoon.inp_bsn, "123456782")
+
+        # check that we can construct auth context valid against the auth context JSON schema
+        context = rol.construct_auth_context_data()
+        print("context=", context)
+        self.assertValidContext(context)
 
     def test_create_digid_with_mandate_incorrect_indicatie_machtigen(self):
         zaak = ZaakFactory.create()
@@ -198,7 +208,7 @@ class AuthContextDigidTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid_choice")
 
 
-class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
+class AuthContextEHerkenningTests(AuthContextAssertMixin, JWTAuthMixin, APITestCase):
     """
     tests for Rol with eHerkenning without mandate:
     """
@@ -246,6 +256,10 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(rol.nietnatuurlijkpersoon.kvk_nummer, "12345678")
 
+        # check that we can construct auth context valid against the auth context JSON schema
+        context = rol.construct_auth_context_data()
+        self.assertValidContext(context)
+
     def test_create_eherkenning_vestiging_without_mandate(self):
         zaak = ZaakFactory.create()
         roltype = RolTypeFactory.create(
@@ -289,19 +303,26 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
         self.assertEqual(rol.vestiging.kvk_nummer, "12345678")
         self.assertEqual(rol.vestiging.vestigings_nummer, "123456789012")
 
-    def test_create_eherkenning_nnp_with_mandate_np(self):
+        # check that we can construct auth context valid against the auth context JSON schema
+        context = rol.construct_auth_context_data()
+        self.assertValidContext(context)
+
+    def test_create_eherkenning_vestiging_with_mandate_np(self):
         zaak = ZaakFactory.create()
         roltype = RolTypeFactory.create(
             zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
         )
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
-            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "betrokkeneType": RolTypes.vestiging,
             "roltype": f"http://testserver{reverse(roltype)}",
             "roltoelichting": "Created zaak",
             "contactpersoonRol": {"naam": "acting subject name"},
             "indicatieMachtiging": IndicatieMachtiging.gemachtigde,
-            "betrokkeneIdentificatie": {"kvkNummer": "12345678"},
+            "betrokkeneIdentificatie": {
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "123456789012",
+            },
             "authenticatieContext": {
                 "source": "eherkenning",
                 "levelOfAssurance": eHerkenningLevelOfAssurance.low_plus,
@@ -329,7 +350,7 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
         rol = Rol.objects.get()
 
         self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
-        self.assertEqual(rol.betrokkene_type, RolTypes.niet_natuurlijk_persoon)
+        self.assertEqual(rol.betrokkene_type, RolTypes.vestiging)
         self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
         self.assertEqual(rol.indicatie_machtiging, IndicatieMachtiging.gemachtigde)
         self.assertEqual(
@@ -353,23 +374,26 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
                 },
             },
         )
-        self.assertEqual(rol.nietnatuurlijkpersoon.kvk_nummer, "12345678")
+        self.assertEqual(rol.vestiging.kvk_nummer, "12345678")
+        self.assertEqual(rol.vestiging.vestigings_nummer, "123456789012")
 
-    def test_create_eherkenning_vestiging_with_mandate_company(self):
+        context = rol.construct_auth_context_data()
+        self.assertValidContext(context)
+
+    def test_create_eherkenning_nnp_with_mandate_company(self):
         zaak = ZaakFactory.create()
         roltype = RolTypeFactory.create(
             zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
         )
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
-            "betrokkeneType": RolTypes.vestiging,
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
             "roltype": f"http://testserver{reverse(roltype)}",
             "roltoelichting": "Created zaak",
             "indicatieMachtiging": IndicatieMachtiging.gemachtigde,
             "contactpersoonRol": {"naam": "acting subject name"},
             "betrokkeneIdentificatie": {
                 "kvkNummer": "12345678",
-                "vestigingsNummer": "123456789012",
             },
             "authenticatieContext": {
                 "source": "eherkenning",
@@ -397,7 +421,7 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
         rol = Rol.objects.get()
 
         self.assertEqual(rol.omschrijving_generiek, RolOmschrijving.initiator)
-        self.assertEqual(rol.betrokkene_type, RolTypes.vestiging)
+        self.assertEqual(rol.betrokkene_type, RolTypes.niet_natuurlijk_persoon)
         self.assertEqual(rol.contactpersoon_rol_naam, "acting subject name")
         self.assertEqual(rol.indicatie_machtiging, IndicatieMachtiging.gemachtigde)
         self.assertEqual(
@@ -420,8 +444,10 @@ class AuthContextEHerkenningTests(JWTAuthMixin, APITestCase):
                 },
             },
         )
-        self.assertEqual(rol.vestiging.kvk_nummer, "12345678")
-        self.assertEqual(rol.vestiging.vestigings_nummer, "123456789012")
+        self.assertEqual(rol.nietnatuurlijkpersoon.kvk_nummer, "12345678")
+
+        context = rol.construct_auth_context_data()
+        self.assertValidContext(context)
 
     def test_create_eherkenning_with_mandate_empty_mandate(self):
         zaak = ZaakFactory.create()

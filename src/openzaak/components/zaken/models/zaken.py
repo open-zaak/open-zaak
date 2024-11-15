@@ -938,6 +938,75 @@ class Rol(ETagMixin, APIMixin, models.Model):
             case _:
                 raise ValueError("Unknown rol betrokkene type")
 
+    def construct_auth_context_data(self) -> dict:
+        """
+        construct JSON which should be valid against auth context JSON schema
+        https://github.com/maykinmedia/authentication-context-schemas/blob/main/schemas/schema.json
+        """
+
+        auth_context = self.authenticatie_context
+
+        if not auth_context:
+            return {}
+
+        context = {
+            "source": auth_context["source"],
+            "levelOfAssurance": auth_context["level_of_assurance"],
+        }
+        if "mandate" in auth_context:
+            context["mandate"] = auth_context["mandate"]
+
+        if "representee" in auth_context:
+            context["representee"] = {
+                "identifierType": auth_context["representee"]["identifier_type"],
+                "identifier": auth_context["representee"]["identifier"],
+            }
+
+        match self.betrokkene_type:
+            # DigiD
+            case RolTypes.natuurlijk_persoon:
+                context["authorizee"] = {
+                    "legalSubject": {
+                        "identifierType": "bsn",
+                        "identifier": self.natuurlijkpersoon.inp_bsn,
+                    }
+                }
+
+            # eHerkenning
+            case RolTypes.niet_natuurlijk_persoon:
+                if self.nietnatuurlijkpersoon.kvk_nummer:
+                    id_type = "kvkNummer"
+                    id = self.nietnatuurlijkpersoon.kvk_nummer
+                else:
+                    id_type = "rsin"
+                    id = self.nietnatuurlijkpersoon.inn_nnp_id
+
+                context["authorizee"] = {
+                    "legalSubject": {"identifierType": id_type, "identifier": id},
+                    "actingSubject": {
+                        "identifierType": "opaque",
+                        "identifier": auth_context["acting_subject"],
+                    },
+                }
+
+            case RolTypes.vestiging:
+                context["authorizee"] = {
+                    "legalSubject": {
+                        "identifierType": "kvkNummer",
+                        "identifier": self.vestiging.kvk_nummer,
+                    },
+                    "actingSubject": {
+                        "identifierType": "opaque",
+                        "identifier": auth_context["acting_subject"],
+                    },
+                }
+                if self.vestiging.vestigings_nummer:
+                    context["authorizee"]["legalSubject"][
+                        "branchNumber"
+                    ] = self.vestiging.vestigings_nummer
+
+        return context
+
 
 class ZaakObject(APIMixin, models.Model):
     """
