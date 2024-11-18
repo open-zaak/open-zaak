@@ -1632,7 +1632,8 @@ paths:
         name: betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
+          Koophandel'
       - in: query
         name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
@@ -1670,7 +1671,7 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
           * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
           * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
           * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
@@ -6414,7 +6415,8 @@ paths:
         name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
+          Koophandel'
       - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
@@ -6452,7 +6454,7 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
           * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
           * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
           * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
@@ -10090,7 +10092,8 @@ paths:
         name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+        description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
+          Koophandel'
       - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
@@ -10128,7 +10131,7 @@ paths:
           - gemachtigde
           - machtiginggever
         description: |+
-          **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+          **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
           * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
           * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
           * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
@@ -10479,7 +10482,8 @@ paths:
                     een ANDER NIET-NATUURLIJK PERSOON
                 rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer:
                   type: string
-                  description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+                  description: '**EXPERIMENTEEL** Een uniek nummer toegekend door
+                    de Kamer van Koophandel'
                 rol__betrokkeneIdentificatie__vestiging__vestigingsNummer:
                   type: string
                   description: Een korte unieke aanduiding van de Vestiging.
@@ -10500,7 +10504,7 @@ paths:
                   - gemachtigde
                   - machtiginggever
                   description: |+
-                    **EXPERIMENTEEL** filter objects depending on their `indicatieMachtiging`:
+                    **EXPERIMENTEEL** filter objecten op basis van `indicatieMachtiging`:
                     * `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
                     * `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
                     * `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
@@ -11992,7 +11996,8 @@ components:
           maxLength: 17
         kvkNummer:
           type: string
-          description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+          description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer
+            van Koophandel'
           maxLength: 8
         statutaireNaam:
           type: string
@@ -12028,7 +12033,8 @@ components:
           maxLength: 17
         kvkNummer:
           type: string
-          description: '**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer'
+          description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer
+            van Koophandel'
           maxLength: 8
         statutaireNaam:
           type: string

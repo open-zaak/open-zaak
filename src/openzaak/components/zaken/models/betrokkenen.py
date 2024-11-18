@@ -172,7 +172,9 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
     kvk_nummer = models.CharField(
         max_length=8,
         blank=True,
-        help_text=mark_experimental("Een uniek nummer toegekend door de Kamer van Koophandel"),
+        help_text=mark_experimental(
+            "Een uniek nummer toegekend door de Kamer van Koophandel"
+        ),
     )
 
     class Meta:

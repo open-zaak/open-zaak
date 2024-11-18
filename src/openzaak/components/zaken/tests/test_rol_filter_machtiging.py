@@ -203,7 +203,7 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
             authenticatie_context={
                 "source": "eherkenning",
                 "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
-                "actingSubject": ACTING_SUBJECT,
+                "acting_subject": ACTING_SUBJECT,
             },
         )
         rol_gemachtigde = RolFactory.create(
@@ -216,7 +216,7 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
             authenticatie_context={
                 "source": "eherkenning",
                 "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
-                "actingSubject": ACTING_SUBJECT,
+                "acting_subject": ACTING_SUBJECT,
                 "representee": {
                     "identifier_type": eHerkenningRepresenteeIdentifier.bsn,
                     "identifier": "111222333",
@@ -291,7 +291,7 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
             authenticatie_context={
                 "source": "eherkenning",
                 "level_of_assurance": eHerkenningLevelOfAssurance.low_plus,
-                "actingSubject": ACTING_SUBJECT,
+                "acting_subject": ACTING_SUBJECT,
                 "representee": {
                     "identifier_type": eHerkenningRepresenteeIdentifier.bsn,
                     "identifier": "111222333",
@@ -317,7 +317,7 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
             authenticatie_context={
                 "source": "eherkenning",
                 "level_of_assurance": eHerkenningLevelOfAssurance.high,
-                "actingSubject": ACTING_SUBJECT,
+                "acting_subject": ACTING_SUBJECT,
                 "representee": {
                     "identifier_type": eHerkenningRepresenteeIdentifier.kvk_nummer,
                     "identifier": "12345678",

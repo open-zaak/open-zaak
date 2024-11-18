@@ -24,19 +24,21 @@ DigiD and eHerkenning both support mandates, albeit in different flavours.
     :alt: Digid and eHerkenning authorized parties with and without mandates.
 
 
-The image above describes some typical scenario's involving mandates:
+The image above describes some typical scenarios involving mandates:
 
 1. An individual (``natuurlijk_persoon``) is authorized with Digid and starts a case for themselves.
 2. An individual (``natuurlijk_persoon``) is authorized with DigiD and starts a case on
    behalf of another individual (DigiD Machtigen).
 3. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
-   which allows them to start a case for their company/organisation.
+   which allows them to start a case for their company/organisation. Legally, the company/organisation is liable,
+   not the employee.
 4. An employee of a company/organisation (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
    for their company/organisation. This company/organisation represents an individual, and the employee can start a
    case for the individual. Legally, the company/organisation is liable, not the employee.
 5. An employee of the company/organization (``niet_natuurlijk_persoon`` or ``vestiging``) has an *eHerkenningsmiddel*
    for their company/organisation. This company/organisation represents another company, and the employee can start a
-   case for the other company (eHerkenning ketenmachtiging).
+   case for the other company (eHerkenning ketenmachtiging). Legally, the company/organisation is liable, not
+   the employee.
 
 
 In Open Zaak, the API endpoint ``/zaken/api/v1/rollen`` has experimental support for these scenarios. You can find examples on how to use these below.

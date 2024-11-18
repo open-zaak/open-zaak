@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name="kvk_nummer",
             field=models.CharField(
                 blank=True,
-                help_text="**EXPERIMENTEEL** Een Kamer van Koophandel uniek nummer",
+                help_text="**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van Koophandel",
                 max_length=8,
             ),
         ),
