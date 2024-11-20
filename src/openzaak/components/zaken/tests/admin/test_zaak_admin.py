@@ -205,6 +205,60 @@ class ZaakAdminTests(WebTest):
 
         self.assertEqual(submit_response.status_code, 302)
 
+    def test_zaaktype_omschrijving_search(self):
+        """
+        Search for zaken with the given zaaktype__zaaktype_omschrijving
+        """
+        external_zaaktype = (
+            "https://external.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
+        # zaak with external zaaktype
+        ZaakFactory(zaaktype=external_zaaktype, identificatie="zaak-external")
+
+        zaaktype = ZaakTypeFactory(zaaktype_omschrijving="foobar")
+        # zaak with internal zaaktype
+        ZaakFactory.create(zaaktype=zaaktype, identificatie="zaak-XYZ")
+
+        with requests_mock.Mocker() as requests_mocker:
+            response = self.app.get(reverse("admin:zaken_zaak_changelist"))
+
+            form = response.forms["changelist-search"]
+            form["q"] = "foobar"
+
+            submit_response = form.submit()
+
+        self.assertEqual(requests_mocker.request_history, [])
+        self.assertEqual(submit_response.status_code, 200)
+        self.assertContains(submit_response, "zaak-XYZ")
+        self.assertNotContains(submit_response, "zaak-external")
+
+    def test_zaaktype_identificatie_search(self):
+        """
+        Search for zaken with the given zaaktype__identificatie
+        """
+        external_zaaktype = (
+            "https://external.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
+        # zaak with external zaaktype
+        ZaakFactory(zaaktype=external_zaaktype, identificatie="zaak-external")
+
+        zaaktype = ZaakTypeFactory(identificatie="internal-zaaktype")
+        # zaak with internal zaaktype
+        ZaakFactory.create(zaaktype=zaaktype, identificatie="zaak-XYZ")
+
+        with requests_mock.Mocker() as requests_mocker:
+            response = self.app.get(reverse("admin:zaken_zaak_changelist"))
+
+            form = response.forms["changelist-search"]
+            form["q"] = "internal-zaaktype"
+
+            submit_response = form.submit()
+
+        self.assertEqual(requests_mocker.request_history, [])
+        self.assertEqual(submit_response.status_code, 200)
+        self.assertContains(submit_response, "zaak-XYZ")
+        self.assertNotContains(submit_response, "zaak-external")
+
     def test_filter_on_betrokkene_bsn(self):
         rol = RolFactory.create(
             betrokkene_type=RolTypes.natuurlijk_persoon,
