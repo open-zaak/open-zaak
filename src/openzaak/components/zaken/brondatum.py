@@ -21,6 +21,7 @@ class BrondatumCalculator:
     def __init__(self, zaak: Zaak, datum_status_gezet: datetime):
         self.zaak = zaak
         self.datum_status_gezet = datum_status_gezet
+        self.brondatum = None
 
     def calculate(self) -> Union[None, date]:
         if self.zaak.archiefactiedatum:
@@ -54,7 +55,7 @@ class BrondatumCalculator:
         self.zaak.einddatum = orig_value
         if not brondatum:
             return
-
+        self.brondatum = brondatum
         return brondatum + archiefactietermijn
 
     def get_archiefnominatie(self) -> str:
