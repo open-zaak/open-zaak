@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.16.0 (WIP)
+------------
+
+**New features**
+
+* [#1817] Updated OAF version to 0.9.0. This upgrade allows admin users managing their sessions through the admin.
+
+
 1.15.0 (2024-10-04)
 -------------------
 
