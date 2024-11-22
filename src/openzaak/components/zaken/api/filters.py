@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path
+from drf_spectacular.plumbing import build_choice_description_list
 from vng_api_common.utils import get_field_attribute, get_help_text
 
 from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
@@ -16,7 +17,8 @@ from openzaak.utils.filters import (
     ExpandFilter,
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
-from openzaak.utils.filterset import FilterSet
+from openzaak.utils.filterset import FilterGroup, FilterSet, FilterSetWithGroups
+from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
     KlantContact,
@@ -29,9 +31,98 @@ from ..models import (
     ZaakObject,
     ZaakVerzoek,
 )
+from .serializers.authentication_context import (
+    DigiDLevelOfAssurance,
+    eHerkenningLevelOfAssurance,
+)
+
+# custom filter to show cases for authorizee and representee
+MACHTIGING_HELP_TEXT = mark_experimental(
+    """filter objecten op basis van `indicatieMachtiging`:
+* `eigen`: Toon objecten waarvan het attribuut `indicatieMachtiging` leeg is.
+* `gemachtigde`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'gemachtigde' is.
+* `machtiginggever`: Toon objecten waarvan het attribuut `indicatieMachtiging` 'machtiginggever'
+"""
+)
 
 
-class ZaakFilter(FilterSet):
+class MachtigingChoices(models.TextChoices):
+    eigen = "eigen", _("Eigen")
+    gemachtigde = "gemachtigde", _("Gemachtigde")
+    machtiginggever = "machtiginggever", _("Machtiginggever")
+
+
+def machtiging_filter(queryset, name, value: str):
+    if value == MachtigingChoices.eigen:
+        return queryset.filter(**{name: ""})
+
+    return queryset.filter(**{name: value})
+
+
+class MaxLoAFilter(filters.ChoiceFilter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "choices",
+            DigiDLevelOfAssurance.choices + eHerkenningLevelOfAssurance.choices,
+        )
+        kwargs.setdefault("lookup_expr", "lte")
+
+        # add choice description
+        help_text = kwargs.get("help_text", "")
+        help_text += (
+            "\n \n **Digid:** \n"
+            + build_choice_description_list(DigiDLevelOfAssurance.choices)
+            + "\n \n **eHerkenning:** \n"
+            + build_choice_description_list(eHerkenningLevelOfAssurance.choices)
+        )
+        kwargs["help_text"] = help_text
+
+        super().__init__(*args, **kwargs)
+
+        # rewrite the field_name correctly
+        self._field_name = self.field_name
+        self.field_name = f"_{self._field_name}_order"
+
+    def filter(self, qs, value):
+        if value in filters.EMPTY_VALUES:
+            return qs
+
+        choices = (
+            DigiDLevelOfAssurance
+            if value in DigiDLevelOfAssurance
+            else eHerkenningLevelOfAssurance
+        )
+
+        order_expression = choices.get_order_expression(self._field_name)
+        numeric_value = choices.get_choice_order(value)
+
+        qs = qs.annotate(**{self.field_name: order_expression})
+        return super().filter(qs, numeric_value)
+
+
+class ZaakFilter(FilterSetWithGroups):
+    groups = [
+        FilterGroup(
+            [
+                "rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn",
+                "rol__betrokkene_identificatie__natuurlijk_persoon__anp_identificatie",
+                "rol__betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
+                "rol__betrokkene_identificatie__vestiging__vestigings_nummer",
+                "rol__betrokkene_identificatie__vestiging__kvk_nummer",
+                "rol__betrokkene_identificatie__medewerker__identificatie",
+                "rol__betrokkene_identificatie__organisatorische_eenheid__identificatie",
+                "rol__machtiging",
+                "rol__machtiging__loa",
+                "rol__betrokkene_type",
+                "rol__betrokkene",
+                "rol__omschrijving_generiek",
+            ]
+        )
+    ]
+
     maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
         field_name="vertrouwelijkheidaanduiding",
         help_text=(
@@ -80,12 +171,26 @@ class ZaakFilter(FilterSet):
             ),
         )
     )
+    rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer = (
+        filters.CharFilter(
+            field_name="rol__nietnatuurlijkpersoon__kvk_nummer",
+            help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
+            max_length=get_field_attribute(
+                "zaken.NietNatuurlijkPersoon", "kvk_nummer", "max_length"
+            ),
+        )
+    )
     rol__betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="rol__vestiging__vestigings_nummer",
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
         max_length=get_field_attribute(
             "zaken.Vestiging", "vestigings_nummer", "max_length"
         ),
+    )
+    rol__betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
+        field_name="rol__vestiging__kvk_nummer",
+        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
+        max_length=get_field_attribute("zaken.Vestiging", "kvk_nummer", "max_length"),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="rol__medewerker__identificatie",
@@ -99,6 +204,19 @@ class ZaakFilter(FilterSet):
             field_name="rol__organisatorischeeenheid__identificatie",
             help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
         )
+    )
+    rol__machtiging = filters.ChoiceFilter(
+        field_name="rol__indicatie_machtiging",
+        method=machtiging_filter,
+        help_text=MACHTIGING_HELP_TEXT,
+        choices=MachtigingChoices.choices,
+    )
+    rol__machtiging__loa = MaxLoAFilter(
+        field_name="rol__authenticatie_context__level_of_assurance",
+        help_text=mark_experimental(
+            "Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance` die lager is dan of "
+            "gelijk is aan de aangegeven aanduiding worden teruggeven als resultaten."
+        ),
     )
     ordering = filters.OrderingFilter(
         fields=(
@@ -164,9 +282,17 @@ class RolFilter(FilterSet):
             help_text=get_help_text("zaken.NietNatuurlijkPersoon", "ann_identificatie"),
         )
     )
+    betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer = filters.CharFilter(
+        field_name="nietnatuurlijkpersoon__kvk_nummer",
+        help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
+    )
     betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="vestiging__vestigings_nummer",
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
+    )
+    betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
+        field_name="vestiging__kvk_nummer",
+        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
     )
     betrokkene_identificatie__organisatorische_eenheid__identificatie = (
         filters.CharFilter(
@@ -177,6 +303,19 @@ class RolFilter(FilterSet):
     betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
         field_name="medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
+    )
+    machtiging = filters.ChoiceFilter(
+        field_name="indicatie_machtiging",
+        method=machtiging_filter,
+        help_text=MACHTIGING_HELP_TEXT,
+        choices=MachtigingChoices.choices,
+    )
+    machtiging__loa = MaxLoAFilter(
+        field_name="authenticatie_context__level_of_assurance",
+        help_text=mark_experimental(
+            "Rollen met een 'authenticatieContext.levelOfAssurance' die lager of gelijk is dan de "
+            "aangegeven aanduiding worden teruggeven als resultaten."
+        ),
     )
 
     class Meta:
@@ -190,12 +329,16 @@ class RolFilter(FilterSet):
             "betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer",
             "betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
             "betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
+            "betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
             "betrokkene_identificatie__vestiging__vestigings_nummer",
+            "betrokkene_identificatie__vestiging__kvk_nummer",
             "betrokkene_identificatie__organisatorische_eenheid__identificatie",
             "betrokkene_identificatie__medewerker__identificatie",
             "roltype",
             "omschrijving",
             "omschrijving_generiek",
+            "machtiging",
+            "machtiging__loa",
         )
 
 

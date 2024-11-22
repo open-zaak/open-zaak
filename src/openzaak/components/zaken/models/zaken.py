@@ -10,9 +10,11 @@ from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.loaders import FetchError
@@ -710,6 +712,15 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
         )
 
 
+_SUPPORTS_AUTH_CONTEXT = models.Q(
+    betrokkene_type__in=[
+        RolTypes.natuurlijk_persoon,
+        RolTypes.niet_natuurlijk_persoon,
+        RolTypes.vestiging,
+    ]
+)
+
+
 class Rol(ETagMixin, APIMixin, models.Model):
     """
     Modelleer de rol van een BETROKKENE bij een ZAAK.
@@ -853,11 +864,33 @@ class Rol(ETagMixin, APIMixin, models.Model):
         ),
     )
 
+    authenticatie_context = models.JSONField(
+        _("authentication context"),
+        blank=True,
+        null=True,
+        encoder=DjangoJSONEncoder,
+        help_text=_(
+            "Metadata about the authentication context and mandate that applied when "
+            "the role was added to the case."
+        ),
+    )
+
     objects = ZaakRelatedQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Rol"
         verbose_name_plural = "Rollen"
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    _SUPPORTS_AUTH_CONTEXT
+                    | models.Q(
+                        ~_SUPPORTS_AUTH_CONTEXT, authenticatie_context__isnull=True
+                    )
+                ),
+                name="rol_auth_context_support_check",
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         self._derive_roltype_attributes()
@@ -881,6 +914,98 @@ class Rol(ETagMixin, APIMixin, models.Model):
             else self.betrokkene
         )
         return f"({self.zaak.unique_representation()}) - {betrokkene.rsplit('/')[-1]}"
+
+    @cached_property
+    def betrokkene_identificatie(self):
+        """
+        Return the details of the related betrokkene.
+
+        Depending on the betrokkeneType, return the related object holding the
+        ``betrokkeneIdentificatie`` details. This relation may not be set if a
+        betrokkene URL is specified.
+        """
+        match self.betrokkene_type:
+            case RolTypes.natuurlijk_persoon:
+                return self.natuurlijkpersoon
+            case RolTypes.niet_natuurlijk_persoon:
+                return self.nietnatuurlijkpersoon
+            case RolTypes.vestiging:
+                return self.vestiging
+            case RolTypes.organisatorische_eenheid:
+                return self.organisatorischeeenheid
+            case RolTypes.medewerker:
+                return self.medewerker
+            case _:
+                raise ValueError("Unknown rol betrokkene type")
+
+    def construct_auth_context_data(self) -> dict:
+        """
+        construct JSON which should be valid against auth context JSON schema
+        https://github.com/maykinmedia/authentication-context-schemas/blob/main/schemas/schema.json
+        """
+
+        auth_context = self.authenticatie_context
+
+        if not auth_context:
+            return {}
+
+        context = {
+            "source": auth_context["source"],
+            "levelOfAssurance": auth_context["level_of_assurance"],
+        }
+        if "mandate" in auth_context:
+            context["mandate"] = auth_context["mandate"]
+
+        if "representee" in auth_context:
+            context["representee"] = {
+                "identifierType": auth_context["representee"]["identifier_type"],
+                "identifier": auth_context["representee"]["identifier"],
+            }
+
+        match self.betrokkene_type:
+            # DigiD
+            case RolTypes.natuurlijk_persoon:
+                context["authorizee"] = {
+                    "legalSubject": {
+                        "identifierType": "bsn",
+                        "identifier": self.natuurlijkpersoon.inp_bsn,
+                    }
+                }
+
+            # eHerkenning
+            case RolTypes.niet_natuurlijk_persoon:
+                if self.nietnatuurlijkpersoon.kvk_nummer:
+                    id_type = "kvkNummer"
+                    id = self.nietnatuurlijkpersoon.kvk_nummer
+                else:
+                    id_type = "rsin"
+                    id = self.nietnatuurlijkpersoon.inn_nnp_id
+
+                context["authorizee"] = {
+                    "legalSubject": {"identifierType": id_type, "identifier": id},
+                    "actingSubject": {
+                        "identifierType": "opaque",
+                        "identifier": auth_context["acting_subject"],
+                    },
+                }
+
+            case RolTypes.vestiging:
+                context["authorizee"] = {
+                    "legalSubject": {
+                        "identifierType": "kvkNummer",
+                        "identifier": self.vestiging.kvk_nummer,
+                    },
+                    "actingSubject": {
+                        "identifierType": "opaque",
+                        "identifier": auth_context["acting_subject"],
+                    },
+                }
+                if self.vestiging.vestigings_nummer:
+                    context["authorizee"]["legalSubject"][
+                        "branchNumber"
+                    ] = self.vestiging.vestigings_nummer
+
+        return context
 
 
 class ZaakObject(APIMixin, models.Model):
