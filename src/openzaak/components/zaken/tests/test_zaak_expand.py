@@ -7,8 +7,6 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse, reverse_lazy
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
@@ -235,14 +233,6 @@ class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
     url = reverse_lazy("zaak-list")
-
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
 
     def test_zaak_list_include(self):
         """

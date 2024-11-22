@@ -21,15 +21,17 @@ class ViewConfigTestCase(WebTest):
         self.config = NotificationsConfig.get_solo()
 
     def test_view_config_page_no_notifs_service(self):
+        self.config.notifications_api_service = None
+        self.config.save()
+
         response = self.app.get(self.url)
 
         self.assertEqual(response.status_code, 200)
 
         rows = response.html.findAll("tr")
 
-        # Rows for: header, Site domain and HTTPS.
-        # Notifications should be skipped
-        self.assertEqual(len(rows), 3)
+        # Rows for: header, Site domain and HTTPS and notifications (missing)
+        self.assertEqual(len(rows), 4)
 
     def test_view_config_page_with_incorrect_notifs_service(self):
         self.config.notifications_api_service = ServiceFactory.create(

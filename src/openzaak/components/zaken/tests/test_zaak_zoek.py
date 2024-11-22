@@ -15,8 +15,6 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -98,14 +96,6 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
 class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = True
-
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
 
     def test_zoek_uuid_in(self):
         zaak1, zaak2, zaak3 = ZaakFactory.create_batch(3)

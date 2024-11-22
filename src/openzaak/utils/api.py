@@ -2,13 +2,14 @@
 # Copyright (C) 2020 Dimpact
 from django.conf import settings
 
-from openzaak.client import get_client
+from vng_api_common.client import get_client, to_internal_data
+
 from openzaak.components.documenten.models import ObjectInformatieObject
 
 
 def delete_remote_resource(resource: str, resource_url: str) -> None:
-    client = get_client(resource_url)
-    client.delete(resource_url)
+    client = get_client(resource_url, raise_exceptions=True)
+    to_internal_data(client.delete(resource_url))
 
 
 def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -> dict:
@@ -24,7 +25,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
 
         response = {"url": oio.get_url()}
     else:
-        client = get_client(io_url)
+        client = get_client(io_url, raise_exceptions=True)
 
         body = {
             "informatieobject": io_url,
@@ -33,7 +34,7 @@ def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -
         }
 
         response = client.post("objectinformatieobjecten", json=body)
-    return response
+    return to_internal_data(response)
 
 
 def delete_remote_oio(oio_url: str) -> None:
@@ -43,7 +44,7 @@ def delete_remote_oio(oio_url: str) -> None:
 def create_remote_objectcontactmoment(
     contactmoment_url: str, object_url: str, object_type: str = "zaak"
 ) -> dict:
-    client = get_client(contactmoment_url)
+    client = get_client(contactmoment_url, raise_exceptions=True)
 
     body = {
         "contactmoment": contactmoment_url,
@@ -51,7 +52,7 @@ def create_remote_objectcontactmoment(
         "objectType": object_type,
     }
 
-    response = client.post("objectcontactmomenten", json=body)
+    response = to_internal_data(client.post("objectcontactmomenten", json=body))
     return response
 
 
@@ -62,7 +63,7 @@ def delete_remote_objectcontactmoment(objectcontactmoment_url: str) -> None:
 def create_remote_objectverzoek(
     verzoek_url: str, object_url: str, object_type: str = "zaak"
 ) -> dict:
-    client = get_client(verzoek_url)
+    client = get_client(verzoek_url, raise_exceptions=True)
 
     body = {
         "verzoek": verzoek_url,
@@ -70,7 +71,7 @@ def create_remote_objectverzoek(
         "objectType": object_type,
     }
 
-    response = client.post("objectverzoeken", json=body)
+    response = to_internal_data(client.post("objectverzoeken", json=body))
     return response
 
 

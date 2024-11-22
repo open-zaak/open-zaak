@@ -106,20 +106,20 @@ def requests_cache_enabled(cache_name, backend=None, *args, **kwargs):
     # Unfortunately requests-cache does not work out of the box for custom clients that
     # inherit from `requests.Session`, so we have to monkeypatch the `OpenZaakClient` to
     # ensure requests made with that client are cached as well
-    import openzaak.client
+    import vng_api_common.client
 
-    original_client = openzaak.client.OpenZaakClient
+    original_client = vng_api_common.client.Client
 
     class CustomOpenZaakClient(original_client, CachedSession):
         def __init__(self, *args, **kwargs):
             # Initialize CachedSession with the custom backend
             super().__init__(cache_name=cache_name, backend=backend, *args, **kwargs)
 
-    openzaak.client.OpenZaakClient = CustomOpenZaakClient
+    vng_api_common.client.Client = CustomOpenZaakClient
     install_cache(*args, **kwargs)
     try:
         yield
     finally:
-        openzaak.client.OpenZaakClient = original_client
+        vng_api_common.client.Client = original_client
         clear()
         uninstall_cache()

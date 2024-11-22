@@ -614,14 +614,6 @@ class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = get_operation_url("rol_create")
 
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
-
     def test_create_external_roltype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"

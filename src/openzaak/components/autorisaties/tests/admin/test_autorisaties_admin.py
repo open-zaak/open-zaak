@@ -19,9 +19,7 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse as _reverse
-from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test import generate_oas_component
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
@@ -510,12 +508,6 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     @patch("vng_api_common.oas.fetcher")
     @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
     def test_add_autorisatie_external_zaaktype_invalid_resource(self, *mocks):
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="https://external.catalogi.com/api/v1/",
-            label="external catalogi",
-            auth_type=AuthTypes.no_auth,
-        )
         data = {
             # management form
             "form-TOTAL_FORMS": 1,
@@ -533,6 +525,18 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
+
+        expected_errors = {
+            "externe_typen": [
+                {
+                    "msg": _(
+                        "De URL {url} resource lijkt niet op een `ZaakType`. Geef een geldige URL op."
+                    ).format(url="https://external.catalogi.com/api/v1/1234"),
+                    "code": "invalid-resource",
+                }
+            ]
+        }
+        self.assertEqual(response.context["formdata"][0]["errors"], expected_errors)
 
     def test_add_authorizatie_without_types(self):
         data = {

@@ -4,7 +4,7 @@
 Test the correct invocations for registering notification channels.
 """
 from io import StringIO
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.contrib.sites.models import Site
 from django.core.management import call_command
@@ -61,7 +61,9 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
         Test is request to create kanaal is send with specified kanaal name
         """
         client = mock_get_client.return_value
-        client.get.return_value = []
+        mock_response = MagicMock()
+        mock_response.json.return_value = []  # Mocking the response data for json()
+        client.get.return_value = mock_response
 
         stdout = StringIO()
         call_command(
@@ -85,7 +87,10 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
         Test is request to create kanaal is send for all registered kanalen
         """
         client = mock_get_client.return_value
-        client.get.return_value = []
+        mock_response = MagicMock()
+        mock_response.json.return_value = []
+        client.get.return_value = mock_response
+        client.post.return_value = mock_response
 
         stdout = StringIO()
         call_command(

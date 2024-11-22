@@ -210,15 +210,6 @@ class ExternalBesluittypeScopeCMISTests(JWTAuthMixin, APICMISTestCase):
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
-
     def test_bio_list(self):
         url = reverse(BesluitInformatieObject)
         # must show up

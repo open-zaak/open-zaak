@@ -14,12 +14,12 @@ from django.utils.translation import gettext_lazy as _
 import requests
 from django_loose_fk.loaders import BaseLoader
 from rest_framework.exceptions import ValidationError
+from vng_api_common.client import ClientError, get_client, to_internal_data
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.tests import reverse as _reverse
 
-from openzaak.client import ClientError, get_client
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -155,7 +155,7 @@ class ZaakTypeForm(forms.ModelForm):
                 )
                 continue
 
-            resultaat = client.get(url)
+            resultaat = to_internal_data(client.get(url))
 
             if resultaat["procesType"] != procestype_url:
                 raise forms.ValidationError(
@@ -238,7 +238,7 @@ class ResultaatTypeForm(forms.ModelForm):
             return
 
         try:
-            selectielijst_resultaat = client.get(selectielijstklasse)
+            selectielijst_resultaat = to_internal_data(client.get(selectielijstklasse))
         except (ClientError, requests.RequestException) as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")

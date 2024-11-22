@@ -8,6 +8,7 @@ from zgw_consumers.models import Service
 
 from openzaak.client import get_client
 from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+from vng_api_common.client import to_internal_data
 
 
 @requests_cache_enabled(
@@ -21,8 +22,10 @@ def set_selectieklasse_procestype_default_year(apps, _):
             # Derive the `selectielijst_procestype_jaar`, even if it was already set
             # previously, because migration `0006_auto_20200817_1037` always sets it to
             # 2017 (which could be incorrect)
-            client = get_client(zaaktype.selectielijst_procestype)
-            response = client.get(zaaktype.selectielijst_procestype)
+            client = get_client(
+                zaaktype.selectielijst_procestype, raise_exceptions=True
+            )
+            response = to_internal_data(client.get(zaaktype.selectielijst_procestype))
             zaaktype.selectielijst_procestype_jaar = response["jaar"]
             zaaktype.save()
 

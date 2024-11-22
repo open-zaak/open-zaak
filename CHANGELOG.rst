@@ -14,6 +14,9 @@ Changelog
     was added to move to the `Service` model. It is advised to verify the `Service`
     instances in the admin to check that the data migration was ran as expected.
 
+    Additionally, it is advised to check the `Selectielijstconfiguratie` to see if a service
+    is configured for it.
+
 1.16.0 (2024-11-25)
 -------------------
 

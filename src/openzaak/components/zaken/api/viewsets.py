@@ -31,6 +31,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
+from vng_api_common.client import to_internal_data
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.search import SearchMixin
@@ -416,11 +417,13 @@ class ZaakViewSet(
         oio_urls = instance.zaakinformatieobject_set.filter(
             Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)
-        delete_params = [(url, get_client(url)) for url in oio_urls]
+        delete_params = [
+            (url, get_client(url, raise_exceptions=True)) for url in oio_urls
+        ]
 
         def _delete_oios():
             for url, client in delete_params:
-                client.delete(url)
+                to_internal_data(client.delete(url))
 
         transaction.on_commit(_delete_oios)
 

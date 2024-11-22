@@ -5,6 +5,7 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import logging
+from zgw_consumers.constants import APITypes
 
 logger = logging.getLogger(__name__)
 
@@ -16,14 +17,16 @@ def set_selectielijst_service(apps, _):
     config, _ = ReferentieLijstConfig.objects.get_or_create()
 
     # This service should be created by `0003_move_config_to_service_model`
-    svc = Service.objects.filter(api_root=config.api_root).first()
-    if not svc:
-        logger.error(
-            "No Service found for Selectielijst API with api root %s, this Service must be "
-            "created manually to ensure the Selectielijst integration works",
-            config.api_root,
-        )
-        return
+    svc, _ = Service.objects.get_or_create(
+        api_root=config.api_root,
+        defaults={
+            "label": "VNG Selectielijst",
+            "slug": "vng-selectielijst",
+            "api_type": APITypes.orc,
+            # No longer used, but still required by the admin
+            "oas": config.api_root,
+        },
+    )
 
     config.service = svc
     config.save()

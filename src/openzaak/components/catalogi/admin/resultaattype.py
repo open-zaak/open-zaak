@@ -6,7 +6,9 @@ from django.contrib import admin
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
-from openzaak.client import get_client
+from vng_api_common.client import Client, to_internal_data
+from zgw_consumers.client import build_client
+
 from openzaak.selectielijst.admin_fields import (
     get_resultaat_readonly_field,
     get_resultaattype_omschrijving_field,
@@ -157,8 +159,8 @@ class ResultaatTypeAdmin(
             )
         config = ReferentieLijstConfig.get_solo()
         assert config.service
-        client = get_client(service=config.service)
-        procestype = client.get(url)
+        client = build_client(config.service, Client)
+        procestype = to_internal_data(client.get(url))
         return f"{procestype['nummer']} - {procestype['naam']}"
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):

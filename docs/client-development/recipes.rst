@@ -40,7 +40,8 @@ Creating a Zaak, a Document and relating them
                 "registratiedatum": today,
                 "startdatum": today,
             }
-            zaak: Response = zrc_client.post("zaak", json=zaak_body)
+            zaak_response: Response = zrc_client.post("zaak", json=zaak_body)
+            zaak = zaak_response.json()
 
             # document creation
             with open("/tmp/some_file.txt", "rb") as some_file:
@@ -58,7 +59,8 @@ Creating a Zaak, a Document and relating them
                         "informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9"
                     )
                 }
-            document: Response = drc_client.post("enkelvoudiginformatieobject", json=document_body)
+            document_response: Response = drc_client.post("enkelvoudiginformatieobject", json=document_body)
+            document = document_response.json()
 
             # relate them
             zio_body = {

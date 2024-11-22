@@ -34,7 +34,9 @@ class FkOrServiceUrlFactoryMixin:
 
             # create Service instance for composite field
             base_url = furl(value).origin
-            services.append(Service(api_root=base_url, api_type=APITypes.orc))
+            services.append(
+                Service(api_root=base_url, slug=base_url, api_type=APITypes.orc)
+            )
 
         Service.objects.bulk_create(services, ignore_conflicts=True)
 

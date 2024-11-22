@@ -13,8 +13,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
@@ -1391,14 +1389,6 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
 
         super().setUpTestData()
 
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
-
     def test_zaak_list_internal_and_external(self):
         external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         external_zaaktype2 = "https://externe.catalogus.nl/api/v1/zaaktypen/d530aa07-3e4e-42ff-9be8-3247b3a6e7e3"
@@ -1574,14 +1564,6 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
     component = ComponentTypes.zrc
-
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
 
     def test_zaak_list_external_zaaktype(self):
         ZaakFactory.create(

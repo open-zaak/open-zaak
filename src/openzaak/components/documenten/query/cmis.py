@@ -18,6 +18,7 @@ from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.utils.convert import make_absolute_uri
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
+from vng_api_common.client import to_internal_data
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
@@ -1159,7 +1160,7 @@ def get_related_data_for_oio_create(
 
         if client is None:
             return None, None, None
-        other_data = client.get(object_url)
+        other_data = to_internal_data(client.get(object_url))
         return None, None, other_data
 
     return None, None, None

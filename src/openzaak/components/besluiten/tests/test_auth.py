@@ -10,8 +10,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
@@ -461,14 +459,6 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
         super().setUpTestData()
 
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
-
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
@@ -584,14 +574,6 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
-
-    def setUp(self):
-        super().setUp()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
 
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)

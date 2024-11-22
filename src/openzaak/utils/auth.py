@@ -1,17 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import logging
-import time
 
-import jwt
 from zgw_consumers.constants import AuthTypes
 
 logger = logging.getLogger(__name__)
 
-JWT_ALG = "HS256"
-
 
 def get_auth(url: str) -> dict:
+    from zgw_consumers.client import ServiceConfigAdapter
     from zgw_consumers.models import Service
 
     logger.info("Authenticating for %s", url)
@@ -22,18 +19,11 @@ def get_auth(url: str) -> dict:
         return {}
 
     if service.auth_type == AuthTypes.zgw:
-        payload = {
-            "iss": service.client_id,
-            "iat": int(time.time()),
-            "client_id": service.client_id,
-            "user_id": service.user_id,
-            "user_representation": service.user_representation,
-        }
-
-        encoded = jwt.encode(payload, service.secret, algorithm=JWT_ALG)
-        return {"Authorization": f"Bearer {encoded}"}
+        auth = ServiceConfigAdapter(service).get_client_session_kwargs()["auth"]
+        return {"Authorization": f"Bearer {auth._token}"}
     elif service.auth_type == AuthTypes.api_key:
-        return {service.header_key: service.header_value}
+        auth = ServiceConfigAdapter(service).get_client_session_kwargs()["auth"]
+        return {auth.header: auth.key}
 
     logger.warning("Could not authenticate for %s", url)
     return {}

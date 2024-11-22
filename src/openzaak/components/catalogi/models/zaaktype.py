@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
+from vng_api_common.client import to_internal_data
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
@@ -356,8 +357,8 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
 
         if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
-            client = get_client(self.selectielijst_procestype)
-            response = client.get(self.selectielijst_procestype)
+            client = get_client(self.selectielijst_procestype, raise_exceptions=True)
+            response = to_internal_data(client.get(self.selectielijst_procestype))
             self.selectielijst_procestype_jaar = response["jaar"]
 
         if not self.identificatie:

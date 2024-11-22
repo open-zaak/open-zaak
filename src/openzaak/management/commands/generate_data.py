@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import random
 from itertools import groupby, islice
-from json import JSONDecodeError
 
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
@@ -12,10 +11,10 @@ from django.utils import timezone
 import factory.fuzzy
 from django_setup_configuration.exceptions import SelfTestFailed
 from requests.exceptions import RequestException
+from vng_api_common.client import Client, ClientError, to_internal_data
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from zgw_consumers.client import build_client
 
-from openzaak.client import ClientError
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -80,12 +79,9 @@ def get_sl_resultaten() -> list[dict]:
     use only for test purposes
     """
     config = ReferentieLijstConfig.get_solo()
-    client = build_client(config.service)
-
-    try:
-        response = client.get("resultaten").json()
-    except JSONDecodeError:
-        raise SelfTestFailed("Object type version didn't have any data")
+    client = build_client(config.service, client_factory=Client)
+    assert client
+    response = to_internal_data(client.get("resultaten"))
     return response["results"]
 
 

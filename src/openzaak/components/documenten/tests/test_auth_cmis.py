@@ -11,8 +11,6 @@ from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -853,11 +851,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
         site.domain = "testserver"
         site.save()
 
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
-
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()
 
@@ -1002,11 +995,6 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/",
-            api_type=APITypes.ztc,
-        )
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()
