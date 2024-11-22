@@ -663,6 +663,7 @@ class ZaakAdmin(
         "uuid",
         "zaaktype_url",
         "_zaaktype__identificatie",
+        "_zaaktype__zaaktype_omschrijving",
         "rol__natuurlijkpersoon__inp_bsn",
         "rol__nietnatuurlijkpersoon__inn_nnp_id",
     )
