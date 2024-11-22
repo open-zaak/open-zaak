@@ -503,7 +503,7 @@ class PerformanceTests(
         schema_fetcher.cache.clear()
         self.addCleanup(schema_fetcher.cache.clear)
 
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_zaak_local_zaaktype(self, mock_notif):
         """

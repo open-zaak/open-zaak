@@ -925,6 +925,7 @@ class InvalidNotifConfigTests(
         self.assertFalse(Zaak.objects.exists())
         mock_notif.assert_not_called()
 
+    @override_settings(SOLO_CACHE=None)
     def test_notification_config_inaccessible_create(self, mock_notif):
         self._configure_notifications("http://localhost:8001/api/v1/")
         # delete the service, so no client can be built
