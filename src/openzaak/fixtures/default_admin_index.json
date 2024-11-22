@@ -11,6 +11,10 @@
                 "user"
             ],
             [
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
                 "auth",
                 "group"
             ],
