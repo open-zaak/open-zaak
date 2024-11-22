@@ -214,8 +214,8 @@ class ZaakFilter(FilterSetWithGroups):
     rol__machtiging__loa = MaxLoAFilter(
         field_name="rol__authenticatie_context__level_of_assurance",
         help_text=mark_experimental(
-            "Zaken met een `rol.authenticatieContext.levelOfAssurance` die beperkter is dan de "
-            "aangegeven aanduiding worden uit de resultaten gefiltered."
+            "Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance` die lager is dan of "
+            "gelijk is aan de aangegeven aanduiding worden teruggeven als resultaten."
         ),
     )
     ordering = filters.OrderingFilter(
@@ -313,8 +313,8 @@ class RolFilter(FilterSet):
     machtiging__loa = MaxLoAFilter(
         field_name="authenticatie_context__level_of_assurance",
         help_text=mark_experimental(
-            "Rollen met een 'authenticatieContext.levelOfAssurance' die beperkter is dan de "
-            "aangegeven aanduiding worden uit de resultaten gefiltered."
+            "Rollen met een 'authenticatieContext.levelOfAssurance' die lager of gelijk is dan de "
+            "aangegeven aanduiding worden teruggeven als resultaten."
         ),
     )
 

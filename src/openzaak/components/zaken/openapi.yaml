@@ -1692,8 +1692,8 @@ paths:
           - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
           - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
         description: "**EXPERIMENTEEL** Rollen met een 'authenticatieContext.levelOfAssurance'\
-          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
-          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+          \ die lager of gelijk is dan de aangegeven aanduiding worden teruggeven\
+          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
           \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
@@ -6474,9 +6474,9 @@ paths:
           - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
           - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
           - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-        description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
-          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
-          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+        description: "**EXPERIMENTEEL** Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+          \ die lager is dan of gelijk is aan de aangegeven aanduiding worden teruggeven\
+          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
           \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
@@ -10151,9 +10151,9 @@ paths:
           - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
           - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
           - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-        description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
-          \ die beperkter is dan de aangegeven aanduiding worden uit de resultaten\
-          \ gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+        description: "**EXPERIMENTEEL** Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+          \ die lager is dan of gelijk is aan de aangegeven aanduiding worden teruggeven\
+          \ als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
           \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
@@ -10522,9 +10522,9 @@ paths:
                   - urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
                   - urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard
                   - urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
-                  description: "**EXPERIMENTEEL** Zaken met een `rol.authenticatieContext.levelOfAssurance`\
-                    \ die beperkter is dan de aangegeven aanduiding worden uit de\
-                    \ resultaten gefiltered.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
+                  description: "**EXPERIMENTEEL** Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance`\
+                    \ die lager is dan of gelijk is aan de aangegeven aanduiding worden\
+                    \ teruggeven als resultaten.\n \n **Digid:** \n* `urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport`\
                     \ - DigiD Basis\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract`\
                     \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard`\
                     \ - DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
