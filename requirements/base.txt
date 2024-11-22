@@ -68,7 +68,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/client-changes
+commonground-api-common[testutils]==2.0.1
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -252,6 +252,8 @@ elastic-apm==6.22.2
     # via open-api-framework
 face==20.1.1
     # via glom
+faker==33.0.0
+    # via zgw-consumers-oas
 flower==2.0.1
     # via open-api-framework
 furl==2.1.3

@@ -27,4 +27,4 @@ drf-writable-nested
 humanize
 drc-cmis
 
-git+https://github.com/maykinmedia/commonground-api-common@feature/client-changes
+commonground-api-common[testutils]

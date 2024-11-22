@@ -113,7 +113,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/ci.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common@feature/client-changes
+commonground-api-common[testutils]==2.0.1
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -385,8 +385,11 @@ face==20.1.1
     #   glom
 factory-boy==3.2.1
     # via -r requirements/test-tools.in
-faker==32.1.0
-    # via factory-boy
+faker==33.0.0
+    # via
+    #   -r requirements/base.txt
+    #   factory-boy
+    #   zgw-consumers-oas
 flake8==3.8.3
     # via -r requirements/test-tools.in
 flower==2.0.1
