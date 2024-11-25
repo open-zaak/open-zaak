@@ -90,6 +90,7 @@ INSTALLED_APPS = (
 MIDDLEWARE = [
     "openzaak.utils.middleware.OverrideHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "sessionprofile.middleware.SessionProfileMiddleware",
     "openzaak.utils.middleware.LogHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # 'django.middleware.locale.LocaleMiddleware',

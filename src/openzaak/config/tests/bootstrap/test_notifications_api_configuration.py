@@ -23,6 +23,7 @@ from ...bootstrap.notifications import NotificationsAPIConfigurationStep
     NOTIF_API_OAS="https://notifs.example.com/api/v1/schema/openapi.yaml",
     OPENZAAK_NOTIF_CLIENT_ID="a-client-id",
     OPENZAAK_NOTIF_SECRET="a-secret",
+    SOLO_CACHE=None,
 )
 class NotificationsAPIConfigurationTests(TestCase):
     def test_create_configuration(self):

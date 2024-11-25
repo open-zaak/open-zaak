@@ -111,6 +111,7 @@ django==4.2.15
     #   django-relativedelta
     #   django-rest-framework-condition
     #   django-sendfile2
+    #   django-sessionprofile
     #   django-setup-configuration
     #   django-simple-certmanager
     #   django-sniplates
@@ -186,6 +187,8 @@ django-rest-framework-condition==0.1.1
     # via commonground-api-common
 django-sendfile2==0.7.0
     # via django-privates
+django-sessionprofile==3.0.0
+    # via open-api-framework
 django-setup-configuration==0.1.0
     # via open-api-framework
 django-simple-certmanager==1.3.0
@@ -305,7 +308,7 @@ notifications-api-common==0.2.2
     # via
     #   -r requirements/base.in
     #   commonground-api-common
-open-api-framework==0.8.1
+open-api-framework==0.9.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl

@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from urllib.parse import urlencode
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 import requests_mock
 
@@ -15,6 +15,7 @@ from . import mock_selectielijst_oas_get
 
 
 @requests_mock.Mocker()
+@override_settings(SOLO_CACHE=None)
 class SelectieLijstResultatenTests(
     ReferentieLijstServiceMixin, ClearCachesMixin, TestCase
 ):
@@ -71,6 +72,7 @@ class SelectieLijstResultatenTests(
         ]
         self.assertEqual(len(requests), 2)
 
+    @override_settings(SOLO_CACHE=None)
     def test_filter_procestype(self, m):
         ReferentieLijstConfig.get_solo()
         mock_selectielijst_oas_get(m)
