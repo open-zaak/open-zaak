@@ -1,12 +1,31 @@
 Changelog
 =========
 
-1.16.0 (WIP)
-------------
+1.16.0 (2024-11-25)
+-------------------
 
 **New features**
 
+* [#1733] Add experimental support for registering authentication context with mandates (machtiging)
+  and searching through them
+* [#1783] Add ``zaaktype__not_in`` filter to ``/zaken/api/v1/zaken/_zoek`` endpoint
+* [#1774] Add ``trefwoorden__overlap`` filter to ``/documenten/api/v1/enkelvoudiginformatieobjecten`` endpoint
+* [#1776] Support searching zaken on ``zaaktype.omschrijving`` in the Admin
+* [#1611] Add importing authorization data via yaml files as a configuration step
 * [#1817] Updated OAF version to 0.9.0. This upgrade allows admin users managing their sessions through the admin.
+
+**Bugfixes and QOL**
+
+* [#1741] Clean orphaned ``JwtSecret`` objects when related Applicatie objects are bulk deleted in the Admin
+
+**Project maintenance**
+
+* [#1798] Add ``resultaattype.resultaattypeomschrijving`` into ``generate_data`` command
+* [#1730] Implement `open-api-workflows <https://github.com/maykinmedia/open-api-workflows/>`_
+
+**Documentation**
+
+* [#1785] Add hardware requirements to the performance documentation
 
 
 1.15.0 (2024-10-04)
@@ -24,7 +43,7 @@ Changelog
 * [#1772] Fix API schema not showing caused by CSP errors
 * [#1771] Fix migration to delete canonical documenten objects without latest versions
 * [#1781] Fix setting NOTIFICATIONS_DISABLED via envvar
-* [#1769] Fixed adding Autorization with catalog in the admin page
+* [#1769] Fixed adding Authorization with catalog in the admin page
 * [#1768] Change all setup configuration to disabled by default
 
 .. warning::
@@ -36,12 +55,12 @@ Changelog
 
 * [#1725] Document envvars
 * [#1775] Add performance results for OZ versions
-* [#1768] Change setup configuraiton description
+* [#1768] Change setup configuration description
 * [#1790, #1772, #1770] remove broken links from docs
 
 **Project maintenance**
 
-* [#1791] Temporaliity Disable trivy image scan
+* [#1791] Temporarily disable trivy image scan
 * [#1782] Fix failing CI due to openapitools issue
 * [#1763] Add zaaktype.selectielijst_procestype into generate_data command
 * [#1761] Add zaaktype.identificatie into generate_data command
