@@ -7,7 +7,7 @@ publiccodeYmlVersion: '0.2'
 name: Open Zaak
 url: 'https://github.com/open-zaak/open-zaak.git'
 softwareType: standalone/backend
-softwareVersion: 1.14.0
+softwareVersion: 1.16.0
 releaseDate: '2023-11-28'
 logo: 'https://raw.githubusercontent.com/open-zaak/open-zaak/main/docs/logo.svg'
 platforms:
