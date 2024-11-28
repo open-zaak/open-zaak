@@ -128,6 +128,30 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
+    def test_create_with_very_big_bestandsomvang(self):
+        three_giga_bites = 3_221_225_472  # 3gb in bytes
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        content = {
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "bestandsomvang": three_giga_bites,
+            "inhoud": None,
+            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+        }
+
+        # Send to the API
+        response = self.client.post(self.list_url, content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        data = response.json()
+        self.assertEqual(data["bestandsomvang"], three_giga_bites)
+
     @tag("gh-1306")
     def test_create_identificatie_all_characters_allowed(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

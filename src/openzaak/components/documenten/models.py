@@ -351,7 +351,7 @@ class EnkelvoudigInformatieObject(
         ),
     )
 
-    bestandsomvang = models.PositiveIntegerField(
+    bestandsomvang = models.PositiveBigIntegerField(
         _("bestandsomvang"),
         null=True,
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
@@ -567,7 +567,7 @@ class BestandsDeel(models.Model):
     volgnummer = models.PositiveIntegerField(
         help_text=_("Een volgnummer dat de volgorde van de bestandsdelen aangeeft.")
     )
-    omvang = models.PositiveIntegerField(
+    omvang = models.PositiveBigIntegerField(
         help_text=_("De grootte van dit specifieke bestandsdeel.")
     )
     inhoud = PrivateMediaFileField(
