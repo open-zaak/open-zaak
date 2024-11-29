@@ -5,7 +5,8 @@ Changelog
 ------------
 **Bugfixes and QOL**
 
-* [maykinmedia/open-api-framework#66] updated commonground-api-common to 0.x.x (TBD)
+* [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
+* [maykinmedia/open-api-framework#66] updated zgw-consumers to 0.35.1
 
 .. warning::
 
