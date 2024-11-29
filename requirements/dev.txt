@@ -125,7 +125,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common[testutils]==2.0.1
+commonground-api-common[testutils]==2.1.0
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -213,6 +213,7 @@ django==4.2.15
     #   notifications-api-common
     #   open-api-framework
     #   zgw-consumers
+    #   zgw-consumers-oas
 django-admin-index==3.1.1
     # via
     #   -r requirements/base.txt
@@ -802,6 +803,7 @@ typing-extensions==4.12.2
     #   pydantic
     #   qrcode
     #   zgw-consumers
+    #   zgw-consumers-oas
 tzdata==2024.1
     # via
     #   -r requirements/base.txt
@@ -876,6 +878,10 @@ zgw-consumers==0.35.1
     #   commonground-api-common
     #   notifications-api-common
     #   open-api-framework
+zgw-consumers-oas==1.0.0
+    # via
+    #   -r requirements/base.txt
+    #   commonground-api-common
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

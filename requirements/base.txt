@@ -68,7 +68,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common[testutils]==2.0.1
+commonground-api-common[testutils]==2.1.0
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -137,6 +137,7 @@ django==4.2.15
     #   notifications-api-common
     #   open-api-framework
     #   zgw-consumers
+    #   zgw-consumers-oas
 django-admin-index==3.1.1
     # via open-api-framework
 django-appconf==1.0.6
@@ -353,6 +354,7 @@ python-dateutil==2.8.2
     #   -r requirements/base.in
     #   celery
     #   django-relativedelta
+    #   faker
     #   python-crontab
 python-decouple==3.8
     # via
@@ -369,6 +371,7 @@ pyyaml==6.0
     #   drf-spectacular
     #   drf-yasg
     #   oyaml
+    #   zgw-consumers-oas
 qrcode==7.4.2
     # via django-two-factor-auth
 redis==4.1.4
@@ -409,10 +412,12 @@ tornado==6.4.1
     # via flower
 typing-extensions==4.12.2
     # via
+    #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   qrcode
     #   zgw-consumers
+    #   zgw-consumers-oas
 tzdata==2024.1
     # via
     #   celery
@@ -452,3 +457,5 @@ zgw-consumers==0.35.1
     #   commonground-api-common
     #   notifications-api-common
     #   open-api-framework
+zgw-consumers-oas==1.0.0
+    # via commonground-api-common
