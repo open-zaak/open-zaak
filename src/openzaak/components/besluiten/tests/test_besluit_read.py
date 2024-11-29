@@ -5,6 +5,8 @@ from django.test.utils import override_settings, tag
 import requests_mock
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
@@ -53,6 +55,10 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     @requests_mock.Mocker()
     def test_besluit_external_besluittype(self, m):
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/",
+            api_type=APITypes.ztc,
+        )
         catalogi_api = "https://externe.catalogus.nl/api/v1/"
         catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -109,6 +115,10 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     @requests_mock.Mocker()
     def test_besluit_external_zaak(self, m):
+        ServiceFactory.create(
+            api_root="https://externe.zaken.nl/api/v1/",
+            api_type=APITypes.zrc,
+        )
         besluittype = BesluitTypeFactory.create(concept=False, zaaktypen=[])
         zaaktype = besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"

@@ -4,17 +4,17 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 
-import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
@@ -22,7 +22,7 @@ from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_zaaktype_response
 
 
-class ZaakValidationTests(JWTAuthMixin, APITestCase):
+class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     # Needed to pass Django's URLValidator, since the default APIClient domain
@@ -33,28 +33,31 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
+
+    def setUp(self):
+        super().setUp()
+
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_bad_url(self):
         url = reverse("zaak-list")
 
-        with requests_mock.Mocker() as m:
-            m.get("https://example.com/zrc/zaken/1234", status_code=404)
+        self.requests_mocker.get("https://example.com/zrc/zaken/1234", status_code=404)
 
-            response = self.client.post(
-                url,
-                {
-                    "zaaktype": "https://example.com/zrc/zaken/1234",
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-06-11",
-                    "startdatum": "2018-06-11",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": "https://example.com/zrc/zaken/1234",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -66,20 +69,21 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     def test_validate_zaaktype_invalid_resource(self):
         url = reverse("zaak-list")
 
-        with requests_mock.Mocker() as m:
-            m.get("https://example.com/", status_code=200, text="<html></html>")
+        self.requests_mocker.get(
+            "https://example.com/", status_code=200, text="<html></html>"
+        )
 
-            response = self.client.post(
-                url,
-                {
-                    "zaaktype": "https://example.com/",
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-06-11",
-                    "startdatum": "2018-06-11",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": "https://example.com/",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -140,13 +144,14 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         good_casing = get_validation_errors(response, "verantwoordelijkeOrganisatie")
         self.assertIsNotNone(good_casing)
 
-    @requests_mock.Mocker()
-    def test_validate_communicatiekanaal_invalid_resource(self, m):
-        mock_selectielijst_oas_get(m)
+    def test_validate_communicatiekanaal_invalid_resource(self):
+        mock_selectielijst_oas_get(self.requests_mocker)
         communicatiekanaal_url = (
             "https://referentielijsten-api.cloud/api/v1/communicatiekanalen/123"
         )
-        m.get(communicatiekanaal_url, status_code=200, json={"something": "wrong"})
+        self.requests_mocker.get(
+            communicatiekanaal_url, status_code=200, json={"something": "wrong"}
+        )
         url = reverse("zaak-list")
         body = {"communicatiekanaal": communicatiekanaal_url}
 
@@ -167,10 +172,9 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "communicatiekanaal")
         self.assertEqual(error["code"], URLValidator.code)
 
-    @requests_mock.Mocker()
-    def test_validate_communicatiekanaal_valid(self, m):
-        mock_selectielijst_oas_get(m)
-        m.get("https://example.com/dummy", json={"dummy": "json"})
+    def test_validate_communicatiekanaal_valid(self):
+        mock_selectielijst_oas_get(self.requests_mocker)
+        self.requests_mocker.get("https://example.com/dummy", json={"dummy": "json"})
         url = reverse("zaak-list")
         body = {"communicatiekanaal": "https://example.com/dummy"}
 
@@ -184,6 +188,8 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_relevante_andere_zaken_invalid(self):
         url = reverse("zaak-list")
+
+        self.requests_mocker.get("https://example.com/andereZaak", status_code=404)
 
         response = self.client.post(
             url,
@@ -332,10 +338,11 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "selectielijstklasse")
         self.assertEqual(validation_error["code"], "bad-url")
 
-    @requests_mock.Mocker()
-    def test_validate_selectielijstklasse_invalid_resource(self, m):
-        mock_selectielijst_oas_get(m)
-        m.get("https://ztc.com/resultaten/1234", json={"some": "incorrect property"})
+    def test_validate_selectielijstklasse_invalid_resource(self):
+        mock_selectielijst_oas_get(self.requests_mocker)
+        self.requests_mocker.get(
+            "https://ztc.com/resultaten/1234", json={"some": "incorrect property"}
+        )
         url = reverse("zaak-list")
 
         response = self.client.post(
@@ -357,8 +364,8 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], "invalid-resource")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("vng_api_common.oas.fetcher")
+    @patch("vng_api_common.oas.obj_has_shape", return_value=True)
     def test_validate_opdrachtgevende_organisatie_invalid(self, *mocks):
         url = reverse("zaak-list")
 
@@ -382,8 +389,8 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["name"], "opdrachtgevendeOrganisatie")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=True)
+    @patch("vng_api_common.oas.fetcher")
+    @patch("vng_api_common.oas.obj_has_shape", return_value=True)
     def test_validate_opdrachtgevende_organisatie_valid(self, *mocks):
         url = reverse("zaak-list")
 
@@ -404,7 +411,7 @@ class ZaakValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
-class ZaakUpdateValidation(JWTAuthMixin, APITestCase):
+class ZaakUpdateValidation(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_validate_verlenging(self):
@@ -491,7 +498,7 @@ class ZaakUpdateValidation(JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], IsImmutableValidator.code)
 
 
-class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
+class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
@@ -562,37 +569,40 @@ class DeelZaakValidationTests(JWTAuthMixin, APITestCase):
     @tag("gh-992", "external-urls")
     def test_validate_hoofdzaaktype_deelzaaktypen_remote_zaaktype(self):
         """
-        Assert that the zaatkype allowed deelzaaktypen is validated.
+        Assert that the zaaktype allowed deelzaaktypen is validated.
         """
+        ServiceFactory.create(
+            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
+        )
+
         # set up zaaktypen
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(
-                hoofdzaaktype,
-                json=get_zaaktype_response(catalogus, hoofdzaaktype, deelzaaktypen=[]),
-            )
-            m.get(
-                unrelated_zaaktype,
-                json=get_zaaktype_response(catalogus, unrelated_zaaktype),
-            )
-            # set up hoofdzaak
-            hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
-            url = reverse("zaak-list")
+        mock_ztc_oas_get(self.requests_mocker)
+        self.requests_mocker.get(
+            hoofdzaaktype,
+            json=get_zaaktype_response(catalogus, hoofdzaaktype, deelzaaktypen=[]),
+        )
+        self.requests_mocker.get(
+            unrelated_zaaktype,
+            json=get_zaaktype_response(catalogus, unrelated_zaaktype),
+        )
+        # set up hoofdzaak
+        hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
+        url = reverse("zaak-list")
 
-            response = self.client.post(
-                url,
-                {
-                    "zaaktype": unrelated_zaaktype,
-                    "hoofdzaak": reverse(hoofdzaak),
-                    "bronorganisatie": "123456782",
-                    "verantwoordelijkeOrganisatie": "123456782",
-                    "startdatum": "1970-01-01",
-                },
-                **ZAAK_WRITE_KWARGS,
-            )
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": unrelated_zaaktype,
+                "hoofdzaak": reverse(hoofdzaak),
+                "bronorganisatie": "123456782",
+                "verantwoordelijkeOrganisatie": "123456782",
+                "startdatum": "1970-01-01",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

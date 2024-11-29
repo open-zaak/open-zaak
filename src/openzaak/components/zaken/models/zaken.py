@@ -1107,7 +1107,7 @@ class ZaakObject(APIMixin, models.Model):
             object_url = self.object
             self._object = None
             if object_url:
-                self._object = fetch_object(self.object_type.lower(), url=object_url)
+                self._object = fetch_object(url=object_url)
         return self._object
 
     def unique_representation(self):

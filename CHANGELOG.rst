@@ -1,6 +1,23 @@
 Changelog
 =========
 
+1.17.0 (TBD)
+------------
+**Bugfixes and QOL**
+
+* [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
+* [maykinmedia/open-api-framework#66] updated zgw-consumers to 0.35.1
+
+.. warning::
+
+    Configuring external services is now done through the `Service` model. This
+    replaces the `APICredential` model in the admin interface. A data migration
+    was added to move to the `Service` model. It is advised to verify the `Service`
+    instances in the admin to check that the data migration was ran as expected.
+
+    Additionally, it is advised to check the `Selectielijstconfiguratie` to see if a service
+    is configured for it.
+
 1.16.0 (2024-11-25)
 -------------------
 

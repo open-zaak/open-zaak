@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.admin import ZaakForm
 
@@ -23,7 +23,7 @@ class TestZaakForm(TestCase):
             self.fail("Exception was raised in clean function when it should not have")
 
     def test_zaak_form_clean_does_not_throw_exception_if_zaaktype_url_is_given(self):
-        ztc_service = Service.objects.create(
+        ztc_service = ServiceFactory.create(
             api_type=APITypes.ztc,
             api_root="https://external.catalogi.nl/api/v1/",
         )

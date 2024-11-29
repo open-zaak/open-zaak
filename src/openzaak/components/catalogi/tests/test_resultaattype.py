@@ -18,11 +18,9 @@ from vng_api_common.tests import (
     reverse,
     reverse_lazy,
 )
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
-from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
+from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
@@ -39,36 +37,26 @@ from .factories import (
 )
 
 PROCESTYPE_URL = "http://referentielijsten.nl/procestypen/1234"
-SELECTIELIJSTKLASSE_URL = "http://example.com/resultaten/1234"
-SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL = "http://example.com/resultaten/4321"
-SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL = (
-    "http://example.com/resultaten/5678"
+SELECTIELIJSTKLASSE_URL = "https://selectielijst.openzaak.nl/api/v1/resultaten/1234"
+SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/resultaten/4321"
 )
-RESULTAATTYPEOMSCHRIJVING_URL = "http://example.com/omschrijving/1"
+SELECTIELIJSTKLASSE_PROCESTERMIJN_INGESCHATTE_BESTAANSDUUR_OBJECT_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/resultaten/5678"
+)
+RESULTAATTYPEOMSCHRIJVING_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+)
 
 
 @override_settings(SOLO_CACHE=None)
-class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
+class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
     scopes = [SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE]
     component = ComponentTypes.ztc
 
     list_url = reverse_lazy(ResultaatType)
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        config = ReferentieLijstConfig.get_solo()
-        config.api_root = "http://example.com"
-        config.save()
-        Service.objects.create(
-            api_root="http://example.com/",
-            api_type=APITypes.orc,
-            auth_type=AuthTypes.no_auth,
-            label="Selectielijst",
-        )
 
     def test_get_list(self):
         ResultaatTypeFactory.create_batch(3, zaaktype__concept=False)
@@ -199,7 +187,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     def test_create_resultaattype(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -252,7 +242,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -308,7 +300,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -367,7 +361,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -409,7 +405,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -475,7 +473,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
     def test_derive_archiefactiedatum_from_selectielijstklasse(self, *mocks):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -517,7 +517,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype_url = reverse(resultaattype)
 
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "aangepast",
@@ -561,7 +563,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype_url = reverse(resultaattype)
 
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "aangepast",
@@ -609,7 +613,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create()
         resultaattype_url = reverse(resultaattype)
 
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "aangepast",
@@ -717,7 +723,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse(zaaktype)
 
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         with requests_mock.Mocker() as m:
             m.get(resultaattypeomschrijving_url, json={"omschrijving": "init"})
             resultaattype = ResultaatTypeFactory.create(
@@ -750,7 +758,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         iotype = InformatieObjectTypeFactory.create(catalogus=zaaktype.catalogus)
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -802,7 +812,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         iotype = InformatieObjectTypeFactory.create()
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -903,7 +915,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         besluittype = BesluitTypeFactory.create(catalogus=zaaktype.catalogus)
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -955,7 +969,9 @@ class ResultaatTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
         besluittype = BesluitTypeFactory.create()
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1215,22 +1231,8 @@ class ResultaatTypePaginationTestCase(APITestCase):
 
 
 @override_settings(SOLO_CACHE=None)
-class ResultaatTypeValidationTests(APITestCase):
+class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
     list_url = reverse_lazy(ResultaatType)
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        config = ReferentieLijstConfig.get_solo()
-        config.api_root = "http://example.com"
-        config.save()
-        Service.objects.create(
-            api_root="http://example.com/",
-            api_type=APITypes.orc,
-            auth_type=AuthTypes.no_auth,
-            label="Selectielijst",
-        )
 
     def _setup_mock_responses(self, m):
         mock_selectielijst_oas_get(m)
@@ -1276,7 +1278,9 @@ class ResultaatTypeValidationTests(APITestCase):
     def test_validate_wrong_resultaattypeomschrijving(self, mock_shape, mock_fetch):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        resultaattypeomschrijving_url = "http://example.com/omschrijving/1"
+        resultaattypeomschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1311,7 +1315,7 @@ class ResultaatTypeValidationTests(APITestCase):
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
             "resultaattypeomschrijving": "https://garcia.org/",
-            "selectielijstklasse": "http://example.com/resultaten/1234",
+            "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/1234",
             "archiefnominatie": "blijvend_bewaren",
             "archiefactietermijn": "P10Y",
             "brondatumArchiefprocedure": {
@@ -1327,7 +1331,7 @@ class ResultaatTypeValidationTests(APITestCase):
         with requests_mock.Mocker() as m:
             mock_selectielijst_oas_get(m)
             m.get(
-                "http://example.com/resultaten/1234",
+                "https://selectielijst.openzaak.nl/api/v1/resultaten/1234",
                 json={"some": "incorrect property"},
             )
 
@@ -1577,7 +1581,6 @@ class ResultaatTypeValidationTests(APITestCase):
 
                 with requests_mock.Mocker() as m:
                     self._setup_mock_responses(m)
-
                     response = self.client.post(self.list_url, data)
 
                 if afleidingswijze in [

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from .admin import AdminTestMixin
-from .auth import JWTAuthMixin, generate_jwt_auth
+from .auth import JWTAuthMixin
 from .cache import ClearCachesMixin
 from .cmis import (
     APICMISTestCase,
@@ -39,7 +39,6 @@ __all__ = [
     "patch_resource_validator",
     # auth
     "JWTAuthMixin",
-    "generate_jwt_auth",
     # cache
     "ClearCachesMixin",
     # admin

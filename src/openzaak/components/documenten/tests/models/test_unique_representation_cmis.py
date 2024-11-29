@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 import requests_mock
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.contrib.verzoeken.tests.utils import get_verzoek_response
@@ -73,7 +73,7 @@ class UniqueRepresentationTestCase(APICMISTestCase):
         m.get(verzoek, json=get_verzoek_response(verzoek))
 
         # set up model objects
-        Service.objects.create(api_root=vrs_base, api_type=APITypes.vrc)
+        ServiceFactory.create(api_root=vrs_base, api_type=APITypes.vrc)
         eio = EnkelvoudigInformatieObjectFactory.create(
             bronorganisatie="730924658",
             identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",

@@ -127,7 +127,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         change_page = self.app.get(url)
 
         with patch(
-            "openzaak.components.catalogi.admin.forms.Service.get_client",
+            "openzaak.components.catalogi.admin.forms.get_client",
             return_value=None,
         ):
             response = change_page.form.submit()
@@ -155,7 +155,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
         omschrijving_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         mock_selectielijst_oas_get(m)
@@ -365,7 +365,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "resultaten/8320ab7d-3a8d-4c8b-b94a-14b4fa374d0a"
         )
         omschrijving_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
 
@@ -437,7 +437,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             m,
             "resultaattypeomschrijvingen",
             (
-                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "https://selectielijst.openzaak.nl/api/v1/"
                 "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
             ),
         )
@@ -486,7 +486,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             m,
             "resultaattypeomschrijvingen",
             (
-                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "https://selectielijst.openzaak.nl/api/v1/"
                 "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
             ),
         )
@@ -557,7 +557,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             m,
             "resultaattypeomschrijvingen",
             (
-                "https://referentielijsten-api.vng.cloud/api/v1/"
+                "https://selectielijst.openzaak.nl/api/v1/"
                 "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
             ),
         )
@@ -567,7 +567,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         response = self.app.get(reverse("admin:catalogi_resultaattype_add"))
         response.form["omschrijving"] = "foo"
         response.form["resultaattypeomschrijving"] = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         response.form["brondatum_archiefprocedure_afleidingswijze"] = (

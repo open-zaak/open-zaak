@@ -10,4 +10,4 @@ from .models import ReferentieLijstConfig
 
 @admin.register(ReferentieLijstConfig)
 class ReferentieLijstConfigAdmin(DynamicArrayMixin, SingletonModelAdmin):
-    list_display = ["api_root"]
+    list_display = ["service"]

@@ -10,7 +10,7 @@ from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -144,7 +144,7 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "incorrect-lock-id")
 
     def test_create_ignores_lock(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)

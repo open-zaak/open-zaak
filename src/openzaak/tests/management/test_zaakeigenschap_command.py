@@ -28,7 +28,9 @@ class ZaakEigenschapCommandTests(TestCase):
             zaak__zaaktype=eigenschap.zaaktype,
         )
 
-        call_command("check_zaak_eigenschappen", stdout=stdout, stderr=stderr)
+        call_command(
+            "check_zaak_eigenschappen", stdout=stdout, stderr=stderr, no_color=True
+        )
 
         command_output = stdout.getvalue().splitlines()
         expected_output = [
@@ -53,7 +55,9 @@ class ZaakEigenschapCommandTests(TestCase):
             zaak__zaaktype=eigenschap.zaaktype,
         )
 
-        call_command("check_zaak_eigenschappen", stdout=stdout, stderr=stderr)
+        call_command(
+            "check_zaak_eigenschappen", stdout=stdout, stderr=stderr, no_color=True
+        )
 
         command_output = stdout.getvalue().splitlines()
         expected_output = [
@@ -70,7 +74,9 @@ class ZaakEigenschapCommandTests(TestCase):
     def test_no_data(self):
         stdout, stderr = StringIO(), StringIO()
 
-        call_command("check_zaak_eigenschappen", stdout=stdout, stderr=stderr)
+        call_command(
+            "check_zaak_eigenschappen", stdout=stdout, stderr=stderr, no_color=True
+        )
 
         command_output = stdout.getvalue().splitlines()
         expected_output = ["There are no zaak-eigenschappen to check"]

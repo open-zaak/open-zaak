@@ -24,6 +24,7 @@ django-better-admin-arrayfield
 # API libraries
 drf-extra-fields
 drf-writable-nested
-notifications-api-common
 humanize
 drc-cmis
+
+commonground-api-common[testutils]

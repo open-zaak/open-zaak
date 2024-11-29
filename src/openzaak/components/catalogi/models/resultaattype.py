@@ -290,6 +290,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         Save some derived fields into local object as a means of caching.
         """
         if self.resultaattypeomschrijving:
+            # TODO should this use a proper client?
             response = requests.get(self.resultaattypeomschrijving).json()
             self.omschrijving_generiek = response["omschrijving"]
 
@@ -333,6 +334,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         if not hasattr(self, "_selectielijstklasse"):
             # selectielijstklasse should've been validated at this point by either
             # forms or serializers
+            # TODO should this use a proper client?
             response = requests.get(self.selectielijstklasse)
             response.raise_for_status()
             self._selectielijstklasse = response.json()

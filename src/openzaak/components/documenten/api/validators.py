@@ -9,12 +9,12 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
+from requests import RequestException
 from rest_framework import serializers
+from vng_api_common.client import ClientError, get_client, to_internal_data
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
 )
-from zds_client import ClientError
-from zgw_consumers.models import Service
 
 from openzaak.utils import build_absolute_url
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
@@ -136,18 +136,19 @@ class RemoteRelationValidator:
 
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)
-        client = Service.get_client(object_url)
-        assert client is not None, f"Could not retrieve client for object {object_url}"
+        client = get_client(object_url, raise_exceptions=True)
 
         try:
-            zios = client.list(
-                f"{oio.object_type}informatieobject",
-                query_params={
-                    "informatieobject": document_url,
-                    oio.object_type: object_url,
-                },
+            zios: list = to_internal_data(
+                client.get(
+                    f"{oio.object_type}informatieobjecten",
+                    params={
+                        "informatieobject": document_url,
+                        oio.object_type: object_url,
+                    },
+                )
             )
-        except ClientError as exc:
+        except (RequestException, ClientError) as exc:
             raise serializers.ValidationError(
                 exc.args[0], code="relation-lookup-error"
             ) from exc
@@ -180,18 +181,20 @@ class CreateRemoteRelationValidator:
 
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)
-        client = Service.get_client(object_url)
-        assert client is not None, f"Could not retrieve client for object {object_url}"
+        client = get_client(object_url, raise_exceptions=True)
+        assert client
 
         try:
-            remote_relations = client.list(
-                f"{object_type}informatieobject",
-                query_params={
-                    "informatieobject": document_url,
-                    object_type: object_url,
-                },
+            remote_relations: list = to_internal_data(
+                client.get(
+                    f"{object_type}informatieobjecten",
+                    params={
+                        "informatieobject": document_url,
+                        object_type: object_url,
+                    },
+                )
             )
-        except ClientError as exc:
+        except (RequestException, ClientError) as exc:
             raise serializers.ValidationError(
                 exc.args[0], code="relation-lookup-error"
             ) from exc

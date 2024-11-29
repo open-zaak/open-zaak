@@ -3,12 +3,12 @@
 from copy import deepcopy
 
 from django.test import override_settings
-from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
@@ -21,7 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth
+from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import Resultaat, Zaak, ZaakInformatieObject
 from .factories import RolFactory, ZaakFactory
@@ -286,12 +286,11 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 

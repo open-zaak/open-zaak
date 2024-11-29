@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from django.test import override_settings, tag
-from django.utils import timezone
 
 import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.tests.utils import JWTAuthMixin, generate_jwt_auth, mock_brc_oas_get
+from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory
@@ -234,7 +234,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc
         )
 
@@ -289,12 +289,11 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
         super().setUp()
-        token = generate_jwt_auth(
+        token = generate_jwt(
             self.client_id,
             self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
-            nbf=int(timezone.now().timestamp()),
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
 

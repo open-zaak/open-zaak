@@ -17,8 +17,8 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.besluiten.tests.utils import (
@@ -52,6 +52,23 @@ from .factories import EnkelvoudigInformatieObjectFactory
 class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        ServiceFactory.create(
+            api_root="http://example.com/zaken/api/v1/",
+            api_type=APITypes.zrc,
+        )
+        ServiceFactory.create(
+            api_root="http://example.com/documenten/api/v1/",
+            api_type=APITypes.drc,
+        )
+        ServiceFactory.create(
+            api_root="http://example.com/besluiten/api/v1/",
+            api_type=APITypes.brc,
+        )
 
     def test_retrieve_multiple_oios(self):
         zaak = ZaakFactory.create()
@@ -391,14 +408,14 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
     def setUpClass(cls):
         super().setUpClass()
         # Mocking the calls for the CMIS adapter
-        Service.objects.create(
+        ServiceFactory.create(
             api_type=APITypes.zrc,
             api_root="https://externe.catalogus.nl/api/v1/",
             label="external zaken",
             auth_type=AuthTypes.no_auth,
         )
 
-        cls.zrc_service = Service.objects.create(
+        cls.zrc_service = ServiceFactory.create(
             label="Remote Zaken API",
             api_type=APITypes.zrc,
             api_root="https://extern.zrc.nl/api/v1/",
@@ -406,7 +423,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             client_id="test",
             secret="test",
         )
-        cls.brc_service = Service.objects.create(
+        cls.brc_service = ServiceFactory.create(
             label="Remote Besluiten API",
             api_type=APITypes.brc,
             api_root="https://extern.brc.nl/api/v1/",
@@ -414,7 +431,7 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
             client_id="test",
             secret="test",
         )
-        cls.vrc_service = Service.objects.create(
+        cls.vrc_service = ServiceFactory.create(
             label="Remote Verzoeken API",
             api_type=APITypes.vrc,
             api_root="https://extern.vrc.nl/api/v1/",

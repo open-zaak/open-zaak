@@ -48,17 +48,30 @@ from ..factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 
-mock_selectielijst_client = Service(
-    label="VNG Selectielijst",
-    api_type=APITypes.orc,
-    api_root="https://selectielijst.openzaak.nl/api/v1/",
-    oas="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
-    auth_type=AuthTypes.no_auth,
-).build_client()
-
 
 class MockSelectielijst(SelectieLijstMixin):
     def setUp(self):
+        # Duplicated from the original mixin, because the Transaction tests do not run
+        # `setUpTestData`
+        self.base = "https://selectielijst.openzaak.nl/api/v1/"
+        service, _ = Service.objects.update_or_create(
+            api_root=self.base,
+            defaults=dict(
+                slug=self.base,
+                api_type=APITypes.orc,
+                label="external selectielijst",
+                auth_type=AuthTypes.no_auth,
+            ),
+        )
+
+        # there are TransactionTestCases that truncate the DB, so we need to ensure
+        # there are available years
+        config = ReferentieLijstConfig.get_solo()
+        config.default_year = 2020
+        config.allowed_years = [2017, 2020]
+        config.service = service
+        config.save()
+
         super().setUp()
 
         self.procestype = (
@@ -82,7 +95,7 @@ class MockSelectielijst(SelectieLijstMixin):
         )
 
         self.resultaattypeomschrijving = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
         mock_resource_get(
@@ -92,10 +105,6 @@ class MockSelectielijst(SelectieLijstMixin):
         )
 
 
-@patch(
-    "openzaak.components.catalogi.models.zaaktype.Service.get_client",
-    return_value=mock_selectielijst_client,
-)
 @disable_admin_mfa()
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
@@ -1915,12 +1924,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
 
-@patch(
-    "openzaak.components.catalogi.models.zaaktype.Service.get_client",
-    return_value=mock_selectielijst_client,
-)
 @disable_admin_mfa()
-@override_settings(CUSTOM_CLIENT_FETCHER=None)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()

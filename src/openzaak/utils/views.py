@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django import http
-from django.apps import apps
 from django.template import TemplateDoesNotExist, loader
-from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
-import requests
 from rest_framework import exceptions, viewsets
 from rest_framework.views import APIView
 from vng_api_common.audittrails.viewsets import AuditTrailViewSet as _AuditTrailViewSet
-from vng_api_common.views import ViewConfigView as _ViewConfigView, _test_sites_config
-from zds_client import ClientError
+from vng_api_common.views import (
+    ViewConfigView as _ViewConfigView,
+    _test_nrc_config,
+    _test_sites_config,
+)
 
 
 @requires_csrf_token
@@ -42,61 +42,12 @@ class ViewConfigView(_ViewConfigView):
 
         config = []
         config += _test_sites_config(self.request)
-        config += _test_nrc_config()
+        # Do not check autorisaties channel subscription, because Open Zaak is the provider
+        # of the Autorisaties API
+        config += _test_nrc_config(check_autorisaties_subscription=False)
 
         context["config"] = config
         return context
-
-
-def _test_nrc_config() -> list:
-    if not apps.is_installed("notifications_api_common"):
-        return []
-
-    from notifications_api_common.models import NotificationsConfig
-
-    nrc_config = NotificationsConfig.get_solo()
-
-    nrc_client = NotificationsConfig.get_client()
-
-    has_nrc_auth = nrc_client.auth is not None
-
-    if not nrc_config.notifications_api_service:
-        checks = [((_("NRC"), _("Missing"), False))]
-        return checks
-
-    checks = [
-        (
-            _("NRC"),
-            nrc_config.notifications_api_service.api_root,
-            nrc_config.notifications_api_service.api_root.endswith("/"),
-        ),
-        (
-            _("Credentials for NRC"),
-            _("Configured") if has_nrc_auth else _("Missing"),
-            has_nrc_auth,
-        ),
-    ]
-
-    # check if permissions in AC are fine
-    if has_nrc_auth:
-        error = False
-
-        try:
-            nrc_client.list("kanaal")
-        except requests.ConnectionError:
-            error = True
-            message = _("Could not connect with NRC")
-        except ClientError as exc:
-            error = True
-            message = _(
-                "Cannot retrieve kanalen: HTTP {status_code} - {error_code}"
-            ).format(status_code=exc.args[0]["status"], error_code=exc.args[0]["code"])
-        else:
-            message = _("Can retrieve kanalen")
-
-        checks.append((_("NRC connection and authorizations"), message, not error))
-
-    return checks
 
 
 class ErrorDocumentView(APIView):

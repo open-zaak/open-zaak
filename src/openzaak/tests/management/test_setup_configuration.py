@@ -15,8 +15,9 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth
+from zgw_consumers.client import build_client
 from zgw_consumers.test import mock_service_oas_get
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
@@ -57,6 +58,8 @@ AUTH_FIXTURE_PATH = Path(__file__).parents[2] / "config/tests/bootstrap/files/au
     AUTHORIZATIONS_CONFIG_FIXTURE_PATH=AUTH_FIXTURE_PATH,
 )
 class SetupConfigurationTests(APITestCase):
+    maxDiff = None
+
     def setUp(self):
         super().setUp()
 
@@ -72,6 +75,7 @@ class SetupConfigurationTests(APITestCase):
         m.get("http://open-zaak.example.com/", status_code=200)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
         m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
+        m.get("https://selectielijst.openzaak.nl/api/v1/procestypen", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)
@@ -107,20 +111,26 @@ class SetupConfigurationTests(APITestCase):
             self.assertEqual(site.name, "Open Zaak ACME")
 
         with self.subTest("Notifications API can query Autorisaties API"):
-            auth = ClientAuth("notif-client-id", "notif-secret")
+            token = generate_jwt(
+                "notif-client-id", "notif-secret", "notif-client-id", "notif-client-id"
+            )
 
             response = self.client.get(
                 reverse("applicatie-list", kwargs={"version": 1}),
-                headers={"authorization": auth.credentials()["Authorization"]},
+                headers={"authorization": token},
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         with self.subTest("Notifications API client configured correctly"):
-            notificaties_client = NotificationsConfig.get_client()
+            config = NotificationsConfig.get_solo()
+            notificaties_client = build_client(config.notifications_api_service)
+
             self.assertIsNotNone(notificaties_client)
 
-            notificaties_client.create("notificaties", data={"foo": "bar"})
+            notificaties_client.request(
+                url="notificaties", method="POST", data={"foo": "bar"}
+            )
 
             create_call = m.last_request
             self.assertEqual(
@@ -132,12 +142,14 @@ class SetupConfigurationTests(APITestCase):
             self.assertEqual(decoded_jwt["client_id"], "oz-client-id")
 
         with self.subTest("Demo user configured correctly"):
-            auth = ClientAuth("demo-client-id", "demo-secret")
+            token = generate_jwt(
+                "demo-client-id", "demo-secret", "demo-client-id", "demo-client-id"
+            )
 
             response = self.client.get(
                 reverse("zaak-list", kwargs={"version": 1}),
                 **ZAAK_READ_KWARGS,
-                HTTP_AUTHORIZATION=auth.credentials()["Authorization"],
+                HTTP_AUTHORIZATION=token,
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -157,6 +169,7 @@ class SetupConfigurationTests(APITestCase):
         m.get("http://open-zaak.example.com/", exc=requests.ConnectionError)
         m.get("http://open-zaak.example.com/autorisaties/api/v1/applicaties", json=[])
         m.get("http://open-zaak.example.com/zaken/api/v1/zaken", json=[])
+        m.get("https://selectielijst.openzaak.nl/api/v1/procestypen", json=[])
         mock_service_oas_get(m, url="https://notifs.example.com/api/v1/", service="nrc")
         m.get("https://notifs.example.com/api/v1/kanaal", json=[{"naam": "test"}])
         m.post("https://notifs.example.com/api/v1/notificaties", status_code=201)

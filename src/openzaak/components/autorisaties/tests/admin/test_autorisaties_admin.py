@@ -505,9 +505,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
 
-    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-    @patch("vng_api_common.validators.fetcher")
-    @patch("vng_api_common.validators.obj_has_shape", return_value=False)
+    @patch("vng_api_common.oas.fetcher")
+    @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
     def test_add_autorisatie_external_zaaktype_invalid_resource(self, *mocks):
         data = {
             # management form
@@ -519,13 +518,25 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-scopes": ["zaken.lezen"],
             "form-0-related_type_selection": RelatedTypeSelectionMethods.manual_select,
             "form-0-vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
-            "form-0-externe_typen": ["https://example.com"],
+            "form-0-externe_typen": ["https://external.catalogi.com/api/v1/1234"],
         }
 
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
+
+        expected_errors = {
+            "externe_typen": [
+                {
+                    "msg": _(
+                        "De URL {url} resource lijkt niet op een `ZaakType`. Geef een geldige URL op."
+                    ).format(url="https://external.catalogi.com/api/v1/1234"),
+                    "code": "invalid-resource",
+                }
+            ]
+        }
+        self.assertEqual(response.context["formdata"][0]["errors"], expected_errors)
 
     def test_add_authorizatie_without_types(self):
         data = {

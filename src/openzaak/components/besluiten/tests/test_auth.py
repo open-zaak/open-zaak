@@ -456,6 +456,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.besluittype = BesluitTypeFactory.create()
+
         super().setUpTestData()
 
     def test_besluit_list(self):

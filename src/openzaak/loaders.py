@@ -13,6 +13,8 @@ from django_loose_fk.virtual_models import virtual_model_factory
 from djangorestframework_camel_case.util import underscoreize
 from vng_api_common.descriptors import GegevensGroepType
 
+from openzaak.utils.auth import get_auth
+
 
 class AuthorizedRequestsLoader(BaseLoader):
     """
@@ -21,12 +23,9 @@ class AuthorizedRequestsLoader(BaseLoader):
 
     @staticmethod
     def fetch_object(url: str, do_underscoreize=True) -> dict:
-        from zgw_consumers.models import Service
-
         # TODO should we replace it with Service.get_client() and use it instead of requests?
         # but in this case we couldn't catch separate FetchJsonError
-        client_auth_header = Service.get_auth_header(url)
-        headers = client_auth_header or {}
+        headers = get_auth(url)
 
         try:
             response = requests.get(url, headers=headers)

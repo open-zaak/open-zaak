@@ -7,8 +7,8 @@ import requests
 from django_setup_configuration.configuration import BaseConfigurationStep
 from django_setup_configuration.exceptions import SelfTestFailed
 from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth
 
 from openzaak.utils import build_absolute_url
 
@@ -60,16 +60,18 @@ class DemoUserStep(BaseConfigurationStep):
     def test_configuration(self) -> None:
         endpoint = reverse("zaak-list", kwargs={"version": "1"})
         full_url = build_absolute_url(endpoint, request=None)
-        auth = ClientAuth(
-            client_id=settings.DEMO_CLIENT_ID,
-            secret=settings.DEMO_SECRET,
+        token = generate_jwt(
+            settings.DEMO_CLIENT_ID,
+            settings.DEMO_SECRET,
+            settings.DEMO_CLIENT_ID,
+            settings.DEMO_CLIENT_ID,
         )
 
         try:
             response = requests.get(
                 full_url,
                 headers={
-                    **auth.credentials(),
+                    "Authorization": token,
                     "Accept": "application/json",
                     "Accept-Crs": "EPSG:4326",
                 },

@@ -14,12 +14,11 @@ from django.utils.translation import gettext_lazy as _
 import requests
 from django_loose_fk.loaders import BaseLoader
 from rest_framework.exceptions import ValidationError
+from vng_api_common.client import ClientError, get_client, to_internal_data
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 from vng_api_common.tests import reverse as _reverse
-from zds_client import ClientError
-from zgw_consumers.models import Service
 
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
@@ -149,14 +148,14 @@ class ZaakTypeForm(forms.ModelForm):
 
         # fetch the selectielijstklasse and compare that relations are still consistent
         for url in selectielijstklassen:
-            client = Service.get_client(url)
+            client = get_client(url, raise_exceptions=False)
             if client is None:
                 self.add_error(
                     None, _("Could not build a client for {url}").format(url=url)
                 )
                 continue
 
-            resultaat = client.retrieve("resultaat", url=url)
+            resultaat = to_internal_data(client.get(url))
 
             if resultaat["procesType"] != procestype_url:
                 raise forms.ValidationError(
@@ -225,7 +224,7 @@ class ResultaatTypeForm(forms.ModelForm):
             # nothing to do
             return
 
-        client = Service.get_client(selectielijstklasse)
+        client = get_client(selectielijstklasse, raise_exceptions=False)
         if client is None:
             self.add_error(
                 "selectielijstklasse",
@@ -239,10 +238,8 @@ class ResultaatTypeForm(forms.ModelForm):
             return
 
         try:
-            selectielijst_resultaat = client.retrieve(
-                "resultaat", url=selectielijstklasse
-            )
-        except ClientError as exc:
+            selectielijst_resultaat = to_internal_data(client.get(selectielijstklasse))
+        except (ClientError, requests.RequestException) as exc:
             msg = (
                 _("URL %s for selectielijstklasse did not resolve")
                 % selectielijstklasse
@@ -310,6 +307,7 @@ class ResultaatTypeForm(forms.ModelForm):
         if not selectielijstklasse or not afleidingswijze:
             return
 
+        # TODO should this use a proper client?
         response = requests.get(selectielijstklasse)
         procestermijn = response.json()["procestermijn"]
 

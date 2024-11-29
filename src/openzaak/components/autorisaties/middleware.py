@@ -10,11 +10,11 @@ import jwt
 from django_loose_fk.loaders import get_loader_class
 from django_loose_fk.utils import get_resource_for_path
 from rest_framework.exceptions import PermissionDenied
-from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.middleware import (
+from vng_api_common.authorizations.middleware import (
     AuthMiddleware as _AuthMiddleware,
     JWTAuth as _JWTAuth,
 )
+from vng_api_common.authorizations.models import Autorisatie
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.constants import COMPONENT_MAPPING

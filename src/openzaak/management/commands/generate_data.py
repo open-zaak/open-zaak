@@ -9,8 +9,11 @@ from django.db import models, transaction
 from django.utils import timezone
 
 import factory.fuzzy
+from django_setup_configuration.exceptions import SelfTestFailed
+from requests.exceptions import RequestException
+from vng_api_common.client import Client, ClientError, to_internal_data
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from zds_client.client import ClientError
+from zgw_consumers.client import build_client
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -75,9 +78,12 @@ def get_sl_resultaten() -> list[dict]:
     get first 100 objects from Selectielijst.resultaten endpoint
     use only for test purposes
     """
-    client = ReferentieLijstConfig.get_client()
-    response = client.list("resultaat")
-    return response["results"]
+    config = ReferentieLijstConfig.get_solo()
+    client = build_client(config.service, client_factory=Client)
+    assert client
+    response_data = to_internal_data(client.get("resultaten"))
+    assert isinstance(response_data, dict)
+    return response_data["results"]
 
 
 # django doesn't allow bulk crate for multitable inheritance, so
@@ -249,7 +255,7 @@ class Command(BaseCommand):
         # request SL resultaten
         try:
             sl_resultaten = get_sl_resultaten()
-        except ClientError:
+        except (RequestException, ClientError, SelfTestFailed):
             raise CommandError(
                 "Selectielijst API is not available. Check its configuration"
             )

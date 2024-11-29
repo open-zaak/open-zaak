@@ -1,26 +1,17 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from vng_api_common.utils import get_uuid_from_path
-from zgw_consumers.client import UnknownService
-from zgw_consumers.models import Service
+from vng_api_common.client import to_internal_data
+
+from openzaak.client import get_client
 
 
 def create_remote_zaakbesluit(besluit_url: str, zaak_url: str) -> dict:
-    client = Service.get_client(zaak_url)
-    if client is None:
-        raise UnknownService(f"{zaak_url} API should be added to Service model")
-
-    zaak_uuid = get_uuid_from_path(zaak_url)
+    client = get_client(zaak_url, raise_exceptions=True)
     body = {"besluit": besluit_url}
 
-    response = client.create("zaakbesluit", data=body, zaak_uuid=zaak_uuid)
-
-    return response
+    return to_internal_data(client.post(f"{zaak_url}/besluiten", json=body))
 
 
 def delete_remote_zaakbesluit(zaakbesluit_url: str) -> None:
-    client = Service.get_client(zaakbesluit_url)
-    if client is None:
-        raise UnknownService(f"{zaakbesluit_url} API should be added to Service model")
-
-    client.delete("zaakbesluit", zaakbesluit_url)
+    client = get_client(zaakbesluit_url, raise_exceptions=True)
+    to_internal_data(client.delete(zaakbesluit_url))

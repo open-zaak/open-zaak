@@ -18,9 +18,9 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
+from vng_api_common.oas import fetcher
 from vng_api_common.tests import get_validation_errors, reverse
 from vng_api_common.utils import generate_unique_identification
-from zds_client.oas import schema_fetcher
 
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
@@ -501,8 +501,8 @@ class PerformanceTests(
     def setUp(self):
         super().setUp()
 
-        schema_fetcher.cache.clear()
-        self.addCleanup(schema_fetcher.cache.clear)
+        fetcher.cache.clear()
+        self.addCleanup(fetcher.cache.clear)
 
     @override_settings(NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None)
     @patch("notifications_api_common.viewsets.send_notification.delay")

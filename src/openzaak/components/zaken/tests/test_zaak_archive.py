@@ -18,8 +18,8 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -544,7 +544,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             zaak=zaak, object_type=zaak_object1.object_type
         )
         for api_root in [zaak_object1.object, zaak_object2.object]:
-            Service.objects.create(
+            ServiceFactory.create(
                 api_type=APITypes.orc,
                 api_root=api_root,
                 label="BAG",
@@ -658,7 +658,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             zaak=zaak, object_type=zaak_object1.object_type
         )
         for api_root in [zaak_object1.object, zaak_object2.object]:
-            Service.objects.create(
+            ServiceFactory.create(
                 api_type=APITypes.orc,
                 api_root=api_root,
                 label="BAG",
@@ -717,7 +717,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             zaak=zaak, object_type=zaak_object1.object_type
         )
         for api_root in [zaak_object1.object, zaak_object2.object]:
-            Service.objects.create(
+            ServiceFactory.create(
                 api_type=APITypes.orc,
                 api_root=api_root,
                 label="BAG",
@@ -1169,10 +1169,22 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    def setUp(self):
+        super().setUp()
+
+        ServiceFactory.create(
+            api_root="https://external.nl/documenten/",
+            api_type=APITypes.drc,
+        )
+        ServiceFactory.create(
+            api_root="https://external.nl/zaken/",
+            api_type=APITypes.zrc,
+        )
+
     @requests_mock.Mocker()
     def test_cannot_set_archiefstatus_when_not_all_documents_are_gearchiveerd(self, m):
         REMOTE_DOCUMENT = "https://external.nl/documenten/123"
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
         )
 

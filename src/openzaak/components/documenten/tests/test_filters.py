@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -378,7 +378,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )
     def test_external_objectinformatieobjecten_object_filter(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
@@ -445,6 +445,11 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )
     def test_internal_informatieobjecttype_filter(self):
+        ServiceFactory.create(
+            api_root="http://externe.catalogi.com/catalogi/",
+            api_type=APITypes.ztc,
+        )
+
         iot = "http://externe.catalogi.com/catalogi/api/v1/informatieobjecttypen/a7a49f9e-3de9-43f0-b2b6-1a59d307f01a"
         EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iot, titel="one")
         EnkelvoudigInformatieObjectFactory.create(titel="two")
@@ -593,7 +598,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )
     def test_external_object_filter(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 

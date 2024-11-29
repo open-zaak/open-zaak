@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -58,7 +58,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], code)
 
     def test_validate_informatieobjecttype_invalid(self):
-        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         url = reverse("enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -72,7 +72,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_validate_informatieobjecttype_invalid_resource(self, m):
-        Service.objects.create(api_root="https://example.com/", api_type=APITypes.ztc)
+        ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         m.get("https://example.com/", text="<html><head></head><body></body></html>")
         url = reverse("enkelvoudiginformatieobject-list")
 

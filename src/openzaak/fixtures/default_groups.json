@@ -646,42 +646,42 @@
             ],
             [
                 "add_notificationsconfig",
-                "notifications",
+                "notifications_api_common",
                 "notificationsconfig"
             ],
             [
                 "change_notificationsconfig",
-                "notifications",
+                "notifications_api_common",
                 "notificationsconfig"
             ],
             [
                 "delete_notificationsconfig",
-                "notifications",
+                "notifications_api_common",
                 "notificationsconfig"
             ],
             [
                 "view_notificationsconfig",
-                "notifications",
+                "notifications_api_common",
                 "notificationsconfig"
             ],
             [
                 "add_subscription",
-                "notifications",
+                "notifications_api_common",
                 "subscription"
             ],
             [
                 "change_subscription",
-                "notifications",
+                "notifications_api_common",
                 "subscription"
             ],
             [
                 "delete_subscription",
-                "notifications",
+                "notifications_api_common",
                 "subscription"
             ],
             [
                 "view_subscription",
-                "notifications",
+                "notifications_api_common",
                 "subscription"
             ],
             [

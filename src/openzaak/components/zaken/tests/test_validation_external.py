@@ -11,7 +11,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
     ResultaatTypeFactory,
@@ -37,8 +37,11 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://external.catalogus.nl/", api_type=APITypes.ztc
+        )
+        ServiceFactory.create(
+            api_root="https://external.nl/documenten/", api_type=APITypes.drc
         )
         cls.zaaktype = ZaakTypeFactory.create()
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)

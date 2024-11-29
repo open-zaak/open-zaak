@@ -384,8 +384,11 @@ class ZaaktypeAdminTests(
             ],
         )
 
-    @patch("vng_api_common.models.ClientConfig.get_client", return_value=None)
     def test_add_zaaktype_page_without_selectielijst_client(self, *mocks):
+        selectielijst_config = ReferentieLijstConfig.get_solo()
+        selectielijst_config.service = None
+        selectielijst_config.save()
+
         url = reverse("admin:catalogi_zaaktype_add")
 
         response = self.app.get(url)
@@ -547,10 +550,7 @@ class ZaaktypeAdminTests(
         change_page = self.app.get(url)
         self.assertEqual(change_page.status_code, 200)
 
-        with patch(
-            "openzaak.components.catalogi.admin.forms.Service.get_client",
-            return_value=None,
-        ):
+        with patch("zgw_consumers.client.build_client", return_value=None):
             response = change_page.form.submit()
 
             self.assertEqual(response.status_code, 200)  # instead of 302 for success

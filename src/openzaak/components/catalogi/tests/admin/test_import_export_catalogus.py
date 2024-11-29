@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import io
-from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
@@ -12,8 +11,6 @@ from django.utils.translation import gettext as _
 import requests_mock
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
-from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.models import Service
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
 from openzaak.tests.utils import patch_resource_validator
@@ -42,19 +39,7 @@ from ..factories import (
 )
 from .test_import_export_zaaktype import MockSelectielijst
 
-mock_selectielijst_client = Service(
-    label="VNG Selectielijst",
-    api_type=APITypes.orc,
-    api_root="https://selectielijst.openzaak.nl/api/v1/",
-    oas="https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml",
-    auth_type=AuthTypes.no_auth,
-).build_client()
 
-
-@patch(
-    "openzaak.components.catalogi.models.zaaktype.Service.get_client",
-    return_value=mock_selectielijst_client,
-)
 @disable_admin_mfa()
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod

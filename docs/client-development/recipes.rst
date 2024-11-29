@@ -22,12 +22,14 @@ Creating a Zaak, a Document and relating them
 
             import base64
             from datetime import date
+            from requests import Response
 
             from zgw_consumers.constants import APITypes
             from zgw_consumers.models import Service
+            from zgw_consumers.client import build_client
 
-            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-            drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+            zrc_client = build_client(Service.objects.get(api_type=APITypes.zrc))
+            drc_client = build_client(Service.objects.get(api_type=APITypes.drc))
 
             # zaak creation
             today = date.today().strftime("%Y-%m-%d")
@@ -38,7 +40,8 @@ Creating a Zaak, a Document and relating them
                 "registratiedatum": today,
                 "startdatum": today,
             }
-            zaak: dict = zrc_client.create("zaak", zaak_body)
+            zaak_response: Response = zrc_client.post("zaak", json=zaak_body)
+            zaak = zaak_response.json()
 
             # document creation
             with open("/tmp/some_file.txt", "rb") as some_file:
@@ -56,14 +59,15 @@ Creating a Zaak, a Document and relating them
                         "informatieobjecttypen/abb89dae-238e-4e6a-aacd-0ba9724350a9"
                     )
                 }
-            document: dict = drc_client.create("enkelvoudiginformatieobject", document_body)
+            document_response: Response = drc_client.post("enkelvoudiginformatieobject", json=document_body)
+            document = document_response.json()
 
             # relate them
             zio_body = {
                 "zaak": zaak["url"],
                 "informatieobject": document["url"],
             }
-            zio: dict = zrc_client.create("zaakinformatieobject", zio_body)
+            zio: Response = zrc_client.post("zaakinformatieobject", json=zio_body)
 
     .. group-tab:: Javascript
 

@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlsplit, urlunsplit
 
 from django.db.models.functions import Length
+from django.utils.text import slugify
 
 from zgw_consumers.constants import APITypes
 
@@ -76,10 +77,12 @@ def fill_service_urls(
         else:
             service = get_service(Service, url)
             if not service:
+                api_root = calculate_api_root(url)
                 # create service to avoid breakage
                 service = Service.objects.create(
                     label="FIXME",
-                    api_root=calculate_api_root(url),
+                    slug=slugify(api_root),
+                    api_root=api_root,
                     api_type=APITypes.orc,
                 )
                 cache_get_service[url] = service

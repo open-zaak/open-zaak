@@ -1386,6 +1386,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.zaaktype = ZaakTypeFactory.create()
+
         super().setUpTestData()
 
     def test_zaak_list_internal_and_external(self):
@@ -1497,7 +1498,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             results[0]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
         )
 
-    def test_zaak_retreive(self):
+    def test_zaak_retrieve(self):
         zaak1 = ZaakFactory.create(
             zaaktype=self.zaaktype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,

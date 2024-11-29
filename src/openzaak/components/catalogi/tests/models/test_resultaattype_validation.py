@@ -129,7 +129,7 @@ class ResultaattypeSelectielijstlasseValidationTests(SelectieLijstMixin, TestCas
 
         # Overwrite mock for obj_has_shape, ensure that it returns False,
         # indicating that the form validation should fail
-        with patch("vng_api_common.validators.obj_has_shape", return_value=False):
+        with patch("vng_api_common.oas.obj_has_shape", return_value=False):
             # Mock the request of the procestype url, return a response of a
             # form that would be expected from a procestype
             self.requests_mocker.get(

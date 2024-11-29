@@ -13,7 +13,7 @@ import requests_mock
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.documenten.constants import (
     ChecksumAlgoritmes,
@@ -53,7 +53,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 

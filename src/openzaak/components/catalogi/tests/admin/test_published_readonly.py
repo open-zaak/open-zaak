@@ -196,7 +196,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
             f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
         )
         omschrijving_url = (
-            "https://referentielijsten-api.vng.cloud/api/v1/"
+            "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
 

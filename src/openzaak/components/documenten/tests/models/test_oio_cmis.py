@@ -4,6 +4,8 @@ from django.db import IntegrityError
 from django.test import TestCase, override_settings, tag
 
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import APITypes
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -29,6 +31,11 @@ from ..factories import (
 class OIOCMISTests(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        ServiceFactory.create(
+            api_root="http://openzaak.nl/documenten/api/v1/",
+            api_type=APITypes.drc,
+        )
 
         self.eio = EnkelvoudigInformatieObjectFactory.create()
         self.eio_url = f"http://openzaak.nl{reverse(self.eio)}"
@@ -93,6 +100,11 @@ class OIOCMISTests(APICMISTestCase, TestCase):
 class BlockChangeTestCase(APICMISTestCase, TestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        ServiceFactory.create(
+            api_root="http://openzaak.nl/documenten/api/v1/",
+            api_type=APITypes.drc,
+        )
 
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_url = f"http://openzaak.nl{reverse(eio)}"

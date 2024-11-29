@@ -4,7 +4,7 @@ from django.test import tag
 
 from rest_framework.test import APITestCase
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.tests.factories import ZaakFactory
 
@@ -55,7 +55,7 @@ class UniqueRepresentationTestCase(APITestCase):
 
     @tag("oio", "external-urls")
     def test_oio_with_verzoek(self):
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://extern.vrc.nl/api/v1/", api_type=APITypes.vrc
         )
         eio = EnkelvoudigInformatieObjectFactory.create(

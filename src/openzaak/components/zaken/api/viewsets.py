@@ -31,13 +31,14 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
+from vng_api_common.client import to_internal_data
 from vng_api_common.filters import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
-from zgw_consumers.models import Service
 
+from openzaak.client import get_client
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
     delete_remote_objectverzoek,
@@ -416,11 +417,13 @@ class ZaakViewSet(
         oio_urls = instance.zaakinformatieobject_set.filter(
             Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)
-        delete_params = [(url, Service.get_client(url)) for url in oio_urls]
+        delete_params = [
+            (url, get_client(url, raise_exceptions=True)) for url in oio_urls
+        ]
 
         def _delete_oios():
             for url, client in delete_params:
-                client.delete("objectinformatieobject", url=url)
+                to_internal_data(client.delete(url))
 
         transaction.on_commit(_delete_oios)
 

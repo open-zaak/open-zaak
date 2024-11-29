@@ -14,8 +14,8 @@ from vng_api_common.authorizations.models import (
     AuthorizationsConfig,
     Autorisatie,
 )
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
-from zds_client import ClientAuth
 
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView
@@ -48,8 +48,9 @@ class CredentialsInline(admin.TabularInline):
     @admin.display(description="jwt")
     def get_jwt(self, obj):
         if obj.identifier and obj.secret:
-            auth = ClientAuth(obj.identifier, obj.secret)
-            jwt = auth.credentials()["Authorization"]
+            jwt = generate_jwt(
+                obj.identifier, obj.secret, obj.identifier, obj.identifier
+            )
             return format_html(
                 '<code class="copy-action jwt" data-copy-value="{val}">{val}</code><p>{hint}</p>',
                 val=jwt,

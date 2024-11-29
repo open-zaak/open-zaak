@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 
 import requests_mock
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
@@ -60,7 +60,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             "b71f72ef-198d-44d8-af64-ae1932df830a"
         )
 
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 

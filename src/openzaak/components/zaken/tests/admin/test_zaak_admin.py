@@ -14,7 +14,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories.resultaattype import (
@@ -42,7 +42,7 @@ class ZaakAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
-        cls.service = Service.objects.create(
+        cls.service = ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="https://external.nl/api/v1/",
         )

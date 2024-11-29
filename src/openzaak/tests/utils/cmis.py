@@ -16,7 +16,7 @@ from drc_cmis.client_builder import get_cmis_client
 from drc_cmis.models import CMISConfig, UrlMapping
 from rest_framework.test import APITestCase, APITransactionTestCase
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from .helpers import can_connect
 from .mocks import MockSchemasMixin, get_eio_response
@@ -93,7 +93,7 @@ class CMISMixin(MockSchemasMixin):
             )
 
         # add local service configuration - required for composite urls
-        Service.objects.create(api_root="http://testserver/", api_type=APITypes.orc)
+        ServiceFactory.create(api_root="http://testserver/", api_type=APITypes.orc)
 
     def setUp(self) -> None:
         # real_http=True to let the other calls pass through and use a different mocker

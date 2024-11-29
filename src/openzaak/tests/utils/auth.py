@@ -3,31 +3,10 @@
 from django.db.models import Model
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import reverse
-from zds_client import ClientAuth
-
-
-def generate_jwt_auth(
-    client_id: str,
-    secret: str,
-    user_id: str = "test_user_id",
-    user_representation: str = "Test User",
-    **extra_claims,
-) -> str:
-    """
-    Generate a JWT suitable for the second version of the AC-based auth.
-    """
-    auth = ClientAuth(
-        client_id,
-        secret,
-        user_id=user_id,
-        user_representation=user_representation,
-        iss="testsuite",
-        **extra_claims,
-    )
-    return auth.credentials()["Authorization"]
 
 
 class JWTAuthMixin:
@@ -92,10 +71,10 @@ class JWTAuthMixin:
     def setUp(self):
         super().setUp()
 
-        token = generate_jwt_auth(
-            client_id=self.client_id,
-            secret=self.secret,
-            user_id=self.user_id,
-            user_representation=self.user_representation,
+        token = generate_jwt(
+            self.client_id,
+            self.secret,
+            self.user_id,
+            self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)

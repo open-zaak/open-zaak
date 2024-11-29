@@ -23,7 +23,9 @@ class SelectielijstConfigurationTests(TestCase):
         configuration.configure()
 
         config = ReferentieLijstConfig.get_solo()
-        self.assertEqual(config.api_root, "https://selectielijst.example.com/api/v1/")
+        self.assertEqual(
+            config.service.api_root, "https://selectielijst.example.com/api/v1/"
+        )
 
     @requests_mock.Mocker()
     def test_configuration_check_ok(self, m):
@@ -65,8 +67,6 @@ class SelectielijstConfigurationTests(TestCase):
 
     def test_is_configured(self):
         configuration = SelectielijstAPIConfigurationStep()
-
-        self.assertFalse(configuration.is_configured())
 
         configuration.configure()
 
