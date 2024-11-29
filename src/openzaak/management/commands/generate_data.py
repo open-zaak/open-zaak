@@ -81,8 +81,9 @@ def get_sl_resultaten() -> list[dict]:
     config = ReferentieLijstConfig.get_solo()
     client = build_client(config.service, client_factory=Client)
     assert client
-    response = to_internal_data(client.get("resultaten"))
-    return response["results"]
+    response_data = to_internal_data(client.get("resultaten"))
+    assert isinstance(response_data, dict)
+    return response_data["results"]
 
 
 # django doesn't allow bulk crate for multitable inheritance, so

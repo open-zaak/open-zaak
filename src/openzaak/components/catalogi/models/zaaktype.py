@@ -358,8 +358,10 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
 
         if self.selectielijst_procestype and not self.selectielijst_procestype_jaar:
             client = get_client(self.selectielijst_procestype, raise_exceptions=True)
-            response = to_internal_data(client.get(self.selectielijst_procestype))
-            self.selectielijst_procestype_jaar = response["jaar"]
+            assert client
+            response_data = to_internal_data(client.get(self.selectielijst_procestype))
+            assert isinstance(response_data, dict)
+            self.selectielijst_procestype_jaar = response_data["jaar"]
 
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "versiedatum")

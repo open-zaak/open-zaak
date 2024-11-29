@@ -28,8 +28,8 @@ Creating a Zaak, a Document and relating them
             from zgw_consumers.models import Service
             from zgw_consumers.client import build_client
 
-            zrc_client = build_client(Service.objects.filter(api_type=APITypes.zrc).get())
-            drc_client = build_client(Service.objects.filter(api_type=APITypes.drc).get())
+            zrc_client = build_client(Service.objects.get(api_type=APITypes.zrc))
+            drc_client = build_client(Service.objects.get(api_type=APITypes.drc))
 
             # zaak creation
             today = date.today().strftime("%Y-%m-%d")

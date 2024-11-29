@@ -71,7 +71,7 @@ The configuration steps below need to be performed in Open Zaak itself.
       - **Secret**: *Some random string. You will need this later on!*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
       - **OAS url**: URL that points to the OpenAPI specification. This is typically
-        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
+        ``<API-ROOT>/schema/openapi.yaml``, *for example:*
         ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Zaak``
