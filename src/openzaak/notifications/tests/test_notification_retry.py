@@ -83,6 +83,7 @@ class NotificationCeleryRetryTestCase(
             "kenmerken": {
                 "bronorganisatie": "517439943",
                 "zaaktype": f"http://testserver{zaaktype_url}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
         }
@@ -141,6 +142,7 @@ class NotificationCeleryRetryTestCase(
             "kenmerken": {
                 "bronorganisatie": "517439943",
                 "zaaktype": f"http://testserver{zaaktype_url}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
             },
         }
