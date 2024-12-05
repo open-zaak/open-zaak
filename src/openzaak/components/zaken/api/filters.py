@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
-from django_loose_fk.utils import get_resource_for_path
+from django_loose_fk.utils import get_resource_for_path, is_local
 from drf_spectacular.plumbing import build_choice_description_list
 from vng_api_common.utils import get_field_attribute, get_help_text
 
@@ -383,7 +383,7 @@ class FkOrUrlOrCMISFieldFilter(FkOrUrlFieldFilter):
         parsed = urlparse(value)
         host = self.parent.request.get_host()
 
-        local = parsed.netloc == host
+        local = is_local(host, value)
         if settings.CMIS_ENABLED:
             local = False
 
