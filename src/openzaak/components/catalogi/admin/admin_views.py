@@ -324,7 +324,7 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
 
     def send_notification(self, context_request):
 
-        viewset = ZaakTypeViewSet()
+        viewset = ZaakTypeViewSet(request=self.request)
         viewset.action = "update"
 
         reference_object = self.object
