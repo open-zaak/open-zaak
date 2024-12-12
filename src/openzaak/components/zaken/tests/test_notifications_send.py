@@ -24,7 +24,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.models import Service
+from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -121,7 +121,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         Check if the zaaktype.catalogus kenmerk is correctly sent if the Zaak
         has an external zaaktype
         """
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
@@ -185,7 +185,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         Check if the zaaktype.catalogus kenmerk is left empty sent if the Zaak
         has an external zaaktype and the Catalogus could not be fetched
         """
-        Service.objects.create(
+        ServiceFactory.create(
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
 
@@ -270,6 +270,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
                     "zaaktype": f"http://testserver{zaaktype_url}",
+                    "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
@@ -299,6 +300,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
                     "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                    "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
@@ -330,6 +332,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "bronorganisatie": zaak.bronorganisatie,
                     "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                    "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
@@ -379,6 +382,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": data["bronorganisatie"],
                 "zaaktype": f"http://testserver{zaaktype_url}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": data["vertrouwelijkheidaanduiding"],
             },
             "resource": "zaak",
@@ -419,6 +423,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaak",
@@ -476,6 +481,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "status",
@@ -530,6 +536,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakobject",
@@ -587,6 +594,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakinformatieobject",
@@ -631,6 +639,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zio.zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zio.zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zio.zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zio.zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakinformatieobject",
@@ -682,6 +691,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakeigenschap",
@@ -731,6 +741,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "klantcontact",
@@ -790,6 +801,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "rol",
@@ -831,6 +843,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": rol.zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(rol.zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(rol.zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": rol.zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "rol",
@@ -884,6 +897,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "resultaat",
@@ -927,6 +941,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": resultaat.zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(resultaat.zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(resultaat.zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": resultaat.zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "resultaat",
@@ -973,6 +988,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "bronorganisatie": besluit.zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(besluit.zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(besluit.zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": besluit.zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakbesluit",

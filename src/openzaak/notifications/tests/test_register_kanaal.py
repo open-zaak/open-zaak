@@ -168,6 +168,7 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
                         "filters": [
                             "bronorganisatie",
                             "zaaktype",
+                            "zaaktype.catalogus",
                             "vertrouwelijkheidaanduiding",
                         ],
                     },
