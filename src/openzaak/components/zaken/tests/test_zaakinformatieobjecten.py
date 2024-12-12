@@ -635,6 +635,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
             api_root=cls.base,
             defaults=dict(
                 api_type=APITypes.drc,
+                slug=cls.base,
                 label="external documents",
                 auth_type=AuthTypes.no_auth,
             ),
@@ -1016,7 +1017,7 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
         ziot_list_url = reverse(ZaakInformatieObject)
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, document_api_root, "drc")
+            mock_drc_oas_get(m)
             m.get(document, json=eio_response)
             m.post(
                 f"{document_api_root}objectinformatieobjecten",
@@ -1034,3 +1035,57 @@ class ExternalInformatieObjectSameDomainTests(JWTAuthMixin, APITestCase):
         zio = ZaakInformatieObject.objects.get()
         self.assertEqual(zio.zaak, zaak)
         self.assertEqual(zio._informatieobject_url, document)
+
+    @override_settings(
+        ALLOWED_HOSTS=["api.example.nl"],
+        LOOSE_FK_LOCAL_BASE_URLS=[
+            "http://api.example.nl/ozgv-t/zaken/",
+            "http://api.example.nl/ozgv-t/catalogi/",
+        ],
+        FORCE_SCRIPT_NAME="/ozgv-t",
+    )
+    def test_filter_by_external_informatieobject(self):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/1830
+        """
+
+        document_api_root = "http://api.example.nl/ozgv-t/documenten/service/drc/v1/"
+        document = f"{document_api_root}enkelvoudiginformatieobjecten/be0a31c7-6c9c-4d75-aefd-db950be62267"
+
+        ServiceFactory.create(
+            api_type=APITypes.drc,
+            api_root=document_api_root,
+            label="external documents",
+            auth_type=AuthTypes.zgw,
+            client_id="a-client-id",
+            secret="secret",
+        )
+        zio_type = ZaakTypeInformatieObjectTypeFactory.create(
+            informatieobjecttype__concept=False, zaaktype__concept=False
+        )
+        zaak = ZaakFactory.create(zaaktype=zio_type.zaaktype)
+        zaak_url = f"http://api.example.nl/ozgv-t{reverse(zaak)}"
+        # for mocks
+        eio_response = get_eio_response(
+            document,
+            informatieobjecttype=f"http://api.example.nl/ozgv-t{reverse(zio_type.informatieobjecttype)}",
+        )
+
+        ziot_list_url = reverse(ZaakInformatieObject)
+
+        with requests_mock.Mocker() as m:
+            mock_drc_oas_get(m)
+            m.get(document, json=eio_response)
+            ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=document)
+
+            with override_script_prefix(prefix="/ozgv-t"):
+                response = self.client.get(
+                    ziot_list_url,
+                    {"informatieobject": document},
+                    headers={"host": "api.example.nl"},
+                )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["zaak"], zaak_url)
+        self.assertEqual(response.data[0]["informatieobject"], document)
