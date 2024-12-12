@@ -101,7 +101,7 @@ def send_applicatie_changed_notification(
 ):
     from openzaak.utils import build_fake_request
 
-    viewset = ApplicatieViewSet()
+    viewset = ApplicatieViewSet(request=None)
     viewset.action = "update"
     if new_version is None:
         request = build_fake_request(method="put")

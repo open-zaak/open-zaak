@@ -15,3 +15,13 @@ class ComponentIndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update({"component": self.component, "github_ref": self.github_ref})
         return context
+
+
+class NotificatiesView(TemplateView):
+    template_name = "notificaties.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        with open("src/notificaties.md") as f:
+            context["notification_docs"] = f.read()
+        return context
