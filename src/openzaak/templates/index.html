@@ -41,7 +41,7 @@
             <div class="card">
               <h5 class="card__title"><i class="fas fa-bullhorn"></i> Notificaties</h5>
               <p>Gebeurtenissen waarover dit component notificaties verstuurt.</p>
-              <a href="https://github.com/VNG-Realisatie/{{ component }}-api/blob/{{ github_ref }}/src/notificaties.md" class="button button--primary">Notificaties</a>
+              <a href="{% if repository %}{{ repository }}{% else %}{{ organization }}/{{ component }}-api{% endif %}/blob/{{ github_ref }}/src/notificaties.md#{{ component }}" class="button button--primary">Notificaties</a>
             </div>
           </div>
         {% endblock %}
