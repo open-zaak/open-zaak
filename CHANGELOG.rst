@@ -3,6 +3,23 @@ Changelog
 
 1.17.0 (TBD)
 ------------
+
+**New features**
+
+* [open-zaak/open-notificaties#156] Define kenmerk for Zaak.zaaktype.catalogus
+
+.. warning::
+
+    In order to use this new kenmerk, Open Notificaties must be updated to version 1.x.x (TBD)
+    and the ``src/manage.py register_kanalen`` command must be run in Open Zaak to update
+    the ``zaken`` kanaal with this new kenmerk
+
+.. warning::
+
+    If you are using ``django-setup-configuration`` to configure Open Zaak and Open Notificaties,
+    make sure to add ``zaaktype.catalogus`` to the filters of the ``zaken`` kanaal in ``notifications_kanalen_config``.
+
+
 **Bugfixes and QOL**
 
 * [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
