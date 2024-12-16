@@ -293,8 +293,8 @@ SETUP_CONFIGURATION_STEPS = [
     "django_setup_configuration.config.sites.steps.SitesConfigurationStep",
     "openzaak.config.bootstrap.notifications.AuthNotificationStep",
     "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
-    "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
-    "openzaak.config.bootstrap.demo.DemoUserStep",
+    "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
+    "openzaak.config.setup_configuration.steps.DemoUserStep",
     "openzaak.config.bootstrap.authorizations.AuthorizationConfigurationStep",
 ]
 
