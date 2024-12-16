@@ -10,6 +10,11 @@ amqp==5.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   kombu
+annotated-types==0.7.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
 ansible==8.5.0
     # via -r requirements/../deployment/requirements.in
 ansible-core==2.15.5
@@ -384,7 +389,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.1.0
+django-setup-configuration==0.5.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -415,7 +420,7 @@ django-timezone-field==7.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-celery-beat
-django-two-factor-auth==1.15.5
+django-two-factor-auth==1.17.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -783,12 +788,22 @@ pycparser==2.21
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cffi
-pydantic==1.10.19
+pydantic==2.10.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   django-two-factor-auth
-    #   webauthn
+    #   django-setup-configuration
+    #   pydantic-settings
+pydantic-core==2.27.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pydantic
+pydantic-settings==2.7.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-setup-configuration
 pyflakes==2.2.0
     # via
     #   -c requirements/ci.txt
@@ -866,6 +881,7 @@ python-dotenv==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
+    #   pydantic-settings
 python-string-utils==1.0.0
     # via openshift
 pytz==2022.6
@@ -875,7 +891,7 @@ pytz==2022.6
     #   django-silk
     #   drf-yasg
     #   flower
-pyyaml==6.0
+pyyaml==6.0.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/../deployment/requirements.in
@@ -886,6 +902,7 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+    #   pydantic-settings
     #   vcrpy
     #   zgw-consumers-oas
 qrcode==7.4.2
@@ -1052,6 +1069,7 @@ typing-extensions==4.12.2
     #   faker
     #   mozilla-django-oidc-db
     #   pydantic
+    #   pydantic-core
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
@@ -1109,7 +1127,7 @@ wcwidth==0.2.5
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   prompt-toolkit
-webauthn==1.11.1
+webauthn==2.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

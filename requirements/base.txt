@@ -2,6 +2,8 @@
 #    ./bin/compile_dependencies.sh
 amqp==5.1.1
     # via kombu
+annotated-types==0.7.0
+    # via pydantic
 ape-pie==0.2.0
     # via
     #   commonground-api-common
@@ -191,7 +193,7 @@ django-sendfile2==0.7.0
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.1.0
+django-setup-configuration==0.5.0
     # via open-api-framework
 django-simple-certmanager==2.4.1
     # via zgw-consumers
@@ -207,7 +209,7 @@ django-solo==2.0.0
     #   zgw-consumers
 django-timezone-field==7.0
     # via django-celery-beat
-django-two-factor-auth==1.15.5
+django-two-factor-auth==1.17.0
     # via maykin-2fa
 djangorestframework==3.15.2
     # via
@@ -325,10 +327,14 @@ psycopg2==2.9.9
     # via open-api-framework
 pycparser==2.21
     # via cffi
-pydantic==1.10.19
+pydantic==2.10.3
     # via
-    #   django-two-factor-auth
-    #   webauthn
+    #   django-setup-configuration
+    #   pydantic-settings
+pydantic-core==2.27.1
+    # via pydantic
+pydantic-settings==2.7.0
+    # via django-setup-configuration
 pyjwt==2.4.0
     # via
     #   commonground-api-common
@@ -357,16 +363,19 @@ python-decouple==3.8
     #   drc-cmis
     #   open-api-framework
 python-dotenv==1.0.1
-    # via open-api-framework
+    # via
+    #   open-api-framework
+    #   pydantic-settings
 pytz==2022.6
     # via
     #   drf-yasg
     #   flower
-pyyaml==6.0
+pyyaml==6.0.2
     # via
     #   drf-spectacular
     #   drf-yasg
     #   oyaml
+    #   pydantic-settings
     #   zgw-consumers-oas
 qrcode==7.4.2
     # via django-two-factor-auth
@@ -411,6 +420,7 @@ typing-extensions==4.12.2
     #   faker
     #   mozilla-django-oidc-db
     #   pydantic
+    #   pydantic-core
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
@@ -440,7 +450,7 @@ vine==5.1.0
     #   kombu
 wcwidth==0.2.5
     # via prompt-toolkit
-webauthn==1.11.1
+webauthn==2.2.0
     # via django-two-factor-auth
 webencodings==0.5.1
     # via bleach
