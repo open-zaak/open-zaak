@@ -2,6 +2,8 @@
 # Copyright (C) 2022 Dimpact
 from django.urls import include, path
 
+from openzaak import __version__
+
 from .views import ComponentIndexView
 
 urlpatterns = [
@@ -36,7 +38,11 @@ urlpatterns = [
     # zaken
     path(
         "zaken/",
-        ComponentIndexView.as_view(component="zaken", github_ref="stable/1.2.x"),
+        ComponentIndexView.as_view(
+            component="zaken",
+            repository="https://github.com/open-zaak/open-zaak",
+            github_ref=__version__,
+        ),
         name="index-zaken",
     ),
     path("zaken/api/", include("openzaak.components.zaken.api.urls")),
