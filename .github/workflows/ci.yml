@@ -231,7 +231,7 @@ jobs:
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v1
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v3.0.1
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
