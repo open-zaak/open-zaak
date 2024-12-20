@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/sh
 #
 # Compile the dependencies for production, CI and development.
 #
@@ -7,39 +6,37 @@
 #
 #     ./bin/compile_dependencies.sh
 #
-# Any extra flags/arguments passed to this wrapper script are passed down to pip-compile.
+# Any extra flags/arguments passed to this wrapper script are passed down to uv pip compile.
 # E.g. to update a package:
 #
 #     ./bin/compile_dependencies.sh --upgrade-package django
-
 set -ex
 
+command -v uv || (echo "uv not found on PATH. Install it https://astral.sh/uv" >&2 && exit 1)
+
+cwd="${PWD}"
 toplevel=$(git rev-parse --show-toplevel)
 
-cd $toplevel
+cd "${toplevel}"
 
-export CUSTOM_COMPILE_COMMAND="./bin/compile_dependencies.sh"
+export UV_CUSTOM_COMPILE_COMMAND="./bin/compile_dependencies.sh"
 
 # Base (& prod) deps
-pip-compile \
-    --no-emit-index-url \
+uv pip compile \
+    --output-file requirements/base.txt \
     "$@" \
     requirements/base.in
 
 # Dependencies for testing
-pip-compile \
-    --no-emit-index-url \
+uv pip compile \
     --output-file requirements/ci.txt \
     "$@" \
-    requirements/base.txt \
-    requirements/test-tools.in \
-    requirements/ci.in
+    requirements/test-tools.in
 
 # Dev depedencies - exact same set as CI + some extra tooling
-pip-compile \
-    --no-emit-index-url \
+uv pip compile \
     --output-file requirements/dev.txt \
     "$@" \
-    requirements/base.txt \
-    requirements/test-tools.in \
     requirements/dev.in
+
+cd "${cwd}"
