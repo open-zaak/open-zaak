@@ -78,6 +78,7 @@ class FailedNotificationCMISTests(
             "kenmerken": {
                 "bronorganisatie": zaak.bronorganisatie,
                 "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                 "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
             },
             "resource": "zaakinformatieobject",
