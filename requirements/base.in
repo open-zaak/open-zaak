@@ -28,3 +28,4 @@ humanize
 drc-cmis
 
 commonground-api-common[testutils]
+commonground-api-common[setup-configuration]

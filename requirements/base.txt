@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.1.0
+commonground-api-common==2.2.0
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -194,7 +194,9 @@ django-sendfile2==0.7.0
 django-sessionprofile==3.0.0
     # via open-api-framework
 django-setup-configuration==0.5.0
-    # via open-api-framework
+    # via
+    #   commonground-api-common
+    #   open-api-framework
 django-simple-certmanager==2.4.1
     # via zgw-consumers
 django-sniplates==0.7.2
@@ -327,11 +329,11 @@ psycopg2==2.9.9
     # via open-api-framework
 pycparser==2.21
     # via cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via
     #   django-setup-configuration
     #   pydantic-settings
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.0
     # via django-setup-configuration
