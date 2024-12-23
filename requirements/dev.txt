@@ -10,6 +10,10 @@ amqp==5.1.1
     # via
     #   -r requirements/base.txt
     #   kombu
+annotated-types==0.7.0
+    # via
+    #   -r requirements/base.txt
+    #   pydantic
 ansible==8.5.0
     # via -r requirements/../deployment/requirements.in
 ansible-core==2.15.5
@@ -125,7 +129,7 @@ cmislib-maykin==0.7.4
     # via
     #   -r requirements/base.txt
     #   drc-cmis
-commonground-api-common[testutils]==2.1.0
+commonground-api-common[setup-configuration,testutils]==2.2.0
     # via
     #   -r requirements/base.txt
     #   drc-cmis
@@ -307,9 +311,10 @@ django-sessionprofile==3.0.0
     # via
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.1.0
+django-setup-configuration==0.4.0
     # via
     #   -r requirements/base.txt
+    #   commonground-api-common
     #   open-api-framework
 django-silk==4.3.0
     # via -r requirements/dev.in
@@ -332,7 +337,7 @@ django-timezone-field==7.0
     # via
     #   -r requirements/base.txt
     #   django-celery-beat
-django-two-factor-auth[phonenumberslite,webauthn]==1.15.5
+django-two-factor-auth[phonenumberslite,webauthn]==1.16.0
     # via
     #   -r requirements/base.txt
     #   maykin-2fa
@@ -597,11 +602,19 @@ pycparser==2.21
     # via
     #   -r requirements/base.txt
     #   cffi
-pydantic==1.10.15
+pydantic==2.10.4
     # via
     #   -r requirements/base.txt
-    #   django-two-factor-auth
-    #   webauthn
+    #   django-setup-configuration
+    #   pydantic-settings
+pydantic-core==2.27.2
+    # via
+    #   -r requirements/base.txt
+    #   pydantic
+pydantic-settings[yaml]==2.7.0
+    # via
+    #   -r requirements/base.txt
+    #   django-setup-configuration
 pyflakes==2.2.0
     # via flake8
 pygments==2.8.1
@@ -659,6 +672,7 @@ python-dotenv==1.0.1
     # via
     #   -r requirements/base.txt
     #   open-api-framework
+    #   pydantic-settings
 python-string-utils==1.0.0
     # via openshift
 pytz==2022.6
@@ -668,7 +682,7 @@ pytz==2022.6
     #   django-silk
     #   drf-yasg
     #   flower
-pyyaml==6.0
+pyyaml==6.0.2
     # via
     #   -r requirements/../deployment/requirements.in
     #   -r requirements/base.txt
@@ -678,6 +692,7 @@ pyyaml==6.0
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+    #   pydantic-settings
     #   vcrpy
     #   zgw-consumers-oas
 qrcode==7.4.2
@@ -801,6 +816,7 @@ typing-extensions==4.12.2
     #   faker
     #   mozilla-django-oidc-db
     #   pydantic
+    #   pydantic-core
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
@@ -846,7 +862,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements/base.txt
     #   prompt-toolkit
-webauthn==1.11.1
+webauthn==2.2.0
     # via
     #   -r requirements/base.txt
     #   django-two-factor-auth
