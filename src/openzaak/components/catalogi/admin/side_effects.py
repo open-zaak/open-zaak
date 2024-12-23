@@ -99,7 +99,7 @@ class VersioningSideEffect(SideEffectBase):
 class NotificationSideEffect(SideEffectBase):
     def apply(self):
         viewset_cls = VIEWSET_FOR_MODEL[type(self.original)]
-        viewset = viewset_cls()
+        viewset = viewset_cls(request=self.request)
 
         send_notification = False
         is_create = (

@@ -246,7 +246,7 @@ class ZaakViewSet(
     """
 
     queryset = (
-        Zaak.objects.select_related("_zaaktype")
+        Zaak.objects.select_related("_zaaktype", "_zaaktype__catalogus")
         .prefetch_related(
             "deelzaken",
             models.Prefetch(
