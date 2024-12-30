@@ -5,11 +5,7 @@ Open Zaak configuration (CLI)
 =============================
 
 After deploying Open Zaak, it needs to be configured to be fully functional. The
-command line tool ``setup_configuration`` assist with this configuration:
-
-* It uses environment variables for all configuration choices, therefore you can integrate this with your
-  infrastructure tooling such as init containers and/or Kubernetes Jobs.
-* The command can self-test the configuration to detect problems early on
+command line tool `setup_configuration`_ assist with this configuration:
 
 You can get the full command documentation with:
 
@@ -21,74 +17,98 @@ You can get the full command documentation with:
    running the command and you then run the exact same command again, the manual
    changes will be reverted.
 
+.. _`setup_configuration`: https://github.com/maykinmedia/django-setup-configuration/
+
 Preparation
 ===========
 
 The command executes the list of pluggable configuration steps, and each step
-has required specific environment variables, that should be prepared.
-Here is the description of all available configuration steps and the environment variables,
-used by each step.
+requires specific configuration information, that should be prepared.
+Here is the description of all available configuration steps and the configuration
+format, used by each step. Steps are run in the order stated here.
+
 
 Sites configuration
-------------------------
+-------------------
 
-Configure the domain where Open Zaak is hosted
+.. code-block:: yaml
 
-* ``SITES_CONFIG_ENABLE``: enable Site configuration. Defaults to ``False``.
-* ``OPENZAAK_DOMAIN``:  a ``[host]:[port]`` or ``[host]`` value. Required.
-* ``OPENZAAK_ORGANIZATION``: name of Open Zaak organization. Required.
+    sites_config_enable: true
+    sites_config:
+      items:
+      - domain: example.com
+        name: Example site
+      - domain: test.example.com
+        name: Test site
 
-Notification authorization configuration
-----------------------------------------
+More details about sites configuration through ``setup_configuration``
+can be found at the _`site documentation`: https://github.com/maykinmedia/django-setup-configuration/blob/main/docs/sites_config.rst
 
-Open Notificaties uses Open Zaak Autorisaties API to check authorizations
-of its consumers, therefore Open Notificaties should be able to request Open Zaak
 
-* ``NOTIF_OPENZAAK_CONFIG_ENABLE``: enable Notification credentials configuration. Defaults
-  to ``False``.
-* ``NOTIF_OPENZAAK_CLIENT_ID``: a client id, which Open Notificaties uses to request
-  Open Zaak, for example, ``open-notificaties``. Required.
-* ``NOTIF_OPENZAAK_SECRET``: some random string. Required.
 
-Notification configuration
---------------------------
+Service Configuraiton
+---------------------
 
-Open Zaak publishes notifications to the Open Notificaties.
+All services are configured in a single step.
+Full details can be found in the _`zgw-consumers documentation`: https://zgw-consumers.readthedocs.io/en/latest/setup_config.html
 
-* ``OPENZAAK_NOTIF_CONFIG_ENABLE``: enable Notification configuration. Defaults to ``False``.
-* ``NOTIF_API_ROOT``: full URL to the Notificaties API root, for example
-  ``https://notificaties.gemeente.local/api/v1/``. Required.
-* ``NOTIF_API_OAS``: full URL to the Notificaties OpenAPI specification in YAML format.
-* ``OPENZAAK_NOTIF_CLIENT_ID``: a client id, which Open Zaak uses to request Open Notificaties,
-  for example, ``open-zaak``. Required.
-* ``OPENZAAK_NOTIF_SECRET``: some random string. Required.
+.. code-block:: yaml
+
+    zgw_consumers_config_enable: true
+    zgw_consumers:
+      services:
+      - identifier: notifications-api
+        label: Notificaties API
+        api_root: http://notificaties.local/api/v1/
+        api_connection_check_path: notificaties
+        api_type: nrc
+        auth_type: api_key
+        header_key: Authorization
+        header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+
+      - identifier: selectielijst-api
+        label: Selectielijst API
+        api_root: https://selectielijst.local/api/v1/
+        ...
+
+
+
+
+Notifications configuration
+---------------------------
+
+To configure sending notifications for the application ensure there is a ``services``
+item present that matches the ``notifications_api_service_identifier`` in the
+``notifications_config`` namespace:
+
+.. code-block:: yaml
+
+    notifications_config_enable: true
+    notifications_config:
+      notifications_api_service_identifier: notifications-api
+      notification_delivery_max_retries: 1
+      notification_delivery_retry_backoff: 2
+      notification_delivery_retry_backoff_max: 3
+
+
 
 Selectielijst configuration
 ---------------------------
 
-Open Zaak requests Selectielijst API in the Catalogi API component.
-The Selectielijst API is not expected to require any authentication.
+To configure sending selectielijst for the application ensure there is a ``services``
+item present that matches the ``selectielijst_api_service_identifier`` in the
+``openzaak_selectielijst_config`` namespace:
 
-* ``OPENZAAK_SELECTIELIJST_CONFIG_ENABLE``: enable Selectielijst configuration. Defaults to ``False``.
-* ``SELECTIELIJST_API_ROOT``: full url to the Selectielijst API root. Defaults to
-  ``https://selectielijst.openzaak.nl/api/v1/``
-* ``SELECTIELIJST_API_OAS``: full url to the Selectielijst OpenAPI specification in YAML format. Defaults to
-  ``https://selectielijst.openzaak.nl/api/v1/schema/openapi.yaml``
-* ``SELECTIELIJST_ALLOWED_YEARS``: years, for which process types can be used. Defaults to ``[2017, 2020]``.
-* ``SELECTIELIJST_DEFAULT_YEAR`` = the default year from which process types will be used. Defaults to `2020`.
 
-Demo user configuration
------------------------
+.. code-block:: yaml
 
-Demo user can be created to check if Open Zaak APIs work. It has superuser permissions,
-so its creation is not recommended on production environment.
-
-* ``DEMO_CONFIG_ENABLE``: enable demo user configuration. Defaults to ``False``.
-* ``DEMO_CLIENT_ID``: demo client id. Required.
-* ``DEMO_SECRET``: demo secret. Required.
-
-.. note:: You can generate these Client IDs and Secrets using any password generation
-   tool, as long as you configure the same values in the Notifications API.
+    openzaak_selectielijst_config_enable: true
+    openzaak_selectielijst_config:
+      selectielijst_api_service_identifier: selectielijst-api
+      allowed_years:
+        - 2025
+        - 2026
+      default_year: 2025
 
 
 .. _setup_config_auth:
@@ -96,17 +116,31 @@ so its creation is not recommended on production environment.
 Authorization configuration
 ---------------------------
 
-It is possible to load authorization configuration to avoid manual configuration across
-environments, for more detailed information about how this works, see :ref:`Authorization configuration <installation_configuration_auth_cicd>`.
+To Be implemented
 
-* ``AUTHORIZATIONS_CONFIG_ENABLE``: enable authorization configuration, defaults to ``False``.
-* ``AUTHORIZATIONS_CONFIG_FIXTURE_PATH``: the full path of the fixture ``.yaml`` file containing the
-  configuration (for more information about how to generate this file, see :ref:`Generating the fixture <authorization_config_generate_fixture>`).
-* ``AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH``: the full path to the file with the domain mapping.
-* ``AUTHORIZATIONS_CONFIG_DELETE_EXISTING``: a boolean indicating whether or not the existing configuration should be removed before loading the fixture.
-  set this to ``True``, ``true`` or ``1`` if you want to use the fixture as a single source of truth. Make sure to only do this if you are **not**
-  managing any Applicaties/credentials via the admin or API. Defaults to ``False``.
-* ``ENVIRONMENT``: the environment name of this Open Zaak instance. This is used to determine what the target domain is in the domain mapping.
+.. _setup_config_oidc:
+
+Mozilla-django-oidc-db
+----------------------
+
+Create or update the (single) YAML configuration file with your settings:
+
+.. code-block:: yaml
+
+   ...
+    oidc_db_config_enable: true
+    oidc_db_config_admin_auth:
+    items:
+      - identifier: admin-oidc
+        oidc_rp_client_id: client-id
+        oidc_rp_client_secret: secret
+        endpoint_config:
+          oidc_op_discovery_endpoint: https://keycloak.local/protocol/openid-connect/
+   ...
+
+More details about configuring mozilla-django-oidc-db through ``setup_configuration``
+can be found at the _`documentation`: https://mozilla-django-oidc-db.readthedocs.io/en/latest/setup_configuration.html.
+
 
 .. _setup_config_execution:
 
@@ -116,33 +150,11 @@ Execution
 Open Zaak configuration
 -----------------------
 
-With the full command invocation, everything is configured at once and immediately
-tested. For all the self-tests to succeed, it's important that the
-:ref:`Notifications API is configured <installation_configuration_notificaties_api>`
-correctly before calling this command.
+With the full command invocation, everything is configured at once and immediately tested.
 
 .. code-block:: bash
 
-    src/manage.py setup_configuration
-
-
-Alternatively, you can skip the self-tests by using the ``--no-selftest`` flag.
-
-.. code-block:: bash
-
-    src/manage.py setup_configuration --no-self-test
-
-
-``setup_configuration`` command checks if the configuration already exists before changing it.
-If you want to change some of the values of the existing configuration you can use ``--overwrite`` flag.
-
-.. code-block:: bash
-
-    src/manage.py setup_configuration --overwrite
-
-
-.. note:: Due to a cache-bug in the underlying framework, you need to restart all
-   replicas for part of this change to take effect everywhere.
+    src/manage.py setup_configuration --yaml-file /path/to/config.yaml
 
 
 Register notification channels
