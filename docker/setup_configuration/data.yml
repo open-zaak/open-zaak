@@ -1,0 +1,25 @@
+sites_config_enable: true
+sites_config:
+  items:
+  - domain: example.com
+    name: Example site
+
+zgw_consumers_config_enable: true
+zgw_consumers:
+  services:
+  - identifier: notifications-api
+    label: Notificaties API
+    api_root: http://notificaties.local/api/v1/
+    api_connection_check_path: notificaties
+    api_type: nrc
+    auth_type: api_key
+    header_key: Authorization
+    header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
+
+notifications_config_enable: true
+notifications_config:
+  notifications_api_service_identifier: notifications-api
+  notification_delivery_max_retries: 1
+  notification_delivery_retry_backoff: 2
+  notification_delivery_retry_backoff_max: 3
+
