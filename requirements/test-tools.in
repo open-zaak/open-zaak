@@ -1,3 +1,6 @@
+-c base.txt
+-r base.txt
+
 # Dependencies only relevant for (unit) testing
 coverage
 django-webtest
@@ -7,6 +10,10 @@ pyquery
 requests-mock
 tblib
 vcrpy
+
+# CI tools
+pytest
+codecov
 
 # Code formatting
 isort
