@@ -296,6 +296,7 @@ SETUP_CONFIGURATION_STEPS = [
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
     "vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep",
     "vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep",
+    "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
 ]
 
 #
