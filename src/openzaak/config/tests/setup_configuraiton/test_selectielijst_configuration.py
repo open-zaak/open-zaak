@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Dimpact
 from pathlib import Path
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from django_setup_configuration.test_utils import execute_single_step
 
