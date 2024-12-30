@@ -9,7 +9,6 @@ from django.db import models, transaction
 from django.utils import timezone
 
 import factory.fuzzy
-from django_setup_configuration.exceptions import SelfTestFailed
 from requests.exceptions import RequestException
 from vng_api_common.client import Client, ClientError, to_internal_data
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -255,7 +254,7 @@ class Command(BaseCommand):
         # request SL resultaten
         try:
             sl_resultaten = get_sl_resultaten()
-        except (RequestException, ClientError, SelfTestFailed):
+        except (RequestException, ClientError):
             raise CommandError(
                 "Selectielijst API is not available. Check its configuration"
             )
