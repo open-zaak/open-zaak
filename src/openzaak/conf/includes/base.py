@@ -293,6 +293,8 @@ SETUP_CONFIGURATION_STEPS = [
     "django_setup_configuration.config.sites.steps.SitesConfigurationStep",
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
+    "vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep",
+    "vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep",
     # "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
     # "openzaak.config.setup_configuration.steps.DemoUserStep",
 ]
