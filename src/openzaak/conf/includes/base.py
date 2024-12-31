@@ -294,6 +294,8 @@ SETUP_CONFIGURATION_STEPS = [
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
+    "vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep",
+    "vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep",
 ]
 
 #
