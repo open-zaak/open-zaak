@@ -1,4 +1,5 @@
 open-api-framework
+git+https://github.com/maykinmedia/commonground-api-common.git@feature/applicatie-config
 
 # Core python libraries
 jq
