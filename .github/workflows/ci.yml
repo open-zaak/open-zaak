@@ -221,17 +221,18 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v1
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v3.0.2
     needs:
       - store-reusable-workflow-vars
     with:
       main-branch: 'main'
       python-version: '3.11'
+      django-settings-module: openzaak.conf.ci
       docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v3.0.1
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v3.0.2
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
