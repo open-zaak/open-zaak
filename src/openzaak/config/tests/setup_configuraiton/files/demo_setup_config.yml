@@ -1,5 +1,0 @@
-
-demo_config_enable: true
-demo_config:
-  demo_client_id: demo-client-id
-  demo_secret: demo-secret
