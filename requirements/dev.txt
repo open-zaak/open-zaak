@@ -211,7 +211,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django==4.2.15
+django==4.2.17
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -608,7 +608,7 @@ itypes==1.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   coreapi
-jinja2==3.1.4
+jinja2==3.1.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -693,7 +693,7 @@ notifications-api-common==0.5.0
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.9.1
+open-api-framework==0.9.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1040,7 +1040,7 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-tornado==6.4.1
+tornado==6.4.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1099,7 +1099,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-waitress==2.1.2
+waitress==3.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
