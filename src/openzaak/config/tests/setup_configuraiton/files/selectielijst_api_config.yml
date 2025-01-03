@@ -1,0 +1,4 @@
+openzaak_selectielijst_config_enable: true
+openzaak_selectielijst_config:
+  api_root: "https://selectielijst.example.com/api/v1/"
+  oas: "https://selectielijst.example.com/api/v1/schema/openapi.yaml"
