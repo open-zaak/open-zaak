@@ -290,11 +290,10 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = "Open Zaak - admin"
 # Django setup configuration
 #
 SETUP_CONFIGURATION_STEPS = [
-    "django_setup_configuration.config.sites.steps.SitesConfigurationStep",
+    "django_setup_configuration.contrib.sites.steps.SitesConfigurationStep",
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
-    # "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
-    # "openzaak.config.setup_configuration.steps.DemoUserStep",
+    "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
 ]
 
 #
