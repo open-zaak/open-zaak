@@ -1,4 +1,9 @@
 openzaak_selectielijst_config_enable: true
 openzaak_selectielijst_config:
-  api_root: "https://selectielijst.example.com/api/v1/"
-  oas: "https://selectielijst.example.com/api/v1/schema/openapi.yaml"
+  selectielijst_api_service_identifier: selectielijst-api
+  allowed_years:
+    - 2025
+    - 2026
+    - 2027
+    - 2028
+  default_year: 2025
