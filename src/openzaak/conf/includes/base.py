@@ -290,12 +290,10 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = "Open Zaak - admin"
 # Django setup configuration
 #
 SETUP_CONFIGURATION_STEPS = [
-    "openzaak.config.bootstrap.site.SiteConfigurationStep",
-    "openzaak.config.bootstrap.notifications.AuthNotificationStep",
-    "openzaak.config.bootstrap.notifications.NotificationsAPIConfigurationStep",
-    "openzaak.config.bootstrap.selectielijst.SelectielijstAPIConfigurationStep",
-    "openzaak.config.bootstrap.demo.DemoUserStep",
-    "openzaak.config.bootstrap.authorizations.AuthorizationConfigurationStep",
+    "django_setup_configuration.contrib.sites.steps.SitesConfigurationStep",
+    "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
+    "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
+    "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
 ]
 
 #
@@ -455,66 +453,4 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
         "Used for bulk importing ``EnkelvoudigInformatieObject``'s."
     ),
     group="Documenten import",
-)
-
-# Settings for setup_configuration command
-# sites config
-SITES_CONFIG_ENABLE = config("SITES_CONFIG_ENABLE", default=False, add_to_docs=False)
-OPENZAAK_ORGANIZATION = config("OPENZAAK_ORGANIZATION", "", add_to_docs=False)
-# notif -> OZ config
-NOTIF_OPENZAAK_CONFIG_ENABLE = config(
-    "NOTIF_OPENZAAK_CONFIG_ENABLE", default=False, add_to_docs=False
-)
-NOTIF_OPENZAAK_CLIENT_ID = config("NOTIF_OPENZAAK_CLIENT_ID", "", add_to_docs=False)
-NOTIF_OPENZAAK_SECRET = config("NOTIF_OPENZAAK_SECRET", "", add_to_docs=False)
-# OZ -> notif config
-OPENZAAK_NOTIF_CONFIG_ENABLE = config(
-    "OPENZAAK_NOTIF_CONFIG_ENABLE", default=False, add_to_docs=False
-)
-NOTIF_API_ROOT = config("NOTIF_API_ROOT", "", add_to_docs=False)
-if NOTIF_API_ROOT and not NOTIF_API_ROOT.endswith("/"):
-    NOTIF_API_ROOT = f"{NOTIF_API_ROOT.strip()}/"
-NOTIF_API_OAS = config(
-    "NOTIF_API_OAS", default=f"{NOTIF_API_ROOT}schema/openapi.yaml", add_to_docs=False
-)
-OPENZAAK_NOTIF_CLIENT_ID = config("OPENZAAK_NOTIF_CLIENT_ID", "", add_to_docs=False)
-OPENZAAK_NOTIF_SECRET = config("OPENZAAK_NOTIF_SECRET", "", add_to_docs=False)
-# Selectielijst config
-OPENZAAK_SELECTIELIJST_CONFIG_ENABLE = config(
-    "OPENZAAK_SELECTIELIJST_CONFIG_ENABLE", default=False, add_to_docs=False
-)
-SELECTIELIJST_API_ROOT = config(
-    "SELECTIELIJST_API_ROOT",
-    default="https://selectielijst.openzaak.nl/api/v1/",
-    add_to_docs=False,
-)
-if SELECTIELIJST_API_ROOT and not SELECTIELIJST_API_ROOT.endswith("/"):
-    SELECTIELIJST_API_ROOT = f"{SELECTIELIJST_API_ROOT.strip()}/"
-SELECTIELIJST_API_OAS = config(
-    "SELECTIELIJST_API_OAS",
-    default=f"{SELECTIELIJST_API_ROOT}schema/openapi.yaml",
-    add_to_docs=False,
-)
-SELECTIELIJST_ALLOWED_YEARS = config(
-    "SELECTIELIJST_ALLOWED_YEARS", default=[2017, 2020], add_to_docs=False
-)
-SELECTIELIJST_DEFAULT_YEAR = config(
-    "SELECTIELIJST_DEFAULT_YEAR", default=2020, add_to_docs=False
-)
-# Demo user config
-DEMO_CONFIG_ENABLE = config("DEMO_CONFIG_ENABLE", default=False, add_to_docs=False)
-DEMO_CLIENT_ID = config("DEMO_CLIENT_ID", "", add_to_docs=False)
-DEMO_SECRET = config("DEMO_SECRET", "", add_to_docs=False)
-
-AUTHORIZATIONS_CONFIG_ENABLE = config(
-    "AUTHORIZATIONS_CONFIG_ENABLE", default=False, add_to_docs=False
-)
-AUTHORIZATIONS_CONFIG_FIXTURE_PATH = config(
-    "AUTHORIZATIONS_CONFIG_FIXTURE_PATH", default="", add_to_docs=False
-)
-AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH = config(
-    "AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH", default="", add_to_docs=False
-)
-AUTHORIZATIONS_CONFIG_DELETE_EXISTING = config(
-    "AUTHORIZATIONS_CONFIG_DELETE_EXISTING", default=False, add_to_docs=False
 )
