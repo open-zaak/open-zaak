@@ -60,7 +60,6 @@ services:
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
       - ./import-data:/app/import-data
-      - ./docker/data:/data
       - ./docker/fixtures/catalogi.json:/app/fixtures/catalogi.json
     depends_on:
       web-init:
