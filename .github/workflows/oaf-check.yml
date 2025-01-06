@@ -1,0 +1,19 @@
+name: Check Open API Framework Version
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1'
+
+
+jobs:
+  open-api-workflow-check-oas:
+    uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@v4
+
+    with:
+      python-version: '3.11'
