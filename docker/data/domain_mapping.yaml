@@ -1,6 +1,0 @@
-- acceptance: https://acc.openzaak.nl
-  production: https://openzaak.nl
-  dev: http://openzaak.local
-- acceptance: https://external.acc.openzaak.nl
-  production: https://external.openzaak.nl
-  dev: https://external.dev.openzaak.nl

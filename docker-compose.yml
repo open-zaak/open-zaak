@@ -45,21 +45,6 @@ services:
       - CELERY_LOGLEVEL=DEBUG
       - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
       - ENVIRONMENT=dev
-      # setup_configuration env vars
-      - OPENZAAK_DOMAIN=web.local:8000
-      - OPENZAAK_ORGANIZATION=OZ
-      - NOTIF_OPENZAAK_CLIENT_ID=notif-client-id
-      - NOTIF_OPENZAAK_SECRET=notif-secret
-      - NOTIF_API_ROOT=http://notifications:8000/api/v1/
-      - OPENZAAK_NOTIF_CLIENT_ID=oz-client-id
-      - OPENZAAK_NOTIF_SECRET=oz-secret
-      - DEMO_CONFIG_ENABLE=yes
-      - DEMO_CLIENT_ID=demo-client-id
-      - DEMO_SECRET=demo-secret
-      - DISABLE_2FA=${DISABLE_2FA:-0}
-      - AUTHORIZATIONS_CONFIG_ENABLE=True
-      - AUTHORIZATIONS_CONFIG_FIXTURE_PATH=/data/auth.yaml
-      - AUTHORIZATIONS_CONFIG_DOMAIN_MAPPING_PATH=/data/domain_mapping.yaml
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
       interval: 30s
@@ -75,7 +60,6 @@ services:
       - media:/app/media  # Shared media volume to get access to saved OAS files
       - private-media:/app/private-media
       - ./import-data:/app/import-data
-      - ./docker/data:/data
       - ./docker/fixtures/catalogi.json:/app/fixtures/catalogi.json
     depends_on:
       web-init:
@@ -83,9 +67,14 @@ services:
 
   web-init:
     build: .
-    environment: *app-env
+    environment:
+      <<: *app-env
+      #
+      # Django-setup-configuration
+      RUN_SETUP_CONFIG: ${RUN_SETUP_CONFIG:-true}
     command: /setup_configuration.sh
-    volumes: *app-volumes
+    volumes:
+      - ./docker/setup_configuration:/app/setup_configuration
     depends_on:
       - db
       - redis
