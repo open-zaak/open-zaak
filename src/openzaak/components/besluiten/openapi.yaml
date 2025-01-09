@@ -2222,10 +2222,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         identificatie:
           type: string
           description: Identificatie van het besluit binnen de organisatie die het
@@ -2313,10 +2313,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         informatieobject:
           type: string
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
@@ -2328,6 +2328,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
       - besluit
       - informatieobject
@@ -2345,6 +2347,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
       - besluit
       - informatieobject

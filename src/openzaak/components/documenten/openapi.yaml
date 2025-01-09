@@ -6555,10 +6555,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         volgnummer:
           type: integer
           readOnly: true
@@ -6821,10 +6821,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         identificatie:
           type: string
           description: Een binnen een gegeven context ondubbelzinnige referentie naar
@@ -7431,10 +7431,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         informatieobject:
           type: string
           format: uri
@@ -7625,10 +7625,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         informatieobject:
           type: string
           format: uri
@@ -8234,10 +8234,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         betrokkene:
           type: string
           format: uri
