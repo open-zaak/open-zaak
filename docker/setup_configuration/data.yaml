@@ -41,3 +41,18 @@ openzaak_selectielijst_config:
     - 2027
     - 2028
   default_year: 2025
+
+vng_api_common_credentials_config_enable: true
+vng_api_common_credentials:
+  items:
+  - identifier: user-id
+    secret: super-secret
+
+vng_api_common_applicaties_config_enable: true
+vng_api_common_applicaties:
+  items:
+  - uuid: 78591bab-9a00-4887-849c-53b21a67782f
+    client_ids:
+    - user-id
+    label: applicatie
+    heeft_alle_autorisaties: true

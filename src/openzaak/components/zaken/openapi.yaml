@@ -10880,10 +10880,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -10893,6 +10893,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         betrokkene:
           type: string
           format: uri
@@ -10976,6 +10978,8 @@ components:
           items:
             type: string
             format: uri
+            minLength: 1
+            maxLength: 1000
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
@@ -10991,6 +10995,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         betrokkene:
           type: string
           format: uri
@@ -11056,10 +11062,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -11069,6 +11075,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         object:
           type: string
           format: uri
@@ -11151,6 +11159,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         object:
           type: string
           format: uri
@@ -11697,10 +11707,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -11710,6 +11720,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         identificatie:
           type: string
           description: De unieke aanduiding van een KLANTCONTACT
@@ -11740,6 +11752,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         identificatie:
           type: string
           minLength: 1
@@ -13311,6 +13325,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         resultaattype:
           type: string
           minLength: 1
@@ -13358,6 +13374,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -13380,6 +13398,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
     PatchedZaakObjectRequest:
       oneOf:
       - $ref: '#/components/schemas/adres_ZaakObjectSerializerRequest'
@@ -13597,6 +13617,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
+          minLength: 1
+          maxLength: 1000
         relevanteAndereZaken:
           type: array
           items:
@@ -13814,10 +13836,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -13827,6 +13849,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         resultaattype:
           type: string
           description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
@@ -13847,6 +13871,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         resultaattype:
           type: string
           minLength: 1
@@ -14007,10 +14033,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -14020,6 +14046,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
@@ -14047,11 +14075,15 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
+          minLength: 1
+          maxLength: 1000
         zaakinformatieobjecten:
           type: array
           items:
             type: string
             format: uri
+            minLength: 1
+            maxLength: 1000
           readOnly: true
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
@@ -14065,6 +14097,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         statustype:
           type: string
           minLength: 1
@@ -14087,6 +14121,8 @@ components:
           title: Gezet door
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
+          minLength: 1
+          maxLength: 1000
       required:
       - datumStatusGezet
       - statustype
@@ -14521,10 +14557,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -14680,6 +14716,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
+          minLength: 1
+          maxLength: 1000
         deelzaken:
           type: array
           items:
@@ -14843,10 +14881,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -14856,6 +14894,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         contactmoment:
           type: string
           format: uri
@@ -14871,6 +14911,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         contactmoment:
           type: string
           format: uri
@@ -14953,10 +14995,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -14973,6 +15015,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         aardRelatieWeergave:
           allOf:
           - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
@@ -15006,6 +15050,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
       required:
       - informatieobject
       - zaak
@@ -15023,6 +15069,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         titel:
           type: string
           description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
@@ -15045,6 +15093,8 @@ components:
           description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
             ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
             van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
       required:
       - informatieobject
       - zaak
@@ -15362,6 +15412,8 @@ components:
           description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
             daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
             onderhavige ZAAK er één is.
+          minLength: 1
+          maxLength: 1000
         relevanteAndereZaken:
           type: array
           items:
@@ -15444,10 +15496,10 @@ components:
           type: string
           format: uri
           readOnly: true
-          description: URL-referentie naar dit object. Dit is de unieke identificatie
-            en locatie van dit object.
           minLength: 1
           maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         uuid:
           type: string
           format: uuid
@@ -15457,6 +15509,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         verzoek:
           type: string
           format: uri
@@ -15472,6 +15526,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
         verzoek:
           type: string
           format: uri

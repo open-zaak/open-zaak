@@ -27,4 +27,4 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[testutils]
+commonground-api-common[setup-configuration, testutils]
