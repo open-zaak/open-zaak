@@ -552,6 +552,16 @@ class RelevanteZaakRelatie(models.Model):
         ),
     )
 
+    toelichting = models.CharField(
+        max_length=200,
+        verbose_name=_("toelichting"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Een korte toelichting van de zaak relatie. (Vooral bedoeld in combinatie met relatie aard 'Overig')"
+        ),
+    )
+
 
 class Status(ETagMixin, APIMixin, models.Model):
     """

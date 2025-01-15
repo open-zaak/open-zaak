@@ -129,7 +129,7 @@ class OpschortingSerializer(GegevensGroepSerializer):
 class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = RelevanteZaakRelatie
-        fields = ("url", "aard_relatie")
+        fields = ("url", "aard_relatie", "toelichting")
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
