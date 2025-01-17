@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.17.0 (2025-01-10)
+1.17.0 (2025-01-17)
 -------------------
 
 **New features**
@@ -25,13 +25,14 @@ Changelog
 **Bugfixes and QOL**
 
 * [#1802] fix ``CELERY_LOGLEVEL`` not working
-* [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
-* [maykinmedia/open-api-framework#66] updated zgw-consumers to 0.35.1
-* [#1830] Fix ZIO.informatieobject filter with external doc with the same host
 
 .. warning::
 
     ``LOG_STDOUT`` configuration variable now defaults to ``True`` instead of ``False``
+
+* [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
+* [maykinmedia/open-api-framework#66] updated zgw-consumers to 0.35.1
+* [#1830] Fix ZIO.informatieobject filter with external doc with the same host
 
 .. warning::
 

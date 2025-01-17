@@ -8,7 +8,7 @@ name: Open Zaak
 url: 'https://github.com/open-zaak/open-zaak.git'
 softwareType: standalone/backend
 softwareVersion: 1.17.0
-releaseDate: '2025-01-10'
+releaseDate: '2025-01-17'
 logo: 'https://raw.githubusercontent.com/open-zaak/open-zaak/main/docs/logo.svg'
 platforms:
   - web
