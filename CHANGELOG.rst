@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.17.0 (TBD)
-------------
+1.17.0 (2025-01-17)
+-------------------
 
 **New features**
 
@@ -19,11 +19,20 @@ Changelog
     If you are using ``django-setup-configuration`` to configure Open Zaak and Open Notificaties,
     make sure to add ``zaaktype.catalogus`` to the filters of the ``zaken`` kanaal in ``notifications_kanalen_config``.
 
+* [#1815] Allow files bigger than 2GB
+
 
 **Bugfixes and QOL**
 
+* [#1802] fix ``CELERY_LOGLEVEL`` not working
+
+.. warning::
+
+    ``LOG_STDOUT`` configuration variable now defaults to ``True`` instead of ``False``
+
 * [maykinmedia/open-api-framework#66] updated commonground-api-common to 2.1.0
 * [maykinmedia/open-api-framework#66] updated zgw-consumers to 0.35.1
+* [#1830] Fix ZIO.informatieobject filter with external doc with the same host
 
 .. warning::
 
@@ -34,6 +43,13 @@ Changelog
 
     Additionally, it is advised to check the `Selectielijstconfiguratie` to see if a service
     is configured for it.
+
+**Project maintenance**
+
+* [maykinmedia/open-api-framework#93] install security updates for dependencies
+* [maykinmedia/objects-api#463] Add trivy image scan
+* [maykinmedia/open-api-framework#81] change to UV compile
+* [maykinmedia/open-api-framework#92] Fix docker latest tag publish
 
 1.16.0 (2024-11-25)
 -------------------
