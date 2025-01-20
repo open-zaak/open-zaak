@@ -376,7 +376,7 @@ class ZaakViewSet(
         ),
         request=ReserveZaakIdentificatieSerializer,
         responses={
-            status.HTTP_200_OK: ReserveZaakIdentificatieSerializer(),
+            status.HTTP_201_CREATED: ReserveZaakIdentificatieSerializer(),
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
             **PRECONDITION_ERROR_RESPONSES,
@@ -389,7 +389,7 @@ class ZaakViewSet(
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):

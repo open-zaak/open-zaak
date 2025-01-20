@@ -722,7 +722,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
         self.assertEqual(ZaakIdentificatie.objects.count(), 1)
@@ -770,7 +770,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
         self.assertEqual(ZaakIdentificatie.objects.count(), 1)

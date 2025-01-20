@@ -10966,13 +10966,18 @@ paths:
       - JWT-Claims:
         - zaken.aanmaken
       responses:
-        '200':
+        '201':
           headers:
             API-version:
               schema:
                 type: string
               description: 'Geeft een specifieke API-versie aan in de context van
                 een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
             Content-Crs:
               schema:
                 type: string
@@ -10986,7 +10991,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReserveZaakIdentificatie'
-          description: OK
+          description: Created
         '400':
           headers:
             API-version:
