@@ -458,6 +458,14 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
                 date=self.registratiedatum,
             )
             self.identificatie = self.identificatie_ptr.identificatie
+        elif not self.identificatie_ptr_id:
+
+            reserved_identificatie = ZaakIdentificatie.objects.filter(
+                identificatie=self.identificatie, bronorganisatie=self.bronorganisatie
+            )
+            if reserved_identificatie.exists():
+                self.identificatie_ptr = reserved_identificatie.first()
+            # else create one the normal way
 
         if (
             self.betalingsindicatie == BetalingsIndicatie.nvt
