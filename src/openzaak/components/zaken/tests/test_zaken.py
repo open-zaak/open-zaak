@@ -720,7 +720,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(
-            reverse("zaak-reserve_identity"), data, **ZAAK_WRITE_KWARGS
+            reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -729,10 +729,10 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         zaak_identificatie = ZaakIdentificatie.objects.get()
         self.assertEqual(
-            response.json(), {"identificatie": zaak_identificatie.identificatie}
+            response.json(), {"zaaknummer": zaak_identificatie.identificatie}
         )
 
-        zaak_id = response.json()["identificatie"]
+        zaak_id = response.json()["zaaknummer"]
         zaak_data = {
             "zaaktype": f"http://testserver{self.zaaktype_url}",
             "identificatie": zaak_id,
@@ -768,14 +768,14 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(
-            reverse("zaak-reserve_identity"), data, **ZAAK_WRITE_KWARGS
+            reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(Zaak.objects.count(), 0)
         self.assertEqual(ZaakIdentificatie.objects.count(), 1)
 
-        zaak_id = response.data["identificatie"]
+        zaak_id = response.data["zaaknummer"]
         zaak_data = {
             "zaaktype": f"http://testserver{self.zaaktype_url}",
             "identificatie": zaak_id,

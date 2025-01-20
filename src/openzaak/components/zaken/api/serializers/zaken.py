@@ -173,12 +173,13 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
     class Meta:
         model = ZaakIdentificatie
         fields = (
-            "identificatie",
+            "zaaknummer",
             "bronorganisatie",
         )
 
         extra_kwargs = {
-            "identificatie": {
+            "zaaknummer": {
+                "source": "identificatie",
                 "read_only": True,
             },
             "bronorganisatie": {
@@ -188,11 +189,9 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        current_date = date.today()
-
         return self.Meta.model.objects.generate(
             validated_data["bronorganisatie"],
-            current_date,
+            date.today(),
         )
 
     def update(self, instance, data):  # pragma:nocover
