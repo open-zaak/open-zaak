@@ -17,7 +17,6 @@ from drf_spectacular.utils import (
 )
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
-    NotificationDestroyMixin,
     NotificationViewSetMixin,
 )
 from rest_framework import mixins, serializers, status, viewsets
@@ -45,6 +44,7 @@ from openzaak.utils.api import (
     delete_remote_oio,
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import ExpandMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -84,7 +84,7 @@ from .filters import (
     ZaakVerzoekFilter,
 )
 from .kanalen import KANAAL_ZAKEN
-from .mixins import ClosedZaakMixin
+from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -927,6 +927,10 @@ class KlantContactViewSet(
         summary="Maak een ROL aan bij een ZAAK.",
         description="Maak een ROL aan bij een ZAAK.",
     ),
+    update=extend_schema(
+        summary="Werk een ROL aan bij een ZAAK.",
+        description=mark_experimental("Werk een ROL aan bij een ZAAK."),
+    ),
     destroy=extend_schema(
         summary="Verwijder een ROL van een ZAAK.",
         description="Verwijder een ROL van een ZAAK.",
@@ -934,14 +938,13 @@ class KlantContactViewSet(
 )
 @conditional_retrieve()
 class RolViewSet(
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
+    NotificationViewSetMixin,
+    AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
     mixins.CreateModelMixin,
+    UpdateOnlyModelMixin,
     mixins.DestroyModelMixin,
     viewsets.ReadOnlyModelViewSet,
 ):
@@ -971,6 +974,7 @@ class RolViewSet(
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
     }
     notifications_kanaal = KANAAL_ZAKEN

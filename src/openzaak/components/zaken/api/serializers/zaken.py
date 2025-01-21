@@ -1021,6 +1021,34 @@ class RolSerializer(PolymorphicSerializer):
 
         return rol
 
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        group_data = validated_data.pop("betrokkene_identificatie", None)
+        contactpersoon_rol = validated_data.pop("contactpersoon_rol", None)
+
+        # delete the existing betrokkene_identificatie instance
+        if instance.betrokkene_identificatie:
+            instance.betrokkene_identificatie.delete()
+
+        rol = super().update(instance, validated_data)
+
+        discriminated_serializer = self.discriminator.mapping[
+            validated_data["betrokkene_type"]
+        ]
+        assert isinstance(discriminated_serializer, serializers.ModelSerializer)
+
+        # recreate betrokkene_identificatie
+        if group_data:
+            serializer = discriminated_serializer.fields["betrokkene_identificatie"]
+            group_data["rol"] = rol
+            serializer.create(group_data)
+
+        if contactpersoon_rol:
+            rol.contactpersoon_rol = contactpersoon_rol
+            rol.save()
+
+        return rol
+
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
