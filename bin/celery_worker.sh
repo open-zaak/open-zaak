@@ -4,8 +4,8 @@ set -euo pipefail
 
 LOGLEVEL=${CELERY_LOGLEVEL:-INFO}
 
-QUEUE=${1:-${CELERY_WORKER_QUEUE:=celery}}
-WORKER_NAME=${2:-${CELERY_WORKER_NAME:="${QUEUE}"@%n}}
+QUEUE=${CELERY_WORKER_QUEUE:=celery}
+WORKER_NAME=${CELERY_WORKER_NAME:="${QUEUE}"@%n}
 
 # Figure out abspath of this script
 SCRIPT=$(readlink -f "$0")
