@@ -301,7 +301,7 @@ maykin-2fa==1.0.1
     # via open-api-framework
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.19.0
+mozilla-django-oidc-db==0.21.1
     # via open-api-framework
 notifications-api-common==0.5.0
     # via commonground-api-common
