@@ -308,7 +308,7 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
             ],
         )
 
-    def test_create_local_relevante_andere_zaak_with_aard_overig_overige_relatie_and_overig(
+    def test_create_local_relevante_andere_zaak_with_aard_overig_overige_relatie_and_toelichting(
         self,
     ):
         zaaktype = ZaakTypeFactory.create(concept=False)
