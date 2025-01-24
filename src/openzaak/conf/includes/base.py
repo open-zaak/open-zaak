@@ -340,8 +340,9 @@ CELERY_BEAT_SCHEDULE = {
 # DJANGO-CSP
 #
 CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
-
-
+CSP_SCRIPT_SRC = CSP_SCRIPT_SRC + ["cdnjs.cloudflare.com"]
+CSP_IMG_SRC = CSP_IMG_SRC + ["cdnjs.cloudflare.com", "*.tile.openstreetmap.org"]
+CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com"]
 #
 # OpenZaak configuration
 #
