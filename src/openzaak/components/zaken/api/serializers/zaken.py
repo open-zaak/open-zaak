@@ -1027,7 +1027,7 @@ class RolSerializer(PolymorphicSerializer):
         contactpersoon_rol = validated_data.pop("contactpersoon_rol", None)
 
         # delete the existing betrokkene_identificatie instance
-        if instance.betrokkene_identificatie:
+        if not instance.betrokkene:
             instance.betrokkene_identificatie.delete()
 
         rol = super().update(instance, validated_data)
