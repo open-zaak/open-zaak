@@ -75,23 +75,27 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
     def test_create_external_relevante_andere_zaak_without_setting_gerelateerde_zaak_typen(
         self,
     ):
-        zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
         zaak_external = (
             "https://externe.zaken.nl/api/v1/zaken/a620b183-d898-4576-ae94-3f21d43cc576"
         )
 
+        zaaktype_1 = ZaakTypeFactory.create(concept=False)
+        zaaktype_url_1 = f"http://testserver.com{reverse(zaaktype_1)}"
+
+        zaaktype_2 = ZaakTypeFactory.create(concept=False)
+        zaaktype_url_2 = f"http://testserver.com{reverse(zaaktype_2)}"
+
         # gerelateerde_zaak_typen are not set.
-        self.assertEqual(zaaktype.zaaktypenrelaties.count(), 0)
+        self.assertEqual(zaaktype_1.zaaktypenrelaties.count(), 0)
 
         with requests_mock.Mocker() as m:
             mock_zrc_oas_get(m)
-            m.get(zaak_external, json=get_zaak_response(zaak_external, zaaktype_url))
+            m.get(zaak_external, json=get_zaak_response(zaak_external, zaaktype_url_1))
 
             response = self.client.post(
                 self.list_url,
                 {
-                    "zaaktype": zaaktype_url,
+                    "zaaktype": zaaktype_url_2,
                     "bronorganisatie": "517439943",
                     "verantwoordelijkeOrganisatie": "517439943",
                     "registratiedatum": "2018-12-24",
@@ -301,9 +305,12 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
         self,
     ):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        zaaktype_url = (
+            f"http://testserver.com{reverse(ZaakTypeFactory.create(concept=False))}"
+        )
 
         # gerelateerde_zaak_typen are not set.
         self.assertEqual(zaaktype.zaaktypenrelaties.count(), 0)

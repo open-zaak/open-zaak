@@ -540,7 +540,7 @@ class RelevanteZaakRelatie(models.Model):
         help_text=_(
             "URL-referentie naar de ZAAK. "
             "(Het ZAAKTYPE van deze ZAAK hoeft niet te zijn toegevoegd "
-            "aan de gerelateerdezaaktypen/zaaktypenrelaties van het andere ZAAKTYPE.)"
+            "aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)"
         ),
     )
 
