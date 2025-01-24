@@ -9,6 +9,7 @@ from .zaaktype import ZaakTypeFactory
 class StatusTypeFactory(factory.django.DjangoModelFactory):
     statustypevolgnummer = factory.sequence(lambda n: n + 1)
     zaaktype = factory.SubFactory(ZaakTypeFactory)
+    statustype_omschrijving = factory.Faker("sentence", locale="nl")
 
     class Meta:
         model = StatusType

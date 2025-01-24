@@ -13,7 +13,7 @@ from maykin_2fa.test import disable_admin_mfa
 from rest_framework.test import APITestCase
 
 from openzaak.accounts.tests.factories import SuperUserFactory
-from openzaak.components.catalogi.models import ResultaatType, ZaakType
+from openzaak.components.catalogi.models import ResultaatType, StatusType, ZaakType
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -119,6 +119,10 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                     f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
+
+        self.assertEquals(
+            StatusType.objects.filter(statustype_omschrijving="").count(), 0
+        )
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
