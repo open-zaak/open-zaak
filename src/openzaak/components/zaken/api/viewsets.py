@@ -371,7 +371,8 @@ class ZaakViewSet(
         summary="Reserve a zaak number.",
         description=mark_experimental(
             "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
-            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden."
+            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
+            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden."
         ),
         request=ReserveZaakIdentificatieSerializer,
         responses={
@@ -381,7 +382,7 @@ class ZaakViewSet(
             **PRECONDITION_ERROR_RESPONSES,
         },
     )
-    @action(methods=("post",), detail=False, url_name="reserve_zaaknummer")
+    @action(methods=("post",), detail=False, url_name="reserveer_zaaknummer")
     def reserveer_zaaknummer(self, request, *args, **kwargs):
 
         serializer = ReserveZaakIdentificatieSerializer(data=request.data)

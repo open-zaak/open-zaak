@@ -720,7 +720,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(
-            reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
+            reverse("zaak-reserveer_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -768,12 +768,14 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(
-            reverse("zaak-reserve_zaaknummer"), data, **ZAAK_WRITE_KWARGS
+            reverse("zaak-reserveer_zaaknummer"), data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
         self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        reserved_zaak_id = ZaakIdentificatie.objects.get()
 
         zaak_id = response.data["zaaknummer"]
         zaak_data = {
@@ -791,6 +793,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(Zaak.objects.count(), 1)
         self.assertEqual(ZaakIdentificatie.objects.count(), 2)
+
+        zaak = Zaak.objects.get()
+        self.assertNotEqual(zaak.identificatie, reserved_zaak_id)
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
