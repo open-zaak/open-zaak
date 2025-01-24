@@ -552,13 +552,24 @@ class RelevanteZaakRelatie(models.Model):
         ),
     )
 
+    overige_relatie = models.CharField(
+        max_length=100,
+        verbose_name=_("overige relatie"),
+        blank=True,
+        null=True,
+        help_text=mark_experimental(
+            "naam van de overige relatie. Verplicht bij relatie aard 'Overige'."
+        ),
+    )
+
     toelichting = models.CharField(
-        max_length=200,
+        max_length=255,
         verbose_name=_("toelichting"),
         blank=True,
         null=True,
-        help_text=_(
-            "Een korte toelichting van de zaak relatie. (Vooral bedoeld in combinatie met relatie aard 'Overig')"
+        help_text=mark_experimental(
+            "Een toelichting op de aard van de relatie tussen beide ZAKEN. "
+            "(Vooral bedoeld in combinatie met relatie aard 'Overig')"
         ),
     )
 

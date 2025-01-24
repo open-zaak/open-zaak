@@ -302,12 +302,15 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 {
                     "url": zaak_url,
                     "aardRelatie": AardZaakRelatie.vervolg,
+                    "overigeRelatie": None,
                     "toelichting": None,
                 }
             ],
         )
 
-    def test_create_local_relevante_andere_zaak_with_aard_overig_and_toelichting(self):
+    def test_create_local_relevante_andere_zaak_with_aard_overig_overige_relatie_and_overig(
+        self,
+    ):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
         zaak = ZaakFactory.create(zaaktype=zaaktype)
@@ -326,6 +329,7 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                     {
                         "url": zaak_url,
                         "aardRelatie": AardZaakRelatie.overig,
+                        "overigeRelatie": "Overig",
                         "toelichting": "toelichting op relatie tussen zaken",
                     }
                 ],
@@ -341,6 +345,7 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 {
                     "url": zaak_url,
                     "aardRelatie": AardZaakRelatie.overig,
+                    "overigeRelatie": "Overig",
                     "toelichting": "toelichting op relatie tussen zaken",
                 }
             ],
@@ -386,6 +391,42 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
             [{"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
         )
 
+    def test_create_local_relevante_andere_zaak_with_aard_overig_without_overige_relatie(
+        self,
+    ):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": zaaktype_url,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "relevanteAndereZaken": [
+                    {
+                        "url": zaak_url,
+                        "aardRelatie": AardZaakRelatie.overig,
+                        "toelichting": "toelichting op relatie tussen zaken",
+                    }
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "relevanteAndereZaken.0.overigeRelatie")
+        self.assertEqual(error["code"], "overigerelatie-required")
+
     def test_read_local_relevante_andere_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaak = ZaakFactory.create(zaaktype=zaaktype)
@@ -409,6 +450,7 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 {
                     "url": relevante_zaak_url,
                     "aardRelatie": AardZaakRelatie.vervolg,
+                    "overigeRelatie": None,
                     "toelichting": None,
                 }
             ],

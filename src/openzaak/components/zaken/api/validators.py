@@ -31,7 +31,7 @@ from openzaak.components.documenten.models import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
-from ..constants import IndicatieMachtiging
+from ..constants import AardZaakRelatie, IndicatieMachtiging
 from ..models import Zaak
 
 logger = logging.getLogger(__name__)
@@ -620,3 +620,22 @@ class RolIndicatieMachtigingValidator:
             and indicatie_machtiging != IndicatieMachtiging.gemachtigde
         ):
             raise serializers.ValidationError(self.message, code=self.code)
+
+
+class OverigeRelevanteZaakRelatieValidator:
+    code = "overigerelatie-required"
+    message = _("overige relatie is verplicht als de relatie aard 'overig' is.")
+    requires_context = True
+
+    def __call__(self, attrs, serializer):
+        aard_relatie = get_from_serializer_data_or_instance(
+            "aard_relatie", attrs, serializer
+        )
+        overige_relatie = get_from_serializer_data_or_instance(
+            "overige_relatie", attrs, serializer
+        )
+
+        if aard_relatie == AardZaakRelatie.overig and not overige_relatie:
+            raise serializers.ValidationError(
+                {"overige_relatie": self.message}, code=self.code
+            )

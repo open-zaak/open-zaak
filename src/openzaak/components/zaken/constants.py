@@ -3,6 +3,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.utils.help_text import mark_experimental
+
 
 class BetalingsIndicatie(models.TextChoices):
     nvt = "nvt", _("Er is geen sprake van te betalen, met de zaak gemoeide, kosten.")
@@ -87,7 +89,7 @@ class AardZaakRelatie(models.TextChoices):
             "Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage."
         ),
     )
-    overig = ("overig", _("Overig"))
+    overig = ("overig", mark_experimental("Overig"))
 
 
 # for zaaokbject models
