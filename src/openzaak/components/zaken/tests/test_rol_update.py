@@ -84,6 +84,34 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(rol.natuurlijkpersoon, natuurlijk_persoon)
         self.assertEqual(natuurlijk_persoon.anp_identificatie, "12345")
 
+    def test_update_rol_from_betrokkene_identificatie_to_betrokkene(self):
+        zaak = ZaakFactory.create()
+        rol = RolFactory.create(
+            zaak=zaak,
+            roltype__zaaktype=zaak.zaaktype,
+            betrokkene="",
+            betrokkene_type=RolTypes.medewerker,
+            roltoelichting="old",
+        )
+        Medewerker.objects.create(rol=rol, identificatie="123456")
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkene_type": RolTypes.medewerker,
+            "roltype": f"http://testserver{reverse(rol.roltype)}",
+            "betrokkene": BETROKKENE,
+            "roltoelichting": "new",
+        }
+
+        response = self.client.put(reverse(rol), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rol.refresh_from_db()
+
+        self.assertEqual(rol.roltoelichting, "new")
+        self.assertEqual(rol.betrokkene, BETROKKENE)
+        self.assertEqual(Medewerker.objects.count(), 0)
+
     def test_update_rol_fail_validation(self):
         zaak = ZaakFactory.create()
         rol = RolFactory.create(
