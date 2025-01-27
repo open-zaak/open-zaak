@@ -6,7 +6,7 @@ Authentication and authorization
 All endpoints are authorization protected, per the upstream `Standard`_.
 
 Open Zaak uses the described authentication and authorization mechanism based on
-JSON Web Tokens (JWT in short). You can read more about JWT's on https://jwt.io
+JSON Web Tokens (JWT in short).
 
 To connect to Open Zaak, you have received a Client ID and a Secret, which you must use
 to build a JWT.
@@ -233,13 +233,7 @@ There is a link to a list of more libraries for these and other languages below.
                 // exception code
             }
 
-Useful Links
 
-   * `More indepth JWT Explanation`_
-   * `JWT implementations for various languages`_
-
-.. _More indepth JWT Explanation: https://jwt.io/introduction
-.. _JWT implementations for various languages: https://jwt.io/libraries
 .. _pyjwt: https://pypi.org/project/PyJWT/
 .. _jsonwebtoken: https://www.npmjs.com/package/jsonwebtoken
 .. _php-jwt: https://github.com/firebase/php-jwt
