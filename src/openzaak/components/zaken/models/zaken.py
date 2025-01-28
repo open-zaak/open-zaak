@@ -809,7 +809,15 @@ class Rol(ETagMixin, APIMixin, models.Model):
         editable=False,
         db_index=True,
     )
-    roltoelichting = models.TextField(max_length=1000)
+    roltoelichting = models.TextField(
+        max_length=1000,
+        blank=True,
+        help_text=mark_experimental(
+            _(
+                "Toelichting bij de rol (dit veld wijkt af van de standaard, omdat het veld niet verplicht is)."
+            )
+        ),
+    )
 
     registratiedatum = models.DateTimeField(
         "registratiedatum",

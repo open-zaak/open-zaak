@@ -11121,6 +11121,8 @@ components:
             \ (Mede-initiator) "
         roltoelichting:
           type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
           maxLength: 1000
         registratiedatum:
           type: string
@@ -11158,7 +11160,6 @@ components:
             dat STATUSsen in die ZAAK bereikt zijn.
       required:
       - betrokkeneType
-      - roltoelichting
       - roltype
       - zaak
     Base_RolSerializerRequest:
@@ -11202,7 +11203,8 @@ components:
           maxLength: 1000
         roltoelichting:
           type: string
-          minLength: 1
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
           maxLength: 1000
         indicatieMachtiging:
           description: |-
@@ -11225,7 +11227,6 @@ components:
             , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
       required:
       - betrokkeneType
-      - roltoelichting
       - roltype
       - zaak
     Base_ZaakObjectSerializer:
