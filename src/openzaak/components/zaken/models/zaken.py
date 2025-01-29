@@ -33,6 +33,7 @@ from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
+from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.fields import (
     DurationField,
     FkOrServiceUrlField,
@@ -665,6 +666,17 @@ class Status(ETagMixin, APIMixin, models.Model):
 
     def unique_representation(self):
         return f"({self.zaak.unique_representation()}) - {self.datum_status_gezet}"
+
+    def clean(self):
+        super().clean()
+        if self._statustype and self.zaak:
+            validator = CorrectZaaktypeValidator("statustype")
+            validator(
+                {
+                    "statustype": self.statustype,
+                    "zaak": self.zaak,
+                }
+            )
 
     @property
     def indicatie_laatst_gezette_status(self) -> bool:
