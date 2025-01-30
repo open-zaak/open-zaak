@@ -44,6 +44,7 @@ from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
 from ..query import (
+    RolQuerySet,
     StatusQuerySet,
     ZaakBesluitQuerySet,
     ZaakInformatieObjectQuerySet,
@@ -914,7 +915,36 @@ class Rol(ETagMixin, APIMixin, models.Model):
         ),
     )
 
-    objects = ZaakRelatedQuerySet.as_manager()
+    #
+    # EXPERIMENTAL ATTRIBUTES
+    #
+    tijdvak_geldigheid_begin_geldigheid = models.DateField(
+        _("begindatum geldigheid"),
+        null=True,
+        blank=True,
+        help_text=mark_experimental(
+            _("De datum waarop de geldigheidsperiode van de ROL begint binnen de ZAAK.")
+        ),
+    )
+    tijdvak_geldigheid_eind_geldigheid = models.DateField(
+        _("einddatum geldigheid"),
+        null=True,
+        blank=True,
+        help_text=mark_experimental(
+            _(
+                "De datum waarop de geldigheidsperiode van de ROL eindigt binnen de ZAAK."
+            )
+        ),
+    )
+    tijdvak_geldigheid = GegevensGroepType(
+        {
+            "begin_geldigheid": tijdvak_geldigheid_begin_geldigheid,
+            "eind_geldigheid": tijdvak_geldigheid_eind_geldigheid,
+        },
+        optional=("eind_geldigheid",),
+    )
+
+    objects = RolQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Rol"

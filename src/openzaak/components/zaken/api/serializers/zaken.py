@@ -71,6 +71,7 @@ from ...models import (
     ZaakVerzoek,
 )
 from ..validators import (
+    BehandelaarTijdvakGeldigheidValidator,
     CorrectZaaktypeValidator,
     DateNotInFutureValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
@@ -939,7 +940,34 @@ class ContactPersoonRolSerializer(GegevensGroepSerializer):
         gegevensgroep = "contactpersoon_rol"
 
 
-class RolSerializer(PolymorphicSerializer):
+class RolTijdvakGeldigheidSerializer(GegevensGroepSerializer):
+    class Meta:
+        model = Rol
+        gegevensgroep = "tijdvak_geldigheid"
+
+    def _validate_eind_geldigheid(self, begin_geldigheid: date, eind_geldigheid: date):
+        if eind_geldigheid < begin_geldigheid:
+            raise serializers.ValidationError(
+                {
+                    "eind_geldigheid": _(
+                        "`eindGeldigheid` date cannot be before `beginGeldigheid` date"
+                    )
+                },
+                code="eind-geldigheid-before-begin-geldigheid",
+            )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        if (begin_geldigheid := attrs.get("begin_geldigheid")) and (
+            eind_geldigheid := attrs.get("eind_geldigheid")
+        ):
+            self._validate_eind_geldigheid(begin_geldigheid, eind_geldigheid)
+
+        return attrs
+
+
+class RolSerializer(NestedGegevensGroepMixin, PolymorphicSerializer):
     discriminator = Discriminator(
         discriminator_field="betrokkene_type",
         mapping={
@@ -961,6 +989,13 @@ class RolSerializer(PolymorphicSerializer):
             ", vanuit het belang van BETROKKENE in haar ROL bij een ZAAK."
         ),
     )
+    tijdvak_geldigheid = RolTijdvakGeldigheidSerializer(
+        allow_null=True,
+        required=False,
+        help_text=mark_experimental(
+            _("De periode waarin deze ROL geldig is binnen de ZAAK.")
+        ),
+    )
 
     class Meta:
         model = Rol
@@ -979,6 +1014,7 @@ class RolSerializer(PolymorphicSerializer):
             "indicatie_machtiging",
             "contactpersoon_rol",
             "statussen",
+            "tijdvak_geldigheid",
         )
         validators = [
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
@@ -986,6 +1022,8 @@ class RolSerializer(PolymorphicSerializer):
             CorrectZaaktypeValidator("roltype"),
             ZaakArchiefStatusValidator(),
             RolIndicatieMachtigingValidator(),
+            BehandelaarTijdvakGeldigheidValidator(RolTypes.medewerker),
+            BehandelaarTijdvakGeldigheidValidator(RolTypes.organisatorische_eenheid),
         ]
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
@@ -1042,7 +1080,6 @@ class RolSerializer(PolymorphicSerializer):
     @transaction.atomic
     def create(self, validated_data):
         group_data = validated_data.pop("betrokkene_identificatie", None)
-        contactpersoon_rol = validated_data.pop("contactpersoon_rol", None)
 
         rol = super().create(validated_data)
 
@@ -1055,10 +1092,6 @@ class RolSerializer(PolymorphicSerializer):
             serializer = discriminated_serializer.fields["betrokkene_identificatie"]
             group_data["rol"] = rol
             serializer.create(group_data)
-
-        if contactpersoon_rol:
-            rol.contactpersoon_rol = contactpersoon_rol
-            rol.save()
 
         return rol
 
