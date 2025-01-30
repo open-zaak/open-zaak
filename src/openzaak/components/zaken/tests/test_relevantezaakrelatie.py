@@ -115,7 +115,14 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
             response.json()["relevanteAndereZaken"],
-            [{"url": zaak_external, "aardRelatie": AardZaakRelatie.vervolg}],
+            [
+                {
+                    "url": zaak_external,
+                    "aardRelatie": AardZaakRelatie.vervolg,
+                    "overigeRelatie": "",
+                    "toelichting": "",
+                }
+            ],
         )
 
     def test_create_external_relevante_zaak_fail_bad_url(self):
@@ -302,8 +309,8 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 {
                     "url": zaak_url,
                     "aardRelatie": AardZaakRelatie.vervolg,
-                    "overigeRelatie": None,
-                    "toelichting": None,
+                    "overigeRelatie": "",
+                    "toelichting": "",
                 }
             ],
         )
@@ -388,7 +395,14 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
             response.json()["relevanteAndereZaken"],
-            [{"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
+            [
+                {
+                    "url": zaak_url,
+                    "aardRelatie": AardZaakRelatie.vervolg,
+                    "overigeRelatie": "",
+                    "toelichting": "",
+                }
+            ],
         )
 
     def test_create_local_relevante_andere_zaak_with_aard_overig_without_overige_relatie(
@@ -450,8 +464,8 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
                 {
                     "url": relevante_zaak_url,
                     "aardRelatie": AardZaakRelatie.vervolg,
-                    "overigeRelatie": None,
-                    "toelichting": None,
+                    "overigeRelatie": "",
+                    "toelichting": "",
                 }
             ],
         )

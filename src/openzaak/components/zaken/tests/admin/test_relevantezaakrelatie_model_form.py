@@ -66,7 +66,5 @@ class TestRelevanteZaakRelatieForm(TestCase):
             "aard_relatie": "overig",
             "overige_relatie": "overig",
         }
-        try:
-            form.clean()
-        except forms.ValidationError:
-            self.fail("Exception was raised in clean function when it should not have")
+
+        form.clean()

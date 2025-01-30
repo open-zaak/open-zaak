@@ -424,7 +424,7 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
             "aard_relatie"
         ) == AardZaakRelatie.overig and not cleaned_data.get("overige_relatie"):
             raise forms.ValidationError(
-                "Het veld overige relatie is verplicht als de relatie aard 'overig' is."
+                "Het veld `overigeRelatie` is verplicht als de relatie aard `overig` is."
             )
 
         return cleaned_data

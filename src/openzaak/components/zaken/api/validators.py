@@ -624,7 +624,7 @@ class RolIndicatieMachtigingValidator:
 
 class OverigeRelevanteZaakRelatieValidator:
     code = "overigerelatie-required"
-    message = _("overige relatie is verplicht als de relatie aard 'overig' is.")
+    message = _("`overigeRelatie` is verplicht als de relatie aard overig is.")
     requires_context = True
 
     def __call__(self, attrs, serializer):

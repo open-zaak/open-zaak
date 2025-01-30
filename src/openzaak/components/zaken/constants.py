@@ -89,7 +89,7 @@ class AardZaakRelatie(models.TextChoices):
             "Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage."
         ),
     )
-    overig = ("overig", mark_experimental("Overig"))
+    overig = ("overig", mark_experimental(_("Overig")))
 
 
 # for zaaokbject models
