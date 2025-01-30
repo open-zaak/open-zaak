@@ -72,6 +72,52 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    def test_create_external_relevante_andere_zaak_without_setting_gerelateerde_zaak_typen(
+        self,
+    ):
+        zaak_external = (
+            "https://externe.zaken.nl/api/v1/zaken/a620b183-d898-4576-ae94-3f21d43cc576"
+        )
+
+        zaaktype_1 = ZaakTypeFactory.create(concept=False)
+        zaaktype_url_1 = f"http://testserver.com{reverse(zaaktype_1)}"
+
+        zaaktype_2 = ZaakTypeFactory.create(concept=False)
+        zaaktype_url_2 = f"http://testserver.com{reverse(zaaktype_2)}"
+
+        # gerelateerde_zaak_typen are not set.
+        self.assertEqual(zaaktype_1.zaaktypenrelaties.count(), 0)
+
+        with requests_mock.Mocker() as m:
+            mock_zrc_oas_get(m)
+            m.get(zaak_external, json=get_zaak_response(zaak_external, zaaktype_url_1))
+
+            response = self.client.post(
+                self.list_url,
+                {
+                    "zaaktype": zaaktype_url_2,
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "registratiedatum": "2018-12-24",
+                    "startdatum": "2018-12-24",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "relevanteAndereZaken": [
+                        {
+                            "url": zaak_external,
+                            "aardRelatie": AardZaakRelatie.vervolg,
+                        }
+                    ],
+                },
+                **ZAAK_WRITE_KWARGS,
+                HTTP_HOST="testserver.com",
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.json()["relevanteAndereZaken"],
+            [{"url": zaak_external, "aardRelatie": AardZaakRelatie.vervolg}],
+        )
+
     def test_create_external_relevante_zaak_fail_bad_url(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
@@ -228,6 +274,46 @@ class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver.com{reverse(zaaktype)}"
         zaak = ZaakFactory.create(zaaktype=zaaktype)
         zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "zaaktype": zaaktype_url,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-12-24",
+                "startdatum": "2018-12-24",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "relevanteAndereZaken": [
+                    {
+                        "url": zaak_url,
+                        "aardRelatie": AardZaakRelatie.vervolg,
+                    }
+                ],
+            },
+            **ZAAK_WRITE_KWARGS,
+            HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.json()["relevanteAndereZaken"],
+            [{"url": zaak_url, "aardRelatie": AardZaakRelatie.vervolg}],
+        )
+
+    def test_create_local_relevante_andere_zaak_without_setting_gerelateerde_zaak_typen(
+        self,
+    ):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        zaak_url = f"http://testserver.com{reverse(zaak)}"
+
+        zaaktype_url = (
+            f"http://testserver.com{reverse(ZaakTypeFactory.create(concept=False))}"
+        )
+
+        # gerelateerde_zaak_typen are not set.
+        self.assertEqual(zaaktype.zaaktypenrelaties.count(), 0)
 
         response = self.client.post(
             self.list_url,

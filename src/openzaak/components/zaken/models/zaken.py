@@ -537,7 +537,11 @@ class RelevanteZaakRelatie(models.Model):
     url = FkOrServiceUrlField(
         fk_field="_relevant_zaak",
         url_field="_relevant_zaak_url",
-        help_text=_("URL-referentie naar de ZAAK."),
+        help_text=_(
+            "URL-referentie naar de ZAAK. "
+            "(Het ZAAKTYPE van deze ZAAK hoeft niet te zijn toegevoegd "
+            "aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)"
+        ),
     )
 
     aard_relatie = models.CharField(
