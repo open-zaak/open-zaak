@@ -84,6 +84,7 @@ linkcheck_ignore = [
     r"http://localhost:\d+/",
     r"http://127\.0\.0\.1:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
+    r"https://jwt.io.*",  # raises 500 errors when making requests with curl/requests
 ]
 
 sphinx_tabs_valid_builders = ["linkcheck"]
