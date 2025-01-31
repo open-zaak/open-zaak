@@ -669,7 +669,7 @@ class Status(ETagMixin, APIMixin, models.Model):
 
     def clean(self):
         super().clean()
-        if self._statustype and self.zaak:
+        if (self._statustype or self._statustype_url) and self.zaak:
             validator = CorrectZaaktypeValidator("statustype")
             validator(
                 {
