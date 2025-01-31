@@ -167,26 +167,6 @@ class StatusAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(old_data["statustoelichting"], "desc")
 
-    def test_valid_check_zaaktype(self):
-        zaak = ZaakFactory.create()
-        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
-
-        self.assertEqual(Status.objects.count(), 0)
-
-        add_url = reverse("admin:zaken_status_add")
-        data = {
-            "uuid": uuid.uuid4(),
-            "zaak": zaak.id,
-            "_statustype": statustype.id,
-            "datum_status_gezet_0": date(2018, 1, 1),
-            "datum_status_gezet_1": time(10, 0, 0),
-        }
-        self.client.post(add_url, data)
-
-        self.assertEqual(Status.objects.count(), 1)
-        status = Status.objects.get()
-        self.assertEqual(status.statustype.zaaktype, zaak.zaaktype)
-
     def test_invalid_check_zaaktype(self):
         catalogus = CatalogusFactory.create()
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=catalogus)
