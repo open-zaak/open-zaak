@@ -2870,6 +2870,7 @@ paths:
         schema:
           type: string
           format: uri
+        description: '**EXPERIMENTEEL** URL-referentie naar het ZAAKTYPE.'
       tags:
       - informatieobjecttypen
       security:
