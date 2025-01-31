@@ -1,12 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
+from vng_api_common.utils import get_help_text
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
@@ -31,6 +38,17 @@ from .mixins import ConceptMixin, M2MConceptDestroyMixin
     list=extend_schema(
         summary="Alle INFORMATIEOBJECTTYPEn opvragen.",
         description="Deze lijst kan gefilterd wordt met query-string parameters.",
+        parameters=[
+            OpenApiParameter(
+                name="zaaktype",
+                type=OpenApiTypes.URI,
+                location=OpenApiParameter.QUERY,
+                description=mark_experimental(
+                    get_help_text("catalogi.ZaakTypeInformatieObjectType", "zaaktype")
+                ),
+                required=False,
+            ),
+        ],
     ),
     retrieve=extend_schema(
         summary="Een specifieke INFORMATIEOBJECTTYPE opvragen.",

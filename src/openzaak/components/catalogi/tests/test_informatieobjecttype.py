@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
+from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
@@ -739,6 +740,44 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(iotype)}")
+
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+    def test_filter_zaaktype(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        iotype = InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
+        InformatieObjectTypeFactory.create(omschrijving="other", concept=False)
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype, informatieobjecttype=iotype
+        )
+        ZaakTypeInformatieObjectTypeFactory(informatieobjecttype=iotype)
+        zaaktype_url = f"http://openzaak.nl{reverse(zaaktype)}"
+
+        response = self.client.get(
+            self.url, {"zaaktype": zaaktype_url}, headers={"host": "openzaak.nl"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://openzaak.nl{reverse(iotype)}")
+
+    @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
+    def test_filter_zaaktype_not_exist(self):
+        InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
+        zaaktype_url = reverse(
+            "zaaktype-detail", kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"}
+        )
+
+        response = self.client.get(
+            self.url,
+            {"zaaktype": f"http://openzaak.nl{zaaktype_url}"},
+            headers={"host": "openzaak.nl"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 0)
 
 
 class InformatieObjectTypePaginationTestCase(APITestCase):
