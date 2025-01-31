@@ -6471,6 +6471,12 @@ paths:
         description: De unieke identificatie van de ZAAK binnen de organisatie die
           verantwoordelijk is voor de behandeling van de ZAAK.
       - in: query
+        name: identificatie__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK (bevat
+          de identificatie de gegeven waarden (hoofdletterongevoelig))'
+      - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
           type: string
@@ -6486,6 +6492,12 @@ paths:
         description: |+
           Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
 
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte omschrijving van de ZAAK (bevat
+          de omschrijving de gegeven waarden (hoofdletterongevoelig))'
       - in: query
         name: ordering
         schema:
@@ -6731,6 +6743,12 @@ paths:
         schema:
           type: string
         description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+      - in: query
+        name: zaaktype__omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen van het
+          ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))'
       tags:
       - zaken
       security:
@@ -10148,6 +10166,12 @@ paths:
         description: De unieke identificatie van de ZAAK binnen de organisatie die
           verantwoordelijk is voor de behandeling van de ZAAK.
       - in: query
+        name: identificatie__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK (bevat
+          de identificatie de gegeven waarden (hoofdletterongevoelig))'
+      - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
           type: string
@@ -10163,6 +10187,12 @@ paths:
         description: |+
           Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
 
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte omschrijving van de ZAAK (bevat
+          de omschrijving de gegeven waarden (hoofdletterongevoelig))'
       - in: query
         name: ordering
         schema:
@@ -10408,6 +10438,12 @@ paths:
         schema:
           type: string
         description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+      - in: query
+        name: zaaktype__omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen van het
+          ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))'
       tags:
       - zaken
       requestBody:
@@ -10442,6 +10478,10 @@ paths:
                   type: string
                   description: De unieke identificatie van de ZAAK binnen de organisatie
                     die verantwoordelijk is voor de behandeling van de ZAAK.
+                identificatie__icontains:
+                  type: string
+                  description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK
+                    (bevat de identificatie de gegeven waarden (hoofdletterongevoelig))'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
@@ -10627,6 +10667,15 @@ paths:
                   description: |+
                     Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
 
+                omschrijving:
+                  type: string
+                  description: '**EXPERIMENTEEL** Een korte omschrijving van de ZAAK
+                    (bevat de omschrijving de gegeven waarden (hoofdletterongevoelig))'
+                zaaktype__omschrijving:
+                  type: string
+                  description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen
+                    van het ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden
+                    (hoofdletterongevoelig))'
                 maximaleVertrouwelijkheidaanduiding:
                   type: string
                   enum:
