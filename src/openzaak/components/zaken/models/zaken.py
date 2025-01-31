@@ -948,6 +948,17 @@ class Rol(ETagMixin, APIMixin, models.Model):
 
         super().save(*args, **kwargs)
 
+    def clean(self):
+        super().clean()
+        if (self._roltype or self._roltype_url) and self.zaak:
+            validator = CorrectZaaktypeValidator("roltype")
+            validator(
+                {
+                    "roltype": self.roltype,
+                    "zaak": self.zaak,
+                }
+            )
+
     def _derive_roltype_attributes(self):
         if self.omschrijving and self.omschrijving_generiek:
             return

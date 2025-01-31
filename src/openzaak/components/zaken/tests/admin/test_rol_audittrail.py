@@ -6,7 +6,11 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.components.catalogi.tests.factories import RolTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
+    RolTypeFactory,
+    ZaakTypeFactory,
+)
 from openzaak.components.zaken.models import Rol
 from openzaak.tests.utils import AdminTestMixin
 
@@ -25,7 +29,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
     def test_create_rol(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        roltype = RolTypeFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         add_url = reverse("admin:zaken_rol_add")
 
         get_response = self.app.get(add_url)
@@ -67,9 +71,11 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(new_data["roltoelichting"], "desc")
 
     def test_change_rol(self):
-        rol = RolFactory.create(roltoelichting="old")
-        rol_url = get_operation_url("rol_read", uuid=rol.uuid, zaak_uuid=rol.zaak.uuid)
-        zaak_url = get_operation_url("zaak_read", uuid=rol.zaak.uuid)
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(roltoelichting="old", roltype=roltype, zaak=zaak)
+        rol_url = get_operation_url("rol_read", uuid=rol.uuid, zaak_uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         change_url = reverse("admin:zaken_rol_change", args=(rol.pk,))
 
         get_response = self.app.get(change_url)
@@ -160,3 +166,27 @@ class RolAdminTests(AdminTestMixin, WebTest):
         old_data = audittrail.oud
 
         self.assertEqual(old_data["roltoelichting"], "some desc")
+
+    def test_invalid_check_zaaktype(self):
+        catalogus = CatalogusFactory.create()
+        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=catalogus)
+        zaak = ZaakFactory.create(zaaktype=zaaktype1)
+        roltype = RolTypeFactory.create(zaaktype=zaaktype2)
+
+        self.assertEqual(Rol.objects.count(), 0)
+
+        add_url = reverse("admin:zaken_rol_add")
+        get_response = self.app.get(add_url)
+        form = get_response.form
+
+        form["zaak"] = zaak.id
+        form["_roltype"] = roltype.id
+        form["betrokkene_type"] = "natuurlijk_persoon"
+        form["betrokkene"] = "http://example.com/betrokkene/1"
+        form["roltoelichting"] = "desc"
+        response = form.submit()
+
+        self.assertContains(
+            response, "De referentie hoort niet bij het zaaktype van de zaak."
+        )
+        self.assertEqual(Rol.objects.count(), 0)
