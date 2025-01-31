@@ -944,6 +944,12 @@ class RolTijdvakGeldigheidSerializer(GegevensGroepSerializer):
     class Meta:
         model = Rol
         gegevensgroep = "tijdvak_geldigheid"
+        # TODO workaround to make sure this is backwards compatible
+        # see: https://github.com/open-zaak/open-zaak/issues/1878
+        extra_kwargs = {
+            "begin_geldigheid": {"allow_null": True},
+            "eind_geldigheid": {"allow_null": True},
+        }
 
     def _validate_eind_geldigheid(self, begin_geldigheid: date, eind_geldigheid: date):
         if eind_geldigheid < begin_geldigheid:

@@ -941,7 +941,13 @@ class Rol(ETagMixin, APIMixin, models.Model):
             "begin_geldigheid": tijdvak_geldigheid_begin_geldigheid,
             "eind_geldigheid": tijdvak_geldigheid_eind_geldigheid,
         },
-        optional=("eind_geldigheid",),
+        # TODO `begin_geldigheid` is marked as optional, to make sure this field is
+        # backwards compatible, this is a workaround for
+        # https://github.com/open-zaak/open-zaak/issues/1878
+        optional=(
+            "begin_geldigheid",
+            "eind_geldigheid",
+        ),
     )
 
     objects = RolQuerySet.as_manager()

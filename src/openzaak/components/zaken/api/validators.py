@@ -672,6 +672,13 @@ class BehandelaarTijdvakGeldigheidValidator:
         ):
             return
 
+        begin_geldigheid = tijdvak_geldigheid.get("begin_geldigheid")
+        eind_geldigheid = tijdvak_geldigheid.get("eind_geldigheid")
+
+        # TODO workaround for https://github.com/open-zaak/open-zaak/issues/1878
+        if not begin_geldigheid:
+            return
+
         other_rollen_for_zaak = Rol.objects.filter(
             zaak=zaak,
             betrokkene_type=self.betrokkene_type,
@@ -679,9 +686,6 @@ class BehandelaarTijdvakGeldigheidValidator:
         other_behandelaar_rollen = other_rollen_for_zaak.filter_by_roltype_attribute(
             "omschrijving_generiek", RolOmschrijving.behandelaar
         )
-
-        begin_geldigheid = tijdvak_geldigheid.get("begin_geldigheid")
-        eind_geldigheid = tijdvak_geldigheid.get("eind_geldigheid")
 
         if eind_geldigheid is None:
             query = Q(tijdvak_geldigheid_eind_geldigheid__isnull=True) | Q(

@@ -539,6 +539,20 @@ class RolTijdvakGeldigheidTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        with self.subTest("no tijdvakGeldigheid specified"):
+            data = {
+                "zaak": f"http://testserver{zaak_url}",
+                "betrokkene": BETROKKENE,
+                "betrokkene_type": RolTypes.organisatorische_eenheid,
+                "roltype": f"http://testserver{roltype_url}",
+                "roltoelichting": "foo",
+                "tijdvakGeldigheid": {"beginGeldigheid": None, "eindGeldigheid": None},
+            }
+
+            response = self.client.post(self.list_url, data)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         with self.subTest("betrokkeneType is different"):
             data = {
                 "zaak": f"http://testserver{zaak_url}",

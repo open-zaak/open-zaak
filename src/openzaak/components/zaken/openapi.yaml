@@ -14472,34 +14472,34 @@ components:
         beginGeldigheid:
           type: string
           format: date
+          nullable: true
           title: Begindatum geldigheid
           description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
             de ROL begint binnen de ZAAK.'
         eindGeldigheid:
           type: string
           format: date
+          nullable: true
           title: Einddatum geldigheid
           description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
             de ROL eindigt binnen de ZAAK.'
-      required:
-      - beginGeldigheid
     RolTijdvakGeldigheidRequest:
       type: object
       properties:
         beginGeldigheid:
           type: string
           format: date
+          nullable: true
           title: Begindatum geldigheid
           description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
             de ROL begint binnen de ZAAK.'
         eindGeldigheid:
           type: string
           format: date
+          nullable: true
           title: Einddatum geldigheid
           description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
             de ROL eindigt binnen de ZAAK.'
-      required:
-      - beginGeldigheid
     RolVestiging:
       type: object
       properties:
