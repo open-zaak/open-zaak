@@ -138,3 +138,23 @@ def check_openzaak_domain(app_configs, **kwargs):
         )
 
     return errors
+
+
+@register
+def check_zaak_identificatie_generator(app_configs, **kwargs):
+    errors = []
+
+    generator = settings.ZAAK_IDENTIFICATIE_GENERATOR
+
+    if generator not in settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS:
+        errors.append(
+            Error(
+                f"The ZAAK_IDENTIFICATIE_GENERATOR ({generator}) does not exist "
+                "in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.",
+                hint="Set ZAAK_IDENTIFICATIE_GENERATOR to one of the options defined "
+                "in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.",
+                id="openzaak.settings.E003",
+            )
+        )
+
+    return errors

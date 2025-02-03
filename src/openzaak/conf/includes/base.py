@@ -348,6 +348,18 @@ CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com"]
 #
 
 
+ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS = {
+    "use-creation-year": "openzaak.components.zaken.api.utils.generate_zaak_identificatie_with_creation_year",
+    "use-start-datum-year": "openzaak.components.zaken.api.utils.generate_zaak_identificatie_with_start_datum_year",
+}
+
+ZAAK_IDENTIFICATIE_GENERATOR = config(
+    "ZAAK_IDENTIFICATIE_GENERATOR",
+    default="use-start-datum-year",
+    help_text="Select one of the options defined in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS "
+    "that define how the ZAAK identificatie is generated.",
+)
+
 STORE_FAILED_NOTIFS = True
 # silence using upper case in enums
 SILENCED_SYSTEM_CHECKS = SILENCED_SYSTEM_CHECKS + ["vng_api_common.enums.W001"]
