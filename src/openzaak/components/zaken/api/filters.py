@@ -139,11 +139,12 @@ class ZaakFilter(FilterSetWithGroups):
         lookup_expr="icontains",
     )
     zaaktype__omschrijving = filters.CharFilter(
-        field_name="zaaktype__zaaktype_omschrijving",
+        field_name="_zaaktype__zaaktype_omschrijving",
         help_text=mark_experimental(
             "Omschrijving van de aard van ZAAKen van het ZAAKTYPE"
             "(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))"
         ),
+        lookup_expr="icontains",
     )
 
     maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
