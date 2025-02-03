@@ -777,10 +777,10 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         reserved_zaak_id = ZaakIdentificatie.objects.get()
 
-        zaak_id = response.data["zaaknummer"]
+        zaaknummer = response.data["zaaknummer"]
         zaak_data = {
             "zaaktype": f"http://testserver{self.zaaktype_url}",
-            "identificatie": zaak_id,
+            "identificatie": zaaknummer,
             "bronorganisatie": "517439943",
             "verantwoordelijkeOrganisatie": "517439943",
             "startdatum": "2025-02-04",
@@ -795,7 +795,8 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(ZaakIdentificatie.objects.count(), 2)
 
         zaak = Zaak.objects.get()
-        self.assertNotEqual(zaak.identificatie, reserved_zaak_id)
+        self.assertEqual(zaak.identificatie, zaaknummer)
+        self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):

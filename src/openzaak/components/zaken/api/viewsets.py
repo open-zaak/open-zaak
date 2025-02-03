@@ -368,7 +368,7 @@ class ZaakViewSet(
 
     @extend_schema(
         "zaak_reserveer_zaaknummer",
-        summary="Reserve a zaak number.",
+        summary="Reserveer een zaaknummer",
         description=mark_experimental(
             "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
             "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
