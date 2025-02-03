@@ -47,6 +47,7 @@ from ..models import (
     OrganisatorischeEenheid,
     Vestiging,
     Zaak,
+    ZaakIdentificatie,
 )
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
@@ -713,6 +714,89 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaaktype")
         self.assertEqual(error["code"], "does_not_exist")
+
+    def test_reserve_zaak_identity(self):
+
+        data = {"bronorganisatie": "111222333"}
+
+        response = self.client.post(
+            reverse("zaak-reserveer_zaaknummer"), data, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        zaak_identificatie = ZaakIdentificatie.objects.get()
+        self.assertEqual(
+            response.json(), {"zaaknummer": zaak_identificatie.identificatie}
+        )
+
+        zaak_id = response.json()["zaaknummer"]
+        zaak_data = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaak_id,
+            "bronorganisatie": "111222333",
+            "verantwoordelijkeOrganisatie": "111222333",
+            "startdatum": "2025-02-05",
+        }
+
+        create_response = self.client.post(
+            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 1)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        # try to reuse id
+        zaak_data_2 = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaak_id,
+            "bronorganisatie": "111222333",
+            "verantwoordelijkeOrganisatie": "111222333",
+            "startdatum": "2025-02-07",
+        }
+
+        create_response_2 = self.client.post(
+            reverse("zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reserve_zaak_identity_with_different_bronorganisatie(self):
+
+        data = {"bronorganisatie": "111222333"}
+
+        response = self.client.post(
+            reverse("zaak-reserveer_zaaknummer"), data, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        reserved_zaak_id = ZaakIdentificatie.objects.get()
+
+        zaaknummer = response.data["zaaknummer"]
+        zaak_data = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaaknummer,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "517439943",
+            "startdatum": "2025-02-04",
+        }
+
+        create_response = self.client.post(
+            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 1)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 2)
+
+        zaak = Zaak.objects.get()
+        self.assertEqual(zaak.identificatie, zaaknummer)
+        self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):

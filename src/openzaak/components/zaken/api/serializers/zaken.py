@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import logging
+from datetime import date
 from typing import Optional
 
 from django.conf import settings
@@ -163,6 +164,36 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
         return self.Meta.model.objects.generate(
             validated_data["bronorganisatie"],
             validated_data["startdatum"],
+        )
+
+    def update(self, instance, data):  # pragma:nocover
+        raise NotImplementedError("Updating is not supported in this serializer")
+
+
+class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ZaakIdentificatie
+        fields = (
+            "zaaknummer",
+            "bronorganisatie",
+        )
+
+        extra_kwargs = {
+            "zaaknummer": {
+                "source": "identificatie",
+                "read_only": True,
+            },
+            "bronorganisatie": {
+                "write_only": True,
+            },
+        }
+
+    def create(self, validated_data):
+
+        return self.Meta.model.objects.generate(
+            validated_data["bronorganisatie"],
+            date.today(),
         )
 
     def update(self, instance, data):  # pragma:nocover
