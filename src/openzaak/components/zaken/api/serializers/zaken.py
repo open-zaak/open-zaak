@@ -77,6 +77,7 @@ from ..validators import (
     HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
+    OverigeRelevanteZaakRelatieValidator,
     RolIndicatieMachtigingValidator,
     RolOccurenceValidator,
     StatusRolValidator,
@@ -129,7 +130,7 @@ class OpschortingSerializer(GegevensGroepSerializer):
 class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = RelevanteZaakRelatie
-        fields = ("url", "aard_relatie")
+        fields = ("url", "aard_relatie", "overige_relatie", "toelichting")
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
@@ -140,6 +141,7 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
                 ],
             },
         }
+        validators = [OverigeRelevanteZaakRelatieValidator()]
 
     def get_fields(self):
         fields = super().get_fields()

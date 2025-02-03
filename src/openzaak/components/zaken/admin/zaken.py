@@ -17,6 +17,7 @@ from openzaak.utils.admin import (
 )
 
 from ..api.validators import match_eigenschap_specificatie
+from ..constants import AardZaakRelatie
 from ..models import (
     KlantContact,
     RelevanteZaakRelatie,
@@ -417,6 +418,13 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Je moet een relevante zaak opgeven: "
                 "selecteer een zaak of vul een externe URL in."
+            )
+
+        if cleaned_data.get(
+            "aard_relatie"
+        ) == AardZaakRelatie.overig and not cleaned_data.get("overige_relatie"):
+            raise forms.ValidationError(
+                "Het veld `overigeRelatie` is verplicht als de relatie aard `overig` is."
             )
 
         return cleaned_data

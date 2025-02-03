@@ -10925,6 +10925,7 @@ components:
       - vervolg
       - onderwerp
       - bijdrage
+      - overig
       type: string
     AardRelatieWeergaveEnum:
       enum:
@@ -13978,6 +13979,17 @@ components:
             * `vervolg` - De andere zaak gaf aanleiding tot het starten van de onderhanden zaak.
             * `onderwerp` - De andere zaak is relevant voor cq. is onderwerp van de onderhanden zaak.
             * `bijdrage` - Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage.
+            * `overig` - **EXPERIMENTEEL** Overig
+        overigeRelatie:
+          type: string
+          description: '**EXPERIMENTEEL** Naam van de overige relatie. Verplicht bij
+            relatie aard `overig`.'
+          maxLength: 100
+        toelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Een toelichting op de aard van de relatie
+            tussen beide ZAKEN. (vooral bedoeld in combinatie met relatie aard `overig`)'
+          maxLength: 255
       required:
       - aardRelatie
       - url
@@ -14002,6 +14014,17 @@ components:
             * `vervolg` - De andere zaak gaf aanleiding tot het starten van de onderhanden zaak.
             * `onderwerp` - De andere zaak is relevant voor cq. is onderwerp van de onderhanden zaak.
             * `bijdrage` - Aan het bereiken van de uitkomst van de andere zaak levert de onderhanden zaak een bijdrage.
+            * `overig` - **EXPERIMENTEEL** Overig
+        overigeRelatie:
+          type: string
+          description: '**EXPERIMENTEEL** Naam van de overige relatie. Verplicht bij
+            relatie aard `overig`.'
+          maxLength: 100
+        toelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Een toelichting op de aard van de relatie
+            tussen beide ZAKEN. (vooral bedoeld in combinatie met relatie aard `overig`)'
+          maxLength: 255
       required:
       - aardRelatie
       - url

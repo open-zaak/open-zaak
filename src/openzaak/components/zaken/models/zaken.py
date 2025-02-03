@@ -552,6 +552,25 @@ class RelevanteZaakRelatie(models.Model):
         ),
     )
 
+    overige_relatie = models.CharField(
+        max_length=100,
+        verbose_name=_("overige relatie"),
+        blank=True,
+        help_text=mark_experimental(
+            "Naam van de overige relatie. Verplicht bij relatie aard `overig`."
+        ),
+    )
+
+    toelichting = models.CharField(
+        max_length=255,
+        verbose_name=_("toelichting"),
+        blank=True,
+        help_text=mark_experimental(
+            "Een toelichting op de aard van de relatie tussen beide ZAKEN. "
+            "(vooral bedoeld in combinatie met relatie aard `overig`)"
+        ),
+    )
+
 
 class Status(ETagMixin, APIMixin, models.Model):
     """
