@@ -5549,6 +5549,16 @@ paths:
         resource te verwijderen.
       summary: Verwijder een ZAAKOBJECT.
       parameters:
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
       - in: path
         name: uuid
         schema:
