@@ -1,0 +1,14 @@
+name: Quick Start
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  open-api-workflow-quick-start:
+    uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@v4.2.0
