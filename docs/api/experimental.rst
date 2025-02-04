@@ -46,6 +46,9 @@ Attributes
 
 * ``Zaak``:
     * ``communicatiekanaalNaam`` is added
+    * ``relevanteZaak.aardRelatie`` is changed: a new enum value "overig" is added
+    * ``relevanteZaak.overigeRelatie`` is added
+    * ``relevanteZaak.toelichting`` is added
 
 Query parameters
 ----------------
