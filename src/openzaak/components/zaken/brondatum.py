@@ -37,22 +37,29 @@ class BrondatumCalculator:
         if isinstance(archiefactietermijn, str):
             archiefactietermijn = parse_relativedelta(archiefactietermijn)
 
-        brondatum_archiefprocedure = resultaattype.brondatum_archiefprocedure
-        afleidingswijze = brondatum_archiefprocedure["afleidingswijze"]
-        datum_kenmerk = brondatum_archiefprocedure["datumkenmerk"]
-        objecttype = brondatum_archiefprocedure["objecttype"]
-        procestermijn = brondatum_archiefprocedure["procestermijn"]
-        # if loose-fk-field - convert to relative-delta
-        if isinstance(procestermijn, str):
-            procestermijn = parse_relativedelta(procestermijn)
+        # if zaak.startdatum_bewaartermijn is filled -> use as brondatum
+        if self.zaak.startdatum_bewaartermijn:
+            brondatum = self.zaak.startdatum_bewaartermijn
 
-        # FIXME: nasty side effect
-        orig_value = self.zaak.einddatum
-        self.zaak.einddatum = self.datum_status_gezet.date()
-        brondatum = get_brondatum(
-            self.zaak, afleidingswijze, datum_kenmerk, objecttype, procestermijn
-        )
-        self.zaak.einddatum = orig_value
+        else:
+            # calculate brondatum using resultaattype.brondatum_archiefprocedure
+            brondatum_archiefprocedure = resultaattype.brondatum_archiefprocedure
+            afleidingswijze = brondatum_archiefprocedure["afleidingswijze"]
+            datum_kenmerk = brondatum_archiefprocedure["datumkenmerk"]
+            objecttype = brondatum_archiefprocedure["objecttype"]
+            procestermijn = brondatum_archiefprocedure["procestermijn"]
+            # if loose-fk-field - convert to relative-delta
+            if isinstance(procestermijn, str):
+                procestermijn = parse_relativedelta(procestermijn)
+
+            # FIXME: nasty side effect
+            orig_value = self.zaak.einddatum
+            self.zaak.einddatum = self.datum_status_gezet.date()
+            brondatum = get_brondatum(
+                self.zaak, afleidingswijze, datum_kenmerk, objecttype, procestermijn
+            )
+            self.zaak.einddatum = orig_value
+
         if not brondatum:
             return
         self.brondatum = brondatum

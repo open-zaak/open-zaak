@@ -740,11 +740,16 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Archiving: Calculate archiefactiedatum
             if not zaak.archiefactiedatum:
                 zaak.archiefactiedatum = brondatum_calculator.calculate()
-                zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
+
                 if zaak.archiefactiedatum is not None:
                     _zaak_fields_changed.append("archiefactiedatum")
+
+            # Archiving: Calculate brondatum if it's not filled
+            if not zaak.startdatum_bewaartermijn:
+                zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
                 if zaak.startdatum_bewaartermijn is not None:
                     _zaak_fields_changed.append("startdatum_bewaartermijn")
+
         elif is_reopening:
             zaak.archiefnominatie = None
             zaak.archiefactiedatum = None
