@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import VertrouwelijkheidsAanduiding, ZaakobjectTypes
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
@@ -23,8 +23,8 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..models import Resultaat, Zaak, ZaakInformatieObject
-from .factories import RolFactory, ZaakFactory
+from ..models import Resultaat, Zaak, ZaakInformatieObject, ZaakObject
+from .factories import RolFactory, ZaakFactory, ZaakObjectFactory
 from .utils import ZAAK_WRITE_KWARGS
 
 
@@ -278,6 +278,41 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         audittrail = AuditTrail.objects.get()
         self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
         self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    def test_create_zaakobject(self):
+        url = reverse(ZaakObject)
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        data = {
+            "zaak": zaak_url,
+            "object": "http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd",
+            "objectType": ZaakobjectTypes.besluit,
+            "relatieomschrijving": "test",
+        }
+
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        zaakobject_url = response.json()["url"]
+
+        audittrail = AuditTrail.objects.get()
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource_url, zaakobject_url)
+
+    def test_delete_zaakobject(self):
+        zaakobject = ZaakObjectFactory.create()
+
+        zaakobject_url = reverse(zaakobject)
+        zaak_url = reverse(zaakobject.zaak)
+
+        # Delete the Rol
+        response = self.client.delete(zaakobject_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        audittrail = AuditTrail.objects.get()
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{zaakobject_url}")
 
 
 class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):

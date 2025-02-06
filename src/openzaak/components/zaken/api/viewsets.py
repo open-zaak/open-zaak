@@ -621,6 +621,7 @@ class ZaakObjectViewSet(
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
     AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     ClosedZaakMixin,
     viewsets.ModelViewSet,
 ):
