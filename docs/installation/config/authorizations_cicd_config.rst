@@ -1,5 +1,7 @@
 .. _installation_configuration_auth_cicd:
 
+TODO move this to CLI
+
 ==============================================
 Open Zaak authorizations configuration (CI/CD)
 ==============================================
@@ -43,7 +45,7 @@ Loading the fixture
 -------------------
 
 In order to load this fixture in another environment, make sure the environment variables
-described in :ref:`CLI configuration <setup_config_auth>` are configured correctly.
+described in :ref:`CLI configuration <ref_step_>` are configured correctly.
 
 The domain mapping is a `.yaml` file used to correctly map the domains of different environments for
 the URLs of zaak/besluit/informatiebjecttypen. An example of what this file can look like:

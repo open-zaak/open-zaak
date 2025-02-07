@@ -291,12 +291,12 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = "Open Zaak - admin"
 #
 SETUP_CONFIGURATION_STEPS = [
     "django_setup_configuration.contrib.sites.steps.SitesConfigurationStep",
+    "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
-    "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
     "vng_api_common.contrib.setup_configuration.steps.JWTSecretsConfigurationStep",
     "vng_api_common.contrib.setup_configuration.steps.ApplicatieConfigurationStep",
-    "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
+    "notifications_api_common.contrib.setup_configuration.steps.NotificationConfigurationStep",
 ]
 
 #

@@ -10,12 +10,11 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 class SelectielijstAPIConfig(ConfigurationModel):
 
     allowed_years: list[PositiveInt] = DjangoModelRef(
-        ReferentieLijstConfig, "allowed_years"
+        ReferentieLijstConfig, "allowed_years", examples=[[2017, 2020]]
     )
 
     selectielijst_api_service_identifier: str = DjangoModelRef(
-        ReferentieLijstConfig,
-        "service",
+        ReferentieLijstConfig, "service", examples=["selectielijst-api"]
     )
 
     class Meta:

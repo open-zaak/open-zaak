@@ -23,6 +23,10 @@ def get_service(slug: str) -> Service:
 class SelectielijstAPIConfigurationStep(BaseConfigurationStep[SelectielijstAPIConfig]):
     """
     Configure the Open Zaak client to request Selectielijst API
+
+    This step is dependent on the previous ``ServiceConfigurationStep``
+    to load a ``Service`` for this Selectielijst API, which is referred to in this step by
+    ``selectielijst_api_service_identifier``.
     """
 
     verbose_name = "Selectielijst API Configuration"
