@@ -14,7 +14,10 @@ class SelectielijstAPIConfig(ConfigurationModel):
     )
 
     selectielijst_api_service_identifier: str = DjangoModelRef(
-        ReferentieLijstConfig, "service", examples=["selectielijst-api"]
+        ReferentieLijstConfig,
+        "service",
+        examples=["selectielijst-api"],
+        description="Identifier of the Selectielijst API service",
     )
 
     class Meta:

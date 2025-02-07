@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-07 16:49+0000\n"
+"POT-Creation-Date: 2025-02-07 16:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5435,14 +5435,14 @@ msgid "Selectielijstconfiguratie"
 msgstr ""
 
 #: src/openzaak/selectielijst/models.py:26
-msgid "De jaartallen waarvan er procestypen gebruikt mogen worden."
-msgstr ""
+msgid "The years from which procestypen may be used."
+msgstr "De jaartallen waarvan er procestypen gebruikt mogen worden."
 
 #: src/openzaak/selectielijst/models.py:31
 msgid ""
-"Het jaartal dat standaard geselecteerd is bij het kiezen van een procestype "
-"bij een zaaktype."
-msgstr ""
+"The year that is selected by default when choosing a a procestype for a "
+"zaaktype."
+msgstr "Het jaartal dat standaard geselecteerd is bij het kiezen van een procestype bij een zaaktype."
 
 #: src/openzaak/templates/admin/authorizations/applicatie/change_form.html:16
 msgid "Beheer autorisaties"
