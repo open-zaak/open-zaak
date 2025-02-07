@@ -18,7 +18,7 @@ Zaken API
 Notifications
 -------------
 
-For ``zaken`` notification channel a new "kenmerk" ```zaaktype.catalogus`` is added.
+For ``zaken`` notification channel a new "kenmerk" ``zaaktype.catalogus`` is added.
 
 Endpoints
 ---------
