@@ -26,6 +26,7 @@ Endpoints
 New endpoints are added:
 
 * PUT ``/api/v1/rollen/{uuid}``
+* POST ``/api/v1/zaken/reserveer_zaaknummer``
 
 Attributes
 ----------
@@ -46,9 +47,9 @@ Attributes
 
 * ``Zaak``:
     * ``communicatiekanaalNaam`` is added
-    * ``relevanteZaak.aardRelatie`` is changed: a new enum value "overig" is added
-    * ``relevanteZaak.overigeRelatie`` is added
-    * ``relevanteZaak.toelichting`` is added
+    * ``relevanteAndereZaken.aardRelatie`` is changed: a new enum value "overig" is added
+    * ``relevanteAndereZaken.overigeRelatie`` is added
+    * ``relevanteAndereZaken.toelichting`` is added
 
 Query parameters
 ----------------
