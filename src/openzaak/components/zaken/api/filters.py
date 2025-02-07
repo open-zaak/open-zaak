@@ -259,7 +259,7 @@ class ZaakFilter(FilterSetWithGroups):
     class Meta:
         model = Zaak
         fields = {
-            "identificatie": ["exact", "icontains"],
+            "identificatie": ["exact"],
             "bronorganisatie": ["exact", "in"],
             "zaaktype": ["exact"],
             "archiefnominatie": ["exact", "in"],

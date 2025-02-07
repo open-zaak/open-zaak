@@ -10478,10 +10478,6 @@ paths:
                   type: string
                   description: De unieke identificatie van de ZAAK binnen de organisatie
                     die verantwoordelijk is voor de behandeling van de ZAAK.
-                identificatie__icontains:
-                  type: string
-                  description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK
-                    (bevat de identificatie de gegeven waarden (hoofdletterongevoelig))'
                 bronorganisatie:
                   type: string
                   description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
@@ -10667,6 +10663,10 @@ paths:
                   description: |+
                     Algemeen gehanteerde benaming van de aard van de ROL, afgeleid uit het ROLTYPE.
 
+                identificatie__icontains:
+                  type: string
+                  description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK
+                    (bevat de identificatie de gegeven waarden (hoofdletterongevoelig))'
                 omschrijving:
                   type: string
                   description: '**EXPERIMENTEEL** Een korte omschrijving van de ZAAK
