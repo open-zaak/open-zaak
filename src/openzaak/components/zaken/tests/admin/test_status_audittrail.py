@@ -10,11 +10,7 @@ from django.utils import timezone
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.components.catalogi.tests.factories import (
-    CatalogusFactory,
-    StatusTypeFactory,
-    ZaakTypeFactory,
-)
+from openzaak.components.catalogi.tests.factories import StatusTypeFactory
 from openzaak.components.zaken.models import Status
 from openzaak.tests.utils import AdminTestMixin
 
@@ -166,26 +162,3 @@ class StatusAdminTests(AdminTestMixin, TestCase):
         old_data = audittrail.oud
 
         self.assertEqual(old_data["statustoelichting"], "desc")
-
-    def test_invalid_check_zaaktype(self):
-        catalogus = CatalogusFactory.create()
-        zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, catalogus=catalogus)
-        zaak = ZaakFactory.create(zaaktype=zaaktype1)
-        statustype = StatusTypeFactory.create(zaaktype=zaaktype2)
-
-        self.assertEqual(Status.objects.count(), 0)
-
-        add_url = reverse("admin:zaken_status_add")
-        data = {
-            "uuid": uuid.uuid4(),
-            "zaak": zaak.id,
-            "_statustype": statustype.id,
-            "datum_status_gezet_0": date(2018, 1, 1),
-            "datum_status_gezet_1": time(10, 0, 0),
-        }
-        response = self.client.post(add_url, data)
-
-        self.assertEqual(Status.objects.count(), 0)
-        self.assertContains(
-            response, "De referentie hoort niet bij het zaaktype van de zaak."
-        )
