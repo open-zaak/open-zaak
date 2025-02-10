@@ -256,3 +256,51 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
                 response.json()["results"][0]["url"],
                 f"http://testserver{reverse(zaak3)}",
             )
+
+    def test_filter_identificatie_icontains(self):
+        zaak = ZaakFactory.create(identificatie="ZAAK-2024-0000000057")
+        ZaakFactory.create(identificatie="ZAAK-2025-0000000001")
+
+        response = self.client.get(
+            self.url,
+            {"identificatie__icontains": "2024"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak)}"
+        )
+
+    def test_filter_omschrijving(self):
+        zaak = ZaakFactory.create(omschrijving="Old case")
+        ZaakFactory.create(omschrijving="New case")
+
+        response = self.client.get(
+            self.url,
+            {"omschrijving": "old"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak)}"
+        )
+
+    def test_filter_zaaktype_omschrijving(self):
+        zaak = ZaakFactory.create(zaaktype__zaaktype_omschrijving="Old case type")
+        ZaakFactory.create(zaaktype__zaaktype_omschrijving="New case type")
+
+        response = self.client.get(
+            self.url,
+            {"zaaktype__omschrijving": "old"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak)}"
+        )

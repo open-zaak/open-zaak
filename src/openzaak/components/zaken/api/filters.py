@@ -123,6 +123,30 @@ class ZaakFilter(FilterSetWithGroups):
         )
     ]
 
+    identificatie__icontains = filters.CharFilter(
+        field_name="identificatie",
+        help_text=mark_experimental(
+            "De unieke identificatie van de ZAAK "
+            "(bevat de identificatie de gegeven waarden (hoofdletterongevoelig))"
+        ),
+        lookup_expr="icontains",
+    )
+    omschrijving = filters.CharFilter(
+        help_text=mark_experimental(
+            "Een korte omschrijving van de ZAAK "
+            "(bevat de omschrijving de gegeven waarden (hoofdletterongevoelig))"
+        ),
+        lookup_expr="icontains",
+    )
+    zaaktype__omschrijving = filters.CharFilter(
+        field_name="_zaaktype__zaaktype_omschrijving",
+        help_text=mark_experimental(
+            "Omschrijving van de aard van ZAAKen van het ZAAKTYPE"
+            "(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))"
+        ),
+        lookup_expr="icontains",
+    )
+
     maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
         field_name="vertrouwelijkheidaanduiding",
         help_text=(
