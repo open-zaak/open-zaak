@@ -4,6 +4,7 @@ about: Checklist for new releases
 title: Prepare release x.y.z
 labels: ''
 type: Release
+projects: ["maykinmedia/15"]
 ---
 
 - [ ] Resolve release blockers
