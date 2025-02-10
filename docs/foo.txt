@@ -1,0 +1,8 @@
+78b468ae Apply suggestions from code review
+052d9012 Merge pull request #1890 from open-zaak/feature/pull-request-template
+6e303e7f :memo: Checkboxes for experimental features in PR template
+507c3e1b :memo: [#1854] document experimental features
+6e6c4f53 Merge pull request #1860 from open-zaak/feature/1836-case-reserveration
+18a27ba3 :white_check_mark: [#1816] test partial zaak filters
+54a9aaba :white_check_mark:[#1836] fix bad test
+d4b2bd8c :recycle:[#1836] make reserve url reverse same as function

@@ -1,6 +1,54 @@
 Changelog
 =========
 
+1.18.0 (2025-02-11)
+-------------------
+
+**New features**
+
+* [:open-zaak:`1821`] Add support for new version of ``django-setup-configuration``, the following steps were
+  added/updated. For more information on how to provide configuration for these steps, see
+  :ref:`installation_configuration_cli`
+
+    * Configuration of OpenID Connect authentication for admin users (Single Sign On)
+    * Configuration of ``Sites``
+    * Configuration of external ``Services``
+    * Configuration for notifications (which ``Service`` to use and retry settings)
+    * Configuration of Selectielijst API
+    * Configuration of client credentials and ``Applicaties`` for other applications to access Open Zaak
+* [:open-zaak:`1581`] add audit trail for ``ZaakObject`` delete
+
+**Experimental features**
+
+* [:open-zaak:`1835`] add PUT endpoint for ``Rol`` resource
+* [:open-zaak:`1855`] add ``zaaktype`` query param for ``informatieobjecttypen`` endpoint
+* [:open-zaak:`1831`] Make ``Rol.roltoelichting`` accept empty strings and no longer required
+* [:open-zaak:`1816`] add query params with partial search for ``Zaak`` resource
+
+    * ``identificatie__icontains``
+    * ``omschrijving``
+    * ``zaaktype__omschrijving``
+* [:open-zaak:`1827`] Add extra attributes to ``Zaak.relevanteAndereZaken``
+
+    * ``aardRelatie``: new option ``overig``
+    * ``overigeRelatie``
+    * ``toelichting``
+* [:open-zaak:`1836`] add zaak identity reservation endpoint ``/api/v1/zaken/reserveer_zaaknummer``
+
+**Bugfixes and QOL**
+
+* [:open-zaak:`1826`] Add clarification to ``RelevanteZaakRelatie.url`` help_text to explain that the ZaakTypen of the related zaken do not have to be related to eachother
+* [:open-zaak:`1793`] add ``statustype_omschrijving`` to ``generate_data`` status types
+* [:open-zaak:`1832`] add CSP headers to fix map on Zaak admin changeview
+
+**Project maintenance**
+
+* [:open-api-framework:`44`] Add github action to automatically make pull requests to update Open API Framework to the latest version
+
+**Documentation**
+
+* [:open-zaak:`1854`] List experimental features in :ref:`api_experimental`
+
 1.17.0 (2025-01-17)
 -------------------
 

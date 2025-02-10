@@ -1,0 +1,83 @@
+6742ab30 :wrench: Add project to prepare release issue template
+44359dab Merge pull request #1895 from open-zaak/feature/prepare-release-template
+b7963835 :wrench: Add prepare release issue template
+3be82dd9 Merge pull request #1882 from open-zaak/feature/1816-zaken-parial-search
+f9fe089a :ok_hand: [#1816] remove unnecessary attribute from meta
+fdb3f5cf Merge pull request #1849 from open-zaak/feature/oaf-auto-update-action
+567530a5 Merge pull request #1891 from open-zaak/feature/issue-template-add-type
+b5f20f62 :wrench: Use new issue types in issue templates
+59a1d1a0 Merge pull request #1883 from open-zaak/docs/1854-experimental
+a629cb9d Update docs/api/experimental.rst
+78b468ae Apply suggestions from code review
+052d9012 Merge pull request #1890 from open-zaak/feature/pull-request-template
+6e303e7f :memo: Checkboxes for experimental features in PR template
+bb9eacfd Merge pull request #1885 from open-zaak/feature/1581-zaakobject-delete-audittrail
+e85faae2 :ok_hand: [#1854] add features from #1827 to the experimental list
+507c3e1b :memo: [#1854] document experimental features
+4d28bfcc :sparkles:[#1581] add audit trail for zaakobject delete
+6e6c4f53 Merge pull request #1860 from open-zaak/feature/1836-case-reserveration
+18a27ba3 :white_check_mark: [#1816] test partial zaak filters
+55c80ea0 Merge pull request #1858 from open-zaak/issue/1827-extend-relationship-between-zaken
+54a9aaba :white_check_mark:[#1836] fix bad test
+d4b2bd8c :recycle:[#1836] make reserve url reverse same as function
+a2be0291 :memo:[#1836] add endpoint translatiion
+0b5db9a3 :recycle:[#1836] change reservation status to 201
+33b87bf0 :recycle:[#1836] change reservation endpoint name
+0c2f0516 :sparkles:[#1836] add zaak identity reservation endpoint
+7c7f1eb7 [#1827] Add spdx header
+89b359bc [#1827] Add pr feedback
+8277f4f6 [#1827] Add form validation
+794951f3 [#1827] Add overige_relatie field & validator
+ef538698 [#1827] Add relevante zaak relatie aard 'Overig' & toelichting field
+a889567e :sparkles: [#1816] add query params with partial search for Zaken
+19be1b9b Merge pull request #1870 from open-zaak/issue/1831-roltoelichting-nullable
+c80bf782 [#1831] Model, migration, schema
+a4c9d5f2 Merge pull request #1867 from open-zaak/feature/1855-iotype-filter-on-zaaktype
+2ba1d9e4 :ok_hand: [#1855] process PR feedback
+b4b1abdb Merge pull request #1874 from open-zaak/issue/fix-ci-build
+84add5c2 :green_heart: [#1873] Add jwt.io to linkcheck_ignore to fix build
+85fbe4eb :memo: [#1826] Regenerate Zaken API schema
+c904a3a3 Merge pull request #1857 from open-zaak/issue/1826-remove-validationon-relevante-andere-zaken
+c07384ad :white_check_mark: [#1855] test zaaktype query param for iotypen
+54364d5b :sparkles: [#1855] add 'zaaktype' query param for iotypen
+0e39bdc4 Merge pull request #1863 from open-zaak/feature/1835-rol-put
+3579c7af :ok_hand: [#1835] process PR feedback
+85540097 :white_check_mark: [1835] test PUT rol endpoint
+62633d23 :green_heart: [#1835] remove jwt.io links from the docs which fail in CI
+d1338e10 [#1826] Change test to use 2 different zaaktypen
+60ff8c27 :white_check_mark: [#1835] test PUT rol endpoint
+ed1590ca :memo: [#1835] update Zaken OAS with PUT rol endpoint
+81b94c7d Merge pull request #1861 from open-zaak/feature/1793-generate-data-statusttype
+ebdac1f5 Merge pull request #1862 from open-zaak/feature/1832-map-view-csp
+de117f01 Merge pull request #1728 from open-zaak/issue/oaf-23-OIDC-setup-config
+c37c5990 :sparkles: [#1835] add PUT endpoint for rollen
+b4fb87d3 :bug:[#1832] fix map view to CSP headers
+21043f29 :sparkles:[#1793] add statustype_omschrijving to generate_data status types
+f00aae87 Merge pull request #1851 from open-zaak/release/1.17
+4d89e14d [#1826] Add tests & add clarification to RelevanteZaakRelatie.url help_text
+cd860270 :memo:[#1822] update setup configuration documentation
+8a481592 :construction_worker:[#1822] add OIDC setup configuration step
+93cef507 Merge pull request #1842 from open-zaak/feature/1825-config-permissions
+16f3c28f :memo: Regenerate schema with drf-spectacular
+5cc48978 :whale: [#1825] Several fixes to setup_config in docker
+06a08814 :alien: [#1825] change import path for http status titles
+920c6eb2 :sparkles: [#1825] add commongground-api-common steps to OZ configuration
+54a44ee1 :arrow_up: [#1825] Upgrade commonground-api-common to 2.3.0
+96f9cf1c :arrow_up: [#1825] bump django-setup-configuration to 0.4.0
+70449f11 Merge pull request #1844 from open-zaak/feature/1823-branch-2
+17c05c6a :construction_worker: add OAF auto-update action
+45ae7e33 :fire:[#1823] remove old docker setup configuration
+9b0df6b1 :recycle:[#1823] update selectielijst step
+76329429 :arrow_up:[#1823] update zgw-consumers
+aca9ee5c :fire:[#1823] remove demo setup configuration
+3c7311e1 :construction_worker:[#1823] update docker for setup configuration
+433a4bf0 :white_check_mark:[#1823] fix failing tests
+952c1e36 :lipstick:[#1823] fix code quality errors
+e9b2976c :recycle:[#1823] rename bootstrap test dir
+9b090584 :sparkles:[#1823] use notification api configuration step
+c65cefd8 :fire:[#1823] remove boostrap module
+ccf8e085 :recycle:[#1823] move steps to individual files
+4a1d03b6 :recycle:[#1823] move SelectielijstAPIConfigurationStep to new format
+c3f481a5 :recycle:[#1823] move demo setup config to new format
+78f7356a :recycle:[#1823] use sites step from setup configuration
+780ded49 :arrow_up:[#1823] update django setup configuration to 0.5.0
