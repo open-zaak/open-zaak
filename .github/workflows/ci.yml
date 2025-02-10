@@ -221,10 +221,11 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v3.0.2
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v4.1.0
     needs:
       - store-reusable-workflow-vars
     with:
+      apt-packages: 'libgdal-dev gdal-bin'
       main-branch: 'main'
       python-version: '3.11'
       django-settings-module: openzaak.conf.ci
