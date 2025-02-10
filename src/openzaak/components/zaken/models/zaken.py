@@ -667,16 +667,14 @@ class Status(ETagMixin, APIMixin, models.Model):
     def unique_representation(self):
         return f"({self.zaak.unique_representation()}) - {self.datum_status_gezet}"
 
-    def clean(self):
-        super().clean()
-        if (self._statustype or self._statustype_url) and self.zaak:
-            validator = CorrectZaaktypeValidator("statustype")
-            validator(
-                {
-                    "statustype": self.statustype,
-                    "zaak": self.zaak,
-                }
-            )
+    def full_clean(self, *args, **kwargs):
+        super().full_clean(*args, **kwargs)
+        CorrectZaaktypeValidator("statustype")(
+            {
+                "statustype": self.statustype,
+                "zaak": self.zaak,
+            }
+        )
 
     @property
     def indicatie_laatst_gezette_status(self) -> bool:
@@ -745,6 +743,15 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
     class Meta:
         verbose_name = "resultaat"
         verbose_name_plural = "resultaten"
+
+    def full_clean(self, *args, **kwargs):
+        super().full_clean(*args, **kwargs)
+        CorrectZaaktypeValidator("resultaattype")(
+            {
+                "resultaattype": self.resultaattype,
+                "zaak": self.zaak,
+            }
+        )
 
     def __str__(self):
         return "Resultaat ({})".format(self.uuid)
@@ -948,16 +955,14 @@ class Rol(ETagMixin, APIMixin, models.Model):
 
         super().save(*args, **kwargs)
 
-    def clean(self):
-        super().clean()
-        if (self._roltype or self._roltype_url) and self.zaak:
-            validator = CorrectZaaktypeValidator("roltype")
-            validator(
-                {
-                    "roltype": self.roltype,
-                    "zaak": self.zaak,
-                }
-            )
+    def full_clean(self, *args, **kwargs):
+        super().full_clean(*args, **kwargs)
+        CorrectZaaktypeValidator("roltype")(
+            {
+                "roltype": self.roltype,
+                "zaak": self.zaak,
+            }
+        )
 
     def _derive_roltype_attributes(self):
         if self.omschrijving and self.omschrijving_generiek:
@@ -1159,6 +1164,15 @@ class ZaakObject(APIMixin, models.Model):
         verbose_name = "zaakobject"
         verbose_name_plural = "zaakobjecten"
 
+    def full_clean(self, *args, **kwargs):
+        super().full_clean(*args, **kwargs)
+        CorrectZaaktypeValidator("zaakobjecttype")(
+            {
+                "zaakobjecttype": self.zaakobjecttype,
+                "zaak": self.zaak,
+            }
+        )
+
     def _get_object(self) -> dict:
         """
         Retrieve the `Object` specified as URL in `ZaakObject.object`.
@@ -1246,6 +1260,15 @@ class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
     class Meta:
         verbose_name = "zaakeigenschap"
         verbose_name_plural = "zaakeigenschappen"
+
+    def full_clean(self, *args, **kwargs):
+        super().full_clean(*args, **kwargs)
+        CorrectZaaktypeValidator("eigenschap")(
+            {
+                "eigenschap": self.eigenschap,
+                "zaak": self.zaak,
+            }
+        )
 
     def __str__(self):
         return f"{self._naam}: {self.waarde}"

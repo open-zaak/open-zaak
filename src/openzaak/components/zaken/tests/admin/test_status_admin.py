@@ -28,7 +28,6 @@ class StatusAdminTests(AdminTestMixin, TestCase):
         zaak = ZaakFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
 
-        add_url = reverse("admin:zaken_status_add")
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
@@ -37,14 +36,10 @@ class StatusAdminTests(AdminTestMixin, TestCase):
             "datum_status_gezet_1": time(10, 0, 0),
         }
 
-        self.client.post(add_url, data)
-
-        self.assertEqual(Status.objects.count(), 1)
+        self.client.post(reverse("admin:zaken_status_add"), data)
 
         status = Status.objects.get()
         self.assertEqual(Status.objects.count(), 1)
-
-        status = Status.objects.get()
         self.assertEqual(status.statustype, statustype)
         self.assertEqual(status.zaak, zaak)
         self.assertEqual(status.statustype.zaaktype, status.zaak.zaaktype)
@@ -58,7 +53,6 @@ class StatusAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(Status.objects.count(), 0)
 
-        add_url = reverse("admin:zaken_status_add")
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
@@ -66,7 +60,7 @@ class StatusAdminTests(AdminTestMixin, TestCase):
             "datum_status_gezet_0": date(2018, 1, 1),
             "datum_status_gezet_1": time(10, 0, 0),
         }
-        response = self.client.post(add_url, data)
+        response = self.client.post(reverse("admin:zaken_status_add"), data)
 
         self.assertEqual(Status.objects.count(), 0)
         self.assertContains(
@@ -76,7 +70,6 @@ class StatusAdminTests(AdminTestMixin, TestCase):
     def test_valid_update_status(self):
         status = StatusFactory.create(statustoelichting="old")
         statustype = StatusTypeFactory.create(zaaktype=status.zaak.zaaktype)
-        change_url = reverse("admin:zaken_status_change", args=(status.pk,))
         data = {
             "uuid": status.uuid,
             "zaak": status.zaak.id,
@@ -86,11 +79,9 @@ class StatusAdminTests(AdminTestMixin, TestCase):
             "statustoelichting": "new",
         }
 
-        self.client.post(change_url, data)
+        self.client.post(reverse("admin:zaken_status_change", args=(status.pk,)), data)
 
         status = Status.objects.get()
         self.assertEqual(Status.objects.count(), 1)
-
-        status = Status.objects.get()
         self.assertEqual(status.statustype, statustype)
         self.assertEqual(status.statustype.zaaktype, status.zaak.zaaktype)

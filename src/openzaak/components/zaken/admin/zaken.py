@@ -67,6 +67,25 @@ from .objecten import (
 )
 
 
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_statustype") and not cleaned_data.get(
+            "_statustype_base_url"
+        ):
+            raise forms.ValidationError(
+                "Je moet een statustype opgeven: "
+                "selecteer een statustype uit de catalogus of vul een externe URL in."
+            )
+
+        return cleaned_data
+
+
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
@@ -78,6 +97,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
         "zaak__uuid",
         "statustoelichting",
     )
+    form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
     raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")

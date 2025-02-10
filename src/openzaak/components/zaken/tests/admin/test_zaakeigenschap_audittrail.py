@@ -23,7 +23,7 @@ class ZaakEigenschapAdminTests(AdminTestMixin, TestCase):
     def test_create_zaakeigenschap(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        eigenschap = EigenschapFactory.create()
+        eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
 
         add_url = reverse("admin:zaken_zaakeigenschap_add")
         data = {
