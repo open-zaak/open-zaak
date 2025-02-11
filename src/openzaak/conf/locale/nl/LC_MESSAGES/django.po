@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-11 12:34+0000\n"
+"POT-Creation-Date: 2025-02-11 15:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,7 +128,7 @@ msgstr "Enkel ongeldig"
 
 #: openzaak/components/autorisaties/admin_views.py:311
 msgid "beheer autorisaties"
-msgstr "manage authorizations"
+msgstr "beheer autorisaties"
 
 #: openzaak/components/autorisaties/api/filters.py:24
 msgid "Geef het client ID op waarvoor je de applicatie wil opvragen."
@@ -1707,7 +1707,7 @@ msgstr ""
 
 #: openzaak/components/catalogi/models/informatieobjecttype.py:89
 msgid "De plaats in de rangorde van het informatieobjecttype."
-msgstr "De plaats in de rangorde van het informatieobjecttype"
+msgstr "De plaats in de rangorde van het informatieobjecttype."
 
 #: openzaak/components/catalogi/models/informatieobjecttype.py:92
 msgid "opmerking"
@@ -3638,11 +3638,11 @@ msgstr ""
 msgid "Machtiginggever"
 msgstr ""
 
-#: openzaak/components/zaken/api/filters.py:230
+#: openzaak/components/zaken/api/filters.py:254
 msgid "Het veld waarop de resultaten geordend worden."
 msgstr ""
 
-#: openzaak/components/zaken/api/filters.py:349
+#: openzaak/components/zaken/api/filters.py:373
 #: openzaak/components/zaken/api/serializers/zaken.py:636
 msgid ""
 "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status "
@@ -3675,23 +3675,23 @@ msgstr ""
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:49
 msgid "Non existent (1)"
-msgstr ""
+msgstr "Niet bestaand (1)"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:50
 msgid "Low (2)"
-msgstr ""
+msgstr "Laag (2)"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:51
 msgid "Low (2+)"
-msgstr ""
+msgstr "Laag (2+)"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:52
 msgid "Substantial (3)"
-msgstr ""
+msgstr "Substantieel (3)"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:53
 msgid "High (4)"
-msgstr ""
+msgstr "Hoog (4)"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:59
 #: openzaak/components/zaken/api/serializers/authentication_context.py:73
@@ -3705,32 +3705,40 @@ msgstr ""
 #: openzaak/components/zaken/api/serializers/authentication_context.py:71
 #: openzaak/components/zaken/api/serializers/authentication_context.py:93
 msgid "Identifier type"
-msgstr ""
+msgstr "Identificatie type"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:75
 msgid ""
 "Determines how to interpret the `identifier` value. DigiD and DigiD "
 "Machtigen only support BSNs."
 msgstr ""
+"Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden. DigiD en "
+"DigiD Machtigen ondersteunen alleen BSN"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:80
 #: openzaak/components/zaken/api/serializers/authentication_context.py:102
 msgid "Identifier"
-msgstr ""
+msgstr "Identificatie"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:83
 msgid "BSN of the person being represented. BSNs must satisfy the 11-proef."
 msgstr ""
+"BSN van de persoon die vertegenwoordigd wordt. Een BSN moet voldoen aan de "
+"11-proef"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:97
 msgid ""
 "Determines how to interpret the `identifier` value. EHerkenning only "
 "supports BSN and KVK-nummer."
 msgstr ""
+"Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden. "
+"EHerkenning ondersteunt alleen BSN en KVK-nummer"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:104
 msgid "Identifier of the represented person or the company"
 msgstr ""
+"Identificatie van de vertegenwoordigde persoon of het vertegenwoordigde "
+"bedrijf"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:123
 msgid "service ID"
@@ -3742,7 +3750,7 @@ msgstr ""
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:132
 msgid "The ServiceID from the service catalog"
-msgstr ""
+msgstr "De ServiceID uit de servicecatalogus"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:135
 msgid "Service UUID"
@@ -3750,29 +3758,31 @@ msgstr ""
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:135
 msgid "The ServiceUUID from the service catalog"
-msgstr ""
+msgstr "De ServiceUUID uit de servicecatalogus"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:142
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:145
 msgid "The role of a mandate, typically assigned through judicial procedures"
-msgstr ""
+msgstr "De rol van een machtiging, meestal gegeven via juridische procedures"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:154
 #: openzaak/components/zaken/api/serializers/authentication_context.py:209
 msgid "Source"
-msgstr ""
+msgstr "Bron"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:156
 msgid "DigiD is the only way a Natural Person can be identified."
 msgstr ""
+"DigiD is de enige manier waarop een Natuurlijk Persoon geïdentificeerd kan "
+"worden."
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:160
 #: openzaak/components/zaken/api/serializers/authentication_context.py:218
 msgid "Level of assurance"
-msgstr ""
+msgstr "Betrouwbaarheidsniveau"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:163
 msgid ""
@@ -3782,10 +3792,15 @@ msgid ""
 "equal level of assurance in the currently active portal authentication "
 "context."
 msgstr ""
+"Geeft aan hoe sterk de identiteitsclaim is. Logius definieert de mogelijke "
+"betrouwbaarheidsniveaus*en* schrijft voor wat het minimale niveau moet zijn. "
+"Het opslaan van deze context stelt portalen in staat om alleen de zaken weer "
+"te gegeven met een lager of gelijk betrouwbaarheidsniveau in de op dat "
+"moment actieve portaal authenticatie context."
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:171
 msgid "represented person"
-msgstr ""
+msgstr "vertegenwoordigde persoon"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:174
 #: openzaak/components/zaken/api/serializers/authentication_context.py:242
@@ -3796,11 +3811,17 @@ msgid ""
 "should also create an additional `rol` with `rolomschrijvingGeneriek` equal "
 "to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`."
 msgstr ""
+"Wanneer de `Rol` voor de gemachtigde geregistreerd wordt, moet de "
+"vertegenwoordigde bijgevoegd worden om duidelijk te maken dat er sprake is "
+"van een machtiging. Dit maakt het ook het attribuut `mandate` en de context "
+"daarbij verplicht. Als een vertegenwoordigde bijgevoegd wordt, moet er ook "
+"een aparte `Rol` aangemaakt worden met `rolomschrijvingGeneriek` gelijk aan "
+"`belanghebbende` en `indicatieMachtiging` gelijk aan `machtiginggever`"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:183
 #: openzaak/components/zaken/api/serializers/authentication_context.py:251
 msgid "mandate context"
-msgstr ""
+msgstr "machtiging context"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:186
 msgid ""
@@ -3811,12 +3832,15 @@ msgid ""
 "\n"
 "The `mandate` key is required if a `representee` is specified."
 msgstr ""
+"Het attribuut `mandate` is verplicht als een `representee` is gespecificeerd."
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:212
 msgid ""
 "eHerkenning is the only way a Non-Natural Person or the Branch of a company "
 "can be identified."
 msgstr ""
+"eHerkenning is de enige manier waarop een Niet Natuurlijk Persoon of de "
+"vestiging van een bedrijf geïdentificeerd kan worden."
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:221
 msgid ""
@@ -3825,6 +3849,11 @@ msgid ""
 "portals to only display cases with a lower or equal level of assurance in "
 "the currently active portal authentication context."
 msgstr ""
+"Geeft aan hoe sterk de identiteitsclaim is. Elektronische Toegangsdiensten "
+"definieert de mogelijke betrouwbaarheidsniveaus. Het opslaan van deze "
+"context stelt portalen in staat om alleen de zaken weer te gegeven met een "
+"lager of gelijk betrouwbaarheidsniveau in de op dat moment actieve portaal "
+"authenticatie context."
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:232
 msgid ""
@@ -3833,10 +3862,15 @@ msgid ""
 "when authenticating with different service providers. Unencrypted details of "
 "the acting subject can be added to the `contactpersoonRol.naam` attribute"
 msgstr ""
+"De identificatie is altijd versleuteld en de versleutelingsmethode is "
+"specifiek voor de service provider. Bijvoorbeeld: dezelfde fysieke persoon "
+"krijgt verschillende identificatiewaarden wanneer diegene bij verschillende "
+"service providers authenticeert Onversleutelde details van de handelende "
+"persoon kunnen toegevoegd worden aan het attribuut `contactpersoonRol.naam`"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:239
 msgid "represented party"
-msgstr ""
+msgstr "vertegenwoordigde partij"
 
 #: openzaak/components/zaken/api/serializers/authentication_context.py:254
 msgid ""
@@ -3844,6 +3878,9 @@ msgid ""
 "the representee to the authorizee. The `mandate` key is required if a "
 "`representee` is specified."
 msgstr ""
+"`mandate` beschrijft de mate van machtiging voor de vertegenwoordigde aan de "
+"gemachtigde. `mandate` is verplicht als een `representee` "
+"(vertegenwoordigde) gespecificeerd is"
 
 #: openzaak/components/zaken/api/serializers/betrokkenen.py:90
 #: openzaak/components/zaken/api/serializers/betrokkenen.py:148
@@ -5980,6 +6017,14 @@ msgstr ""
 #: openzaak/config/tests/test_nlx_configuration.py:42
 msgid "Connection refused. Please provide a correct address."
 msgstr "Verbinding gewijgerd. Geef een geldig adres op."
+
+#: translations are missing from django-rest-framework
+msgid "Number of results to return per page."
+msgstr "Het aantal resultaten terug te geven per pagina."
+
+#: translations are missing from django-rest-framework
+msgid "A page number within the paginated result set."
+msgstr "Een pagina binnen de gepagineerde set resultaten."
 
 #~ msgid ""
 #~ "datum_einde_geldigheid is required if the new version is being created"
