@@ -134,7 +134,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.3.0
+commonground-api-common==2.5.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -347,7 +347,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.5.0
+django-setup-configuration==0.7.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -412,8 +412,11 @@ djangorestframework-inclusions==1.2.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-docutils==0.17.1
+docutils==0.21.2
     # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-setup-configuration
     #   recommonmark
     #   sphinx
     #   sphinx-rtd-theme
@@ -586,7 +589,7 @@ mozilla-django-oidc==4.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.21.1
+mozilla-django-oidc-db==0.22.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -595,7 +598,7 @@ multidict==6.1.0
     # via yarl
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.5.0
+notifications-api-common==0.6.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -787,6 +790,16 @@ requests-mock==1.12.1
     #   -r requirements/base.txt
     #   -r requirements/test-tools.in
     #   commonground-api-common
+ruamel-yaml==0.18.10
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-setup-configuration
+ruamel-yaml-clib==0.2.12
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   ruamel-yaml
 self-certifi==1.0.0
     # via
     #   -c requirements/base.txt
@@ -813,17 +826,18 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==1.9.5
     # via beautifulsoup4
-sphinx==4.4.0
+sphinx==7.3.7
     # via
     #   -r requirements/test-tools.in
     #   recommonmark
     #   sphinx-rtd-theme
     #   sphinx-tabs
+    #   sphinxcontrib-jquery
 sphinx-markdown-tables==0.0.15
     # via -r requirements/test-tools.in
-sphinx-rtd-theme==1.0.0
+sphinx-rtd-theme==3.0.2
     # via -r requirements/test-tools.in
-sphinx-tabs==3.3.1
+sphinx-tabs==3.4.7
     # via -r requirements/test-tools.in
 sphinxcontrib-applehelp==1.0.1
     # via
@@ -837,13 +851,15 @@ sphinxcontrib-htmlhelp==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
+sphinxcontrib-jquery==4.1
+    # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==1.0.2
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
@@ -940,7 +956,7 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.17.1
     # via vcrpy
-zgw-consumers==0.36.1
+zgw-consumers==0.37.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

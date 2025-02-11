@@ -9,5 +9,4 @@ Configuration
    openzaak_config_cli
    openzaak_config
    env_config
-   authorizations_cicd_config
    cmis

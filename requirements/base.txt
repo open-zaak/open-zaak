@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.3.0
+commonground-api-common==2.5.1
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -192,7 +192,7 @@ django-sendfile2==0.7.0
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.5.0
+django-setup-configuration==0.7.1
     # via
     #   commonground-api-common
     #   open-api-framework
@@ -231,6 +231,8 @@ djangorestframework-gis==1.0
     # via open-api-framework
 djangorestframework-inclusions==1.2.0
     # via open-api-framework
+docutils==0.21.2
+    # via django-setup-configuration
 drc-cmis==1.9.1
     # via -r requirements/base.in
 drf-extra-fields==3.4.0
@@ -301,9 +303,9 @@ maykin-2fa==1.0.1
     # via open-api-framework
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.21.1
+mozilla-django-oidc-db==0.22.0
     # via open-api-framework
-notifications-api-common==0.5.0
+notifications-api-common==0.6.0
     # via commonground-api-common
 open-api-framework==0.9.2
     # via -r requirements/base.in
@@ -389,6 +391,10 @@ requests-cache==0.9.4
     # via -r requirements/base.in
 requests-mock==1.12.1
     # via commonground-api-common
+ruamel-yaml==0.18.10
+    # via django-setup-configuration
+ruamel-yaml-clib==0.2.12
+    # via ruamel-yaml
 self-certifi==1.0.0
     # via -r requirements/base.in
 sentry-sdk==2.13.0
@@ -450,7 +456,7 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.36.1
+zgw-consumers==0.37.0
     # via
     #   commonground-api-common
     #   notifications-api-common

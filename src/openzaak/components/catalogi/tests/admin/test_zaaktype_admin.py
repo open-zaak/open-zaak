@@ -195,7 +195,7 @@ class ZaaktypeAdminTests(
 
         response_form = response.context["adminform"].form
         self.assertIn(
-            "Dit veld is vereist.", response_form.errors["doorlooptijd_behandeling"]
+            "Dit veld is verplicht.", response_form.errors["doorlooptijd_behandeling"]
         )
 
         form["doorlooptijd_behandeling_days"] = 12
@@ -696,7 +696,7 @@ class ZaaktypeAdminTests(
 
         form = response.context["adminform"].form
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Dit veld is vereist.", form.errors["catalogus"])
+        self.assertIn("Dit veld is verplicht.", form.errors["catalogus"])
 
     def test_submit_zaaktype_with_bad_catalogus(self, m):
         """

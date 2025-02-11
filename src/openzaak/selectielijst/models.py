@@ -23,13 +23,13 @@ class ReferentieLijstConfig(SingletonModel):
 
     allowed_years = ArrayField(
         base_field=models.PositiveIntegerField(),
-        help_text=_("De jaartallen waarvan er procestypen gebruikt mogen worden."),
+        help_text=_("The years from which procestypen may be used."),
         default=list,
     )
     default_year = models.PositiveIntegerField(
         help_text=_(
-            "Het jaartal dat standaard geselecteerd is bij het kiezen van "
-            "een procestype bij een zaaktype."
+            "The year that is selected by default when choosing a "
+            "procestype for a zaaktype."
         ),
         null=True,
         default=2020,

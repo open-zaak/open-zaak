@@ -160,7 +160,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.3.0
+commonground-api-common==2.5.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -388,7 +388,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.5.0
+django-setup-configuration==0.7.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -457,10 +457,11 @@ djangorestframework-inclusions==1.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-docutils==0.17.1
+docutils==0.21.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-setup-configuration
     #   recommonmark
     #   sphinx
     #   sphinx-rtd-theme
@@ -669,7 +670,7 @@ mozilla-django-oidc==4.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.21.1
+mozilla-django-oidc-db==0.22.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -684,7 +685,7 @@ mypy-extensions==1.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   black
-notifications-api-common==0.5.0
+notifications-api-common==0.6.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -942,8 +943,17 @@ resolvelib==0.5.4
     # via ansible-core
 rsa==4.7.2
     # via google-auth
-ruamel-yaml==0.17.21
-    # via openshift
+ruamel-yaml==0.18.10
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-setup-configuration
+    #   openshift
+ruamel-yaml-clib==0.2.12
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   ruamel-yaml
 self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt
@@ -953,7 +963,7 @@ sentry-sdk==2.13.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-setuptools==75.6.0
+setuptools==75.8.0
     # via
     #   google-auth
     #   kubernetes
@@ -987,22 +997,23 @@ soupsieve==1.9.5
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   beautifulsoup4
-sphinx==4.4.0
+sphinx==7.3.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   recommonmark
     #   sphinx-rtd-theme
     #   sphinx-tabs
+    #   sphinxcontrib-jquery
 sphinx-markdown-tables==0.0.15
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-sphinx-rtd-theme==1.0.0
+sphinx-rtd-theme==3.0.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-sphinx-tabs==3.3.1
+sphinx-tabs==3.4.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1021,6 +1032,11 @@ sphinxcontrib-htmlhelp==2.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
+sphinxcontrib-jquery==4.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via
     #   -c requirements/ci.txt
@@ -1031,7 +1047,7 @@ sphinxcontrib-qthelp==1.0.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==2.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1154,7 +1170,7 @@ yarl==1.17.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   vcrpy
-zgw-consumers==0.36.1
+zgw-consumers==0.37.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
