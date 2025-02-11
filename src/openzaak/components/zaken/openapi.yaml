@@ -1699,10 +1699,10 @@ paths:
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
           \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
-          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
-          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
-          \n"
+          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
+          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
+          \ (4)\n\n"
       - in: query
         name: omschrijving
         schema:
@@ -6677,10 +6677,10 @@ paths:
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
           \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
-          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
-          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
-          \n"
+          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
+          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
+          \ (4)\n\n"
       - in: query
         name: rol__omschrijvingGeneriek
         schema:
@@ -10372,10 +10372,10 @@ paths:
           \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard` -\
           \ DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
           \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-          \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2` - Low (2)\n\
-          * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
-          \ - Substantial (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
-          \n"
+          \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2` - Laag\
+          \ (2)\n* `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3`\
+          \ - Substantieel (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog\
+          \ (4)\n\n"
       - in: query
         name: rol__omschrijvingGeneriek
         schema:
@@ -10769,10 +10769,10 @@ paths:
                     \ - DigiD Midden\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard`\
                     \ - DigiD Substantieel\n* `urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI`\
                     \ - DigiD Hoog\n \n **eHerkenning:** \n* `urn:etoegang:core:assurance-class:loa1`\
-                    \ - Non existent (1)\n* `urn:etoegang:core:assurance-class:loa2`\
-                    \ - Low (2)\n* `urn:etoegang:core:assurance-class:loa2plus` -\
-                    \ Low (2+)\n* `urn:etoegang:core:assurance-class:loa3` - Substantial\
-                    \ (3)\n* `urn:etoegang:core:assurance-class:loa4` - High (4)\n\
+                    \ - Niet bestaand (1)\n* `urn:etoegang:core:assurance-class:loa2`\
+                    \ - Laag (2)\n* `urn:etoegang:core:assurance-class:loa2plus` -\
+                    \ Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3` - Substantieel\
+                    \ (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog (4)\n\
                     \n"
                 ordering:
                   type: array
@@ -11753,12 +11753,15 @@ components:
         source:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextSourceEnum'
-          description: DigiD is the only way a Natural Person can be identified.
+          title: Bron
+          description: DigiD is de enige manier waarop een Natuurlijk Persoon geïdentificeerd
+            kan worden.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextLevelOfAssuranceEnum'
+          title: Betrouwbaarheidsniveau
           description: |-
-            Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+            Geeft aan hoe sterk de identiteitsclaim is. Logius definieert de mogelijke betrouwbaarheidsniveaus*en* schrijft voor wat het minimale niveau moet zijn. Het opslaan van deze context stelt portalen in staat om alleen de zaken weer te gegeven met een lager of gelijk betrouwbaarheidsniveau in de op dat moment actieve portaal authenticatie context.
 
             Uitleg bij mogelijke waarden:
 
@@ -11769,20 +11772,19 @@ components:
         representee:
           allOf:
           - $ref: '#/components/schemas/DigiDRepresentee'
-          title: represented person
-          description: When registering the role for the authorizee, you should include
-            the representee to make clear a mandate applies. This also requires you
-            to specify the `mandate` key and its context. If you provide a representee,
-            You should also create an additional `rol` with `rolomschrijvingGeneriek`
-            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+          title: vertegenwoordigde persoon
+          description: Wanneer de `Rol` voor de gemachtigde geregistreerd wordt, moet
+            de vertegenwoordigde bijgevoegd worden om duidelijk te maken dat er sprake
+            is van een machtiging. Dit maakt het ook het attribuut `mandate` en de
+            context daarbij verplicht. Als een vertegenwoordigde bijgevoegd wordt,
+            moet er ook een aparte `Rol` aangemaakt worden met `rolomschrijvingGeneriek`
+            gelijk aan `belanghebbende` en `indicatieMachtiging` gelijk aan `machtiginggever`
         mandate:
           allOf:
           - $ref: '#/components/schemas/DigiDMandate'
-          title: mandate context
-          description: |-
-            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
-
-            The `mandate` key is required if a `representee` is specified.
+          title: machtiging context
+          description: Het attribuut `mandate` is verplicht als een `representee`
+            is gespecificeerd.
       required:
       - levelOfAssurance
       - source
@@ -11799,12 +11801,15 @@ components:
         source:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextSourceEnum'
-          description: DigiD is the only way a Natural Person can be identified.
+          title: Bron
+          description: DigiD is de enige manier waarop een Natuurlijk Persoon geïdentificeerd
+            kan worden.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextLevelOfAssuranceEnum'
+          title: Betrouwbaarheidsniveau
           description: |-
-            Indicates how strong the identity claim is. Logius defines the available levels of assurance *and* prescribes what the minimum level must be. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+            Geeft aan hoe sterk de identiteitsclaim is. Logius definieert de mogelijke betrouwbaarheidsniveaus*en* schrijft voor wat het minimale niveau moet zijn. Het opslaan van deze context stelt portalen in staat om alleen de zaken weer te gegeven met een lager of gelijk betrouwbaarheidsniveau in de op dat moment actieve portaal authenticatie context.
 
             Uitleg bij mogelijke waarden:
 
@@ -11815,20 +11820,19 @@ components:
         representee:
           allOf:
           - $ref: '#/components/schemas/DigiDRepresenteeRequest'
-          title: represented person
-          description: When registering the role for the authorizee, you should include
-            the representee to make clear a mandate applies. This also requires you
-            to specify the `mandate` key and its context. If you provide a representee,
-            You should also create an additional `rol` with `rolomschrijvingGeneriek`
-            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+          title: vertegenwoordigde persoon
+          description: Wanneer de `Rol` voor de gemachtigde geregistreerd wordt, moet
+            de vertegenwoordigde bijgevoegd worden om duidelijk te maken dat er sprake
+            is van een machtiging. Dit maakt het ook het attribuut `mandate` en de
+            context daarbij verplicht. Als een vertegenwoordigde bijgevoegd wordt,
+            moet er ook een aparte `Rol` aangemaakt worden met `rolomschrijvingGeneriek`
+            gelijk aan `belanghebbende` en `indicatieMachtiging` gelijk aan `machtiginggever`
         mandate:
           allOf:
           - $ref: '#/components/schemas/DigiDMandateRequest'
-          title: mandate context
-          description: |-
-            The mandate ("machtiging') describes the extent of the mandate granted from the representee to the authorizee. For DigiD, the mandate is tied to a service or a set of services. Each service is identified by an ID, passed along by Logius in the authentication flow.
-
-            The `mandate` key is required if a `representee` is specified.
+          title: machtiging context
+          description: Het attribuut `mandate` is verplicht als een `representee`
+            is gespecificeerd.
       required:
       - levelOfAssurance
       - source
@@ -11877,12 +11881,14 @@ components:
         identifierType:
           allOf:
           - $ref: '#/components/schemas/DigiDRepresenteeIdentifierTypeEnum'
-          description: Determines how to interpret the `identifier` value. DigiD and
-            DigiD Machtigen only support BSNs.
+          title: Identificatie type
+          description: Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden.
+            DigiD en DigiD Machtigen ondersteunen alleen BSN
         identifier:
           type: string
-          description: BSN of the person being represented. BSNs must satisfy the
-            11-proef.
+          title: Identificatie
+          description: BSN van de persoon die vertegenwoordigd wordt. Een BSN moet
+            voldoen aan de 11-proef
           maxLength: 9
           minLength: 9
       required:
@@ -11898,13 +11904,15 @@ components:
         identifierType:
           allOf:
           - $ref: '#/components/schemas/DigiDRepresenteeIdentifierTypeEnum'
-          description: Determines how to interpret the `identifier` value. DigiD and
-            DigiD Machtigen only support BSNs.
+          title: Identificatie type
+          description: Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden.
+            DigiD en DigiD Machtigen ondersteunen alleen BSN
         identifier:
           type: string
           minLength: 9
-          description: BSN of the person being represented. BSNs must satisfy the
-            11-proef.
+          title: Identificatie
+          description: BSN van de persoon die vertegenwoordigd wordt. Een BSN moet
+            voldoen aan de 11-proef
           maxLength: 9
       required:
       - identifier
@@ -14394,7 +14402,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14408,7 +14416,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14422,7 +14430,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14436,7 +14444,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14475,7 +14483,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14489,7 +14497,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -16053,45 +16061,48 @@ components:
         source:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
-          description: eHerkenning is the only way a Non-Natural Person or the Branch
-            of a company can be identified.
+          title: Bron
+          description: eHerkenning is de enige manier waarop een Niet Natuurlijk Persoon
+            of de vestiging van een bedrijf geïdentificeerd kan worden.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'
+          title: Betrouwbaarheidsniveau
           description: |-
-            Indicates how strong the identity claim is. Elektronische Toegangsdiensten defines the available levels of assurance. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+            Geeft aan hoe sterk de identiteitsclaim is. Elektronische Toegangsdiensten definieert de mogelijke betrouwbaarheidsniveaus. Het opslaan van deze context stelt portalen in staat om alleen de zaken weer te gegeven met een lager of gelijk betrouwbaarheidsniveau in de op dat moment actieve portaal authenticatie context.
 
             Uitleg bij mogelijke waarden:
 
-            * `urn:etoegang:core:assurance-class:loa1` - Non existent (1)
-            * `urn:etoegang:core:assurance-class:loa2` - Low (2)
-            * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)
-            * `urn:etoegang:core:assurance-class:loa3` - Substantial (3)
-            * `urn:etoegang:core:assurance-class:loa4` - High (4)
+            * `urn:etoegang:core:assurance-class:loa1` - Niet bestaand (1)
+            * `urn:etoegang:core:assurance-class:loa2` - Laag (2)
+            * `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)
+            * `urn:etoegang:core:assurance-class:loa3` - Substantieel (3)
+            * `urn:etoegang:core:assurance-class:loa4` - Hoog (4)
         actingSubject:
           type: string
-          description: The identifier is always some encrypted form, specific to the
-            service provider. I.e. the same physical person gets different identifier
-            values when authenticating with different service providers. Unencrypted
-            details of the acting subject can be added to the `contactpersoonRol.naam`
-            attribute
+          description: 'De identificatie is altijd versleuteld en de versleutelingsmethode
+            is specifiek voor de service provider. Bijvoorbeeld: dezelfde fysieke
+            persoon krijgt verschillende identificatiewaarden wanneer diegene bij
+            verschillende service providers authenticeert Onversleutelde details van
+            de handelende persoon kunnen toegevoegd worden aan het attribuut `contactpersoonRol.naam`'
           maxLength: 100
         representee:
           allOf:
           - $ref: '#/components/schemas/eHerkenningRepresentee'
-          title: represented party
-          description: When registering the role for the authorizee, you should include
-            the representee to make clear a mandate applies. This also requires you
-            to specify the `mandate` key and its context. If you provide a representee,
-            You should also create an additional `rol` with `rolomschrijvingGeneriek`
-            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+          title: vertegenwoordigde partij
+          description: Wanneer de `Rol` voor de gemachtigde geregistreerd wordt, moet
+            de vertegenwoordigde bijgevoegd worden om duidelijk te maken dat er sprake
+            is van een machtiging. Dit maakt het ook het attribuut `mandate` en de
+            context daarbij verplicht. Als een vertegenwoordigde bijgevoegd wordt,
+            moet er ook een aparte `Rol` aangemaakt worden met `rolomschrijvingGeneriek`
+            gelijk aan `belanghebbende` en `indicatieMachtiging` gelijk aan `machtiginggever`
         mandate:
           allOf:
           - $ref: '#/components/schemas/eHerkenningMandate'
-          title: mandate context
-          description: The mandate ('machtiging') describes the extent of the mandate
-            granted from the representee to the authorizee. The `mandate` key is required
-            if a `representee` is specified.
+          title: machtiging context
+          description: '`mandate` beschrijft de mate van machtiging voor de vertegenwoordigde
+            aan de gemachtigde. `mandate` is verplicht als een `representee` (vertegenwoordigde)
+            gespecificeerd is'
       required:
       - actingSubject
       - levelOfAssurance
@@ -16102,46 +16113,49 @@ components:
         source:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextSourceEnum'
-          description: eHerkenning is the only way a Non-Natural Person or the Branch
-            of a company can be identified.
+          title: Bron
+          description: eHerkenning is de enige manier waarop een Niet Natuurlijk Persoon
+            of de vestiging van een bedrijf geïdentificeerd kan worden.
         levelOfAssurance:
           allOf:
           - $ref: '#/components/schemas/EHerkenningAuthContextLevelOfAssuranceEnum'
+          title: Betrouwbaarheidsniveau
           description: |-
-            Indicates how strong the identity claim is. Elektronische Toegangsdiensten defines the available levels of assurance. Recording this context allows portals to only display cases with a lower or equal level of assurance in the currently active portal authentication context.
+            Geeft aan hoe sterk de identiteitsclaim is. Elektronische Toegangsdiensten definieert de mogelijke betrouwbaarheidsniveaus. Het opslaan van deze context stelt portalen in staat om alleen de zaken weer te gegeven met een lager of gelijk betrouwbaarheidsniveau in de op dat moment actieve portaal authenticatie context.
 
             Uitleg bij mogelijke waarden:
 
-            * `urn:etoegang:core:assurance-class:loa1` - Non existent (1)
-            * `urn:etoegang:core:assurance-class:loa2` - Low (2)
-            * `urn:etoegang:core:assurance-class:loa2plus` - Low (2+)
-            * `urn:etoegang:core:assurance-class:loa3` - Substantial (3)
-            * `urn:etoegang:core:assurance-class:loa4` - High (4)
+            * `urn:etoegang:core:assurance-class:loa1` - Niet bestaand (1)
+            * `urn:etoegang:core:assurance-class:loa2` - Laag (2)
+            * `urn:etoegang:core:assurance-class:loa2plus` - Laag (2+)
+            * `urn:etoegang:core:assurance-class:loa3` - Substantieel (3)
+            * `urn:etoegang:core:assurance-class:loa4` - Hoog (4)
         actingSubject:
           type: string
           minLength: 1
-          description: The identifier is always some encrypted form, specific to the
-            service provider. I.e. the same physical person gets different identifier
-            values when authenticating with different service providers. Unencrypted
-            details of the acting subject can be added to the `contactpersoonRol.naam`
-            attribute
+          description: 'De identificatie is altijd versleuteld en de versleutelingsmethode
+            is specifiek voor de service provider. Bijvoorbeeld: dezelfde fysieke
+            persoon krijgt verschillende identificatiewaarden wanneer diegene bij
+            verschillende service providers authenticeert Onversleutelde details van
+            de handelende persoon kunnen toegevoegd worden aan het attribuut `contactpersoonRol.naam`'
           maxLength: 100
         representee:
           allOf:
           - $ref: '#/components/schemas/eHerkenningRepresenteeRequest'
-          title: represented party
-          description: When registering the role for the authorizee, you should include
-            the representee to make clear a mandate applies. This also requires you
-            to specify the `mandate` key and its context. If you provide a representee,
-            You should also create an additional `rol` with `rolomschrijvingGeneriek`
-            equal to `belanghebbende`, and set `indicatieMachtiging` to `machtiginggever`.
+          title: vertegenwoordigde partij
+          description: Wanneer de `Rol` voor de gemachtigde geregistreerd wordt, moet
+            de vertegenwoordigde bijgevoegd worden om duidelijk te maken dat er sprake
+            is van een machtiging. Dit maakt het ook het attribuut `mandate` en de
+            context daarbij verplicht. Als een vertegenwoordigde bijgevoegd wordt,
+            moet er ook een aparte `Rol` aangemaakt worden met `rolomschrijvingGeneriek`
+            gelijk aan `belanghebbende` en `indicatieMachtiging` gelijk aan `machtiginggever`
         mandate:
           allOf:
           - $ref: '#/components/schemas/eHerkenningMandateRequest'
-          title: mandate context
-          description: The mandate ('machtiging') describes the extent of the mandate
-            granted from the representee to the authorizee. The `mandate` key is required
-            if a `representee` is specified.
+          title: machtiging context
+          description: '`mandate` beschrijft de mate van machtiging voor de vertegenwoordigde
+            aan de gemachtigde. `mandate` is verplicht als een `representee` (vertegenwoordigde)
+            gespecificeerd is'
       required:
       - actingSubject
       - levelOfAssurance
@@ -16152,8 +16166,8 @@ components:
         role:
           allOf:
           - $ref: '#/components/schemas/RoleEnum'
-          description: The role of a mandate, typically assigned through judicial
-            procedures
+          title: Rol
+          description: De rol van een machtiging, meestal gegeven via juridische procedures
         services:
           type: array
           items:
@@ -16166,8 +16180,8 @@ components:
         role:
           allOf:
           - $ref: '#/components/schemas/RoleEnum'
-          description: The role of a mandate, typically assigned through judicial
-            procedures
+          title: Rol
+          description: De rol van een machtiging, meestal gegeven via juridische procedures
         services:
           type: array
           items:
@@ -16180,11 +16194,14 @@ components:
         identifierType:
           allOf:
           - $ref: '#/components/schemas/EHerkenningRepresenteeIdentifierTypeEnum'
-          description: Determines how to interpret the `identifier` value. EHerkenning
-            only supports BSN and KVK-nummer.
+          title: Identificatie type
+          description: Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden.
+            EHerkenning ondersteunt alleen BSN en KVK-nummer
         identifier:
           type: string
-          description: Identifier of the represented person or the company
+          title: Identificatie
+          description: Identificatie van de vertegenwoordigde persoon of het vertegenwoordigde
+            bedrijf
           maxLength: 9
       required:
       - identifier
@@ -16195,12 +16212,15 @@ components:
         identifierType:
           allOf:
           - $ref: '#/components/schemas/EHerkenningRepresenteeIdentifierTypeEnum'
-          description: Determines how to interpret the `identifier` value. EHerkenning
-            only supports BSN and KVK-nummer.
+          title: Identificatie type
+          description: Geeft aan hoe de `identifier` waarde geïnterpreteerd moet worden.
+            EHerkenning ondersteunt alleen BSN en KVK-nummer
         identifier:
           type: string
           minLength: 1
-          description: Identifier of the represented person or the company
+          title: Identificatie
+          description: Identificatie van de vertegenwoordigde persoon of het vertegenwoordigde
+            bedrijf
           maxLength: 9
       required:
       - identifier
@@ -16211,12 +16231,12 @@ components:
         id:
           type: string
           title: Service ID
-          description: The ServiceID from the service catalog
+          description: De ServiceID uit de servicecatalogus
         uuid:
           type: string
           format: uuid
           title: Service UUID
-          description: The ServiceUUID from the service catalog
+          description: De ServiceUUID uit de servicecatalogus
       required:
       - id
       - uuid
@@ -16227,12 +16247,12 @@ components:
           type: string
           minLength: 1
           title: Service ID
-          description: The ServiceID from the service catalog
+          description: De ServiceID uit de servicecatalogus
         uuid:
           type: string
           format: uuid
           title: Service UUID
-          description: The ServiceUUID from the service catalog
+          description: De ServiceUUID uit de servicecatalogus
       required:
       - id
       - uuid
