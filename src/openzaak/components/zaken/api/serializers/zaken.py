@@ -540,6 +540,13 @@ class ZaakSerializer(
                     "identificatie": generated_identificatie.identificatie,
                 }
             )
+        else:
+            # look up the zaak-identificatie
+            zaak_identificatie, _ = ZaakIdentificatie.objects.get_or_create(
+                identificatie=validated_data["identificatie"],
+                bronorganisatie=validated_data["bronorganisatie"],
+            )
+            validated_data["identificatie_ptr"] = zaak_identificatie
 
         obj = super().create(validated_data)
         track_object_serializer(obj, self)

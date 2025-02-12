@@ -71,7 +71,7 @@ __all__ = [
 ]
 
 
-class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
+class Zaak(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
     """
     Modelleer de structuur van een ZAAK.
 
@@ -85,7 +85,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     identificatie_ptr = models.OneToOneField(
         ZaakIdentificatie,
         on_delete=models.PROTECT,
-        parent_link=True,
+        # parent_link=True,
         primary_key=True,
         verbose_name=_("Zaak identification details"),
         help_text=_(
@@ -99,16 +99,16 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     # old fields, to be dropped in a future patch
     _id = models.IntegerField(db_column="id", null=True)
-    _identificatie = models.CharField(
-        db_column="identificatie",
+    # DENORMALIZED with/from ZaakIdentificatie
+    identificatie = models.CharField(
         max_length=40,
         blank=True,
         help_text="De unieke identificatie van de ZAAK binnen de organisatie "
         "die verantwoordelijk is voor de behandeling van de ZAAK.",
         db_index=True,
     )
-    _bronorganisatie = RSINField(
-        db_column="bronorganisatie",
+    # DENORMALIZED with/from ZaakIdentificatie
+    bronorganisatie = RSINField(
         help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
         "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
         "RSIN zijn van 9 nummers en voldoen aan "
@@ -473,7 +473,28 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         ):
             self.laatste_betaaldatum = None
 
+        # ensure that denormalized fields stay updated
+        # XXX: identificatie is immutable, so it's not included here.
+        if self.identificatie_ptr:
+            self.bronorganisatie = self.identificatie_ptr.bronorganisatie
+
         super().save(*args, **kwargs)
+
+    @property
+    def id(self) -> int | None:
+        """
+        Return the value of the primary key.
+
+        The concrete inheritance with ZaakIdentificatie is removed and replaced with
+        an explicit OneToOneField + denormalization to keep integrity correct. The
+        inner join with ZaakIdentificatie causes performance issues because it prevents
+        Postgres from doing Index Scans (in particular in count queries) rather than
+        (slow) sequential table scans.
+
+        This property exists because a lot of (test) code uses `zaak.id` in various
+        places.
+        """
+        return self.pk
 
     @property
     def current_status_uuid(self):
