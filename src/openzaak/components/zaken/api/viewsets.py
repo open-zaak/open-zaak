@@ -280,7 +280,6 @@ class ZaakViewSet(
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "_zoek": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_CREATE,
-        "reserveer_zaaknummer": SCOPE_ZAKEN_CREATE,
         "update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "partial_update": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_ALLES_VERWIJDEREN,
@@ -365,31 +364,6 @@ class ZaakViewSet(
             self._generate_zaakidentificatie(request.data)
 
         return super().create(request, *args, **kwargs)
-
-    @extend_schema(
-        "zaak_reserveer_zaaknummer",
-        summary="Reserveer een zaaknummer",
-        description=mark_experimental(
-            "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
-            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
-            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden."
-        ),
-        request=ReserveZaakIdentificatieSerializer,
-        responses={
-            status.HTTP_201_CREATED: ReserveZaakIdentificatieSerializer(),
-            **VALIDATION_ERROR_RESPONSES,
-            **COMMON_ERROR_RESPONSES,
-            **PRECONDITION_ERROR_RESPONSES,
-        },
-    )
-    @action(methods=("post",), detail=False, url_name="reserveer_zaaknummer")
-    def reserveer_zaaknummer(self, request, *args, **kwargs):
-
-        serializer = ReserveZaakIdentificatieSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -1416,3 +1390,41 @@ class ZaakVerzoekViewSet(
                     },
                     code="pending-relations",
                 )
+
+
+@extend_schema_view(
+    create=extend_schema(
+        "zaak_reserveer_zaaknummer",
+        summary="Reserveer een zaaknummer",
+        description=mark_experimental(
+            "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
+            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
+            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden."
+        ),
+        request=ReserveZaakIdentificatieSerializer,
+        responses={
+            status.HTTP_201_CREATED: ReserveZaakIdentificatieSerializer(),
+            **VALIDATION_ERROR_RESPONSES,
+            **COMMON_ERROR_RESPONSES,
+            **PRECONDITION_ERROR_RESPONSES,
+        },
+    )
+)
+class ReserveerZaakNummerViewSet(viewsets.ViewSet):
+    """
+    Reserveer een zaaknummer.
+    """
+
+    queryset = ZaakIdentificatie.objects.order_by("-pk")
+    serializer_class = ReserveZaakIdentificatieSerializer
+    permission_classes = (AuthRequired,)
+    required_scopes = {
+        "create": SCOPE_ZAKEN_CREATE,
+    }
+
+    def create(self, request, *args, **kwargs):
+        serializer = ReserveZaakIdentificatieSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

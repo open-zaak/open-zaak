@@ -154,13 +154,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -1305,13 +1305,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -1829,13 +1829,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -2841,13 +2841,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -3985,13 +3985,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -5002,13 +5002,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -5998,13 +5998,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -7028,13 +7028,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -8014,13 +8014,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -9036,13 +9036,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -11355,7 +11355,7 @@ components:
         hierarchieInformatieobjecttypeOmschrijvingGeneriek:
           type: string
           title: Hierarchie
-          description: De plaats in de rangorde van het informatieobjecttype.
+          description: De plaats in de rangorde van het informatieobjecttype
           maxLength: 80
         opmerkingInformatieobjecttypeOmschrijvingGeneriek:
           type: string
@@ -11399,7 +11399,7 @@ components:
         hierarchieInformatieobjecttypeOmschrijvingGeneriek:
           type: string
           title: Hierarchie
-          description: De plaats in de rangorde van het informatieobjecttype.
+          description: De plaats in de rangorde van het informatieobjecttype
           maxLength: 80
         opmerkingInformatieobjecttypeOmschrijvingGeneriek:
           type: string
