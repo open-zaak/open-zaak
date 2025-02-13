@@ -113,13 +113,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -736,13 +736,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -1893,13 +1893,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -2738,13 +2738,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -4931,13 +4931,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -6701,13 +6701,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -10396,13 +10396,13 @@ paths:
       - name: page
         required: false
         in: query
-        description: Een pagina binnen de gepagineerde set resultaten.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: Number of results to return per page.
         schema:
           type: integer
       - in: query
@@ -14366,7 +14366,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14380,7 +14380,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/DigiDAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14394,7 +14394,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14408,7 +14408,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14447,7 +14447,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContext'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
@@ -14461,7 +14461,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/eHerkenningAuthContextRequest'
           nullable: true
-          title: authentication context
+          title: authenticatiecontext
           description: |-
             Information about the authentication and mandate (if relevant) that applied when the role was added to the case. It is essential when you later want to retrieve information again which should match certain authentication guarantees, like minimum level of assurance. The exact shape of data depends on the selected `betrokkeneType`.
 
