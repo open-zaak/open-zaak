@@ -1723,3 +1723,17 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+
+
+@tag("gh-1836")
+class ReserveerZaaknummerTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
+
+    def test_cannot_reserveer_zaaknummer_without_correct_scope(self):
+        url = reverse("zaakidentificatie-list")
+
+        response = self.client.post(url, {"bronorganisatie": "000000000"})
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
