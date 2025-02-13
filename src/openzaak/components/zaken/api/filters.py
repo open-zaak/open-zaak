@@ -156,6 +156,7 @@ class ZaakFilter(FilterSetWithGroups):
     )
 
     rol__betrokkene_identificatie__natuurlijk_persoon__inp_bsn = filters.CharFilter(
+        distinct=True,
         field_name="rol__natuurlijkpersoon__inp_bsn",
         help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_bsn"),
         max_length=get_field_attribute(
@@ -164,6 +165,7 @@ class ZaakFilter(FilterSetWithGroups):
     )
     rol__betrokkene_identificatie__natuurlijk_persoon__anp_identificatie = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__natuurlijkpersoon__anp_identificatie",
             help_text=get_help_text("zaken.NatuurlijkPersoon", "anp_identificatie"),
             max_length=get_field_attribute(
@@ -173,6 +175,7 @@ class ZaakFilter(FilterSetWithGroups):
     )
     rol__betrokkene_identificatie__natuurlijk_persoon__inp_a_nummer = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__natuurlijkpersoon__inp_a_nummer",
             help_text=get_help_text("zaken.NatuurlijkPersoon", "inp_a_nummer"),
             max_length=get_field_attribute(
@@ -182,12 +185,14 @@ class ZaakFilter(FilterSetWithGroups):
     )
     rol__betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__nietnatuurlijkpersoon__inn_nnp_id",
             help_text=get_help_text("zaken.NietNatuurlijkPersoon", "inn_nnp_id"),
         )
     )
     rol__betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__nietnatuurlijkpersoon__ann_identificatie",
             help_text=get_help_text("zaken.NietNatuurlijkPersoon", "ann_identificatie"),
             max_length=get_field_attribute(
@@ -197,6 +202,7 @@ class ZaakFilter(FilterSetWithGroups):
     )
     rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__nietnatuurlijkpersoon__kvk_nummer",
             help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
             max_length=get_field_attribute(
@@ -205,6 +211,7 @@ class ZaakFilter(FilterSetWithGroups):
         )
     )
     rol__betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
+        distinct=True,
         field_name="rol__vestiging__vestigings_nummer",
         help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
         max_length=get_field_attribute(
@@ -212,11 +219,13 @@ class ZaakFilter(FilterSetWithGroups):
         ),
     )
     rol__betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
+        distinct=True,
         field_name="rol__vestiging__kvk_nummer",
         help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
         max_length=get_field_attribute("zaken.Vestiging", "kvk_nummer", "max_length"),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
+        distinct=True,
         field_name="rol__medewerker__identificatie",
         help_text=get_help_text("zaken.Medewerker", "identificatie"),
         max_length=get_field_attribute(
@@ -225,17 +234,20 @@ class ZaakFilter(FilterSetWithGroups):
     )
     rol__betrokkene_identificatie__organisatorische_eenheid__identificatie = (
         filters.CharFilter(
+            distinct=True,
             field_name="rol__organisatorischeeenheid__identificatie",
             help_text=get_help_text("zaken.OrganisatorischeEenheid", "identificatie"),
         )
     )
     rol__machtiging = filters.ChoiceFilter(
+        distinct=True,
         field_name="rol__indicatie_machtiging",
         method=machtiging_filter,
         help_text=MACHTIGING_HELP_TEXT,
         choices=MachtigingChoices.choices,
     )
     rol__machtiging__loa = MaxLoAFilter(
+        distinct=True,
         field_name="rol__authenticatie_context__level_of_assurance",
         help_text=mark_experimental(
             "Enkel Zaken met een `rol.authenticatieContext.levelOfAssurance` die lager is dan of "
@@ -275,6 +287,14 @@ class ZaakFilter(FilterSetWithGroups):
             "rol__betrokkene": ["exact"],
             "rol__omschrijving_generiek": ["exact"],
         }
+
+    @classmethod
+    def filter_for_lookup(cls, field, lookup_type):
+        filter_class, params = super().filter_for_lookup(field, lookup_type)
+        match (field.model, field.name):
+            case (model, str()) if model is Rol:
+                params["distinct"] = True
+        return filter_class, params
 
 
 class ZaakDetailFilter(FilterSet):

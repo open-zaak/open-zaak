@@ -247,27 +247,23 @@ class ZaakViewSet(
     praktische redenen is er geen harde validatie regel aan de provider kant.
     """
 
-    queryset = (
-        Zaak.objects.select_related("_zaaktype", "_zaaktype__catalogus")
-        .prefetch_related(
-            "deelzaken",
-            models.Prefetch(
-                "relevante_andere_zaken",
-                queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
-            ),
-            "zaakkenmerk_set",
-            "resultaat",
-            "zaakeigenschap_set",
-            models.Prefetch(
-                "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
-            ),
-            "rol_set",
-            "zaakinformatieobject_set",
-            "zaakobject_set",
-        )
-        .order_by("-pk")
-        .distinct()
-    )
+    queryset = Zaak.objects.prefetch_related(
+        "_zaaktype",
+        "deelzaken",
+        models.Prefetch(
+            "relevante_andere_zaken",
+            queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+        ),
+        "zaakkenmerk_set",
+        "resultaat",
+        "zaakeigenschap_set",
+        models.Prefetch(
+            "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
+        ),
+        "rol_set",
+        "zaakinformatieobject_set",
+        "zaakobject_set",
+    ).order_by("-pk")
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
     filter_backends = (Backend,)
@@ -295,11 +291,17 @@ class ZaakViewSet(
         # does not always initialize a request, which causes self.action to not be set.
         # FIXME: extract that utility into a separate library to unify it
         action = getattr(self, "action", None)
-        if action not in ["list", "_zoek"]:
-            # ⚡️ drop the prefetches when only selecting a single record. If the data
-            # is needed, the queries will be done during serialization and the amount
-            # of queries will be the same.
-            qs = qs.prefetch_related(None)
+        match action:
+            case "list" | "_zoek":
+                pass
+            case "create":
+                qs = qs.select_related("_zaaktype", "_zaaktype__catalogus")
+            case _:
+                # ⚡️ drop the prefetches when only selecting a single record. If the data
+                # is needed, the queries will be done during serialization and the amount
+                # of queries will be the same.
+                qs = qs.prefetch_related(None)
+
         return qs
 
     @property
