@@ -6,10 +6,10 @@
 
 | | | |
 |-|-|-|
-| **Version:** | 1.17.0 |
+| **Version:** | 1.18.0 |
 | **Source:** | https://github.com/open-zaak/open-zaak |
 | **Keywords:** | zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api |
-| **PythonVersion:** | 3.10 |
+| **PythonVersion:** | 3.11 |
 
 [![API test platform](https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/)](https://api-test.nl/server/1/6b5fe675-694d-4948-8896-5eae88d30ef0/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
 [![Build status](https://github.com/open-zaak/open-zaak/workflows/Run%20CI/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Run+CI%22)
