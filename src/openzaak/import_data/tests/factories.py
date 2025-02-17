@@ -22,8 +22,12 @@ class ImportFactory(factory.django.DjangoModelFactory):
     import_type = factory.fuzzy.FuzzyChoice(ImportTypeChoices.values)
     status = ImportStatusChoices.pending
 
-    import_file = factory.django.FileField(filename="import.csv")
-    report_file = factory.django.FileField(filename="report.csv")
+    import_file = factory.django.FileField(
+        filename=factory.Sequence(lambda n: f"import-{n}.csv")
+    )
+    report_file = factory.django.FileField(
+        filename=factory.Sequence(lambda n: f"report-{n}.csv")
+    )
 
     class Meta:
         model = Import

@@ -10,6 +10,7 @@ from django.core.files import File
 from django.test import override_settings, tag
 from django.utils import timezone
 
+import requests_mock
 from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
 from rest_framework import status
@@ -950,26 +951,30 @@ class InformatieobjectCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_create_external_informatieobjecttype_fail_not_json_url(self):
-        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
-
-        response = self.client.post(
-            self.list_url,
-            {
-                "identificatie": "12345",
-                "bronorganisatie": "159351741",
-                "creatiedatum": "2018-06-27",
-                "titel": "detailed summary",
-                "auteur": "test_auteur",
-                "formaat": "txt",
-                "taal": "eng",
-                "bestandsnaam": "dummy.txt",
-                "inhoud": b64encode(b"some file content").decode("utf-8"),
-                "link": "http://een.link",
-                "beschrijving": "test_beschrijving",
-                "informatieobjecttype": "http://example.com/",
-                "vertrouwelijkheidaanduiding": "openbaar",
-            },
+        ServiceFactory.create(
+            api_root="http://not-json-url.com/", api_type=APITypes.ztc
         )
+
+        with requests_mock.Mocker() as m:
+            m.get("http://not-json-url.com/", text="foo")
+            response = self.client.post(
+                self.list_url,
+                {
+                    "identificatie": "12345",
+                    "bronorganisatie": "159351741",
+                    "creatiedatum": "2018-06-27",
+                    "titel": "detailed summary",
+                    "auteur": "test_auteur",
+                    "formaat": "txt",
+                    "taal": "eng",
+                    "bestandsnaam": "dummy.txt",
+                    "inhoud": b64encode(b"some file content").decode("utf-8"),
+                    "link": "http://een.link",
+                    "beschrijving": "test_beschrijving",
+                    "informatieobjecttype": "http://not-json-url.com/",
+                    "vertrouwelijkheidaanduiding": "openbaar",
+                },
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

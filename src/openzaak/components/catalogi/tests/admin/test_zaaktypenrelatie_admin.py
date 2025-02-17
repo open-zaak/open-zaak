@@ -16,7 +16,7 @@ from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
 
 
 @disable_admin_mfa()
-@override_settings(IS_HTTPS=False)
+@override_settings(IS_HTTPS=False, ALLOWED_HOSTS=["testserver", "testserver.com"])
 class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
     @classmethod
     def setUpTestData(cls):

@@ -11,12 +11,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
-from openzaak.tests.utils import (
-    APICMISTestCase,
-    APICMISTransactionTestCase,
-    get_spec,
-    require_cmis,
-)
+from openzaak.tests.utils import APICMISTestCase, get_spec, require_cmis
 
 from ..caching import get_etag_cache_key, set_etag
 from ..models import ObjectInformatieObject
@@ -208,9 +203,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APICMISTestCase):
 
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
-class EnkelvoudigInformatieObjectCacheTransactionTests(
-    JWTAuthMixin, APICMISTransactionTestCase
-):
+class EnkelvoudigInformatieObjectCacheTransactionTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):

@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -24,6 +25,7 @@ from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 
+@temp_private_root()
 @tag("documenten-import-start")
 class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     url = reverse_lazy("documenten-import:create")
@@ -52,7 +54,7 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
             "documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
         )
 
-        site = Site.objects.get()
+        site = Site.objects.get_current()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
