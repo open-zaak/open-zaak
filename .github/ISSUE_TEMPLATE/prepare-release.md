@@ -9,6 +9,8 @@ projects: ["maykinmedia/15"]
 
 - [ ] Resolve release blockers
   - [ ] ...
+- [ ] Upgrade `open-api-framework` to latest version
+- [ ] Check security tab and upgrade packages to fix vulnerabilities
 - [ ] Check translations
 - [ ] Bump API version number (if applicable)
   - [ ] Version bump
