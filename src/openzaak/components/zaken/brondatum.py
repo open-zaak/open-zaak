@@ -52,13 +52,16 @@ class BrondatumCalculator:
             if isinstance(procestermijn, str):
                 procestermijn = parse_relativedelta(procestermijn)
 
-            # FIXME: nasty side effect
-            orig_value = self.zaak.einddatum
-            self.zaak.einddatum = self.datum_status_gezet.date()
+            # use last status date for einddatum calculation
+            einddatum = self.datum_status_gezet.date()
             brondatum = get_brondatum(
-                self.zaak, afleidingswijze, datum_kenmerk, objecttype, procestermijn
+                self.zaak,
+                afleidingswijze,
+                datum_kenmerk,
+                objecttype,
+                procestermijn,
+                einddatum,
             )
-            self.zaak.einddatum = orig_value
 
         if not brondatum:
             return
@@ -76,6 +79,7 @@ def get_brondatum(
     datum_kenmerk: str = None,
     objecttype: str = None,
     procestermijn: relativedelta = None,
+    einddatum: date = None,
 ) -> date:
     """
     To calculate the Archiefactiedatum, we first need the "brondatum" which is like the start date of the storage
@@ -92,11 +96,13 @@ def get_brondatum(
     :param procestermijn:
         A `string` representing an ISO8601 period that is considered the process term of the Zaak. Currently only
         needed when `afleidingswijze` is `termijn`.
+    :param einddatum:
+        A `date` representing the the date of the last status. Zaak.einddatum can't be used here
     :return:
         A specific date that marks the start of the storage period, or `None`.
     """
     if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.afgehandeld:
-        return zaak.einddatum
+        return einddatum
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
         # TODO: Document that hoofdzaak can not an external zaak
@@ -188,7 +194,7 @@ def get_brondatum(
         )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.termijn:
-        if zaak.einddatum is None:
+        if einddatum is None:
             # TODO: Not sure if we should raise an error instead.
             return None
         if procestermijn is None:
@@ -196,7 +202,7 @@ def get_brondatum(
                 _("Geen procestermijn aanwezig voor het bepalen van de brondatum.")
             )
         try:
-            return zaak.einddatum + procestermijn
+            return einddatum + procestermijn
         except (ValueError, TypeError) as exc:
             raise DetermineProcessEndDateException(
                 _("Geen geldige periode in procestermijn: {}").format(procestermijn)
