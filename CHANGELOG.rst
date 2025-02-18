@@ -58,7 +58,7 @@ Changelog
 
 .. warning::
 
-    In order to use this new kenmerk, Open Notificaties must be updated to version 1.x.x (TBD)
+    In order to use this new kenmerk, Open Notificaties must be updated to version 1.8.0
     and the ``src/manage.py register_kanalen`` command must be run in Open Zaak to update
     the ``zaken`` kanaal with this new kenmerk
 
