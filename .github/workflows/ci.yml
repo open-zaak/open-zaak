@@ -58,7 +58,7 @@ jobs:
 
     services:
       postgres:
-        image: postgis/postgis:12-2.5
+        image: postgis/postgis:17-3.5
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
@@ -106,14 +106,16 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ['12', '13', '14']
-        postgis: ['2.5', '3.2']
+        postgres: ['14', '15', '16', '17']
+        postgis: ['3.2', '3.5']
         exclude:
-          # postgis 2.5 is not compatible with recent postgres versions
-          - postgres: '13'
-            postgis: '2.5'
-          - postgres: '14'
-            postgis: '2.5'
+          # postgis 3.2 is not compatible with recent postgres versions
+          - postgres: '17'
+            postgis: '3.2'
+          - postgres: '16'
+            postgis: '3.2'
+          - postgres: '15'
+            postgis: '3.2'
 
 
     name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }})
@@ -159,7 +161,7 @@ jobs:
 
       - name: Upload Coverage Report
         # TODO find a better way to upload this only once
-        if: ${{ matrix.postgres == '14' && matrix.postgis == '3.2' }}
+        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-regular-tests
@@ -177,24 +179,14 @@ jobs:
 
     strategy:
       matrix:
-        postgres: ['12', '13', '14']
-        postgis: ['2.5', '3.2']
+        postgres: ['17']
+        postgis: ['3.5']
         binding: ['BROWSER', 'WEBSERVICE']
         cmisurlmapping: ['False', 'True']
         exclude:
-          # postgis 2.5 is not compatible with recent postgres versions
-          - postgres: '13'
-            postgis: '2.5'
-          - postgres: '14'
-            postgis: '2.5'
           # Browser binding + cmisurlmapping is not supported
           - binding: 'BROWSER'
             cmisurlmapping: 'True'
-          # do not run tests for all CMIS bindings on all database versions (we only run on postgres 12)
-          - binding: 'WEBSERVICE'
-            postgres: '13'
-          - binding: 'WEBSERVICE'
-            postgres: '14'
 
     name: Tests (PG ${{ matrix.postgres }}-${{ matrix.postgis }} ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }})
 
@@ -242,7 +234,7 @@ jobs:
 
       - name: Upload Coverage Report
         # TODO find a better way to upload this only once
-        if: ${{ matrix.postgres == '14' && matrix.postgis == '3.2' && matrix.binding == 'BROWSER' && matrix.cmisurlmapping == 'False' }}
+        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.binding == 'BROWSER' && matrix.cmisurlmapping == 'False' }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-cmis-tests

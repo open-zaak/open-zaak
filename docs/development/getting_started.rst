@@ -20,8 +20,8 @@ You need the following libraries and/or programs:
 
 * `Python`_ 3.11
 * Python `Virtualenv`_ and `Pip`_ 20.0 or above
-* `PostgreSQL`_ 10.0 or above, with the `PostGIS-extension`_
-* `Node.js`_ 16.0 or above
+* `PostgreSQL`_ 14.0 or above, with the `PostGIS-extension`_ version 3.2 or above
+* `Node.js`_ 18.0 or above
 * `npm`_ 8.0 or above
 * `Docker`_ 19.03 or above (and `docker-compose`_)
 

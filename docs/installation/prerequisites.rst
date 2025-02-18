@@ -20,12 +20,12 @@ which requires the postgis_ extension to be enabled.
 The supported versions in the table below are tested in the CI pipeline. Other versions
 *may* work but we offer no guarantees.
 
-============ ============ ============ ============ ============ ============
-Matrix       Postgres 10  Postgres 11  Postgres 12  Postgres 13  Postgres 14
-============ ============ ============ ============ ============ ============
-Postgis 2.5  V            V            V            X            X
-Postgis 3.2  V            V            V            V            V
-============ ============ ============ ============ ============ ============
+============ ============ ============ ============ ============
+Matrix       Postgres 14  Postgres 15  Postgres 16  Postgres 17
+============ ============ ============ ============ ============
+Postgis 3.2  V            X            X            X
+Postgis 3.5  V            V            V            V
+============ ============ ============ ============ ============
 
 .. warning:: Open Zaak only supports maintained versions of PostgreSQL. Once a version is
    `EOL <https://www.postgresql.org/support/versioning/>`_, support will

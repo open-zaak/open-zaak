@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.19.0 (TBD)
+------------
+
+**New features**
+
+* [:open-zaak:`1905`] Confirm support for Postgres versions 15 and 16 and Postgis 3.4 and 3.5
+
 1.18.0 (2025-02-14)
 -------------------
 
