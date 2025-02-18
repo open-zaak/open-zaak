@@ -519,7 +519,7 @@ faker==33.0.0
     #   -r requirements/ci.txt
     #   factory-boy
     #   zgw-consumers-oas
-flake8==3.8.3
+flake8==7.1.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -660,7 +660,7 @@ maykin-2fa==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-mccabe==0.6.1
+mccabe==0.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -770,7 +770,7 @@ pyasn1==0.4.8
     #   rsa
 pyasn1-modules==0.2.8
     # via google-auth
-pycodestyle==2.6.0
+pycodestyle==2.12.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -797,7 +797,7 @@ pydantic-settings==2.7.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-setup-configuration
-pyflakes==2.2.0
+pyflakes==3.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
