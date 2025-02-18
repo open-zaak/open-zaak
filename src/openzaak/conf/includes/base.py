@@ -356,9 +356,10 @@ ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS = {
 ZAAK_IDENTIFICATIE_GENERATOR = config(
     "ZAAK_IDENTIFICATIE_GENERATOR",
     default="use-start-datum-year",
-    help_text="Select one of the options defined in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS: "
-    f"[{', '.join(ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.keys())}] "
-    "that define how the ZAAK identificatie is generated.",
+    help_text=(
+        "The method of **Zaak.identificatie** generation. Possible values are: "
+        f"{', '.join(f'``{opt}``' for opt in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.keys())} "
+    ),
 )
 
 STORE_FAILED_NOTIFS = True
