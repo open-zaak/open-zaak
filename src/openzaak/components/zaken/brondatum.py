@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 from glom import Path, glom
-from relativedeltafield.utils import parse_relativedelta
 from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
 from openzaak.utils import parse_isodatetime
@@ -33,10 +32,6 @@ class BrondatumCalculator:
         if not archiefactietermijn:
             return
 
-        # if loose-fk-field - convert to relative-delta
-        if isinstance(archiefactietermijn, str):
-            archiefactietermijn = parse_relativedelta(archiefactietermijn)
-
         # if zaak.startdatum_bewaartermijn is filled -> use as brondatum
         if self.zaak.startdatum_bewaartermijn:
             brondatum = self.zaak.startdatum_bewaartermijn
@@ -48,9 +43,6 @@ class BrondatumCalculator:
             datum_kenmerk = brondatum_archiefprocedure["datumkenmerk"]
             objecttype = brondatum_archiefprocedure["objecttype"]
             procestermijn = brondatum_archiefprocedure["procestermijn"]
-            # if loose-fk-field - convert to relative-delta
-            if isinstance(procestermijn, str):
-                procestermijn = parse_relativedelta(procestermijn)
 
             # use last status date for einddatum calculation
             einddatum = self.datum_status_gezet.date()
