@@ -70,6 +70,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "verantwoordelijkeOrganisatie": "517439943",
                     "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
                 },
             },
         )
@@ -102,6 +103,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kenmerken": {
                     "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
                     "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
                 },
             },
         )
@@ -148,6 +150,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": data["verantwoordelijkeOrganisatie"],
                 "besluittype": f"http://testserver{besluittype_url}",
+                "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
             },
             "resource": "besluit",
             "resourceUrl": data["url"],
@@ -188,6 +191,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
                 "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
             },
             "resource": "besluit",
             "resourceUrl": f"http://testserver{url}",
@@ -242,6 +246,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
                 "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
             },
             "resource": "besluitinformatieobject",
             "resourceUrl": data["url"],
@@ -284,6 +289,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
                 "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
+                "besluittype.catalogus": f"http://testserver{reverse(bio.besluit.besluittype.catalogus)}",
             },
             "resource": "besluitinformatieobject",
             "resourceUrl": f"http://testserver{url}",

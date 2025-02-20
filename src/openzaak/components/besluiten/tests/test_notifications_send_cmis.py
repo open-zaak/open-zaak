@@ -62,6 +62,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
                 "kenmerken": {
                     "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
                     "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
+                    "besluittype.catalogus": f"http://testserver{reverse(bio.besluit.besluittype.catalogus)}",
                 },
             }
         )
@@ -122,6 +123,7 @@ class FailedNotificationCMISTests(
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
                 "besluittype": f"http://testserver{reverse(besluit.besluittype)}",
+                "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
             },
             "resource": "besluitinformatieobject",
             "resourceUrl": data["url"],
@@ -167,6 +169,7 @@ class FailedNotificationCMISTests(
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
                 "besluittype": f"http://testserver{reverse(bio.besluit.besluittype)}",
+                "besluittype.catalogus": f"http://testserver{reverse(bio.besluit.besluittype.catalogus)}",
             },
             "resource": "besluitinformatieobject",
             "resourceUrl": f"http://testserver{url}",
