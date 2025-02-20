@@ -35,13 +35,22 @@ from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_zrc_oas_ge
 
 from .factories import (
     RelevanteZaakRelatieFactory,
+    ResultaatFactory,
     WozWaardeFactory,
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
     ZaakObjectFactory,
 )
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url, get_zaak_response, isodatetime
+from .utils import (
+    ZAAK_WRITE_KWARGS,
+    get_operation_url,
+    get_resultaattype_response,
+    get_statustype_response,
+    get_zaak_response,
+    get_zaaktype_response,
+    isodatetime,
+)
 
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
@@ -1160,6 +1169,76 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, None)
 
+    def test_calculate_zaak_startdatum_bewaartermijn(self):
+        """
+        Adding last status to zaak with empty startdatum_bewaartermijn leads
+        to startdatum_bewaartermijn calculation and saving
+        """
+        zaak = ZaakFactory.create()
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            resultaattype__brondatum_archiefprocedure_afleidingswijze="afgehandeld",
+            resultaattype__zaaktype=zaak.zaaktype,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
+
+        # add final status to the case to close it and to calculate archive parameters
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2025-01-01T00:00:00Z",
+        }
+
+        response = self.client.post(reverse("status-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(zaak.einddatum, date(2025, 1, 1))
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 1))
+
+    def test_user_defined_zaak_startdatum_bewaartermijn(self):
+        """
+        Use zaak.startdatum_bewaartermijn to calculate archive date
+        even if it contradicts resultaattype.brondatum_archiefprocedure
+        """
+        zaak = ZaakFactory.create(startdatum_bewaartermijn=date(2026, 1, 1))
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            resultaattype__brondatum_archiefprocedure_afleidingswijze="afgehandeld",
+            resultaattype__zaaktype=zaak.zaaktype,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNotNone(zaak.startdatum_bewaartermijn)
+
+        # add final status to the case to close it and to calculate archive parameters
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2025-01-01T00:00:00Z",
+        }
+
+        response = self.client.post(reverse("status-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(zaak.einddatum, date(2025, 1, 1))
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2026, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2036, 1, 1))
+
 
 @tag("external-urls")
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
@@ -1265,6 +1344,56 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        #
-        # zaak.refresh_from_db()
-        # self.assertEqual(zaak.archiefactiedatum, date(2030, 1, 1))
+
+    def test_calculate_archive_parameters_with_external_catalog(self):
+        ztc_api_root = "https://externe.catalogus.nl/api/v1/"
+        catalogus = f"{ztc_api_root}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
+        zaaktype = f"{ztc_api_root}zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        statustype = f"{ztc_api_root}statustypen/7cb6b0de-dcf6-4182-af5e-08d5a6fd658f"
+        resultaattype = (
+            f"{ztc_api_root}resultaattypen/8ed105b9-df52-4ef2-852e-9081229b928b"
+        )
+
+        zaak = ZaakFactory.create(zaaktype=zaaktype)
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
+
+        # add final status to the case to close it and to calculate archive parameters
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "statustype": statustype,
+            "datumStatusGezet": "2025-01-01T00:00:00Z",
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(
+                statustype,
+                json=get_statustype_response(statustype, zaaktype, isEindstatus=True),
+            )
+            m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
+            m.get(
+                resultaattype,
+                json=get_resultaattype_response(
+                    resultaattype,
+                    zaaktype,
+                    brondatumArchiefprocedure={
+                        "afleidingswijze": "afgehandeld",
+                        "einddatumBekend": False,
+                        "procestermijn": "P10Y",
+                        "datumkenmerk": "",
+                        "objecttype": "",
+                        "registratie": "",
+                    },
+                ),
+            )
+
+            response = self.client.post(reverse("status-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 1))

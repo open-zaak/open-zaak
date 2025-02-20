@@ -141,7 +141,7 @@ def get_zaakinformatieobject_response(informatieobject: str, zaak: str) -> dict:
     }
 
 
-def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
+def get_resultaattype_response(resultaattype: str, zaaktype: str, **overrides) -> dict:
     return {
         "url": resultaattype,
         "zaaktype": zaaktype,
@@ -168,6 +168,7 @@ def get_resultaattype_response(resultaattype: str, zaaktype: str) -> dict:
         "zaaktypeIdentificatie": "ZAAK1",
         "besluittypeOmschrijving": [],
         "informatieobjecttypeOmschrijving": [],
+        **overrides,
     }
 
 
