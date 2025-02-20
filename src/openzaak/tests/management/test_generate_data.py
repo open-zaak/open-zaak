@@ -120,7 +120,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
 
-        self.assertEquals(
+        self.assertEqual(
             StatusType.objects.filter(statustype_omschrijving="").count(), 0
         )
 

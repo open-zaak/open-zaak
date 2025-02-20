@@ -9,9 +9,7 @@ from django.core.paginator import UnorderedObjectListWarning
 from urllib3.exceptions import SystemTimeWarning
 
 os.environ.setdefault("DEBUG", "yes")
-if "test" not in sys.argv:
-    os.environ.setdefault("ALLOWED_HOSTS", "*")
-
+os.environ.setdefault("ALLOWED_HOSTS", "*")
 os.environ.setdefault(
     "SECRET_KEY", "8u9chcd4g1%i5z)u@s6#c#0u%s_gggx*915w(yzrf#awezmu^i"
 )

@@ -567,6 +567,7 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-deelzaaktype")
 
     @tag("gh-992", "external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_hoofdzaaktype_deelzaaktypen_remote_zaaktype(self):
         """
         Assert that the zaaktype allowed deelzaaktypen is validated.

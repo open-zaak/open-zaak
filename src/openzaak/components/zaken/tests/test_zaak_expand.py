@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from django.contrib.gis.geos import Point
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -229,6 +229,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls", "expand")
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None

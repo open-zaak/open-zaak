@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -24,6 +24,7 @@ from .factories import ResultaatFactory, ZaakFactory, ZaakInformatieObjectFactor
 from .utils import isodatetime
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 @tag("external-urls")
 @requests_mock.Mocker()
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):

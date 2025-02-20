@@ -745,6 +745,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
         self.assertEqual(Applicatie.objects.count(), 0)
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_load_initial_data_external_types(self):
         """
         Test that external types for ZRC/BRC/DRC load properly, even if there are no local

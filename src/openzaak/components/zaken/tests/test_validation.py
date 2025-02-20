@@ -48,6 +48,7 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_informatieobject_invalid(self):
         ServiceFactory.create(api_root="https://drc.nl/", api_type=APITypes.drc)
         zaak = ZaakFactory.create()

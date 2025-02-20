@@ -183,6 +183,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(data[1]["url"], f"http://testserver.com{reverse(zaak2)}")
 
     @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     @requests_mock.Mocker()
     def test_zoek_zaaktype_in_external(self, m):
         external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
@@ -274,6 +275,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         )
 
     @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     @requests_mock.Mocker()
     def test_zoek_zaaktype_not_in_external(self, m):
         external_zaaktype1 = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"

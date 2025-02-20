@@ -3,7 +3,6 @@
 from contextlib import contextmanager
 from typing import Iterable, Union
 
-from django.conf import settings
 from django.core.cache import caches
 
 import requests_cache
@@ -72,7 +71,7 @@ class DjangoRequestsCache(requests_cache.BaseCache):
 
     def __init__(
         self,
-        cache_name: str = settings.IMPORT_REQUESTS_CACHE_NAME,
+        cache_name: str,
         match_headers: Union[Iterable[str], bool] = False,
         ignored_parameters: Iterable[str] = None,
         key_fn: KEY_FN = None,
