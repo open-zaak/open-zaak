@@ -113,7 +113,11 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
                     json={
                         "naam": "besluiten",
                         "documentatieLink": "https://example.com/ref/kanalen/#besluiten",
-                        "filters": ["verantwoordelijke_organisatie", "besluittype"],
+                        "filters": [
+                            "verantwoordelijke_organisatie",
+                            "besluittype",
+                            "besluittype.catalogus",
+                        ],
                     },
                 ),
                 call(
@@ -133,6 +137,7 @@ class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
                             "bronorganisatie",
                             "informatieobjecttype",
                             "vertrouwelijkheidaanduiding",
+                            "informatieobjecttype.catalogus",
                         ],
                     },
                 ),
