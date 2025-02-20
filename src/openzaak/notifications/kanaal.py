@@ -9,8 +9,6 @@ from notifications_api_common.kanalen import Kanaal as _Kanaal
 from rest_framework.request import Request
 from vng_api_common.tests import reverse
 
-from openzaak.utils.help_text import mark_experimental
-
 
 class Kanaal(_Kanaal):
     @staticmethod
