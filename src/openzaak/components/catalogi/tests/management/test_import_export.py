@@ -4,8 +4,10 @@ import json
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.contrib.sites.models import Site
+from django.core.cache import caches
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings, tag
@@ -56,8 +58,9 @@ class ImportExportMixin:
         super().setUp()
 
         Site.objects.clear_cache()
+        caches["import_requests"].clear()
 
-        self.filepath = PATH / "export_test.zip"
+        self.filepath = PATH / f"export_test{uuid4()}.zip"
 
         def rmfile():
             if not self.filepath.exists():
@@ -466,7 +469,9 @@ class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
 
         # Only two requests to retrieve the `selectielijstklasse` and
         # `resultaattypeomschrijving`, due to caching
-        self.assertEqual(len(m.request_history), 2)
+        self.assertEqual(
+            len(m.request_history), 2, [req.url for req in m.request_history]
+        )
         [
             selectielijstklasse_request,
             resultaattypeomschrijving_request,
@@ -496,7 +501,9 @@ class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
 
         # Only two requests to retrieve the `selectielijstklasse` and
         # `resultaattypeomschrijving`, due to caching
-        self.assertEqual(len(m.request_history), 2)
+        self.assertEqual(
+            len(m.request_history), 2, [req.url for req in m.request_history]
+        )
         [
             selectielijstklasse_request,
             resultaattypeomschrijving_request,

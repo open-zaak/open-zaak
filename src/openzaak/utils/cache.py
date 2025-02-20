@@ -3,11 +3,11 @@
 from contextlib import contextmanager
 from typing import Iterable, Union
 
-from django.conf import settings
 from django.core.cache import caches
 
 import requests_cache
 from requests_cache import BaseCache, clear, install_cache, uninstall_cache
+from requests_cache.backends import init_backend
 from requests_cache.backends.base import KEY_FN
 from requests_cache.cache_keys import create_key
 from requests_cache.session import CachedSession
@@ -71,7 +71,7 @@ class DjangoRequestsCache(requests_cache.BaseCache):
 
     def __init__(
         self,
-        cache_name: str = settings.IMPORT_REQUESTS_CACHE_NAME,
+        cache_name: str,
         match_headers: Union[Iterable[str], bool] = False,
         ignored_parameters: Iterable[str] = None,
         key_fn: KEY_FN = None,
@@ -98,7 +98,7 @@ class DjangoRequestsCache(requests_cache.BaseCache):
 
 
 @contextmanager
-def requests_cache_enabled(cache_name, backend=None, *args, **kwargs):
+def requests_cache_enabled(*args, **kwargs):
     """
     Custom context manager for requests-cache, to actually clear the contents of
     the cache, before uninstalling it
@@ -110,13 +110,28 @@ def requests_cache_enabled(cache_name, backend=None, *args, **kwargs):
 
     original_client = vng_api_common.client.Client
 
+    cache_name = "import_requests"
+    backend = DjangoRequestsCache
+
     class CustomOpenZaakClient(original_client, CachedSession):
+        _cache_name = cache_name
+        _backend = backend
+
         def __init__(self, *args, **kwargs):
             # Initialize CachedSession with the custom backend
-            super().__init__(cache_name=cache_name, backend=backend, *args, **kwargs)
+            super().__init__(
+                cache_name=cache_name,
+                backend=DjangoRequestsCache,
+                *args,
+                **kwargs,
+            )
+
+            # FIXME `ape_pie.APIClient` doesn't forward the cache params, causing
+            # sqlite to be used by default, so we explicitly set the cache here
+            self.cache = init_backend(cache_name, backend, **kwargs)
 
     vng_api_common.client.Client = CustomOpenZaakClient
-    install_cache(*args, **kwargs)
+    install_cache(cache_name=cache_name, backend=backend, *args, **kwargs)
     try:
         yield
     finally:

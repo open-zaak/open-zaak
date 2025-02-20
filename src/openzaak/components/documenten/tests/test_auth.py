@@ -6,6 +6,7 @@ Guarantee that the proper authorization amchinery is in place.
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -963,8 +964,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@temp_private_root()
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
+@override_settings(ALLOWED_HOSTS=["testserver"], DEBUG=True)
 class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -972,25 +974,28 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
     component = ComponentTypes.drc
 
     def setUp(self):
+        super().setUp()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
-        return super().setUp()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            inhoud__filename="file1.bin",
         )
         EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            inhoud__filename="file2.bin",
         )
         url = reverse("enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
         results = response.data["results"]
         self.assertEqual(len(results), 1)
@@ -1000,10 +1005,12 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            inhoud__filename="file3.bin",
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            inhoud__filename="file4.bin",
         )
         url1 = reverse(eio1)
         url2 = reverse(eio2)
@@ -1011,7 +1018,7 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
 
-        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK, response1.content)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_oio_list(self):

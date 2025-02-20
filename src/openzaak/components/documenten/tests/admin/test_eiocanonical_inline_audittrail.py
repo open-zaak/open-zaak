@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
+from privates.test import temp_private_root
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -19,6 +20,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
+@temp_private_root()
 @disable_admin_mfa()
 class EioAdminInlineTests(WebTest):
     @classmethod
@@ -41,11 +43,13 @@ class EioAdminInlineTests(WebTest):
         self.assertEqual(audittrail.bron, "DRC")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
 
     def test_eio_delete(self):
-        eio = EnkelvoudigInformatieObjectFactory.create(canonical=self.canonical)
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical=self.canonical, inhoud__filename="12321321.bin"
+        )
         eio_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=eio.uuid)
 
         get_response = self.app.get(self.change_url)
@@ -60,10 +64,10 @@ class EioAdminInlineTests(WebTest):
 
         self.assertEioAudittrail(audittrail)
         self.assertEqual(audittrail.actie, "destroy")
-        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}"),
-        self.assertEqual(audittrail.resource_weergave, eio.unique_representation()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}"),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}")
+        self.assertEqual(audittrail.resource_weergave, eio.unique_representation())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}")
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
@@ -71,7 +75,9 @@ class EioAdminInlineTests(WebTest):
 
     def test_eio_change(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
-            canonical=self.canonical, identificatie="old"
+            canonical=self.canonical,
+            identificatie="old",
+            inhoud__filename="13213123123.bin",
         )
         eio_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=eio.uuid)
 
@@ -88,10 +94,10 @@ class EioAdminInlineTests(WebTest):
 
         self.assertEioAudittrail(audittrail)
         self.assertEqual(audittrail.actie, "update")
-        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}"),
-        self.assertEqual(audittrail.resource_weergave, eio.unique_representation()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}"),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}")
+        self.assertEqual(audittrail.resource_weergave, eio.unique_representation())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}")
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
         self.assertEqual(old_data["identificatie"], "old")
@@ -128,10 +134,10 @@ class EioAdminInlineTests(WebTest):
 
         self.assertEioAudittrail(audittrail)
         self.assertEqual(audittrail.actie, "create")
-        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}"),
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{eio_url}")
         self.assertEqual(audittrail.resource_weergave, eio.unique_representation())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}"),
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{eio_url}")
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw

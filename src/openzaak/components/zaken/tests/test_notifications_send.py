@@ -116,6 +116,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_send_notif_create_zaak_external_zaaktype(self, mock_notif):
         """
         Check if the zaaktype.catalogus kenmerk is correctly sent if the Zaak
@@ -178,6 +179,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_send_notif_create_zaak_external_zaaktype_failed_to_fetch_catalogus(
         self, mock_notif
     ):

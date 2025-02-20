@@ -13,7 +13,7 @@ from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.catalogi.api import serializers
 from openzaak.components.catalogi.constants import IMPORT_ORDER
-from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+from openzaak.utils.cache import requests_cache_enabled
 
 
 class Command(BaseCommand):
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             ),
         )
 
-    @requests_cache_enabled("import", backend=DjangoRequestsCache())
+    @requests_cache_enabled()
     @transaction.atomic
     def handle(self, *args, **options):
         import_file = options.pop("import_file")

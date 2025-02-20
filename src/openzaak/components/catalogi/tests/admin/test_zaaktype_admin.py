@@ -601,11 +601,15 @@ class ZaaktypeAdminTests(
         resultaat = zaaktype.resultaattypen.get()
         self.assertEqual(resultaat.selectielijstklasse, "")
 
+    @patch(
+        "openzaak.components.catalogi.admin.zaaktypen.ReferentieLijstConfig.get_solo"
+    )
     @tag("gh-1281")
-    def test_default_selectielijst_year_regression(self, m):
-        selectielijst_config = ReferentieLijstConfig.get_solo()
-        selectielijst_config.default_year = 2017
-        selectielijst_config.save()
+    def test_default_selectielijst_year_regression(self, m, mock_solo):
+        mock_solo.return_value = ReferentieLijstConfig(
+            default_year=2017, allowed_years=[2017, 2020], service=self.service
+        )
+
         mock_selectielijst_oas_get(m)
         mock_resource_list(
             m,
@@ -1030,7 +1034,9 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertTrue(zaaktype.concept)
 
     @tag("gh-1264")
-    @override_settings(NOTIFICATIONS_DISABLED=True)
+    @override_settings(
+        NOTIFICATIONS_DISABLED=True, ALLOWED_HOSTS=["testserver", "example.com"]
+    )
     @requests_mock.Mocker()
     def test_save_published_zaaktype(self, m):
         """Regressiontest where a user is not able to save a published zaaktype"""
@@ -1080,7 +1086,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         response = change_page.form.submit("_export")
         zaaktype.refresh_from_db()
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.content_type, "application/zip")
         self.assertEqual(zaaktype.datum_einde_geldigheid, date(2020, 1, 1))
 

@@ -15,7 +15,7 @@ class SelectieLijstMixin:
         super().setUpTestData()
 
         cls.base = "https://selectielijst.openzaak.nl/api/v1/"
-        service = ServiceFactory(
+        cls.service = ServiceFactory(
             api_root=cls.base,
             api_type=APITypes.orc,
             label="external selectielijst",
@@ -26,7 +26,7 @@ class SelectieLijstMixin:
         config = ReferentieLijstConfig.get_solo()
         config.default_year = 2020
         config.allowed_years = [2017, 2020]
-        config.service = service
+        config.service = cls.service
         config.save()
 
     def setUp(self):

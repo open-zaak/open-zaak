@@ -623,6 +623,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
     base = "https://external.documenten.nl/api/v1/"

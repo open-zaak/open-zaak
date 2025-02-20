@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -19,6 +19,7 @@ BETROKKENE = (
 )
 
 
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None

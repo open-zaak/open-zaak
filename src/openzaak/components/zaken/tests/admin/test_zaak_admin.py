@@ -38,6 +38,7 @@ from ..factories import (
 
 
 @disable_admin_mfa()
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ZaakAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

@@ -7,13 +7,11 @@ from django.db import migrations
 from zgw_consumers.models import Service
 
 from openzaak.client import get_client
-from openzaak.utils.cache import DjangoRequestsCache, requests_cache_enabled
+from openzaak.utils.cache import requests_cache_enabled
 from vng_api_common.client import to_internal_data
 
 
-@requests_cache_enabled(
-    "zaaktypen_procestypen_jaar_sync", backend=DjangoRequestsCache()
-)
+@requests_cache_enabled()
 def set_selectieklasse_procestype_default_year(apps, _):
     ZaakType = apps.get_model("catalogi.ZaakType")
 

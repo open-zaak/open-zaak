@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from maykin_2fa.test import disable_admin_mfa
+from privates.test import temp_private_root
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -20,6 +21,7 @@ from ..factories import (
 from ..utils import get_operation_url
 
 
+@temp_private_root()
 @disable_admin_mfa()
 class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
@@ -66,18 +68,18 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
         self.assertEqual(
             audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
-        ),
-        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        )
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject")
         self.assertEqual(
             audittrail.resource_url, f"http://testserver{informatieobject_url}"
-        ),
+        )
         self.assertEqual(
             audittrail.resource_weergave, informatieobject.unique_representation()
-        ),
+        )
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
@@ -119,18 +121,18 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
         self.assertEqual(
             audittrail.hoofd_object, f"http://testserver{informatieobject_url}"
-        ),
-        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject"),
+        )
+        self.assertEqual(audittrail.resource, "enkelvoudiginformatieobject")
         self.assertEqual(
             audittrail.resource_url, f"http://testserver{informatieobject_url}"
-        ),
+        )
         self.assertEqual(
             audittrail.resource_weergave, informatieobject.unique_representation()
-        ),
+        )
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
         self.assertEqual(old_data["beschrijving"], "old")

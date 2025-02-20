@@ -1241,6 +1241,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     """
     Test archiving with remote documents involved.

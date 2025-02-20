@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from rest_framework import status
@@ -124,6 +124,7 @@ class US349TestCase(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@override_settings(ALLOWED_HOSTS=["testserver"])
 class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     base = "https://external.documenten.nl/api/v1/"

@@ -8,6 +8,7 @@ from django.db import IntegrityError, OperationalError
 from django.test import TestCase, override_settings
 
 import requests_mock
+from privates.test import temp_private_root
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -37,6 +38,7 @@ def _get_test_dir() -> Path:
     return import_test_dir / "files"
 
 
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"], IMPORT_DOCUMENTEN_BATCH_SIZE=2)
 class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"
@@ -373,10 +375,12 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             EnkelvoudigInformatieObjectFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 uuid="22a42371-da49-4098-b8fd-ef3d593d2b4c",
+                inhoud__filename="4321.bin",
             ),
             EnkelvoudigInformatieObjectFactory(
                 informatieobjecttype=self.informatieobjecttype,
                 uuid="9c8f7c02-a26e-42a2-bd27-44d4af1de112",
+                inhoud__filename="1234.bin",
             ),
         )
 
