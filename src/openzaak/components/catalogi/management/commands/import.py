@@ -13,7 +13,7 @@ from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.catalogi.api import serializers
 from openzaak.components.catalogi.constants import IMPORT_ORDER
-from openzaak.utils.cache import requests_cache_enabled
+from openzaak.utils.cache import run_in_process_with_caching
 
 
 class Command(BaseCommand):
@@ -38,9 +38,11 @@ class Command(BaseCommand):
             ),
         )
 
-    @requests_cache_enabled()
-    @transaction.atomic
     def handle(self, *args, **options):
+        run_in_process_with_caching(self.run_import, *args, **options)
+
+    @transaction.atomic
+    def run_import(self, *args, **options):
         import_file = options.pop("import_file")
         import_file_content = options.pop("import_file_content")
         generate_new_uuids = options.pop("generate_new_uuids")

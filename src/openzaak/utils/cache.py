@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+import multiprocessing
 from contextlib import contextmanager
 from typing import Iterable, Union
 
+from django.conf import settings
 from django.core.cache import caches
 
 import requests_cache
@@ -98,10 +100,15 @@ class DjangoRequestsCache(requests_cache.BaseCache):
 
 
 @contextmanager
-def requests_cache_enabled(*args, **kwargs):
+def _requests_cache_enabled(*args, **kwargs):
     """
     Custom context manager for requests-cache, to actually clear the contents of
     the cache, before uninstalling it
+
+    WARNING: if this decorator is not applied in a separate process, requests-cache is
+    applied globally while the decorated function is busy running. For that reason it is
+    best to not use this decorator directly, but to run the function that should have caching
+    applied to it with `run_in_process_with_caching(func)`
     """
     # Unfortunately requests-cache does not work out of the box for custom clients that
     # inherit from `requests.Session`, so we have to monkeypatch the `OpenZaakClient` to
@@ -138,3 +145,37 @@ def requests_cache_enabled(*args, **kwargs):
         vng_api_common.client.Client = original_client
         clear()
         uninstall_cache()
+
+
+# NOTE this is a temporary solution to avoid requests-cache from applying its
+# monkeypatching globally while the context manager is active. The better solution would
+# be to run this in a celery task
+def run_in_process_with_caching(func, *args, **kwargs):
+    """Runs a function inside a separate process and waits for completion."""
+
+    # Tests are allowed to override this to avoid issues when running tests in parallel
+    if not settings.REQUESTS_CACHING_IN_SEPARATE_PROCESS:
+        with _requests_cache_enabled():
+            result = func(*args, **kwargs)
+            return result
+
+    def wrapper(queue, *args, **kwargs):
+        try:
+            with _requests_cache_enabled():
+                result = func(*args, **kwargs)
+                queue.put(result)  # Send result back if needed
+        except Exception as e:
+            queue.put(e)  # Pass exceptions back
+
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(
+        target=wrapper, args=(queue, *args), kwargs=kwargs
+    )
+    process.start()
+    process.join()
+
+    # Retrieve any exception or result
+    if not queue.empty():
+        result = queue.get()
+        if isinstance(result, Exception):
+            raise result  # Re-raise exceptions in the main process

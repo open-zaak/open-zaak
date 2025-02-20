@@ -453,3 +453,8 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     ),
     group="Documenten import",
 )
+
+# Can be overridden by tests to avoid errors when running tests in parallel,
+# because parallel test processes are run with daemon=True, which means they can't spawn
+# child processes
+REQUESTS_CACHING_IN_SEPARATE_PROCESS = True
