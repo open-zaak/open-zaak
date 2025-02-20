@@ -163,9 +163,12 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         func = import_string(
-            settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS[
-                settings.ZAAK_IDENTIFICATIE_GENERATOR
-            ]
+            settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
+                settings.ZAAK_IDENTIFICATIE_GENERATOR,
+                settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
+                    "use-start-datum-year"
+                ),
+            )
         )
         return func(validated_data)
 
