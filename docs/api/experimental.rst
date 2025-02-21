@@ -44,6 +44,10 @@ Attributes
     * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.kvkNummer`` is added to
       support :ref:`mandates <client-development-mandate>`
     * ``roltoelichting`` is changed to not required
+    * ``tijdvakGeldigheid`` is added to track the validity period of a ``Rol`` within a ``Zaak``. It has the following sub-attributes:
+
+            * ``beginGeldigheid``: the date on which the validity period starts
+            * ``eindGeldigheid``: the date on which the validity period ends
 
 * ``Zaak``:
     * ``communicatiekanaalNaam`` is added
