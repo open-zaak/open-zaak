@@ -93,7 +93,9 @@ class FKOrServiceUrlField(FKOrURLField):
         super().__init__(*args, **kwargs)
 
         # replace FKOrURLValidator with FKOrServiceUrlValidator
-        self.validators = [v for v in self.validators if type(v) != FKOrURLValidator]
+        self.validators = [
+            v for v in self.validators if type(v) != FKOrURLValidator  # noqa
+        ]
         self.validators += [FKOrServiceUrlValidator()]
 
     def _get_model_and_field(self) -> tuple:
