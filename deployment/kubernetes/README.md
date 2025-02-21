@@ -34,7 +34,7 @@ to the correct cluster.
 
 **Database**
 
-The deployment assumes that a PostgreSQL 11 database cluster is available.
+The deployment assumes that a PostgreSQL 14 database cluster is available.
 
 You need:
 
