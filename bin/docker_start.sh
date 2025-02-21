@@ -13,6 +13,9 @@ uwsgi_threads=${UWSGI_THREADS:-2}
 
 mountpoint=${SUBPATH:-/}
 
+# Make sure system checks are run
+python src/manage.py check
+
 # wait for required services
 ${SCRIPTPATH}/wait_for_db.sh
 
