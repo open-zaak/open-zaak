@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from base64 import b64encode
+from unittest.mock import patch
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -21,6 +22,10 @@ from openzaak.tests.utils import JWTAuthMixin
 from ..models import FeatureFlags
 
 
+@patch(
+    "openzaak.utils.validators.FeatureFlags.get_solo",
+    return_value=FeatureFlags(allow_unpublished_typen=True),
+)
 class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
     """
     Test the feature flags that bypass FOO.concept validation.
@@ -28,15 +33,7 @@ class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        feature_flags = FeatureFlags.get_solo()
-        feature_flags.allow_unpublished_typen = True
-        feature_flags.save()
-
-    def test_zaak_create(self):
+    def test_zaak_create(self, mock_get_solo):
         """
         Assert that it's possible to create a zaak with an unpublished zaaktype when
         the feature flag is set.
@@ -56,7 +53,7 @@ class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    def test_informatieobject_create(self):
+    def test_informatieobject_create(self, mock_get_solo):
         eio_url = reverse(EnkelvoudigInformatieObject)
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
         informatieobjecttype_url = reverse(informatieobjecttype)
@@ -81,7 +78,7 @@ class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
         # Test response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    def test_besluit_create(self):
+    def test_besluit_create(self, mock_get_solo):
         besluit_url = reverse(Besluit)
         besluittype = BesluitTypeFactory.create(concept=True)
         besluittype_url = reverse(besluittype)
