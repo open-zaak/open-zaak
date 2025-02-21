@@ -210,6 +210,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
         self.assertTrue(data["url"].startswith("https://openzaak.example.com:8443/"))
 
 
+@override_settings(REQUESTS_CACHING_IN_SEPARATE_PROCESS=False)
 @tag("catalogi-import")
 class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
     def test_import_catalogus(self):

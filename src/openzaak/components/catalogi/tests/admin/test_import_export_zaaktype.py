@@ -106,6 +106,8 @@ class MockSelectielijst(SelectieLijstMixin):
 
 
 @disable_admin_mfa()
+@tag("zaaktype-import")
+@override_settings(REQUESTS_CACHING_IN_SEPARATE_PROCESS=False)
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1925,6 +1927,8 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
 
 @disable_admin_mfa()
+@tag("zaaktype-import")
+@override_settings(REQUESTS_CACHING_IN_SEPARATE_PROCESS=False)
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()
