@@ -472,7 +472,7 @@ faker==33.0.0
     #   -r requirements/base.txt
     #   factory-boy
     #   zgw-consumers-oas
-flake8==3.8.3
+flake8==7.1.2
     # via -r requirements/test-tools.in
 flower==2.0.1
     # via
@@ -582,7 +582,7 @@ maykin-2fa==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-mccabe==0.6.1
+mccabe==0.7.0
     # via flake8
 mozilla-django-oidc==4.0.1
     # via
@@ -653,7 +653,7 @@ psycopg2==2.9.9
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-pycodestyle==2.6.0
+pycodestyle==2.12.1
     # via flake8
 pycparser==2.21
     # via
@@ -676,7 +676,7 @@ pydantic-settings==2.7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
-pyflakes==2.2.0
+pyflakes==3.2.0
     # via flake8
 pygments==2.18.0
     # via
