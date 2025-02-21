@@ -127,11 +127,13 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
 
     def test_patch_zaakobject_change_zaakobjecttype_fail(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()
+        other_zaakobjecttype = ZaakObjectTypeFactory.create()
         zaak = ZaakFactory.create(zaaktype=zaakobjecttype.zaaktype)
         zaakobject = ZaakObjectFactory.create(
             zaak=zaak,
             object=OBJECT,
             object_type=ZaakobjectTypes.adres,
+            zaakobjecttype=other_zaakobjecttype,
         )
         url = reverse(zaakobject)
 
