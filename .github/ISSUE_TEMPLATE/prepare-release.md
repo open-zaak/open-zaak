@@ -16,7 +16,7 @@ projects: ["maykinmedia/15"]
   - [ ] Version bump
   - [ ] Regenerate API spec
   - [ ] Update READMEs with release dates + links
-- [ ] Bump version number with `bumpversion <major|minor|patch>` or `bump-my-version bump <major|minor|patch>`
+- [ ] Bump version number with `bin/bump-my-version.sh bump <major|minor|patch>`
 - [ ] Run performance tests
   - [ ] Create and push tag for performance tests (e.g. `<version>-perftest`)
   - [ ] Deploy the new version
