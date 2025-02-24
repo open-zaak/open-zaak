@@ -43,7 +43,9 @@ from ..factories import (
 from .test_import_export_zaaktype import MockSelectielijst
 
 
+@tag("catalogi-import")
 @disable_admin_mfa()
+@override_settings(REQUESTS_CACHING_IN_SEPARATE_PROCESS=False)
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):

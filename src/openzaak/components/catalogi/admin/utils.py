@@ -13,7 +13,7 @@ from dateutil.relativedelta import relativedelta
 from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
-from openzaak.utils.cache import requests_cache_enabled
+from openzaak.utils.cache import run_in_process_with_caching
 
 from ..api import serializers
 from ..models import BesluitType, Catalogus, InformatieObjectType
@@ -177,7 +177,6 @@ def construct_besluittypen(
     return besluittypen_uuid_mapping
 
 
-@requests_cache_enabled()
 def import_zaaktype_for_catalogus(
     identificatie_prefix,
     catalogus_pk,
@@ -186,103 +185,108 @@ def import_zaaktype_for_catalogus(
     besluittypen_uuid_mapping,
     generate_new_uuids,
 ):
-    catalogus = Catalogus.objects.get(pk=catalogus_pk)
-    catalogus_uuid = str(catalogus.uuid)
+    def _import():
+        catalogus = Catalogus.objects.get(pk=catalogus_pk)
+        catalogus_uuid = str(catalogus.uuid)
 
-    import_file = io.BytesIO(import_file_content)
+        import_file = io.BytesIO(import_file_content)
 
-    uuid_mapping = {}
+        uuid_mapping = {}
 
-    files_not_found = []
-    files_found = []
+        files_not_found = []
+        files_found = []
 
-    with zipfile.ZipFile(import_file, "r") as zip_file:
+        with zipfile.ZipFile(import_file, "r") as zip_file:
 
-        files_received = zip_file.namelist()
-        for resource in [
-            "ZaakType",
-            "ZaakTypeInformatieObjectType",
-            "ResultaatType",
-            "RolType",
-            "StatusType",
-            "Eigenschap",
-        ]:
-            if f"{resource}.json" in files_received:
-                data = zip_file.read(f"{resource}.json").decode()
-                files_found.append(f"{resource}.json")
+            files_received = zip_file.namelist()
+            for resource in [
+                "ZaakType",
+                "ZaakTypeInformatieObjectType",
+                "ResultaatType",
+                "RolType",
+                "StatusType",
+                "Eigenschap",
+            ]:
+                if f"{resource}.json" in files_received:
+                    data = zip_file.read(f"{resource}.json").decode()
+                    files_found.append(f"{resource}.json")
 
-                # These mappings are also needed when `generate_new_uuids=False`, because
-                # it is possible to select existing InformatieObjectTypen/BesluitTypen
-                # to link a ZaakType to, which may have different UUIDs than those in
-                # the import file (possibly because they are newer version)
-                if resource == "ZaakTypeInformatieObjectType":
-                    for old, new in iotypen_uuid_mapping.items():
-                        data = data.replace(old, str(new.uuid))
-                elif resource == "ZaakType":
-                    for old, new in besluittypen_uuid_mapping.items():
-                        data = data.replace(old, str(new.uuid))
+                    # These mappings are also needed when `generate_new_uuids=False`, because
+                    # it is possible to select existing InformatieObjectTypen/BesluitTypen
+                    # to link a ZaakType to, which may have different UUIDs than those in
+                    # the import file (possibly because they are newer version)
+                    if resource == "ZaakTypeInformatieObjectType":
+                        for old, new in iotypen_uuid_mapping.items():
+                            data = data.replace(old, str(new.uuid))
+                    elif resource == "ZaakType":
+                        for old, new in besluittypen_uuid_mapping.items():
+                            data = data.replace(old, str(new.uuid))
 
-                if generate_new_uuids:
-                    for old, new in uuid_mapping.items():
-                        data = data.replace(old, new)
+                    if generate_new_uuids:
+                        for old, new in uuid_mapping.items():
+                            data = data.replace(old, new)
 
-                data = json.loads(data)
+                    data = json.loads(data)
 
-                serializer = getattr(serializers, f"{resource}Serializer")
+                    serializer = getattr(serializers, f"{resource}Serializer")
 
-                for entry in data:
-                    if resource == "ZaakType":
-                        if identificatie_prefix:
+                    for entry in data:
+                        if resource == "ZaakType":
+                            if identificatie_prefix:
 
-                            new_identification = (
-                                f"{identificatie_prefix}_{entry['identificatie']}"
-                            )
-
-                            if len(new_identification) > 50:
-                                raise ValidationError(
-                                    _(
-                                        "Identification {} is too long with prefix. Max 50 characters."
-                                    ).format(new_identification)
+                                new_identification = (
+                                    f"{identificatie_prefix}_{entry['identificatie']}"
                                 )
 
-                            entry["identificatie"] = new_identification
+                                if len(new_identification) > 50:
+                                    raise ValidationError(
+                                        _(
+                                            "Identification {} is too long with prefix. Max 50 characters."
+                                        ).format(new_identification)
+                                    )
 
-                        entry["informatieobjecttypen"] = []
-                        old_catalogus_uuid = entry["catalogus"].split("/")[-1]
-                        entry["catalogus"] = entry["catalogus"].replace(
-                            old_catalogus_uuid, catalogus_uuid
-                        )
+                                entry["identificatie"] = new_identification
 
-                    deserialized = serializer(data=entry, context={"request": REQUEST})
-
-                    if deserialized.is_valid():
-                        if generate_new_uuids:
-                            deserialized.save()
-                            instance = deserialized.instance
-                            uuid_mapping[entry["url"].split("/")[-1]] = str(
-                                instance.uuid
+                            entry["informatieobjecttypen"] = []
+                            old_catalogus_uuid = entry["catalogus"].split("/")[-1]
+                            entry["catalogus"] = entry["catalogus"].replace(
+                                old_catalogus_uuid, catalogus_uuid
                             )
-                        else:
-                            deserialized.save(uuid=entry["url"].split("/")[-1])
-                    else:
-                        raise CommandError(
-                            _(
-                                "A validation error occurred while deserializing a {}\n{}"
-                            ).format(resource, deserialized.errors)
+
+                        deserialized = serializer(
+                            data=entry, context={"request": REQUEST}
                         )
-            else:
-                files_not_found.append(f"{resource}.json")
 
-    if len(files_found) < 1:
-        msg = _(
-            "No files found. Expected: {files_not_found} but received:<br> {files_received}"
-        )
-        msg_dict = {
-            "files_not_found": ", ".join(files_not_found),
-            "files_received": ", ".join(files_received),
-        }
+                        if deserialized.is_valid():
+                            if generate_new_uuids:
+                                deserialized.save()
+                                instance = deserialized.instance
+                                uuid_mapping[entry["url"].split("/")[-1]] = str(
+                                    instance.uuid
+                                )
+                            else:
+                                deserialized.save(uuid=entry["url"].split("/")[-1])
+                        else:
+                            raise CommandError(
+                                _(
+                                    "A validation error occurred while deserializing a {}\n{}"
+                                ).format(resource, deserialized.errors)
+                            )
+                else:
+                    files_not_found.append(f"{resource}.json")
 
-        raise CommandError(format_html(msg, **msg_dict))
+        if len(files_found) < 1:
+            msg = _(
+                "No files found. Expected: {files_not_found} but received:<br> {files_received}"
+            )
+            msg_dict = {
+                "files_not_found": ", ".join(files_not_found),
+                "files_received": ", ".join(files_received),
+            }
+
+            raise CommandError(format_html(msg, **msg_dict))
+
+    run_in_process_with_caching(_import)
 
 
 def format_duration(rel_delta: relativedelta) -> str:
