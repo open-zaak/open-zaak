@@ -134,6 +134,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 },
                 "statussen": [f"http://testserver{reverse(status_)}"],
                 "authenticatieContext": None,
+                "tijdvakGeldigheid": {"beginGeldigheid": None, "eindGeldigheid": None},
             },
         )
 
@@ -205,6 +206,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 },
                 "authenticatieContext": None,
                 "statussen": [],
+                "tijdvakGeldigheid": {"beginGeldigheid": None, "eindGeldigheid": None},
             },
         )
 
@@ -291,6 +293,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 },
                 "authenticatieContext": None,
                 "statussen": [],
+                "tijdvakGeldigheid": {"beginGeldigheid": None, "eindGeldigheid": None},
             },
         )
 

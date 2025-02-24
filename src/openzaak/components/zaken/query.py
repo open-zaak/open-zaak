@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 from django_loose_fk.virtual_models import ProxyMixin
 
@@ -62,6 +63,27 @@ class StatusQuerySet(ZaakRelatedQuerySet):
             .values("max_datum_status_gezet")
         )
         return self.annotate(max_datum_status_gezet=models.Subquery(grouped_statussen))
+
+
+class RolQuerySet(ZaakRelatedQuerySet):
+    def filter_by_roltype_attribute(self, field_name: str, value: Any):
+        """
+        Filter by nested_attributes on the `roltype` field
+        """
+        # TODO it might be better to have this implemented in `django-loose-fk` to
+        # enable filtering on nested attributes
+        local_filter = {f"_roltype__{field_name}": value}
+        local_rollen = self.filter(**local_filter)
+
+        external_rollen = self.filter(~Q(_roltype_base_url=None))
+        pks = [
+            role.pk
+            for role in external_rollen
+            if getattr(role.roltype, field_name) == value
+        ]
+        external_behandelaar_rollen = external_rollen.filter(pk__in=pks)
+
+        return local_rollen | external_behandelaar_rollen
 
 
 class ZaakInformatieObjectQuerySet(BlockChangeMixin, ZaakRelatedQuerySet):

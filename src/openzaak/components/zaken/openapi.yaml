@@ -11274,6 +11274,10 @@ components:
       - wijzigingen
     Base_RolSerializer:
       type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
       properties:
         url:
           type: string
@@ -11384,12 +11388,22 @@ components:
           readOnly: true
           description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
             dat STATUSsen in die ZAAK bereikt zijn.
+        tijdvakGeldigheid:
+          allOf:
+          - $ref: '#/components/schemas/RolTijdvakGeldigheid'
+          nullable: true
+          description: '**EXPERIMENTEEL** De periode waarin deze ROL geldig is binnen
+            de ZAAK.'
       required:
       - betrokkeneType
       - roltype
       - zaak
     Base_RolSerializerRequest:
       type: object
+      description: |-
+        Set gegevensgroepdata from validated nested data.
+
+        Usage: include the mixin on the ModelSerializer that has gegevensgroepen.
       properties:
         zaak:
           type: string
@@ -11451,6 +11465,12 @@ components:
             brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
             of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
             , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        tijdvakGeldigheid:
+          allOf:
+          - $ref: '#/components/schemas/RolTijdvakGeldigheidRequest'
+          nullable: true
+          description: '**EXPERIMENTEEL** De periode waarin deze ROL geldig is binnen
+            de ZAAK.'
       required:
       - betrokkeneType
       - roltype
@@ -14446,6 +14466,40 @@ components:
           vestiging: '#/components/schemas/vestiging_RolSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSerializerRequest'
           medewerker: '#/components/schemas/medewerker_RolSerializerRequest'
+    RolTijdvakGeldigheid:
+      type: object
+      properties:
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+    RolTijdvakGeldigheidRequest:
+      type: object
+      properties:
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
     RolVestiging:
       type: object
       properties:
