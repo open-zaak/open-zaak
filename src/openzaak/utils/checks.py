@@ -138,3 +138,22 @@ def check_openzaak_domain(app_configs, **kwargs):
         )
 
     return errors
+
+
+@register
+def check_zaak_identificatie_generator(app_configs, **kwargs):
+    errors = []
+
+    generator = settings.ZAAK_IDENTIFICATIE_GENERATOR
+    options = settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS
+
+    if generator not in options:
+        errors.append(
+            Error(
+                f"`{generator}` is not a valid value for the environment variable ZAAK_IDENTIFICATIE_GENERATOR.",
+                hint=f"Set ZAAK_IDENTIFICATIE_GENERATOR to one of the following values: {list(options.keys())}.",
+                id="openzaak.settings.E003",
+            )
+        )
+
+    return errors

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
@@ -161,10 +162,15 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
         fields = ("bronorganisatie", "startdatum")
 
     def create(self, validated_data):
-        return self.Meta.model.objects.generate(
-            validated_data["bronorganisatie"],
-            validated_data["startdatum"],
+        func = import_string(
+            settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
+                settings.ZAAK_IDENTIFICATIE_GENERATOR,
+                settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
+                    "use-start-datum-year"
+                ),
+            )
         )
+        return func(validated_data)
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")
