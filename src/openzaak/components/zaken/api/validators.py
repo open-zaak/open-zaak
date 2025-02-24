@@ -135,25 +135,6 @@ class HoofdZaaktypeRelationValidator:
             )
 
 
-class CorrectZaaktypeValidator:
-    code = "zaaktype-mismatch"
-    message = _("De referentie hoort niet bij het zaaktype van de zaak.")
-
-    def __init__(self, url_field: str, zaak_field: str = "zaak", resource: str = None):
-        self.url_field = url_field
-        self.zaak_field = zaak_field
-        self.resource = resource or url_field
-
-    def __call__(self, attrs):
-        url = attrs.get(self.url_field)
-        zaak = attrs.get(self.zaak_field)
-        if not url or not zaak:
-            return
-
-        if url.zaaktype != zaak.zaaktype:
-            raise serializers.ValidationError(self.message, code=self.code)
-
-
 class DateNotInFutureValidator:
     code = "date-in-future"
     message = _("Deze datum mag niet in de toekomst zijn")

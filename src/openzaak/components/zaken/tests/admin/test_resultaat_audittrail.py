@@ -23,7 +23,7 @@ class ResultaatAdminTests(AdminTestMixin, TestCase):
     def test_create_resultaat(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        resultaattype = ResultaatTypeFactory.create()
+        resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
 
         add_url = reverse("admin:zaken_resultaat_add")
         data = {
