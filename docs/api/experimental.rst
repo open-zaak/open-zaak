@@ -70,6 +70,11 @@ Query parameters
 Documenten API
 ==============
 
+Notifications
+-------------
+
+For ``documenten`` notification channel a new "kenmerk" ``informatieobjecttype.catalogus`` is added.
+
 Endpoints
 ---------
 
@@ -130,7 +135,10 @@ Query parameters
 Besluiten API
 =============
 
-No deviation from the standard
+Notifications
+-------------
+
+For ``besluiten`` notification channel a new "kenmerk" ``besluittype.catalogus`` is added.
 
 
 Autorisaties API

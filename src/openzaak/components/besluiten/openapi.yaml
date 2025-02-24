@@ -78,6 +78,7 @@ info:
 
     * `verantwoordelijke_organisatie`: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie die het besluit heeft vastgesteld.
     * `besluittype`: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+    * `besluittype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
 
     **Resources en acties**
 

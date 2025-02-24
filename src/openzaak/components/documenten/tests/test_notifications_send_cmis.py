@@ -73,6 +73,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
                 "kenmerken": {
                     "bronorganisatie": "159351741",
                     "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                    "informatieobjecttype.catalogus": f"http://testserver{reverse(informatieobjecttype.catalogus)}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
@@ -135,6 +136,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
             "kenmerken": {
                 "bronorganisatie": "159351741",
                 "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                "informatieobjecttype.catalogus": f"http://testserver{reverse(informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": "openbaar",
             },
             "resource": "enkelvoudiginformatieobject",
@@ -176,6 +178,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
                 "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
             "resource": "enkelvoudiginformatieobject",
@@ -226,6 +229,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
                 "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
             "resource": "gebruiksrechten",
@@ -272,6 +276,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APICMISTes
             "kenmerken": {
                 "bronorganisatie": eio.bronorganisatie,
                 "informatieobjecttype": f"http://testserver{reverse(eio.informatieobjecttype)}",
+                "informatieobjecttype.catalogus": f"http://testserver{reverse(eio.informatieobjecttype.catalogus)}",
                 "vertrouwelijkheidaanduiding": eio.vertrouwelijkheidaanduiding,
             },
             "resource": "gebruiksrechten",

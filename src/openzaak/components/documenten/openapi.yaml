@@ -89,6 +89,7 @@ info:
     * `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.
     * `informatieobjecttype`: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).
     * `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.
+    * `informatieobjecttype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.
 
     **Resources en acties**
     - `enkelvoudiginformatieobject`: create, update, destroy

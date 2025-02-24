@@ -45,6 +45,7 @@ De architectuur van de notificaties staat beschreven op <a href="https://github.
 
 * `verantwoordelijke_organisatie`: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie die het besluit heeft vastgesteld.
 * `besluittype`: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+* `besluittype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
 
 **Resources en acties**
 
@@ -91,6 +92,7 @@ De architectuur van de notificaties staat beschreven op <a href="https://github.
 * `bronorganisatie`: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste in een samenwerkingsketen heeft vastgelegd.
 * `informatieobjecttype`: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).
 * `vertrouwelijkheidaanduiding`: Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.
+* `informatieobjecttype.catalogus`: **EXPERIMENTEEL** URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE behoort.
 
 **Resources en acties**
 
@@ -177,7 +179,7 @@ De architectuur van de notificaties staat beschreven op <a href="https://github.
 
 * <code>klantcontact</code>: create
 
-* <code>rol</code>: create, destroy
+* <code>rol</code>: create, update, destroy
 
 * <code>resultaat</code>: create, update, destroy
 

@@ -6,6 +6,19 @@ Changelog
 
 **New features**
 
+* [open-zaak/open-notificaties#231] Add catalogus kenmerk to besluiten & documenten kanaal.
+
+.. warning::
+
+    In order to use this new kenmerk, the ``src/manage.py register_kanalen`` command must be run in Open Zaak to update
+    the ``besluiten`` & ``documenten`` kanaal with this new kenmerk.
+
+.. warning::
+
+    If you are using ``django-setup-configuration`` to configure Open Zaak and Open Notificaties,
+    make sure to add ``besluittype.catalogus`` to the filters of the ``besluiten`` kanaal & ``informatieobjecttype.catalogus``
+    to the filters of the ``documenten`` kanaal in ``notifications_kanalen_config``.
+
 * [:open-zaak:`1905`] Confirm support for Postgres versions 15 and 16 and Postgis 3.4 and 3.5
 
 1.18.0 (2025-02-14)
