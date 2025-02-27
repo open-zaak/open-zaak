@@ -1,12 +1,12 @@
 Changelog
 =========
 
-1.19.0 (TBD)
-------------
+1.19.0 (2025-02-28)
+-------------------
 
 **New features**
 
-* [open-zaak/open-notificaties#231] Add catalogus kenmerk to besluiten & documenten kanaal.
+* [:open-notificaties:`231`] Add new kenmerk ``besluittype.catalogus`` to ``besluiten`` kanaal and ``informatieobjecttype.catalogus`` to ``documenten`` kanaal
 
 .. warning::
 
@@ -20,6 +20,29 @@ Changelog
     to the filters of the ``documenten`` kanaal in ``notifications_kanalen_config``.
 
 * [:open-zaak:`1905`] Confirm support for Postgres versions 15 and 16 and Postgis 3.4 and 3.5
+* [:open-zaak:`1616`] Add ``ZAAK_IDENTIFICATIE_GENERATOR`` environment variable to support different ways
+  to generate ``Zaak.identificatie``. See ... for the options
+* [:open-zaak:`1812`] Auto fill in zaak.startdatum_bewaartermijn
+* [:open-zaak:`1812`] add user filled in brondatun to archive date calculation
+
+**Experimental features**
+
+* [:open-notificaties:`231`] Add catalogus kenmerk to besluiten & documenten kanaal TODO
+
+**Bugfixes and QOL**
+
+* [:open-zaak:`1907`] Fix import mechanism incorrectly using sqlite as cache backend
+
+**Project maintenance**
+
+* Upgrade dependencies:
+
+  * django to 4.2.19
+  * open-api-framework to 0.9.3
+  * cryptography to 44.0.1
+
+* [:open-zaak:`1907`] Run testsuite in CI in parallel to speed up the pipeline
+* [:open-api-framework:`100`] Add quick-start workflow to test docker-compose.yml
 
 1.18.0 (2025-02-14)
 -------------------
