@@ -2,16 +2,26 @@
 # Copyright (C) 2019 - 2022 Dimpact
 import os
 
+import sentry_sdk
 from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 from open_api_framework.conf.base import *  # noqa
-from open_api_framework.conf.utils import config
+from open_api_framework.conf.utils import config, get_sentry_integrations
 
-from ...utils.monitoring import filter_sensitive_data
+from openzaak.utils.monitoring import filter_sensitive_data
+
 from .api import *  # noqa
 from .plugins import PLUGIN_INSTALLED_APPS
 
-init_sentry(before_send=filter_sensitive_data)
+# Reinitialize Sentry to add the before_send hook
+if SENTRY_DSN:
+    SENTRY_CONFIG["before_send"] = filter_sensitive_data
+    sentry_sdk.init(
+        **SENTRY_CONFIG,
+        integrations=get_sentry_integrations(),
+        send_default_pii=True,
+    )
+
 
 #
 # Core Django settings

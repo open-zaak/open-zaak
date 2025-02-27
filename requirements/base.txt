@@ -307,7 +307,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 notifications-api-common==0.6.0
     # via commonground-api-common
-open-api-framework==0.9.2
+open-api-framework==0.9.3
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
@@ -460,6 +460,5 @@ zgw-consumers==0.37.0
     # via
     #   commonground-api-common
     #   notifications-api-common
-    #   open-api-framework
 zgw-consumers-oas==1.0.0
     # via commonground-api-common
