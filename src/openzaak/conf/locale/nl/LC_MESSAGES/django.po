@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-14 10:47+0000\n"
+"POT-Creation-Date: 2025-02-27 14:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -262,21 +262,21 @@ msgstr ""
 
 #: openzaak/components/autorisaties/forms.py:519
 #: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:588
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1534
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1535
 #, python-brace-format
 msgid "{field} may not have overlapping scopes."
 msgstr "{field} mag geen overlappende scopes hebben."
 
 #: openzaak/components/autorisaties/forms.py:527
 #: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:610
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1497
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1498
 #, python-brace-format
 msgid "Scopes in {component} may not be duplicated."
 msgstr "De scopes in {component} mogen niet dubbel voorkomen."
 
 #: openzaak/components/autorisaties/forms.py:546
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1413
-#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1458
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1414
+#: openzaak/components/autorisaties/tests/admin/test_autorisaties_admin.py:1459
 #, python-brace-format
 msgid ""
 "You cannot create multiple Autorisaties/CatalogusAutorisaties with the same "
@@ -378,9 +378,9 @@ msgid "Could not delete remote relation: {}"
 msgstr "Kon externe relatie niet verwijderen: {}"
 
 #: openzaak/components/besluiten/api/serializers.py:224
-#: openzaak/components/zaken/api/serializers/zaken.py:841
-#: openzaak/components/zaken/api/serializers/zaken.py:1185
-#: openzaak/components/zaken/api/serializers/zaken.py:1234
+#: openzaak/components/zaken/api/serializers/zaken.py:855
+#: openzaak/components/zaken/api/serializers/zaken.py:1199
+#: openzaak/components/zaken/api/serializers/zaken.py:1248
 #, python-brace-format
 msgid "Could not create remote relation: {exception}"
 msgstr "Kon externe relatie niet aanmaken: {exception}"
@@ -696,7 +696,7 @@ msgstr "Publiceer de geselecteerde %(verbose_name_plural)s"
 #: openzaak/components/catalogi/admin/mixins.py:99
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:264
 #: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:228
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:813
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:817
 #, python-format
 msgid "%d object is already published"
 msgid_plural "%d objects are already published"
@@ -706,8 +706,8 @@ msgstr[1] "%d objecten zijn al gepubliceerd"
 #: openzaak/components/catalogi/admin/mixins.py:111
 #: openzaak/components/catalogi/admin/mixins.py:122
 #: openzaak/components/catalogi/tests/admin/test_admin_publish.py:589
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:865
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1023
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:869
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1027
 #, python-format
 msgid "%(obj)s can't be published: %(error)s"
 msgstr "%(obj)s kan niet gepubliceerd worden: %(error)s"
@@ -716,7 +716,7 @@ msgstr "%(obj)s kan niet gepubliceerd worden: %(error)s"
 #: openzaak/components/catalogi/tests/admin/test_admin_publish.py:609
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:234
 #: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:196
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:783
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:787
 #, python-format
 msgid "%d object has been published successfully"
 msgid_plural "%d objects have been published successfully"
@@ -761,7 +761,7 @@ msgstr ""
 #: openzaak/components/catalogi/admin/utils.py:164
 #: openzaak/components/catalogi/admin/utils.py:270
 #: openzaak/components/catalogi/management/commands/import.py:95
-#: openzaak/components/catalogi/tests/admin/test_import_export_catalogus.py:361
+#: openzaak/components/catalogi/tests/admin/test_import_export_catalogus.py:378
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:1988
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:2039
 msgid ""
@@ -2563,7 +2563,7 @@ msgstr ""
 #: openzaak/components/catalogi/tests/admin/test_admin_publish.py:384
 #: openzaak/components/catalogi/tests/admin/test_admin_publish.py:652
 #: openzaak/components/catalogi/tests/admin/test_admin_publish.py:697
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:868
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:872
 #: openzaak/components/catalogi/validators.py:113
 msgid "All related resources should be published"
 msgstr "Alle gerelateerde resources moeten gepubliceerd zijn"
@@ -2586,7 +2586,7 @@ msgstr ""
 msgid "Creating a relation to non-concept {resource} is forbidden"
 msgstr "Een relatie leggen naar een gepubliceerd(e) {resource} mag niet"
 
-#: openzaak/components/catalogi/tests/admin/test_import_export_catalogus.py:401
+#: openzaak/components/catalogi/tests/admin/test_import_export_catalogus.py:418
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:2170
 #: openzaak/templates/admin/catalogi/change_form_catalogus.html:12
 msgid "Exporteren"
@@ -2613,16 +2613,16 @@ msgstr ""
 "Dit zaaktype heeft resultaattypen zonder selectielijstklasse. Stel deze "
 "eerst in voor je het zaaktypen kan publiceren."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:895
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1015
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:899
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1019
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1593
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1614
 #: openzaak/components/catalogi/validators.py:134
 msgid "Publishing a zaaktype requires at least one roltype to be defined."
 msgstr "Om een zaaktype te publiceren moet minimaal één roltype bestaan."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:916
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1019
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:920
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1023
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1523
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1630
 #: openzaak/components/catalogi/validators.py:155
@@ -2631,8 +2631,8 @@ msgstr ""
 "Om een zaaktype te publiceren moeten minimaal twee statustypen (begin en "
 "eind)  bestaan."
 
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:958
-#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1017
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:962
+#: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1021
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1567
 #: openzaak/components/catalogi/tests/test_zaaktype.py:1622
 #: openzaak/components/catalogi/validators.py:144
@@ -2683,7 +2683,7 @@ msgid "versies"
 msgstr ""
 
 #: openzaak/components/documenten/admin.py:355
-#: openzaak/components/zaken/api/serializers/zaken.py:427
+#: openzaak/components/zaken/api/serializers/zaken.py:433
 msgid "Identificatie"
 msgstr ""
 
@@ -2870,7 +2870,7 @@ msgid "Either file should be upload or the file size = 0"
 msgstr "Je moet een bestand uploaden of de bestandsomvang op 0 zetten"
 
 #: openzaak/components/documenten/api/serializers.py:875
-#: openzaak/components/zaken/api/serializers/zaken.py:578
+#: openzaak/components/zaken/api/serializers/zaken.py:584
 msgid "Array of unieke resource identifiers (UUID4)"
 msgstr "Lijst van unieke resource identifiers (UUID4)"
 
@@ -2905,7 +2905,7 @@ msgstr "De velden 'object' en 'informatieobject' moeten samen uniek zijn."
 #: openzaak/components/documenten/api/validators.py:82
 #: openzaak/components/documenten/tests/test_validation.py:258
 #: openzaak/components/zaken/api/validators.py:91
-#: openzaak/components/zaken/tests/test_zaak_identificatie.py:78
+#: openzaak/components/zaken/tests/test_zaak_identificatie.py:80
 #, python-brace-format
 msgid ""
 "Deze identificatie ({identificatie}) bestaat al voor deze bronorganisatie"
@@ -3604,7 +3604,7 @@ msgstr ""
 msgid "Constraint “%(name)s” is violated."
 msgstr ""
 
-#: openzaak/components/documenten/tests/import/test_import_create.py:136
+#: openzaak/components/documenten/tests/import/test_import_create.py:138
 #: openzaak/components/documenten/tests/import/test_import_destroy.py:113
 #: openzaak/components/documenten/tests/import/test_import_status.py:228
 #: openzaak/components/documenten/tests/import/test_import_upload.py:433
@@ -3643,7 +3643,7 @@ msgid "Het veld waarop de resultaten geordend worden."
 msgstr ""
 
 #: openzaak/components/zaken/api/filters.py:373
-#: openzaak/components/zaken/api/serializers/zaken.py:636
+#: openzaak/components/zaken/api/serializers/zaken.py:642
 msgid ""
 "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status "
 "gezet van van alle statussen bij de desbetreffende zaak."
@@ -3923,77 +3923,77 @@ msgid ""
 "niet van een waarde voorzien zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:112
-#: openzaak/components/zaken/api/serializers/zaken.py:127
+#: openzaak/components/zaken/api/serializers/zaken.py:113
+#: openzaak/components/zaken/api/serializers/zaken.py:128
 msgid "Reden"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:112
+#: openzaak/components/zaken/api/serializers/zaken.py:113
 msgid "Duur"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:126
+#: openzaak/components/zaken/api/serializers/zaken.py:127
 msgid "Indicatie"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:222
+#: openzaak/components/zaken/api/serializers/zaken.py:228
 msgid "URL-referenties naar ZAAK-EIGENSCHAPPen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:230
+#: openzaak/components/zaken/api/serializers/zaken.py:236
 msgid "URL-referenties naar ROLLen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:238
+#: openzaak/components/zaken/api/serializers/zaken.py:244
 msgid "Indien geen status bekend is, dan is de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:246
-#: openzaak/components/zaken/api/serializers/zaken.py:645
+#: openzaak/components/zaken/api/serializers/zaken.py:252
+#: openzaak/components/zaken/api/serializers/zaken.py:651
 msgid "URL-referenties naar ZAAKINFORMATIEOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:254
+#: openzaak/components/zaken/api/serializers/zaken.py:260
 msgid "URL-referenties naar ZAAKOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:268
+#: openzaak/components/zaken/api/serializers/zaken.py:274
 msgid "Uitleg bij `betalingsindicatie`."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:275
+#: openzaak/components/zaken/api/serializers/zaken.py:281
 msgid ""
 "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de "
 "ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:283
+#: openzaak/components/zaken/api/serializers/zaken.py:289
 msgid ""
 "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:293
+#: openzaak/components/zaken/api/serializers/zaken.py:299
 msgid "URL-referenties naar deel ZAAKen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:303
+#: openzaak/components/zaken/api/serializers/zaken.py:309
 msgid ""
 "URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is "
 "de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:308
+#: openzaak/components/zaken/api/serializers/zaken.py:314
 msgid "Een lijst van relevante andere zaken."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:315
+#: openzaak/components/zaken/api/serializers/zaken.py:321
 msgid ""
 "Specificatie van de attribuutsoort van het object, subject of gebeurtenis  "
 "waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend "
 "is voor de start van de archiefactietermijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:441
+#: openzaak/components/zaken/api/serializers/zaken.py:447
 msgid ""
 "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de "
 "openbaarheid bestemd is. Optioneel - indien geen waarde gekozen wordt, dan "
@@ -4001,23 +4001,23 @@ msgid ""
 "_altijd_ een waarde teruggeeft."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:499
+#: openzaak/components/zaken/api/serializers/zaken.py:505
 msgid ""
 "Laatste betaaldatum kan niet gezet worden als de betalingsindicatie \"nvt\" "
 "is"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:518
+#: openzaak/components/zaken/api/serializers/zaken.py:524
 msgid ""
 "Niet alle producten/diensten komen voor in de producten/diensten op het "
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:583
+#: openzaak/components/zaken/api/serializers/zaken.py:589
 msgid "Array van zaaktypen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:950
+#: openzaak/components/zaken/api/serializers/zaken.py:964
 msgid ""
 "De gegevens van de persoon die anderen desgevraagd in contact brengt met "
 "medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING "
@@ -4025,14 +4025,14 @@ msgid ""
 "belang van BETROKKENE in haar ROL bij een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1001
+#: openzaak/components/zaken/api/serializers/zaken.py:1015
 #: openzaak/components/zaken/models/zaken.py:650
 msgid ""
 "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat "
 "STATUSsen in die ZAAK bereikt zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1028
+#: openzaak/components/zaken/api/serializers/zaken.py:1042
 msgid "betrokkene or betrokkeneIdentificatie must be provided"
 msgstr ""
 
@@ -4158,67 +4158,67 @@ msgid ""
 "worden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:101
+#: openzaak/components/zaken/brondatum.py:107
 msgid ""
 "Geen datumkenmerk aanwezig om de eigenschap te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:114
+#: openzaak/components/zaken/brondatum.py:120
 msgid "Geen geldige datumwaarde in eigenschap \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:121
+#: openzaak/components/zaken/brondatum.py:127
 msgid ""
 "Geen eigenschap gevonden die overeenkomt met het datumkenmerk \"{}\" voor "
 "het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:134
+#: openzaak/components/zaken/brondatum.py:140
 msgid ""
 "Geen objecttype aanwezig om het zaakobject te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:140
+#: openzaak/components/zaken/brondatum.py:146
 msgid ""
 "Geen datumkenmerk aanwezig om het attribuut van het zaakobject te "
 "achterhalen voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:158
+#: openzaak/components/zaken/brondatum.py:164
 msgid "{} geen geldig attribuut voor ZaakObject van type {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:167
+#: openzaak/components/zaken/brondatum.py:173
 msgid "Geen geldige datumwaarde in attribuut \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:177
+#: openzaak/components/zaken/brondatum.py:183
 msgid ""
 "Geen attribuut gevonden die overeenkomt met het datumkenmerk \"{}\" voor het "
 "bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:188
+#: openzaak/components/zaken/brondatum.py:194
 msgid "Geen procestermijn aanwezig voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:194
+#: openzaak/components/zaken/brondatum.py:200
 msgid "Geen geldige periode in procestermijn: {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:203
+#: openzaak/components/zaken/brondatum.py:209
 msgid ""
 "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:233
-#: openzaak/components/zaken/brondatum.py:248
+#: openzaak/components/zaken/brondatum.py:239
+#: openzaak/components/zaken/brondatum.py:254
 msgid "Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:257
+#: openzaak/components/zaken/brondatum.py:263
 msgid ""
 "Besluit.vervaldatum moet gezet worden voordat de zaak kan worden afgesloten"
 msgstr ""
