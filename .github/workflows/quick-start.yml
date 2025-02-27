@@ -11,4 +11,6 @@ on:
 
 jobs:
   open-api-workflow-quick-start:
-    uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@v4.2.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@v4.2.2
+    with:
+      service_name: web.local
