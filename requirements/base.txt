@@ -79,7 +79,7 @@ coreschema==0.0.4
     # via coreapi
 cron-descriptor==1.4.3
     # via django-celery-beat
-cryptography==41.0.7
+cryptography==44.0.1
     # via
     #   django-simple-certmanager
     #   josepy
@@ -90,7 +90,7 @@ deprecated==1.2.14
     # via redis
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==4.2.17
+django==4.2.19
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -337,7 +337,7 @@ pyjwt==2.4.0
     # via
     #   commonground-api-common
     #   zgw-consumers
-pyopenssl==23.3.0
+pyopenssl==25.0.0
     # via
     #   josepy
     #   webauthn
@@ -420,6 +420,7 @@ typing-extensions==4.12.2
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
+    #   pyopenssl
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
