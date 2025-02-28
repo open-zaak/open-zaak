@@ -17,7 +17,11 @@ urlpatterns = [
     # besluiten
     path(
         "besluiten/",
-        ComponentIndexView.as_view(component="besluiten"),
+        ComponentIndexView.as_view(
+            component="besluiten",
+            repository="https://github.com/open-zaak/open-zaak",
+            github_ref=__version__,
+        ),
         name="index-besluiten",
     ),
     path("besluiten/api/", include("openzaak.components.besluiten.api.urls")),
@@ -31,7 +35,11 @@ urlpatterns = [
     # documenten
     path(
         "documenten/",
-        ComponentIndexView.as_view(component="documenten", github_ref="stable/1.1.x"),
+        ComponentIndexView.as_view(
+            component="documenten",
+            repository="https://github.com/open-zaak/open-zaak",
+            github_ref=__version__,
+        ),
         name="index-documenten",
     ),
     path("documenten/api/", include("openzaak.components.documenten.api.urls")),
