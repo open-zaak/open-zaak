@@ -1,17 +1,26 @@
 Changelog
 =========
 
-1.19.0 (TBD)
-------------
+1.19.0 (2025-02-28)
+-------------------
 
 **New features**
 
-* [open-zaak/open-notificaties#231] Add catalogus kenmerk to besluiten & documenten kanaal.
+* [:open-zaak:`1905`] Confirm support for Postgres versions 15 and 16 and Postgis 3.4 and 3.5
+* [:open-zaak:`1616`] Add ``ZAAK_IDENTIFICATIE_GENERATOR`` environment variable to support different ways
+  to generate ``Zaak.identificatie``, see :ref:`installation_env_config` for more information (under "Optional").
+* [:open-zaak:`1812`] Automatically fill in ``Zaak.startdatum_bewaartermijn`` when closing a ``Zaak`` (if it was
+  not explicitly specified) and always use that to calculate ``Zaak.archiefactiedatum``
+
+**Experimental features**
+
+* [:open-notificaties:`231`] Add new kenmerk ``besluittype.catalogus`` to ``besluiten`` kanaal and ``informatieobjecttype.catalogus`` to ``documenten`` kanaal
 
 .. warning::
 
-    In order to use this new kenmerk, the ``src/manage.py register_kanalen`` command must be run in Open Zaak to update
-    the ``besluiten`` & ``documenten`` kanaal with this new kenmerk.
+    In order to use these new kenmerken, Open Notificaties must be updated to at least version 1.8.0
+    and the ``src/manage.py register_kanalen`` command must be run in Open Zaak to update
+    the ``besluiten`` & ``documenten`` kanaal with this new kenmerk
 
 .. warning::
 
@@ -19,7 +28,20 @@ Changelog
     make sure to add ``besluittype.catalogus`` to the filters of the ``besluiten`` kanaal & ``informatieobjecttype.catalogus``
     to the filters of the ``documenten`` kanaal in ``notifications_kanalen_config``.
 
-* [:open-zaak:`1905`] Confirm support for Postgres versions 15 and 16 and Postgis 3.4 and 3.5
+**Bugfixes and QOL**
+
+* [:open-zaak:`1907`] Fix import mechanism incorrectly using sqlite as cache backend
+
+**Project maintenance**
+
+* Upgrade dependencies:
+
+  * django to 4.2.19
+  * open-api-framework to 0.9.3
+  * cryptography to 44.0.1
+
+* [:open-zaak:`1907`] Run testsuite in CI in parallel to speed up the pipeline
+* [:open-api-framework:`100`] Add quick-start workflow to test docker-compose.yml
 
 1.18.0 (2025-02-14)
 -------------------
