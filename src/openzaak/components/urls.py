@@ -10,7 +10,7 @@ urlpatterns = [
     # autorisaties
     path(
         "autorisaties/",
-        ComponentIndexView.as_view(component="autorisaties"),
+        ComponentIndexView.as_view(component="autorisaties", github_ref="1.0.1-alpha1"),
         name="index-autorisaties",
     ),
     path("autorisaties/api/", include("openzaak.components.autorisaties.api.urls")),
