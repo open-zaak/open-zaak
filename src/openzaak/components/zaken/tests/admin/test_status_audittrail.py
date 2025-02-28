@@ -65,13 +65,15 @@ class StatusAdminTests(AdminTestMixin, TestCase):
 
     def test_change_status(self):
         status = StatusFactory.create(statustoelichting="old")
+        statustype = StatusTypeFactory.create(zaaktype=status.zaak.zaaktype)
+
         status_url = get_operation_url("status_read", uuid=status.uuid)
         zaak_url = get_operation_url("zaak_read", uuid=status.zaak.uuid)
         change_url = reverse("admin:zaken_status_change", args=(status.pk,))
         data = {
             "uuid": status.uuid,
             "zaak": status.zaak.id,
-            "_statustype": status.statustype.id,
+            "_statustype": statustype.id,
             "datum_status_gezet_0": timezone.now().date(),
             "datum_status_gezet_1": timezone.now().time(),
             "statustoelichting": "new",

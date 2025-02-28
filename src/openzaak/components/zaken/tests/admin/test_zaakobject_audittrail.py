@@ -6,6 +6,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
+from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.tests.utils import AdminTestMixin
 
@@ -23,6 +24,8 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
 
     def test_create_zaakobject(self):
         zaak = ZaakFactory.create()
+        zaak_objecttype = ZaakObjectTypeFactory.create(zaaktype=zaak.zaaktype)
+
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         add_url = reverse("admin:zaken_zaakobject_add")
 
@@ -32,6 +35,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
+        form["_zaakobjecttype"] = zaak_objecttype.id
 
         form.submit()
 

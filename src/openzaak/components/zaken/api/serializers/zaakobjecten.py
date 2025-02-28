@@ -10,6 +10,7 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
+from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
@@ -18,7 +19,6 @@ from openzaak.utils.validators import (
 
 from ...models import ZaakObject
 from ..validators import (
-    CorrectZaaktypeValidator,
     EitherFieldRequiredValidator,
     JQExpressionValidator,
     ObjectTypeOverigeDefinitieValidator,

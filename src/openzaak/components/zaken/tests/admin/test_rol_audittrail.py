@@ -25,7 +25,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
     def test_create_rol(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
-        roltype = RolTypeFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         add_url = reverse("admin:zaken_rol_add")
 
         get_response = self.app.get(add_url)
@@ -67,9 +67,11 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(new_data["roltoelichting"], "desc")
 
     def test_change_rol(self):
-        rol = RolFactory.create(roltoelichting="old")
-        rol_url = get_operation_url("rol_read", uuid=rol.uuid, zaak_uuid=rol.zaak.uuid)
-        zaak_url = get_operation_url("zaak_read", uuid=rol.zaak.uuid)
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(roltoelichting="old", roltype=roltype, zaak=zaak)
+        rol_url = get_operation_url("rol_read", uuid=rol.uuid, zaak_uuid=zaak.uuid)
+        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
         change_url = reverse("admin:zaken_rol_change", args=(rol.pk,))
 
         get_response = self.app.get(change_url)
