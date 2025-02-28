@@ -85,7 +85,9 @@ jobs:
             gdal-bin
 
       - name: Install dependencies
-        run: pip install -r requirements/ci.txt
+        run: |
+          pip install uv
+          uv pip install --system -r requirements/ci.txt
 
       - name: Test migrate and check
         run: |
