@@ -52,8 +52,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         site = Site.objects.get_current()
         site.domain = "testserver"

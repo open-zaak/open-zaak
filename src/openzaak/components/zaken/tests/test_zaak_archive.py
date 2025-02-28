@@ -1254,8 +1254,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         ServiceFactory.create(
             api_root="https://external.nl/documenten/",

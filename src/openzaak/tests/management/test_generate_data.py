@@ -148,11 +148,12 @@ class GenerateDataAdminTests(WebTest):
         super().setUpTestData()
         cls.user = SuperUserFactory.create()
 
-    def setUp(self):
-        super().setUp()
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()
+
+    def setUp(self):
+        super().setUp()
 
         self.app.set_user(self.user)
 

@@ -11,14 +11,15 @@ from .utils import get_operation_url
 class CatalogusAPITestMixin:
     API_VERSION = "1"
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()  # type: ignore
 
-        self.catalogus = CatalogusFactory.create(domein="ABCDE", rsin="000000001")
+        cls.catalogus = CatalogusFactory.create(domein="ABCDE", rsin="000000001")
 
-        self.catalogus_list_url = get_operation_url("catalogus_list")
-        self.catalogus_detail_url = get_operation_url(
-            "catalogus_read", uuid=self.catalogus.uuid
+        cls.catalogus_list_url = get_operation_url("catalogus_list")
+        cls.catalogus_detail_url = get_operation_url(
+            "catalogus_read", uuid=cls.catalogus.uuid
         )
 
 
