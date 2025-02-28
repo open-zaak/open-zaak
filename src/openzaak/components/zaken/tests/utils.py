@@ -188,12 +188,14 @@ def get_statustype_response(statustype: str, zaaktype: str, **overrides) -> dict
     }
 
 
-def get_roltype_response(roltype: str, zaaktype: str):
+def get_roltype_response(
+    roltype: str, zaaktype: str, omschrijving_generiek: str = "adviseur"
+):
     return {
         "url": roltype,
         "zaaktype": zaaktype,
         "omschrijving": "some role",
-        "omschrijvingGeneriek": "adviseur",
+        "omschrijvingGeneriek": omschrijving_generiek,
         "zaaktypeIdentificatie": "ZAAK1",
     }
 

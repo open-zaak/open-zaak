@@ -8,7 +8,7 @@ from typing import Iterable, Optional
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Max, Subquery
+from django.db.models import Max, Q, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -16,7 +16,7 @@ import jq
 import jsonschema
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
-from vng_api_common.constants import Archiefstatus
+from vng_api_common.constants import Archiefstatus, RolOmschrijving
 from vng_api_common.validators import (
     UniekeIdentificatieValidator as _UniekeIdentificatieValidator,
     URLValidator,
@@ -28,6 +28,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.components.zaken.models import Rol
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
@@ -638,4 +639,65 @@ class OverigeRelevanteZaakRelatieValidator:
         if aard_relatie == AardZaakRelatie.overig and not overige_relatie:
             raise serializers.ValidationError(
                 {"overige_relatie": self.message}, code=self.code
+            )
+
+
+class BehandelaarTijdvakGeldigheidValidator:
+    code = "behandelaar-tijdvak-geldigheid-overlap"
+    message = _(
+        "Only one Rol with roltype.omschrijvingGeneriek `behandelaar` can exist "
+        "during a validity period (tijdvakGeldigheid) for betrokkeneType {betrokkene_type}"
+    )
+    requires_context = True
+
+    def __init__(self, betrokkene_type):
+        self.betrokkene_type = betrokkene_type
+
+    def __call__(self, attrs, serializer):
+        betrokkene_type = get_from_serializer_data_or_instance(
+            "betrokkene_type", attrs, serializer
+        )
+        roltype = get_from_serializer_data_or_instance("roltype", attrs, serializer)
+        zaak = get_from_serializer_data_or_instance("zaak", attrs, serializer)
+        tijdvak_geldigheid = get_from_serializer_data_or_instance(
+            "tijdvak_geldigheid", attrs, serializer
+        )
+
+        # Validation does not apply if no tijdvakGeldigheid is supplied, to make it
+        # a backwards compatible experimental feature
+        if (
+            not tijdvak_geldigheid
+            or betrokkene_type != self.betrokkene_type
+            or roltype.omschrijving_generiek != RolOmschrijving.behandelaar
+        ):
+            return
+
+        begin_geldigheid = tijdvak_geldigheid.get("begin_geldigheid")
+        eind_geldigheid = tijdvak_geldigheid.get("eind_geldigheid")
+
+        # TODO workaround for https://github.com/open-zaak/open-zaak/issues/1878
+        if not begin_geldigheid:
+            return
+
+        other_rollen_for_zaak = Rol.objects.filter(
+            zaak=zaak,
+            betrokkene_type=self.betrokkene_type,
+        )
+        other_behandelaar_rollen = other_rollen_for_zaak.filter_by_roltype_attribute(
+            "omschrijving_generiek", RolOmschrijving.behandelaar
+        )
+
+        if eind_geldigheid is None:
+            query = Q(tijdvak_geldigheid_eind_geldigheid__isnull=True) | Q(
+                tijdvak_geldigheid_eind_geldigheid__gte=begin_geldigheid
+            )
+        else:
+            query = Q(tijdvak_geldigheid_begin_geldigheid__lte=eind_geldigheid) & (
+                Q(tijdvak_geldigheid_eind_geldigheid__isnull=True)
+                | Q(tijdvak_geldigheid_eind_geldigheid__gte=begin_geldigheid)
+            )
+
+        if other_behandelaar_rollen.filter(query).exists():
+            raise serializers.ValidationError(
+                self.message.format(betrokkene_type=betrokkene_type), code=self.code
             )
