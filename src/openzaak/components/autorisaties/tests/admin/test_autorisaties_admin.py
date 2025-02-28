@@ -522,7 +522,11 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-externe_typen": ["https://external.catalogi.com/api/v1/1234"],
         }
 
-        response = self.client.post(self.url, data)
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://external.catalogi.com/api/v1/1234", json={"invalid": "shape"}
+            )
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)
