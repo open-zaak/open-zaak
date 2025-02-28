@@ -15,10 +15,11 @@ class ViewConfigTestCase(WebTest):
     url = reverse_lazy("view-config")
     api_root = "http://notifications.local/api/v1/"
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
-        self.config = NotificationsConfig.get_solo()
+        cls.config = NotificationsConfig.get_solo()
 
     def test_view_config_page_no_notifs_service(self):
         self.config.notifications_api_service = None

@@ -10,9 +10,10 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 
 WORKDIR /app
 
+# Use uv to install dependencies
+RUN pip install uv -U
 COPY ./requirements /app/requirements
-RUN pip install pip "setuptools>=70.0.0"
-RUN pip install -r requirements/production.txt
+RUN uv pip install --system -r requirements/production.txt
 
 
 # Stage 2 - build frontend
@@ -52,8 +53,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         libproj-dev \
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*
-
-RUN pip install pip "setuptools>=70.0.0"
 
 WORKDIR /app
 COPY ./cache /app/cache
