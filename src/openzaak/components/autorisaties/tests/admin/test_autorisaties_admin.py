@@ -168,18 +168,19 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         user.user_permissions.add(perm)
         cls.applicatie = ApplicatieFactory.create()
 
+        cls.url = reverse(
+            "admin:authorizations_applicatie_autorisaties",
+            kwargs={"object_id": cls.applicatie.pk},
+        )
+        cls.applicatie_url = reverse(
+            "applicatie-detail", kwargs={"version": 1, "uuid": cls.applicatie.uuid}
+        )
+        cls.catalogus = CatalogusFactory.create()
+
     def setUp(self):
         super().setUp()
 
         self.client.force_login(self.user)
-        self.url = reverse(
-            "admin:authorizations_applicatie_autorisaties",
-            kwargs={"object_id": self.applicatie.pk},
-        )
-        self.applicatie_url = reverse(
-            "applicatie-detail", kwargs={"version": 1, "uuid": self.applicatie.uuid}
-        )
-        self.catalogus = CatalogusFactory.create()
 
     def test_page_returns_on_get(self):
         # set up some initial data
