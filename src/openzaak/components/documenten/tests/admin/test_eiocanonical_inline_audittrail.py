@@ -29,15 +29,15 @@ class EioAdminInlineTests(WebTest):
         cls.canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
             latest_version=None
         )
+        cls.change_url = reverse(
+            "admin:documenten_enkelvoudiginformatieobjectcanonical_change",
+            args=(cls.canonical.pk,),
+        )
 
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
-        self.change_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobjectcanonical_change",
-            args=(self.canonical.pk,),
-        )
 
     def assertEioAudittrail(self, audittrail):
         self.assertEqual(audittrail.bron, "DRC")

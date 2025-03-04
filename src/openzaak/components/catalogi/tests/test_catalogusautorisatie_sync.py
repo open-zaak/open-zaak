@@ -36,48 +36,45 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
         site.domain = "testserver"
         site.save()
 
-    def setUp(self):
-        super().setUp()
+        cls.catalogus1 = CatalogusFactory.create()
+        cls.catalogus2 = CatalogusFactory.create()
+        cls.applicatie1 = ApplicatieFactory.create()
+        cls.applicatie2 = ApplicatieFactory.create()
 
-        self.catalogus1 = CatalogusFactory.create()
-        self.catalogus2 = CatalogusFactory.create()
-        self.applicatie1 = ApplicatieFactory.create()
-        self.applicatie2 = ApplicatieFactory.create()
-
-        self.catalogus_autorisatie1 = CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie1,
-            catalogus=self.catalogus1,
+        cls.catalogus_autorisatie1 = CatalogusAutorisatieFactory.create(
+            applicatie=cls.applicatie1,
+            catalogus=cls.catalogus1,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-        self.catalogus_autorisatie2 = CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie1,
-            catalogus=self.catalogus2,
+        cls.catalogus_autorisatie2 = CatalogusAutorisatieFactory.create(
+            applicatie=cls.applicatie1,
+            catalogus=cls.catalogus2,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-        self.catalogus_autorisatie3 = CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie2,
-            catalogus=self.catalogus1,
+        cls.catalogus_autorisatie3 = CatalogusAutorisatieFactory.create(
+            applicatie=cls.applicatie2,
+            catalogus=cls.catalogus1,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
-        self.catalogus_autorisatie4 = CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie2,
-            catalogus=self.catalogus2,
+        cls.catalogus_autorisatie4 = CatalogusAutorisatieFactory.create(
+            applicatie=cls.applicatie2,
+            catalogus=cls.catalogus2,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
         )
 
         # unrelated, should not be triggered
-        self.applicatie3 = ApplicatieFactory.create()
+        cls.applicatie3 = ApplicatieFactory.create()
         CatalogusAutorisatieFactory.create(
-            applicatie=self.applicatie3,
-            catalogus=self.catalogus2,
+            applicatie=cls.applicatie3,
+            catalogus=cls.catalogus2,
             component=ComponentTypes.zrc,
             scopes=["zaken.lezen"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
