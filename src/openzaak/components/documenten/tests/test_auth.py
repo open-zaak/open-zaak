@@ -973,8 +973,9 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         site = Site.objects.get_current()
         site.domain = "testserver"

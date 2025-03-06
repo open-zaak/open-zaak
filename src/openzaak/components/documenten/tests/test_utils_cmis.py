@@ -25,8 +25,10 @@ class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
         site = Site.objects.get_current()
         site.domain = "testserver"
         site.save()

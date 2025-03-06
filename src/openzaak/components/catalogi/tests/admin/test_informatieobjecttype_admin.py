@@ -29,17 +29,17 @@ class ZiotFilterAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
+        cls.catalogus = CatalogusFactory.create()
+
+        # Delete automatically created ZaakTypen
+        ZaakType.objects.all().delete()
+        cls.zaaktype = ZaakTypeFactory.create(catalogus=cls.catalogus)
+        ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
+
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
-
-        self.catalogus = CatalogusFactory.create()
-
-        # Delete automatically created ZaakTypen
-        ZaakType.objects.all().delete()
-        self.zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
 
     def test_create_ziot_zaaktype_popup_filter_no_catalogus(self):
         response = self.app.get(
@@ -127,16 +127,16 @@ class AddZiotAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
+        cls.catalogus = CatalogusFactory.create()
+
+        # Delete automatically created ZaakTypen
+        ZaakType.objects.all().delete()
+        cls.zaaktype = ZaakTypeFactory.create(catalogus=cls.catalogus)
+
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
-
-        self.catalogus = CatalogusFactory.create()
-
-        # Delete automatically created ZaakTypen
-        ZaakType.objects.all().delete()
-        self.zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
 
     def test_add_ziot(self):
         iot = InformatieObjectTypeFactory.create(catalogus=self.catalogus, zaaktypen=[])
@@ -164,14 +164,14 @@ class IoTypePublishAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
+        cls.catalogus = CatalogusFactory.create()
+        cls.url = reverse_lazy("admin:catalogi_informatieobjecttype_changelist")
+        cls.query_params = {"catalogus_id__exact": cls.catalogus.pk}
+
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
-
-        self.catalogus = CatalogusFactory.create()
-        self.url = reverse_lazy("admin:catalogi_informatieobjecttype_changelist")
-        self.query_params = {"catalogus_id__exact": self.catalogus.pk}
 
     def test_publish_selected_success(self):
         iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(
