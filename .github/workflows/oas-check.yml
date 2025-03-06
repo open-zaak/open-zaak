@@ -2,16 +2,11 @@ name: check-oas
 
 on:
   push:
-    paths:
-      - "src/openzaak/components/*/openapi.yaml"
-      - .github/workflows/oas-check.yml
-    branches:
-      - '**'
   workflow_dispatch:
 
 jobs:
   open-api-workflow-check-oas:
-    uses: maykinmedia/open-api-workflows/.github/workflows/oas-check.yml@v1
+    uses: maykinmedia/open-api-workflows/.github/workflows/oas-check.yml@v5.0.0
     strategy:
       matrix:
         component:
@@ -22,8 +17,8 @@ jobs:
           - zaken
     with:
       schema-path: 'src/openzaak/components/${{ matrix.component }}/openapi.yaml'
-      schema-command: 'spectacular_for_component'
-      schema-options: "--component ${{ matrix.component }}"
+      schema-command: 'bin/generate_schema_for_component.sh'
+      schema-options: "${{ matrix.component }} src/openzaak/components/${{ matrix.component }}/openapi.yaml"
       python-version: '3.11'
       django-settings-module: 'openzaak.conf.ci'
       apt-packages: 'libgdal-dev gdal-bin'
