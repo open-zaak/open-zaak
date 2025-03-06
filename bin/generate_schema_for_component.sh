@@ -22,6 +22,8 @@ OUTPUT_FILE=$2
 echo "Generating OAS schema for $1..."
 src/manage.py spectacular_for_component \
     --file ${OUTPUT_FILE:-$SCHEMA_PATH/openapi.yaml} \
+    --lang="nl" \
+    --validate \
     --component $1
 
 echo "Done."
