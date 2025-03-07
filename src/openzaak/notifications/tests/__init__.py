@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 from requests_mock import Mocker
-from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 
 def _get_base_url() -> str:
