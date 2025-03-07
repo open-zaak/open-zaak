@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from contextlib import contextmanager
-from typing import Iterable, Union
+from typing import Callable, Iterable, Union
 
 from django.core.cache import caches
 
 import requests_cache
 from requests_cache import BaseCache, clear, install_cache, uninstall_cache
 from requests_cache.backends import init_backend
-from requests_cache.backends.base import KEY_FN
 from requests_cache.cache_keys import create_key
 from requests_cache.session import CachedSession
 
@@ -74,7 +73,7 @@ class DjangoRequestsCache(requests_cache.BaseCache):
         cache_name: str,
         match_headers: Union[Iterable[str], bool] = False,
         ignored_parameters: Iterable[str] = None,
-        key_fn: KEY_FN = None,
+        key_fn: Callable[..., str] = None,
         **kwargs,
     ):
         self.responses = DjangoCacheStorage(cache_name=cache_name)

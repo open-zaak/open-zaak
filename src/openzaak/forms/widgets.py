@@ -3,7 +3,7 @@
 from typing import Optional, Union
 
 from django import forms
-from django.contrib.gis.admin.widgets import OpenLayersWidget
+from django.contrib.gis.forms.widgets import OpenLayersWidget
 from django.contrib.gis.gdal import AxisOrder, OGRGeometry, SpatialReference
 from django.contrib.gis.geos import GEOSGeometry
 from django.utils.translation import gettext_lazy as _
@@ -180,13 +180,13 @@ class AuthorityAxisOrderOLWidget(OpenLayersWidget):
     GDAL related doc - https://gdal.org/tutorials/osr_api_tut.html#crs-and-axis-order
     """
 
-    data_srid = 4326
+    map_srid = 4326
 
     def get_context(self, name, value, attrs):
         if value:
             ogr = OGRGeometry(value.wkt, AuthoritySpatialReference(value.srid))
             # ogr = value.ogr
-            ogr.transform(self.params["srid"])
+            ogr.transform(self.map_srid)
             value = GEOSGeometry(ogr._geos_ptr(), srid=ogr.srid)
 
         return super().get_context(name, value, attrs)
@@ -194,6 +194,6 @@ class AuthorityAxisOrderOLWidget(OpenLayersWidget):
     def deserialize(self, value):
         value = GEOSGeometry(value)
 
-        if value.srid and value.srid != self.data_srid:
-            value.transform(AuthoritySpatialReference(self.data_srid))
+        if value.srid and value.srid != self.map_srid:
+            value.transform(AuthoritySpatialReference(self.map_srid))
         return value
