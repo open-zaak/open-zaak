@@ -12,8 +12,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.test import mock_service_oas_get
 from zgw_consumers.test.factories import ServiceFactory
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
@@ -214,7 +214,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
-            oas=f"{cls.base}schema/openapi.yaml?v3",
         )
 
     def test_create_bio_external_document(self):
@@ -238,7 +237,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker() as m:
                 mock_drc_oas_get(m)
-                mock_drc_oas_get(m, oas_url=self.drc_service.oas)
+                mock_drc_oas_get(m, oas_url=f"{self.base}schema/openapi.yaml?v3")
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",

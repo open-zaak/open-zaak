@@ -43,9 +43,9 @@ class TestMigrations(TestCase):
         with override_settings(**overrides):
             executor = MigrationExecutor(connection)
             executor.loader.build_graph()  # reload.
-            executor.migrate(self.migrate_to)
+            new_migrate_state = executor.migrate(self.migrate_to)
 
-        self.apps = executor.loader.project_state(self.migrate_to).apps
+        self.apps = new_migrate_state.apps
 
     def setUpBeforeMigration(self, apps):
         pass

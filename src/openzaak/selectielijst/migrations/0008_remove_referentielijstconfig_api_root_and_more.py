@@ -23,8 +23,6 @@ def set_selectielijst_service(apps, _):
             "label": "VNG Selectielijst",
             "slug": "vng-selectielijst",
             "api_type": APITypes.orc,
-            # No longer used, but still required by the admin
-            "oas": config.api_root,
         },
     )
 
