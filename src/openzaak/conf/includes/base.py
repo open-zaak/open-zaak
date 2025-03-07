@@ -351,8 +351,10 @@ CELERY_BEAT_SCHEDULE = {
 #
 CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
 CSP_SCRIPT_SRC = CSP_SCRIPT_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
-CSP_IMG_SRC = CSP_IMG_SRC + ["cdnjs.cloudflare.com", "*.tile.openstreetmap.org"]
+CSP_IMG_SRC = CSP_IMG_SRC + ["cdnjs.cloudflare.com", "https://*.earthdata.nasa.gov"]
 CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
+# TODO is there a better way to fix GISModelAdmin?
+CSP_INCLUDE_NONCE_IN.remove("script-src")
 #
 # OpenZaak configuration
 #
