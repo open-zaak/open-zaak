@@ -1196,7 +1196,7 @@ yarl==1.17.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   vcrpy
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@43f003570347fd805bd53afe99f6919b9ccbbd93
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

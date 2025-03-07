@@ -454,8 +454,9 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@43f003570347fd805bd53afe99f6919b9ccbbd93
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   notifications-api-common
 zgw-consumers-oas==1.0.0
