@@ -790,6 +790,7 @@ requests-mock==1.12.1
     #   -r requirements/base.txt
     #   -r requirements/test-tools.in
     #   commonground-api-common
+    #   zgw-consumers-oas
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/base.txt
@@ -957,13 +958,13 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.17.1
     # via vcrpy
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@2465aaf98541d7b3f3cb7b760a655247e9cea250
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas==1.0.0
+zgw-consumers-oas @ git+https://github.com/maykinmedia/zgw-consumers-oas.git@6e2f76575f3113f1c3a541ac84dee214f8c68025
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
