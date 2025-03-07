@@ -971,6 +971,7 @@ requests-mock==1.12.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
+    #   zgw-consumers-oas
 requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
@@ -1224,7 +1225,7 @@ zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@fddda69a86b
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas==1.0.0
+zgw-consumers-oas @ git+https://github.com/maykinmedia/zgw-consumers-oas.git@6e2f76575f3113f1c3a541ac84dee214f8c68025
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
