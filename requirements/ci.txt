@@ -957,7 +957,7 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.17.1
     # via vcrpy
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@2465aaf98541d7b3f3cb7b760a655247e9cea250
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
