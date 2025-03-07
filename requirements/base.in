@@ -29,3 +29,4 @@ drc-cmis
 
 commonground-api-common[setup-configuration, testutils]
 git+https://github.com/maykinmedia/zgw-consumers.git@issue/101-remove-oas-fields
+git+https://github.com/maykinmedia/zgw-consumers-oas.git@feature/add-mock-oas-get
