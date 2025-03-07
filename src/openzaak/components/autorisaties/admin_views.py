@@ -201,7 +201,7 @@ def get_initial_for_component_for_catalogus_autorisaties(
 
 
 def _get_group_key(
-    spec: Union[Autorisatie, CatalogusAutorisatie]
+    spec: Union[Autorisatie, CatalogusAutorisatie],
 ) -> Tuple[str, Tuple[str]]:
     return (spec.component, tuple(sorted(spec.scopes)))
 
