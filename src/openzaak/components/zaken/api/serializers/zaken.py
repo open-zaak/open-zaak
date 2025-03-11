@@ -985,6 +985,8 @@ class RolSerializer(PolymorphicSerializer):
             "indicatie_machtiging",
             "contactpersoon_rol",
             "statussen",
+            "begin_geldigheid",
+            "einde_geldigheid",
         )
         validators = [
             RolOccurenceValidator(RolOmschrijving.initiator, max_amount=1),
@@ -1042,6 +1044,19 @@ class RolSerializer(PolymorphicSerializer):
                 _("betrokkene or betrokkeneIdentificatie must be provided"),
                 code="invalid-betrokkene",
             )
+
+        if (begin_geldigheid := validated_attrs.get("begin_geldigheid")) and (
+            einde_geldigheid := validated_attrs.get("einde_geldigheid")
+        ):
+            if einde_geldigheid < begin_geldigheid:
+                raise serializers.ValidationError(
+                    {
+                        "einde_geldigheid": _(
+                            "`eindeGeldigheid` date cannot be before `beginGeldigheid` date"
+                        )
+                    },
+                    code="einde-geldigheid-before-begin-geldigheid",
+                )
 
         return validated_attrs
 

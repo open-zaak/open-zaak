@@ -325,6 +325,8 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
                 },
                 "authenticatieContext": None,
                 "statussen": [],
+                "beginGeldigheid": None,
+                "eindeGeldigheid": None,
             },
         )
 

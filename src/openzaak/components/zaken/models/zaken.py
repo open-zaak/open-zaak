@@ -935,6 +935,28 @@ class Rol(ETagMixin, APIMixin, models.Model):
 
     objects = ZaakRelatedQuerySet.as_manager()
 
+    #
+    # EXPERIMENTAL ATTRIBUTES
+    #
+    begin_geldigheid = models.DateField(
+        _("begindatum geldigheid"),
+        null=True,
+        blank=True,
+        help_text=mark_experimental(
+            _("De datum waarop de geldigheidsperiode van de ROL begint binnen de ZAAK.")
+        ),
+    )
+    einde_geldigheid = models.DateField(
+        _("einddatum geldigheid"),
+        null=True,
+        blank=True,
+        help_text=mark_experimental(
+            _(
+                "De datum waarop de geldigheidsperiode van de ROL eindigt binnen de ZAAK."
+            )
+        ),
+    )
+
     class Meta:
         verbose_name = "Rol"
         verbose_name_plural = "Rollen"

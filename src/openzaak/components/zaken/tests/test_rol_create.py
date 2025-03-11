@@ -78,6 +78,8 @@ class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "naam": "",
                 },
                 "statussen": [],
+                "beginGeldigheid": None,
+                "eindeGeldigheid": None,
             },
         )
 
