@@ -2,13 +2,12 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import concurrent.futures
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 from django.db import close_old_connections
 from django.test import override_settings, tag
 from django.test.utils import override_script_prefix
-from django.utils import timezone
 
 import requests_mock
 from freezegun import freeze_time
