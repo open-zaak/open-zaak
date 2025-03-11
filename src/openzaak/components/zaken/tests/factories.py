@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from datetime import date
-
-from django.utils import timezone
+from datetime import date, timezone
 
 import factory
 import factory.fuzzy
