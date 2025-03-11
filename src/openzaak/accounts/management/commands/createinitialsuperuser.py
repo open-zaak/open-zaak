@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 import os
+import secrets
+import string
 
 from django.conf import settings
 from django.contrib.auth.management.commands.createsuperuser import (
@@ -8,6 +10,26 @@ from django.contrib.auth.management.commands.createsuperuser import (
 )
 from django.core.mail import send_mail
 from django.urls import reverse
+
+
+def make_random_password():
+    """
+    UserModel.objects.make_random_password has been removed.
+    https://docs.djangoproject.com/en/4.2/releases/4.2/#id1
+
+    The following implementation was recommended.
+    """
+    alphabet = string.ascii_letters + string.digits
+    while True:
+        password = "".join(secrets.choice(alphabet) for i in range(20))
+        if (
+            any(c.islower() for c in password)
+            and any(c.isupper() for c in password)
+            and sum(c.isdigit() for c in password) >= 3
+        ):
+            break
+
+    return password
 
 
 class Command(BaseCommand):
@@ -52,7 +74,7 @@ class Command(BaseCommand):
         user = qs.get()
 
         if not password and options["generate_password"]:
-            password = self.UserModel.objects.make_random_password(length=20)
+            password = make_random_password()
 
         if password:
             self.stdout.write("Setting user password...")
