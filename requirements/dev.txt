@@ -216,7 +216,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django==4.2.19
+django==5.1.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -285,7 +285,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -303,7 +303,7 @@ django-db-logger==0.1.12
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-debug-toolbar==3.2.4
+django-debug-toolbar==5.0.1
     # via -r requirements/dev.in
 django-extensions==3.1.5
     # via -r requirements/dev.in
@@ -388,7 +388,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.7.1
+django-setup-configuration==0.7.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
