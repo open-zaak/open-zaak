@@ -67,8 +67,12 @@ def fill_service_urls(
     """
     Service = apps.get_model("zgw_consumers", "Service")
     cache_get_service = {}
-
-    for instance in model.objects.exclude(**{url_field: ""}):
+    BATCH_SIZE = 2000
+    instances_to_update = []
+    objects = model.objects.exclude(**{url_field: ""})
+    total_updated = 0
+    total_objects = objects.count()
+    for instance in objects.iterator():
         url = getattr(instance, url_field)
 
         if url in cache_get_service:
@@ -98,7 +102,34 @@ def fill_service_urls(
         if fake_etag and not hasattr(instance, "calculate_etag_value"):
             instance.calculate_etag_value = lambda: None
 
-        instance.save()
+        instances_to_update.append(instance)
+
+        # Bulk save every BATCH_SIZE items
+        if len(instances_to_update) >= BATCH_SIZE:
+            model.objects.bulk_update(
+                instances_to_update, [service_base_field, service_relative_field]
+            )
+            total_updated += BATCH_SIZE
+            logger.info(
+                "Processed %d of %d %s instances",
+                total_updated,
+                total_objects,
+                model.__name__,
+            )
+            instances_to_update.clear()
+
+    # Final batch update
+    if instances_to_update:
+        model.objects.bulk_update(
+            instances_to_update, [service_base_field, service_relative_field]
+        )
+        total_updated += len(instances_to_update)
+        logger.info(
+            "Processed %d of %d %s instances",
+            total_updated,
+            total_objects,
+            model.__name__,
+        )
 
     logger.debug("%s service urls are migrated", model.__name__)
 
