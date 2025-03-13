@@ -90,7 +90,7 @@ deprecated==1.2.14
     # via redis
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==4.2.19
+django==5.1.7
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -143,7 +143,7 @@ django-axes==6.5.1
     # via open-api-framework
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/base.in
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements/base.in
 django-cors-headers==4.4.0
     # via open-api-framework
@@ -192,8 +192,9 @@ django-sendfile2==0.7.0
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.7.1
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@2d28f7294ccff95b73a86ff10c747b489bf08a6d
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   open-api-framework
 django-simple-certmanager==2.4.1
@@ -307,7 +308,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 notifications-api-common==0.6.0
     # via commonground-api-common
-open-api-framework==0.9.3
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@7ae561187644fb32116d17f9fe998c73b55f08cc
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
