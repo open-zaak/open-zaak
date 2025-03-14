@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from uuid import uuid4
+
 from django.utils import timezone
 
 from vng_api_common.constants import (
@@ -127,6 +129,20 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             betrokkene="https//personen.nl/1",
             betrokkene_type=RolTypes.medewerker,
             roltoelichting="unknown rol",
+        )
+        # create extra Rollen to verify that migrating many objects works
+        Rol.objects.bulk_create(
+            [
+                Rol(
+                    zaak=self.zaak_unknown,
+                    uuid=uuid4(),
+                    _roltype_url="https://andere.catalogus.nl/api/v1/roltypen/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",
+                    betrokkene="https//personen.nl/1",
+                    betrokkene_type=RolTypes.medewerker,
+                    roltoelichting="unknown rol",
+                )
+                for i in range(4001)
+            ]
         )
         self.zaak_eigenschap_unknown = ZaakEigenschap.objects.create(
             zaak=self.zaak_unknown,
