@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.9.1 (2025-03-17)
+------------------
+
+**Bugfixes**
+
+* [#1940] Fix data migrations for large number of objects
+
 1.9.0 (2023-07-17)
 ------------------
 
