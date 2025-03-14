@@ -182,7 +182,7 @@ coreschema==0.0.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   coreapi
-coverage==6.3.2
+coverage==7.6.12
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

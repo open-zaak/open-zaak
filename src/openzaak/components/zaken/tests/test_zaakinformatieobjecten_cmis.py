@@ -33,8 +33,9 @@ class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         ServiceFactory.create(
             api_root="http://example.com/documenten/api/v1/", api_type=APITypes.drc

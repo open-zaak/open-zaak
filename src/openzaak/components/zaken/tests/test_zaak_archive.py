@@ -31,7 +31,12 @@ from openzaak.components.documenten.constants import Statussen
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_zrc_oas_get
+from openzaak.tests.utils import (
+    JWTAuthMixin,
+    get_eio_response,
+    mock_zrc_oas_get,
+    mock_ztc_oas_get,
+)
 
 from .factories import (
     RelevanteZaakRelatieFactory,
@@ -1249,8 +1254,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
 
         ServiceFactory.create(
             api_root="https://external.nl/documenten/",
@@ -1369,6 +1375,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         }
 
         with requests_mock.Mocker() as m:
+            mock_ztc_oas_get(m)
             m.get(
                 statustype,
                 json=get_statustype_response(statustype, zaaktype, isEindstatus=True),

@@ -36,9 +36,6 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create(concept=False)
         cls.zaaktype_url = reverse(cls.zaaktype)
 
-    def setUp(self):
-        super().setUp()
-
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
