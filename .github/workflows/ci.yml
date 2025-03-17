@@ -28,19 +28,33 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Get changed PY files
         id: changed-py-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files: src/{,**/}*.py
+        run: |
+          # Get the list of files that were changed between the base branch and the current commit
+          CHANGED_FILES=$(git diff --name-only origin/$GITHUB_BASE_REF...HEAD)
+          if echo "$CHANGED_FILES" | grep -q "^src/.*\.py$"; then
+            echo "Files were changed!"
+            echo "any_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected"
+            echo "any_changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get changed requirements files
         id: changed-requirements
-        uses: tj-actions/changed-files@v45
-        with:
-          files: requirements/*.txt
+        run: |
+          # Get the list of files that were changed between the base branch and the current commit
+          CHANGED_FILES=$(git diff --name-only origin/$GITHUB_BASE_REF...HEAD)
+          if echo "$CHANGED_FILES" | grep -q "^requirements/.*\.txt$"; then
+            echo "Files were changed!"
+            echo "any_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected"
+            echo "any_changed=false" >> $GITHUB_OUTPUT
+          fi
 
     outputs:
       changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
@@ -311,7 +325,7 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v4.1.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v5
     needs:
       - store-reusable-workflow-vars
     with:
@@ -323,7 +337,7 @@ jobs:
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v3.0.2
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v5
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
