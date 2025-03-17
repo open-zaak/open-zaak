@@ -6,7 +6,7 @@ on:
 
 jobs:
   open-api-workflow-check-oas:
-    uses: maykinmedia/open-api-workflows/.github/workflows/oas-check.yml@v5.0.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/oas-check.yml@v5
     strategy:
       matrix:
         component:

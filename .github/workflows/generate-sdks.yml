@@ -11,7 +11,7 @@ on:
 
 jobs:
   open-api-workflow-generate-sdks:
-    uses: maykinmedia/open-api-workflows/.github/workflows/generate-sdks.yml@v1
+    uses: maykinmedia/open-api-workflows/.github/workflows/generate-sdks.yml@v5
     strategy:
       matrix:
         component:
