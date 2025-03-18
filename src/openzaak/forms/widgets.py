@@ -153,8 +153,32 @@ class AuthoritySpatialReference(SpatialReference):
         super().__init__(srs_input, srs_type, axis_order=AxisOrder.AUTHORITY)
 
 
-class LatLonOSMWidget(OSMWidget):
-    """TODO description"""
+class AuthorityAxisOrderOLWidget(OSMWidget):
+    """
+    Here is a long and painful explanation why we need it. Buckle up.
+
+    First, `Zaak.zaakgeometry` field is geometric field, not geographic. If it's a point, it has x and y coordinates.
+    But how do we map them to lat and lon? What is the order - lat/lon or lon/lat?
+    Well, there is no consensus what should be the order.
+
+    OpenZaak supports only "ESPG:4326" coordinate system. According to "ESPG:4326" it should be lat/lon order.
+    GDAL<3.0 expects lon/lat order and treat all points like lon/lat.
+    Good news, that GDAL>=3.0 can use the order defined in CRS. And in Open Zaak we support GDAL >= 3.0
+
+    BUT django.contrib.gis.gdal uses traditional axis order (lon/lat) as a default one and user can set up only
+    SRID without axis order when initializing geometry objects.
+
+    OpenStreetMap supports "ESPG:3587" coordinate system. So in the parent class "ESPG:4326" coordinates are
+    transformed to "ESPG:3587" using GDAL api with traditional axis order, where 'x' is treated as 'lon'
+    and 'y' is treated as 'lat'
+
+    In this class we transform coordinates with "Authority" order, for "ESPG:4326" it's lat/lon.
+
+    If in next django versions "axis_order" is treated with more attention, this workaround should be removed.
+    This workaround won't work if os GDAL<3.0. Perhaps, in this case we can use django-leaflet?
+
+    GDAL related doc - https://gdal.org/tutorials/osr_api_tut.html#crs-and-axis-order
+    """
 
     def get_context(self, name, value, attrs):
         if value:
