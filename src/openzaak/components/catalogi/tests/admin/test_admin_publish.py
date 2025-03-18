@@ -471,10 +471,15 @@ class ZaaktypeAdminTests(
 class PublishWithGeldigheidTests(
     ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
 ):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = SuperUserFactory.create()
+
     def setUp(self):
         super().setUp()
 
-        self.user = SuperUserFactory.create()
         self.app.set_user(self.user)
 
     def setUpData(self, request_mock):

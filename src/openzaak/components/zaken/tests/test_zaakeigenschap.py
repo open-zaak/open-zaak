@@ -511,11 +511,8 @@ class ZaakEigenschapWaardeTests(JWTAuthMixin, APITestCase):
         cls.zaaktype = ZaakTypeFactory.create()
         cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
 
-    def setUp(self):
-        super().setUp()
-
-        self.url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid})
-        self.zaak_url = f"http://testserver{reverse(self.zaak)}"
+        cls.url = reverse(ZaakEigenschap, kwargs={"zaak_uuid": cls.zaak.uuid})
+        cls.zaak_url = f"http://testserver{reverse(cls.zaak)}"
 
     def test_string_valid(self):
         eigenschap = EigenschapFactory.create(

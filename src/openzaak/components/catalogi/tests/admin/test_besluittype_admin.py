@@ -24,26 +24,26 @@ class BesluitTypeAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
-        self.catalogus = CatalogusFactory.create()
+        cls.catalogus = CatalogusFactory.create()
 
         # Delete automatically created ZaakTypen
         ZaakType.objects.all().delete()
-        self.zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
+        cls.zaaktype = ZaakTypeFactory.create(catalogus=cls.catalogus)
         ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
 
         # Delete automatically created IOTypen
         InformatieObjectType.objects.all().delete()
-        self.iotype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus, zaaktypen=[]
+        cls.iotype = InformatieObjectTypeFactory.create(
+            catalogus=cls.catalogus, zaaktypen=[]
         )
         InformatieObjectTypeFactory.create_batch(
             3, catalogus=CatalogusFactory.create(), zaaktypen=[]
         )
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
 
     def test_create_besluittype_m2m_relation_popup_filters_no_catalogus(self):
         response = self.app.get(reverse("admin:catalogi_besluittype_add"))
@@ -202,14 +202,14 @@ class BesluitTypePublishAdminTests(WebTest):
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()
 
+        cls.catalogus = CatalogusFactory.create()
+        cls.url = reverse_lazy("admin:catalogi_besluittype_changelist")
+        cls.query_params = {"catalogus_id__exact": cls.catalogus.pk}
+
     def setUp(self):
         super().setUp()
 
         self.app.set_user(self.user)
-
-        self.catalogus = CatalogusFactory.create()
-        self.url = reverse_lazy("admin:catalogi_besluittype_changelist")
-        self.query_params = {"catalogus_id__exact": self.catalogus.pk}
 
     def test_publish_selected_success(self):
         besluittype1, besluittype2 = BesluitTypeFactory.create_batch(

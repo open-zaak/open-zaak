@@ -44,12 +44,13 @@ class NotificationAdminTests(
 
         cls.user = SuperUserFactory.create()
 
+        cls.catalogus = CatalogusFactory.create()
+        cls.catalogus_url = reverse(
+            "catalogus-detail", kwargs={"uuid": cls.catalogus.uuid, "version": 1}
+        )
+
     def setUp(self):
         super().setUp()
-        self.catalogus = CatalogusFactory.create()
-        self.catalogus_url = reverse(
-            "catalogus-detail", kwargs={"uuid": self.catalogus.uuid, "version": 1}
-        )
 
         self.app.set_user(self.user)
 

@@ -168,18 +168,19 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         user.user_permissions.add(perm)
         cls.applicatie = ApplicatieFactory.create()
 
+        cls.url = reverse(
+            "admin:authorizations_applicatie_autorisaties",
+            kwargs={"object_id": cls.applicatie.pk},
+        )
+        cls.applicatie_url = reverse(
+            "applicatie-detail", kwargs={"version": 1, "uuid": cls.applicatie.uuid}
+        )
+        cls.catalogus = CatalogusFactory.create()
+
     def setUp(self):
         super().setUp()
 
         self.client.force_login(self.user)
-        self.url = reverse(
-            "admin:authorizations_applicatie_autorisaties",
-            kwargs={"object_id": self.applicatie.pk},
-        )
-        self.applicatie_url = reverse(
-            "applicatie-detail", kwargs={"version": 1, "uuid": self.applicatie.uuid}
-        )
-        self.catalogus = CatalogusFactory.create()
 
     def test_page_returns_on_get(self):
         # set up some initial data
@@ -521,7 +522,11 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             "form-0-externe_typen": ["https://external.catalogi.com/api/v1/1234"],
         }
 
-        response = self.client.post(self.url, data)
+        with requests_mock.Mocker() as m:
+            m.get(
+                "https://external.catalogi.com/api/v1/1234", json={"invalid": "shape"}
+            )
+            response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Autorisatie.objects.count(), 0)

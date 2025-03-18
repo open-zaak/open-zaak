@@ -32,6 +32,9 @@ CACHES = {
 
 LOGGING = LOGGING_SETTINGS  # Minimally required logging is nice
 
+# don't spend time on password hashing in tests/user factories
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
+
 #
 # Django-axes
 #
