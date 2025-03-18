@@ -32,47 +32,11 @@ jobs:
 
       - name: Get changed PY files
         id: changed-py-files
-        run: |
-          # Determine the base ref or fallback to the last commit
-          if [ -n "$GITHUB_BASE_REF" ]; then
-            BASE_REF="origin/$GITHUB_BASE_REF"
-          else
-            BASE_REF="HEAD^"  # Compare with the previous commit on main branch
-          fi
-
-          git fetch --all
-
-          # Get the list of files that were changed between the base branch and the current commit
-          CHANGED_FILES=$(git diff --name-only $BASE_REF...HEAD)
-          if echo "$CHANGED_FILES" | grep -q "^src/.*\.py$"; then
-            echo "Files were changed!"
-            echo "any_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "No changes detected"
-            echo "any_changed=false" >> $GITHUB_OUTPUT
-          fi
+        run: bin/check_changed_files.sh ^src/.*\.py$
 
       - name: Get changed requirements files
         id: changed-requirements
-        run: |
-          # Determine the base ref or fallback to the last commit
-          if [ -n "$GITHUB_BASE_REF" ]; then
-            BASE_REF="origin/$GITHUB_BASE_REF"
-          else
-            BASE_REF="HEAD^"  # Compare with the previous commit on main branch
-          fi
-
-          git fetch --all
-
-          # Get the list of files that were changed between the base branch and the current commit
-          CHANGED_FILES=$(git diff --name-only $BASE_REF...HEAD)
-          if echo "$CHANGED_FILES" | grep -q "^requirements/.*\.txt$"; then
-            echo "Files were changed!"
-            echo "any_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "No changes detected"
-            echo "any_changed=false" >> $GITHUB_OUTPUT
-          fi
+        run: bin/check_changed_files.sh ^requirements/.*\.txt$
 
     outputs:
       changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
