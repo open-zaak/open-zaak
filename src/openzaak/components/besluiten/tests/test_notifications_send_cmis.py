@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from unittest.mock import patch
 
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 import requests_mock
@@ -73,7 +72,10 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
 @require_cmis
 @freeze_time("2019-01-01T12:00:00Z")
 @override_settings(
-    NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=True
+    NOTIFICATIONS_DISABLED=False,
+    LOGGING=LOGGING_SETTINGS,
+    CMIS_ENABLED=True,
+    OPENZAAK_DOMAIN="testserver",
 )
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationCMISTests(
@@ -81,14 +83,6 @@ class FailedNotificationCMISTests(
 ):
     heeft_alle_autorisaties = True
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_besluitinformatieobject_create_fail_send_notification_create_db_entry(
         self, m, mock_notif

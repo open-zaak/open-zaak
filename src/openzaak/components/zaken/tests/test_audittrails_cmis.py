@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings
 
 from rest_framework import status
@@ -30,18 +29,10 @@ from .utils import ZAAK_WRITE_KWARGS
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def _create_zaak(self, **headers):
         base_zaak = "http://testserver/zaken/api/v1/"

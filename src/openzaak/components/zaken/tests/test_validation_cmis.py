@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
+from django.conf import settings
 from django.test import override_settings
 
 from rest_framework import status
@@ -34,8 +34,8 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
+    @override_settings(OPENZAAK_DOMAIN="testserver")
     def test_informatieobject_create(self):
-        site = Site.objects.get_current()
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         io = EnkelvoudigInformatieObjectFactory.create(
@@ -52,7 +52,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         response = self.client.post(
             url,
             {
-                "zaak": f"http://{site.domain}{zaak_url}",
+                "zaak": f"http://{settings.OPENZAAK_DOMAIN}{zaak_url}",
                 "informatieobject": io_url,
             },
         )

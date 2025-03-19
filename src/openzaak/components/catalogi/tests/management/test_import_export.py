@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -45,19 +44,15 @@ from ..factories import (
 PATH = Path(__file__).parent.resolve()
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class ImportExportMixin:
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
     def setUp(self):
         super().setUp()
 
-        Site.objects.clear_cache()
         caches["import_requests"].clear()
 
         self.filepath = PATH / f"export_test{uuid4()}.zip"
@@ -158,12 +153,10 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
             self.assertIn("BesluitType.json", f.namelist())
             self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
 
-    @override_settings(ALLOWED_HOSTS=["somedifferenthost.com"])
+    @override_settings(
+        ALLOWED_HOSTS=["somedifferenthost.com"], OPENZAAK_DOMAIN="somedifferenthost.com"
+    )
     def test_export_catalogus_different_hostname(self):
-        site = Site.objects.get_current()
-        site.domain = "somedifferenthost.com"
-        site.save()
-
         catalogus = CatalogusFactory.create(
             rsin="000000000",
             domein="TEST",

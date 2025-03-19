@@ -6,9 +6,8 @@ from unittest import skipIf
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core import serializers
-from django.test import tag
+from django.test import override_settings, tag
 
 import requests_mock
 from djangorestframework_camel_case.util import camelize
@@ -40,15 +39,12 @@ def require_cmis(method_or_class):
     return tagged
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class CMISMixin(MockSchemasMixin):
     @classmethod
     def setUpTestData(cls):
         if hasattr(super(), "setUpTestData"):
             super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         binding = os.getenv("CMIS_BINDING")
         if binding == "WEBSERVICE":
@@ -103,9 +99,6 @@ class CMISMixin(MockSchemasMixin):
 
         self.addCleanup(self._cleanup_alfresco)
         self.addCleanup(self.adapter.stop)
-
-        # testserver vs. example.com
-        Site.objects.clear_cache()
 
         super().setUp()
 

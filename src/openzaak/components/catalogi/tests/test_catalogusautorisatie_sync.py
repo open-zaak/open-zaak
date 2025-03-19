@@ -2,7 +2,6 @@
 # Copyright (C) 2024 Dimpact
 from unittest.mock import call, patch
 
-from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 
 from freezegun import freeze_time
@@ -24,17 +23,13 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
 @freeze_time("2024-01-01T12:00:00Z")
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, OPENZAAK_DOMAIN="testserver")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 @tag("gh-1661")
 class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         cls.catalogus1 = CatalogusFactory.create()
         cls.catalogus2 = CatalogusFactory.create()

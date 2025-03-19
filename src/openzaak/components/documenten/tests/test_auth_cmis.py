@@ -4,7 +4,6 @@
 Guarantee that the proper authorization machinery is in place.
 """
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
@@ -62,7 +61,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -71,9 +70,6 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_io_list(self):
@@ -257,7 +253,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [
         SCOPE_DOCUMENTEN_BIJWERKEN,
@@ -270,9 +266,6 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
         cls.informatieobjecttype_not_allowed = InformatieObjectTypeFactory.create(
@@ -501,7 +494,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
@@ -511,9 +504,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
@@ -643,7 +633,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -653,10 +643,6 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()
@@ -837,7 +823,9 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls")
 @require_cmis
-@override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+)
 class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -846,10 +834,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()
@@ -979,7 +963,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 
 @tag("external-urls")
 @require_cmis
-@override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+)
 class ExternalInformatieObjectInformatieObjectTypescopeTests(
     JWTAuthMixin, APICMISTestCase
 ):
@@ -991,10 +977,6 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         if settings.CMIS_URL_MAPPING_ENABLED:
             config = CMISConfig.get_solo()

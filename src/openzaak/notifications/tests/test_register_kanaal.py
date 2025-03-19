@@ -6,7 +6,6 @@ Test the correct invocations for registering notification channels.
 from io import StringIO
 from unittest.mock import MagicMock, call, patch
 
-from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
@@ -20,16 +19,11 @@ from . import mock_nrc_oas_get
 from .mixins import NotificationsConfigMixin
 
 
-@override_settings(IS_HTTPS=True)
+@override_settings(IS_HTTPS=True, OPENZAAK_DOMAIN="example.com")
 class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
-
         kanaal = Kanaal(label="dummy-kanaal", main_resource=Zaak)
         cls.addClassCleanup(lambda: KANAAL_REGISTRY.remove(kanaal))
 

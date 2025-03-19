@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-
-from django.contrib.sites.models import Site
+from django.conf import settings
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
@@ -36,6 +35,7 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
+    @override_settings(OPENZAAK_DOMAIN="testserver")
     def test_simple(self):
         response = self.client.post(self.url)
 
@@ -54,15 +54,15 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
             "documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
         )
 
-        site = Site.objects.get_current()
+        domain = settings.OPENZAAK_DOMAIN
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
             response.json(),
             {
-                "uploadUrl": f"http://{site.domain}{upload_url}",
-                "statusUrl": f"http://{site.domain}{status_url}",
-                "reportUrl": f"http://{site.domain}{report_url}",
+                "uploadUrl": f"http://{domain}{upload_url}",
+                "statusUrl": f"http://{domain}{status_url}",
+                "reportUrl": f"http://{domain}{report_url}",
             },
         )
 

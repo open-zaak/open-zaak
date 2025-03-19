@@ -3,7 +3,6 @@
 import uuid
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
@@ -277,13 +276,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
+    @override_settings(OPENZAAK_DOMAIN="testserver")
     def test_filter_zaak(self):
-        # Needed because the zaak URL is used as a query parameter,
-        # and using "testserver" as domain name gives an invalid URL.
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
-
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
 
@@ -303,13 +297,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
+    @override_settings(OPENZAAK_DOMAIN="testserver")
     def test_filter_besluit(self):
-        # Needed because the besluit URL is used as a query parameter,
-        # and using "testserver" as domain name gives an invalid URL.
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
-
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
 
@@ -341,16 +330,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-        super().setUpTestData()
 
     def test_destroy_oio_remote_gone(self):
         eio = EnkelvoudigInformatieObjectFactory.create()

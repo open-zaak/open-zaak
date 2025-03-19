@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.utils.convert import make_absolute_uri
@@ -97,7 +96,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
 
 @tag("closed-zaak")
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class ClosedZaakRelatedDataAllowedCMISTests(
     JWTAuthMixin, CRUDAssertions, APICMISTestCase
 ):
@@ -115,10 +114,6 @@ class ClosedZaakRelatedDataAllowedCMISTests(
         cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype, closed=True)
 
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_zaakinformatieobjecten(self):
         iotype = InformatieObjectTypeFactory.create(
