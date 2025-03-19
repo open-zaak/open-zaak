@@ -322,5 +322,32 @@ class ZaakAdminTests(WebTest):
         point = Point(coords[0], coords[1], srid=3857)
         point.transform(4326)
 
+        # coords are swapped by AuthorityAxisOrderOLWidget
         self.assertAlmostEqual(point.x, long)
         self.assertAlmostEqual(point.y, lat)
+
+    def test_zaak_geometrie_change_from_admin(self):
+        lat = 52.38554000854492
+        long = 4.842977046966553
+
+        zaak = ZaakFactory.create(zaakgeometrie=Point(lat, long))
+        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(
+            json.loads(response.form["zaakgeometrie"].value),
+            {
+                "type": "Point",
+                "coordinates": [539117.738791828393005, 6870138.495812701061368],
+            },
+        )
+
+        submit_response = response.form.submit()
+        self.assertEqual(submit_response.status_code, 302)
+
+        zaak.refresh_from_db()
+
+        # coords where swapped and changed back when saving to db.
+        self.assertAlmostEqual(zaak.zaakgeometrie.x, lat)
+        self.assertAlmostEqual(zaak.zaakgeometrie.y, long)

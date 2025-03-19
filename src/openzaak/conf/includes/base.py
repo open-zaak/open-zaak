@@ -363,8 +363,8 @@ CSP_IMG_SRC = CSP_IMG_SRC + ["cdnjs.cloudflare.com", "tile.openstreetmap.org"]
 CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
 
 # TODO is there a better way to fix this?
-CSP_INCLUDE_NONCE_IN.remove("script-src")  # error with redoc.
-CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with GISModelAdmin.
+CSP_INCLUDE_NONCE_IN.remove("script-src")  # error with GISModelAdmin.
+CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with redoc.
 #
 # OpenZaak configuration
 #
