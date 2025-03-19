@@ -7,7 +7,6 @@ Test the custom admin view to manage autorisaties for an application.
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
-from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -110,13 +109,10 @@ class PermissionTests(WebTest):
 
 @tag("admin-autorisaties")
 @disable_admin_mfa()
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class ApplicatieInlinesAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
         # priv user
         cls.user = UserFactory.create(is_staff=True)
         _perms = [
@@ -150,17 +146,13 @@ class ApplicatieInlinesAdminTests(WebTest):
 @tag("admin-autorisaties")
 @freeze_time("2022-01-01")
 @disable_admin_mfa()
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
         cls.user = user = UserFactory.create(is_staff=True)
         perm = Permission.objects.get_by_natural_key(
             "change_applicatie", "authorizations", "applicatie"

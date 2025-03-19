@@ -3,8 +3,8 @@
 from unittest.mock import patch
 
 from django.apps import apps
-from django.contrib.sites.models import Site
 from django.core.management import CommandError, call_command
+from django.test import override_settings
 from django.urls import reverse
 
 import requests_mock
@@ -142,19 +142,15 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
 
 
 @disable_admin_mfa()
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class GenerateDataAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.user = SuperUserFactory.create()
 
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
     def setUp(self):
         super().setUp()
-
         self.app.set_user(self.user)
 
     @requests_mock.Mocker()

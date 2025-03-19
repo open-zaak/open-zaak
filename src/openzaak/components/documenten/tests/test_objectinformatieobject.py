@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 import requests_mock
@@ -47,18 +46,12 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio")
-@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
+@override_settings(
+    ALLOWED_HOSTS=["testserver", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
+)
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("objectinformatieobject-list")
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_create_with_objecttype_zaak(self):
         zaak = ZaakFactory.create()

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.utils.convert import make_absolute_uri
@@ -19,19 +18,13 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 
 @tag("external-urls")
 @require_cmis
-@override_settings(ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True)
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+)
 class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_get_zaak_and_zaaktype_data(self):
         zaak = ZaakFactory.create()

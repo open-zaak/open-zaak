@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings
 
 from drc_cmis.utils.convert import make_absolute_uri
@@ -19,20 +18,12 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
 
     list_url = reverse_lazy("besluitinformatieobject-list", kwargs={"version": "1"})
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_create(self):
         besluit = BesluitFactory.create()
