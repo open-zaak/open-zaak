@@ -598,7 +598,7 @@ multidict==6.1.0
     # via yarl
 mypy-extensions==1.0.0
     # via black
-notifications-api-common==0.6.0
+notifications-api-common==0.7.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

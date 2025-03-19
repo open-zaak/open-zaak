@@ -13,22 +13,6 @@ configured first.
     most of this configuration via the :ref:`command line <installation_configuration_cli>`,
     which is both faster and less error prone.
 
-.. _installation_configuration_sites:
-
-Setting the domain
-==================
-
-In the admin, under **Configuratie > Websites**, make sure to change the existing
-``Site`` to the domain under which Open Zaak will be deployed (see
-:ref:`the manual<manual_configuration>` for more information).
-
-.. note:: Due to a cache-bug in the underlying framework, you need to restart all
-   replicas for this change to take effect everywhere.
-
-.. note:: The deprecation process for this domain configuration has started in favour of
-   the ``OPENZAAK_DOMAIN`` setting. Some libraries still rely on this though, so it
-   still needs to be provided.
-
 .. _installation_configuration_notificaties_api:
 
 Configure Notificaties API
@@ -335,8 +319,7 @@ in the previous step.
 
 Then perform a GET request to the list display of ``ZaakTypen`` (Catalogi API) - this
 endpoint is accessible at ``{{base_url}}/catalogi/api/v1/zaaktypen`` (where
-``{{base_url}}`` is set to the domain configured in
-:ref:`installation_configuration_sites`).
+``{{base_url}}`` is the domain configured in environment variables).
 
 .. figure:: ../assets/api_request.png
     :width: 100%
