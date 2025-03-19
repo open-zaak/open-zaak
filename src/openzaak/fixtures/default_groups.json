@@ -725,26 +725,6 @@
                 "session"
             ],
             [
-                "add_site",
-                "sites",
-                "site"
-            ],
-            [
-                "change_site",
-                "sites",
-                "site"
-            ],
-            [
-                "delete_site",
-                "sites",
-                "site"
-            ],
-            [
-                "view_site",
-                "sites",
-                "site"
-            ],
-            [
                 "add_jwtsecret",
                 "vng_api_common",
                 "jwtsecret"
