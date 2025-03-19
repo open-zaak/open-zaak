@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 from django_loose_fk.virtual_models import ProxyMixin
-from drc_cmis.utils.convert import make_absolute_uri
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
 from vng_api_common.client import to_internal_data
@@ -25,6 +24,7 @@ from vng_api_common.tests import reverse
 from openzaak.client import get_client
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.loaders import AuthorizedRequestsLoader
+from openzaak.utils import build_absolute_url
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.mixins import CMISClientMixin
 
@@ -700,7 +700,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
             if split_key[0] == "informatieobject" and isinstance(value, CMISQuerySet):
                 list_value = []
                 for item in value:
-                    list_value.append(make_absolute_uri(reverse(item)))
+                    list_value.append(build_absolute_url(reverse(item)))
                 value = list_value
 
             converted_data[split_key[0]] = value
@@ -760,7 +760,7 @@ class ObjectInformatieObjectCMISQuerySet(
                 relation_object = data.pop("object")
             relation_url = get_object_url(relation_object)
             if relation_url is None:
-                relation_url = make_absolute_uri(reverse(relation_object))
+                relation_url = build_absolute_url(reverse(relation_object))
             converted_data["object_type"] = object_type
             converted_data[f"{object_type}"] = relation_url
 
@@ -776,11 +776,11 @@ class ObjectInformatieObjectCMISQuerySet(
             if split_key[0] == "informatieobject" and isinstance(value, CMISQuerySet):
                 list_value = []
                 for item in value:
-                    list_value.append(make_absolute_uri(reverse(item)))
+                    list_value.append(build_absolute_url(reverse(item)))
                 value = list_value
 
             if split_key[0] in ["besluit", "zaak"]:
-                converted_data[split_key[0]] = make_absolute_uri(reverse(value))
+                converted_data[split_key[0]] = build_absolute_url(reverse(value))
             elif split_key[0] == "object_url":
                 # figure out the API resource from the value
                 # TODO - this is ugly, there has to be a better way. Unfortunately,
@@ -837,7 +837,7 @@ class ObjectInformatieObjectCMISQuerySet(
         data = {
             "informatieobject": relation._informatieobject_url,
             "object_type": f"{object_type}",
-            f"{object_type}": make_absolute_uri(reverse(relation_object)),
+            f"{object_type}": build_absolute_url(reverse(relation_object)),
         }
         return self.create(**data)
 
@@ -1062,7 +1062,7 @@ def get_object_url(
         return informatie_obj_type._initial_data["url"]
     elif isinstance(informatie_obj_type, InformatieObjectType):
         path = informatie_obj_type.get_absolute_api_url()
-        return make_absolute_uri(path, request=request)
+        return build_absolute_url(path, request=request)
 
 
 def get_doc_va_order(django_doc):
@@ -1113,10 +1113,10 @@ def _format_zaak_and_zaaktype_data(zaak: Zaak) -> Tuple[dict, dict]:
 
     if not isinstance(zaak, ProxyMixin):
         zaaktype_path = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
-        zaaktype_url = make_absolute_uri(zaaktype_path)
+        zaaktype_url = build_absolute_url(zaaktype_path)
 
         zaak_path = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        zaak_url = make_absolute_uri(zaak_path)
+        zaak_url = build_absolute_url(zaak_path)
     else:
         zaaktype_url = zaak._initial_data["zaaktype"]
         zaak_url = zaak._initial_data["url"]
