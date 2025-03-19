@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from django.test import override_settings
 
-from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
@@ -12,6 +11,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
+from openzaak.utils import build_absolute_url
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -34,7 +34,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://testserver{reverse(io)}"
 
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = make_absolute_uri(reverse(besluit))
+        besluit_url = build_absolute_url(reverse(besluit))
         content = {
             "informatieobject": io_url,
             "besluit": besluit_url,
@@ -65,7 +65,7 @@ class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
         io_url = f"http://testserver{reverse(io)}"
 
         bio = BesluitInformatieObjectFactory.create(informatieobject=io_url)
-        besluit_url = make_absolute_uri(reverse(bio.besluit))
+        besluit_url = build_absolute_url(reverse(bio.besluit))
 
         content = {
             "informatieobject": io_url,

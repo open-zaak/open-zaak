@@ -6,7 +6,6 @@ from unittest import skipIf
 from django.test import override_settings
 
 from drc_cmis.models import UrlMapping
-from drc_cmis.utils.convert import make_absolute_uri
 from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
@@ -19,6 +18,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
+from openzaak.utils import build_absolute_url
 
 
 @require_cmis
@@ -40,7 +40,7 @@ class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
 
         besluit = BesluitFactory.create()
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = make_absolute_uri(reverse(besluit))
+        besluit_url = build_absolute_url(reverse(besluit))
         content = {
             "informatieobject": io_url,
             "besluit": besluit_url,

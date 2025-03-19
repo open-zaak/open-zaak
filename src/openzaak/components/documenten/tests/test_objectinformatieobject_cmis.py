@@ -6,7 +6,6 @@ from django.conf import settings
 from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
-from drc_cmis.utils.convert import make_absolute_uri
 from furl import furl
 from rest_framework import status
 from vng_api_common.tests import (
@@ -39,6 +38,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekobject_response,
 )
 from openzaak.tests.utils import APICMISTestCase, require_cmis
+from openzaak.utils import build_absolute_url
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
@@ -195,7 +195,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
         expeceted_response_data = {
             "url": f"http://testserver{oio_url}",
-            "object": make_absolute_uri(zaak_url),
+            "object": build_absolute_url(zaak_url),
             "informatieobject": eio_url,
             "object_type": "zaak",
         }
@@ -220,7 +220,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
         expeceted_response_data = {
             "url": f"http://testserver{oio_url}",
-            "object": make_absolute_uri(besluit_url),
+            "object": build_absolute_url(besluit_url),
             "informatieobject": eio_url,
             "object_type": "besluit",
         }

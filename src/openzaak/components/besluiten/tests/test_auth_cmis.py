@@ -5,7 +5,6 @@ Guarantee that the proper authorization amchinery is in place.
 """
 from django.test import override_settings, tag
 
-from drc_cmis.utils.convert import make_absolute_uri
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin, reverse
@@ -17,6 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
+from openzaak.utils import build_absolute_url
 
 from ...zaken.tests.factories import ZaakFactory
 from ..api.scopes import SCOPE_BESLUITEN_AANMAKEN, SCOPE_BESLUITEN_ALLES_LEZEN
@@ -108,8 +108,8 @@ class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
             informatieobject.informatieobjecttype
         )
 
-        besluit_url1 = make_absolute_uri(reverse(besluit1))
-        besluit_url2 = make_absolute_uri(reverse(besluit2))
+        besluit_url1 = build_absolute_url(reverse(besluit1))
+        besluit_url2 = build_absolute_url(reverse(besluit2))
 
         url1 = reverse("besluitinformatieobject-list")
         url2 = reverse("besluitinformatieobject-list")
