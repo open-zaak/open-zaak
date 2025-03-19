@@ -120,6 +120,7 @@ class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
             "inn_nnp_id",
             "ann_identificatie",
             "kvk_nummer",
+            "vestigings_nummer",
             "statutaire_naam",
             "inn_rechtsvorm",
             "bezoekadres",

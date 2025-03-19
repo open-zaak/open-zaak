@@ -43,6 +43,7 @@ Attributes
 * ``Rol``:
     * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.kvkNummer`` is added to
       support :ref:`mandates <client-development-mandate>`
+    * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.vestigingsNummer`` is added as ``betrokkeneIdentificatie.Vestiging has been deprecated``.
     * ``roltoelichting`` is changed to not required
     * Two attributes are added to track the validity period of a ``Rol`` within a ``Zaak``:
 
@@ -60,12 +61,14 @@ Query parameters
 
 * ``/api/v1/rollen`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
+    * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__vestingsNummer``
     * ``betrokkeneIdentificatie__vestiging__kvkNummer``
     * ``machtiging``
     * ``machtiging__loa``
 
 * ``/api/v1/zaken`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
     * ``rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
+    * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__vestingsNummer``
     * ``rol__betrokkeneIdentificatie__vestiging__kvkNummer``
     * ``rol__machtiging``
     * ``rol__machtiging__loa``

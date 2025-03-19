@@ -176,6 +176,11 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
             "Een uniek nummer toegekend door de Kamer van Koophandel"
         ),
     )
+    vestigings_nummer = models.CharField(
+        max_length=24,
+        blank=True,
+        help_text=mark_experimental("Een korte unieke aanduiding van de Vestiging."),
+    )
 
     class Meta:
         verbose_name = _("niet-natuurlijk persoon")

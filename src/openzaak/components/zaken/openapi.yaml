@@ -1802,6 +1802,11 @@ paths:
         description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
           Koophandel'
       - in: query
+        name: betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+      - in: query
         name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
@@ -1810,12 +1815,12 @@ paths:
         name: betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: Een korte unieke aanduiding van de Vestiging.
+        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
       - in: query
         name: betrokkeneType
         schema:
@@ -2040,7 +2045,10 @@ paths:
           description: Internal server error
     post:
       operationId: rol_create
-      description: Maak een ROL aan bij een ZAAK.
+      description: |-
+        Maak een ROL aan bij een ZAAK.
+
+        BetrokkeneType `vestiging` is **DEPRECATED**.
       summary: Maak een ROL aan bij een ZAAK.
       parameters:
       - in: header
@@ -6780,6 +6788,11 @@ paths:
         description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
           Koophandel'
       - in: query
+        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+      - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
@@ -6788,12 +6801,12 @@ paths:
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: Een korte unieke aanduiding van de Vestiging.
+        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
       - in: query
         name: rol__betrokkeneType
         schema:
@@ -10475,6 +10488,11 @@ paths:
         description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer van
           Koophandel'
       - in: query
+        name: rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+      - in: query
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
@@ -10483,12 +10501,12 @@ paths:
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: Een korte unieke aanduiding van de Vestiging.
+        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
       - in: query
         name: rol__betrokkeneType
         schema:
@@ -10890,13 +10908,17 @@ paths:
                   type: string
                   description: '**EXPERIMENTEEL** Een uniek nummer toegekend door
                     de Kamer van Koophandel'
+                rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer:
+                  type: string
+                  description: '**EXPERIMENTEEL** Een korte unieke aanduiding van
+                    de Vestiging.'
                 rol__betrokkeneIdentificatie__vestiging__vestigingsNummer:
                   type: string
-                  description: Een korte unieke aanduiding van de Vestiging.
+                  description: '**DEPRECATED** Een korte unieke aanduiding van de
+                    Vestiging.'
                 rol__betrokkeneIdentificatie__vestiging__kvkNummer:
                   type: string
-                  description: '**EXPERIMENTEEL** Een uniek nummer gekoppeld aan de
-                    onderneming.'
+                  description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
                 rol__betrokkeneIdentificatie__medewerker__identificatie:
                   type: string
                   description: Een korte unieke aanduiding van de MEDEWERKER.
@@ -11303,7 +11325,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/BetrokkeneTypeEnum'
           description: |-
-            Type van de `betrokkene`.
+            Betrokkene type `vestiging` is **DEPRECATED**.
 
             Uitleg bij mogelijke waarden:
 
@@ -11420,7 +11442,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/BetrokkeneTypeEnum'
           description: |-
-            Type van de `betrokkene`.
+            Betrokkene type `vestiging` is **DEPRECATED**.
 
             Uitleg bij mogelijke waarden:
 
@@ -12457,12 +12479,10 @@ components:
           description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer
             van Koophandel'
           maxLength: 8
-        statutaireNaam:
+        vestigingsNummer:
           type: string
-          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
-            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
-            (Vennootschap onder firma of Commanditaire vennootschap).
-          maxLength: 500
+          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+          maxLength: 24
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
           oneOf:
@@ -12494,12 +12514,10 @@ components:
           description: '**EXPERIMENTEEL** Een uniek nummer toegekend door de Kamer
             van Koophandel'
           maxLength: 8
-        statutaireNaam:
+        vestigingsNummer:
           type: string
-          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
-            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
-            (Vennootschap onder firma of Commanditaire vennootschap).
-          maxLength: 500
+          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
+          maxLength: 24
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
           oneOf:
