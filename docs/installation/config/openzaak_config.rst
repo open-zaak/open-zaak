@@ -13,6 +13,7 @@ configured first.
     most of this configuration via the :ref:`command line <installation_configuration_cli>`,
     which is both faster and less error prone.
 
+
 .. _installation_configuration_notificaties_api:
 
 Configure Notificaties API
@@ -320,6 +321,7 @@ in the previous step.
 Then perform a GET request to the list display of ``ZaakTypen`` (Catalogi API) - this
 endpoint is accessible at ``{{base_url}}/catalogi/api/v1/zaaktypen`` (where
 ``{{base_url}}`` is the domain configured in environment variables).
+
 
 .. figure:: ../assets/api_request.png
     :width: 100%

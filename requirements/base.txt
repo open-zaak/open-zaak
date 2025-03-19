@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.5.1
+commonground-api-common==2.5.5
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -305,9 +305,9 @@ mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==0.22.0
     # via open-api-framework
-notifications-api-common==0.7.0
+notifications-api-common==0.7.1
     # via commonground-api-common
-open-api-framework==0.9.3
+open-api-framework==0.9.4
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl

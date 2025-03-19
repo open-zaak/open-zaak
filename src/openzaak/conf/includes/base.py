@@ -171,8 +171,6 @@ OPENZAAK_DOMAIN = config(
     ),
     auto_display_default=False,
 )
-# if not specified, OPENZAAK_DOMAIN use SITE_DOMAIN from open-api-framework
-SITE_DOMAIN = "example.com"
 if not OPENZAAK_DOMAIN:
     OPENZAAK_DOMAIN = SITE_DOMAIN
 
