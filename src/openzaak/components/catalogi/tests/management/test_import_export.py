@@ -44,7 +44,6 @@ from ..factories import (
 PATH = Path(__file__).parent.resolve()
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
 class ImportExportMixin:
     @classmethod
     def setUpTestData(cls):
@@ -65,6 +64,7 @@ class ImportExportMixin:
         self.addCleanup(rmfile)
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class ExportCatalogiTests(ImportExportMixin, TestCase):
     def test_export_catalogus(self):
         catalogus = CatalogusFactory.create()
@@ -204,6 +204,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
 
 
 @tag("catalogi-import")
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")
