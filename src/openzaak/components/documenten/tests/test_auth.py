@@ -71,7 +71,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get")
 
 
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -262,7 +262,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 4)
 
 
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [
         SCOPE_DOCUMENTEN_BIJWERKEN,
@@ -487,7 +487,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             )
 
 
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
@@ -777,7 +777,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"], SITE_DOMAIN="testserver")
+@override_settings(ALLOWED_HOSTS=["testserver"], OPENZAAK_DOMAIN="testserver")
 class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -956,7 +956,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
 @temp_private_root()
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"], DEBUG=True, SITE_DOMAIN="testserver")
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], DEBUG=True, OPENZAAK_DOMAIN="testserver"
+)
 class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -1072,7 +1074,7 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
 
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar

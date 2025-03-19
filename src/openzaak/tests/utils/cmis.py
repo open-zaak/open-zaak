@@ -39,7 +39,6 @@ def require_cmis(method_or_class):
     return tagged
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
 class CMISMixin(MockSchemasMixin):
     @classmethod
     def setUpTestData(cls):
@@ -108,10 +107,12 @@ class CMISMixin(MockSchemasMixin):
         client.delete_cmis_folders_in_base()
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class APICMISTestCase(CMISMixin, APITestCase):
     pass
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class APICMISTransactionTestCase(CMISMixin, APITransactionTestCase):
     pass
 
