@@ -7,7 +7,6 @@ from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
-from openzaak.forms.widgets import AuthorityAxisOrderOLWidget
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -696,7 +695,6 @@ class ZaakAdmin(
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
-    gis_widget = AuthorityAxisOrderOLWidget
 
     @admin.display(description="Zaaktype")
     def get_zaaktype(self, obj) -> str:
