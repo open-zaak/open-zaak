@@ -18,7 +18,7 @@ class Command(BaseCommand):
         migration_count = 0
         for vestiging in Vestiging.objects.all():
 
-            if NietNatuurlijkPersoon.objects.filter(rol=vestiging.rol):
+            if NietNatuurlijkPersoon.objects.filter(rol=vestiging.rol).exists():
                 self.stdout.write(
                     self.style.WARNING(
                         f"Vestiging: {', '.join(vestiging.handelsnaam)} could not be migrated, "
@@ -35,12 +35,15 @@ class Command(BaseCommand):
                 zaakobject=vestiging.zaakobject,
             )
 
-            if verblijf := vestiging.sub_verblijf_buitenland:
-                verblijf.vestiging = None
-                verblijf.nietnatuurlijkpersoon = nnp
-                verblijf.save()
+            if sub_verblijf_buitenland := vestiging.sub_verblijf_buitenland:
+                sub_verblijf_buitenland.vestiging = None
+                sub_verblijf_buitenland.nietnatuurlijkpersoon = nnp
+                sub_verblijf_buitenland.save()
 
-            # TODO o2o verblijfsadres?
+            if verblijfsadres := vestiging.verblijfsadres:
+                verblijfsadres.vestiging = None
+                verblijfsadres.nietnatuurlijkpersoon = nnp
+                verblijfsadres.save()
 
             vestiging.delete()
 

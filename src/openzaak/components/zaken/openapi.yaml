@@ -1815,12 +1815,14 @@ paths:
         name: betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
+          aan de onderneming.'
       - in: query
         name: betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
+          van de Vestiging.'
       - in: query
         name: betrokkeneType
         schema:
@@ -6801,12 +6803,14 @@ paths:
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
+          aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
+          van de Vestiging.'
       - in: query
         name: rol__betrokkeneType
         schema:
@@ -10501,12 +10505,14 @@ paths:
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer gekoppeld
+          aan de onderneming.'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__vestigingsNummer
         schema:
           type: string
-        description: '**DEPRECATED** Een korte unieke aanduiding van de Vestiging.'
+        description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke aanduiding
+          van de Vestiging.'
       - in: query
         name: rol__betrokkeneType
         schema:
@@ -10914,11 +10920,12 @@ paths:
                     de Vestiging.'
                 rol__betrokkeneIdentificatie__vestiging__vestigingsNummer:
                   type: string
-                  description: '**DEPRECATED** Een korte unieke aanduiding van de
-                    Vestiging.'
+                  description: '**EXPERIMENTEEL** **DEPRECATED** Een korte unieke
+                    aanduiding van de Vestiging.'
                 rol__betrokkeneIdentificatie__vestiging__kvkNummer:
                   type: string
-                  description: '**DEPRECATED** Een uniek nummer gekoppeld aan de onderneming.'
+                  description: '**EXPERIMENTEEL** **DEPRECATED** Een uniek nummer
+                    gekoppeld aan de onderneming.'
                 rol__betrokkeneIdentificatie__medewerker__identificatie:
                   type: string
                   description: Een korte unieke aanduiding van de MEDEWERKER.
@@ -12483,6 +12490,12 @@ components:
           type: string
           description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
           maxLength: 24
+        statutaireNaam:
+          type: string
+          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
+            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
+            (Vennootschap onder firma of Commanditaire vennootschap).
+          maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
           oneOf:
@@ -12492,6 +12505,11 @@ components:
           type: string
           description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
           maxLength: 1000
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdres'
+          nullable: true
+          description: '**EXPERIMENTEEL** verblijfsadres'
         subVerblijfBuitenland:
           allOf:
           - $ref: '#/components/schemas/SubVerblijfBuitenland'
@@ -12518,6 +12536,12 @@ components:
           type: string
           description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de Vestiging.'
           maxLength: 24
+        statutaireNaam:
+          type: string
+          description: Naam van de niet-natuurlijke persoon zoals deze is vastgelegd
+            in de statuten (rechtspersoon) of in de vennootschapsovereenkomst is overeengekomen
+            (Vennootschap onder firma of Commanditaire vennootschap).
+          maxLength: 500
         innRechtsvorm:
           description: De juridische vorm van de NIET-NATUURLIJK PERSOON.
           oneOf:
@@ -12527,6 +12551,11 @@ components:
           type: string
           description: De gegevens over het adres van de NIET-NATUURLIJK PERSOON
           maxLength: 1000
+        verblijfsadres:
+          allOf:
+          - $ref: '#/components/schemas/VerblijfsAdresRequest'
+          nullable: true
+          description: '**EXPERIMENTEEL** verblijfsadres'
         subVerblijfBuitenland:
           allOf:
           - $ref: '#/components/schemas/SubVerblijfBuitenlandRequest'

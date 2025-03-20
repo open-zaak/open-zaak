@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
+from openzaak.utils.help_text import mark_experimental
+
 from ...constants import GeslachtsAanduiding
 from ...models import (
     Medewerker,
@@ -110,6 +112,11 @@ class RolNatuurlijkPersoonSerializer(serializers.ModelSerializer):
 
 
 class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
+    verblijfsadres = VerblijfsAdresSerializer(
+        required=False,
+        allow_null=True,
+        help_text=mark_experimental("verblijfsadres"),
+    )
     sub_verblijf_buitenland = SubVerblijfBuitenlandSerializer(
         required=False, allow_null=True
     )
@@ -124,6 +131,7 @@ class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
             "statutaire_naam",
             "inn_rechtsvorm",
             "bezoekadres",
+            "verblijfsadres",
             "sub_verblijf_buitenland",
         )
 

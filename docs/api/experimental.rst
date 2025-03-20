@@ -62,14 +62,14 @@ Query parameters
 * ``/api/v1/rollen`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__vestingsNummer``
-    * ``betrokkeneIdentificatie__vestiging__kvkNummer``
+    * **DEPRECATED** ``betrokkeneIdentificatie__vestiging__kvkNummer``
     * ``machtiging``
     * ``machtiging__loa``
 
 * ``/api/v1/zaken`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
     * ``rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__vestingsNummer``
-    * ``rol__betrokkeneIdentificatie__vestiging__kvkNummer``
+    * **DEPRECATED** ``rol__betrokkeneIdentificatie__vestiging__kvkNummer``
     * ``rol__machtiging``
     * ``rol__machtiging__loa``
 

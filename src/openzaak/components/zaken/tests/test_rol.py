@@ -153,6 +153,14 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         nietnaturlijkperson = NietNatuurlijkPersoon.objects.create(
             rol=rol, ann_identificatie="123456"
         )
+        Adres.objects.create(
+            nietnatuurlijkpersoon=nietnaturlijkperson,
+            identificatie="123",
+            postcode="1111",
+            wpl_woonplaats_naam="test city",
+            gor_openbare_ruimte_naam="test",
+            huisnummer=1,
+        )
         SubVerblijfBuitenland.objects.create(
             nietnatuurlijkpersoon=nietnaturlijkperson,
             lnd_landcode="UK",
@@ -192,6 +200,16 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     "statutaireNaam": "",
                     "innRechtsvorm": "",
                     "bezoekadres": "",
+                    "verblijfsadres": {
+                        "aoaIdentificatie": "123",
+                        "wplWoonplaatsNaam": "test city",
+                        "gorOpenbareRuimteNaam": "test",
+                        "aoaPostcode": "1111",
+                        "aoaHuisnummer": 1,
+                        "aoaHuisletter": "",
+                        "aoaHuisnummertoevoeging": "",
+                        "inpLocatiebeschrijving": "",
+                    },
                     "subVerblijfBuitenland": {
                         "lndLandcode": "UK",
                         "lndLandnaam": "United Kingdom",

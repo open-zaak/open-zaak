@@ -1116,6 +1116,7 @@ class ZaakObjectZakelijkRechtTestCase(JWTAuthMixin, APITestCase):
                             "statutaireNaam": "",
                             "innRechtsvorm": "",
                             "bezoekadres": "",
+                            "verblijfsadres": None,
                             "subVerblijfBuitenland": None,
                         },
                     },
