@@ -301,16 +301,10 @@ class ZaakAdminTests(WebTest):
         self.assertEqual(identificatie_element.text, rol.zaak.identificatie)
 
     def test_zaakgeometrie(self):
-        """
-        Tests that lat long coords (ESPG 4326) are swapped within the map.
-
-        The map uses ESPG 3857 so the coords need to transform
-        before they can be checked against the expected value.
-        """
-        lat = 52.38554000854492
         long = 4.842977046966553
+        lat = 52.38554000854492
 
-        zaak = ZaakFactory.create(zaakgeometrie=Point(lat, long))
+        zaak = ZaakFactory.create(zaakgeometrie=Point(long, lat))
         url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
         response = self.app.get(url)
@@ -322,15 +316,14 @@ class ZaakAdminTests(WebTest):
         point = Point(coords[0], coords[1], srid=3857)
         point.transform(4326)
 
-        # coords are swapped by AuthorityAxisOrderOLWidget
         self.assertAlmostEqual(point.x, long)
         self.assertAlmostEqual(point.y, lat)
 
     def test_zaak_geometrie_change_from_admin(self):
-        lat = 52.38554000854492
         long = 4.842977046966553
+        lat = 52.38554000854492
 
-        zaak = ZaakFactory.create(zaakgeometrie=Point(lat, long))
+        zaak = ZaakFactory.create(zaakgeometrie=Point(long, lat))
         url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
         response = self.app.get(url)
@@ -348,6 +341,5 @@ class ZaakAdminTests(WebTest):
 
         zaak.refresh_from_db()
 
-        # coords where swapped and changed back when saving to db.
-        self.assertAlmostEqual(zaak.zaakgeometrie.x, lat)
-        self.assertAlmostEqual(zaak.zaakgeometrie.y, long)
+        self.assertAlmostEqual(zaak.zaakgeometrie.x, long)
+        self.assertAlmostEqual(zaak.zaakgeometrie.y, lat)

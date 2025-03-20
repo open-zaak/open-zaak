@@ -426,7 +426,7 @@ class ZaakSerializer(
                 ],
             },
             "zaakgeometrie": {
-                "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON."
+                "help_text": "Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON. (long, lat volgorde)"
             },
             "identificatie": {
                 "required": False,
