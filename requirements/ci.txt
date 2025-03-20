@@ -182,7 +182,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==4.2.19
+django==5.1.7
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -248,7 +248,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -347,7 +347,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-django-setup-configuration==0.7.1
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@2d28f7294ccff95b73a86ff10c747b489bf08a6d
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -603,7 +603,7 @@ notifications-api-common==0.6.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework==0.9.3
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@7ae561187644fb32116d17f9fe998c73b55f08cc
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

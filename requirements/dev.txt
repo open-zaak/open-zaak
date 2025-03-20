@@ -216,7 +216,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django==4.2.19
+django==5.1.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -285,7 +285,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -303,7 +303,7 @@ django-db-logger==0.1.12
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-debug-toolbar==3.2.4
+django-debug-toolbar==5.0.1
     # via -r requirements/dev.in
 django-extensions==3.1.5
     # via -r requirements/dev.in
@@ -388,7 +388,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration==0.7.1
+django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@2d28f7294ccff95b73a86ff10c747b489bf08a6d
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -692,7 +692,7 @@ notifications-api-common==0.6.0
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.9.3
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@7ae561187644fb32116d17f9fe998c73b55f08cc
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
