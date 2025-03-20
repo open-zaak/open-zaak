@@ -14026,6 +14026,7 @@ components:
           - $ref: '#/components/schemas/GeoJSONGeometry'
           nullable: true
           description: Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON.
+            (long, lat volgorde)
         verlenging:
           allOf:
           - $ref: '#/components/schemas/VerlengingRequest'
@@ -15171,6 +15172,7 @@ components:
           - $ref: '#/components/schemas/GeoJSONGeometry'
           nullable: true
           description: Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON.
+            (long, lat volgorde)
         verlenging:
           allOf:
           - $ref: '#/components/schemas/Verlenging'
@@ -15867,6 +15869,7 @@ components:
           - $ref: '#/components/schemas/GeoJSONGeometry'
           nullable: true
           description: Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON.
+            (long, lat volgorde)
         verlenging:
           allOf:
           - $ref: '#/components/schemas/VerlengingRequest'
