@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2025 Dimpact
 from io import StringIO
 
 from django.core.management import call_command
