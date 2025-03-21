@@ -764,6 +764,11 @@ psycopg2==2.9.9
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
+py-cpuinfo==9.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-benchmark
 pyasn1==0.4.8
     # via
     #   pyasn1-modules
@@ -844,6 +849,11 @@ pyrsistent==0.18.1
     #   -r requirements/ci.txt
     #   jsonschema
 pytest==8.3.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-benchmark
+pytest-benchmark==5.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
