@@ -18,7 +18,7 @@ from openzaak.utils.filters import (
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
 from openzaak.utils.filterset import FilterGroup, FilterSet, FilterSetWithGroups
-from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.help_text import mark_deprecated, mark_experimental
 
 from ..models import (
     KlantContact,
@@ -110,6 +110,7 @@ class ZaakFilter(FilterSetWithGroups):
                 "rol__betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
                 "rol__betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
                 "rol__betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
+                "rol__betrokkene_identificatie__niet_natuurlijk_persoon__vestigings_nummer",
                 "rol__betrokkene_identificatie__vestiging__vestigings_nummer",
                 "rol__betrokkene_identificatie__vestiging__kvk_nummer",
                 "rol__betrokkene_identificatie__medewerker__identificatie",
@@ -204,16 +205,31 @@ class ZaakFilter(FilterSetWithGroups):
             ),
         )
     )
+    rol__betrokkene_identificatie__niet_natuurlijk_persoon__vestigings_nummer = (
+        filters.CharFilter(
+            field_name="rol__nietnatuurlijkpersoon__vestigings_nummer",
+            help_text=(
+                get_help_text("zaken.NietNatuurlijkPersoon", "vestigings_nummer")
+            ),
+            max_length=get_field_attribute(
+                "zaken.NietNatuurlijkPersoon", "vestigings_nummer", "max_length"
+            ),
+        )
+    )
     rol__betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="rol__vestiging__vestigings_nummer",
-        help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
+        help_text=mark_experimental(
+            mark_deprecated(get_help_text("zaken.Vestiging", "vestigings_nummer"))
+        ),
         max_length=get_field_attribute(
             "zaken.Vestiging", "vestigings_nummer", "max_length"
         ),
     )
     rol__betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
         field_name="rol__vestiging__kvk_nummer",
-        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
+        help_text=mark_experimental(
+            mark_deprecated(get_help_text("zaken.Vestiging", "kvk_nummer"))
+        ),
         max_length=get_field_attribute("zaken.Vestiging", "kvk_nummer", "max_length"),
     )
     rol__betrokkene_identificatie__medewerker__identificatie = filters.CharFilter(
@@ -310,13 +326,25 @@ class RolFilter(FilterSet):
         field_name="nietnatuurlijkpersoon__kvk_nummer",
         help_text=get_help_text("zaken.NietNatuurlijkPersoon", "kvk_nummer"),
     )
+    betrokkene_identificatie__niet_natuurlijk_persoon__vestigings_nummer = (
+        filters.CharFilter(
+            field_name="nietnatuurlijkpersoon__vestigings_nummer",
+            help_text=(
+                get_help_text("zaken.NietNatuurlijkPersoon", "vestigings_nummer")
+            ),
+        )
+    )
     betrokkene_identificatie__vestiging__vestigings_nummer = filters.CharFilter(
         field_name="vestiging__vestigings_nummer",
-        help_text=get_help_text("zaken.Vestiging", "vestigings_nummer"),
+        help_text=mark_experimental(
+            mark_deprecated(get_help_text("zaken.Vestiging", "vestigings_nummer"))
+        ),
     )
     betrokkene_identificatie__vestiging__kvk_nummer = filters.CharFilter(
         field_name="vestiging__kvk_nummer",
-        help_text=mark_experimental(get_help_text("zaken.Vestiging", "kvk_nummer")),
+        help_text=mark_experimental(
+            mark_deprecated(get_help_text("zaken.Vestiging", "kvk_nummer"))
+        ),
     )
     betrokkene_identificatie__organisatorische_eenheid__identificatie = (
         filters.CharFilter(
@@ -354,6 +382,7 @@ class RolFilter(FilterSet):
             "betrokkene_identificatie__niet_natuurlijk_persoon__inn_nnp_id",
             "betrokkene_identificatie__niet_natuurlijk_persoon__ann_identificatie",
             "betrokkene_identificatie__niet_natuurlijk_persoon__kvk_nummer",
+            "betrokkene_identificatie__niet_natuurlijk_persoon__vestigings_nummer",
             "betrokkene_identificatie__vestiging__vestigings_nummer",
             "betrokkene_identificatie__vestiging__kvk_nummer",
             "betrokkene_identificatie__organisatorische_eenheid__identificatie",

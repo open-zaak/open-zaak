@@ -389,6 +389,37 @@ class FilterEHerkenningTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(rol1)}",
         )
 
+    def test_filter_nnp_vestigings_nummer(self):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(
+            zaaktype=zaak.zaaktype, omschrijving_generiek=RolOmschrijving.initiator
+        )
+        rol1, rol2, rol3 = RolFactory.create_batch(
+            3,
+            zaak=zaak,
+            roltype=roltype,
+            betrokkene_type=RolTypes.niet_natuurlijk_persoon,
+            roltoelichting="Created zaak",
+            contactpersoon_rol_naam="acting subject name",
+        )
+        NietNatuurlijkPersoon.objects.create(rol=rol1, vestigings_nummer="12345678")
+        NietNatuurlijkPersoon.objects.create(rol=rol2, vestigings_nummer="11122233")
+        NietNatuurlijkPersoon.objects.create(rol=rol3, inn_nnp_id="517439943")
+
+        response = self.client.get(
+            self.url,
+            {
+                "betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer": "12345678"
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"],
+            f"http://testserver{reverse(rol1)}",
+        )
+
     def test_filter_vestiging_kvk(self):
         zaak = ZaakFactory.create()
         roltype = RolTypeFactory.create(

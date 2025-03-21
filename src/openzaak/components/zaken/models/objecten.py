@@ -461,6 +461,13 @@ class Adres(models.Model):
         blank=True,
         related_name="verblijfsadres",
     )
+    nietnatuurlijkpersoon = models.OneToOneField(
+        "zaken.NietNatuurlijkPersoon",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="verblijfsadres",
+    )
     vestiging = models.OneToOneField(
         "zaken.Vestiging",
         on_delete=models.CASCADE,

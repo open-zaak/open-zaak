@@ -928,7 +928,10 @@ class KlantContactViewSet(
     ),
     create=extend_schema(
         summary="Maak een ROL aan bij een ZAAK.",
-        description="Maak een ROL aan bij een ZAAK.",
+        description=(
+            "Maak een ROL aan bij een ZAAK.\n\n"
+            "BetrokkeneType `vestiging` is **DEPRECATED**."
+        ),
     ),
     update=extend_schema(
         summary="Werk een ROL aan bij een ZAAK.",
