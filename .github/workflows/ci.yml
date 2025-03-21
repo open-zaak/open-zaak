@@ -239,6 +239,28 @@ jobs:
           path: ${{ github.workspace }}/.coverage-cmis
           include-hidden-files: true
 
+  performance-tests:
+    name: Run the performance test suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bring up docker compose and load data
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.factories.yml up -d --build || ( docker compose logs >&2 && exit 1; )
+          until docker compose logs web.local | grep -q "spawned uWSGI worker"; do
+            echo "uWSGI not running yet, waiting..."
+            sleep 3
+          done
+          docker compose exec --user root web.local pip install factory-boy
+          cat performance_test/create_data.py | docker compose exec -T web.local src/manage.py shell
+
+      - name: Run tests
+        run: |
+          pip install -r requirements/ci.txt
+          pytest performance_test/ --benchmark-json output.json
+
   publish_codecov:
     name: Publish coverage results
     runs-on: ubuntu-latest
