@@ -187,6 +187,7 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
         verbose_name_plural = _("niet-natuurlijke personen")
 
 
+# Scheduled for deprecation in Open Zaak version 3.0.
 class Vestiging(AbstractRolZaakobjectRelation):
     """
     Een gebouw of complex van gebouwen waar duurzame uitoefening van de activiteiten
