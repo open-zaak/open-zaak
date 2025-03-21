@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 
-from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
@@ -13,44 +12,41 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils import build_absolute_url
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver", ALLOWED_HOSTS=["testserver"])
 class ZaaktypeSyncAutorisatieTests(TestCase):
     def test_management_sync_autorisatie_delete_all(self):
-        domain = Site.objects.get_current().domain
-        with override_settings(ALLOWED_HOSTS=[domain]):
-            # Create 5 Autorisaties for non existing ZaakTypen
-            for i in range(5):
-                AutorisatieFactory.create(
-                    zaaktype=f"http://{domain}/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
-                )
+        # Create 5 Autorisaties for non existing ZaakTypen
+        for i in range(5):
+            AutorisatieFactory.create(
+                zaaktype=f"http://testserver/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
+            )
 
-            self.assertEqual(Autorisatie.objects.all().count(), 5)
+        self.assertEqual(Autorisatie.objects.all().count(), 5)
 
-            call_command("sync_autorisaties")
+        call_command("sync_autorisaties")
 
-            self.assertEqual(Autorisatie.objects.all().count(), 0)
+        self.assertEqual(Autorisatie.objects.all().count(), 0)
 
     def test_management_sync_autorisatie_delete_some(self):
-        domain = Site.objects.get_current().domain
-        with override_settings(ALLOWED_HOSTS=[domain]):
-            # Create 5 Autorisaties for non existing ZaakTypen
-            for i in range(5):
-                AutorisatieFactory.create(
-                    zaaktype=f"http://{domain}/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
-                )
-
-            # Add an Autorisatie for an existing Zaaktype
-            zaaktype = ZaakTypeFactory.create()
+        # Create 5 Autorisaties for non existing ZaakTypen
+        for i in range(5):
             AutorisatieFactory.create(
-                zaaktype=build_absolute_url(zaaktype.get_absolute_api_url()),
+                zaaktype=f"http://testserver/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
             )
 
-            self.assertEqual(Autorisatie.objects.all().count(), 6)
+        # Add an Autorisatie for an existing Zaaktype
+        zaaktype = ZaakTypeFactory.create()
+        AutorisatieFactory.create(
+            zaaktype=build_absolute_url(zaaktype.get_absolute_api_url()),
+        )
 
-            call_command("sync_autorisaties")
+        self.assertEqual(Autorisatie.objects.all().count(), 6)
 
-            self.assertEqual(Autorisatie.objects.all().count(), 1)
-            autorisatie = Autorisatie.objects.get()
-            self.assertEqual(
-                autorisatie.zaaktype,
-                build_absolute_url(zaaktype.get_absolute_api_url()),
-            )
+        call_command("sync_autorisaties")
+
+        self.assertEqual(Autorisatie.objects.all().count(), 1)
+        autorisatie = Autorisatie.objects.get()
+        self.assertEqual(
+            autorisatie.zaaktype,
+            build_absolute_url(zaaktype.get_absolute_api_url()),
+        )

@@ -89,19 +89,18 @@ def check_missing_init_files(app_configs, **kwargs):
 
 @register
 def check_openzaak_domain(app_configs, **kwargs):
-    if not settings.OPENZAAK_DOMAIN:
-        return []
-
     errors = []
-
-    try:
-        parsed = furl(netloc=settings.OPENZAAK_DOMAIN)
-    except ValueError:
-        invalid_netloc = True
+    if settings.OPENZAAK_DOMAIN:
+        try:
+            parsed = furl(netloc=settings.OPENZAAK_DOMAIN)
+        except ValueError:
+            invalid_netloc = True
+        else:
+            invalid_netloc = (
+                parsed.scheme or parsed.path or parsed.username or parsed.password
+            )
     else:
-        invalid_netloc = (
-            parsed.scheme or parsed.path or parsed.username or parsed.password
-        )
+        invalid_netloc = True
 
     if invalid_netloc:
         errors.append(

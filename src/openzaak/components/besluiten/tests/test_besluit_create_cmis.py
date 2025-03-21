@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from datetime import date
 
-from django.contrib.sites.models import Site
 from django.test import override_settings
 
 from freezegun import freeze_time
@@ -23,17 +22,10 @@ from .utils import get_operation_url
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     @freeze_time("2018-09-06T12:08+0200")
     def test_us162_voeg_besluit_toe_aan_zaak(self):

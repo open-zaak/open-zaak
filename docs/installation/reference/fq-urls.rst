@@ -76,4 +76,4 @@ At times Open Zaak needs to build absolute URLs without an HTTP request context 
 available, such as command-line scripts or certain admin synchronization steps.
 
 If the ``OPENZAAK_DOMAIN`` is not empty, then this value will be used for those URLs,
-otherwise the ``Site`` configuration (from the admin) will be used.
+otherwise the ``SITE_DOMAIN`` setting will be used.

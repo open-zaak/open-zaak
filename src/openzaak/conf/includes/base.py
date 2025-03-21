@@ -171,6 +171,9 @@ OPENZAAK_DOMAIN = config(
     ),
     auto_display_default=False,
 )
+if not OPENZAAK_DOMAIN:
+    OPENZAAK_DOMAIN = SITE_DOMAIN
+
 OPENZAAK_REWRITE_HOST = config(
     "OPENZAAK_REWRITE_HOST",
     False,
@@ -300,7 +303,6 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = "Open Zaak - admin"
 # Django setup configuration
 #
 SETUP_CONFIGURATION_STEPS = [
-    "django_setup_configuration.contrib.sites.steps.SitesConfigurationStep",
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings
 
 from openzaak.tests.utils import APICMISTestCase, require_cmis
@@ -10,19 +9,11 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class QueryTests(APICMISTestCase):
     """
     Test that the query interface works with CMIS as backend.
     """
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_filter(self):
         EnkelvoudigInformatieObjectFactory.create(identificatie="001")

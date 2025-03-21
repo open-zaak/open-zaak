@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings
 
 from rest_framework import status
@@ -26,18 +25,10 @@ from ..models import Besluit, BesluitInformatieObject
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def _create_besluit(self, **HEADERS):
         base_besluit = "http://testserver/besluiten/api/v1/"

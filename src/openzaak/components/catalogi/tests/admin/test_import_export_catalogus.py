@@ -4,7 +4,6 @@ import io
 from unittest.mock import patch
 
 from django.contrib.auth.models import Permission
-from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -44,6 +43,7 @@ from .test_import_export_zaaktype import MockSelectielijst
 
 
 @disable_admin_mfa()
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -52,9 +52,6 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
 
     def setUp(self):
         super().setUp()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         self.app.set_user(self.user)
 
         caches["import_requests"].clear()

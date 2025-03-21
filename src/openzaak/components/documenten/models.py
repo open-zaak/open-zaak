@@ -13,7 +13,6 @@ from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
 from drc_cmis.utils import exceptions
-from drc_cmis.utils.convert import make_absolute_uri
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
@@ -21,6 +20,7 @@ from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import ServiceUrlField
 
+from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import (
     AliasServiceUrlField,
     FkOrServiceUrlField,
@@ -534,7 +534,7 @@ class EnkelvoudigInformatieObject(
             "enkelvoudiginformatieobject-detail",
             kwargs={"version": "1", "uuid": self.uuid},
         )
-        return make_absolute_uri(eio_path)
+        return build_absolute_url(eio_path)
 
     def has_gebruiksrechten(self):
         if settings.CMIS_ENABLED:
@@ -929,7 +929,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
             "objectinformatieobject-detail",
             kwargs={"version": "1", "uuid": self.uuid},
         )
-        return make_absolute_uri(oio_path)
+        return build_absolute_url(oio_path)
 
     def delete(self, *args, **kwargs):
         if not settings.CMIS_ENABLED:

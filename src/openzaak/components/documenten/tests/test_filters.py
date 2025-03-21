@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -324,13 +323,9 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["results"][2]["trefwoorden"], ["bar", "baz"])
 
     @override_settings(
-        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
     )
     def test_internal_objectinformatieobjecten_object_filter(self):
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
         zaak_eio = EnkelvoudigInformatieObjectFactory.create(titel="zaak")
         zaak = ZaakFactory.create()
         ZaakInformatieObjectFactory.create(
@@ -552,13 +547,9 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.data, [])
 
     @override_settings(
-        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
     )
     def test_internal_object_filter(self):
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
         zaak_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()
         zaak = ZaakFactory.create()
         ZaakInformatieObjectFactory.create(zaak=zaak, informatieobject=zaak_eioc)
