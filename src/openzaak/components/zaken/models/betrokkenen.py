@@ -180,6 +180,7 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
         max_length=24,
         blank=True,
         help_text=mark_experimental("Een korte unieke aanduiding van de Vestiging."),
+        db_index=True,
     )
 
     class Meta:

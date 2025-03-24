@@ -105,7 +105,7 @@ class TestMigrateVestigingenToNnps(TestCase):
         result = self.call_command()
 
         self.assertIn(
-            f"Vestiging: {vestiging.handelsnaam[0]} could not be migrated, "
+            f"Vestiging: (id={vestiging.id}): {vestiging.handelsnaam[0]} could not be migrated, "
             f"a NietNatuurlijkPersoon already exists on Rol: {rol.uuid}",
             result,
         )
@@ -128,7 +128,7 @@ class TestMigrateVestigingenToNnps(TestCase):
         result = self.call_command()
 
         self.assertIn(
-            f"Vestiging: {vestiging.handelsnaam[0]} could not be migrated, "
+            f"Vestiging: (id={vestiging.id}): {vestiging.handelsnaam[0]} could not be migrated, "
             f"as its handelsnaam is too long. {len(', '.join(vestiging.handelsnaam))}/500",
             result,
         )

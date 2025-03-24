@@ -43,7 +43,8 @@ Attributes
 * ``Rol``:
     * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.kvkNummer`` is added to
       support :ref:`mandates <client-development-mandate>`
-    * ``betrokkeneIdentificatie.vestigingsNummer`` is added for ``betrokkeneType: "niet_natuurlijk_persoon"`` as ``betrokkeneType: "vestiging"`` has been deprecated``.
+    * ``betrokkeneIdentificatie.vestigingsNummer`` is added for ``betrokkeneType: "niet_natuurlijk_persoon"``
+        as ``betrokkeneType: "vestiging"`` has been deprecated.
     * ``roltoelichting`` is changed to not required
     * Two attributes are added to track the validity period of a ``Rol`` within a ``Zaak``:
 

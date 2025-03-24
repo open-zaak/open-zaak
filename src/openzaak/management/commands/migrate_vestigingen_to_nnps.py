@@ -23,7 +23,7 @@ class Command(BaseCommand):
             if NietNatuurlijkPersoon.objects.filter(rol=vestiging.rol).exists():
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Vestiging: {vestiging.handelsnaam[0]} could not be migrated, "
+                        f"Vestiging: (id={vestiging.id}): {vestiging.handelsnaam[0]} could not be migrated, "
                         f"a NietNatuurlijkPersoon already exists on Rol: {vestiging.rol.uuid}"
                     )
                 )
@@ -37,7 +37,7 @@ class Command(BaseCommand):
             if len(handelsnamen) > max_length:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Vestiging: {vestiging.handelsnaam[0]} could not be migrated, "
+                        f"Vestiging: (id={vestiging.id}): {vestiging.handelsnaam[0]} could not be migrated, "
                         f"as its handelsnaam is too long. {len(handelsnamen)}/{max_length}"
                     )
                 )
