@@ -72,7 +72,7 @@ __all__ = [
 ]
 
 
-class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
+class Zaak(ETagMixin, AuditTrailMixin, APIMixin):
     """
     Modelleer de structuur van een ZAAK.
 
@@ -100,7 +100,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     # old fields, to be dropped in a future patch
     _id = models.IntegerField(db_column="id", null=True)
-    _identificatie = models.CharField(
+    identificatie = models.CharField(
         db_column="identificatie",
         max_length=40,
         blank=True,
@@ -108,7 +108,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         "die verantwoordelijk is voor de behandeling van de ZAAK.",
         db_index=True,
     )
-    _bronorganisatie = RSINField(
+    bronorganisatie = RSINField(
         db_column="bronorganisatie",
         help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
         "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
