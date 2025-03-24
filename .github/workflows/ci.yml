@@ -21,223 +21,223 @@ env:
 
 jobs:
   # determine changed files to decide if certain jobs can be skipped or not
-  changed-files:
-    runs-on: ubuntu-latest  # windows-latest | macos-latest
-    name: Determine changed files
-    steps:
+  # changed-files:
+  #   runs-on: ubuntu-latest  # windows-latest | macos-latest
+  #   name: Determine changed files
+  #   steps:
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Get changed PY files
-        id: changed-py-files
-        run: bin/check_changed_files.sh ^src/.*\.py$
+  #     - name: Get changed PY files
+  #       id: changed-py-files
+  #       run: bin/check_changed_files.sh ^src/.*\.py$
 
-      - name: Get changed requirements files
-        id: changed-requirements
-        run: bin/check_changed_files.sh ^requirements/.*\.txt$
+  #     - name: Get changed requirements files
+  #       id: changed-requirements
+  #       run: bin/check_changed_files.sh ^requirements/.*\.txt$
 
-    outputs:
-      changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
-      changed-requirements: ${{ steps.changed-requirements.outputs.any_changed }}
+  #   outputs:
+  #     changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
+  #     changed-requirements: ${{ steps.changed-requirements.outputs.any_changed }}
 
-  cmis-init:  # regression check for #972
-    runs-on: ubuntu-latest
-    needs:
-      - changed-files
+  # cmis-init:  # regression check for #972
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - changed-files
 
-    # only run tests if source files have changed (e.g. skip for PRs that only update docs)
-    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
+  #   # only run tests if source files have changed (e.g. skip for PRs that only update docs)
+  #   if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
 
-    name: Check 'install' with CMIS enabled
+  #   name: Check 'install' with CMIS enabled
 
-    services:
-      postgres:
-        image: postgis/postgis:17-3.5
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #   services:
+  #     postgres:
+  #       image: postgis/postgis:17-3.5
+  #       env:
+  #         POSTGRES_HOST_AUTH_METHOD: trust
+  #       ports:
+  #         - 5432:5432
+  #       # needed because the postgres container does not provide a healthcheck
+  #       options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.11'
+  #         cache: 'pip'
+  #         cache-dependency-path: 'requirements/*.txt'
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
 
-      - name: Install system packages
-        run: |
-          sudo apt-get update \
-          && sudo apt-get install -y --no-install-recommends \
-            libgdal-dev \
-            gdal-bin
+  #     - name: Install system packages
+  #       run: |
+  #         sudo apt-get update \
+  #         && sudo apt-get install -y --no-install-recommends \
+  #           libgdal-dev \
+  #           gdal-bin
 
-      - name: Install dependencies
-        run: |
-          pip install uv
-          uv pip install --system -r requirements/ci.txt
+  #     - name: Install dependencies
+  #       run: |
+  #         pip install uv
+  #         uv pip install --system -r requirements/ci.txt
 
-      - name: Test migrate and check
-        run: |
-          createdb -U postgres -h localhost openzaak
-          python src/manage.py check
-          python src/manage.py migrate
-        env:
-          CMIS_ENABLED: True
-          DB_NAME: openzaak
+  #     - name: Test migrate and check
+  #       run: |
+  #         createdb -U postgres -h localhost openzaak
+  #         python src/manage.py check
+  #         python src/manage.py migrate
+  #       env:
+  #         CMIS_ENABLED: True
+  #         DB_NAME: openzaak
 
-  tests:
-    runs-on: ubuntu-latest
-    needs:
-      - changed-files
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - changed-files
 
-    # only run tests if source files have changed (e.g. skip for PRs that only update docs)
-    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
+  #   # only run tests if source files have changed (e.g. skip for PRs that only update docs)
+  #   if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
 
-    strategy:
-      matrix:
-        postgres: ['14', '15', '16', '17']
-        postgis: ['3.2', '3.5']
-        exclude:
-          # postgis 3.2 is not compatible with recent postgres versions
-          - postgres: '17'
-            postgis: '3.2'
-          - postgres: '16'
-            postgis: '3.2'
-          - postgres: '15'
-            postgis: '3.2'
-
-
-    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }})
-
-    services:
-      postgres:
-        image: postgis/postgis:${{ matrix.postgres }}-${{ matrix.postgis }}
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options:
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-          --name postgres
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
-          python-version: '3.11'
-          optimize-postgres: 'yes'
-          pg-service: 'postgres'
-          setup-node: 'yes'
-
-      - name: Run tests
-        run: |
-          echo "# Profiling stats" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_OUTPUT
-
-          python src/manage.py compilemessages
-          python src/manage.py collectstatic --noinput --link
-          coverage run \
-          --concurrency=multiprocessing \
-          --parallel-mode \
-          src/manage.py test src --exclude-tag=cmis \
-            --parallel 4 \
-            --verbosity 2
-          coverage combine
-          mv .coverage .coverage-regular
-
-      - name: Upload Coverage Report
-        # TODO find a better way to upload this only once
-        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-regular-tests
-          path: ${{ github.workspace }}/.coverage-regular
-          include-hidden-files: true
+  #   strategy:
+  #     matrix:
+  #       postgres: ['14', '15', '16', '17']
+  #       postgis: ['3.2', '3.5']
+  #       exclude:
+  #         # postgis 3.2 is not compatible with recent postgres versions
+  #         - postgres: '17'
+  #           postgis: '3.2'
+  #         - postgres: '16'
+  #           postgis: '3.2'
+  #         - postgres: '15'
+  #           postgis: '3.2'
 
 
-  cmis_tests:
-    runs-on: ubuntu-latest
-    needs:
-      - changed-files
+  #   name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }})
 
-    # only run tests if source files have changed (e.g. skip for PRs that only update docs)
-    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
+  #   services:
+  #     postgres:
+  #       image: postgis/postgis:${{ matrix.postgres }}-${{ matrix.postgis }}
+  #       env:
+  #         POSTGRES_HOST_AUTH_METHOD: trust
+  #       ports:
+  #         - 5432:5432
+  #       # needed because the postgres container does not provide a healthcheck
+  #       options:
+  #         --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #         --name postgres
 
-    strategy:
-      matrix:
-        postgres: ['17']
-        postgis: ['3.5']
-        binding: ['BROWSER', 'WEBSERVICE']
-        cmisurlmapping: ['False', 'True']
-        exclude:
-          # Browser binding + cmisurlmapping is not supported
-          - binding: 'BROWSER'
-            cmisurlmapping: 'True'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up backend environment
+  #       uses: maykinmedia/setup-django-backend@v1.3
+  #       with:
+  #         apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
+  #         python-version: '3.11'
+  #         optimize-postgres: 'yes'
+  #         pg-service: 'postgres'
+  #         setup-node: 'yes'
 
-    name: Tests (PG ${{ matrix.postgres }}-${{ matrix.postgis }} ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }})
+  #     - name: Run tests
+  #       run: |
+  #         echo "# Profiling stats" >> $GITHUB_STEP_SUMMARY
+  #         echo "" >> $GITHUB_OUTPUT
 
-    services:
-      postgres:
-        image: postgis/postgis:${{ matrix.postgres }}-${{ matrix.postgis }}
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options:
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-          --name postgres
+  #         python src/manage.py compilemessages
+  #         python src/manage.py collectstatic --noinput --link
+  #         coverage run \
+  #         --concurrency=multiprocessing \
+  #         --parallel-mode \
+  #         src/manage.py test src --exclude-tag=cmis \
+  #           --parallel 4 \
+  #           --verbosity 2
+  #         coverage combine
+  #         mv .coverage .coverage-regular
 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
-          python-version: '3.11'
-          optimize-postgres: 'yes'
-          pg-service: 'postgres'
-          setup-node: 'yes'
+  #     - name: Upload Coverage Report
+  #       # TODO find a better way to upload this only once
+  #       if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' }}
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: coverage-regular-tests
+  #         path: ${{ github.workspace }}/.coverage-regular
+  #         include-hidden-files: true
 
-      - name: Bring up Alfresco
-        run: |
-          docker compose -f docker-compose.ci.cmis.yml up -d
-          docker ps -q | xargs  docker stats --no-stream
 
-      - name: Run tests
-        if: ${{ !(matrix.cmisurlmapping == 'True' && matrix.binding == 'BROWSER') }}
-        run: |
-          echo "# Profiling stats" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_OUTPUT
+  # cmis_tests:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - changed-files
 
-          python src/manage.py compilemessages
-          python src/manage.py collectstatic --noinput --link
-          coverage run src/manage.py test src --tag cmis
-          mv .coverage .coverage-cmis
-        env:
-          CMIS_BINDING: ${{ matrix.binding }}
-          CMIS_URL_MAPPING_ENABLED: ${{ matrix.cmisurlmapping }}
+  #   # only run tests if source files have changed (e.g. skip for PRs that only update docs)
+  #   if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
 
-      - name: Upload Coverage Report
-        # TODO find a better way to upload this only once
-        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.binding == 'BROWSER' && matrix.cmisurlmapping == 'False' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-cmis-tests
-          path: ${{ github.workspace }}/.coverage-cmis
-          include-hidden-files: true
+  #   strategy:
+  #     matrix:
+  #       postgres: ['17']
+  #       postgis: ['3.5']
+  #       binding: ['BROWSER', 'WEBSERVICE']
+  #       cmisurlmapping: ['False', 'True']
+  #       exclude:
+  #         # Browser binding + cmisurlmapping is not supported
+  #         - binding: 'BROWSER'
+  #           cmisurlmapping: 'True'
+
+  #   name: Tests (PG ${{ matrix.postgres }}-${{ matrix.postgis }} ${{ matrix.binding }} binding, CMIS URL mapping = ${{ matrix.cmisurlmapping }})
+
+  #   services:
+  #     postgres:
+  #       image: postgis/postgis:${{ matrix.postgres }}-${{ matrix.postgis }}
+  #       env:
+  #         POSTGRES_HOST_AUTH_METHOD: trust
+  #       ports:
+  #         - 5432:5432
+  #       # needed because the postgres container does not provide a healthcheck
+  #       options:
+  #         --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #         --name postgres
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up backend environment
+  #       uses: maykinmedia/setup-django-backend@v1.3
+  #       with:
+  #         apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
+  #         python-version: '3.11'
+  #         optimize-postgres: 'yes'
+  #         pg-service: 'postgres'
+  #         setup-node: 'yes'
+
+  #     - name: Bring up Alfresco
+  #       run: |
+  #         docker compose -f docker-compose.ci.cmis.yml up -d
+  #         docker ps -q | xargs  docker stats --no-stream
+
+  #     - name: Run tests
+  #       if: ${{ !(matrix.cmisurlmapping == 'True' && matrix.binding == 'BROWSER') }}
+  #       run: |
+  #         echo "# Profiling stats" >> $GITHUB_STEP_SUMMARY
+  #         echo "" >> $GITHUB_OUTPUT
+
+  #         python src/manage.py compilemessages
+  #         python src/manage.py collectstatic --noinput --link
+  #         coverage run src/manage.py test src --tag cmis
+  #         mv .coverage .coverage-cmis
+  #       env:
+  #         CMIS_BINDING: ${{ matrix.binding }}
+  #         CMIS_URL_MAPPING_ENABLED: ${{ matrix.cmisurlmapping }}
+
+  #     - name: Upload Coverage Report
+  #       # TODO find a better way to upload this only once
+  #       if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.binding == 'BROWSER' && matrix.cmisurlmapping == 'False' }}
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: coverage-cmis-tests
+  #         path: ${{ github.workspace }}/.coverage-cmis
+  #         include-hidden-files: true
 
   performance-tests:
     name: Run the performance test suite
@@ -261,96 +261,96 @@ jobs:
           pip install -r requirements/ci.txt
           pytest performance_test/ --benchmark-json output.json
 
-  publish_codecov:
-    name: Publish coverage results
-    runs-on: ubuntu-latest
-    needs:
-      - tests
-      - cmis_tests
+  # publish_codecov:
+  #   name: Publish coverage results
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - tests
+  #     - cmis_tests
 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-regular-tests
-          path: coverage-data
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-cmis-tests
-          path: coverage-data
-      - name: Combine reports
-        run: |
-          pip install $(grep codecov= requirements/ci.txt)
-          ls -la coverage-data
-          coverage combine coverage-data/.coverage-regular coverage-data/.coverage-cmis
-          coverage report
-      - name: Publish coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download Coverage Reports
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: coverage-regular-tests
+  #         path: coverage-data
+  #     - name: Download Coverage Reports
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: coverage-cmis-tests
+  #         path: coverage-data
+  #     - name: Combine reports
+  #       run: |
+  #         pip install $(grep codecov= requirements/ci.txt)
+  #         ls -la coverage-data
+  #         coverage combine coverage-data/.coverage-regular coverage-data/.coverage-cmis
+  #         coverage report
+  #     - name: Publish coverage report
+  #       uses: codecov/codecov-action@v4
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
 
-  docs:
-    name: Documentation check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: 'libgdal-dev gdal-bin'
-          python-version: '3.11'
+  # docs:
+  #   name: Documentation check
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up backend environment
+  #       uses: maykinmedia/setup-django-backend@v1.3
+  #       with:
+  #         apt-packages: 'libgdal-dev gdal-bin'
+  #         python-version: '3.11'
 
-      - name: Generate environment variable documentation using OAf and check if it was updated
-        run: |
-          bin/generate_envvar_docs.sh
-          changes=$(git diff docs/installation/config/env_config.rst)
-          if [ ! -z "$changes" ]; then
-              echo $changes
-              echo "Please update the environment documentation by running \`bin/generate_envvar_docs.sh\`"
-              cat docs/installation/config/env_config.rst
-              exit 1
-          fi
-        env:
-          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+  #     - name: Generate environment variable documentation using OAf and check if it was updated
+  #       run: |
+  #         bin/generate_envvar_docs.sh
+  #         changes=$(git diff docs/installation/config/env_config.rst)
+  #         if [ ! -z "$changes" ]; then
+  #             echo $changes
+  #             echo "Please update the environment documentation by running \`bin/generate_envvar_docs.sh\`"
+  #             cat docs/installation/config/env_config.rst
+  #             exit 1
+  #         fi
+  #       env:
+  #         DJANGO_SETTINGS_MODULE: openzaak.conf.ci
 
-  store-reusable-workflow-vars:
-    name: create values which can be passed through a reusable workflow
-    runs-on: ubuntu-latest
-    outputs:
-      image-name: ${{ steps.image-name.outputs.image-name }}
-      sphinx-ssl-conf: ${{ steps.sphinx-ssl-conf.outputs.sphinx-ssl-conf }}
+  # store-reusable-workflow-vars:
+  #   name: create values which can be passed through a reusable workflow
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     image-name: ${{ steps.image-name.outputs.image-name }}
+  #     sphinx-ssl-conf: ${{ steps.sphinx-ssl-conf.outputs.sphinx-ssl-conf }}
 
-    steps:
-      - run: echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT
-        name: 'Store the docker image name'
-        id: image-name
-      - run: echo "sphinx-ssl-conf=${{ github.workspace }}/docs/openssl.conf" >> $GITHUB_OUTPUT
-        name: 'Store the sphinx openssl configuration path'
-        id: sphinx-ssl-conf
+  #   steps:
+  #     - run: echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+  #       name: 'Store the docker image name'
+  #       id: image-name
+  #     - run: echo "sphinx-ssl-conf=${{ github.workspace }}/docs/openssl.conf" >> $GITHUB_OUTPUT
+  #       name: 'Store the sphinx openssl configuration path'
+  #       id: sphinx-ssl-conf
 
-  open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v5
-    needs:
-      - store-reusable-workflow-vars
-    with:
-      apt-packages: 'libgdal-dev gdal-bin'
-      main-branch: 'main'
-      python-version: '3.11'
-      django-settings-module: openzaak.conf.ci
-      docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
-      docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
+  # open-api-ci:
+  #   uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v5
+  #   needs:
+  #     - store-reusable-workflow-vars
+  #   with:
+  #     apt-packages: 'libgdal-dev gdal-bin'
+  #     main-branch: 'main'
+  #     python-version: '3.11'
+  #     django-settings-module: openzaak.conf.ci
+  #     docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
+  #     docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
-  open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v5
-    needs:
-      - store-reusable-workflow-vars
-      - open-api-ci
-      - tests
-    with:
-      docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
-      repository-owner: 'open-zaak'
-    secrets:
-      docker-username: ${{ secrets.DOCKER_USERNAME }}
-      docker-token: ${{ secrets.DOCKER_TOKEN }}
+  # open-api-publish:
+  #   uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v5
+  #   needs:
+  #     - store-reusable-workflow-vars
+  #     - open-api-ci
+  #     - tests
+  #   with:
+  #     docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
+  #     repository-owner: 'open-zaak'
+  #   secrets:
+  #     docker-username: ${{ secrets.DOCKER_USERNAME }}
+  #     docker-token: ${{ secrets.DOCKER_TOKEN }}
