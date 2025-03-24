@@ -176,12 +176,19 @@ class NietNatuurlijkPersoon(AbstractRolZaakobjectZakelijkRechtRelation):
             "Een uniek nummer toegekend door de Kamer van Koophandel"
         ),
     )
+    vestigings_nummer = models.CharField(
+        max_length=24,
+        blank=True,
+        help_text=mark_experimental("Een korte unieke aanduiding van de Vestiging."),
+        db_index=True,
+    )
 
     class Meta:
         verbose_name = _("niet-natuurlijk persoon")
         verbose_name_plural = _("niet-natuurlijke personen")
 
 
+# Scheduled for deprecation in Open Zaak version 3.0.
 class Vestiging(AbstractRolZaakobjectRelation):
     """
     Een gebouw of complex van gebouwen waar duurzame uitoefening van de activiteiten

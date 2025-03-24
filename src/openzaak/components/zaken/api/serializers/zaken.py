@@ -1018,6 +1018,9 @@ class RolSerializer(PolymorphicSerializer):
                     "dat STATUSsen in die ZAAK bereikt zijn."
                 ),
             },
+            "betrokkene_type": {
+                "help_text": "Betrokkene type `vestiging` is **DEPRECATED**."
+            },
         }
 
     def get_fields(self):

@@ -864,6 +864,38 @@ class ZakenFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 1)
 
+    def test_rol_nnp_vestigings_nummer(self):
+        url = reverse(Zaak)
+        rol = RolFactory.create(
+            betrokkene_type=RolTypes.niet_natuurlijk_persoon,
+            omschrijving_generiek=RolOmschrijving.initiator,
+        )
+        NietNatuurlijkPersoon.objects.create(rol=rol, vestigings_nummer="12345")
+
+        with self.subTest(expected="no-match"):
+            response = self.client.get(
+                url,
+                {
+                    "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer": "000000000"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 0)
+
+        with self.subTest(expected="match"):
+            response = self.client.get(
+                url,
+                {
+                    "rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer": "12345"
+                },
+                **ZAAK_READ_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data["count"], 1)
+
     def test_rol_np_anp_identificatie(self):
         url = reverse(Zaak)
         rol = RolFactory.create(
