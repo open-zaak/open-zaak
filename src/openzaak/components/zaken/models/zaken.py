@@ -83,23 +83,23 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin):
 
     # acts as the primary key - the (data) migrations ensure that the references
     # are correct
-    identificatie_ptr = models.OneToOneField(
-        ZaakIdentificatie,
-        on_delete=models.PROTECT,
-        parent_link=True,
-        primary_key=True,
-        verbose_name=_("Zaak identification details"),
-        help_text=_(
-            "Zaak identification details are tracked in a separate table so numbers "
-            "can be generated/reserved before the zaak is actually created."
-        ),
-    )
+    # identificatie_ptr = models.OneToOneField(
+    #     ZaakIdentificatie,
+    #     on_delete=models.PROTECT,
+    #     parent_link=True,
+    #     primary_key=True,
+    #     verbose_name=_("Zaak identification details"),
+    #     help_text=_(
+    #         "Zaak identification details are tracked in a separate table so numbers "
+    #         "can be generated/reserved before the zaak is actually created."
+    #     ),
+    # )
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
 
     # old fields, to be dropped in a future patch
-    _id = models.IntegerField(db_column="id", null=True)
+    id = models.AutoField(db_column="id", primary_key=True)
     identificatie = models.CharField(
         db_column="identificatie",
         max_length=40,
@@ -453,19 +453,19 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin):
 
     def save(self, *args, **kwargs):
         if not self.identificatie:
-            assert not self.identificatie_ptr_id
-            self.identificatie_ptr = ZaakIdentificatie.objects.generate(
+            # assert not self.identificatie_ptr_id
+            identificatie = ZaakIdentificatie.objects.generate(
                 organisation=self.bronorganisatie,
                 date=self.registratiedatum,
             )
-            self.identificatie = self.identificatie_ptr.identificatie
-        elif not self.identificatie_ptr_id:
+            self.identificatie = identificatie
+        # elif not self.identificatie_ptr_id:
 
-            reserved_identificatie = ZaakIdentificatie.objects.filter(
-                identificatie=self.identificatie, bronorganisatie=self.bronorganisatie
-            )
-            if reserved_identificatie.exists():
-                self.identificatie_ptr = reserved_identificatie.first()
+        #     reserved_identificatie = ZaakIdentificatie.objects.filter(
+        #         identificatie=self.identificatie, bronorganisatie=self.bronorganisatie
+        #     )
+        #     if reserved_identificatie.exists():
+        #         self.identificatie = reserved_identificatie.first().identificatie
             # else create one the normal way
 
         if (

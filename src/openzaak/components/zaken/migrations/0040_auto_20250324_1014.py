@@ -2,14 +2,22 @@
 
 from django.db import migrations
 
+from django.db.models import Q
+
+
 def forward(apps, schema_editor):
+    # TODO should update in batches
     Zaak = apps.get_model("zaken", "Zaak")
     ZaakIdentificatie = apps.get_model("zaken", "ZaakIdentificatie")
-    for zaak in Zaak.objects.filter(_identificatie="", _bronorganisatie="").iterator():
+    for zaak in Zaak.objects.filter(
+        Q(_identificatie="") | Q(_bronorganisatie="") | Q(_id__isnull=True)
+    ).iterator():
         zi = ZaakIdentificatie.objects.get(id=zaak.pk)
         zaak._identificatie = zi.identificatie
         zaak._bronorganisatie = zi.bronorganisatie
-        zaak.save()
+        zaak._id = zi.pk
+        zaak.calculate_etag_value = lambda: None
+        zaak.save(update_fields=["_identificatie", "_bronorganisatie", "_id"])
 
 
 class Migration(migrations.Migration):
@@ -18,6 +26,4 @@ class Migration(migrations.Migration):
         ("zaken", "0039_rol_begin_geldigheid_rol_einde_geldigheid"),
     ]
 
-    operations = [
-        migrations.RunPython(forward, migrations.RunPython.noop)
-    ]
+    operations = [migrations.RunPython(forward, migrations.RunPython.noop)]
