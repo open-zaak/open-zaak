@@ -603,7 +603,7 @@ notifications-api-common==0.6.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@7ae561187644fb32116d17f9fe998c73b55f08cc
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@b1f4201e9884b7a43c395f18c7bbc42210a1c11e
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

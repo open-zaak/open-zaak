@@ -308,7 +308,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 notifications-api-common==0.6.0
     # via commonground-api-common
-open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@7ae561187644fb32116d17f9fe998c73b55f08cc
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@b1f4201e9884b7a43c395f18c7bbc42210a1c11e
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
