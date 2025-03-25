@@ -1,5 +1,4 @@
-git+https://github.com/maykinmedia/open-api-framework.git@deps/django-5
-git+https://github.com/maykinmedia/django-setup-configuration.git@deps/django-5
+open-api-framework
 
 # Core python libraries
 jq

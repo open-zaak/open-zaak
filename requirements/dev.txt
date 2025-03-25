@@ -388,7 +388,7 @@ django-sessionprofile==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-django-setup-configuration @ git+https://github.com/maykinmedia/django-setup-configuration.git@2d28f7294ccff95b73a86ff10c747b489bf08a6d
+django-setup-configuration==0.7.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -691,7 +691,7 @@ notifications-api-common==0.6.0
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@b1f4201e9884b7a43c395f18c7bbc42210a1c11e
+open-api-framework==0.9.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
