@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import json
 from urllib.parse import urlencode
 
+from django.contrib.gis.geos import Point
 from django.test import override_settings
 from django.urls import reverse
 
@@ -297,3 +299,47 @@ class ZaakAdminTests(WebTest):
         identificatie_element = result_list.find(class_="field-identificatie")
 
         self.assertEqual(identificatie_element.text, rol.zaak.identificatie)
+
+    def test_zaakgeometrie(self):
+        long = 4.842977046966553
+        lat = 52.38554000854492
+
+        zaak = ZaakFactory.create(zaakgeometrie=Point(long, lat))
+        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        response = self.app.get(url)
+
+        zaakgeometrie = response.html.find(id="id_zaakgeometrie")
+
+        data = json.loads(zaakgeometrie.text)
+        coords = data["coordinates"]
+        point = Point(coords[0], coords[1], srid=3857)
+        point.transform(4326)
+
+        self.assertAlmostEqual(point.x, long)
+        self.assertAlmostEqual(point.y, lat)
+
+    def test_zaak_geometrie_change_from_admin(self):
+        long = 4.842977046966553
+        lat = 52.38554000854492
+
+        zaak = ZaakFactory.create(zaakgeometrie=Point(long, lat))
+        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(
+            json.loads(response.form["zaakgeometrie"].value),
+            {
+                "type": "Point",
+                "coordinates": [539117.738791828393005, 6870138.495812701061368],
+            },
+        )
+
+        submit_response = response.form.submit()
+        self.assertEqual(submit_response.status_code, 302)
+
+        zaak.refresh_from_db()
+
+        self.assertAlmostEqual(zaak.zaakgeometrie.x, long)
+        self.assertAlmostEqual(zaak.zaakgeometrie.y, lat)
