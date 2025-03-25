@@ -245,6 +245,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         help_text=_(
             "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is."
         ),
+        db_index=True,
     )
 
     betalingsindicatie = models.CharField(

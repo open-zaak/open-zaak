@@ -4,6 +4,7 @@ from datetime import date, timedelta
 
 import factory
 import factory.fuzzy
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from ...constants import InternExtern
 from ...models import ZaakType
@@ -52,6 +53,9 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
     versiedatum = date(2018, 1, 1)
     selectielijst_procestype_jaar = 2017
     verantwoordelijke = factory.Sequence(lambda n: "{}".format(n + 100000000))
+    vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
+        VertrouwelijkheidsAanduiding.values
+    )
 
     # this one is optional, if its added as below, it will keep adding related
     # ZaakTypes (and reach max recursion depth)

@@ -80,6 +80,7 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
             "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
         ),
+        db_index=True,
     )
     doel = models.TextField(
         _("doel"),
