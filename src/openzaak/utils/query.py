@@ -65,13 +65,8 @@ class LooseFkAuthorizationsFilterMixin:
             _external_filters &= Q(**{k: v})
 
         if self.vertrouwelijkheidaanduiding_use:
-            # annotate the queryset so we can map a string value to a logical number
-            order_case = VertrouwelijkheidsAanduiding.get_order_expression(
-                f"{self.prefix}vertrouwelijkheidaanduiding"
-            )
-            annotations = {"_va_order": order_case}
             # bring it all together now to build the resulting queryset
-            queryset = self.annotate(**annotations).filter(
+            queryset = self.filter(
                 _local_filters | _external_filters
             )
 
@@ -122,9 +117,7 @@ class LooseFkAuthorizationsFilterMixin:
 
             # extract the order and map it to the database value
             if authorization.max_vertrouwelijkheidaanduiding:
-                choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
-                    authorization.max_vertrouwelijkheidaanduiding
-                )
+                choice_item_order = authorization.max_vertrouwelijkheidaanduiding
                 vertrouwelijkheidaanduiding_whens.append(
                     When(
                         **{f"{prefix}{loose_fk_field}": loose_fk_object},
@@ -161,7 +154,7 @@ class LooseFkAuthorizationsFilterMixin:
         #   confidentiality level
         filters = {
             f"{prefix}{loose_fk_field}__in": loose_fk_objecten,
-            "_va_order__lte": Case(
+            "vertrouwelijkheidaanduiding__lte": Case(
                 *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
             ),
         }
