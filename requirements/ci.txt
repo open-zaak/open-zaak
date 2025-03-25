@@ -653,6 +653,8 @@ psycopg2==2.9.9
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
+py-cpuinfo==9.0.0
+    # via pytest-benchmark
 pycodestyle==2.12.1
     # via flake8
 pycparser==2.21
@@ -712,6 +714,10 @@ pyrsistent==0.18.1
     #   -r requirements/base.txt
     #   jsonschema
 pytest==8.3.3
+    # via
+    #   -r requirements/test-tools.in
+    #   pytest-benchmark
+pytest-benchmark==5.1.0
     # via -r requirements/test-tools.in
 python-crontab==3.2.0
     # via
