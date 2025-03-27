@@ -166,7 +166,7 @@ django-jsonform==2.22.0
     #   open-api-framework
 django-log-outgoing-requests==0.6.1
     # via open-api-framework
-django-loose-fk==1.1.1
+django-loose-fk==1.1.2
     # via -r requirements/base.in
 django-markup==1.8.1
     # via open-api-framework
