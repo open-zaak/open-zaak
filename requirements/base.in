@@ -12,7 +12,7 @@ self-certifi
 # Framework libraries
 django-db-logger
 django-extra-views
-django-loose-fk
+git+https://github.com/maykinmedia/django-loose-fk.git@issue/drf-field-performance
 django-privates
 django-relativedelta
 django-celery-beat
