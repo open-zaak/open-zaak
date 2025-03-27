@@ -248,8 +248,10 @@ class ZaakViewSet(
     """
 
     queryset = (
-        Zaak.objects.select_related("_zaaktype")
-        .prefetch_related(
+        Zaak.objects.prefetch_related(
+            # Prefetch _zaaktype instead of using `.select_related`, because using the latter
+            # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
+            "_zaaktype",
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
