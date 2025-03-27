@@ -38,7 +38,7 @@ def get_informatieobjecttype_url(
     if not instance:
         instance = InformatieObjectType.objects.first() or InformatieObjectTypeFactory()
 
-    base_url = f"https://{settings.OPENZAAK_DOMAIN}"
+    base_url = f"https://{settings.SITE_DOMAIN}"
     instance_url = reverse(
         "informatieobjecttype-detail",
         kwargs=dict(

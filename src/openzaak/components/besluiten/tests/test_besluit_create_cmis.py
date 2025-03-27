@@ -22,7 +22,7 @@ from .utils import get_operation_url
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class BesluitCreateCMISTests(TypeCheckMixin, JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True

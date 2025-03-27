@@ -61,7 +61,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -253,7 +253,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [
         SCOPE_DOCUMENTEN_BIJWERKEN,
@@ -494,7 +494,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
@@ -633,7 +633,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class OioReadTests(JWTAuthMixin, APICMISTestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -824,7 +824,7 @@ class OioReadTests(JWTAuthMixin, APICMISTestCase):
 @tag("external-urls")
 @require_cmis
 @override_settings(
-    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, SITE_DOMAIN="testserver"
 )
 class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
@@ -964,7 +964,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APICMISTestCase):
 @tag("external-urls")
 @require_cmis
 @override_settings(
-    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, SITE_DOMAIN="testserver"
 )
 class ExternalInformatieObjectInformatieObjectTypescopeTests(
     JWTAuthMixin, APICMISTestCase

@@ -64,7 +64,7 @@ class ImportExportMixin:
         self.addCleanup(rmfile)
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ExportCatalogiTests(ImportExportMixin, TestCase):
     def test_export_catalogus(self):
         catalogus = CatalogusFactory.create()
@@ -154,7 +154,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
             self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
 
     @override_settings(
-        ALLOWED_HOSTS=["somedifferenthost.com"], OPENZAAK_DOMAIN="somedifferenthost.com"
+        ALLOWED_HOSTS=["somedifferenthost.com"], SITE_DOMAIN="somedifferenthost.com"
     )
     def test_export_catalogus_different_hostname(self):
         catalogus = CatalogusFactory.create(
@@ -204,7 +204,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
 
 
 @tag("catalogi-import")
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")

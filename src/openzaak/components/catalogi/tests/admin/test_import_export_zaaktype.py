@@ -105,7 +105,7 @@ class MockSelectielijst(SelectieLijstMixin):
 
 
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -1921,7 +1921,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
 
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()

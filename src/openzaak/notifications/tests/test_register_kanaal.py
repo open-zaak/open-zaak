@@ -19,7 +19,7 @@ from . import mock_nrc_oas_get
 from .mixins import NotificationsConfigMixin
 
 
-@override_settings(IS_HTTPS=True, OPENZAAK_DOMAIN="example.com")
+@override_settings(IS_HTTPS=True, SITE_DOMAIN="example.com")
 class RegisterKanaalTests(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls) -> None:

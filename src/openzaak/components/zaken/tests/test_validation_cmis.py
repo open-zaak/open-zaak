@@ -34,7 +34,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    @override_settings(OPENZAAK_DOMAIN="testserver")
+    @override_settings(SITE_DOMAIN="testserver")
     def test_informatieobject_create(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -52,7 +52,7 @@ class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
         response = self.client.post(
             url,
             {
-                "zaak": f"http://{settings.OPENZAAK_DOMAIN}{zaak_url}",
+                "zaak": f"http://{settings.SITE_DOMAIN}{zaak_url}",
                 "informatieobject": io_url,
             },
         )

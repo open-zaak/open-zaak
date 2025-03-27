@@ -276,7 +276,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
-    @override_settings(OPENZAAK_DOMAIN="example.com")
+    @override_settings(SITE_DOMAIN="example.com")
     def test_filter_zaak(self):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
@@ -297,7 +297,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
-    @override_settings(OPENZAAK_DOMAIN="example.com")
+    @override_settings(SITE_DOMAIN="example.com")
     def test_filter_besluit(self):
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
@@ -330,7 +330,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
 

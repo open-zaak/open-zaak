@@ -96,7 +96,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
 
 @tag("closed-zaak")
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class ClosedZaakRelatedDataAllowedCMISTests(
     JWTAuthMixin, CRUDAssertions, APICMISTestCase
 ):

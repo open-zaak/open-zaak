@@ -9,7 +9,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver")
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class QueryTests(APICMISTestCase):
     """
     Test that the query interface works with CMIS as backend.

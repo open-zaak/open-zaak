@@ -97,6 +97,12 @@ INSTALLED_APPS = (
     + PLUGIN_INSTALLED_APPS
 )
 
+# `django.contrib.sites` added at the project level because it has been removed at the packages level.
+# This component is deprecated and should be completely removed.
+# To determine the project's domain, use the `SITE_DOMAIN` environment variable.
+if "django.contrib.sites" not in INSTALLED_APPS:
+    INSTALLED_APPS.append("django.contrib.sites")
+
 MIDDLEWARE = [
     "openzaak.utils.middleware.OverrideHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -160,6 +166,7 @@ SITE_TITLE = "API dashboard"
 
 # if specified, this replaces the host information in the requests, and it is used
 # to build absolute URLs.
+# This variable is deprecated; the `SITE_DOMAIN` variable should be used instead.
 OPENZAAK_DOMAIN = config(
     "OPENZAAK_DOMAIN",
     "",
@@ -171,8 +178,6 @@ OPENZAAK_DOMAIN = config(
     ),
     auto_display_default=False,
 )
-if not OPENZAAK_DOMAIN:
-    OPENZAAK_DOMAIN = SITE_DOMAIN
 
 OPENZAAK_REWRITE_HOST = config(
     "OPENZAAK_REWRITE_HOST",

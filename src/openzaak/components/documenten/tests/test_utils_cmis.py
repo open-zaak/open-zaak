@@ -19,7 +19,7 @@ from openzaak.utils import build_absolute_url
 @tag("external-urls")
 @require_cmis
 @override_settings(
-    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+    ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, SITE_DOMAIN="testserver"
 )
 class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
 

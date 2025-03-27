@@ -133,7 +133,7 @@ class SystemCheckTests(SimpleTestCase):
                     self.assertEqual(len(errors), 1)
                     self.assertEqual(errors[0].id, "openzaak.settings.E001")
 
-    @override_settings(OPENZAAK_DOMAIN="", SITE_DOMAIN="")
+    @override_settings(SITE_DOMAIN="", OPENZAAK_DOMAIN="")
     def test_null_domain(self):
         errors = check_openzaak_domain(None)
         self.assertEqual(len(errors), 1)

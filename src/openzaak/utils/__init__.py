@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import warnings
 from datetime import datetime
 from typing import Optional
 
@@ -18,7 +19,25 @@ def get_openzaak_domain() -> str:
     """
     Obtain the domain/netloc of Open Zaak according to settings or configuration.
     """
-    return settings.OPENZAAK_DOMAIN
+    from django.contrib.sites.models import Site
+
+    if settings.OPENZAAK_DOMAIN:
+        warnings.warn(
+            "Deriving the domain from the OPENZAAK_DOMAIN configuration will soon be deprecated, "
+            "please migrate to the SITE_DOMAIN_DOMAIN setting.",
+            PendingDeprecationWarning,
+        )
+        return settings.OPENZAAK_DOMAIN
+
+    if settings.SITE_DOMAIN:
+        return settings.SITE_DOMAIN
+
+    warnings.warn(
+        "Deriving the domain from the Site configuration will soon be deprecated, "
+        "please migrate to the SITE_DOMAIN setting.",
+        PendingDeprecationWarning,
+    )
+    return Site.objects.get_current().domain
 
 
 def build_absolute_url(path: str, request: Optional[HttpRequest] = None) -> str:

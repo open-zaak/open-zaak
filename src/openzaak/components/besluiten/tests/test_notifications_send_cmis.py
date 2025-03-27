@@ -75,7 +75,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase)
     NOTIFICATIONS_DISABLED=False,
     LOGGING=LOGGING_SETTINGS,
     CMIS_ENABLED=True,
-    OPENZAAK_DOMAIN="testserver",
+    SITE_DOMAIN="testserver",
 )
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationCMISTests(

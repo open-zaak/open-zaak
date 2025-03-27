@@ -333,7 +333,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid_for_received")
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
     component = ComponentTypes.drc

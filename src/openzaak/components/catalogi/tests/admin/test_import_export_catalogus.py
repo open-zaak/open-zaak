@@ -43,7 +43,7 @@ from .test_import_export_zaaktype import MockSelectielijst
 
 
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):

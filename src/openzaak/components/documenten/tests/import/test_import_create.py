@@ -35,7 +35,7 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc
     heeft_alle_autorisaties = True
 
-    @override_settings(OPENZAAK_DOMAIN="testserver")
+    @override_settings(SITE_DOMAIN="testserver")
     def test_simple(self):
         response = self.client.post(self.url)
 
@@ -54,7 +54,7 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
             "documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
         )
 
-        domain = settings.OPENZAAK_DOMAIN
+        domain = settings.SITE_DOMAIN
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(

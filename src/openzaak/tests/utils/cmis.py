@@ -107,12 +107,12 @@ class CMISMixin(MockSchemasMixin):
         client.delete_cmis_folders_in_base()
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class APICMISTestCase(CMISMixin, APITestCase):
     pass
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class APICMISTransactionTestCase(CMISMixin, APITransactionTestCase):
     pass
 

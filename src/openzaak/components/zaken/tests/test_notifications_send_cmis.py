@@ -34,7 +34,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @requests_mock.Mocker(real_http=True)  # for CMIS requests
 @require_cmis
 @override_settings(
-    NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True, OPENZAAK_DOMAIN="testserver"
+    NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True, SITE_DOMAIN="testserver"
 )
 @freeze_time("2019-01-01T12:00:00Z")
 @patch("notifications_api_common.viewsets.send_notification.delay")
@@ -47,7 +47,7 @@ class FailedNotificationCMISTests(
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
         self, m, mock_notif
     ):
-        domain = settings.OPENZAAK_DOMAIN
+        domain = settings.SITE_DOMAIN
         url = get_operation_url("zaakinformatieobject_create")
 
         zaak = ZaakFactory.create()

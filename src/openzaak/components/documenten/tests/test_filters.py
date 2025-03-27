@@ -323,7 +323,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
             self.assertEqual(data["results"][2]["trefwoorden"], ["bar", "baz"])
 
     @override_settings(
-        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], SITE_DOMAIN="testserver"
     )
     def test_internal_objectinformatieobjecten_object_filter(self):
         zaak_eio = EnkelvoudigInformatieObjectFactory.create(titel="zaak")
@@ -547,7 +547,7 @@ class ObjectInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.data, [])
 
     @override_settings(
-        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
+        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"], SITE_DOMAIN="testserver"
     )
     def test_internal_object_filter(self):
         zaak_eioc = EnkelvoudigInformatieObjectCanonicalFactory.create()

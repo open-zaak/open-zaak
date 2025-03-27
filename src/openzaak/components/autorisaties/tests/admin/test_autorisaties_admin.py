@@ -109,7 +109,7 @@ class PermissionTests(WebTest):
 
 @tag("admin-autorisaties")
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ApplicatieInlinesAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -146,7 +146,7 @@ class ApplicatieInlinesAdminTests(WebTest):
 @tag("admin-autorisaties")
 @freeze_time("2022-01-01")
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
     maxDiff = None
 

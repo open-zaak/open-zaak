@@ -12,7 +12,7 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils import build_absolute_url
 
 
-@override_settings(OPENZAAK_DOMAIN="testserver", ALLOWED_HOSTS=["testserver"])
+@override_settings(SITE_DOMAIN="testserver", ALLOWED_HOSTS=["testserver"])
 class ZaaktypeSyncAutorisatieTests(TestCase):
     def test_management_sync_autorisatie_delete_all(self):
         # Create 5 Autorisaties for non existing ZaakTypen

@@ -142,7 +142,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
 
 
 @disable_admin_mfa()
-@override_settings(OPENZAAK_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver")
 class GenerateDataAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

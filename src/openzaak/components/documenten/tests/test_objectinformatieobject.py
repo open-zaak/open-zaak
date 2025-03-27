@@ -47,7 +47,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 @tag("oio")
 @override_settings(
-    ALLOWED_HOSTS=["testserver", "openzaak.nl"], OPENZAAK_DOMAIN="testserver"
+    ALLOWED_HOSTS=["testserver", "openzaak.nl"], SITE_DOMAIN="testserver"
 )
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
