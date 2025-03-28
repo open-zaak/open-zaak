@@ -12,6 +12,7 @@ from maykin_2fa import monkeypatch_admin
 from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
 from mozilla_django_oidc_db.views import AdminLoginFailure
 
+from openzaak.accounts.views import QRGeneratorView
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
@@ -29,6 +30,12 @@ urlpatterns = [
         "admin/api/v1/catalogi/", include("openzaak.components.catalogi.api.admin.urls")
     ),
     path("admin/login/failure/", AdminLoginFailure.as_view(), name="admin-oidc-error"),
+    # 2fa
+    # See https://github.com/maykinmedia/open-api-framework/issues/40
+    # and https://github.com/maykinmedia/open-api-framework/issues/59
+    # Temporary workaround to remove the dependency on `django.contrib.sites` when
+    # generating the app label for 2FA. This should be removed once `sites` are removed
+    path("admin/mfa/qrcode/", QRGeneratorView.as_view(), name="qr"),
     path("admin/", include((urlpatterns, "maykin_2fa"))),
     path("admin/", include((webauthn_urlpatterns, "two_factor"))),
     path("admin/", admin.site.urls),

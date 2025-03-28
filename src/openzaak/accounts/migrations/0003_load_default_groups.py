@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("accounts", "0002_initial_admin_index"),
         ("auth", "0001_initial"),
+        ("sites", "0001_initial"),
         ("vng_api_common", "0002_apicredential"),
         ("authorizations", "0001_initial"),
         ("audittrails", "0001_initial"),

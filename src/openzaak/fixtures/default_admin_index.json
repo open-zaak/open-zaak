@@ -87,6 +87,10 @@
                 "referentielijstconfig"
             ],
             [
+                "sites",
+                "site"
+            ],
+            [
                 "zgw_consumers",
                 "nlxconfig"
             ],

@@ -6,6 +6,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.tests import reverse
 
 from openzaak.components.autorisaties.tests.factories import AutorisatieFactory
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
@@ -18,7 +19,7 @@ class ZaaktypeSyncAutorisatieTests(TestCase):
         # Create 5 Autorisaties for non existing ZaakTypen
         for i in range(5):
             AutorisatieFactory.create(
-                zaaktype=f"http://testserver/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
+                zaaktype=f"http://testserver{reverse('zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
             )
 
         self.assertEqual(Autorisatie.objects.all().count(), 5)
@@ -31,7 +32,7 @@ class ZaaktypeSyncAutorisatieTests(TestCase):
         # Create 5 Autorisaties for non existing ZaakTypen
         for i in range(5):
             AutorisatieFactory.create(
-                zaaktype=f"http://testserver/catalogi/api/v1/zaaktypen/{str(uuid.uuid4())}",
+                zaaktype=f"http://testserver{reverse('zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
             )
 
         # Add an Autorisatie for an existing Zaaktype

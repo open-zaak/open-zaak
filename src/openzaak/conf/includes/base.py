@@ -70,6 +70,10 @@ INSTALLED_APPS = (
     + [
         # Optional applications.
         "django.contrib.gis",
+        # `django.contrib.sites` added at the project level because it has been removed at the packages level.
+        # This component is deprecated and should be completely removed.
+        # To determine the project's domain, use the `SITE_DOMAIN` environment variable.
+        "django.contrib.sites",
         # External applications.
         "django_db_logger",
         "vng_api_common.authorizations",
@@ -96,12 +100,6 @@ INSTALLED_APPS = (
     ]
     + PLUGIN_INSTALLED_APPS
 )
-
-# `django.contrib.sites` added at the project level because it has been removed at the packages level.
-# This component is deprecated and should be completely removed.
-# To determine the project's domain, use the `SITE_DOMAIN` environment variable.
-if "django.contrib.sites" not in INSTALLED_APPS:
-    INSTALLED_APPS.append("django.contrib.sites")
 
 MIDDLEWARE = [
     "openzaak.utils.middleware.OverrideHostMiddleware",
@@ -174,7 +172,9 @@ OPENZAAK_DOMAIN = config(
         "a [host]:[port] or [host] value indicating the canonical domain where Open Zaak "
         "is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used "
         "(together with IS_HTTPS) when fully qualified URLs need to be constructed "
-        "without HTTP request context available"
+        "without HTTP request context available. "
+        "Deriving the domain from the ``OPENZAAK_DOMAIN`` and ``Sites`` configuration will soon be deprecated, "
+        "please migrate to the ``SITE_DOMAIN`` setting."
     ),
     auto_display_default=False,
 )
@@ -308,6 +308,7 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = "Open Zaak - admin"
 # Django setup configuration
 #
 SETUP_CONFIGURATION_STEPS = [
+    "django_setup_configuration.contrib.sites.steps.SitesConfigurationStep",
     "mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep",
     "zgw_consumers.contrib.setup_configuration.steps.ServiceConfigurationStep",
     "openzaak.config.setup_configuration.steps.SelectielijstAPIConfigurationStep",
@@ -484,3 +485,5 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     ),
     group="Documenten import",
 )
+
+NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"

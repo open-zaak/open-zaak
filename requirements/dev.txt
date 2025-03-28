@@ -685,14 +685,14 @@ mypy-extensions==1.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   black
-notifications-api-common==0.7.1
+notifications-api-common==0.7.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.9.4
+open-api-framework==0.9.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

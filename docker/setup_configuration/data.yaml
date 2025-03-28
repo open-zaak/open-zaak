@@ -1,3 +1,9 @@
+sites_config_enable: true
+sites_config:
+  items:
+  - domain: example.com
+    name: Example site
+
 zgw_consumers_config_enable: true
 zgw_consumers:
   services:

@@ -199,8 +199,7 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
         with zipfile.ZipFile(self.filepath, "r") as f:
             self.assertEqual(f.namelist(), ["Catalogus.json"])
             data = json.loads(f.read("Catalogus.json"))[0]
-
-        self.assertTrue(data["url"].startswith("https://openzaak.example.com:8443/"))
+        self.assertTrue(data["url"].startswith("https://testserver"))
 
 
 @tag("catalogi-import")

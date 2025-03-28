@@ -89,6 +89,7 @@ Documenten import
 Optional
 --------
 
+* ``SITE_ID``: The database ID of the site object. You usually won't have to touch this. Defaults to: ``1``.
 * ``DEBUG``: Only set this to ``True`` on a local development environment. Various other security settings are derived from this setting!. Defaults to: ``False``.
 * ``USE_X_FORWARDED_HOST``: whether to grab the domain/host from the X-Forwarded-Host header or not. This header is typically set by reverse proxies (such as nginx, traefik, Apache...). Note: this is a header that can be spoofed and you need to ensure you control it before enabling this. Defaults to: ``False``.
 * ``IS_HTTPS``: Used to construct absolute URLs and controls a variety of security settings. Defaults to the inverse of ``DEBUG``.
@@ -111,7 +112,7 @@ Optional
 * ``NUM_PROXIES``: the number of reverse proxies in front of the application, as an integer. This is used to determine the actual client IP adres. On Kubernetes with an ingress you typically want to set this to 2. Defaults to: ``1``.
 * ``CSRF_TRUSTED_ORIGINS``: A list of trusted origins for unsafe requests (e.g. POST). Defaults to: ``[]``.
 * ``NOTIFICATIONS_DISABLED``: indicates whether or not notifications should be sent to the Notificaties API for operations on the API endpoints. Defaults to ``True`` for the ``dev`` environment, otherwise defaults to ``False``.
-* ``SITE_DOMAIN``: Defines the primary domain where the application is hosted. Defaults to: ``example.com``.
+* ``SITE_DOMAIN``: Defines the primary domain where the application is hosted. Defaults to: ``(empty string)``.
 * ``SENTRY_DSN``: URL of the sentry project to send error reports to. Default empty, i.e. -> no monitoring set up. Highly recommended to configure this.
 * ``DISABLE_2FA``: Whether or not two factor authentication should be disabled. Defaults to: ``False``.
 * ``LOG_OUTGOING_REQUESTS_EMIT_BODY``: Whether or not outgoing request bodies should be logged. Defaults to: ``True``.
@@ -121,7 +122,7 @@ Optional
 * ``DB_CONN_MAX_AGE``: maximum age of a database connection, in seconds. This reduces overhead of connecting to the database server for every request. Defaults to: ``None``.
 * ``GEOS_LIBRARY_PATH``: Full path to the GEOS library used by GeoDjango. In most circumstances, this can be left empty. Defaults to: ``None``.
 * ``GDAL_LIBRARY_PATH``: Full path to the GDAL library used by GeoDjango. In most circumstances, this can be left empty. Defaults to: ``None``.
-* ``OPENZAAK_DOMAIN``: a [host]:[port] or [host] value indicating the canonical domain where Open Zaak is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used (together with IS_HTTPS) when fully qualified URLs need to be constructed without HTTP request context available.
+* ``OPENZAAK_DOMAIN``: a [host]:[port] or [host] value indicating the canonical domain where Open Zaak is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used (together with IS_HTTPS) when fully qualified URLs need to be constructed without HTTP request context available. Deriving the domain from the ``OPENZAAK_DOMAIN`` and ``Sites`` configuration will soon be deprecated, please migrate to the ``SITE_DOMAIN`` setting.
 * ``OPENZAAK_REWRITE_HOST``: whether to rewrite the request host of all incoming requests with the value of OPENZAAK_DOMAIN, discarding the original Host header or headers set by reverse proxies. Useful if you provide the services only via the NLX network, for example. Defaults to False and conflicts with ``USE_X_FORWARDED_HOST``.
 * ``MIN_UPLOAD_SIZE``: the max allowed size of POST bodies, in bytes. Defaults to 4GiB. Note that you should also configure your web server to allow this. Defaults to: ``4294967296``.
 * ``DOCUMENTEN_UPLOAD_CHUNK_SIZE``: chunk size in bytes for large file uploads - determines the size for a single  upload chunk. Note that making this larger than ``MIN_UPLOAD_SIZE`` breaks large file uploads. Defaults to: ``4294967296``.
