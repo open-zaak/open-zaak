@@ -174,7 +174,9 @@ OPENZAAK_DOMAIN = config(
         "a [host]:[port] or [host] value indicating the canonical domain where Open Zaak "
         "is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used "
         "(together with IS_HTTPS) when fully qualified URLs need to be constructed "
-        "without HTTP request context available"
+        "without HTTP request context available. "
+        "Deriving the domain from the ``OPENZAAK_DOMAIN`` and ``Sites`` configuration will soon be deprecated, "
+        "please migrate to the ``SITE_DOMAIN`` setting."
     ),
     auto_display_default=False,
 )
@@ -484,3 +486,5 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     ),
     group="Documenten import",
 )
+
+NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"

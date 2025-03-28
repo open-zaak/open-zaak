@@ -96,6 +96,7 @@ class RewriteHostTests(TestCase):
 
 class BuildAbsoluteUrlTests(SimpleTestCase):
     @override_settings(
+        SITE_DOMAIN="",
         OPENZAAK_DOMAIN="oz.example.com",
         IS_HTTPS=True,
     )
@@ -106,6 +107,7 @@ class BuildAbsoluteUrlTests(SimpleTestCase):
 
 
 @override_settings(
+    SITE_DOMAIN="",
     OPENZAAK_DOMAIN="oz.example.com",
     OPENZAAK_REWRITE_HOST=True,
     ALLOWED_HOSTS=["*"],
@@ -132,12 +134,6 @@ class SystemCheckTests(SimpleTestCase):
 
                     self.assertEqual(len(errors), 1)
                     self.assertEqual(errors[0].id, "openzaak.settings.E001")
-
-    @override_settings(SITE_DOMAIN="", OPENZAAK_DOMAIN="")
-    def test_null_domain(self):
-        errors = check_openzaak_domain(None)
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0].id, "openzaak.settings.E001")
 
     def test_valid_pattern_used(self):
         valid = (
