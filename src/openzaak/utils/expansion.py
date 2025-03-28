@@ -364,7 +364,12 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
 
         request = renderer_context.get("request")
 
+        # TODO cleaner way to check this
+        if "expand" not in request.query_params and "expand" not in request.data:
+            return render_data
+
         inclusion_loader = self.loader_class(get_allowed_paths(request, view=view))
+
         inclusions = inclusion_loader.inclusions_dict(serializer)
 
         if isinstance(serializer_data, list):
