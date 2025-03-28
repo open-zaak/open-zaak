@@ -96,6 +96,7 @@ class RewriteHostTests(TestCase):
 
 class BuildAbsoluteUrlTests(SimpleTestCase):
     @override_settings(
+        SITE_DOMAIN="",
         OPENZAAK_DOMAIN="oz.example.com",
         IS_HTTPS=True,
     )
@@ -106,6 +107,7 @@ class BuildAbsoluteUrlTests(SimpleTestCase):
 
 
 @override_settings(
+    SITE_DOMAIN="",
     OPENZAAK_DOMAIN="oz.example.com",
     OPENZAAK_REWRITE_HOST=True,
     ALLOWED_HOSTS=["*"],

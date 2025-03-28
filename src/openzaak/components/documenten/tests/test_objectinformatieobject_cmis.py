@@ -3,11 +3,9 @@
 import uuid
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from drc_cmis.models import CMISConfig, UrlMapping
-from drc_cmis.utils.convert import make_absolute_uri
 from furl import furl
 from rest_framework import status
 from vng_api_common.tests import (
@@ -40,6 +38,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekobject_response,
 )
 from openzaak.tests.utils import APICMISTestCase, require_cmis
+from openzaak.utils import build_absolute_url
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
@@ -196,7 +195,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
         expeceted_response_data = {
             "url": f"http://testserver{oio_url}",
-            "object": make_absolute_uri(zaak_url),
+            "object": build_absolute_url(zaak_url),
             "informatieobject": eio_url,
             "object_type": "zaak",
         }
@@ -221,7 +220,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
         expeceted_response_data = {
             "url": f"http://testserver{oio_url}",
-            "object": make_absolute_uri(besluit_url),
+            "object": build_absolute_url(besluit_url),
             "informatieobject": eio_url,
             "object_type": "besluit",
         }
@@ -277,13 +276,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
+    @override_settings(SITE_DOMAIN="example.com")
     def test_filter_zaak(self):
-        # Needed because the zaak URL is used as a query parameter,
-        # and using "testserver" as domain name gives an invalid URL.
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
-
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
 
@@ -303,13 +297,8 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["informatieobject"], eio_detail_url)
 
+    @override_settings(SITE_DOMAIN="example.com")
     def test_filter_besluit(self):
-        # Needed because the besluit URL is used as a query parameter,
-        # and using "testserver" as domain name gives an invalid URL.
-        site = Site.objects.get_current()
-        site.domain = "example.com"
-        site.save()
-
         eio_1 = EnkelvoudigInformatieObjectFactory.create()
         eio_detail_url = f"http://example.com{reverse(eio_1)}"
 
@@ -341,16 +330,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APICMISTestCase):
 
 
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APICMISTestCase):
     heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-        super().setUpTestData()
 
     def test_destroy_oio_remote_gone(self):
         eio = EnkelvoudigInformatieObjectFactory.create()

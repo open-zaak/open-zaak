@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
-from drc_cmis.utils.convert import make_absolute_uri
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
@@ -13,6 +11,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
+from openzaak.utils import build_absolute_url
 
 from ...catalogi.tests.factories import InformatieObjectTypeFactory, ZaakTypeFactory
 from ..api.scopes import (
@@ -50,18 +49,18 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
         mock_service_oas_get(self.adapter, self.base_zaaktype, APITypes.ztc)
 
         self.adapter.get(
-            make_absolute_uri(reverse(self.zaak)),
+            build_absolute_url(reverse(self.zaak)),
             json={
-                "url": make_absolute_uri(reverse(self.zaak)),
+                "url": build_absolute_url(reverse(self.zaak)),
                 "identificatie": self.zaak.identificatie,
-                "zaaktype": make_absolute_uri(reverse(self.zaak.zaaktype)),
+                "zaaktype": build_absolute_url(reverse(self.zaak.zaaktype)),
             },
         )
 
         self.adapter.get(
-            make_absolute_uri(reverse(self.zaak.zaaktype)),
+            build_absolute_url(reverse(self.zaak.zaaktype)),
             json={
-                "url": make_absolute_uri(reverse(self.zaak.zaaktype)),
+                "url": build_absolute_url(reverse(self.zaak.zaaktype)),
                 "identificatie": self.zaak.zaaktype.identificatie,
                 "omschrijving": "Melding Openbare Ruimte",
             },
@@ -97,7 +96,7 @@ class ClosedZaakRelatedDataNotAllowedCMISTests(
 
 @tag("closed-zaak")
 @require_cmis
-@override_settings(CMIS_ENABLED=True)
+@override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class ClosedZaakRelatedDataAllowedCMISTests(
     JWTAuthMixin, CRUDAssertions, APICMISTestCase
 ):
@@ -115,10 +114,6 @@ class ClosedZaakRelatedDataAllowedCMISTests(
         cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype, closed=True)
 
         super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_zaakinformatieobjecten(self):
         iotype = InformatieObjectTypeFactory.create(

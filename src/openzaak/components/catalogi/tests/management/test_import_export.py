@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
-from django.contrib.sites.models import Site
 from django.core.cache import caches
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -50,14 +49,9 @@ class ImportExportMixin:
     def setUpTestData(cls):
         super().setUpTestData()
 
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
-
     def setUp(self):
         super().setUp()
 
-        Site.objects.clear_cache()
         caches["import_requests"].clear()
 
         self.filepath = PATH / f"export_test{uuid4()}.zip"
@@ -70,6 +64,7 @@ class ImportExportMixin:
         self.addCleanup(rmfile)
 
 
+@override_settings(SITE_DOMAIN="testserver")
 class ExportCatalogiTests(ImportExportMixin, TestCase):
     def test_export_catalogus(self):
         catalogus = CatalogusFactory.create()
@@ -158,12 +153,10 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
             self.assertIn("BesluitType.json", f.namelist())
             self.assertIn("ZaakTypeInformatieObjectType.json", f.namelist())
 
-    @override_settings(ALLOWED_HOSTS=["somedifferenthost.com"])
+    @override_settings(
+        ALLOWED_HOSTS=["somedifferenthost.com"], SITE_DOMAIN="somedifferenthost.com"
+    )
     def test_export_catalogus_different_hostname(self):
-        site = Site.objects.get_current()
-        site.domain = "somedifferenthost.com"
-        site.save()
-
         catalogus = CatalogusFactory.create(
             rsin="000000000",
             domein="TEST",
@@ -206,11 +199,11 @@ class ExportCatalogiTests(ImportExportMixin, TestCase):
         with zipfile.ZipFile(self.filepath, "r") as f:
             self.assertEqual(f.namelist(), ["Catalogus.json"])
             data = json.loads(f.read("Catalogus.json"))[0]
-
-        self.assertTrue(data["url"].startswith("https://openzaak.example.com:8443/"))
+        self.assertTrue(data["url"].startswith("https://testserver"))
 
 
 @tag("catalogi-import")
+@override_settings(SITE_DOMAIN="testserver")
 class ImportCatalogiTests(SelectieLijstMixin, ImportExportMixin, TestCase):
     def test_import_catalogus(self):
         catalogus = CatalogusFactory.create(rsin="000000000")

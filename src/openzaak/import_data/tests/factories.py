@@ -3,7 +3,6 @@
 from typing import Optional
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.urls import reverse
 
 import factory
@@ -39,9 +38,7 @@ def get_informatieobjecttype_url(
     if not instance:
         instance = InformatieObjectType.objects.first() or InformatieObjectTypeFactory()
 
-    site = Site.objects.get()
-
-    base_url = f"https://{site.domain}"
+    base_url = f"https://{settings.SITE_DOMAIN}"
     instance_url = reverse(
         "informatieobjecttype-detail",
         kwargs=dict(

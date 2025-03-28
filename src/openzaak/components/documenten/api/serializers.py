@@ -17,7 +17,6 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 
-from drc_cmis.utils.convert import make_absolute_uri
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -32,6 +31,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.contrib.verzoeken.validators import verzoek_validator
+from openzaak.utils import build_absolute_url
 from openzaak.utils.serializer_fields import (
     FKOrServiceUrlField,
     LengthHyperlinkedRelatedField,
@@ -562,7 +562,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                 kwargs={"version": "1", "uuid": instance.uuid},
             )
             # Following what is done in drc_cmis/client/convert.py
-            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
+            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
         return ret
 
     def update(self, instance, validated_data):
@@ -920,7 +920,7 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             path = reverse(
                 "gebruiksrechten-detail", kwargs={"version": 1, "uuid": instance.uuid}
             )
-            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
+            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
             ret["informatieobject"] = instance.get_informatieobject_url()
         return ret
 
@@ -1002,7 +1002,7 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
                 "objectinformatieobject-detail",
                 kwargs={"version": 1, "uuid": instance.uuid},
             )
-            ret["url"] = make_absolute_uri(path, request=self.context.get("request"))
+            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
             ret["informatieobject"] = instance.get_informatieobject_url()
 
         return ret
