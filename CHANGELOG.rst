@@ -1,6 +1,37 @@
 Changelog
 =========
 
+1.20.0 (2025-04-01)
+-------------------
+
+**New features**
+
+* [:open-api-framework:`59`] Add ``SITE_DOMAIN`` environment variable which will replace ``OPENZAAK_DOMAIN`` in version 3.0
+* [:open-zaak:`1935`] Add ``vestigingsNummer`` to ``Rol.betrokkeneIdentificatie`` for ``betrokkeneType`` ``niet_natuurlijk_persoon``
+  and add deprecation warnings for ``betrokkeneType`` ``vestiging`` (will be removed in version 3.0)
+
+.. note::
+
+  To migrate existing ``Rol`` objects with ``betrokkeneType`` ``vestiging`` to ``niet_natuurlijk_persoon``,
+  a management command was added which can be executed using ``python src/manage.py migrate_vestigingen_to_nnps``
+
+* [:open-zaak:`1809`] Add experimental Rol.begin/eindeGeldigheid attributes (link to experimental page?)
+* [:open-zaak:`1820`] Add validation when creating/updating a ``Zaak`` / ``Status`` / ``Rol`` via the admin
+
+**Project maintenance**
+
+* Upgrade dependencies
+
+  * django to 5.1.7
+  * jinja2 to 3.1.6
+  * several NPM dependencies to fix security vulnerabilities
+
+* Add basic performance test for Zaken list endpoint
+* [:open-zaak:`1712`] More improvements to CI pipeline to speed up total run time
+* Remove tj-actions/changed-files action from CI and replace it with a script
+* [:open-api-framework:`115`] Always run OAS check in CI
+
+
 1.19.0 (2025-03-04)
 -------------------
 
