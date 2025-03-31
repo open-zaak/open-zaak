@@ -12,4 +12,4 @@ if "test" in sys.argv:
     DATABASES["default"].update({"USER": "postgres", "PORT": 5433})
 
     # Speed up tests by reducing time spend password hashing
-    PASSWORD_HASHERS = ["django.contrib.auth.hashers.UnsaltedMD5PasswordHasher"]
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

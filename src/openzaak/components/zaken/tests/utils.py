@@ -2,11 +2,10 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from django.conf import settings
-from django.utils import timezone
 
 from jsonschema import ValidationError, Validator
 from jsonschema.validators import validator_for

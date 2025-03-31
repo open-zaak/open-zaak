@@ -90,7 +90,7 @@ deprecated==1.2.14
     # via redis
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==4.2.19
+django==5.1.7
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -143,7 +143,7 @@ django-axes==6.5.1
     # via open-api-framework
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/base.in
-django-celery-beat==2.6.0
+django-celery-beat==2.7.0
     # via -r requirements/base.in
 django-cors-headers==4.4.0
     # via open-api-framework
@@ -192,7 +192,7 @@ django-sendfile2==0.7.0
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.7.1
+django-setup-configuration==0.7.2
     # via
     #   commonground-api-common
     #   open-api-framework

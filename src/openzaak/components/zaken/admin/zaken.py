@@ -2,12 +2,11 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
 from django.contrib import admin
-from django.contrib.gis.admin import OSMGeoAdmin
+from django.contrib.gis.admin import GISModelAdmin
 from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
-from openzaak.forms.widgets import AuthorityAxisOrderOLWidget
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -652,7 +651,7 @@ class ZaakForm(forms.ModelForm):
 
 @admin.register(Zaak)
 class ZaakAdmin(
-    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, OSMGeoAdmin
+    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, GISModelAdmin
 ):
     list_display = (
         "identificatie",
@@ -696,7 +695,6 @@ class ZaakAdmin(
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
-    widget = AuthorityAxisOrderOLWidget
 
     @admin.display(description="Zaaktype")
     def get_zaaktype(self, obj) -> str:
