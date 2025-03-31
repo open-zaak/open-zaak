@@ -134,7 +134,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.6.0
+commonground-api-common==2.6.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -528,11 +528,6 @@ iso8601==1.0.2
     #   -r requirements/base.txt
     #   cmislib-maykin
     #   drc-cmis
-isodate==0.6.1
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   commonground-api-common
 isort==5.0.7
     # via -r requirements/test-tools.in
 itypes==1.2.0
@@ -824,7 +819,6 @@ six==1.16.0
     #   cmislib-maykin
     #   django-db-logger
     #   furl
-    #   isodate
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
