@@ -3,7 +3,6 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 
 from privates.test import temp_private_root
@@ -72,6 +71,7 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
                 self.assertForbidden(url, method="get")
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -80,9 +80,6 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_io_list(self):
@@ -265,6 +262,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response_data), 4)
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [
         SCOPE_DOCUMENTEN_BIJWERKEN,
@@ -277,9 +275,6 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
         # Different catalogus, should not be allowed
@@ -492,6 +487,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             )
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
@@ -501,9 +497,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
@@ -784,7 +777,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
+@override_settings(ALLOWED_HOSTS=["testserver"], OPENZAAK_DOMAIN="testserver")
 class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -793,9 +786,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_eio_list(self):
@@ -966,20 +956,14 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
 @temp_private_root()
 @tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"], DEBUG=True)
+@override_settings(
+    ALLOWED_HOSTS=["testserver"], DEBUG=True, OPENZAAK_DOMAIN="testserver"
+)
 class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     informatieobjecttype = IOTYPE_EXTERNAL
     component = ComponentTypes.drc
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
     def test_eio_list(self):
         EnkelvoudigInformatieObjectFactory.create(
@@ -1090,6 +1074,7 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
 
+@override_settings(OPENZAAK_DOMAIN="testserver")
 class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
@@ -1098,9 +1083,6 @@ class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_list_verzendingen_limited_to_authorized_io(self):

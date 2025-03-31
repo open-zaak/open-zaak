@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2024 Dimpact
+from django.test import override_settings
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
@@ -102,3 +103,36 @@ class ViewConfigTestCase(WebTest):
         self.assertIn(self.api_root, rows[3].text)
         self.assertIn(_("Configured"), rows[4].text)
         self.assertIn(_("Can retrieve kanalen"), rows[5].text)
+
+    def test_get_openzaak_domain(self):
+        """
+        SITE_DOMAIN > OPENZAAK_DOMAIN > django.contrib.sites
+        """
+        from django.contrib.sites.models import Site
+
+        site = Site.objects.get_current()
+        site.domain = "testserver.nl"
+        site.save()
+
+        with self.subTest("domain_from_DJANGO_SITES"):
+            with override_settings(OPENZAAK_DOMAIN="", SITE_DOMAIN=""):
+                response = self.app.get(self.url)
+                self.assertEqual(response.status_code, 200)
+                rows = response.html.findAll("tr")
+                self.assertTrue("testserver.nl" in rows[1].text)
+
+        with self.subTest("domain_from_OPENZAAK_DOMAIN"):
+            with override_settings(OPENZAAK_DOMAIN="openzaak.nl", SITE_DOMAIN=""):
+                response = self.app.get(self.url)
+                self.assertEqual(response.status_code, 200)
+                rows = response.html.findAll("tr")
+                self.assertTrue("openzaak.nl" in rows[1].text)
+
+        with self.subTest("domain_from_SITE_DOMAIN"):
+            with override_settings(
+                OPENZAAK_DOMAIN="openzaak.nl", SITE_DOMAIN="site.nl"
+            ):
+                response = self.app.get(self.url)
+                self.assertEqual(response.status_code, 200)
+                rows = response.html.findAll("tr")
+                self.assertTrue("site.nl" in rows[1].text)

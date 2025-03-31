@@ -75,5 +75,5 @@ Absolute URLs outside of HTTP requests contexts
 At times Open Zaak needs to build absolute URLs without an HTTP request context being
 available, such as command-line scripts or certain admin synchronization steps.
 
-If the ``OPENZAAK_DOMAIN`` is not empty, then this value will be used for those URLs,
-otherwise the ``Site`` configuration (from the admin) will be used.
+``OPENZAAK_DOMAIN`` and ``Site`` configuration (from the admin) will be deprecated in Open Zaak version 3.0 for specifying the project's domain.
+The ``SITE_DOMAIN`` environment variable must be used instead.

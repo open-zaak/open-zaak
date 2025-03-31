@@ -4,7 +4,6 @@ import uuid
 from base64 import b64encode
 from copy import deepcopy
 
-from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.utils.translation import gettext_lazy as _
 
@@ -334,6 +333,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(error["code"], "invalid_for_received")
 
 
+@override_settings(SITE_DOMAIN="testserver")
 class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
     component = ComponentTypes.drc
@@ -341,9 +341,6 @@ class UpdateStatusDefinitiefTests(JWTAuthMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
         super().setUpTestData()
 
     def test_update_definitief_status_success(self):

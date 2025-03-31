@@ -21,14 +21,18 @@ def get_openzaak_domain() -> str:
     """
     from django.contrib.sites.models import Site
 
+    if settings.SITE_DOMAIN:
+        return settings.SITE_DOMAIN
+
+    warnings.warn(
+        "Deriving the domain from the `OPENZAAK_DOMAIN` and `Sites` configuration will soon be deprecated, "
+        "please migrate to the SITE_DOMAIN setting.",
+        PendingDeprecationWarning,
+    )
+
     if settings.OPENZAAK_DOMAIN:
         return settings.OPENZAAK_DOMAIN
 
-    warnings.warn(
-        "Deriving the domain from the Site configuration will soon be deprecated, "
-        "please migrate to the OPENZAAK_DOMAIN setting.",
-        PendingDeprecationWarning,
-    )
     return Site.objects.get_current().domain
 
 

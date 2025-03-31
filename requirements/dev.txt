@@ -160,7 +160,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.5.1
+commonground-api-common==2.5.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -685,14 +685,14 @@ mypy-extensions==1.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   black
-notifications-api-common==0.6.0
+notifications-api-common==0.7.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.9.3
+open-api-framework==0.9.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

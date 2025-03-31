@@ -3,7 +3,7 @@
 from unittest import skip
 from unittest.mock import patch
 
-from django.contrib.sites.models import Site
+from django.conf import settings
 from django.test import override_settings, tag
 
 import requests_mock
@@ -33,7 +33,9 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @tag("notifications", "DEPRECATED")
 @requests_mock.Mocker(real_http=True)  # for CMIS requests
 @require_cmis
-@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True)
+@override_settings(
+    NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=True, SITE_DOMAIN="testserver"
+)
 @freeze_time("2019-01-01T12:00:00Z")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationCMISTests(
@@ -45,7 +47,7 @@ class FailedNotificationCMISTests(
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
         self, m, mock_notif
     ):
-        site = Site.objects.get_current()
+        domain = settings.SITE_DOMAIN
         url = get_operation_url("zaakinformatieobject_create")
 
         zaak = ZaakFactory.create()
@@ -60,7 +62,7 @@ class FailedNotificationCMISTests(
 
         data = {
             "informatieobject": io_url,
-            "zaak": f"http://{site.domain}{zaak_url}",
+            "zaak": f"http://{domain}{zaak_url}",
         }
 
         # 1. check that notification task is called

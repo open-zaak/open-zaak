@@ -7,7 +7,6 @@ from unittest.mock import patch
 from uuid import UUID
 
 from django.contrib.auth.models import Permission
-from django.contrib.sites.models import Site
 from django.core.management import CommandError
 from django.test import override_settings, tag
 from django.urls import reverse
@@ -106,6 +105,7 @@ class MockSelectielijst(SelectieLijstMixin):
 
 
 @disable_admin_mfa()
+@override_settings(SITE_DOMAIN="testserver")
 class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -114,10 +114,6 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
     def setUp(self):
         super().setUp()
-
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
 
         self.app.set_user(self.user)
 
@@ -1925,12 +1921,11 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
 
 @disable_admin_mfa()
+@override_settings(SITE_DOMAIN="testserver")
 class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWebTest):
     def setUp(self):
         super().setUp()
-        site = Site.objects.get_current()
-        site.domain = "testserver"
-        site.save()
+
         self.app.set_user(SuperUserFactory.create())
 
         conf = ReferentieLijstConfig.get_solo()
