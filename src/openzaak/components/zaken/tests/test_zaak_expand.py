@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from unittest import skip
+
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
 
@@ -90,6 +92,51 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
             },
             {**hoofdzaak_data, "_expand": {"zaaktype": zaaktype_data}},
         ]
+        self.assertEqual(data, expected_results)
+
+    def test_zaak_list_no_expand(self):
+        """
+        Verify that the _expand key is also present if the expand query parameter is unused
+        """
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+
+        response = self.client.get(
+            self.url,
+            **ZAAK_READ_KWARGS,
+        )
+
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **zaak_data,
+                "_expand": {},
+            }
+        ]
+
+        self.assertEqual(data, expected_results)
+
+    @skip("Currently the _expand attribute is not present in the detail response")
+    def test_zaak_retrieve_no_expand(self):
+        """
+        Verify that the _expand key is also present if the expand query parameter is unused
+        """
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+
+        response = self.client.get(
+            reverse(zaak),
+            **ZAAK_READ_KWARGS,
+        )
+
+        data = response.json()
+        expected_results = {
+            **zaak_data,
+            "_expand": {},
+        }
+
         self.assertEqual(data, expected_results)
 
     def test_zaak_zoek_include(self):

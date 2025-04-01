@@ -11,7 +11,7 @@ from vng_api_common.models import APIMixin as _APIMixin
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
 from .exceptions import CMISNotSupportedException
-from .expansion import ExpandJSONRenderer
+from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 
 
 def format_dict_diff(changes):
@@ -91,7 +91,7 @@ class APIMixin(_APIMixin):
 
 class ExpandMixin:
     renderer_classes = (ExpandJSONRenderer,)
-    expand_param = "expand"
+    expand_param = EXPAND_QUERY_PARAM
 
     def include_allowed(self):
         return self.action in ["list", "_zoek", "retrieve"]
