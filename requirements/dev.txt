@@ -812,6 +812,8 @@ pygments==2.18.0
     #   -r requirements/ci.txt
     #   sphinx
     #   sphinx-tabs
+pyinstrument==5.0.1
+    # via -r requirements/dev.in
 pyjwt==2.4.0
     # via
     #   -c requirements/ci.txt

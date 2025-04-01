@@ -88,6 +88,10 @@ if config("PROFILE", default=False, add_to_docs=False):
     security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
     MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
+if config("USE_PYINSTRUMENT", default=False, add_to_docs=False):  # pragma:no cover
+    MIDDLEWARE = ["openzaak.utils.middleware.PyInstrumentMiddleware"] + MIDDLEWARE
+
+
 warnings.filterwarnings(
     "error",
     r"DateTimeField .* received a naive datetime",
