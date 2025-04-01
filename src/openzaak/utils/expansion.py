@@ -9,6 +9,7 @@ from django.utils.module_loading import import_string
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
+from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer, Field, Serializer
 from rest_framework_inclusions.core import InclusionLoader
 from rest_framework_inclusions.renderer import (
@@ -22,6 +23,7 @@ from openzaak.utils.serializer_fields import FKOrServiceUrlField
 logger = logging.getLogger(__name__)
 
 EXPAND_KEY = "_expand"
+EXPAND_QUERY_PARAM = "expand"
 
 
 class InclusionNode:
@@ -362,7 +364,14 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
                 )
                 return None
 
-        request = renderer_context.get("request")
+        request: Request | None = renderer_context.get("request")
+        assert request
+
+        if (
+            EXPAND_QUERY_PARAM not in request.query_params
+            and EXPAND_QUERY_PARAM not in request.data
+        ):
+            return render_data
 
         inclusion_loader = self.loader_class(get_allowed_paths(request, view=view))
         inclusions = inclusion_loader.inclusions_dict(serializer)
