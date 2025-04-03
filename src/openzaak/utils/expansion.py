@@ -371,10 +371,14 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
             EXPAND_QUERY_PARAM not in request.query_params
             and EXPAND_QUERY_PARAM not in request.data
         ):
-            # Always include the `_expand` attribute for list operations
+            # Always include the empty `_expand` attribute
             if isinstance(serializer_data, list):
                 for record in serializer_data:
                     record[EXPAND_KEY] = {}
+
+            if isinstance(serializer_data, dict):
+                serializer_data[EXPAND_KEY] = {}
+
             return render_data
 
         inclusion_loader = self.loader_class(get_allowed_paths(request, view=view))

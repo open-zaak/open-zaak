@@ -100,6 +100,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
                 "emailadres": verzending.emailadres,
                 "mijnOverheid": verzending.mijn_overheid,
                 "telefoonnummer": verzending.telefoonnummer,
+                "_expand": {},
             },
         )
 
@@ -146,6 +147,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
                 "emailadres": verzending.emailadres,
                 "mijnOverheid": verzending.mijn_overheid,
                 "telefoonnummer": verzending.telefoonnummer,
+                "_expand": {},
             },
         )
 
@@ -192,6 +194,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
                 "emailadres": verzending.emailadres,
                 "mijnOverheid": verzending.mijn_overheid,
                 "telefoonnummer": verzending.telefoonnummer,
+                "_expand": {},
             },
         )
 

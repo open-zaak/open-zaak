@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from unittest import skip
-
 from django.contrib.gis.geos import Point
 from django.test import override_settings, tag
 
@@ -117,7 +115,6 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(data, expected_results)
 
-    @skip("Currently the _expand attribute is not present in the detail response")
     def test_zaak_retrieve_no_expand(self):
         """
         Verify that the _expand key is also present if the expand query parameter is unused
@@ -161,6 +158,11 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
 
         response = self.client.post(
             reverse("zaak--zoek"),
@@ -254,6 +256,11 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
 
         response = self.client.get(
             zaak_url,

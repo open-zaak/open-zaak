@@ -309,6 +309,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
             "locked": False,
             "verschijningsvorm": "",
             "trefwoorden": [],
+            "_expand": {},
         }
 
         response_data = response.json()
