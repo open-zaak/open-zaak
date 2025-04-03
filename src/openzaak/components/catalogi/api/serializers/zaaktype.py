@@ -8,11 +8,11 @@ from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework.serializers import (
     DateField,
     HyperlinkedModelSerializer,
-    HyperlinkedRelatedField,
     ModelSerializer,
 )
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
     GegevensGroepSerializer,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
@@ -110,7 +110,7 @@ class ZaakTypeSerializer(
     )
 
     # relations
-    informatieobjecttypen = HyperlinkedRelatedField(
+    informatieobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         view_name="informatieobjecttype-detail",
@@ -120,7 +120,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    statustypen = HyperlinkedRelatedField(
+    statustypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         view_name="statustype-detail",
@@ -130,7 +130,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    resultaattypen = HyperlinkedRelatedField(
+    resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         view_name="resultaattype-detail",
@@ -140,7 +140,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    eigenschappen = HyperlinkedRelatedField(
+    eigenschappen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="eigenschap_set",
@@ -151,7 +151,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    roltypen = HyperlinkedRelatedField(
+    roltypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="roltype_set",
@@ -162,7 +162,7 @@ class ZaakTypeSerializer(
         ),
     )
 
-    besluittypen = HyperlinkedRelatedField(
+    besluittypen = CachedHyperlinkedRelatedField(
         many=True,
         label=_("heeft relevante besluittypen"),
         view_name="besluittype-detail",
@@ -172,7 +172,7 @@ class ZaakTypeSerializer(
             "URL-referenties naar de BESLUITTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
         ),
     )
-    zaakobjecttypen = HyperlinkedRelatedField(
+    zaakobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="zaakobjecttype_set",

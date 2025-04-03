@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
+from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
 from ...models import CheckListItem, StatusType
@@ -32,7 +33,7 @@ class StatusTypeSerializer(
             "met het hoogste volgnummer."
         ),
     )
-    catalogus = serializers.HyperlinkedRelatedField(
+    catalogus = CachedHyperlinkedRelatedField(
         view_name="catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
@@ -47,7 +48,7 @@ class StatusTypeSerializer(
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
-    eigenschappen = serializers.HyperlinkedRelatedField(
+    eigenschappen = CachedHyperlinkedRelatedField(
         view_name="eigenschap-detail",
         many=True,
         read_only=True,
@@ -57,7 +58,7 @@ class StatusTypeSerializer(
             "voordat een STATUS van dit STATUSTYPE kan worden gezet."
         ),
     )
-    zaakobjecttypen = serializers.HyperlinkedRelatedField(
+    zaakobjecttypen = CachedHyperlinkedRelatedField(
         view_name="zaakobjecttype-detail",
         many=True,
         read_only=True,

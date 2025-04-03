@@ -3,12 +3,13 @@
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from vng_api_common.serializers import CachedHyperlinkedRelatedField
 
 from ...models import Catalogus
 
 
 class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
-    zaaktypen = serializers.HyperlinkedRelatedField(
+    zaaktypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="zaaktype_set",
@@ -19,7 +20,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    besluittypen = serializers.HyperlinkedRelatedField(
+    besluittypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="besluittype_set",
@@ -30,7 +31,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    informatieobjecttypen = serializers.HyperlinkedRelatedField(
+    informatieobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="informatieobjecttype_set",

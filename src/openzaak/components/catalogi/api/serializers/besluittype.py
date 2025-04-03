@@ -3,6 +3,7 @@
 from django.utils.text import gettext_lazy as _
 
 from rest_framework import serializers
+from vng_api_common.serializers import CachedHyperlinkedRelatedField
 from vng_api_common.utils import get_help_text
 
 from ...models import BesluitType, InformatieObjectType
@@ -17,7 +18,7 @@ from ..validators import (
 
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
-    informatieobjecttypen = serializers.HyperlinkedRelatedField(
+    informatieobjecttypen = CachedHyperlinkedRelatedField(
         view_name="informatieobjecttype-detail",
         many=True,
         lookup_field="uuid",
@@ -25,7 +26,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text("catalogi.BesluitType", "informatieobjecttypen"),
     )
 
-    zaaktypen = serializers.HyperlinkedRelatedField(
+    zaaktypen = CachedHyperlinkedRelatedField(
         many=True,
         view_name="zaaktype-detail",
         lookup_field="uuid",
@@ -33,7 +34,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
     )
 
-    resultaattypen = serializers.HyperlinkedRelatedField(
+    resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
         source="resultaattype_set",
         view_name="resultaattype-detail",
