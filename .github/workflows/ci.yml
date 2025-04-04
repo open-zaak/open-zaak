@@ -254,8 +254,9 @@ jobs:
             sleep 3
           done
           docker compose exec --user root web.local pip install factory-boy
-          cat performance_test/create_data.py | docker compose exec -T web.local src/manage.py shell
-
+          echo "yes" | docker compose exec -T web.local src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials
+        env:
+          RUN_SETUP_CONFIG: false
       - name: Run tests
         run: |
           pip install -r requirements/ci.txt
