@@ -29,6 +29,7 @@ services:
       DB_NAME: openzaak
       DB_USER: openzaak
       IS_HTTPS: no
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost:8000}
       ALLOWED_HOSTS: localhost,127.0.0.1,web,web.local
       CORS_ALLOW_ALL_ORIGINS: "True"
       CSRF_TRUSTED_ORIGINS: http://localhost:9000
