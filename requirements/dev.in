@@ -11,6 +11,7 @@ django-debug-toolbar
 django-extensions
 django-silk
 whitenoise
+pyinstrument
 
 # Deployment
 

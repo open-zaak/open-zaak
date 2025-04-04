@@ -547,17 +547,15 @@ class PerformanceTests(
             44: insert audit trail
          45-46: notifications, select created zaak (?), notifs config
             47: release savepoint (from NotificationsCreateMixin)
-            48: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            49: select zaak kenmerken (nested inline create, can't avoid this)
-            50: savepoint create transaction.on_commit ETag handler (start new transaction)
-            51: update ETag column of zaak
-            52: release savepoint (commit transaction)
+            48: savepoint create transaction.on_commit ETag handler (start new transaction)
+            59: update ETag column of zaak
+            50: release savepoint (commit transaction)
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 52
+        EXPECTED_NUM_QUERIES = 50
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

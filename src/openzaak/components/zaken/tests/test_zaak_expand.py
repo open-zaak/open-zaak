@@ -92,6 +92,50 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         ]
         self.assertEqual(data, expected_results)
 
+    def test_zaak_list_no_expand(self):
+        """
+        Verify that the _expand key is also present if the expand query parameter is unused
+        """
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+
+        response = self.client.get(
+            self.url,
+            **ZAAK_READ_KWARGS,
+        )
+
+        data = response.json()["results"]
+        expected_results = [
+            {
+                **zaak_data,
+                "_expand": {},
+            }
+        ]
+
+        self.assertEqual(data, expected_results)
+
+    def test_zaak_retrieve_no_expand(self):
+        """
+        Verify that the _expand key is also present if the expand query parameter is unused
+        """
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).json()
+
+        response = self.client.get(
+            reverse(zaak),
+            **ZAAK_READ_KWARGS,
+        )
+
+        data = response.json()
+        expected_results = {
+            **zaak_data,
+            "_expand": {},
+        }
+
+        self.assertEqual(data, expected_results)
+
     def test_zaak_zoek_include(self):
         """
         Test if related resources that are in the local database can be included
@@ -114,6 +158,11 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
 
         response = self.client.post(
             reverse("zaak--zoek"),
@@ -207,6 +256,11 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         eigenschap_data = self.client.get(
             reverse(eigenschap, kwargs={"zaak_uuid": zaak.uuid})
         ).json()
+
+        # The detail responses also include the _expand attribute, but the list response
+        # only has a _expand attribute at the root level (no _expand nested inside _expand)
+        del zaak_data["_expand"]
+        del hoofdzaak_data["_expand"]
 
         response = self.client.get(
             zaak_url,
