@@ -248,7 +248,8 @@ jobs:
 
       - name: Bring up docker compose and load data
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.factories.yml up -d --build || ( docker compose logs >&2 && exit 1; )
+          docker compose build --no-cache
+          docker compose -f docker-compose.yml -f docker-compose.factories.yml up -d || ( docker compose logs >&2 && exit 1; )
           until docker compose logs web.local | grep -q "spawned uWSGI worker"; do
             echo "uWSGI not running yet, waiting..."
             sleep 3
