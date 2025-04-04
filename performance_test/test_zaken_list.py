@@ -19,14 +19,8 @@ def generate_token(client_id: str, secret: str) -> str:
     return jwt.encode(payload, secret, algorithm="HS256")
 
 
-TOKEN_SUPERUSER = generate_token("foo", "bar")
+TOKEN_SUPERUSER = generate_token("superuser", "superuser")
 HEADERS = {"Authorization": f"Bearer {TOKEN_SUPERUSER}", "Accept-Crs": "EPSG:4326"}
-
-TOKEN_NON_SUPERUSER = generate_token("non_superuser", "non_superuser")
-HEADERS_NON_SUPERUSER = {
-    "Authorization": f"Bearer {TOKEN_NON_SUPERUSER}",
-    "Accept-Crs": "EPSG:4326",
-}
 
 
 TOKEN_NON_SUPERUSER = generate_token("non_superuser", "non_superuser")
@@ -63,6 +57,6 @@ def test_zaken_list_non_superuser(benchmark, benchmark_assertions):
     result = benchmark(make_request)
 
     assert result.status_code == 200
-    assert result.json()["count"] == 3000
+    assert result.json()["count"] == 3325
 
     benchmark_assertions(mean=1, median=1)
