@@ -975,6 +975,7 @@ class RolViewSet(
             "vestiging",
             "organisatorischeeenheid",
             "medewerker",
+            "statussen",
         )
         .order_by("-pk")
     )
