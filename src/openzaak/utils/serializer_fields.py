@@ -45,6 +45,7 @@ class LengthValidationMixin:
         return value
 
 
+# TODO performance: should this also use `vng_api_common.serializers.CacheMixin`?
 class LengthHyperlinkedRelatedField(
     LengthValidationMixin, serializers.HyperlinkedRelatedField
 ):
