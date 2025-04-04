@@ -13,7 +13,7 @@ WORKDIR /app
 # Use uv to install dependencies
 RUN pip install uv -U
 COPY ./requirements /app/requirements
-RUN uv pip install --system -r requirements/production.txt
+RUN pip install -r requirements/production.txt
 
 
 # Stage 2 - build frontend
