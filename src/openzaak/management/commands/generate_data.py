@@ -10,10 +10,16 @@ from django.utils import timezone
 
 import factory.fuzzy
 from requests.exceptions import RequestException
+from rest_framework.test import APIRequestFactory
 from vng_api_common.client import Client, ClientError, to_internal_data
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.models import JWTSecret
 from zgw_consumers.client import build_client
 
+from openzaak.components.autorisaties.tests.factories import (
+    ApplicatieFactory,
+    AutorisatieFactory,
+)
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -51,6 +57,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.components.zaken.models import (
     Resultaat,
     Rol,
@@ -70,6 +77,7 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.selectielijst.api import get_resultaattype_omschrijvingen
 from openzaak.selectielijst.models import ReferentieLijstConfig
+from openzaak.utils import get_openzaak_domain
 
 
 def get_sl_resultaten() -> list[dict]:
@@ -218,11 +226,36 @@ class Command(BaseCommand):
             default=100,
             help="Number of zaaktypen, besluittypen and informatieobjecttypen to generate.",
         )
+        parser.add_argument(
+            "--generate-superuser-credentials",
+            dest="generate_superuser_credentials",
+            action="store_true",
+            default=False,
+            help=(
+                "If enabled, will generate credentials for superuser "
+                "(client_id: `superuser`, secret: `superuser`)"
+            ),
+        )
+        parser.add_argument(
+            "--generate-non-superuser-credentials",
+            dest="generate_non_superuser_credentials",
+            action="store_true",
+            default=False,
+            help=(
+                "If enabled, will generate credentials for superuser "
+                "(client_id: `non_superuser`, secret: `non_superuser`)"
+            ),
+        )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         self.partition = options["partition"]
         self.zaken_amount = options["zaken_amount"]
         self.zaaktypen_amount = options["zaaktypen_amount"]
+        generate_superuser_credentials = options["generate_superuser_credentials"]
+        generate_non_superuser_credentials = options[
+            "generate_non_superuser_credentials"
+        ]
 
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
@@ -237,6 +270,12 @@ class Command(BaseCommand):
         self.generate_besluiten()
         self.generate_documenten()
         self.generate_relations()
+
+        if generate_superuser_credentials:
+            self.generate_superuser_credentials()
+
+        if generate_non_superuser_credentials:
+            self.generate_non_superuser_credentials()
 
     def log_created(self, objs):
         self.stdout.write(
@@ -564,3 +603,26 @@ class Command(BaseCommand):
         )
         self.bulk_create(ObjectInformatieObjectBulk, oio_zaak_generator)
         self.bulk_create(ObjectInformatieObjectBulk, oio_besluit_generator)
+
+    def generate_superuser_credentials(self):
+        JWTSecret.objects.get_or_create(identifier="superuser", secret="superuser")
+        ApplicatieFactory.create(client_ids=["superuser"], heeft_alle_autorisaties=True)
+
+    def generate_non_superuser_credentials(self):
+        JWTSecret.objects.get_or_create(
+            identifier="non_superuser", secret="non_superuser"
+        )
+        applicatie = ApplicatieFactory.create(
+            client_ids=["non_superuser"], heeft_alle_autorisaties=False
+        )
+
+        num_authorized_zaaktypen = max(ZaakType.objects.count() - 5, 1)
+        request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
+        for zaaktype in ZaakType.objects.all()[:num_authorized_zaaktypen]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.zrc,
+                scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                zaaktype=zaaktype.get_absolute_api_url(request=request),
+            )
