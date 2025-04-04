@@ -11,9 +11,13 @@ import requests_mock
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.components.catalogi.models import ResultaatType, StatusType, ZaakType
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -21,6 +25,9 @@ from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 
 class GenerateDataTests(SelectieLijstMixin, APITestCase):
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
     @requests_mock.Mocker()
     def test_generate_data_yes(self, m):
         # mocks for Selectielijst API calls
@@ -74,7 +81,14 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         )
 
         with patch("builtins.input", lambda *args: "yes"):
-            call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=1,
+                zaken=2,
+                generate_superuser_credentials=True,
+                generate_non_superuser_credentials=True,
+            )
 
         # check that the data is generated
         generated_objects_count = {
@@ -123,6 +137,35 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         self.assertEqual(
             StatusType.objects.filter(statustype_omschrijving="").count(), 0
         )
+
+        with self.subTest("generate superuser credentials"):
+            credential = JWTSecret.objects.get(identifier="superuser")
+            self.assertEqual(credential.secret, "superuser")
+
+            applicatie = Applicatie.objects.get(client_ids=["superuser"])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, True)
+
+        with self.subTest("generate non superuser credentials"):
+            credential = JWTSecret.objects.get(identifier="non_superuser")
+            self.assertEqual(credential.secret, "non_superuser")
+
+            applicatie = Applicatie.objects.get(client_ids=["non_superuser"])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
+            self.assertEqual(applicatie.autorisaties.count(), 1)
+
+            autorisatie = applicatie.autorisaties.get()
+            self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+            self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
+            self.assertEqual(
+                autorisatie.max_vertrouwelijkheidaanduiding,
+                VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+            zaaktype_uri = reverse(
+                "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            )
+            self.assertEqual(
+                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
+            )
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
