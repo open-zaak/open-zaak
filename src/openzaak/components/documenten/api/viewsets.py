@@ -43,6 +43,7 @@ from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
+    CacheQuerysetMixin,
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     ExpandMixin,
@@ -209,6 +210,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
 )
 @cmis_conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
@@ -666,6 +668,7 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
 )
 @cmis_conditional_retrieve()
 class GebruiksrechtenViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
@@ -779,6 +782,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
 )
 @cmis_conditional_retrieve()
 class ObjectInformatieObjectViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
@@ -911,6 +915,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
 )
 @cmis_conditional_retrieve()
 class VerzendingViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
     ExpandMixin,
     NotificationViewSetMixin,
