@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2019 - 2020 Dimpact
+# Copyright (C) 2025 Dimpact
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -65,6 +66,8 @@ class RolType(ETagMixin, OptionalGeldigheidMixin, models.Model):
 
     def clean(self):
         super().clean()
+        if not self.zaaktype_id:
+            raise ValidationError({"zaaktype": _("Zaaktype mag niet leeg zijn.")})
 
         validate_zaaktype_concept(self.zaaktype)
 
