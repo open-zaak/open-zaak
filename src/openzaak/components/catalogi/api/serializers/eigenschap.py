@@ -4,7 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
+    add_choice_values_help_text,
+)
 from vng_api_common.utils import get_help_text
 
 from openzaak.utils.validators import UniqueTogetherValidator
@@ -43,7 +46,7 @@ class EigenschapSerializer(
     specificatie = EigenschapSpecificatieSerializer(
         source="specificatie_van_eigenschap"
     )
-    catalogus = serializers.HyperlinkedRelatedField(
+    catalogus = CachedHyperlinkedRelatedField(
         view_name="catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,

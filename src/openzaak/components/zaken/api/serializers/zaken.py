@@ -15,7 +15,6 @@ from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
 from rest_framework_gis.fields import GeometryField
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
@@ -27,6 +26,9 @@ from vng_api_common.constants import (
 )
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import (
+    CachedHyperlinkedIdentityField,
+    CachedHyperlinkedRelatedField,
+    CachedNestedHyperlinkedRelatedField,
     GegevensGroepSerializer,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
@@ -218,7 +220,8 @@ class ZaakSerializer(
     NestedUpdateMixin,
     serializers.HyperlinkedModelSerializer,
 ):
-    eigenschappen = NestedHyperlinkedRelatedField(
+    url = CachedHyperlinkedIdentityField(view_name="zaak-detail", lookup_field="uuid")
+    eigenschappen = CachedNestedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -227,7 +230,7 @@ class ZaakSerializer(
         source="zaakeigenschap_set",
         help_text=_("URL-referenties naar ZAAK-EIGENSCHAPPen."),
     )
-    rollen = NestedHyperlinkedRelatedField(
+    rollen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -235,7 +238,7 @@ class ZaakSerializer(
         source="rol_set",
         help_text=_("URL-referenties naar ROLLen."),
     )
-    status = serializers.HyperlinkedRelatedField(
+    status = CachedHyperlinkedRelatedField(
         source="current_status",
         read_only=True,
         allow_null=True,
@@ -243,7 +246,7 @@ class ZaakSerializer(
         lookup_field="uuid",
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
     )
-    zaakinformatieobjecten = NestedHyperlinkedRelatedField(
+    zaakinformatieobjecten = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -251,7 +254,7 @@ class ZaakSerializer(
         source="zaakinformatieobject_set",
         help_text=_("URL-referenties naar ZAAKINFORMATIEOBJECTen."),
     )
-    zaakobjecten = NestedHyperlinkedRelatedField(
+    zaakobjecten = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -290,7 +293,7 @@ class ZaakSerializer(
         ),
     )
 
-    deelzaken = serializers.HyperlinkedRelatedField(
+    deelzaken = CachedHyperlinkedRelatedField(
         read_only=True,
         many=True,
         view_name="zaak-detail",
@@ -299,7 +302,7 @@ class ZaakSerializer(
         help_text=_("URL-referenties naar deel ZAAKen."),
     )
 
-    resultaat = serializers.HyperlinkedRelatedField(
+    resultaat = CachedHyperlinkedRelatedField(
         read_only=True,
         allow_null=True,
         view_name="resultaat-detail",
@@ -876,7 +879,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
-    zaak = serializers.HyperlinkedRelatedField(
+    zaak = CachedHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         view_name="zaak-detail",
         lookup_field="uuid",
