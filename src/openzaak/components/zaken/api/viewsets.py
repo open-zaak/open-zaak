@@ -46,7 +46,7 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import ExpandMixin
+from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
@@ -230,6 +230,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
 )
 @conditional_retrieve(extra_depends_on={"status"})
 class ZaakViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     ExpandMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
@@ -475,6 +476,7 @@ class ZaakViewSet(
 )
 @conditional_retrieve()
 class StatusViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -600,6 +602,7 @@ class StatusViewSet(
     ),
 )
 class ZaakObjectViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -698,6 +701,7 @@ class ZaakObjectViewSet(
 )
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -815,6 +819,7 @@ class ZaakInformatieObjectViewSet(
 )
 @conditional_retrieve()
 class ZaakEigenschapViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationViewSetMixin,
     AuditTrailCreateMixin,
     NestedViewSetMixin,
@@ -953,6 +958,7 @@ class KlantContactViewSet(
 )
 @conditional_retrieve()
 class RolViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1037,6 +1043,7 @@ class RolViewSet(
 )
 @conditional_retrieve()
 class ResultaatViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1081,7 +1088,10 @@ class ResultaatViewSet(
         description="Een specifieke audit trail regel opvragen.",
     ),
 )
-class ZaakAuditTrailViewSet(AuditTrailViewSet):
+class ZaakAuditTrailViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
+    AuditTrailViewSet,
+):
     """
     Opvragen van Audit trails horend bij een ZAAK.
     """
@@ -1123,6 +1133,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     ),
 )
 class ZaakBesluitViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1266,6 +1277,7 @@ class ZaakBesluitViewSet(
     ),
 )
 class ZaakContactMomentViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1345,6 +1357,7 @@ class ZaakContactMomentViewSet(
     ),
 )
 class ZaakVerzoekViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
