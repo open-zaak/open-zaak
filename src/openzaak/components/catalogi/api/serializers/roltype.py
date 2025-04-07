@@ -5,7 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from drf_writable_nested import NestedCreateMixin
 from rest_framework import serializers
 from vng_api_common.constants import RolOmschrijving
-from vng_api_common.serializers import add_choice_values_help_text
+from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
+    add_choice_values_help_text,
+)
 from vng_api_common.utils import get_help_text
 
 from ...models import RolType
@@ -13,7 +16,7 @@ from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 
 class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
-    catalogus = serializers.HyperlinkedRelatedField(
+    catalogus = CachedHyperlinkedRelatedField(
         view_name="catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,

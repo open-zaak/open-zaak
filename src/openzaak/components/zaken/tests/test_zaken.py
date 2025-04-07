@@ -50,7 +50,13 @@ from ..models import (
     ZaakIdentificatie,
 )
 from .constants import POLYGON_AMSTERDAM_CENTRUM
-from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
+from .factories import (
+    ResultaatFactory,
+    RolFactory,
+    StatusFactory,
+    ZaakEigenschapFactory,
+    ZaakFactory,
+)
 from .utils import (
     ZAAK_READ_KWARGS,
     ZAAK_WRITE_KWARGS,
@@ -435,6 +441,22 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.json()["deelzaken"], [f"http://testserver{deelzaak_url}"]
+        )
+
+    def test_zaakeigenschappen(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaakeigenschap = ZaakEigenschapFactory.create(zaak=zaak)
+        detail_url = reverse(zaak)
+        zaakeigenschap_url = reverse(
+            "zaakeigenschap-detail",
+            kwargs={"zaak_uuid": str(zaak.uuid), "uuid": str(zaakeigenschap.uuid)},
+        )
+
+        response = self.client.get(detail_url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json()["eigenschappen"], [f"http://testserver{zaakeigenschap_url}"]
         )
 
     def test_create_deelzaak_success(self, *mocks):

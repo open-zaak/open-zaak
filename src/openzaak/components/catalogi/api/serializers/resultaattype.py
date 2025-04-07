@@ -10,6 +10,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
     GegevensGroepSerializer,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
@@ -63,7 +64,7 @@ class ResultaatTypeSerializer(
             "start van de Archiefactietermijn (=brondatum) van het zaakdossier."
         ),
     )
-    catalogus = serializers.HyperlinkedRelatedField(
+    catalogus = CachedHyperlinkedRelatedField(
         view_name="catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,

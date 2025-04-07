@@ -29,6 +29,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
+from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
@@ -190,6 +191,7 @@ class BesluitViewSet(
 )
 @conditional_retrieve()
 class BesluitInformatieObjectViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     NotificationCreateMixin,
     NotificationDestroyMixin,
     AuditTrailCreateMixin,
@@ -273,7 +275,10 @@ class BesluitInformatieObjectViewSet(
         ],
     ),
 )
-class BesluitAuditTrailViewSet(AuditTrailViewSet):
+class BesluitAuditTrailViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
+    AuditTrailViewSet,
+):
     """Opvragen van de audit trail regels."""
 
     main_resource_lookup_field = "besluit_uuid"
