@@ -6,6 +6,7 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.catalogi.models import Eigenschap
+from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 
@@ -60,7 +61,10 @@ from .mixins import ZaakTypeConceptMixin
 )
 @conditional_retrieve()
 class EigenschapViewSet(
-    CheckQueryParamsMixin, ZaakTypeConceptMixin, viewsets.ModelViewSet
+    CacheQuerysetMixin,  # should be applied before other mixins
+    CheckQueryParamsMixin,
+    ZaakTypeConceptMixin,
+    viewsets.ModelViewSet,
 ):
     """
     Opvragen en bewerken van EIGENSCHAPpen van een ZAAKTYPE.

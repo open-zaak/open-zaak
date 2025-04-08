@@ -14,6 +14,7 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
@@ -82,6 +83,7 @@ from .mixins import ConceptMixin, M2MConceptDestroyMixin
 )
 @conditional_retrieve()
 class InformatieObjectTypeViewSet(
+    CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
