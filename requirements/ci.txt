@@ -648,11 +648,10 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
-psycopg2==2.9.9
+psycopg==3.2.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   open-api-framework
 py-cpuinfo==9.0.0
     # via pytest-benchmark
 pycodestyle==2.12.1
@@ -887,6 +886,7 @@ typing-extensions==4.12.2
     #   -r requirements/base.txt
     #   faker
     #   mozilla-django-oidc-db
+    #   psycopg
     #   pydantic
     #   pydantic-core
     #   pyopenssl

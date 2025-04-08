@@ -758,11 +758,10 @@ propcache==0.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-psycopg2==2.9.9
+psycopg==3.2.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   open-api-framework
 py-cpuinfo==9.0.0
     # via
     #   -c requirements/ci.txt
@@ -1082,6 +1081,7 @@ typing-extensions==4.12.2
     #   -r requirements/ci.txt
     #   faker
     #   mozilla-django-oidc-db
+    #   psycopg
     #   pydantic
     #   pydantic-core
     #   pyopenssl

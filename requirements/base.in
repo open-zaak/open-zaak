@@ -27,4 +27,6 @@ drf-writable-nested
 humanize
 drc-cmis
 
+psycopg
+
 commonground-api-common[setup-configuration, testutils]
