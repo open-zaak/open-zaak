@@ -17,7 +17,6 @@ This documentation is aimed at DevOps engineers.
 **Quick navigation**
 
 * :ref:`installation_kubernetes_helm`
-* :ref:`installation_kubernetes_ansible`
 
 **Requirements**
 
@@ -73,159 +72,16 @@ Example:
 
 .. code-block:: bash
 
-    helm repo add open-zaak https://open-zaak.github.io/charts/
+    helm repo add maykinmedia https://maykinmedia.github.io/charts/
     helm repo update
 
-    helm install open-zaak open-zaak/open-zaak \
+    helm install <release-tag> maykinmedia/openzaak \
         --set "settings.allowedHosts=open-zaak.gemeente.nl" \
         --set "ingress.enabled=true" \
         --set "ingress.hosts={open-zaak.gemeente.nl}"
 
 .. _Helm: https://helm.sh
-.. _charts: https://github.com/open-zaak/charts
-
-.. _installation_kubernetes_ansible:
-
-Deploy using Ansible
-====================
-
-The Open Zaak organization maintains an Ansible_ collection which supports deploying
-on Kubernetes using the open_zaak_k8s_
-role.
-
-.. note:: We assume knowledge of Ansible playbooks in the rest of this section.
-
-A sample deployment is included in the Open Zaak repository, pinned on the most recent
-stable Open Zaak version.
-
-Get a copy of the deployment configuration
-------------------------------------------
-
-You can either clone the https://github.com/open-zaak/open-zaak repository,
-or download and extract the latest ZIP:
-https://github.com/open-zaak/open-zaak/archive/main.zip
-
-
-Install dependencies
---------------------
-
-.. note::
-
-   Next to Ansible itself, we need some additional dependencies to interact with K8s
-   clusters. These are Python libraries you need to install. The requirements are
-   specified in the sample deployment directory.
-
-First, navigate to the correct directory. In the folder where you placed the
-copy of the repository, change into the ``deployment`` directory:
-
-.. code-block:: shell
-
-    (env) [user@host]$ cd /path/to/open-zaak/deployment/
-
-Install the required dependencies with ``pip``:
-
-.. code-block:: shell
-
-    (env) [user@host]$ pip install -r requirements.txt
-
-Next, install the Ansible playbook dependencies:
-
-.. code-block:: shell
-
-    (env) [user@host]$ cd kubernetes
-    (env) [user@host]$ ansible-galaxy collection install -r requirements.yml
-
-Deploying the applications
---------------------------
-
-Open Zaak ships with a sample playbook for the applications, ``apps.yml``, which
-
-* installs Open Zaak
-* installs Open Notificaties
-
-You can run the Ansible-playbooks as-is (with some configuration through variables), or
-use them as inspiration for manual deployment.
-
-For a list of all the available variables, check the
-`collection <https://github.com/open-zaak/ansible-collection>`_ roles.
-
-**Configuring Open Zaak**
-
-To deploy Open Zaak, some variables need to be set (in ``vars/open-zaak.yml``):
-
-* ``openzaak_domain``: the domain name, e.g. ``open-zaak.gemeente.nl``
-* ``openzaak_secret_key``: generate a key via.
-  Make sure to put the value between single quotes!
-
-You might want to tweak environment variables in order to
-:ref:`provision a superuser<installation_provision_superuser>`.
-
-**Configuring Open Notificaties**
-
-To deploy Open Notificaties, some variables need to be set (in ``vars/open-notificaties.yml``):
-
-* ``opennotificaties_domain``: the domain name, e.g. ``open-notificaties.gemeente.nl``
-* ``opennotificaties_secret_key``: generate a key.
-  Make sure to put the value between single quotes!
-
-Next steps
-==========
-
-You may want to :ref:`customize the logging setup<installation_logging_customize>`. The
-default setup should be sufficient to get started though.
-
-To be able to work with Open Zaak, a couple of things have to be configured first,
-see :ref:`installation_configuration` for more details.
-
-.. _installation_kubernetes_updating:
-
-Updating an Open Zaak installation using Ansible
-================================================
-
-.. warning::
-
-    Make sure you are aware of possible breaking changes or manual interventions by
-    reading the :ref:`development_changelog`!
-
-Ensure you have the deployment tooling installed - see
-:ref:`installation_kubernetes_ansible` for more details.
-
-If you have an existing environment (from the installation), update it:
-
-.. code-block:: shell
-
-    # fetch the updates from Github
-    [user@host]$ git fetch origin
-
-    # checkout the tag of the version you wish to update to, e.g. 1.0.0
-    [user@host]$ git checkout X.Y.z
-
-    # activate the virtualenv
-    [user@host]$ source env/bin/activate
-
-    # ensure all (correct versions of the) dependencies are installed
-    (env) [user@host]$ pip install -r requirements.txt
-
-Open Zaak deployment code defines variables to specify the Docker image tag to use. This
-is synchronized with the git tag you're checking out.
-
-Next, to perform the upgrade, you run the ``apps.yml`` playbook exactly like the
-initial installation:
-
-.. code-block:: shell
-
-    (env) [user@host]$ ./deploy.sh apps.yml
-
-.. note::
-
-    In the Kubernetes deployment setup, Open Zaak makes use of multiple replicas by
-    default, and is set up to perform rolling releases. This means that the old version
-    stays live until all new versions are running without errors.
-
-    We make use of health checks and liveness probes to achieve this.
-
-    This does mean that there's a brief window where clients may hit the old or new
-    version at the same time - usually this shouldn't pose a problem.
+.. _charts: https://github.com/maykinmedia/charts
 
 
 .. links used in doc
@@ -235,4 +91,3 @@ initial installation:
 .. _Haven: https://haven.commonground.nl/
 .. _NGINX: https://www.nginx.com/
 .. _Ansible: https://www.ansible.com/
-.. _open_zaak_k8s: https://github.com/open-zaak/ansible-collection/tree/main/roles/open_zaak_k8s
