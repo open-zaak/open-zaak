@@ -133,6 +133,9 @@ Attributes
 
     * ``beginObject`` and ``eindeObject`` are made read-only. `The reason <https://github.com/VNG-Realisatie/gemma-zaken/issues/2332>`__
 
+    * ``betrokkeneIdentificatie.identificatie`` max length is changed from 24 to 128  for ``betrokkeneType: "medewerker"``
+
+
 Query parameters
 ----------------
 
