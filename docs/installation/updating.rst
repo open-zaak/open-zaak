@@ -19,16 +19,3 @@ interventions.
     We encourage having multiple environments such as staging and production, completely
     isolated from each other. This allows you to test out the update on a staging
     environment to check if anything goes wrong, without affecting production.
-
-The update instructions are split per target environment.
-
-Updating on Kubernetes
-----------------------
-
-See :ref:`installation_kubernetes_updating` for the update instructions on Kubernetes.
-
-Updating a single server installation
--------------------------------------
-
-See the steps on how to
-:ref:`update a single server installation<installation_ansible_updating>`.
