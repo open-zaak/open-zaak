@@ -6663,6 +6663,18 @@ paths:
         description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK (bevat
           de identificatie de gegeven waarden (hoofdletterongevoelig))'
       - in: query
+        name: kenmerk
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van de zaak. format:
+          [<bron>:<kenmerk>]'
+      - in: query
+        name: kenmerk__bron
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De aanduiding van de administratie waar het
+          kenmerk op slaat.'
+      - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
           type: string
@@ -10365,6 +10377,18 @@ paths:
         description: '**EXPERIMENTEEL** De unieke identificatie van de ZAAK (bevat
           de identificatie de gegeven waarden (hoofdletterongevoelig))'
       - in: query
+        name: kenmerk
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van de zaak. format:
+          [<bron>:<kenmerk>]'
+      - in: query
+        name: kenmerk__bron
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** De aanduiding van de administratie waar het
+          kenmerk op slaat.'
+      - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
           type: string
@@ -10969,6 +10993,14 @@ paths:
                     \ Laag (2+)\n* `urn:etoegang:core:assurance-class:loa3` - Substantieel\
                     \ (3)\n* `urn:etoegang:core:assurance-class:loa4` - Hoog (4)\n\
                     \n"
+                kenmerk__bron:
+                  type: string
+                  description: '**EXPERIMENTEEL** De aanduiding van de administratie
+                    waar het kenmerk op slaat.'
+                kenmerk:
+                  type: string
+                  description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van
+                    de zaak. format: [<bron>:<kenmerk>]'
                 ordering:
                   type: array
                   items:

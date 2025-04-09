@@ -8,7 +8,7 @@ from vng_api_common.tests import reverse, reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
 
-from .factories import ZaakFactory
+from .factories import ZaakFactory, ZaakKenmerkFactory
 from .utils import ZAAK_WRITE_KWARGS
 
 
@@ -304,3 +304,68 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.json()["results"][0]["url"], f"http://testserver{reverse(zaak)}"
         )
+
+    def test_filter_kenmerken_bron(self):
+        kenmerk = ZaakKenmerkFactory(bron="BAG-id")
+        ZaakKenmerkFactory(bron="GAB-id")
+
+        ZaakFactory.create()
+
+        response = self.client.get(
+            self.url,
+            {"kenmerk__bron": "BAG-id"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"],
+            f"http://testserver{reverse(kenmerk.zaak)}",
+        )
+
+    def test_filter_kenmerken_bron_duplicate_bronnen(self):
+        zaak = ZaakFactory.create()
+        ZaakKenmerkFactory(bron="BAG-id", zaak=zaak)
+        ZaakKenmerkFactory(bron="BAG-id", zaak=zaak)
+
+        ZaakFactory.create()
+
+        response = self.client.get(
+            self.url,
+            {"kenmerk__bron": "BAG-id"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["count"], 1)
+        self.assertEqual(
+            response.json()["results"][0]["url"], f"http://testserver{reverse(zaak)}"
+        )
+
+    def test_filter_kenmerken(self):
+        zaak = ZaakFactory.create()
+        ZaakKenmerkFactory(bron="BAG-id", kenmerk="123", zaak=zaak)
+        ZaakKenmerkFactory(bron="GAB-id", kenmerk="456", zaak=zaak)
+
+        ZaakFactory.create()
+
+        with self.subTest("existing combination"):
+            response = self.client.get(
+                self.url,
+                {"kenmerk": "[BAG-id:123]"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.json()["count"], 1)
+
+        with self.subTest("non existing combination"):
+            response = self.client.get(
+                self.url,
+                {"kenmerk": "[BAG-id:456]"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.json()["count"], 0)
