@@ -15,6 +15,7 @@ from vng_api_common.utils import get_field_attribute, get_help_text
 from openzaak.components.zaken.api.serializers.zaken import ZaakSerializer
 from openzaak.utils.filters import (
     ExpandFilter,
+    KeyValueFilter,
     MaximaleVertrouwelijkheidaanduidingFilter,
 )
 from openzaak.utils.filterset import FilterGroup, FilterSet, FilterSetWithGroups
@@ -258,6 +259,20 @@ class ZaakFilter(FilterSetWithGroups):
             "gelijk is aan de aangegeven aanduiding worden teruggeven als resultaten."
         ),
     )
+
+    kenmerk__bron = filters.CharFilter(
+        field_name="zaakkenmerk__bron",
+        help_text=mark_experimental(get_help_text("zaken.ZaakKenmerk", "bron")),
+    )
+
+    kenmerk = KeyValueFilter(
+        key_field_name="zaakkenmerk__bron",
+        value_field_name="zaakkenmerk__kenmerk",
+        help_text=mark_experimental(
+            "Een bron-kenmerk combinatie van de zaak. format: [<bron>:<kenmerk>]"
+        ),
+    )
+
     ordering = filters.OrderingFilter(
         fields=(
             "startdatum",

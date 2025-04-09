@@ -73,6 +73,8 @@ Query parameters
     * ``rol__betrokkeneIdentificatie__vestiging__kvkNummer`` **(scheduled for deprecation in Open Zaak version 3.0)**
     * ``rol__machtiging``
     * ``rol__machtiging__loa``
+    * ``kenmerk__bron``
+    * ``kenmerk``
 
 
 Documenten API
