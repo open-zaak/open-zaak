@@ -86,6 +86,13 @@ class RolTypeFilter(FilterSet):
         field_name="zaaktype__identificatie",
         help_text=get_help_text("catalogi.ZaakType", "identificatie"),
     )
+    omschrijving = filters.CharFilter(
+        field_name="omschrijving",
+        lookup_expr="icontains",
+        help_text=mark_experimental(
+            "Filter op (een deel van de) omschrijving (hoofdletterongevoelig)."
+        ),
+    )
 
     class Meta:
         model = RolType
@@ -95,6 +102,7 @@ class RolTypeFilter(FilterSet):
             "status",
             "datum_geldigheid",
             "zaaktype_identificatie",
+            "omschrijving",
         )
 
 
