@@ -70,8 +70,11 @@ class KeyValueFilter(filters.CharFilter):
 
         value_list = value.strip("[]").split(":")
 
-        if len(value_list) != 2:
-            raise ParseError(_("Ongeldig format voor key-value filter."))
+        # This should not be possible because of the regex validator but to be sure:
+        if len(value_list) != 2:  # pragma: nocover
+            raise ParseError(
+                _("Ongeldig format voor key-value filter.")
+            )  # pragma: nocover
 
         key_field_value, value_field_value = value_list
 
