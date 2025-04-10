@@ -20,7 +20,7 @@ class RolTypeAdmin(
 
     # List
     list_display = ("omschrijving", "zaaktype")
-    list_filter = ("zaaktype", "omschrijving_generiek")
+    list_filter = ("zaaktype", "omschrijving_generiek", "omschrijving")
     search_fields = (
         "uuid",
         "omschrijving",
