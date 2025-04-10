@@ -13,12 +13,15 @@ ZAKEN_API_VERSION = "1.5.1"
 REST_FRAMEWORK = BASE_REST_FRAMEWORK.copy()
 REST_FRAMEWORK["PAGE_SIZE"] = 100
 
-REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = REST_FRAMEWORK[
-    "DEFAULT_RENDERER_CLASSES"
-] + ("openzaak.utils.renderers.ProblemJSONRenderer",)
+REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+    "openzaak.utils.renderers.ORJSONRenderer",
+) + ("openzaak.utils.renderers.ProblemJSONRenderer",)
 
 REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
 
+# JSON_CAMEL_CASE = {
+#     'RENDERER_CLASS': 'drf_orjson_renderer.renderers.ORJSONRenderer'
+# }
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"

@@ -702,6 +702,10 @@ orderedmultidict==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   furl
+orjson==3.10.16
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 oyaml==1.0
     # via
     #   -c requirements/ci.txt

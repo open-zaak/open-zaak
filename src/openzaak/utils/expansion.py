@@ -8,7 +8,6 @@ from django.utils.module_loading import import_string
 
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
-from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer, Field, Serializer
 from rest_framework_inclusions.core import InclusionLoader
@@ -18,6 +17,7 @@ from rest_framework_inclusions.renderer import (
     should_skip_inclusions,
 )
 
+from openzaak.utils.renderers import ORJSONRenderer
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
 
 logger = logging.getLogger(__name__)
@@ -318,7 +318,7 @@ class ExpandLoader(InclusionLoader):
         return super()._sub_serializer_inclusions(path, field, instance)
 
 
-class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
+class ExpandJSONRenderer(InclusionJSONRenderer, ORJSONRenderer):
     """
     Ensure that the InclusionJSONRenderer produces camelCase and properly loads loose fk
     objects

@@ -8,6 +8,7 @@ markdown  # used to render some markdown in code to html
 python-dateutil
 requests-cache
 self-certifi
+orjson
 
 # Framework libraries
 django-db-logger

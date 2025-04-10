@@ -311,6 +311,8 @@ open-api-framework==0.9.6
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
+orjson==3.10.16
+    # via -r requirements/base.in
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0

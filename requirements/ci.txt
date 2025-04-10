@@ -612,6 +612,10 @@ orderedmultidict==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   furl
+orjson==3.10.16
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 oyaml==1.0
     # via
     #   -c requirements/base.txt
