@@ -11,6 +11,15 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resources_for_paths
 
+from openzaak.components.catalogi.models import ZaakType, BesluitType, InformatieObjectType
+
+
+FIELD_MODEL_MAPPING = {
+    "zaaktype": ZaakType,
+    "besluittype": BesluitType,
+    "informatieobjecttype": InformatieObjectType,
+}
+
 
 class QueryBlocked(Exception):
     pass
@@ -102,9 +111,13 @@ class LooseFkAuthorizationsFilterMixin:
         if not local:
             loose_fk_object_map = dict(zip(resource_urls, resource_urls))
         else:
+            model = FIELD_MODEL_MAPPING[self.loose_fk_field]
+            loose_fk_objects = model.objects.filter(uuid__in=[x.split("/")[-1] for x in resource_urls])
+
+            # TODO assert on len?
             # prepare to get the loose_fk_objects in bulk from the DB
-            loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
-            loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
+            # loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
+            # loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
             # nothing to resolve
             if loose_fk_objects is None:
                 loose_fk_object_map = {}
@@ -115,6 +128,7 @@ class LooseFkAuthorizationsFilterMixin:
                 )
                 loose_fk_object_map = dict(zip(sorted(resource_urls), sorted_objects))
 
+        choice_order_cache = {}
         for authorization in authorizations:
             resource_url = getattr(authorization, self.loose_fk_field)
             loose_fk_object = loose_fk_object_map[resource_url]
@@ -122,9 +136,13 @@ class LooseFkAuthorizationsFilterMixin:
 
             # extract the order and map it to the database value
             if authorization.max_vertrouwelijkheidaanduiding:
-                choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
-                    authorization.max_vertrouwelijkheidaanduiding
-                )
+                if authorization.max_vertrouwelijkheidaanduiding in choice_order_cache:
+                    choice_item_order = choice_order_cache[authorization.max_vertrouwelijkheidaanduiding]
+                else:
+                    choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
+                        authorization.max_vertrouwelijkheidaanduiding
+                    )
+                    choice_order_cache[authorization.max_vertrouwelijkheidaanduiding] = choice_item_order
                 vertrouwelijkheidaanduiding_whens.append(
                     When(
                         **{f"{prefix}{loose_fk_field}": loose_fk_object},
