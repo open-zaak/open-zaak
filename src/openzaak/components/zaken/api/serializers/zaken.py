@@ -100,6 +100,31 @@ from .betrokkenen import (
 
 logger = logging.getLogger(__name__)
 
+from vng_api_common.constants import MAPPING
+
+MAPPING2 = {v: k for k, v in MAPPING.items()}
+
+from rest_framework import serializers
+
+
+class EnumField(serializers.CharField):
+    def __init__(self, enum, **kwargs):
+        self.enum = enum
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        if value is None:
+            return None
+        return MAPPING2[value]
+
+    def to_internal_value(self, data):
+        try:
+            return MAPPING[data]
+        except KeyError:
+            raise serializers.ValidationError(
+                f"Invalid value '{data}'. Expected one of: {[e.name for e in self.enum]}"
+            )
+
 
 # Zaak API
 class ZaakKenmerkSerializer(serializers.HyperlinkedModelSerializer):
@@ -326,6 +351,7 @@ class ZaakSerializer(
             "bepalend is voor de start van de archiefactietermijn."
         ),
     )
+    vertrouwelijkheidaanduiding = EnumField(enum=MAPPING2)
 
     inclusion_serializers = {
         # 1 level
