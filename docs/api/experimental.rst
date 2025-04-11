@@ -74,7 +74,7 @@ Query parameters
     * ``rol__machtiging``
     * ``rol__machtiging__loa``
     * ``kenmerk__bron``
-    * ``kenmerk``
+    * ``kenmerk`` A bron-kenmerk combination of a zaak. (format: ``<bron>:<kenmerk>``)
 
 
 Documenten API

@@ -56,11 +56,11 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
 class KeyValueFilter(filters.CharFilter):
 
     def __init__(self, key_field_name, value_field_name, *args, **kwargs):
+        kwargs.setdefault(
+            "validators", [RegexValidator(r"^([^:\[\]]+):([^:\[\]]+)$")]
+        )  # key:value where the key and value cannot contain `[`, `]` or `:`
         self.key_field_name = key_field_name
         self.value_field_name = value_field_name
-        self.validators = RegexValidator(
-            r"^\[([^:\[\]]+):([^:\[\]]+)\]$"
-        )  # [key:value] where the key and value cannot contain `[`, `]` or `:`
 
         super().__init__(*args, **kwargs)
 
@@ -68,7 +68,7 @@ class KeyValueFilter(filters.CharFilter):
         if value in filters.EMPTY_VALUES:
             return qs
 
-        value_list = value.strip("[]").split(":")
+        value_list = value.split(":")
 
         # This should not be possible because of the regex validator but to be sure:
         if len(value_list) != 2:  # pragma: nocover

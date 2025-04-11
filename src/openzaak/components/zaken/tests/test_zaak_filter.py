@@ -353,7 +353,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         with self.subTest("existing combination"):
             response = self.client.get(
                 self.url,
-                {"kenmerk": "[BAG-id:123]"},
+                {"kenmerk": "BAG-id:123"},
                 **ZAAK_WRITE_KWARGS,
             )
 
@@ -363,9 +363,18 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         with self.subTest("non existing combination"):
             response = self.client.get(
                 self.url,
-                {"kenmerk": "[BAG-id:456]"},
+                {"kenmerk": "BAG-id:456"},
                 **ZAAK_WRITE_KWARGS,
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assertEqual(response.json()["count"], 0)
+
+        with self.subTest("only one `:`"):
+            response = self.client.get(
+                self.url,
+                {"kenmerk": "b:aa:cc"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

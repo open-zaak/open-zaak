@@ -6667,7 +6667,7 @@ paths:
         schema:
           type: string
         description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van de zaak. format:
-          [<bron>:<kenmerk>]'
+          <bron>:<kenmerk>'
       - in: query
         name: kenmerk__bron
         schema:
@@ -10381,7 +10381,7 @@ paths:
         schema:
           type: string
         description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van de zaak. format:
-          [<bron>:<kenmerk>]'
+          <bron>:<kenmerk>'
       - in: query
         name: kenmerk__bron
         schema:
@@ -11000,7 +11000,7 @@ paths:
                 kenmerk:
                   type: string
                   description: '**EXPERIMENTEEL** Een bron-kenmerk combinatie van
-                    de zaak. format: [<bron>:<kenmerk>]'
+                    de zaak. format: <bron>:<kenmerk>'
                 ordering:
                   type: array
                   items:

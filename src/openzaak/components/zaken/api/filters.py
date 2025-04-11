@@ -269,7 +269,7 @@ class ZaakFilter(FilterSetWithGroups):
         key_field_name="zaakkenmerk__bron",
         value_field_name="zaakkenmerk__kenmerk",
         help_text=mark_experimental(
-            "Een bron-kenmerk combinatie van de zaak. format: [<bron>:<kenmerk>]"
+            "Een bron-kenmerk combinatie van de zaak. format: <bron>:<kenmerk>"
         ),
     )
 
