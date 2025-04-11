@@ -1583,6 +1583,16 @@
                 "view_zakelijkrechtheeftalsgerechtigde",
                 "zaken",
                 "zakelijkrechtheeftalsgerechtigde"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -1651,6 +1661,16 @@
                 "view_autorisatie",
                 "authorizations",
                 "autorisatie"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -1699,6 +1719,16 @@
                 "view_besluitinformatieobject",
                 "besluiten",
                 "besluitinformatieobject"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -1927,6 +1957,16 @@
                 "view_zaaktypenrelatie",
                 "catalogi",
                 "zaaktypenrelatie"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2015,6 +2055,16 @@
                 "view_objectinformatieobject",
                 "documenten",
                 "objectinformatieobject"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2843,6 +2893,16 @@
                 "view_zakelijkrechtheeftalsgerechtigde",
                 "zaken",
                 "zakelijkrechtheeftalsgerechtigde"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2866,6 +2926,16 @@
                 "view_autorisatie",
                 "authorizations",
                 "autorisatie"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2884,6 +2954,16 @@
                 "view_besluitinformatieobject",
                 "besluiten",
                 "besluitinformatieobject"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2947,6 +3027,16 @@
                 "view_zaaktypenrelatie",
                 "catalogi",
                 "zaaktypenrelatie"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -2975,6 +3065,16 @@
                 "view_objectinformatieobject",
                 "documenten",
                 "objectinformatieobject"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -3188,6 +3288,16 @@
                 "view_zakelijkrechtheeftalsgerechtigde",
                 "zaken",
                 "zakelijkrechtheeftalsgerechtigde"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -3221,6 +3331,16 @@
                 "view_group",
                 "auth",
                 "group"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
@@ -3289,6 +3409,16 @@
                 "view_jwtsecret",
                 "vng_api_common",
                 "jwtsecret"
+            ],
+            [
+                "view_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
+            ],
+            [
+                "delete_sessionprofile",
+                "sessionprofile",
+                "sessionprofile"
             ]
         ]
     }
