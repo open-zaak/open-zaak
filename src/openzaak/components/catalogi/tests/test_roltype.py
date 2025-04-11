@@ -353,6 +353,86 @@ class RolTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(roltype)}")
 
+    def test_filter_roltype_omschrijving(self):
+        rt1 = RolTypeFactory.create(
+            omschrijving="Behandelaar van klacht", zaaktype__concept=False
+        )
+        rt2 = RolTypeFactory.create(
+            omschrijving="Verwerker van aanvraag", zaaktype__concept=False
+        )
+        rt3 = RolTypeFactory.create(
+            omschrijving="Behandelaar van verzoek", zaaktype__concept=False
+        )
+
+        roltype_list_url = reverse("roltype-list")
+
+        response = self.client.get(roltype_list_url, {"omschrijving": "behandelaar"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 2)
+
+        omschrijving_1_url = reverse(rt1)
+        omschrijving_3_url = reverse(rt3)
+
+        self.assertIn(
+            f"http://testserver{omschrijving_1_url}", [entry["url"] for entry in data]
+        )
+        self.assertIn(
+            f"http://testserver{omschrijving_3_url}", [entry["url"] for entry in data]
+        )
+
+        omschrijving_2_url = reverse(rt2)
+        self.assertNotIn(
+            f"http://testserver{omschrijving_2_url}", [entry["url"] for entry in data]
+        )
+
+    def test_filter_roltype_multiple_filters(self):
+        rt1 = RolTypeFactory.create(
+            omschrijving="Behandelaar van klacht",
+            zaaktype__concept=False,
+            datum_begin_geldigheid=date(2020, 1, 1),
+            datum_einde_geldigheid=date(2020, 2, 1),
+        )
+        RolTypeFactory.create(
+            omschrijving="Verwerker van aanvraag",
+            zaaktype__concept=False,
+            datum_begin_geldigheid=date(2020, 2, 1),
+            datum_einde_geldigheid=date(2020, 3, 1),
+        )
+
+        roltype_list_url = reverse("roltype-list")
+
+        response = self.client.get(
+            roltype_list_url,
+            {"omschrijving": "behandelaar", "datumGeldigheid": "2020-01-10"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            data[0]["url"],
+            f"http://testserver{reverse('roltype-detail', kwargs={'uuid': rt1.uuid})}",
+        )
+
+    def test_filter_roltype_no_results(self):
+        RolTypeFactory.create(
+            omschrijving="Behandelaar van klacht", zaaktype__concept=False
+        )
+
+        roltype_list_url = reverse("roltype-list")
+
+        response = self.client.get(roltype_list_url, {"omschrijving": "nonexistent"})
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()["results"]
+        self.assertEqual(len(data), 0)
+
 
 class RolTypePaginationTestCase(APITestCase):
     maxDiff = None
