@@ -96,6 +96,7 @@ django==5.1.7
     #   django-admin-index
     #   django-appconf
     #   django-axes
+    #   django-cachalot
     #   django-celery-beat
     #   django-cors-headers
     #   django-csp
@@ -142,6 +143,8 @@ django-appconf==1.0.6
 django-axes==6.5.1
     # via open-api-framework
 django-better-admin-arrayfield==1.4.2
+    # via -r requirements/base.in
+django-cachalot==2.7.0
     # via -r requirements/base.in
 django-celery-beat==2.7.0
     # via -r requirements/base.in

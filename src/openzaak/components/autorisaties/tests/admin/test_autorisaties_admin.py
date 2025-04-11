@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import requests_mock
+from cachalot.api import cachalot_disabled
 from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
@@ -1265,6 +1266,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
         # Load the page again to check if the initial data is as expected
+        import pdb; pdb.set_trace()
+
         response = self.client.get(self.url)
 
         expected_initial = [

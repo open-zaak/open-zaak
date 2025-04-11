@@ -29,7 +29,6 @@ from .utils import (
 )
 
 
-@freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
@@ -43,6 +42,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data["results"]), 4)
 
+    @freeze_time("2018-06-27 12:12:12")
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
