@@ -34,6 +34,7 @@ from zgw_consumers.models import ServiceUrlField
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
+from openzaak.utils.descriptors import GegevensGroepTypeWithReadOnlyFields
 from openzaak.utils.fields import (
     DurationField,
     FkOrServiceUrlField,
@@ -309,8 +310,23 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             "Omschrijving van de reden voor het opschorten van de behandeling van de zaak."
         ),
     )
-    opschorting = GegevensGroepType(
-        {"indicatie": opschorting_indicatie, "reden": opschorting_reden}
+    opschorting_eerdere_opschorting = models.BooleanField(
+        _("eerdere opschorting"),
+        default=False,
+        blank=True,
+        help_text=mark_experimental(
+            _(
+                "Aanduiding of de behandeling van de ZAAK tijdelijk in het verleden is opgeschort."
+            )
+        ),
+    )
+    opschorting = GegevensGroepTypeWithReadOnlyFields(
+        mapping={
+            "indicatie": opschorting_indicatie,
+            "eerdere_opschorting": opschorting_eerdere_opschorting,
+            "reden": opschorting_reden,
+        },
+        read_only=("eerdere_opschorting",),
     )
 
     selectielijstklasse = models.URLField(
@@ -473,6 +489,9 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             and self.laatste_betaaldatum
         ):
             self.laatste_betaaldatum = None
+
+        if self.opschorting_indicatie:
+            self.opschorting_eerdere_opschorting = True
 
         super().save(*args, **kwargs)
 

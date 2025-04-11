@@ -56,6 +56,7 @@ Attributes
     * ``relevanteAndereZaken.aardRelatie`` is changed: a new enum value "overig" is added
     * ``relevanteAndereZaken.overigeRelatie`` is added
     * ``relevanteAndereZaken.toelichting`` is added
+    * ``opschorting.eerdere_opschorting`` is added
 
 Query parameters
 ----------------
