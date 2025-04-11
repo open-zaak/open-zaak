@@ -674,7 +674,7 @@ class ZaakAdmin(
         "rol__natuurlijkpersoon__inp_bsn",
         "rol__nietnatuurlijkpersoon__inn_nnp_id",
     )
-    readonly_fields = ("created_on",)
+    readonly_fields = ("created_on", "opschorting_eerdere_opschorting")
     form = ZaakForm
     date_hierarchy = "registratiedatum"
     list_filter = ("startdatum", "archiefstatus", "vertrouwelijkheidaanduiding")

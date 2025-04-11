@@ -127,6 +127,10 @@ class OpschortingSerializer(GegevensGroepSerializer):
         gegevensgroep = "opschorting"
         extra_kwargs = {
             "indicatie": {"label": _("Indicatie")},
+            "eerdere_opschorting": {
+                "label": mark_experimental(_("Eerdere opschorting")),
+                "read_only": True,
+            },
             "reden": {"label": _("Reden"), "allow_blank": True},
         }
 
