@@ -56,13 +56,18 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
 class KeyValueFilter(filters.CharFilter):
 
     def __init__(self, key_field_name, value_field_name, *args, **kwargs):
-        kwargs.setdefault(
-            "validators", [RegexValidator(r"^([^:\[\]]+):([^:\[\]]+)$")]
-        )  # key:value where the key and value cannot contain `[`, `]` or `:`
-        self.key_field_name = key_field_name
-        self.value_field_name = value_field_name
+        validators = kwargs.get("validators", [])
+
+        assert isinstance(validators, list), "'validators' must be of type list."
+
+        # key:value where the key and value cannot contain `[`, `]` or `:`
+        validators.append(RegexValidator(r"^([^:\[\]]+):([^:\[\]]+)$"))
+
+        kwargs["validators"] = validators
 
         super().__init__(*args, **kwargs)
+        self.key_field_name = key_field_name
+        self.value_field_name = value_field_name
 
     def filter(self, qs, value):
         if value in filters.EMPTY_VALUES:

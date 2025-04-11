@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
 from datetime import date
+from urllib.parse import urlencode
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -378,3 +379,12 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
             )
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        with self.subTest("urlencode"):
+            response = self.client.get(
+                f"{self.url}?{urlencode({'kenmerk': 'BAG-id:123'})}",
+                **ZAAK_WRITE_KWARGS,
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.json()["count"], 1)
