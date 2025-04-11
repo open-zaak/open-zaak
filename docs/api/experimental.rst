@@ -41,6 +41,7 @@ Attributes
     * ``zaaktype__not_in`` search attribute is added
 
 * ``Rol``:
+    * ``betrokkeneIdentificatie.identificatie`` max length is changed from 24 to 128  for ``betrokkeneType: "medewerker"``
     * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.kvkNummer`` is added to
       support :ref:`mandates <client-development-mandate>`
     * ``betrokkeneIdentificatie.vestigingsNummer`` is added for ``betrokkeneType: "niet_natuurlijk_persoon"``
