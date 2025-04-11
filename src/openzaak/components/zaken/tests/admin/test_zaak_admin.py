@@ -357,5 +357,5 @@ class ZaakAdminTests(WebTest):
         self.assertEqual(submit_response.status_code, 302)
 
         zaak.refresh_from_db()
-        self.assertEqual(zaak.opschorting_indicatie, True)
-        self.assertEqual(zaak.opschorting_eerdere_opschorting, True)
+        self.assertTrue(zaak.opschorting_indicatie)
+        self.assertTrue(zaak.opschorting_eerdere_opschorting)

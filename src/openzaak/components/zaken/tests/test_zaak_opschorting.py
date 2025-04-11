@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -10,6 +9,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS
+
 
 class ZaakOpschortingTests(JWTAuthMixin, APITestCase):
 
@@ -37,7 +37,6 @@ class ZaakOpschortingTests(JWTAuthMixin, APITestCase):
             {"indicatie": True, "eerdere_opschorting": True, "reden": "test"},
         )
 
-
     def test_eerdere_opschorting_stays(self):
         zaak = ZaakFactory.create(opschorting_indicatie=True)
 
@@ -52,7 +51,10 @@ class ZaakOpschortingTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["opschorting"], {"indicatie": False, "eerdere_opschorting": True, "reden": ""})
+        self.assertEqual(
+            response.data["opschorting"],
+            {"indicatie": False, "eerdere_opschorting": True, "reden": ""},
+        )
 
     def test_eerdere_opschorting_stays_with_null(self):
         zaak = ZaakFactory.create(opschorting_indicatie=True)
@@ -68,4 +70,7 @@ class ZaakOpschortingTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["opschorting"], {"indicatie": False, "eerdere_opschorting": True, "reden": ""})
+        self.assertEqual(
+            response.data["opschorting"],
+            {"indicatie": False, "eerdere_opschorting": True, "reden": ""},
+        )

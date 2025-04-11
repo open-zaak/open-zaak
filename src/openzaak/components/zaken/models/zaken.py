@@ -315,9 +315,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         default=False,
         blank=True,
         help_text=mark_experimental(
-            _(
-                "Aanduiding of de behandeling van de ZAAK tijdelijk in het verleden is opgeschort."
-            )
+            _("Aanduiding of de behandeling van de ZAAK in het verleden is opgeschort.")
         ),
     )
     opschorting = GegevensGroepTypeWithReadOnlyFields(

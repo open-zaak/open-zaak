@@ -4,6 +4,7 @@ from typing import Optional
 
 from vng_api_common.descriptors import GegevensGroepType
 
+
 class GegevensGroepTypeWithReadOnlyFields(GegevensGroepType):
     """
     The GegevensGroepType __set__ method sets fields that were not passed to their default value.
