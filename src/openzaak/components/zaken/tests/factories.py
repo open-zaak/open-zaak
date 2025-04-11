@@ -185,3 +185,12 @@ class ZaakVerzoekFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.ZaakVerzoek"
+
+
+class ZaakKenmerkFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    kenmerk = factory.Faker("word")
+    bron = factory.Faker("word")
+
+    class Meta:
+        model = "zaken.ZaakKenmerk"
