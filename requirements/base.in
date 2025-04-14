@@ -10,6 +10,7 @@ requests-cache
 self-certifi
 
 # Framework libraries
+django-cachalot
 django-db-logger
 django-extra-views
 django-loose-fk

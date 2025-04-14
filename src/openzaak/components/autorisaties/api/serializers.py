@@ -15,6 +15,7 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
 from openzaak.utils import build_absolute_url
+from cachalot.api import cachalot_disabled
 
 logger = logging.getLogger(__name__)
 
@@ -30,47 +31,48 @@ class ApplicatieSerializer(_ApplicatieSerializer):
 
         data = super().to_representation(instance)
 
-        virtual_autorisaties = []
-        for catalogus_autorisatie in instance.catalogusautorisatie_set.all():
-            # Get the related zaak/informatieobject/besluittypen related to this Catalogus
-            # (dependent on the component of the CatalogusAutorisatie in the current iteration)
-            type_field = COMPONENT_TO_FIELDS_MAP[catalogus_autorisatie.component][
-                "_autorisatie_type_field"
-            ]
+        with cachalot_disabled():
+            virtual_autorisaties = []
+            for catalogus_autorisatie in instance.catalogusautorisatie_set.all():
+                # Get the related zaak/informatieobject/besluittypen related to this Catalogus
+                # (dependent on the component of the CatalogusAutorisatie in the current iteration)
+                type_field = COMPONENT_TO_FIELDS_MAP[catalogus_autorisatie.component][
+                    "_autorisatie_type_field"
+                ]
 
-            # Instead of accessing the *type_set using `getattr`, we explicitly use the
-            # dot notation here, because the `getattr` approach means we cannot rely on the
-            # optimization `prefetch_related` brings to the queryset defined on the viewset
-            if catalogus_autorisatie.component == ComponentTypes.zrc:
-                types = catalogus_autorisatie.catalogus.zaaktype_set.all()
-            elif catalogus_autorisatie.component == ComponentTypes.drc:
-                types = catalogus_autorisatie.catalogus.informatieobjecttype_set.all()
-            elif catalogus_autorisatie.component == ComponentTypes.brc:
-                types = catalogus_autorisatie.catalogus.besluittype_set.all()
+                # Instead of accessing the *type_set using `getattr`, we explicitly use the
+                # dot notation here, because the `getattr` approach means we cannot rely on the
+                # optimization `prefetch_related` brings to the queryset defined on the viewset
+                if catalogus_autorisatie.component == ComponentTypes.zrc:
+                    types = catalogus_autorisatie.catalogus.zaaktype_set.all()
+                elif catalogus_autorisatie.component == ComponentTypes.drc:
+                    types = catalogus_autorisatie.catalogus.informatieobjecttype_set.all()
+                elif catalogus_autorisatie.component == ComponentTypes.brc:
+                    types = catalogus_autorisatie.catalogus.besluittype_set.all()
 
-            virtual_autorisaties += [
-                Autorisatie(
-                    **{
-                        "applicatie": instance,
-                        "component": catalogus_autorisatie.component,
-                        "scopes": catalogus_autorisatie.scopes,
-                        "max_vertrouwelijkheidaanduiding": catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
-                        type_field: build_absolute_url(
-                            reverse(
-                                f"{type_field}-detail",
-                                kwargs={
-                                    "uuid": str(type.uuid),
-                                    "version": settings.REST_FRAMEWORK[
-                                        "DEFAULT_VERSION"
-                                    ],
-                                },
+                virtual_autorisaties += [
+                    Autorisatie(
+                        **{
+                            "applicatie": instance,
+                            "component": catalogus_autorisatie.component,
+                            "scopes": catalogus_autorisatie.scopes,
+                            "max_vertrouwelijkheidaanduiding": catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
+                            type_field: build_absolute_url(
+                                reverse(
+                                    f"{type_field}-detail",
+                                    kwargs={
+                                        "uuid": str(type.uuid),
+                                        "version": settings.REST_FRAMEWORK[
+                                            "DEFAULT_VERSION"
+                                        ],
+                                    },
+                                ),
+                                request=self.context["request"],
                             ),
-                            request=self.context["request"],
-                        ),
-                    }
-                )
-                for type in types
-            ]
+                        }
+                    )
+                    for type in types
+                ]
 
         serializer = AutorisatieBaseSerializer(virtual_autorisaties, many=True)
         data["autorisaties"] = data["autorisaties"] + serializer.data

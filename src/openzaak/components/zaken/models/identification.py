@@ -5,6 +5,7 @@ from datetime import date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from cachalot.api import cachalot_disabled
 from vng_api_common.fields import RSINField
 from vng_api_common.utils import generate_unique_identification
 
@@ -35,7 +36,8 @@ class ZaakIdentificatieManager(models.Manager):
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             instance = self.model()
             instance.dummy_date = date
-            identification = generate_unique_identification(instance, "dummy_date")
+            with cachalot_disabled():
+                identification = generate_unique_identification(instance, "dummy_date")
             return self.create(
                 identificatie=identification, bronorganisatie=organisation
             )
