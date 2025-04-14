@@ -390,7 +390,9 @@ requests==2.32.3
 requests-cache==0.9.4
     # via -r requirements/base.in
 requests-mock==1.12.1
-    # via commonground-api-common
+    # via
+    #   commonground-api-common
+    #   zgw-consumers-oas
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
@@ -457,9 +459,12 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@2465aaf98541d7b3f3cb7b760a655247e9cea250
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas==1.0.0
-    # via commonground-api-common
+zgw-consumers-oas @ git+https://github.com/maykinmedia/zgw-consumers-oas.git@6e2f76575f3113f1c3a541ac84dee214f8c68025
+    # via
+    #   -r requirements/base.in
+    #   commonground-api-common
