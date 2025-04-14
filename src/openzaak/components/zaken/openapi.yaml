@@ -13593,7 +13593,6 @@ components:
         eerdereOpschorting:
           type: boolean
           readOnly: true
-          title: '**EXPERIMENTEEL** Eerdere opschorting'
           description: '**EXPERIMENTEEL** Aanduiding of de behandeling van de ZAAK
             in het verleden is opgeschort.'
         reden:

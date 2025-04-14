@@ -56,7 +56,7 @@ Attributes
     * ``relevanteAndereZaken.aardRelatie`` is changed: a new enum value "overig" is added
     * ``relevanteAndereZaken.overigeRelatie`` is added
     * ``relevanteAndereZaken.toelichting`` is added
-    * ``opschorting.eerdere_opschorting`` is added
+    * ``opschorting.eerdereOpschorting`` is added to indicate whether or not a `Zaak` has been suspended in the past
 
 Query parameters
 ----------------
