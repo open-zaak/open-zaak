@@ -16,6 +16,7 @@ django-loose-fk
 django-privates
 django-relativedelta
 django-celery-beat
+psycopg[pool]
 
 # Admin and UI libraries
 django-sniplates

@@ -40,6 +40,7 @@ conn_max_age = config(
     ),
 )
 DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
+DATABASES["default"]["OPTIONS"] = {"pool": True}
 
 # Geospatial libraries
 GEOS_LIBRARY_PATH = config(

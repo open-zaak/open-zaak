@@ -12,11 +12,11 @@ os.environ.setdefault("ENVIRONMENT", "production")
 
 from .includes.base import *  # noqa
 
-if conn_max_age:
-    conn_max_age = float(conn_max_age)
+# if conn_max_age:
+#     conn_max_age = float(conn_max_age)
 
-for db_config in DATABASES.values():
-    db_config["CONN_MAX_AGE"] = conn_max_age
+# for db_config in DATABASES.values():
+#     db_config["CONN_MAX_AGE"] = conn_max_age
 
 # Caching sessions.
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
