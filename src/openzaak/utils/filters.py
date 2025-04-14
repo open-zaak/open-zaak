@@ -61,7 +61,7 @@ class KeyValueFilter(filters.CharFilter):
         assert isinstance(validators, list), "'validators' must be of type list."
 
         # key:value where the key and value cannot contain `[`, `]` or `:`
-        validators.append(RegexValidator(r"^([^:\[\]]+):([^:\[\]]+)$"))
+        validators.append(RegexValidator(r"^([^:]+):([^:]+)$"))
 
         kwargs["validators"] = validators
 
