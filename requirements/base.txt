@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.6.0
+commonground-api-common==2.6.1
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -279,8 +279,6 @@ iso8601==1.0.2
     # via
     #   cmislib-maykin
     #   drc-cmis
-isodate==0.6.1
-    # via commonground-api-common
 itypes==1.2.0
     # via coreapi
 jinja2==3.1.6
@@ -406,7 +404,6 @@ six==1.16.0
     #   cmislib-maykin
     #   django-db-logger
     #   furl
-    #   isodate
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
