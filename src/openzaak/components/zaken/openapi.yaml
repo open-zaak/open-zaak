@@ -13622,6 +13622,11 @@ components:
         indicatie:
           type: boolean
           description: Aanduiding of de behandeling van de ZAAK tijdelijk is opgeschort.
+        eerdereOpschorting:
+          type: boolean
+          readOnly: true
+          description: '**EXPERIMENTEEL** Aanduiding of de behandeling van de ZAAK
+            in het verleden is opgeschort.'
         reden:
           type: string
           description: Omschrijving van de reden voor het opschorten van de behandeling

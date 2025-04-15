@@ -343,3 +343,21 @@ class ZaakAdminTests(WebTest):
 
         self.assertAlmostEqual(zaak.zaakgeometrie.x, long)
         self.assertAlmostEqual(zaak.zaakgeometrie.y, lat)
+
+    def test_zaak_opschorting_indicatie_sets_eerdere_opschorting(self):
+        zaak = ZaakFactory.create(
+            opschorting_indicatie=False, opschorting_eerdere_opschorting=False
+        )
+        url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+
+        response = self.app.get(url)
+
+        form = response.form
+        form["opschorting_indicatie"] = True
+
+        submit_response = form.submit()
+        self.assertEqual(submit_response.status_code, 302)
+
+        zaak.refresh_from_db()
+        self.assertTrue(zaak.opschorting_indicatie)
+        self.assertTrue(zaak.opschorting_eerdere_opschorting)
