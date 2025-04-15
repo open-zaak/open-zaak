@@ -134,7 +134,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common==2.6.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@8601448ebbaaf05d7add2a7cc390c53e6954ceb9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -466,7 +466,7 @@ face==20.1.1
     #   glom
 factory-boy==3.2.1
     # via -r requirements/test-tools.in
-faker==33.0.0
+faker==37.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -518,7 +518,7 @@ inflection==0.5.1
     #   drf-spectacular
 iniconfig==2.0.0
     # via pytest
-iso-639==0.4.5
+iso639-lang==2.6.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -728,7 +728,6 @@ python-dateutil==2.8.2
     #   -r requirements/base.txt
     #   celery
     #   django-relativedelta
-    #   faker
     #   freezegun
     #   python-crontab
 python-decouple==3.8
@@ -883,7 +882,6 @@ typing-extensions==4.12.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
@@ -897,6 +895,7 @@ tzdata==2024.1
     #   -r requirements/base.txt
     #   celery
     #   django-celery-beat
+    #   faker
 uritemplate==4.1.1
     # via
     #   -c requirements/base.txt

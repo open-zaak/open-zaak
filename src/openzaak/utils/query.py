@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Q
 from django.http.request import validate_host
 
-from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resources_for_paths
 
@@ -55,15 +54,12 @@ class LooseFkAuthorizationsFilterMixin:
     def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
         if self.vertrouwelijkheidaanduiding_use:
             # annotate the queryset so we can map a string value to a logical number
-            order_case = VertrouwelijkheidsAanduiding.get_order_expression(
-                f"{self.prefix}vertrouwelijkheidaanduiding"
-            )
-            annotations = {"_va_order": order_case}
+            # order_case = VertrouwelijkheidsAanduiding.get_order_expression(
+            #     f"{self.prefix}vertrouwelijkheidaanduiding"
+            # )
+            # annotations = {"_va_order": order_case}
             # bring it all together now to build the resulting queryset
-            queryset = self.annotate(**annotations).filter(
-                local_filters | external_filters
-            )
-
+            queryset = self.filter(local_filters | external_filters)
         else:
             queryset = self.filter(local_filters | external_filters)
         return queryset
@@ -115,11 +111,10 @@ class LooseFkAuthorizationsFilterMixin:
             loose_fk_objecten.append(loose_fk_object)
 
             # extract the order and map it to the database value
-            if authorization.max_vertrouwelijkheidaanduiding:
-                choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
-                    authorization.max_vertrouwelijkheidaanduiding
+            if authorization._max_vertrouwelijkheidaanduiding:
+                va_mapping[authorization._max_vertrouwelijkheidaanduiding].append(
+                    loose_fk_object
                 )
-                va_mapping[choice_item_order].append(loose_fk_object)
 
         if catalogus_authorizations:
             for catalogus_authorisation in catalogus_authorizations:
@@ -131,13 +126,10 @@ class LooseFkAuthorizationsFilterMixin:
                     loose_fk_objecten.append(instance)
 
                     # extract the order and map it to the database value
-                    if catalogus_authorisation.max_vertrouwelijkheidaanduiding:
-                        choice_item_order = (
-                            VertrouwelijkheidsAanduiding.get_choice_order(
-                                catalogus_authorisation.max_vertrouwelijkheidaanduiding
-                            )
-                        )
-                        va_mapping[choice_item_order].append(instance)
+                    if catalogus_authorisation._max_vertrouwelijkheidaanduiding:
+                        va_mapping[
+                            catalogus_authorisation._max_vertrouwelijkheidaanduiding
+                        ].append(instance)
 
         if not use_va:
             return Q(**{f"{prefix}{loose_fk_field}__in": loose_fk_objecten})
@@ -147,7 +139,7 @@ class LooseFkAuthorizationsFilterMixin:
         # applies
         filters = Q()
         for max_va, instances in va_mapping.items():
-            filters |= Q(_va_order__lte=max_va) & Q(
+            filters |= Q(_vertrouwelijkheidaanduiding__lte=max_va) & Q(
                 **{f"{prefix}{loose_fk_field}__in": instances}
             )
         return filters

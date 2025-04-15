@@ -6,7 +6,10 @@ from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import (
+    VertrouwelijkheidsAanduidingField,
+    VertrouwelijkheidsAanduidingFieldInt,
+)
 
 CATALOGUS_AUTORISATIE_COMPONENTS = [
     ComponentTypes.zrc,
@@ -50,6 +53,12 @@ class CatalogusAutorisatie(models.Model):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
         help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
         blank=True,
+    )
+    _max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingFieldInt(
+        help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
+        blank=True,
+        null=True,
+        db_index=True,
     )
 
     objects = CatalogusAutorisatieManager()

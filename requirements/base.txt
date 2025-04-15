@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.6.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@8601448ebbaaf05d7add2a7cc390c53e6954ceb9
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -253,7 +253,7 @@ elastic-apm==6.22.2
     # via open-api-framework
 face==20.1.1
     # via glom
-faker==33.0.0
+faker==37.1.0
     # via zgw-consumers-oas
 flower==2.0.1
     # via open-api-framework
@@ -273,7 +273,7 @@ idna==3.7
     # via requests
 inflection==0.5.1
     # via drf-spectacular
-iso-639==0.4.5
+iso639-lang==2.6.0
     # via commonground-api-common
 iso8601==1.0.2
     # via
@@ -352,7 +352,6 @@ python-dateutil==2.8.2
     #   -r requirements/base.in
     #   celery
     #   django-relativedelta
-    #   faker
     #   python-crontab
 python-decouple==3.8
     # via
@@ -413,7 +412,6 @@ tornado==6.4.2
     # via flower
 typing-extensions==4.12.2
     # via
-    #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
@@ -425,6 +423,7 @@ tzdata==2024.1
     # via
     #   celery
     #   django-celery-beat
+    #   faker
 uritemplate==4.1.1
     # via
     #   coreapi

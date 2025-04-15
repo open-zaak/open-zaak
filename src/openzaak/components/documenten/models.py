@@ -16,7 +16,11 @@ from drc_cmis.utils import exceptions
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import (
+    RSINField,
+    VertrouwelijkheidsAanduidingField,
+    VertrouwelijkheidsAanduidingFieldInt,
+)
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import ServiceUrlField
 
@@ -95,6 +99,17 @@ class InformatieObject(models.Model):
         blank=True,
         help_text="Aanduiding van de mate waarin het INFORMATIEOBJECT voor de "
         "openbaarheid bestemd is.",
+    )
+    _vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingFieldInt(
+        _("vertrouwelijkheidaanduiding"),
+        help_text=_(
+            "Aanduiding van de mate waarin zaakdossiers van ZAAKen van "
+            "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
+            "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
+        ),
+        blank=True,
+        null=True,
+        db_index=True,
     )
     auteur = models.CharField(
         max_length=200,

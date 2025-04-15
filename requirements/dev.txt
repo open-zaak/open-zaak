@@ -168,7 +168,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.6.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@8601448ebbaaf05d7add2a7cc390c53e6954ceb9
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -521,7 +521,7 @@ factory-boy==3.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-faker==33.0.0
+faker==37.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -599,7 +599,7 @@ iniconfig==2.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest
-iso-639==0.4.5
+iso639-lang==2.6.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -892,7 +892,6 @@ python-dateutil==2.8.2
     #   -r requirements/ci.txt
     #   celery
     #   django-relativedelta
-    #   faker
     #   freezegun
     #   kubernetes
     #   python-crontab
@@ -1116,7 +1115,6 @@ typing-extensions==4.12.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
-    #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
@@ -1131,6 +1129,7 @@ tzdata==2024.1
     #   -r requirements/ci.txt
     #   celery
     #   django-celery-beat
+    #   faker
 uritemplate==4.1.1
     # via
     #   -c requirements/ci.txt

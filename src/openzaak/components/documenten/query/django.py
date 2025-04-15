@@ -192,6 +192,7 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
         return queryset
 
     def build_queryset_cmis(self, filters) -> models.QuerySet:
+        # TODO use new integerfield
         order_case = VertrouwelijkheidsAanduiding.get_order_expression(
             "vertrouwelijkheidaanduiding"
         )
