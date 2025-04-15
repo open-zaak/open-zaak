@@ -84,10 +84,16 @@ def get_processtype_readonly_field(url: str) -> str:
 
 
 def get_resultaat_readonly_field(url: str) -> str:
-    resultaat = retrieve_resultaat(url)
-    return f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+    try:
+        resultaat = retrieve_resultaat(url)
+        return f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+    except Exception as e:
+        return f"Could not retrieve resultaat: {e}"
 
 
 def get_resultaattype_omschrijving_readonly_field(url: str) -> str:
-    omschrijving = retrieve_resultaattype_omschrijvingen(url)
-    return omschrijving["omschrijving"]
+    try:
+        omschrijving = retrieve_resultaattype_omschrijvingen(url)
+        return omschrijving["omschrijving"]
+    except Exception as e:
+        return f"Could not retrieve omschrijving: {e}"
