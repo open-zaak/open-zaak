@@ -100,6 +100,32 @@ class US39TestCase(JWTAuthMixin, APICMISTestCase):
             data[0]["inhoud"], f"http://testserver{download_url}?versie={eio.versie}",
         )
 
+    def test_list_file_without_bestandsomvang(self):
+        """
+        Regression test for issue where bestandsomvang is None, while there is a non
+        empty file associated with the Document
+        """
+        EnkelvoudigInformatieObjectCanonicalFactory.create()
+        eio = EnkelvoudigInformatieObject.objects.get()
+        eio.bestandsomvang = None
+        eio.save()
+
+        list_url = get_operation_url("enkelvoudiginformatieobject_list")
+
+        response = self.client.get(list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.data["results"]
+
+        download_url = reverse(
+            "enkelvoudiginformatieobject-download", kwargs={"uuid": eio.uuid}
+        )
+
+        self.assertEqual(
+            data[0]["inhoud"], f"http://testserver{download_url}?versie={eio.versie}",
+        )
+
     def test_create_enkelvoudiginformatieobject_without_identificatie(self):
         Service.objects.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
