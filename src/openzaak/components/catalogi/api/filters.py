@@ -10,10 +10,10 @@ from django.utils.translation import gettext_lazy as _
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import OpenApiTypes, extend_schema_field
 from vng_api_common.filters import URLModelChoiceFilter
+from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
 from openzaak.utils.filters import CharArrayFilter
-from openzaak.utils.filterset import FilterSet
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
