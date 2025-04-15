@@ -11,7 +11,11 @@ from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 from vng_api_common.client import to_internal_data
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import (
+    RSINField,
+    VertrouwelijkheidsAanduidingField,
+    VertrouwelijkheidsAanduidingFieldInt,
+)
 from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 
@@ -80,6 +84,17 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
             "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
         ),
+    )
+    _vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingFieldInt(
+        _("vertrouwelijkheidaanduiding"),
+        help_text=_(
+            "Aanduiding van de mate waarin zaakdossiers van ZAAKen van "
+            "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
+            "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
+        ),
+        blank=True,
+        null=True,
+        db_index=True,
     )
     doel = models.TextField(
         _("doel"),

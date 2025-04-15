@@ -23,6 +23,7 @@ class InformatieObjectTypeFactory(factory.django.DjangoModelFactory):
     omschrijving_generiek_herkomst = factory.fuzzy.FuzzyText(length=12)
     omschrijving_generiek_hierarchie = factory.Faker("word")
     vertrouwelijkheidaanduiding = "openbaar"
+    _vertrouwelijkheidaanduiding = 10  # openbaar
 
     class Meta:
         model = InformatieObjectType
