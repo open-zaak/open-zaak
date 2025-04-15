@@ -9,6 +9,9 @@ from django import forms
 from django.contrib.admin import widgets
 from django.db.models import Field
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
+
+from ape_pie.exceptions import InvalidURLError
 
 from .api import (
     get_procestypen,
@@ -84,10 +87,20 @@ def get_processtype_readonly_field(url: str) -> str:
 
 
 def get_resultaat_readonly_field(url: str) -> str:
-    resultaat = retrieve_resultaat(url)
-    return f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+    try:
+        resultaat = retrieve_resultaat(url)
+        return f"{resultaat['volledigNummer']} - {resultaat['naam']} - {resultaat['waardering']}"
+    except InvalidURLError:
+        return _(
+            "De selectielijstklasse is niet afkomstig uit de Selectielijst API-service"
+        )
 
 
 def get_resultaattype_omschrijving_readonly_field(url: str) -> str:
-    omschrijving = retrieve_resultaattype_omschrijvingen(url)
-    return omschrijving["omschrijving"]
+    try:
+        omschrijving = retrieve_resultaattype_omschrijvingen(url)
+        return omschrijving["omschrijving"]
+    except InvalidURLError:
+        return _(
+            "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+        )
