@@ -490,6 +490,7 @@ class StatusViewSet(
 
     queryset = (
         Status.objects.select_related("_statustype", "zaak", "gezetdoor")
+        .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")
     )
@@ -615,7 +616,9 @@ class ZaakObjectViewSet(
     Opvragen en bewerken van ZAAKOBJECTen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak").order_by("-pk")
+    queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
+        "-pk"
+    )
     serializer_class = ZaakObjectSerializer
     filterset_class = ZaakObjectFilter
     lookup_field = "uuid"

@@ -107,6 +107,7 @@ class ZaakTypeViewSet(
             "roltype_set",
             "deelzaaktypen",
             "besluittypen",
+            "zaakobjecttype_set",
         )
         .with_dates("identificatie")
         .order_by("-pk")
