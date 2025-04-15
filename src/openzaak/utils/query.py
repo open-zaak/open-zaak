@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from collections import defaultdict
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models import Case, Q, When
 from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -97,7 +98,7 @@ class LooseFkAuthorizationsFilterMixin:
         loose_fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
         # on the ``zaaktype``
-        vertrouwelijkheidaanduiding_whens = []
+        va_mapping = defaultdict(list)
 
         if not local:
             loose_fk_object_map = dict(zip(resource_urls, resource_urls))
@@ -125,12 +126,7 @@ class LooseFkAuthorizationsFilterMixin:
                 choice_item_order = VertrouwelijkheidsAanduiding.get_choice_order(
                     authorization.max_vertrouwelijkheidaanduiding
                 )
-                vertrouwelijkheidaanduiding_whens.append(
-                    When(
-                        **{f"{prefix}{loose_fk_field}": loose_fk_object},
-                        then=Value(choice_item_order),
-                    )
-                )
+                va_mapping[choice_item_order].append(loose_fk_object)
 
         if catalogus_authorizations:
             for catalogus_authorisation in catalogus_authorizations:
@@ -148,12 +144,12 @@ class LooseFkAuthorizationsFilterMixin:
                                 catalogus_authorisation.max_vertrouwelijkheidaanduiding
                             )
                         )
-                        vertrouwelijkheidaanduiding_whens.append(
-                            When(
-                                **{f"{prefix}{loose_fk_field}": instance},
-                                then=Value(choice_item_order),
-                            )
-                        )
+                        va_mapping[choice_item_order].append(instance)
+
+        vertrouwelijkheidaanduiding_whens = [
+            When(**{f"{prefix}{loose_fk_field}__in": instances}, then=max_va)
+            for max_va, instances in va_mapping.items()
+        ]
 
         # filtering:
         # * only allow the white-listed loose-fk objects, explicitly
@@ -161,9 +157,7 @@ class LooseFkAuthorizationsFilterMixin:
         #   confidentiality level
         filters = {
             f"{prefix}{loose_fk_field}__in": loose_fk_objecten,
-            "_va_order__lte": Case(
-                *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
-            ),
+            "_va_order__lte": Case(*vertrouwelijkheidaanduiding_whens),
         }
         return filters
 
