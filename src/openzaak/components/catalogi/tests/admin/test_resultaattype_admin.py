@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 import requests_mock
+from ape_pie.exceptions import InvalidURLError
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import (
@@ -17,6 +18,9 @@ from vng_api_common.constants import (
 )
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.selectielijst.admin_fields import (
+    get_resultaattype_omschrijving_readonly_field,
+)
 from openzaak.selectielijst.tests import (
     _get_base_url,
     mock_resource_get,
@@ -589,3 +593,79 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             },
         )
         self.assertEqual(ResultaatType.objects.count(), 0)
+
+    @tag("gh-1962")
+    def test_resultaattype_detail_with_read_only_user_invalid_domain(self, m):
+        user = UserFactory.create(is_staff=True)
+        view_resultaattype = Permission.objects.get(codename="view_resultaattype")
+        user.user_permissions.add(view_resultaattype)
+        self.app.set_user(user)
+
+        procestype_url = (
+            f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        omschrijving_url = f"{self.service.api_root}resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        mock_selectielijst_oas_get(m)
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaattypeomschrijvingen", omschrijving_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse="http://some-domain.local",
+            resultaattypeomschrijving=omschrijving_url,
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        expected_error = _(
+            "De selectielijstklasse is niet afkomstig uit de Selectielijst API-service"
+        )
+        assert expected_error in response.text
+
+
+@tag("gh-1962")
+def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
+    user = UserFactory.create(is_staff=True)
+    view_resultaattype = Permission.objects.get(codename="view_resultaattype")
+    user.user_permissions.add(view_resultaattype)
+    self.app.set_user(user)
+
+    procestype_url = (
+        f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+    )
+    invalid_omschrijving_url = "http://invalid-domain.local/omschrijving/5678"
+
+    mock_selectielijst_oas_get(m)
+    mock_resource_get(m, "procestypen", procestype_url)
+
+    resultaattype = ResultaatTypeFactory.create(
+        zaaktype__selectielijst_procestype=procestype_url,
+        selectielijstklasse=f"{self.service.api_root}resultaten/some-valid-resultaat",
+        resultaattypeomschrijving=invalid_omschrijving_url,
+    )
+
+    url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+    response = self.app.get(url)
+
+    assert response.status_code == 200
+    expected_error = _(
+        "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+    )
+    assert expected_error in response.text
+
+
+@tag("gh-1962")
+@patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
+def test_get_resultaattype_omschrijving_invalid_url(mock_retrieve):
+    mock_retrieve.side_effect = InvalidURLError()
+
+    url = "http://invalid-url.local"
+
+    result = get_resultaattype_omschrijving_readonly_field(url)
+
+    assert (
+        result
+        == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+    )
