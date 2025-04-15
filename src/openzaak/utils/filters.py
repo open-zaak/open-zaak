@@ -27,6 +27,7 @@ class MaximaleVertrouwelijkheidaanduidingFilter(filters.ChoiceFilter):
     def filter(self, qs, value):
         if value in filters.EMPTY_VALUES:
             return qs
+        # TODO use new integerfield
         order_expression = VertrouwelijkheidsAanduiding.get_order_expression(
             self._field_name
         )
