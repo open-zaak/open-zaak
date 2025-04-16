@@ -3,9 +3,9 @@
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import Applicatie
+from vng_api_common.filtersets import FilterSet
 
 from openzaak.utils.filters import CharArrayFilter
-from openzaak.utils.filterset import FilterSet
 
 
 class ApplicatieFilter(FilterSet):

@@ -9,11 +9,12 @@ from django_filters import rest_framework as filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.filters import URLModelChoiceFilter
+from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text
 
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.utils.filters import CharArrayFilter, ExpandFilter
-from openzaak.utils.filterset import FilterSet, OrderingFilter
+from openzaak.utils.filterset import OrderingFilter
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
