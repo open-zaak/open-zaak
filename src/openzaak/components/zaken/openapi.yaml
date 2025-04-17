@@ -1765,7 +1765,9 @@ paths:
         name: betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: Een korte unieke aanduiding van de MEDEWERKER.
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+          in plaats van 24'
       - in: query
         name: betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -6765,7 +6767,9 @@ paths:
         name: rol__betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: Een korte unieke aanduiding van de MEDEWERKER.
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+          in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -10479,7 +10483,9 @@ paths:
         name: rol__betrokkeneIdentificatie__medewerker__identificatie
         schema:
           type: string
-        description: Een korte unieke aanduiding van de MEDEWERKER.
+        description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+          Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+          in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__natuurlijkPersoon__anpIdentificatie
         schema:
@@ -10952,7 +10958,9 @@ paths:
                     gekoppeld aan de onderneming.'
                 rol__betrokkeneIdentificatie__medewerker__identificatie:
                   type: string
-                  description: Een korte unieke aanduiding van de MEDEWERKER.
+                  description: '**EXPERIMENTEEL** Een korte unieke aanduiding van
+                    de MEDEWERKER. Dit veld wijkt af van de standaard, omdat er 128
+                    karakters zijn toegestaan in plaats van 24'
                 rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
                   type: string
                   description: Een korte identificatie van de organisatorische eenheid.
@@ -12296,8 +12304,10 @@ components:
       properties:
         identificatie:
           type: string
-          description: Een korte unieke aanduiding van de MEDEWERKER.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+            Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+            in plaats van 24'
+          maxLength: 128
         achternaam:
           type: string
           description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
@@ -12318,8 +12328,10 @@ components:
       properties:
         identificatie:
           type: string
-          description: Een korte unieke aanduiding van de MEDEWERKER.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte unieke aanduiding van de MEDEWERKER.
+            Dit veld wijkt af van de standaard, omdat er 128 karakters zijn toegestaan
+            in plaats van 24'
+          maxLength: 128
         achternaam:
           type: string
           description: De achternaam zoals de MEDEWERKER die in het dagelijkse verkeer
