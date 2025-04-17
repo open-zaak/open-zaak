@@ -74,7 +74,12 @@ class StatusTypeViewSet(
 
     queryset = (
         StatusType.objects.select_related("zaaktype", "zaaktype__catalogus")
-        .prefetch_related("zaaktype__statustypen")
+        .prefetch_related(
+            "zaaktype__statustypen",
+            "eigenschappen",
+            "zaakobjecttypen",
+            "checklistitem_set",
+        )
         .order_by("-pk")
         .all()
     )

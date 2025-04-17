@@ -76,6 +76,7 @@ class ResultaatTypeViewSet(
     queryset = (
         ResultaatType.objects.all()
         .select_related("zaaktype", "zaaktype__catalogus")
+        .prefetch_related("besluittypen", "informatieobjecttypen")
         .order_by("-pk")
     )
     serializer_class = ResultaatTypeSerializer

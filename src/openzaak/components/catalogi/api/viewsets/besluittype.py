@@ -81,7 +81,7 @@ class BesluitTypeViewSet(
     queryset = (
         BesluitType.objects.all()
         .select_related("catalogus")
-        .prefetch_related("informatieobjecttypen", "zaaktypen")
+        .prefetch_related("informatieobjecttypen", "zaaktypen", "resultaattype_set")
         .with_dates()
         .order_by("-pk")
     )
