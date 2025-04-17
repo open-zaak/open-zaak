@@ -262,7 +262,9 @@ class ZaakViewSet(
             "resultaat",
             "zaakeigenschap_set",
             models.Prefetch(
-                "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
+                "status_set",
+                queryset=Status.objects.order_by("-datum_status_gezet"),
+                to_attr="prefetched_statuses",
             ),
             "rol_set",
             "zaakinformatieobject_set",
