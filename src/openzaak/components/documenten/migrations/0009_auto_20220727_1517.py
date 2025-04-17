@@ -10,7 +10,7 @@ def rewrite_file_size(apps, schema_editor):
         "documenten.EnkelvoudigInformatieObject"
     )
 
-    docs = EnkelvoudigInformatieObject.objects.all()
+    docs = EnkelvoudigInformatieObject.objects.iterator()
     for doc in docs:
         # file gone - don't crash the migration
         if not doc.inhoud.storage.exists(doc.inhoud.name):

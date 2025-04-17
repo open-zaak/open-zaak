@@ -8,7 +8,7 @@ from django.db import migrations
 def populate_private_voltooid_attribute(apps, schema_editor):
     BestandsDeel = apps.get_model("documenten", "BestandsDeel")
 
-    for bestandsdeel in BestandsDeel.objects.all():
+    for bestandsdeel in BestandsDeel.objects.iterator():
         bestandsdeel._voltooid = bestandsdeel.inhoud.size == bestandsdeel.omvang
         bestandsdeel.save()
 
