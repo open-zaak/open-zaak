@@ -17,6 +17,10 @@ from vng_api_common.constants import (
 )
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.selectielijst.admin_fields import (
+    get_resultaat_readonly_field,
+    get_resultaattype_omschrijving_readonly_field,
+)
 from openzaak.selectielijst.tests import (
     _get_base_url,
     mock_resource_get,
@@ -587,3 +591,83 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             },
         )
         self.assertEqual(ResultaatType.objects.count(), 0)
+
+    def test_invalid_selectielijstklasse_url_crashes_admin(self, m):
+        user = UserFactory.create(is_staff=True)
+        view_resultaattype = Permission.objects.get(codename="view_resultaattype")
+        user.user_permissions.add(view_resultaattype)
+        self.app.set_user(user)
+
+        selectielijst_api = "https://selectielijst.openzaak.nl/api/v1/"
+        procestype_url = (
+            f"{selectielijst_api}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        resultaat_url = (
+            f"{selectielijst_api}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829"
+        )
+        omschrijving_url = (
+            "https://selectielijst.openzaak.nl/api/v1/"
+            "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
+        )
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "resultaattypeomschrijvingen")
+        mock_resource_list(m, "resultaten")
+        mock_resource_get(m, "procestypen", procestype_url)
+        mock_resource_get(m, "resultaten", resultaat_url)
+        mock_resource_get(m, "resultaattypeomschrijvingen", omschrijving_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url,
+            resultaattypeomschrijving=omschrijving_url,
+            selectielijstklasse="http://some-domain.local",
+        )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+
+        response = self.app.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaat")
+    def test_get_resultaat_readonly_field_success(self, m, mock_retrieve_resultaat):
+        mock_retrieve_resultaat.return_value = {
+            "volledigNummer": "3.1.1",
+            "naam": "Toekennen vergunning",
+            "waardering": "blijvend bewaren",
+        }
+
+        url = "https://selectielijst.openzaak.nl/api/v1/resultaten/1"
+        result = get_resultaat_readonly_field(url)
+
+        assert result == "3.1.1 - Toekennen vergunning - blijvend bewaren"
+
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaat")
+    def test_get_resultaat_readonly_field_error(self, m, mock_retrieve_resultaat):
+        mock_retrieve_resultaat.side_effect = Exception("Something went wrong")
+
+        url = "https://bogus-url.com/api/v1/resultaten/1"
+        result = get_resultaat_readonly_field(url)
+
+        assert result.startswith("Could not retrieve resultaat: Something went wrong")
+
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
+    def test_get_resultaattype_omschrijving_readonly_field_success(
+        self, m, mock_retrieve_omschrijvingen
+    ):
+        mock_retrieve_omschrijvingen.return_value = {
+            "omschrijving": "Een test omschrijving"
+        }
+
+        url = "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijving/1"
+        result = get_resultaattype_omschrijving_readonly_field(url)
+
+        assert result == "Een test omschrijving"
+
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
+    def test_get_resultaattype_omschrijving_readonly_field_error(
+        self, m, mock_retrieve_omschrijvingen
+    ):
+        mock_retrieve_omschrijvingen.side_effect = Exception("InvalidURLError")
+
+        url = "https://www.kerr.com/api/v1/resultaattypeomschrijving/1"
+        result = get_resultaattype_omschrijving_readonly_field(url)
+
+        assert result.startswith("Could not retrieve omschrijving: InvalidURLError")
