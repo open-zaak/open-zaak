@@ -20,6 +20,7 @@ from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
+    BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     RelatieAarden,
     RolOmschrijving,
     RolTypes,
@@ -76,6 +77,8 @@ from ...models import (
 )
 from ..validators import (
     DateNotInFutureValidator,
+    DeelzaakReopenValidator,
+    EndStatusDeelZakenValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
     HoofdZaaktypeRelationValidator,
@@ -639,6 +642,8 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
+            EndStatusDeelZakenValidator(),
+            DeelzaakReopenValidator(),
             StatusRolValidator(),
             ZaakArchiefStatusValidator(),
         ]
@@ -710,6 +715,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 # thought: we _can_ use the datumStatusGezet though!
                 raise serializers.ValidationError(
                     exc.args[0], code="archiefactiedatum-error"
+                )
+
+            # validate that all deelzaken have a result
+            if zaak.deelzaken.filter(resultaat__isnull=True).exists():
+                raise serializers.ValidationError(
+                    code="deelzaak-resultaat-does-not-exist"
                 )
 
             # nasty to pass state around...
@@ -786,7 +797,37 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Save updated information on the ZAAK
             zaak.save(update_fields=_zaak_fields_changed)
 
+            # update deelzaken
+            self.update_deelzaken(
+                zaak.deelzaken,
+                archiefactiedatum=zaak.archiefactiedatum,
+                startdatum_bewaartermijn=zaak.startdatum_bewaartermijn,
+            )
+
         return obj
+
+    def update_deelzaken(self, qs, **fields):
+        self._update_deelzaken_with_internal_catalogi(
+            qs.filter(_zaaktype__isnull=False), **fields
+        )
+        self._update_deelzaken_with_external_catalogi(
+            qs.filter(_zaaktype_relative_url__isnull=False), **fields
+        )
+
+    def _update_deelzaken_with_internal_catalogi(self, qs, **fields):
+        qs.filter(
+            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+        ).update(**fields)
+
+    def _update_deelzaken_with_external_catalogi(self, qs, **fields):
+        for deelzaak in qs.iterator():
+            if (
+                deelzaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
+                == Afleidingswijze.hoofdzaak
+            ):
+                for field, value in fields.items():
+                    setattr(deelzaak, field, value)
+                deelzaak.save()
 
 
 class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
