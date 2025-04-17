@@ -514,8 +514,16 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     @property
     def current_status(self):
-        status = self.status_set.first()
-        return status
+        # The viewset prefetches the statuses and stores them on the instances,
+        # for performance reasons we simply grab the first status from there if possible
+        # instead of using `.first()`, because the latter constructs a queryset
+        # (which causes more overhead)
+        if hasattr(self, "prefetched_statuses"):
+            # Statuses were prefetched, but Zaak has no statuses yet
+            if not self.prefetched_statuses:
+                return None
+            return self.prefetched_statuses[0]
+        return self.status_set.first()
 
     @property
     def is_closed(self) -> bool:
