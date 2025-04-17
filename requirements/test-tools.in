@@ -13,7 +13,6 @@ vcrpy
 
 # CI tools
 pytest
-pytest-benchmark
 codecov
 
 # Code formatting
