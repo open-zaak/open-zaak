@@ -1,0 +1,5 @@
+pytest
+pytest-benchmark
+furl
+requests
+pyjwt

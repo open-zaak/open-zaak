@@ -485,6 +485,7 @@ furl==2.1.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   -r requirements/performance-tests.in
     #   ape-pie
     #   drc-cmis
 glom==23.5.0
@@ -683,6 +684,7 @@ pyjwt==2.4.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   -r requirements/performance-tests.in
     #   commonground-api-common
     #   zgw-consumers
 pyopenssl==25.0.0
@@ -710,10 +712,11 @@ pyrsistent==0.18.1
     #   jsonschema
 pytest==8.3.3
     # via
+    #   -r requirements/performance-tests.in
     #   -r requirements/test-tools.in
     #   pytest-benchmark
 pytest-benchmark==5.1.0
-    # via -r requirements/test-tools.in
+    # via -r requirements/performance-tests.in
 python-crontab==3.2.0
     # via
     #   -c requirements/base.txt
@@ -770,6 +773,7 @@ requests==2.32.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   -r requirements/performance-tests.in
     #   ape-pie
     #   codecov
     #   commonground-api-common
