@@ -262,7 +262,12 @@ class ZaakViewSet(
             "resultaat",
             "zaakeigenschap_set",
             models.Prefetch(
-                "status_set", queryset=Status.objects.order_by("-datum_status_gezet")
+                "status_set",
+                queryset=Status.objects.order_by("-datum_status_gezet"),
+                # explicitly store result on this attribute, that way we can retrieve
+                # the first status by simple list indexing, which is faster than calling
+                # `.first()`, because the latter instantiates a new queryset
+                to_attr="prefetched_statuses",
             ),
             "rol_set",
             "zaakinformatieobject_set",
