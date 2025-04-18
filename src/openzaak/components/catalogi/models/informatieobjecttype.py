@@ -8,7 +8,10 @@ from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
-from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import (
+    VertrouwelijkheidsAanduidingField,
+    VertrouwelijkheidsAanduidingFieldInt,
+)
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.mixins import APIMixin
@@ -59,6 +62,17 @@ class InformatieObjectType(
             "Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de "
             "openbaarheid bestemd zijn."
         ),
+    )
+    _vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingFieldInt(
+        _("vertrouwelijkheidaanduiding"),
+        help_text=_(
+            "Aanduiding van de mate waarin zaakdossiers van ZAAKen van "
+            "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
+            "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
+        ),
+        blank=True,
+        null=True,
+        db_index=True,
     )
 
     omschrijving_generiek_informatieobjecttype = models.CharField(
