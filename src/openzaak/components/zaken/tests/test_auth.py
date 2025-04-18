@@ -14,7 +14,10 @@ from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
 
-from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
+from openzaak.components.autorisaties.tests.factories import (
+    AutorisatieFactory,
+    CatalogusAutorisatieFactory,
+)
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import (
@@ -115,6 +118,60 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
+    def test_zaak_list_multiple_confidentialities(self):
+        """
+        Assert you can be authorized for multiple zaaktypen
+        """
+        zaaktype2 = ZaakTypeFactory.create()
+        AutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+            zaaktype=f"http://testserver{reverse(zaaktype2)}",
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+        )
+        # should show up
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
+        )
+        # should not show up
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        url = reverse("zaak-list")
+
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(
+            results[0]["zaaktype"], f"http://testserver{reverse(zaaktype2)}"
+        )
+        self.assertEqual(
+            results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.geheim,
+        )
+        self.assertEqual(
+            results[1]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
+        )
+        self.assertEqual(
+            results[1]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
     def test_zaak_retreive(self):
         """
         Assert you can only read ZAAKen of the zaaktypes and vertrouwelijkheidaanduiding
@@ -184,6 +241,89 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+    @tag("gh-1661")
+    def test_zaak_list_with_catalogus_autorisatie_and_regular_autorisaties(self):
+        """
+        Assert that CatalogusAutorisatie and regular Autorisaties can be used together
+        """
+        zaaktype2 = ZaakTypeFactory.create()
+        zaaktype3 = ZaakTypeFactory.create()
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype2.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype3.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=self.scopes,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        # Should be visible because of regular Autorisatie
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Should be visible because of first CatalogusAutorisatie
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
+        )
+        # Should be visible because of second first CatalogusAutorisatie
+        ZaakFactory.create(
+            zaaktype=zaaktype3,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+
+        # Different catalogus, should not be visible
+        ZaakFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        # Correct zaaktype, but VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        # Correct catalogus, but VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype3,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        url = reverse("zaak-list")
+
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 3)
+        self.assertEqual(
+            results[0]["zaaktype"], f"http://testserver{reverse(zaaktype3)}"
+        )
+        self.assertEqual(
+            results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.beperkt_openbaar,
+        )
+        self.assertEqual(
+            results[1]["zaaktype"], f"http://testserver{reverse(zaaktype2)}"
+        )
+        self.assertEqual(
+            results[1]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
+        )
+        self.assertEqual(
+            results[2]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
+        )
+        self.assertEqual(
+            results[2]["vertrouwelijkheidaanduiding"],
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
