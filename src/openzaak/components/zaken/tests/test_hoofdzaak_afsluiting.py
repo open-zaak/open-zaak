@@ -106,6 +106,8 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             ),
         )
 
+        cls.addClassCleanup(cls.mocker.stop)
+
     def setUp(self):
         super().setUp()
 
