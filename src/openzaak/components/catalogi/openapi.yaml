@@ -4984,6 +4984,11 @@ paths:
           format: date
         description: filter objecten op hun geldigheids datum.
       - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
+      - in: query
         name: omschrijvingGeneriek
         schema:
           type: string

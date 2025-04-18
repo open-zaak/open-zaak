@@ -142,6 +142,10 @@ Query parameters
 * ``/api/v1/informatieobjecttypen`` endpoint. Added new parameters:
     * ``zaaktype``
 
+* ``/api/v1/roltypen`` endpoint. Added new parameters:
+    * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
+
+
 
 Besluiten API
 =============
