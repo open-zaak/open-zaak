@@ -424,7 +424,7 @@ django-two-factor-auth==1.17.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   maykin-2fa
-django-webtest==1.9.10
+django-webtest==1.9.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
