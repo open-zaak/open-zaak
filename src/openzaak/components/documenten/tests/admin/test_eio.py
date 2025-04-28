@@ -43,7 +43,7 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
 
         response = self.app.get(add_url)
-        form = response.form
+        form = response.forms["enkelvoudiginformatieobject_form"]
 
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
@@ -70,7 +70,7 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
 
         response = self.app.get(add_url)
-        form = response.form
+        form = response.forms["enkelvoudiginformatieobject_form"]
 
         form["identificatie"] = "some docüment"
         form["canonical"] = canonical.pk
@@ -98,7 +98,7 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
 
         response = self.app.get(add_url)
-        form = response.form
+        form = response.forms["enkelvoudiginformatieobject_form"]
 
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
@@ -131,8 +131,8 @@ class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
 
         add_url = reverse("admin:documenten_enkelvoudiginformatieobjectcanonical_add")
         get_response = self.app.get(add_url)
-
-        response = get_response.form.submit()
+        form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
+        response = form.submit()
         self.assertEqual(response.status_code, 200)
 
         version_form = response.context["inline_admin_formsets"][0].forms[0]

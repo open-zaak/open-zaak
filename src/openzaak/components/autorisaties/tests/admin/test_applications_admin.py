@@ -28,7 +28,7 @@ class ApplicationsTests(WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["applicatie_form"]
         form["label"] = "foo"
 
         form["credentials-0-identifier"] = "foo"
@@ -52,7 +52,8 @@ class ApplicationsTests(WebTest):
 
         url = reverse("admin:authorizations_applicatie_delete", args=(applicatie.pk,))
         response = self.app.get(url)
-        response = response.form.submit().follow()
+        form = response.forms[1]
+        response = form.submit().follow()
 
         self.assertEqual(response.status_code, 200)
 
@@ -64,7 +65,7 @@ class ApplicationsTests(WebTest):
         JWTSecret.objects.create(identifier="foo", secret="bar")
         url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
 
-        form = self.app.get(url).form
+        form = self.app.get(url).forms["applicatie_form"]
 
         self.assertEqual(form["credentials-0-identifier"].value, "foo")
         self.assertEqual(form["credentials-0-secret"].value, "bar")
@@ -84,7 +85,7 @@ class ApplicationsTests(WebTest):
         JWTSecret.objects.create(identifier="foo", secret="bar")
         url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
 
-        form = self.app.get(url).form
+        form = self.app.get(url).forms["applicatie_form"]
 
         form["credentials-0-DELETE"].checked = True
 
@@ -99,7 +100,7 @@ class ApplicationsTests(WebTest):
         JWTSecret.objects.create(identifier="foo", secret="bar")
         url = reverse("admin:authorizations_applicatie_change", args=(application.pk,))
 
-        form = self.app.get(url).form
+        form = self.app.get(url).forms["applicatie_form"]
 
         form["credentials-0-identifier"] = "baz"
         form["credentials-0-secret"] = "quux"
@@ -119,7 +120,7 @@ class ApplicationsTests(WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["applicatie_form"]
         form["label"] = "foo"
 
         form["credentials-0-identifier"] = "foo"
@@ -151,7 +152,7 @@ class ApplicationsTests(WebTest):
         )
         url = reverse("admin:authorizations_applicatie_changelist")
 
-        form = self.app.get(url).form
+        form = self.app.get(url).forms["changelist-form"]
 
         form["action"] = "delete_selected"
         form["_selected_action"] = [app1.id, app2.id]
@@ -159,7 +160,7 @@ class ApplicationsTests(WebTest):
         response = form.submit()
 
         # confirmation page
-        form = response.form
+        form = response.forms[1]
         form["action"] = "delete_selected"
         form["post"] = "yes"
 

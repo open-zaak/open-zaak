@@ -30,7 +30,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
 
         get_response = self.app.get(add_url)
 
-        form = get_response.form
+        form = get_response.forms["rol_form"]
 
         form["zaak"] = zaak.id
         form["_roltype"] = roltype.id
@@ -76,7 +76,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
 
         get_response = self.app.get(change_url)
 
-        form = get_response.form
+        form = get_response.forms["rol_form"]
         form["roltoelichting"] = "new"
 
         form.submit()

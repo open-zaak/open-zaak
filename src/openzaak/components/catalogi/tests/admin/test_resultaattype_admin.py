@@ -130,7 +130,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "openzaak.components.catalogi.admin.forms.get_client",
             return_value=None,
         ):
-            response = change_page.form.submit()
+            response = change_page.forms[1].submit()
 
             self.assertEqual(response.status_code, 200)  # instead of 302 for success
             expected_error = _(
@@ -507,19 +507,20 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             "name": ResultaatType._meta.verbose_name
         }
         add_page = resultaat_changelist.click(description=add_link_description)
+        form = add_page.forms["resultaattype_form"]
 
         with self.subTest("Check selectielijstklasse options"):
-            form_field = add_page.form["selectielijstklasse"]
+            form_field = form["selectielijstklasse"]
 
             # placeholder option
             self.assertEqual(len(form_field.options), 1)
             self.assertEqual(form_field.options[0][0], "")
 
         with self.subTest("Saving the resultaattype"):
-            add_page.form["omschrijving"] = "Some description"
-            add_page.form["brondatum_archiefprocedure_afleidingswijze"] = "afgehandeld"
+            form["omschrijving"] = "Some description"
+            form["brondatum_archiefprocedure_afleidingswijze"] = "afgehandeld"
 
-            save_response = add_page.form.submit("_continue")
+            save_response = form.submit("_continue")
 
             self.assertEqual(save_response.status_code, 302)
             resultaat = zaaktype.resultaattypen.get()
@@ -532,7 +533,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             publish_page = self.app.get(zaaktype_publish_url)
 
             # save and publish
-            response = publish_page.form.submit()
+            response = publish_page.forms[1].submit()
 
             self.assertEqual(response.status_code, 200)
             messages = list(response.context["messages"])
@@ -565,16 +566,17 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         zaaktype = ZaakTypeFactory.create(concept=False)
 
         response = self.app.get(reverse("admin:catalogi_resultaattype_add"))
-        response.form["omschrijving"] = "foo"
-        response.form["resultaattypeomschrijving"] = (
+        form = response.forms["resultaattype_form"]
+        form["omschrijving"] = "foo"
+        form["resultaattypeomschrijving"] = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "resultaattypeomschrijvingen/e6a0c939-3404-45b0-88e3-76c94fb80ea7"
         )
-        response.form["brondatum_archiefprocedure_afleidingswijze"] = (
+        form["brondatum_archiefprocedure_afleidingswijze"] = (
             BrondatumArchiefprocedureAfleidingswijze.afgehandeld
         )
-        response.form["zaaktype"] = zaaktype.id
-        response = response.form.submit()
+        form["zaaktype"] = zaaktype.id
+        response = form.submit()
 
         self.assertEqual(
             response.context["adminform"].errors,

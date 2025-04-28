@@ -126,7 +126,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test321.zip"
         f.seek(0)
@@ -271,7 +271,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         form["generate_new_uuids"] = False
         f = io.BytesIO(data)
         f.name = "catalogus-export.zip"
@@ -361,7 +361,7 @@ class CatalogusAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -410,12 +410,12 @@ class ReadOnlyUserTests(WebTest):
         url = reverse("admin:catalogi_catalogus_change", args=(catalogus.pk,))
 
         detail_page = self.app.get(url)
+        form = detail_page.forms["catalogus_form"]
 
-        html = detail_page.form.html
-        self.assertNotIn(_("Exporteren"), html)
+        self.assertNotIn(_("Exporteren"), form.html)
 
         # try to submit it anyway
-        detail_page.form.submit("_export", status=403)
+        form.submit("_export", status=403)
 
     def test_import_catalogus(self):
         url = reverse("admin:catalogi_catalogus_import")

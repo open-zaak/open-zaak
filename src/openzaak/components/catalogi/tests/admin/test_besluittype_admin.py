@@ -162,7 +162,7 @@ class BesluitTypeAdminTests(WebTest):
         url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["besluittype_form"]
         form["datum_begin_geldigheid"] = "2019-01-01"
         form["zaaktypen"] = [self.zaaktype.id]
 
@@ -182,7 +182,7 @@ class BesluitTypeAdminTests(WebTest):
             reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
         )
 
-        form = response.form
+        form = response.forms["besluittype_form"]
         form["datum_begin_geldigheid"] = "2019-01-01"
         form["zaaktypen"] = [self.zaaktype.id]
 
@@ -278,7 +278,7 @@ class BesluitTypePublishAdminTests(WebTest):
         url = reverse("admin:catalogi_besluittype_change", args=(btype.pk,))
 
         response = self.app.get(url)
-        response = response.form.submit("_publish")
+        response = response.forms["besluittype_form"].submit("_publish")
 
         btype.refresh_from_db()
         self.assertEqual(response.status_code, 302)
@@ -305,7 +305,7 @@ class BesluitTypePublishAdminTests(WebTest):
         url = reverse("admin:catalogi_besluittype_change", args=(btype.pk,))
 
         response = self.app.get(url)
-        response = response.form.submit("_publish")
+        response = response.forms["besluittype_form"].submit("_publish")
 
         btype.refresh_from_db()
         self.assertEqual(response.status_code, 302)

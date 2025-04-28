@@ -32,11 +32,12 @@ class RolTypeAdminTests(WebTest):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
         response = self.app.get(reverse("admin:catalogi_roltype_add"))
+        form = response.forms["roltype_form"]
 
-        response.form["omschrijving"] = "foo"
-        response.form["omschrijving_generiek"] = RolOmschrijving.adviseur
-        response.form["zaaktype"] = zaaktype.id
-        response = response.form.submit()
+        form["omschrijving"] = "foo"
+        form["omschrijving_generiek"] = RolOmschrijving.adviseur
+        form["zaaktype"] = zaaktype.id
+        response = form.submit()
 
         self.assertEqual(
             response.context["adminform"].errors,
@@ -57,11 +58,11 @@ class RolTypeAdminTests(WebTest):
         response = self.app.get(
             reverse("admin:catalogi_roltype_change", args=(roltype.pk,))
         )
-
-        response.form["omschrijving"] = "foo"
-        response.form["omschrijving_generiek"] = RolOmschrijving.adviseur
-        response.form["zaaktype"] = zaaktype.id
-        response = response.form.submit()
+        form = response.forms["roltype_form"]
+        form["omschrijving"] = "foo"
+        form["omschrijving_generiek"] = RolOmschrijving.adviseur
+        form["zaaktype"] = zaaktype.id
+        response = form.submit()
 
         self.assertEqual(
             response.context["adminform"].errors,
@@ -73,7 +74,7 @@ class RolTypeAdminTests(WebTest):
                 ]
             },
         )
-        self.assertIn("zaaktype", response.form.fields)
+        self.assertIn("zaaktype", response.forms[1].fields)
 
         roltype.refresh_from_db()
 

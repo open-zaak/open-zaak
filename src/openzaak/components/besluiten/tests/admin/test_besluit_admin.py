@@ -30,8 +30,9 @@ class BesluitAdminTests(WebTest):
         besluit = BesluitFactory.create(identificatie="ZK bläh")
         url = reverse("admin:besluiten_besluit_change", args=(besluit.pk,))
         response = self.app.get(url)
-        self.assertEqual(response.form["identificatie"].value, "ZK bläh")
+        form = response.forms["besluit_form"]
 
-        submit_response = response.form.submit()
+        self.assertEqual(form["identificatie"].value, "ZK bläh")
+        submit_response = form.submit()
 
         self.assertEqual(submit_response.status_code, 302)

@@ -54,7 +54,7 @@ class EioAdminInlineTests(WebTest):
 
         get_response = self.app.get(self.change_url)
 
-        form = get_response.form
+        form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
         form["enkelvoudiginformatieobject_set-0-DELETE"] = True
         form.submit()
 
@@ -83,7 +83,7 @@ class EioAdminInlineTests(WebTest):
 
         get_response = self.app.get(self.change_url)
 
-        form = get_response.form
+        form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
         form["enkelvoudiginformatieobject_set-0-identificatie"] = "new"
         form.submit()
 
@@ -111,7 +111,7 @@ class EioAdminInlineTests(WebTest):
 
         get_response = self.app.get(self.change_url)
 
-        form = get_response.form
+        form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
         form["enkelvoudiginformatieobject_set-0-identificatie"] = "12345"
         form["enkelvoudiginformatieobject_set-0-bronorganisatie"] = "517439943"
         form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"

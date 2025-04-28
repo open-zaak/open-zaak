@@ -244,7 +244,7 @@ class IoTypePublishAdminTests(WebTest):
         url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
 
         response = self.app.get(url)
-        response = response.form.submit("_publish")
+        response = response.forms["informatieobjecttype_form"].submit("_publish")
 
         iotype.refresh_from_db()
         self.assertEqual(response.status_code, 302)
@@ -271,7 +271,8 @@ class IoTypePublishAdminTests(WebTest):
         url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
 
         response = self.app.get(url)
-        response = response.form.submit("_publish")
+        form = response.forms["informatieobjecttype_form"]
+        response = form.submit("_publish")
 
         iotype.refresh_from_db()
         self.assertEqual(response.status_code, 302)
@@ -306,7 +307,7 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
 
         response = self.app.get(self.url)
 
-        form = response.form
+        form = response.forms["informatieobjecttype_form"]
         form["omschrijving"] = "test"
         form["vertrouwelijkheidaanduiding"] = "openbaar"
         form["catalogus"] = catalogus.id

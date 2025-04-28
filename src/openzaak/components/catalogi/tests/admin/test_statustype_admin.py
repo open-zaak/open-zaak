@@ -32,10 +32,12 @@ class StatusTypeAdminTests(WebTest):
 
         response = self.app.get(reverse("admin:catalogi_statustype_add"))
 
-        response.form["statustype_omschrijving"] = "foo"
-        response.form["statustypevolgnummer"] = 1
-        response.form["zaaktype"] = zaaktype.id
-        response = response.form.submit()
+        form = response.forms["statustype_form"]
+
+        form["statustype_omschrijving"] = "foo"
+        form["statustypevolgnummer"] = 1
+        form["zaaktype"] = zaaktype.id
+        response = form.submit()
 
         self.assertEqual(
             response.context["adminform"].errors,
