@@ -84,8 +84,8 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             call_command(
                 "generate_data",
                 partition=1,
-                zaaktypen=1,
-                zaken=2,
+                zaaktypen=30,
+                zaken=30,
                 generate_superuser_credentials=True,
                 generate_non_superuser_credentials=True,
             )
@@ -93,23 +93,23 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         # check that the data is generated
         generated_objects_count = {
             "catalogi.Catalogus": 1,
-            "catalogi.ZaakType": 1,
-            "catalogi.StatusType": 3,
-            "catalogi.RolType": 1,
-            "catalogi.ResultaatType": 2,
-            "catalogi.Eigenschap": 1,
-            "zaken.Zaak": 2,
-            "zaken.Status": 6,
-            "zaken.Rol": 2,
-            "zaken.Resultaat": 2,
-            "zaken.ZaakEigenschap": 2,
-            "zaken.ZaakInformatieObject": 2,
-            "zaken.ZaakObject": 2,
-            "besluiten.Besluit": 2,
-            "besluiten.BesluitInformatieObject": 2,
-            "documenten.EnkelvoudigInformatieObjectCanonical": 2,
-            "documenten.EnkelvoudigInformatieObject": 2,
-            "documenten.ObjectInformatieObject": 4,
+            "catalogi.ZaakType": 30,
+            "catalogi.StatusType": 90,
+            "catalogi.RolType": 30,
+            "catalogi.ResultaatType": 60,
+            "catalogi.Eigenschap": 30,
+            "zaken.Zaak": 30,
+            "zaken.Status": 90,
+            "zaken.Rol": 30,
+            "zaken.Resultaat": 30,
+            "zaken.ZaakEigenschap": 30,
+            "zaken.ZaakInformatieObject": 30,
+            "zaken.ZaakObject": 30,
+            "besluiten.Besluit": 30,
+            "besluiten.BesluitInformatieObject": 30,
+            "documenten.EnkelvoudigInformatieObjectCanonical": 30,
+            "documenten.EnkelvoudigInformatieObject": 30,
+            "documenten.ObjectInformatieObject": 60,
         }
 
         for model_name, obj_count in generated_objects_count.items():
@@ -119,7 +119,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
 
         # assert that some attributes are filled
         # catalogi
-        zaaktype = ZaakType.objects.get()
+        zaaktype = ZaakType.objects.first()
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
         self.assertEqual(
             zaaktype.selectielijst_procestype,
@@ -151,9 +151,31 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
 
             applicatie = Applicatie.objects.get(client_ids=["non_superuser"])
             self.assertEqual(applicatie.heeft_alle_autorisaties, False)
-            self.assertEqual(applicatie.autorisaties.count(), 1)
+            self.assertEqual(applicatie.autorisaties.count(), 15)
 
-            autorisatie = applicatie.autorisaties.get()
+            autorisatie = applicatie.autorisaties.first()
+            self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+            self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
+            self.assertEqual(
+                autorisatie.max_vertrouwelijkheidaanduiding,
+                VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+            zaaktype_uri = reverse(
+                "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            )
+            self.assertEqual(
+                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
+            )
+
+        with self.subTest("generate non superuser credentials for many zaaktypen"):
+            credential = JWTSecret.objects.get(identifier="non_superuser_many_types")
+            self.assertEqual(credential.secret, "non_superuser_many_types")
+
+            applicatie = Applicatie.objects.get(client_ids=["non_superuser_many_types"])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
+            self.assertEqual(applicatie.autorisaties.count(), 25)
+
+            autorisatie = applicatie.autorisaties.first()
             self.assertEqual(autorisatie.component, ComponentTypes.zrc)
             self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
             self.assertEqual(

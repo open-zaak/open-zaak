@@ -276,6 +276,7 @@ class Command(BaseCommand):
 
         if generate_non_superuser_credentials:
             self.generate_non_superuser_credentials()
+            self.generate_non_superuser_credentials_many_authorized_types()
 
     def log_created(self, objs):
         self.stdout.write(
@@ -614,6 +615,25 @@ class Command(BaseCommand):
         )
         applicatie = ApplicatieFactory.create(
             client_ids=["non_superuser"], heeft_alle_autorisaties=False
+        )
+
+        num_authorized_zaaktypen = min(ZaakType.objects.count(), 15)
+        request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
+        for zaaktype in ZaakType.objects.all()[:num_authorized_zaaktypen]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.zrc,
+                scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                zaaktype=zaaktype.get_absolute_api_url(request=request),
+            )
+
+    def generate_non_superuser_credentials_many_authorized_types(self):
+        JWTSecret.objects.get_or_create(
+            identifier="non_superuser_many_types", secret="non_superuser_many_types"
+        )
+        applicatie = ApplicatieFactory.create(
+            client_ids=["non_superuser_many_types"], heeft_alle_autorisaties=False
         )
 
         num_authorized_zaaktypen = max(ZaakType.objects.count() - 5, 1)

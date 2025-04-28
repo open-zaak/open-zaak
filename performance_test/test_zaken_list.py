@@ -30,6 +30,15 @@ HEADERS_NON_SUPERUSER = {
 }
 
 
+TOKEN_NON_SUPERUSER_MANY_TYPES = generate_token(
+    "non_superuser_many_types", "non_superuser_many_types"
+)
+HEADERS_NON_SUPERUSER_MANY_TYPES = {
+    "Authorization": f"Bearer {TOKEN_NON_SUPERUSER_MANY_TYPES}",
+    "Accept-Crs": "EPSG:4326",
+}
+
+
 @pytest.mark.benchmark(max_time=60, min_rounds=5)
 def test_zaken_list(benchmark, benchmark_assertions):
     params = {"pageSize": 100, "page": 34}
@@ -40,14 +49,16 @@ def test_zaken_list(benchmark, benchmark_assertions):
     result = benchmark(make_request)
 
     assert result.status_code == 200
-    assert result.json()["count"] == 3500
+    data = result.json()
+    assert data["count"] == 3500
+    assert len(data["results"]) == 100
 
     benchmark_assertions(mean=1, median=1)
 
 
 @pytest.mark.benchmark(max_time=60, min_rounds=5)
-def test_zaken_list_non_superuser(benchmark, benchmark_assertions):
-    params = {"pageSize": 100, "page": 29}
+def test_zaken_list_non_superuser_few_authorized_types(benchmark, benchmark_assertions):
+    params = {"pageSize": 100, "page": 5}
 
     def make_request():
         return requests.get(
@@ -57,6 +68,29 @@ def test_zaken_list_non_superuser(benchmark, benchmark_assertions):
     result = benchmark(make_request)
 
     assert result.status_code == 200
-    assert result.json()["count"] == 3325
+    data = result.json()
+    assert data["count"] == 525
+    assert len(data["results"]) == 100
+
+    benchmark_assertions(mean=1, median=1)
+
+
+@pytest.mark.benchmark(max_time=60, min_rounds=5)
+def test_zaken_list_non_superuser_many_authorized_types(
+    benchmark, benchmark_assertions
+):
+    params = {"pageSize": 100, "page": 29}
+
+    def make_request():
+        return requests.get(
+            (BASE_URL / "zaken").set(params), headers=HEADERS_NON_SUPERUSER_MANY_TYPES
+        )
+
+    result = benchmark(make_request)
+
+    assert result.status_code == 200
+    data = result.json()
+    assert data["count"] == 3325
+    assert len(data["results"]) == 100
 
     benchmark_assertions(mean=1, median=1)
