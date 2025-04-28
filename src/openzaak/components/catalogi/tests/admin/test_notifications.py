@@ -352,7 +352,7 @@ class NotificationAdminTests(
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype_old.pk,))
 
         response = self.app.get(url)
-        form = response.form
+        form = response.forms["zaaktype_form"]
         form["datum_einde_geldigheid"] = "2021-01-01"
 
         with self.captureOnCommitCallbacks(execute=True):

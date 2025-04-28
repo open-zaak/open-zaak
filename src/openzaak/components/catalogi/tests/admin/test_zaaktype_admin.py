@@ -112,7 +112,7 @@ class ZaaktypeAdminTests(
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
 
         form["zaaktype_omschrijving"] = "test"
         form["doel"] = "test"
@@ -147,7 +147,7 @@ class ZaaktypeAdminTests(
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
 
         form["identificatie"] = "some zääktype"
         form["zaaktype_omschrijving"] = "test"
@@ -184,7 +184,7 @@ class ZaaktypeAdminTests(
 
         update_page = self.app.get(url)
 
-        form = update_page.form
+        form = update_page.forms["zaaktype_form"]
         form["vertrouwelijkheidaanduiding"].select("openbaar")
         form["doorlooptijd_behandeling_days"] = None
         form["doorlooptijd_behandeling_months"] = None
@@ -254,7 +254,7 @@ class ZaaktypeAdminTests(
 
         get_response = self.app.get(url)
 
-        form = get_response.form
+        form = get_response.forms["zaaktype_form"]
 
         with self.captureOnCommitCallbacks(execute=True):
             post_response = form.submit("_addversion")
@@ -339,7 +339,7 @@ class ZaaktypeAdminTests(
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype_.pk,))
 
         get_response = self.app.get(url)
-        form = get_response.form
+        form = get_response.forms["zaaktype_form"]
         post_response = form.submit("_addversion")
 
         error_message = post_response.html.find(class_="errorlist")
@@ -351,7 +351,7 @@ class ZaaktypeAdminTests(
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
 
         form["zaaktype_omschrijving"] = "test"
         form["doel"] = "test"
@@ -415,7 +415,7 @@ class ZaaktypeAdminTests(
 
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["zaaktype_form"]
 
         response = form.submit("_save")
 
@@ -510,7 +510,7 @@ class ZaaktypeAdminTests(
         response = self.app.get(url)
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["zaaktype_form"]
         form["selectielijst_procestype"] = (
             "https://selectielijst.openzaak.nl/api/v1/"
             "procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
@@ -551,7 +551,7 @@ class ZaaktypeAdminTests(
         self.assertEqual(change_page.status_code, 200)
 
         with patch("zgw_consumers.client.build_client", return_value=None):
-            response = change_page.form.submit()
+            response = change_page.forms["zaaktype_form"].submit()
 
             self.assertEqual(response.status_code, 200)  # instead of 302 for success
             expected_error = _("Could not build a client for {url}").format(
@@ -585,7 +585,7 @@ class ZaaktypeAdminTests(
         response = self.app.get(url)
         self.assertEqual(response.status_code, 200)
 
-        form = response.form
+        form = response.forms["zaaktype_form"]
         # check that changing the procestype is now possible when we reset (that
         # validation needs to skip)
         form["selectielijst_reset"] = True
@@ -624,7 +624,7 @@ class ZaaktypeAdminTests(
 
         # add a zaaktype
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
         form["catalogus"].value = str(catalogus.id)
         form["zaaktype_omschrijving"] = "Test"
         form["doel"] = "Test"
@@ -670,17 +670,16 @@ class ZaaktypeAdminTests(
         detail_page = response.follow()
         zaaktype = ZaakType.objects.get()
         self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2020)
-        self.assertEqual(
-            detail_page.form["selectielijst_procestype_jaar"].value, "2020"
-        )
+        form = detail_page.forms["zaaktype_form"]
+        self.assertEqual(form["selectielijst_procestype_jaar"].value, "2020")
         label = next(
             label
-            for opt, _, label in detail_page.form["selectielijst_procestype"].options
-            if opt == detail_page.form["selectielijst_procestype"].value
+            for opt, _, label in form["selectielijst_procestype"].options
+            if opt == form["selectielijst_procestype"].value
         )
         self.assertEqual(label, "8 - Voorzieningen verstrekken")
         self.assertEqual(
-            detail_page.form["selectielijst_procestype"].value,
+            form["selectielijst_procestype"].value,
             "https://selectielijst.openzaak.nl/api/v1/procestypen/"
             "f4603775-5a08-4829-85c8-28017dfeee1f",
         )
@@ -694,7 +693,7 @@ class ZaaktypeAdminTests(
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
 
         response = form.submit()
 
@@ -711,7 +710,7 @@ class ZaaktypeAdminTests(
         mock_selectielijst_oas_get(m)
         mock_resource_list(m, "procestypen")
         add_page = self.app.get(url)
-        form = add_page.form
+        form = add_page.forms["zaaktype_form"]
 
         form["catalogus"] = 16
         response = form.submit()
@@ -889,7 +888,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(publish_url)
 
-        response = publish_page.form.submit()
+        response = publish_page.forms[1].submit()
 
         self.assertEqual(
             response.status_code, 200
@@ -921,7 +920,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         )
 
         with self.subTest("no statustypen"):
-            response = publish_page.form.submit("_publish")
+            response = publish_page.forms[1].submit("_publish")
 
             self.assertEqual(
                 response.status_code, 200
@@ -933,7 +932,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         with self.subTest("one statustype"):
             StatusTypeFactory.create(zaaktype=zaaktype, statustypevolgnummer=1)
 
-            response = publish_page.form.submit("_publish")
+            response = publish_page.forms[1].submit("_publish")
 
             self.assertEqual(
                 response.status_code, 200
@@ -951,7 +950,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(publish_url)
 
-        response = publish_page.form.submit()
+        response = publish_page.forms[1].submit()
 
         self.assertEqual(
             response.status_code, 200
@@ -991,7 +990,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
         publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(publish_url)
-        response = publish_page.form.submit()
+        response = publish_page.forms[1].submit()
 
         self.assertEqual(response.status_code, 302)
 
@@ -1070,10 +1069,11 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
         admin_url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
         change_page = self.app.get(admin_url)
+        form = change_page.forms["zaaktype_form"]
         for operation in ["_save", "_addanother", "_continue", "_addversion"]:
             with self.subTest(operation=operation):
-                change_page.form["datum_einde_geldigheid"] = "2020-01-01"
-                response = change_page.form.submit(operation)
+                form["datum_einde_geldigheid"] = "2020-01-01"
+                response = form.submit(operation)
                 zaaktype.refresh_from_db()
 
                 self.assertEqual(response.status_code, 302)
@@ -1082,8 +1082,8 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
                 zaaktype.datum_einde_geldigheid = None
                 zaaktype.save()
 
-        change_page.form["datum_einde_geldigheid"] = "2020-01-01"
-        response = change_page.form.submit("_export")
+        form["datum_einde_geldigheid"] = "2020-01-01"
+        response = form.submit("_export")
         zaaktype.refresh_from_db()
 
         self.assertEqual(response.status_code, 200, response.content)
@@ -1128,7 +1128,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
         publish_url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(publish_url)
-        response = publish_page.form.submit().follow()
+        response = publish_page.forms[1].submit().follow()
         zaaktype.refresh_from_db()
         self.assertNotContains(
             response,

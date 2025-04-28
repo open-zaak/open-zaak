@@ -68,7 +68,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["zaaktype_form"]
         form_fields = list(form.fields.keys())
         zaaktype_fields = [
             f.name
@@ -106,7 +106,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["besluittype_form"]
         form_fields = list(form.fields.keys())
         besluittype_fields = [
             f.name
@@ -132,7 +132,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["informatieobjecttype_form"]
         form_fields = list(form.fields.keys())
         informatieobjecttype_fields = [
             f.name
@@ -155,7 +155,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["statustype_form"]
         form_fields = list(form.fields.keys())
         statustype_fields = [f.name for f in statustype._meta.get_fields()]
 
@@ -177,7 +177,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["zaaktypeinformatieobjecttype_form"]
         form_fields = list(form.fields.keys())
         ztiot_fields = [f.name for f in ztiot._meta.get_fields()]
 
@@ -217,7 +217,7 @@ class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest)
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["resultaattype_form"]
         form_fields = list(form.fields.keys())
         resultaattype_fields = [f.name for f in resultaattype._meta.get_fields()]
 

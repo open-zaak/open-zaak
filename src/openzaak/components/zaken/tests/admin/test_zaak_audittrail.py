@@ -37,10 +37,11 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         }
 
         add_page = self.app.get(add_url)
+        form = add_page.forms["zaak_form"]
         for field, value in data.items():
-            add_page.form[field] = value
+            form[field] = value
 
-        add_page.form.submit().follow()
+        form.submit().follow()
         self.assertEqual(Zaak.objects.count(), 1)
         return Zaak.objects.get()
 
@@ -81,10 +82,11 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
             "archiefstatus": "nog_te_archiveren",
         }
         change_page = self.app.get(change_url)
+        form = change_page.forms["zaak_form"]
         for field, value in data.items():
-            change_page.form[field] = value
+            form[field] = value
 
-        change_page.form.submit().follow()
+        form.submit().follow()
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -143,7 +145,7 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
 
         get_response = self.app.get(change_url)
 
-        form = get_response.form
+        form = get_response.forms["zaak_form"]
         form.submit()
 
         self.assertEqual(AuditTrail.objects.count(), 0)

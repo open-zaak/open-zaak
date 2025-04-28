@@ -106,7 +106,7 @@ class ZaaktypeAdminTests(
         publish_page = self.app.get(url)
 
         with self.captureOnCommitCallbacks(execute=True):
-            response = publish_page.form.submit("_publish").follow()
+            response = publish_page.forms[1].submit("_publish").follow()
 
         zaaktype.refresh_from_db()
         self.assertFalse(zaaktype.concept)
@@ -237,7 +237,7 @@ class ZaaktypeAdminTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(url)
-        response = publish_page.form.submit("_publish")
+        response = publish_page.forms[1].submit("_publish")
         # returns same page on fail
         self.assertEqual(response.status_code, 200)
 
@@ -302,8 +302,9 @@ class ZaaktypeAdminTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(url)
-        publish_page.form["_auto-publish"] = True
-        response = publish_page.form.submit().follow()
+        form = publish_page.forms[1]
+        form["_auto-publish"] = True
+        response = form.submit().follow()
         # redirects on success
         self.assertEqual(response.status_code, 200)
 
@@ -371,7 +372,7 @@ class ZaaktypeAdminTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(url)
-        response = publish_page.form.submit("_publish")
+        response = publish_page.forms[1].submit("_publish")
         # returns same page on fail
         self.assertEqual(response.status_code, 200)
 
@@ -441,8 +442,9 @@ class ZaaktypeAdminTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(zaaktype.pk,))
         publish_page = self.app.get(url)
-        publish_page.form["_auto-publish"] = True
-        response = publish_page.form.submit().follow()
+        form = publish_page.forms[1]
+        form["_auto-publish"] = True
+        response = form.submit().follow()
         # redirects on success
         self.assertEqual(response.status_code, 200)
 
@@ -550,7 +552,7 @@ class PublishWithGeldigheidTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
         publish_page = self.app.get(url)
-        response = publish_page.form.submit()
+        response = publish_page.forms[1].submit()
 
         messages = list(response.context["messages"])
 
@@ -566,7 +568,7 @@ class PublishWithGeldigheidTests(
         self.old_zaaktype.datum_einde_geldigheid = "2018-01-09"
         self.old_zaaktype.save()
 
-        response = publish_page.form.submit()
+        response = publish_page.forms[1].submit()
 
         self.assertEqual(response.status_code, 302)
         self.zaaktype.refresh_from_db()
@@ -643,9 +645,9 @@ class PublishWithGeldigheidTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
         publish_page = self.app.get(url)
-        form = publish_page.form
+        form = publish_page.forms[1]
         form["_auto-publish"] = "value"
-        response = publish_page.form.submit()
+        response = form.submit()
         self.assertEqual(response.status_code, 200)
         messages = list(response.context["messages"])
         self.assertEqual(
@@ -660,9 +662,9 @@ class PublishWithGeldigheidTests(
         old_iot.datum_einde_geldigheid = "2023-03-31"
         old_iot.save()
 
-        form = response.form
+        form = response.forms[1]
         form["_auto-publish"] = "value"
-        response = publish_page.form.submit()
+        response = form.submit()
         self.assertEqual(response.status_code, 302)
 
     def test_failure_to_publish_related_besluit_type(self, request_mock):
@@ -688,9 +690,9 @@ class PublishWithGeldigheidTests(
 
         url = reverse("admin:catalogi_zaaktype_publish", args=(self.zaaktype.pk,))
         publish_page = self.app.get(url)
-        form = publish_page.form
+        form = publish_page.forms[1]
         form["_auto-publish"] = "value"
-        response = publish_page.form.submit()
+        response = form.submit()
         self.assertEqual(response.status_code, 200)
         messages = list(response.context["messages"])
         self.assertEqual(
@@ -705,9 +707,9 @@ class PublishWithGeldigheidTests(
         old_besluit_type.datum_einde_geldigheid = "2023-03-31"
         old_besluit_type.save()
 
-        form = response.form
+        form = response.forms[1]
         form["_auto-publish"] = "value"
-        response = publish_page.form.submit()
+        response = form.submit()
         self.assertEqual(response.status_code, 302)
 
 
@@ -739,12 +741,12 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         detail_page = self.app.get(url)
+        form = detail_page.forms["zaaktype_form"]
 
-        html = detail_page.form.html
-        self.assertNotIn(_("Publiceren"), html)
+        self.assertNotIn(_("Publiceren"), form.html)
 
         # try to submit it anyway
-        detail_page.form.submit("_publish", status=403)
+        form.submit("_publish", status=403)
 
     def test_informatieobjecttype_publish_not_possible(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
@@ -754,21 +756,21 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
         )
 
         detail_page = self.app.get(url)
+        form = detail_page.forms["informatieobjecttype_form"]
 
-        html = detail_page.form.html
-        self.assertNotIn(_("Publiceren"), html)
+        self.assertNotIn(_("Publiceren"), form.html)
 
         # try to submit it anyway
-        detail_page.form.submit("_publish", status=403)
+        form.submit("_publish", status=403)
 
     def test_besluittype_publish_not_possible(self):
         besluittype = BesluitTypeFactory.create(concept=True)
         url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
 
         detail_page = self.app.get(url)
+        form = detail_page.forms["besluittype_form"]
 
-        html = detail_page.form.html
-        self.assertNotIn(_("Publiceren"), html)
+        self.assertNotIn(_("Publiceren"), form.html)
 
         # try to submit it anyway
-        detail_page.form.submit("_publish", status=403)
+        form.submit("_publish", status=403)

@@ -48,7 +48,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
 
         form["gerelateerd_zaaktype_0"] = zaaktype1.pk
         form["aard_relatie"] = AardRelatieChoices.vervolg
@@ -83,7 +83,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
 
         form["gerelateerd_zaaktype_1"] = external_zt_url
         form["aard_relatie"] = AardRelatieChoices.vervolg
@@ -122,7 +122,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
 
         # Filling in both values
         form["gerelateerd_zaaktype_0"] = zaaktype1.pk
@@ -162,7 +162,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
         inputs = related_zaaktype.find_all("input")
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
         self.assertEqual(form["gerelateerd_zaaktype_0"].value, str(zaaktype1.pk))
 
         lookup = response.html.find("a", {"id": "lookup_id_gerelateerd_zaaktype_0"})
@@ -217,7 +217,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
         inputs = related_zaaktype.find_all("input")
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
         self.assertEqual(form["gerelateerd_zaaktype_0"].value, "")
         self.assertEqual(
             form["gerelateerd_zaaktype_1"].value, "http://catalogi.com/zaaktypen/1"
@@ -248,7 +248,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
         inputs = related_zaaktype.find_all("input")
         self.assertEqual(len(inputs), 2)
 
-        form = response.form
+        form = response.forms["zaaktypenrelatie_form"]
         self.assertEqual(form["gerelateerd_zaaktype_0"].value, "")
         self.assertEqual(form["gerelateerd_zaaktype_1"].value, external_zaaktype_url)
 

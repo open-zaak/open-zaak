@@ -35,7 +35,7 @@ class EigenschapSpecificatieAdminTests(WebTest):
             )
         )
 
-        response.form.submit()
+        response.forms["eigenschapspecificatie_form"].submit()
 
         specificatie.refresh_from_db()
 
@@ -43,7 +43,9 @@ class EigenschapSpecificatieAdminTests(WebTest):
         self.assertEqual(specificatie.waardenverzameling, ["some,comma", "bla"])
 
     def test_validation_length_comma_separated(self):
-        form = self.app.get(reverse("admin:catalogi_eigenschapspecificatie_add")).form
+        form = self.app.get(reverse("admin:catalogi_eigenschapspecificatie_add")).forms[
+            "eigenschapspecificatie_form"
+        ]
 
         form["formaat"] = "getal"
         form["lengte"] = "5,3"
@@ -77,12 +79,14 @@ class EigenschapAdminTests(WebTest):
 
         response = self.app.get(reverse("admin:catalogi_eigenschap_add"))
 
-        response.form["eigenschapnaam"] = "foo"
-        response.form["definitie"] = "bar"
-        response.form["specificatie_van_eigenschap"] = specificatie.id
-        response.form["toelichting"] = "baz"
-        response.form["zaaktype"] = zaaktype.id
-        response = response.form.submit()
+        form = response.forms["eigenschap_form"]
+
+        form["eigenschapnaam"] = "foo"
+        form["definitie"] = "bar"
+        form["specificatie_van_eigenschap"] = specificatie.id
+        form["toelichting"] = "baz"
+        form["zaaktype"] = zaaktype.id
+        response = form.submit()
 
         self.assertEqual(
             response.context["adminform"].errors,

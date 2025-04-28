@@ -29,7 +29,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         get_response = self.app.get(reverse("admin:zaken_rol_add"))
 
-        form = get_response.form
+        form = get_response.forms["rol_form"]
         form["zaak"] = zaak.id
         form["_roltype"] = roltype.id
         form["betrokkene_type"] = "natuurlijk_persoon"
@@ -55,7 +55,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(Rol.objects.count(), 0)
 
         get_response = self.app.get(reverse("admin:zaken_rol_add"))
-        form = get_response.form
+        form = get_response.forms["rol_form"]
         form["zaak"] = zaak.id
         form["_roltype"] = roltype.id
         form["betrokkene_type"] = "natuurlijk_persoon"
@@ -75,7 +75,7 @@ class RolAdminTests(AdminTestMixin, WebTest):
 
         get_response = self.app.get(reverse("admin:zaken_rol_change", args=(rol.pk,)))
 
-        form = get_response.form
+        form = get_response.forms["rol_form"]
         form["roltoelichting"] = "new"
         form.submit()
 

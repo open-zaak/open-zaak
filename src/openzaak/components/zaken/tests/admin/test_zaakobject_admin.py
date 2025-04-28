@@ -29,7 +29,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         zaakobjecttype = ZaakObjectTypeFactory.create(zaaktype=zaak.zaaktype)
 
         get_response = self.app.get(reverse("admin:zaken_zaakobject_add"))
-        form = get_response.form
+        form = get_response.forms["zaakobject_form"]
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
@@ -51,7 +51,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         zaakobjecttype = ZaakObjectTypeFactory.create(zaaktype=zaaktype2)
 
         get_response = self.app.get(reverse("admin:zaken_zaakobject_add"))
-        form = get_response.form
+        form = get_response.forms["zaakobject_form"]
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
@@ -75,7 +75,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         get_response = self.app.get(
             reverse("admin:zaken_zaakobject_change", args=(zaakobject.pk,))
         )
-        form = get_response.form
+        form = get_response.forms["zaakobject_form"]
         form["object"] = "http://example.com/adres/2"
         form["_zaakobjecttype"] = zaakobjecttype.id
         form.submit()

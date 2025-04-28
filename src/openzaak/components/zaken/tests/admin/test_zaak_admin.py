@@ -101,9 +101,10 @@ class ZaakAdminTests(WebTest):
         zaak = ZaakFactory.create(identificatie="ZK bläh")
         url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
         response = self.app.get(url)
-        self.assertEqual(response.form["identificatie"].value, "ZK bläh")
+        form = response.forms["zaak_form"]
+        self.assertEqual(form["identificatie"].value, "ZK bläh")
 
-        submit_response = response.form.submit()
+        submit_response = response.forms["zaak_form"].submit()
 
         self.assertEqual(submit_response.status_code, 302)
 
@@ -194,7 +195,7 @@ class ZaakAdminTests(WebTest):
 
         response = self.app.get(zaak_add_url)
 
-        form = response.form
+        form = response.forms["zaak_form"]
         form["_zaaktype_base_url"] = self.service.pk
         form["_zaaktype_relative_url"] = "zaken/c10edbb4-d038-4333-a9ba-bbccfc8fa8bd"
         form["vertrouwelijkheidaanduiding"] = VertrouwelijkheidsAanduiding.openbaar
@@ -327,16 +328,17 @@ class ZaakAdminTests(WebTest):
         url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 
         response = self.app.get(url)
+        form = response.forms["zaak_form"]
 
         self.assertEqual(
-            json.loads(response.form["zaakgeometrie"].value),
+            json.loads(form["zaakgeometrie"].value),
             {
                 "type": "Point",
                 "coordinates": [539117.738791828393005, 6870138.495812701061368],
             },
         )
 
-        submit_response = response.form.submit()
+        submit_response = response.forms["zaak_form"].submit()
         self.assertEqual(submit_response.status_code, 302)
 
         zaak.refresh_from_db()
@@ -352,7 +354,7 @@ class ZaakAdminTests(WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms["zaak_form"]
         form["opschorting_indicatie"] = True
 
         submit_response = form.submit()

@@ -186,7 +186,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -197,7 +197,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["generate_new_uuids"] = False
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -266,7 +266,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -277,7 +277,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["generate_new_uuids"] = True
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -350,7 +350,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -361,7 +361,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["generate_new_uuids"] = False
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -433,7 +433,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -444,7 +444,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["generate_new_uuids"] = True
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -523,7 +523,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -533,9 +533,10 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
+        form = response.forms[1]
 
-        response.form["iotype-0-existing"] = self.informatieobjecttype.id
-        response = response.form.submit("_select")
+        form["iotype-0-existing"] = self.informatieobjecttype.id
+        form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -583,7 +584,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -593,9 +594,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
-
-        response.form["besluittype-0-existing"] = self.besluittype.id
-        response = response.form.submit("_select")
+        form = response.forms[1]
+        form["besluittype-0-existing"] = self.besluittype.id
+        response = form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -644,7 +645,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -654,10 +655,10 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
-
-        response.form["besluittype-0-existing"] = self.besluittype.id
-        response.form["iotype-0-existing"] = self.informatieobjecttype.id
-        response = response.form.submit("_select")
+        form = response.forms[1]
+        form["besluittype-0-existing"] = self.besluittype.id
+        form["iotype-0-existing"] = self.informatieobjecttype.id
+        response = form.submit("_select")
 
         imported_catalogus = Catalogus.objects.get()
         besluittype = BesluitType.objects.get()
@@ -728,7 +729,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data_zaaktype1)
         f.name = "test.zip"
         f.seek(0)
@@ -741,7 +742,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response2 = self.app2.get(url)
 
-        form = response2.form
+        form = response2.forms[1]
         f = io.BytesIO(data_zaaktype2)
         f.name = "test2.zip"
         f.seek(0)
@@ -752,14 +753,14 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response2 = form.submit("_import_zaaktype").follow()
 
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         Catalogus.objects.get()
         zaaktype = ZaakType.objects.get()
 
         self.assertEqual(zaaktype.zaaktype_omschrijving, "zaaktype1")
 
-        response2 = response2.form.submit("_select")
+        response2 = response2.forms[1].submit("_select")
 
         self.assertEqual(ZaakType.objects.count(), 2)
         zaaktype1, zaaktype2 = ZaakType.objects.all().order_by("zaaktype_omschrijving")
@@ -877,7 +878,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -886,8 +887,9 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             f.read(),
         )
         response = form.submit("_import_zaaktype").follow()
+        form = response.forms[1]
 
-        iotype_field_0 = response.form["iotype-0-existing"]
+        iotype_field_0 = form["iotype-0-existing"]
         self.assertEqual(len(iotype_field_0.options), 5)
         # Create new object
         self.assertEqual(iotype_field_0.options[0][2], _("Create new"))
@@ -905,7 +907,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(iotype_field_0.options[4][2], str(iot_4))
 
         # BesluitType exists and should be selected
-        besluittype_field_0 = response.form["besluittype-0-existing"]
+        besluittype_field_0 = form["besluittype-0-existing"]
         self.assertEqual(len(besluittype_field_0.options), 5)
         # Create new object
         self.assertEqual(besluittype_field_0.options[0][2], _("Create new"))
@@ -996,7 +998,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1024,7 +1026,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             "openzaak.components.catalogi.admin.admin_views.construct_iotypen",
             side_effect=CommandError("some error"),
         ):
-            response = response.form.submit("_select")
+            response = response.forms[1].submit("_select")
         self.assertEqual(response.status_code, 200)
         # labels should be correct on form validation failure
         self.assertEqual(returned_labels, expected_labels)
@@ -1077,7 +1079,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1086,37 +1088,32 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             f.read(),
         )
         response = form.submit("_import_zaaktype").follow()
+        form = response.forms[1]
         # default value and order of fields is not guaranteed, will be in #1493
-        response.form["iotype-0-existing"].value = iot_3.pk
-        response.form["iotype-1-existing"].value = iot_1.pk
-        response.form["iotype-2-existing"].value = iot_2.pk
+        form["iotype-0-existing"].value = iot_3.pk
+        form["iotype-1-existing"].value = iot_1.pk
+        form["iotype-2-existing"].value = iot_2.pk
 
-        response.form["besluittype-0-existing"].value = besluittype3.pk
-        response.form["besluittype-1-existing"].value = besluittype1.pk
-        response.form["besluittype-2-existing"].value = besluittype2.pk
+        form["besluittype-0-existing"].value = besluittype3.pk
+        form["besluittype-1-existing"].value = besluittype1.pk
+        form["besluittype-2-existing"].value = besluittype2.pk
 
         with patch(
             "openzaak.components.catalogi.admin.admin_views.construct_iotypen",
             side_effect=CommandError("some error"),
         ):
-            response = response.form.submit("_select")
+            response = form.submit("_select")
 
         # should fail as it imports overlapping IOTs and besluit types
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.form["iotype-0-existing"].value, str(iot_3.pk))
-        self.assertEqual(response.form["iotype-1-existing"].value, str(iot_1.pk))
-        self.assertEqual(response.form["iotype-2-existing"].value, str(iot_2.pk))
+        self.assertEqual(form["iotype-0-existing"].value, str(iot_3.pk))
+        self.assertEqual(form["iotype-1-existing"].value, str(iot_1.pk))
+        self.assertEqual(form["iotype-2-existing"].value, str(iot_2.pk))
 
-        self.assertEqual(
-            response.form["besluittype-0-existing"].value, str(besluittype3.pk)
-        )
-        self.assertEqual(
-            response.form["besluittype-1-existing"].value, str(besluittype1.pk)
-        )
-        self.assertEqual(
-            response.form["besluittype-2-existing"].value, str(besluittype2.pk)
-        )
+        self.assertEqual(form["besluittype-0-existing"].value, str(besluittype3.pk))
+        self.assertEqual(form["besluittype-1-existing"].value, str(besluittype1.pk))
+        self.assertEqual(form["besluittype-2-existing"].value, str(besluittype2.pk))
 
     def test_import_zaaktype_auto_match_besluittype_and_informatieobjecttype(
         self, *mocks
@@ -1165,7 +1162,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1179,9 +1176,10 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         besluittype2.delete()
 
         response = form.submit("_import_zaaktype").follow()
+        form = response.forms[1]
 
         # IOT exists and should be selected
-        iotype_field_0 = response.form["iotype-0-existing"]
+        iotype_field_0 = form["iotype-0-existing"]
         self.assertEqual(len(iotype_field_0.options), 2)
         self.assertEqual(  # default option not selected
             iotype_field_0.options[0], ("", False, _("Create new"))
@@ -1193,7 +1191,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(iotype_field_0.value, str(informatieobjecttype.pk))
 
         # IOT does not exist and should select create new
-        iotype_field_1 = response.form["iotype-1-existing"]
+        iotype_field_1 = form["iotype-1-existing"]
         self.assertEqual(len(iotype_field_1.options), 2)
         self.assertEqual(  # default option selected
             iotype_field_1.options[0], ("", True, _("Create new"))
@@ -1205,7 +1203,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(iotype_field_1.value, "")
 
         # BesluitType exists and should be selected
-        besluittype_field_0 = response.form["besluittype-0-existing"]
+        besluittype_field_0 = form["besluittype-0-existing"]
         self.assertEqual(len(besluittype_field_0.options), 2)
         self.assertEqual(  # default option not selected
             besluittype_field_0.options[0], ("", False, _("Create new"))
@@ -1217,7 +1215,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertEqual(besluittype_field_0.value, str(besluittype1.pk))
 
         # BesluitType does not exist and should select create new
-        besluittype_field_1 = response.form["besluittype-1-existing"]
+        besluittype_field_1 = form["besluittype-1-existing"]
         self.assertEqual(len(besluittype_field_1.options), 2)
         self.assertEqual(  # default option selected
             besluittype_field_1.options[0], ("", True, _("Create new"))
@@ -1273,7 +1271,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1287,7 +1285,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         besluittype2.delete()
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.all().count(), 1)
@@ -1360,7 +1358,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1370,16 +1368,17 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
+        form = response.forms[1]
 
-        iotype_field = response.form["iotype-0-existing"]
+        iotype_field = form["iotype-0-existing"]
         self.assertNotEqual(iotype_field.value, str(iot1.pk))
         self.assertEqual(iotype_field.value, str(iot2.pk))
 
-        bt_field = response.form["besluittype-0-existing"]
+        bt_field = form["besluittype-0-existing"]
         self.assertNotEqual(bt_field.value, str(besluittype1.pk))
         self.assertEqual(bt_field.value, str(besluittype2.pk))
 
-        response = response.form.submit("_select")
+        response = form.submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -1430,7 +1429,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(import_url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(export_data)
         f.name = "test.zip"
         f.seek(0)
@@ -1440,7 +1439,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
 
@@ -1482,7 +1481,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1496,7 +1495,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         self.assertFalse(ZaakType.objects.filter(identificatie="ZAAKTYPE_1").exists())
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(ZaakType.objects.filter(identificatie="ZAAKTYPE_1").exists())
@@ -1541,7 +1540,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.seek(0)
         form["file"] = (
@@ -1551,7 +1550,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["identificatie_prefix"] = "PREFIX"
         response = form.submit("_import_zaaktype").follow()
 
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(ZaakType.objects.all().count(), 2)
         self.assertTrue(
@@ -1602,7 +1601,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1614,7 +1613,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         form["identificatie_prefix"] = "PREFIX"
         response = form.submit("_import_zaaktype").follow()
 
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ZaakType.objects.all().count(), 1)
 
@@ -1638,7 +1637,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO()
         f.name = "test.zip"
         f.seek(0)
@@ -1725,7 +1724,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         fin = io.BytesIO(data)
         fin.name = "test.zip"
         fin.seek(0)
@@ -1752,7 +1751,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertEqual(response.status_code, 200)
         messages = list(response.context["messages"])
@@ -1844,7 +1843,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
         )
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1853,7 +1852,7 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             f.read(),
         )
         response = form.submit("_import_zaaktype").follow()
-        response.form.submit("_select")
+        response.forms[1].submit("_select")
 
         self.assertEqual(ZaakType.objects.filter(catalogus=self.catalogus).count(), 1)
         new_zaaktype = ZaakType.objects.get(catalogus=self.catalogus)
@@ -1961,7 +1960,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -1977,7 +1976,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         )
 
         response = form.submit("_import_zaaktype").follow()
-        response = response.form.submit("_select")
+        response = response.forms[1].submit("_select")
 
         self.assertIn(
             _("A validation error occurred while deserializing a {}\n{}").format(
@@ -2013,7 +2012,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
 
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -2066,7 +2065,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -2081,7 +2080,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         zaaktype.save()
 
         response = form.submit("_import_zaaktype").follow()
-        form = response.form
+        form = response.forms[1]
         form["iotype-0-existing"].value = ""
         response = form.submit("_select")
 
@@ -2113,7 +2112,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         url = reverse("admin:catalogi_catalogus_import_zaaktype", args=(catalogus.pk,))
         response = self.app.get(url)
 
-        form = response.form
+        form = response.forms[1]
         f = io.BytesIO(data)
         f.name = "test.zip"
         f.seek(0)
@@ -2128,7 +2127,7 @@ class ZaakTypeAdminImportExportTransactionTests(MockSelectielijst, TransactionWe
         zaaktype.save()
 
         response = form.submit("_import_zaaktype").follow()
-        form = response.form
+        form = response.forms[1]
         form["besluittype-0-existing"].value = ""
         response = form.submit("_select")
 
@@ -2160,12 +2159,13 @@ class ReadOnlyUserTests(WebTest):
         url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
 
         detail_page = self.app.get(url)
+        form = detail_page.forms["zaaktype_form"]
 
-        html = detail_page.form.html
+        html = form.html
         self.assertNotIn(_("Exporteren"), html)
 
         # try to submit it anyway
-        detail_page.form.submit("_export", status=403)
+        form.submit("_export", status=403)
 
     def test_import_catalogus_zaaktype(self):
         catalogus = CatalogusFactory.create()
