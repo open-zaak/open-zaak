@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
 import requests_mock
+from unittest.mock import patch
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -31,6 +32,17 @@ class SelectieLijstMixin:
 
     def setUp(self):
         super().setUp()
+
+        patcher = patch(
+            "openzaak.selectielijst.api.ReferentieLijstConfig.get_solo",
+            return_value=ReferentieLijstConfig(
+                default_year=2020,
+                allowed_years=[2017, 2020],
+                service=self.service,
+            ),
+        )
+        self.mock_get_solo = patcher.start()
+        self.addCleanup(patcher.stop)
 
         mocker = requests_mock.Mocker()
         mocker.start()
