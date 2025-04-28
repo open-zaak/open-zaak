@@ -38,9 +38,14 @@ jobs:
         id: changed-requirements
         run: bin/check_changed_files.sh ^requirements/.*\.txt$
 
+      - name: Get changed templates
+        id: changed-templates
+        run: bin/check_changed_files.sh ^src/.*\.html$
+
     outputs:
       changed-py-files: ${{ steps.changed-py-files.outputs.any_changed }}
       changed-requirements: ${{ steps.changed-requirements.outputs.any_changed }}
+      changed-templates: ${{ steps.changed-templates.outputs.any_changed }}
 
   cmis-init:  # regression check for #972
     runs-on: ubuntu-latest
@@ -100,7 +105,7 @@ jobs:
       - changed-files
 
     # only run tests if source files have changed (e.g. skip for PRs that only update docs)
-    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| github.event_name == 'push' }}
+    if: ${{ needs.changed-files.outputs.changed-py-files == 'true'|| needs.changed-files.outputs.changed-requirements == 'true'|| needs.changed-files.outputs.changed-templates|| github.event_name == 'push' }}
 
     strategy:
       matrix:
