@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Case, IntegerField, Q, When
+from django.db.models import Q
 from django.http.request import validate_host
 
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -53,18 +53,6 @@ class LooseFkAuthorizationsFilterMixin:
         )
 
     def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
-        if not self.vertrouwelijkheidaanduiding_use:
-            del local_filters["_va_order__lte"]
-            del external_filters["_va_order__lte"]
-
-        _local_filters = Q()
-        for k, v in local_filters.items():
-            _local_filters &= Q(**{k: v})
-
-        _external_filters = Q()
-        for k, v in external_filters.items():
-            _external_filters &= Q(**{k: v})
-
         if self.vertrouwelijkheidaanduiding_use:
             # annotate the queryset so we can map a string value to a logical number
             order_case = VertrouwelijkheidsAanduiding.get_order_expression(
@@ -73,16 +61,21 @@ class LooseFkAuthorizationsFilterMixin:
             annotations = {"_va_order": order_case}
             # bring it all together now to build the resulting queryset
             queryset = self.annotate(**annotations).filter(
-                _local_filters | _external_filters
+                local_filters | external_filters
             )
 
         else:
-            queryset = self.filter(_local_filters | _external_filters)
+            queryset = self.filter(local_filters | external_filters)
         return queryset
 
     def get_filters(
-        self, scope, authorizations, catalogus_authorizations=None, local=True
-    ) -> dict:
+        self,
+        scope,
+        authorizations,
+        catalogus_authorizations=None,
+        local=True,
+        use_va=True,
+    ) -> Q:
         prefix = self.prefix
         loose_fk_field = (
             f"_{self.loose_fk_field}" if local else f"_{self.loose_fk_field}_url"
@@ -146,23 +139,17 @@ class LooseFkAuthorizationsFilterMixin:
                         )
                         va_mapping[choice_item_order].append(instance)
 
-        # Group the When clauses by vertrouwelijkheidaanduiding, to avoid a lot of
-        # duplicate `THEN ...` statements
-        vertrouwelijkheidaanduiding_whens = [
-            When(**{f"{prefix}{loose_fk_field}__in": instances}, then=max_va)
-            for max_va, instances in va_mapping.items()
-        ]
+        if not use_va:
+            return Q(**{f"{prefix}{loose_fk_field}__in": loose_fk_objecten})
 
-        # filtering:
-        # * only allow the white-listed loose-fk objects, explicitly
-        # * apply the filtering to limit cases within case-types to the maximal
-        #   confidentiality level
-        filters = {
-            f"{prefix}{loose_fk_field}__in": loose_fk_objecten,
-            "_va_order__lte": Case(
-                *vertrouwelijkheidaanduiding_whens, output_field=IntegerField()
-            ),
-        }
+        # Combine the filters: group the minimum required confidentiality with
+        # the instances (zaaktypen/informatieobjecttypen) for which this constraint
+        # applies
+        filters = Q()
+        for max_va, instances in va_mapping.items():
+            filters |= Q(_va_order__lte=max_va) & Q(
+                **{f"{prefix}{loose_fk_field}__in": instances}
+            )
         return filters
 
     def get_authorizations(self, scope: Scope, authorizations: models.QuerySet):
@@ -201,6 +188,12 @@ class LooseFkAuthorizationsFilterMixin:
             authorizations_local,
             catalogus_authorizations=catalogus_authorizations,
             local=True,
+            use_va=self.vertrouwelijkheidaanduiding_use,
         )
-        external_filters = self.get_filters(scope, authorizations_external, local=False)
+        external_filters = self.get_filters(
+            scope,
+            authorizations_external,
+            local=False,
+            use_va=self.vertrouwelijkheidaanduiding_use,
+        )
         return self.build_queryset(local_filters, external_filters)
