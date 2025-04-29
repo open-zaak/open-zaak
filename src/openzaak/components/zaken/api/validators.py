@@ -300,7 +300,7 @@ class DeelzaakReopenValidator:
         if not zaak or not zaak.hoofdzaak or not zaak.hoofdzaak.current_status:
             return
 
-        if zaak.hoofdzaak.current_status.statustype.is_eindstatus():
+        if zaak.hoofdzaak.current_status.statustype.is_eindstatus:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
@@ -339,26 +339,7 @@ class EndStatusDeelZakenValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
     def check_internal_status_types(self, qs):
-        eind_statustypevolgnummer = (
-            StatusType.objects.filter(zaaktype=OuterRef("_zaaktype"))
-            .order_by("-statustypevolgnummer")
-            .values("statustypevolgnummer")[:1]
-        )
-
-        current_status_volgnummer = (
-            Status.objects.filter(zaak=OuterRef("pk"))
-            .select_related("statustype")
-            .values("_statustype__statustypevolgnummer")[:1]
-        )
-
-        qs = qs.annotate(
-            eind_statustype_max=Subquery(
-                eind_statustypevolgnummer, output_field=IntegerField()
-            ),
-            current_status_volgnummer=Subquery(
-                current_status_volgnummer, output_field=IntegerField()
-            ),
-        ).exclude(current_status_volgnummer=F("eind_statustype_max"))
+        qs = qs.exclude(status___statustype__is_eindstatus=True)
 
         if qs.exists():
             raise serializers.ValidationError(self.message, code=self.code)

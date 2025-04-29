@@ -99,6 +99,12 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         null=True,
         help_text=_("Een eventuele toelichting op dit STATUSTYPE."),
     )
+    is_eindstatus = models.BooleanField(
+        _("is eindstatus"),
+        default=False,
+        help_text=_(""),
+        editable=False,
+    )
 
     class Meta:
         unique_together = ("zaaktype", "statustypevolgnummer")
@@ -111,7 +117,7 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
 
         validate_zaaktype_concept(self.zaaktype)
 
-    def is_eindstatus(self):
+    def _is_eindstatus(self):
         """
         Sorting by statustypevolgnummer desc is performed in StatusType.Meta.ordering
         """
@@ -120,6 +126,12 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
 
     def __str__(self):
         return self.statustype_omschrijving
+
+    def save(self, *args, **kwargs):
+        if self._is_eindstatus():
+            self.zaaktype.statustypen.update(is_eindstatus=False)
+            self.is_eindstatus = True
+        super().save(*args, **kwargs)
 
 
 class CheckListItem(models.Model):

@@ -689,7 +689,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         if isinstance(statustype, ProxyMixin):
             attrs["__is_eindstatus"] = statustype._initial_data["is_eindstatus"]
         else:
-            attrs["__is_eindstatus"] = statustype.is_eindstatus()
+            attrs["__is_eindstatus"] = statustype.is_eindstatus
         return attrs
 
     def validate(self, attrs):
