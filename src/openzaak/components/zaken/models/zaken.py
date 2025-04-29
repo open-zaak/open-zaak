@@ -476,6 +476,9 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     class Meta:
         verbose_name = "zaak"
         verbose_name_plural = "zaken"
+        # indexes = [
+        #     models.Index(fields=['_zaaktype_id', '_vertrouwelijkheidaanduiding']),
+        # ]
 
     def __str__(self):
         return self.identificatie
