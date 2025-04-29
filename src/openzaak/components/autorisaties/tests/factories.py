@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import factory.fuzzy
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import (  # VA_MAPPING,
+    ComponentTypes,
+    VertrouwelijkheidsAanduiding,
+)
 
 from openzaak.components.catalogi.tests.factories import CatalogusFactory
 
@@ -22,6 +25,13 @@ class AutorisatieFactory(factory.django.DjangoModelFactory):
     max_vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
         choices=VertrouwelijkheidsAanduiding.values
     )
+
+    # @factory.post_generation
+    # def set_max_vertrouwelijkheidaanduiding_int(obj, create, extracted, **kwargs):
+    #     if not obj._max_vertrouwelijkheidaanduiding:  # If not explicitly provided
+    #         obj._max_vertrouwelijkheidaanduiding = VA_MAPPING[
+    #             obj.max_vertrouwelijkheidaanduiding.value
+    #         ]
 
     class Meta:
         model = "authorizations.Autorisatie"
