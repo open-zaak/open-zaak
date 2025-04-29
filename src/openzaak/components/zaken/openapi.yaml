@@ -15255,8 +15255,8 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         betalingsindicatieWeergave:
           type: string
-          readOnly: true
           description: Uitleg bij `betalingsindicatie`.
+          readOnly: true
         laatsteBetaaldatum:
           type: string
           format: date-time

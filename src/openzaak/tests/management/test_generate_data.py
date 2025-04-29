@@ -119,7 +119,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
 
         # assert that some attributes are filled
         # catalogi
-        zaaktype = ZaakType.objects.first()
+        zaaktype = ZaakType.objects.order_by("pk").first()
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
         self.assertEqual(
             zaaktype.selectielijst_procestype,
@@ -153,7 +153,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             self.assertEqual(applicatie.heeft_alle_autorisaties, False)
             self.assertEqual(applicatie.autorisaties.count(), 15)
 
-            autorisatie = applicatie.autorisaties.first()
+            autorisatie = applicatie.autorisaties.order_by("pk").first()
             self.assertEqual(autorisatie.component, ComponentTypes.zrc)
             self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
             self.assertEqual(
@@ -175,7 +175,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             self.assertEqual(applicatie.heeft_alle_autorisaties, False)
             self.assertEqual(applicatie.autorisaties.count(), 25)
 
-            autorisatie = applicatie.autorisaties.first()
+            autorisatie = applicatie.autorisaties.order_by("pk").first()
             self.assertEqual(autorisatie.component, ComponentTypes.zrc)
             self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
             self.assertEqual(
