@@ -2,12 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.test import TestCase, override_settings
 
+from privates.test import temp_private_root
+
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
 
 
+@temp_private_root()
 @override_settings(CMIS_ENABLED=False)
 class LastVersionTests(TestCase):
     def test_canonical_last_version(self):
