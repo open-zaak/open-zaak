@@ -15,6 +15,9 @@ class StatustypeTests(TestCase):
         statustype2 = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype3 = StatusTypeFactory.create(zaaktype=zaaktype)
 
+        statustype1.refresh_from_db()
+        statustype2.refresh_from_db()
+
         self.assertEqual(statustype1.is_eindstatus, False)
         self.assertEqual(statustype2.is_eindstatus, False)
         self.assertEqual(statustype3.is_eindstatus, True)

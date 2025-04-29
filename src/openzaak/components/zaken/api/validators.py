@@ -8,7 +8,7 @@ from typing import Iterable, Optional
 
 from django.conf import settings
 from django.db import models
-from django.db.models import F, IntegerField, Max, OuterRef, Subquery
+from django.db.models import Max, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -31,9 +31,8 @@ from openzaak.components.documenten.models import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
-from ...catalogi.models import StatusType
 from ..constants import AardZaakRelatie, IndicatieMachtiging
-from ..models import Status, Zaak
+from ..models import Zaak
 
 logger = logging.getLogger(__name__)
 

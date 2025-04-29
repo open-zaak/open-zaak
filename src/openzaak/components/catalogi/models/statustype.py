@@ -102,7 +102,11 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
     is_eindstatus = models.BooleanField(
         _("is eindstatus"),
         default=False,
-        help_text=_(""),
+        help_text=_(
+            "Geeft aan dat dit STATUSTYPE een eindstatus betreft. Dit "
+            "gegeven is afgeleid uit alle STATUSTYPEn van dit ZAAKTYPE "
+            "met het hoogste volgnummer."
+        ),
         editable=False,
     )
 
@@ -122,13 +126,16 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         Sorting by statustypevolgnummer desc is performed in StatusType.Meta.ordering
         """
         last_statustype = self.zaaktype.statustypen.first()
-        return last_statustype == self
+        return (
+            last_statustype is None
+            or self.statustypevolgnummer >= last_statustype.statustypevolgnummer
+        )
 
     def __str__(self):
         return self.statustype_omschrijving
 
     def save(self, *args, **kwargs):
-        if self._is_eindstatus():
+        if self.pk is None and self._is_eindstatus():
             self.zaaktype.statustypen.update(is_eindstatus=False)
             self.is_eindstatus = True
         super().save(*args, **kwargs)
