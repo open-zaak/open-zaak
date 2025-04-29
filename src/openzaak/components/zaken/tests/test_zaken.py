@@ -818,6 +818,65 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, zaaknummer)
         self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
 
+    @tag("gh-2011")
+    def test_betalingsindicatie_weergave(self):
+        """
+        Verify that `betalingsindicatieWeergave` is correctly displayed for different
+        `betalingsindicatie` values
+        """
+        ZaakFactory.create(
+            zaaktype=self.zaaktype, betalingsindicatie=BetalingsIndicatie.nvt
+        )
+        ZaakFactory.create(
+            zaaktype=self.zaaktype, betalingsindicatie=BetalingsIndicatie.nog_niet
+        )
+        ZaakFactory.create(
+            zaaktype=self.zaaktype, betalingsindicatie=BetalingsIndicatie.gedeeltelijk
+        )
+        ZaakFactory.create(
+            zaaktype=self.zaaktype, betalingsindicatie=BetalingsIndicatie.geheel
+        )
+        ZaakFactory.create(zaaktype=self.zaaktype, betalingsindicatie="invalid")
+        ZaakFactory.create(zaaktype=self.zaaktype, betalingsindicatie="")
+
+        response = self.client.get(reverse(Zaak), **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+
+        self.assertEqual(data["count"], 6)
+
+        zaak1, zaak2, zaak3, zaak4, zaak5, zaak6 = data["results"]
+
+        self.assertEqual(zaak1["betalingsindicatie"], "")
+        self.assertEqual(zaak1["betalingsindicatieWeergave"], "")
+
+        # Having an invalid choice for `betalingsindicatie` should not cause error when
+        # generating `betalingsindicatieWeergave`
+        self.assertEqual(zaak2["betalingsindicatie"], "invalid")
+        self.assertEqual(zaak2["betalingsindicatieWeergave"], "")
+
+        self.assertEqual(zaak3["betalingsindicatie"], BetalingsIndicatie.geheel)
+        self.assertEqual(
+            zaak3["betalingsindicatieWeergave"], BetalingsIndicatie.geheel.label
+        )
+
+        self.assertEqual(zaak4["betalingsindicatie"], BetalingsIndicatie.gedeeltelijk)
+        self.assertEqual(
+            zaak4["betalingsindicatieWeergave"], BetalingsIndicatie.gedeeltelijk.label
+        )
+
+        self.assertEqual(zaak5["betalingsindicatie"], BetalingsIndicatie.nog_niet)
+        self.assertEqual(
+            zaak5["betalingsindicatieWeergave"], BetalingsIndicatie.nog_niet.label
+        )
+
+        self.assertEqual(zaak6["betalingsindicatie"], BetalingsIndicatie.nvt)
+        self.assertEqual(
+            zaak6["betalingsindicatieWeergave"], BetalingsIndicatie.nvt.label
+        )
+
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

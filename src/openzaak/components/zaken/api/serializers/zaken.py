@@ -275,7 +275,7 @@ class ZaakSerializer(
         "beter kan via `ZaakObject`.",
     )
 
-    betalingsindicatie_weergave = serializers.CharField(
+    betalingsindicatie_weergave = serializers.SerializerMethodField(
         source="get_betalingsindicatie_display",
         read_only=True,
         help_text=_("Uitleg bij `betalingsindicatie`."),
@@ -481,6 +481,18 @@ class ZaakSerializer(
             ZaakArchiveIOsArchivedValidator(),
             HoofdZaaktypeRelationValidator(),
         ]
+
+    def get_betalingsindicatie_weergave(self, obj: Zaak) -> str:
+        """
+        Display the label of the betalingsindicatie choice for the Zaak
+        """
+        if (
+            not obj.betalingsindicatie
+            or obj.betalingsindicatie not in BetalingsIndicatie
+        ):
+            return ""
+
+        return BetalingsIndicatie[obj.betalingsindicatie].label
 
     def get_fields(self):
         fields = super().get_fields()
