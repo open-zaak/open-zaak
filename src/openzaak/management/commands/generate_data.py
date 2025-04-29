@@ -619,7 +619,7 @@ class Command(BaseCommand):
 
         num_authorized_zaaktypen = min(ZaakType.objects.count(), 15)
         request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
-        for zaaktype in ZaakType.objects.all()[:num_authorized_zaaktypen]:
+        for zaaktype in ZaakType.objects.order_by("pk")[:num_authorized_zaaktypen]:
             AutorisatieFactory.create(
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
@@ -638,7 +638,7 @@ class Command(BaseCommand):
 
         num_authorized_zaaktypen = max(ZaakType.objects.count() - 5, 1)
         request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
-        for zaaktype in ZaakType.objects.all()[:num_authorized_zaaktypen]:
+        for zaaktype in ZaakType.objects.order_by("pk")[:num_authorized_zaaktypen]:
             AutorisatieFactory.create(
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
