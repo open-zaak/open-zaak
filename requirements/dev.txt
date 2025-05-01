@@ -19,6 +19,8 @@ ansible==9.12.0
     # via -r requirements/../deployment/requirements.in
 ansible-core==2.16.14
     # via ansible
+anyio==4.9.0
+    # via httpx
 ape-pie==0.2.0
     # via
     #   -c requirements/ci.txt
@@ -83,9 +85,11 @@ boltons==24.0.0
     #   -r requirements/ci.txt
     #   face
     #   glom
+bracex==2.5.post1
+    # via wcmatch
 build==1.2.1
     # via pip-tools
-bump2version==1.0.1
+bump-my-version==1.1.2
     # via -r requirements/dev.in
 cachetools==4.1.1
     # via google-auth
@@ -112,6 +116,8 @@ certifi==2024.7.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   elastic-apm
+    #   httpcore
+    #   httpx
     #   kubernetes
     #   requests
     #   self-certifi
@@ -131,11 +137,13 @@ click==8.1.7
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   black
+    #   bump-my-version
     #   celery
     #   click-didyoumean
     #   click-plugins
     #   click-repl
     #   pip-tools
+    #   rich-click
 click-didyoumean==0.3.0
     # via
     #   -c requirements/ci.txt
@@ -552,11 +560,17 @@ google-auth==1.21.2
     # via kubernetes
 gprof2dot==2019.11.30
     # via django-silk
+h11==0.16.0
+    # via httpcore
+httpcore==1.0.9
+    # via httpx
 httplib2==0.20.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cmislib-maykin
+httpx==0.28.1
+    # via bump-my-version
 humanize==4.0.0
     # via
     #   -c requirements/ci.txt
@@ -566,6 +580,8 @@ idna==3.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   anyio
+    #   httpx
     #   requests
     #   yarl
 imagesize==1.4.1
@@ -645,6 +661,8 @@ markdown==3.3.6
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx-markdown-tables
+markdown-it-py==3.0.0
+    # via rich
 markupsafe==2.1.1
     # via
     #   -c requirements/ci.txt
@@ -660,6 +678,8 @@ mccabe==0.7.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   flake8
+mdurl==0.1.2
+    # via markdown-it-py
 mozilla-django-oidc==4.0.1
     # via
     #   -c requirements/ci.txt
@@ -749,6 +769,7 @@ prompt-toolkit==3.0.31
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   click-repl
+    #   questionary
 propcache==0.2.0
     # via
     #   -c requirements/ci.txt
@@ -785,6 +806,7 @@ pydantic==2.10.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   bump-my-version
     #   django-setup-configuration
     #   pydantic-settings
 pydantic-core==2.27.2
@@ -796,6 +818,7 @@ pydantic-settings==2.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   bump-my-version
     #   django-setup-configuration
 pyflakes==3.2.0
     # via
@@ -806,6 +829,7 @@ pygments==2.18.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   rich
     #   sphinx
     #   sphinx-tabs
 pyinstrument==5.0.1
@@ -909,6 +933,8 @@ qrcode==7.4.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-two-factor-auth
+questionary==2.1.0
+    # via bump-my-version
 recommonmark==0.7.1
     # via
     #   -c requirements/ci.txt
@@ -949,6 +975,12 @@ requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
     # via ansible-core
+rich==14.0.0
+    # via
+    #   bump-my-version
+    #   rich-click
+rich-click==1.8.8
+    # via bump-my-version
 rsa==4.7.2
     # via google-auth
 ruamel-yaml==0.18.10
@@ -994,6 +1026,8 @@ six==1.16.0
     #   websocket-client
 smmap==3.0.4
     # via gitdb
+sniffio==1.3.1
+    # via anyio
 snowballstemmer==2.2.0
     # via
     #   -c requirements/ci.txt
@@ -1070,6 +1104,8 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+tomlkit==0.13.2
+    # via bump-my-version
 tornado==6.4.2
     # via
     #   -c requirements/ci.txt
@@ -1079,12 +1115,14 @@ typing-extensions==4.12.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   anyio
     #   faker
     #   mozilla-django-oidc-db
     #   pydantic
     #   pydantic-core
     #   pyopenssl
     #   qrcode
+    #   rich-click
     #   zgw-consumers
     #   zgw-consumers-oas
 tzdata==2024.1
@@ -1135,6 +1173,8 @@ waitress==3.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webtest
+wcmatch==10.0
+    # via bump-my-version
 wcwidth==0.2.5
     # via
     #   -c requirements/ci.txt
