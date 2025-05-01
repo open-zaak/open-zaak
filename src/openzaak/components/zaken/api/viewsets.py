@@ -472,10 +472,15 @@ class ZaakViewSet(
             "- indien het de eindstatus betreft, dan moet het attribuut "
             "`indicatieGebruiksrecht` gezet zijn op alle informatieobjecten die aan "
             "de zaak gerelateerd zijn\n"
+            "- indien de zaak deelzaken heeft moeten de deelzaken gesloten zijn voordat de hoofdzaak kan "
+            "worden afgesloten met de eindstatus\n"
+            "- indien een zaak wordt heropend en een hoofdzaak heeft, dan mag de hoofdzaak niet gesloten zijn\n"
             "\n"
             "**Opmerkingen**\n"
             "- Indien het statustype de eindstatus is (volgens het ZTC), dan wordt de "
             "zaak afgesloten door de einddatum te zetten."
+            "-Bij deelzaken met de afleidingswijze `hoofdzaak` word de brondatum van de hoofdzaak "
+            "ingevuld nadat de hoofdzaak is afgesloten."
         ),
     ),
 )

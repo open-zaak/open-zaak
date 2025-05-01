@@ -502,11 +502,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_one_deelzaak_with_external_catalogi(self):
         """
-        An Deelzaak with an external catalogi has 16 extra queries compared to a deelzaak with an internal catalogi.
+        An Deelzaak with an external catalogi has 12 extra queries compared to a deelzaak with an internal catalogi.
 
         (1) 45: Lookup the current status
         (2-3) 46-47: select from zgw_consumers_service
-        (3-7) 48-51: outgoing requests log (Done once)
         (8) 75: lookup the deelzaak resultaat
         (9-10)  76-77: select from zgw_consumers_service
         (11) 78: update the deelzaak
@@ -514,7 +513,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(88):
+        with self.assertNumQueries(84):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -542,13 +541,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
-        A single deelzaak with external catalogi has 16 extra queries over an internal catalogi.
-        The 4 queries for outgoing request logging are done once which means every deelzaak
-        (with an external catalogi) adds 12 queries.
-        72 + 4 + (10*12) = 196
+        A single deelzaak with external catalogi has 12 extra queries over an internal catalogi.
+        72 + (10*12) = 192
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(196):  # TODO
+        with self.assertNumQueries(192):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -564,7 +561,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken(self):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(196):
+        with self.assertNumQueries(192):
             response = self.client.post(
                 self.status_list_url,
                 {
