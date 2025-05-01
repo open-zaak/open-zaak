@@ -798,36 +798,50 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             zaak.save(update_fields=_zaak_fields_changed)
 
             # update deelzaken
-            self.update_deelzaken(
-                zaak.deelzaken,
-                archiefactiedatum=zaak.archiefactiedatum,
-                startdatum_bewaartermijn=zaak.startdatum_bewaartermijn,
-            )
+            if zaak.deelzaken.exists():
+                self.update_deelzaken(
+                    zaak.deelzaken,
+                    zaak.archiefactiedatum,
+                    zaak.startdatum_bewaartermijn,
+                )
 
         return obj
 
-    def update_deelzaken(self, qs, **fields):
+    def update_deelzaken(self, qs, archiefactiedatum, startdatum_bewaartermijn):
         self._update_deelzaken_with_internal_catalogi(
-            qs.filter(_zaaktype__isnull=False), **fields
+            qs.filter(_zaaktype__isnull=False),
+            archiefactiedatum,
+            startdatum_bewaartermijn,
         )
         self._update_deelzaken_with_external_catalogi(
-            qs.filter(_zaaktype_relative_url__isnull=False), **fields
+            qs.filter(_zaaktype_relative_url__isnull=False),
+            archiefactiedatum,
+            startdatum_bewaartermijn,
         )
 
-    def _update_deelzaken_with_internal_catalogi(self, qs, **fields):
+    def _update_deelzaken_with_internal_catalogi(
+        self, qs, archiefactiedatum, startdatum_bewaartermijn
+    ):
         qs.filter(
             resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
-        ).update(**fields)
+        ).update(
+            archiefactiedatum=archiefactiedatum,
+            startdatum_bewaartermijn=startdatum_bewaartermijn,
+        )
 
-    def _update_deelzaken_with_external_catalogi(self, qs, **fields):
+    def _update_deelzaken_with_external_catalogi(
+        self, qs, archiefactiedatum, startdatum_bewaartermijn
+    ):
         for deelzaak in qs.iterator():
             if (
                 deelzaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
                 == Afleidingswijze.hoofdzaak
             ):
-                for field, value in fields.items():
-                    setattr(deelzaak, field, value)
-                deelzaak.save()
+                deelzaak.archiefactiedatum = archiefactiedatum
+                deelzaak.startdatum_bewaartermijn = startdatum_bewaartermijn
+                deelzaak.save(
+                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
+                )
 
 
 class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):

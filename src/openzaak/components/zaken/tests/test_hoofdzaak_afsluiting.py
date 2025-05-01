@@ -5,6 +5,8 @@ from django.test import override_settings, tag
 import requests_mock
 from dateutil.relativedelta import relativedelta
 from freezegun.api import freeze_time
+from log_outgoing_requests.models import OutgoingRequestsLogConfig
+from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -121,6 +123,14 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         self.zaak_url = reverse("zaak-detail", kwargs={"uuid": self.zaak.uuid})
 
+    def tearDown(self):
+        """
+        Clears singleton model caches to keep query count
+        the same between running whole test class & tests separately.
+        """
+        OpenIDConnectConfig.clear_cache()
+        OutgoingRequestsLogConfig.clear_cache()
+
     def test_validation_with_internal_deelzaak_catalogi(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
 
@@ -137,7 +147,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-closed"
+                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
             )
 
         with self.subTest("deelzaak with open status"):
@@ -159,7 +169,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-closed"
+                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
             )
 
         with self.subTest("deelzaak with end status without resultaat"):
@@ -213,7 +223,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["invalid_params"][0]["code"], "deelzaken-closed")
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
+        )
 
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])
@@ -233,7 +245,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-closed"
+                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
             )
 
         with self.subTest("deelzaak with open status"):
@@ -252,7 +264,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-closed"
+                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
             )
 
         with self.subTest("deelzaak with end status without resultaat"):
@@ -275,7 +287,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                 "deelzaak-resultaat-does-not-exist",
             )
 
-    def test_with_internal_deelzaak_catalogi(self):
+    def test_zaak_afsluiten_with_closed_deelzaak_with_internal_deelzaak_catalogi(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
         StatusFactory.create(
             zaak=deelzaak,
@@ -426,3 +438,139 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.data["invalid_params"][0]["code"], "hoofdzaak-closed"
             )
+
+    def _generate_deelzaken(self, n: int, internal=True):
+        for i in range(n):
+            deelzaak = ZaakFactory.create(
+                zaaktype=self.int_zaaktype if internal else self.ext_zaaktype,
+                hoofdzaak=self.zaak,
+            )
+            StatusFactory.create(
+                zaak=deelzaak,
+                statustype=self.int_statustype2 if internal else self.ext_statustype2,
+                datum_status_gezet=utcdatetime(2024, 4, 5),
+            )
+            ResultaatFactory.create(
+                zaak=deelzaak,
+                resultaattype=(
+                    ResultaatTypeFactory.create(
+                        zaaktype=self.int_zaaktype,
+                        archiefactietermijn=relativedelta(years=20),
+                        brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+                    )
+                    if internal
+                    else self.ext_resultaattype
+                ),
+            )
+
+    def test_queries_with_no_deelzaken(self):
+        with self.assertNumQueries(67):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_queries_with_one_deelzaak_with_internal_catalogi(self):
+        self._generate_deelzaken(1, True)
+        """
+        An Deelzaak with an external catalogi has 5 extra queries compared to no deelzaken.
+
+        (1) 42: deelzaak reopen filter query
+        (2) 43: deelzaak eindstatus filter query
+        (3) 44: cursor from exist()
+        (4) 66: update the deelzaak
+        (5) 67: cursor from exist()
+
+        """
+        with self.assertNumQueries(72):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_queries_with_one_deelzaak_with_external_catalogi(self):
+        """
+        An Deelzaak with an external catalogi has 16 extra queries compared to a deelzaak with an internal catalogi.
+
+        (1) 45: Lookup the current status
+        (2-3) 46-47: select from zgw_consumers_service
+        (3-7) 48-51: outgoing requests log (Done once)
+        (8) 75: lookup the deelzaak resultaat
+        (9-10)  76-77: select from zgw_consumers_service
+        (11) 78: update the deelzaak
+        (12-16) 79-83 select related zaak data
+
+        """
+        self._generate_deelzaken(1, False)
+        with self.assertNumQueries(88):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_queries_with_many_deelzaken_with_internal_catalogi(self):
+        self._generate_deelzaken(10, True)
+        with self.assertNumQueries(72):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_queries_with_many_deelzaken_with_external_catalogi(self):
+        """
+        A single deelzaak with external catalogi has 16 extra queries over an internal catalogi.
+        The 4 queries for outgoing request logging are done once which means every deelzaak
+        (with an external catalogi) adds 12 queries.
+        72 + 4 + (10*12) = 196
+        """
+        self._generate_deelzaken(10, False)
+        with self.assertNumQueries(196):  # TODO
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_queries_with_many_deelzaken(self):
+        self._generate_deelzaken(10, True)
+        self._generate_deelzaken(10, False)
+        with self.assertNumQueries(196):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": self.zaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)

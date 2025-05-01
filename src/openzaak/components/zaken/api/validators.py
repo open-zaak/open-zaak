@@ -287,9 +287,8 @@ class DeelzaakReopenValidator:
     """
 
     code = "hoofdzaak-closed"
-    message = (
-        "De hoofdzaak is afgesloten."
-        "Een deelzaak kan pas worden geopend als de hoofzaak dat al is."
+    message = _(
+        "Een deelzaak kan alleen worden heropend als de hoofzaak niet afgesloten is."
     )
 
     def __call__(self, attrs: dict):
@@ -306,15 +305,15 @@ class DeelzaakReopenValidator:
 
 class EndStatusDeelZakenValidator:
     """
-    Validate that related deelzaken are closed when the end status is
-    being set.
+    Validate that related deelzaken are closed when trying to close a hoofdzaak
+    (by setting the eindstatus on that zaak)
 
     The serializer sets the __is_eindstatus attribute in the data dict as
     part of the ``to_internal_value`` method.
     """
 
-    code = "deelzaken-closed"
-    message = (
+    code = "deelzaken-not-closed"
+    message = _(
         "Er zijn gerelateerde deelzaken die nog niet zijn afgesloten zijn."
         "Deze deelzaken moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
     )
@@ -325,7 +324,7 @@ class EndStatusDeelZakenValidator:
 
         zaak = attrs.get("zaak")
         # earlier validation failed possibly
-        if not zaak:
+        if not zaak or not zaak.deelzaken.exists():
             return
 
         self.check_status_exists(zaak.deelzaken)
@@ -347,6 +346,7 @@ class EndStatusDeelZakenValidator:
 
         current_status_volgnummer = (
             Status.objects.filter(zaak=OuterRef("pk"))
+            .order_by("-datum_status_gezet")
             .select_related("statustype")
             .values("_statustype__statustypevolgnummer")[:1]
         )
