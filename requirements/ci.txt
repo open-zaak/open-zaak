@@ -182,7 +182,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==5.1.7
+django==5.2.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -248,7 +248,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django-celery-beat==2.7.0
+django-celery-beat==2.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
