@@ -83,6 +83,7 @@ INSTALLED_APPS = (
         "sniplates",  # TODO can this be removed?
         "django_better_admin_arrayfield",  # TODO can this be removed?
         "django_loose_fk",
+        "cachalot",
         "drc_cmis",
         "django_celery_beat",
         # Project applications.
@@ -365,6 +366,24 @@ CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
 # TODO is there a better way to fix this?
 CSP_INCLUDE_NONCE_IN.remove("script-src")  # error with GISModelAdmin.
 CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with redoc.
+
+#
+# Cachalot
+#
+CACHALOT_ENABLED = True
+CACHALOT_TIMEOUT = 60 * 30  # persist cache keys for half an hour
+CACHALOT_CACHE = "default"
+CACHALOT_DATABASES = "supported_only"
+CACHALOT_ONLY_CACHABLE_APPS = [
+    "zaken",
+    # "documenten",
+    "autorisaties",
+    # "besluiten",
+    "catalogi",
+    "vng_api_common",
+    "authorizations",
+]
+
 #
 # OpenZaak configuration
 #
