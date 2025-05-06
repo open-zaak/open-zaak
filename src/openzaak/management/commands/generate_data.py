@@ -246,6 +246,16 @@ class Command(BaseCommand):
                 "(client_id: `non_superuser`, secret: `non_superuser`)"
             ),
         )
+        parser.add_argument(
+            "--without-zaakgeometrie",
+            dest="without_zaakgeometrie",
+            action="store_true",
+            default=False,
+            help=(
+                "If enabled, will not generate a value for the `zaakgeometrie` attribute "
+                "for all Zaken."
+            ),
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -256,6 +266,7 @@ class Command(BaseCommand):
         generate_non_superuser_credentials = options[
             "generate_non_superuser_credentials"
         ]
+        self.without_zaakgeometrie = options["without_zaakgeometrie"]
 
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
@@ -402,10 +413,15 @@ class Command(BaseCommand):
                 f"Creating {zaken_per_zaaktype} zaken for zaaktype {i+1} / {self.zaaktypen_amount}"
             )
             ZaakBulkFactory.reset_sequence(zaaktype.id * zaken_per_zaaktype)
+            zaakgeometrie = (
+                None
+                if self.without_zaakgeometrie
+                else Point(random.uniform(1, 50), random.uniform(50, 100))
+            )
             zaken = ZaakBulkFactory.build_batch(
                 zaken_per_zaaktype,
                 _zaaktype=zaaktype,
-                zaakgeometrie=Point(random.uniform(1, 50), random.uniform(50, 100)),
+                zaakgeometrie=zaakgeometrie,
                 selectielijstklasse=self.sl_result_mapping[
                     zaaktype.selectielijst_procestype
                 ],
