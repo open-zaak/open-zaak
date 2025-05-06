@@ -285,6 +285,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: openzaak.conf.production
           SITE_DOMAIN: localhost:8000
           ALLOWED_HOSTS: localhost,127.0.0.1
+          FUZZY_PAGINATION: true
       - name: Run tests
         run: |
           pip install uv
