@@ -133,6 +133,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                     f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
+                self.assertIsNotNone(zaak.zaakgeometrie)
 
         self.assertEqual(
             StatusType.objects.filter(statustype_omschrijving="").count(), 0
@@ -166,6 +167,74 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             self.assertEqual(
                 autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
             )
+
+    @requests_mock.Mocker()
+    def test_generate_data_without_zaakgeometrie(self, m):
+        """
+        Assert that it is possible to generate Zaken without zaakgeometrie
+        """
+        # mocks for Selectielijst API calls
+        config = ReferentieLijstConfig.get_solo()
+        mock_selectielijst_oas_get(m)
+        m.get(
+            f"{config.service.api_root}resultaten",
+            json={
+                "previous": None,
+                "next": None,
+                "count": 1,
+                "results": [
+                    {
+                        "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "nummer": 1,
+                        "volledigNummer": "1.1",
+                        "naam": "Ingericht",
+                        "omschrijving": "",
+                        "procestermijn": "nihil",
+                        "procestermijnWeergave": "Nihil",
+                        "bewaartermijn": "P10Y",
+                        "toelichting": "Invoering nieuwe werkwijze",
+                        "waardering": "vernietigen",
+                    }
+                ],
+            },
+        )
+        m.get(
+            f"{config.service.api_root}resultaattypeomschrijvingen",
+            json=[
+                {
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
+                    ),
+                    "omschrijving": "Afgebroken",
+                    "definitie": "Afgebroken",
+                    "opmerking": "",
+                },
+                {
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3"
+                    ),
+                    "omschrijving": "Afgehandeld",
+                    "definitie": "Afgehandeld",
+                    "opmerking": "",
+                },
+            ],
+        )
+
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=1,
+                zaken=1,
+                without_zaakgeometrie=True,
+            )
+
+        zaak = Zaak.objects.get()
+
+        self.assertIsNone(zaak.zaakgeometrie)
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
