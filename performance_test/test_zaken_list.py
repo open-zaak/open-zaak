@@ -57,6 +57,8 @@ def test_zaken_list_non_superuser(benchmark, benchmark_assertions):
     result = benchmark(make_request)
 
     assert result.status_code == 200
-    assert result.json()["count"] == 3325
+    data = result.json()
+    assert data["count"] == 3300
+    assert len(data["results"]) == 100
 
     benchmark_assertions(mean=1, median=1)
