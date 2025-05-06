@@ -274,7 +274,7 @@ jobs:
           uv pip install --system -r requirements/ci.txt
           src/manage.py migrate
           SCRIPTPATH=bin UWSGI_PROCESSES=4 UWSGI_THREADS=4 bin/docker_start.sh &
-          echo "yes" | src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials
+          echo "yes" | src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials --without-zaakgeometrie
         env:
           RUN_SETUP_CONFIG: false
           DB_PASSWORD: ''
