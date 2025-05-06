@@ -248,26 +248,43 @@ jobs:
     name: Run the performance test suite
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Set up backend environment
+        uses: maykinmedia/setup-django-backend@v1.3
         with:
+          apt-packages: 'libgdal-dev gdal-bin'
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/*.txt'
 
-      - name: Bring up docker compose and load data
+      - name: Set up uWSGI and generate data
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.factories.yml up -d --build || ( docker compose logs >&2 && exit 1; )
-          until docker compose logs web.local | grep -q "spawned uWSGI worker"; do
-            echo "uWSGI not running yet, waiting..."
-            sleep 3
-          done
-          docker compose exec --user root web.local pip install factory-boy
-          echo "yes" | docker compose exec -T web.local src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials
+          createdb -h localhost -U postgres openzaak
+          pip install uv
+          uv pip install --system -r requirements/ci.txt
+          src/manage.py migrate
+          SCRIPTPATH=bin UWSGI_PROCESSES=4 UWSGI_THREADS=4 bin/docker_start.sh &
+          echo "yes" | src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials
         env:
           RUN_SETUP_CONFIG: false
+          DB_PASSWORD: ''
+          DB_USER: postgres
+          DB_NAME: openzaak
+          DB_HOST: localhost
+          SECRET_KEY: secret
+          DJANGO_SETTINGS_MODULE: openzaak.conf.production
+          SITE_DOMAIN: localhost:8000
+          ALLOWED_HOSTS: localhost,127.0.0.1
       - name: Run tests
         run: |
           pip install uv
