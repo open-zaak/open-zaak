@@ -11,9 +11,13 @@ import requests_mock
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from rest_framework.test import APITestCase
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.components.catalogi.models import ResultaatType, StatusType, ZaakType
+from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -21,6 +25,9 @@ from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 
 class GenerateDataTests(SelectieLijstMixin, APITestCase):
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
     @requests_mock.Mocker()
     def test_generate_data_yes(self, m):
         # mocks for Selectielijst API calls
@@ -74,7 +81,14 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         )
 
         with patch("builtins.input", lambda *args: "yes"):
-            call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=1,
+                zaken=2,
+                generate_superuser_credentials=True,
+                generate_non_superuser_credentials=True,
+            )
 
         # check that the data is generated
         generated_objects_count = {
@@ -119,10 +133,108 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                     f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
+                self.assertIsNotNone(zaak.zaakgeometrie)
 
         self.assertEqual(
             StatusType.objects.filter(statustype_omschrijving="").count(), 0
         )
+
+        with self.subTest("generate superuser credentials"):
+            credential = JWTSecret.objects.get(identifier="superuser")
+            self.assertEqual(credential.secret, "superuser")
+
+            applicatie = Applicatie.objects.get(client_ids=["superuser"])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, True)
+
+        with self.subTest("generate non superuser credentials"):
+            credential = JWTSecret.objects.get(identifier="non_superuser")
+            self.assertEqual(credential.secret, "non_superuser")
+
+            applicatie = Applicatie.objects.get(client_ids=["non_superuser"])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
+            self.assertEqual(applicatie.autorisaties.count(), 1)
+
+            autorisatie = applicatie.autorisaties.get()
+            self.assertEqual(autorisatie.component, ComponentTypes.zrc)
+            self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
+            self.assertEqual(
+                autorisatie.max_vertrouwelijkheidaanduiding,
+                VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+            zaaktype_uri = reverse(
+                "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            )
+            self.assertEqual(
+                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
+            )
+
+    @requests_mock.Mocker()
+    def test_generate_data_without_zaakgeometrie(self, m):
+        """
+        Assert that it is possible to generate Zaken without zaakgeometrie
+        """
+        # mocks for Selectielijst API calls
+        config = ReferentieLijstConfig.get_solo()
+        mock_selectielijst_oas_get(m)
+        m.get(
+            f"{config.service.api_root}resultaten",
+            json={
+                "previous": None,
+                "next": None,
+                "count": 1,
+                "results": [
+                    {
+                        "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "nummer": 1,
+                        "volledigNummer": "1.1",
+                        "naam": "Ingericht",
+                        "omschrijving": "",
+                        "procestermijn": "nihil",
+                        "procestermijnWeergave": "Nihil",
+                        "bewaartermijn": "P10Y",
+                        "toelichting": "Invoering nieuwe werkwijze",
+                        "waardering": "vernietigen",
+                    }
+                ],
+            },
+        )
+        m.get(
+            f"{config.service.api_root}resultaattypeomschrijvingen",
+            json=[
+                {
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
+                    ),
+                    "omschrijving": "Afgebroken",
+                    "definitie": "Afgebroken",
+                    "opmerking": "",
+                },
+                {
+                    "url": (
+                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        "/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3"
+                    ),
+                    "omschrijving": "Afgehandeld",
+                    "definitie": "Afgehandeld",
+                    "opmerking": "",
+                },
+            ],
+        )
+
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=1,
+                zaken=1,
+                without_zaakgeometrie=True,
+            )
+
+        zaak = Zaak.objects.get()
+
+        self.assertIsNone(zaak.zaakgeometrie)
 
     def test_generate_data_no(self):
         with patch("builtins.input", lambda *args: "no"):
