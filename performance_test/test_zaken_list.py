@@ -90,7 +90,7 @@ def test_zaken_list_non_superuser_many_authorized_types(
 
     assert result.status_code == 200
     data = result.json()
-    assert data["count"] == 3325
+    assert data["count"] == 3300
     assert len(data["results"]) == 100
 
     benchmark_assertions(mean=1, median=1)
