@@ -124,11 +124,8 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         self.zaak_url = reverse("zaak-detail", kwargs={"uuid": self.zaak.uuid})
 
-    def tearDown(self):
-        """
-        Clears singleton model caches to keep query count
-        the same between running whole test class & tests separately.
-        """
+        # Clear singleton model caches to keep query count
+        # the same between running whole test class & tests separately.
         OpenIDConnectConfig.clear_cache()
         OutgoingRequestsLogConfig.clear_cache()
 
@@ -562,9 +559,8 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken(self):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
-        # compared to test_queries_with_many_deelzaken_with_external_catalogi,
-        # 4 queries for openidconnectconfig are not run within the CI job.
-        with self.assertNumQueries(188):
+
+        with self.assertNumQueries(192):
             response = self.client.post(
                 self.status_list_url,
                 {
