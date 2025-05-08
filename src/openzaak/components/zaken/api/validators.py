@@ -8,7 +8,7 @@ from typing import Iterable, Optional
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Max, Subquery
+from django.db.models import F, IntegerField, Max, OuterRef, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -31,8 +31,9 @@ from openzaak.components.documenten.models import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
+from ...catalogi.models import StatusType
 from ..constants import AardZaakRelatie, IndicatieMachtiging
-from ..models import Zaak
+from ..models import Status, Zaak
 
 logger = logging.getLogger(__name__)
 
@@ -277,6 +278,94 @@ class EndStatusIOsUnlockedValidator:
         )
         for zio in remote_zios:
             if zio.informatieobject.locked:
+                raise serializers.ValidationError(self.message, code=self.code)
+
+
+class DeelzaakReopenValidator:
+    """
+    Validate that the hoofdzaak is not closed  when a deelzaak is reopened.
+    """
+
+    code = "hoofdzaak-closed"
+    message = _(
+        "Een deelzaak kan alleen worden heropend als de hoofzaak niet afgesloten is."
+    )
+
+    def __call__(self, attrs: dict):
+        if attrs.get("__is_eindstatus"):
+            return
+
+        zaak = attrs.get("zaak")
+        if not zaak or not zaak.hoofdzaak or not zaak.hoofdzaak.current_status:
+            return
+
+        if zaak.hoofdzaak.current_status.statustype.is_eindstatus():
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
+class EndStatusDeelZakenValidator:
+    """
+    Validate that related deelzaken are closed when trying to close a hoofdzaak
+    (by setting the eindstatus on that zaak)
+
+    The serializer sets the __is_eindstatus attribute in the data dict as
+    part of the ``to_internal_value`` method.
+    """
+
+    code = "deelzaken-not-closed"
+    message = _(
+        "Er zijn gerelateerde deelzaken die nog niet zijn afgesloten zijn."
+        "Deze deelzaken moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
+    )
+
+    def __call__(self, attrs: dict):
+        if not attrs.get("__is_eindstatus"):
+            return
+
+        zaak = attrs.get("zaak")
+        # earlier validation failed possibly
+        if not zaak or not zaak.deelzaken.exists():
+            return
+
+        self.check_status_exists(zaak.deelzaken)
+        self.check_internal_status_types(zaak.deelzaken.filter(_zaaktype__isnull=False))
+        self.check_external_status_types(
+            zaak.deelzaken.filter(_zaaktype_relative_url__isnull=False)
+        )
+
+    def check_status_exists(self, qs):
+        if qs.filter(status__isnull=True).exists():
+            raise serializers.ValidationError(self.message, code=self.code)
+
+    def check_internal_status_types(self, qs):
+        eind_statustypevolgnummer = (
+            StatusType.objects.filter(zaaktype=OuterRef("_zaaktype"))
+            .order_by("-statustypevolgnummer")
+            .values("statustypevolgnummer")[:1]
+        )
+
+        current_status_volgnummer = (
+            Status.objects.filter(zaak=OuterRef("pk"))
+            .order_by("-datum_status_gezet")
+            .select_related("statustype")
+            .values("_statustype__statustypevolgnummer")[:1]
+        )
+
+        qs = qs.annotate(
+            eind_statustype_max=Subquery(
+                eind_statustypevolgnummer, output_field=IntegerField()
+            ),
+            current_status_volgnummer=Subquery(
+                current_status_volgnummer, output_field=IntegerField()
+            ),
+        ).exclude(current_status_volgnummer=F("eind_statustype_max"))
+
+        if qs.exists():
+            raise serializers.ValidationError(self.message, code=self.code)
+
+    def check_external_status_types(self, qs):
+        for deelzaak in qs.iterator():
+            if not deelzaak.current_status.statustype._initial_data["is_eindstatus"]:
                 raise serializers.ValidationError(self.message, code=self.code)
 
 

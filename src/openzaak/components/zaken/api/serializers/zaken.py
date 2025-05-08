@@ -6,6 +6,16 @@ from typing import Optional
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import (
+    DateField,
+    DurationField,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Subquery,
+    Value,
+)
+from django.db.models.functions import Cast
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -20,6 +30,7 @@ from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
     Archiefnominatie,
     Archiefstatus,
+    BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     RelatieAarden,
     RolOmschrijving,
     RolTypes,
@@ -76,6 +87,8 @@ from ...models import (
 )
 from ..validators import (
     DateNotInFutureValidator,
+    DeelzaakReopenValidator,
+    EndStatusDeelZakenValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
     HoofdZaaktypeRelationValidator,
@@ -639,6 +652,8 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             CorrectZaaktypeValidator("statustype"),
             EndStatusIOsUnlockedValidator(),
             EndStatusIOsIndicatieGebruiksrechtValidator(),
+            EndStatusDeelZakenValidator(),
+            DeelzaakReopenValidator(),
             StatusRolValidator(),
             ZaakArchiefStatusValidator(),
         ]
@@ -710,6 +725,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 # thought: we _can_ use the datumStatusGezet though!
                 raise serializers.ValidationError(
                     exc.args[0], code="archiefactiedatum-error"
+                )
+
+            # validate that all deelzaken have a result
+            if zaak.deelzaken.filter(resultaat__isnull=True).exists():
+                raise serializers.ValidationError(
+                    code="deelzaak-resultaat-does-not-exist"
                 )
 
             # nasty to pass state around...
@@ -786,7 +807,65 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Save updated information on the ZAAK
             zaak.save(update_fields=_zaak_fields_changed)
 
+            # update deelzaken
+            if zaak.deelzaken.exists():
+                self.update_deelzaken(zaak.deelzaken, brondatum_calculator.brondatum)
+
         return obj
+
+    def update_deelzaken(self, qs, brondatum):
+        self._update_deelzaken_with_internal_catalogi(
+            qs.filter(_zaaktype__isnull=False),
+            brondatum,
+        )
+        self._update_deelzaken_with_external_catalogi(
+            qs.filter(_zaaktype_relative_url__isnull=False),
+            brondatum,
+        )
+
+    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum):
+        resultaattype_archiefactietermijn = (
+            Resultaat.objects.filter(zaak_id=OuterRef("pk"))
+            .annotate(
+                archief_termijn_duration=Cast(
+                    "_resultaattype__archiefactietermijn", DurationField()
+                )
+            )
+            .values("archief_termijn_duration")[:1]
+        )
+
+        qs = qs.annotate(
+            termijn=Subquery(
+                resultaattype_archiefactietermijn, output_field=DurationField()
+            ),
+            computed_archiefactiedatum=ExpressionWrapper(
+                Value(brondatum, DateField()) + F("termijn"),
+                output_field=DateField(),
+            ),
+        )
+
+        qs.filter(
+            resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
+        ).update(
+            archiefactiedatum=F("computed_archiefactiedatum"),
+            startdatum_bewaartermijn=brondatum,
+        )
+
+    def _update_deelzaken_with_external_catalogi(self, qs, brondatum):
+        for deelzaak in qs.iterator():
+            resultaattype = deelzaak.resultaat.resultaattype
+
+            if (
+                resultaattype.brondatum_archiefprocedure_afleidingswijze
+                == Afleidingswijze.hoofdzaak
+            ):
+                deelzaak.archiefactiedatum = (
+                    brondatum + resultaattype.archiefactietermijn
+                )
+                deelzaak.startdatum_bewaartermijn = brondatum
+                deelzaak.save(
+                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
+                )
 
 
 class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
