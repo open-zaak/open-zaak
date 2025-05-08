@@ -119,7 +119,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -742,7 +742,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -1908,7 +1908,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -2756,7 +2756,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -4952,7 +4952,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -6682,16 +6682,16 @@ paths:
       - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
-          type: string
+          type: integer
           enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
+          - 10
+          - 20
+          - 30
+          - 40
+          - 50
+          - 60
+          - 70
+          - 80
         description: |+
           Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
 
@@ -6734,7 +6734,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -10398,16 +10398,16 @@ paths:
       - in: query
         name: maximaleVertrouwelijkheidaanduiding
         schema:
-          type: string
+          type: integer
           enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
+          - 10
+          - 20
+          - 30
+          - 40
+          - 50
+          - 60
+          - 70
+          - 80
         description: |+
           Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
 
@@ -10450,7 +10450,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -10910,16 +10910,16 @@ paths:
                     van het ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden
                     (hoofdletterongevoelig))'
                 maximaleVertrouwelijkheidaanduiding:
-                  type: string
+                  type: integer
                   enum:
-                  - beperkt_openbaar
-                  - confidentieel
-                  - geheim
-                  - intern
-                  - openbaar
-                  - vertrouwelijk
-                  - zaakvertrouwelijk
-                  - zeer_geheim
+                  - 10
+                  - 20
+                  - 30
+                  - 40
+                  - 50
+                  - 60
+                  - 70
+                  - 80
                   description: |+
                     Zaken met een vertrouwelijkheidaanduiding die beperkter is dan de aangegeven aanduiding worden uit de resultaten gefiltered.
 

@@ -403,7 +403,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -437,14 +437,14 @@ paths:
         schema:
           type: string
           enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
+          - 10
+          - 20
+          - 30
+          - 40
+          - 50
+          - 60
+          - 70
+          - 80
         description: |+
           **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
@@ -2347,7 +2347,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -2381,14 +2381,14 @@ paths:
         schema:
           type: string
           enum:
-          - beperkt_openbaar
-          - confidentieel
-          - geheim
-          - intern
-          - openbaar
-          - vertrouwelijk
-          - zaakvertrouwelijk
-          - zeer_geheim
+          - 10
+          - 20
+          - 30
+          - 40
+          - 50
+          - 60
+          - 70
+          - 80
         description: |+
           **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
@@ -2483,14 +2483,14 @@ paths:
                 vertrouwelijkheidaanduiding:
                   type: string
                   enum:
-                  - beperkt_openbaar
-                  - confidentieel
-                  - geheim
-                  - intern
-                  - openbaar
-                  - vertrouwelijk
-                  - zaakvertrouwelijk
-                  - zeer_geheim
+                  - 10
+                  - 20
+                  - 30
+                  - 40
+                  - 50
+                  - 60
+                  - 70
+                  - 80
                   description: |+
                     **EXPERIMENTEEL** De vertrouwelijkheidaanduiding van het informatie object
 
@@ -5461,7 +5461,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       tags:
@@ -6851,14 +6851,14 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `openbaar` - Openbaar
-            * `beperkt_openbaar` - Beperkt openbaar
-            * `intern` - Intern
-            * `zaakvertrouwelijk` - Zaakvertrouwelijk
-            * `vertrouwelijk` - Vertrouwelijk
-            * `confidentieel` - Confidentieel
-            * `geheim` - Geheim
-            * `zeer_geheim` - Zeer geheim
+            * `10` - Openbaar
+            * `20` - Beperkt openbaar
+            * `30` - Intern
+            * `40` - Zaakvertrouwelijk
+            * `50` - Vertrouwelijk
+            * `60` - Confidentieel
+            * `70` - Geheim
+            * `80` - Zeer geheim
           oneOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -7034,14 +7034,14 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `openbaar` - Openbaar
-            * `beperkt_openbaar` - Beperkt openbaar
-            * `intern` - Intern
-            * `zaakvertrouwelijk` - Zaakvertrouwelijk
-            * `vertrouwelijk` - Vertrouwelijk
-            * `confidentieel` - Confidentieel
-            * `geheim` - Geheim
-            * `zeer_geheim` - Zeer geheim
+            * `10` - Openbaar
+            * `20` - Beperkt openbaar
+            * `30` - Intern
+            * `40` - Zaakvertrouwelijk
+            * `50` - Vertrouwelijk
+            * `60` - Confidentieel
+            * `70` - Geheim
+            * `80` - Zeer geheim
           oneOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -7197,14 +7197,14 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `openbaar` - Openbaar
-            * `beperkt_openbaar` - Beperkt openbaar
-            * `intern` - Intern
-            * `zaakvertrouwelijk` - Zaakvertrouwelijk
-            * `vertrouwelijk` - Vertrouwelijk
-            * `confidentieel` - Confidentieel
-            * `geheim` - Geheim
-            * `zeer_geheim` - Zeer geheim
+            * `10` - Openbaar
+            * `20` - Beperkt openbaar
+            * `30` - Intern
+            * `40` - Zaakvertrouwelijk
+            * `50` - Vertrouwelijk
+            * `60` - Confidentieel
+            * `70` - Geheim
+            * `80` - Zeer geheim
           oneOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -7864,14 +7864,14 @@ components:
 
             Uitleg bij mogelijke waarden:
 
-            * `openbaar` - Openbaar
-            * `beperkt_openbaar` - Beperkt openbaar
-            * `intern` - Intern
-            * `zaakvertrouwelijk` - Zaakvertrouwelijk
-            * `vertrouwelijk` - Vertrouwelijk
-            * `confidentieel` - Confidentieel
-            * `geheim` - Geheim
-            * `zeer_geheim` - Zeer geheim
+            * `10` - Openbaar
+            * `20` - Beperkt openbaar
+            * `30` - Intern
+            * `40` - Zaakvertrouwelijk
+            * `50` - Vertrouwelijk
+            * `60` - Confidentieel
+            * `70` - Geheim
+            * `80` - Zeer geheim
           oneOf:
           - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
           - $ref: '#/components/schemas/BlankEnum'

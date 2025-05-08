@@ -168,7 +168,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.6.2
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@4dd1aeae94adad870692cf8826fcdc92627518d0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -599,7 +599,7 @@ iniconfig==2.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest
-iso-639==0.4.5
+iso639-lang==2.6.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
