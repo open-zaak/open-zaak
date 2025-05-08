@@ -75,8 +75,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         cls.ext_statustype2 = (
             f"{base_url}/statustypen/b71f72ef-198d-44d8-af64-ae1932df123b"
         )
-        cls.ext_resultaattype = (
+        cls.ext_resultaattype1 = (
             f"{base_url}/resultaattypen/b71f72ef-198d-44d8-af64-ae1932df830a"
+        )
+        cls.ext_resultaattype2 = (
+            f"{base_url}/resultaattypen/94e92e97-3629-4d2e-9438-70903cbc58ea"
         )
 
         cls.mocker = requests_mock.Mocker()
@@ -98,14 +101,25 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             ),
         )
         cls.mocker.get(
-            cls.ext_resultaattype,
+            cls.ext_resultaattype1,
             json=get_resultaattype_response(
-                cls.ext_resultaattype,
+                cls.ext_resultaattype1,
                 cls.ext_zaaktype,
                 brondatumArchiefprocedure={
                     "afleidingswijze": "hoofdzaak",
                 },
-                archiefactietermijn="P20Y",
+                archiefactietermijn="P10Y",
+            ),
+        )
+        cls.mocker.get(
+            cls.ext_resultaattype2,
+            json=get_resultaattype_response(
+                cls.ext_resultaattype2,
+                cls.ext_zaaktype,
+                brondatumArchiefprocedure={
+                    "afleidingswijze": "hoofdzaak",
+                },
+                archiefactietermijn="P5Y",
             ),
         )
 
@@ -286,17 +300,35 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_zaak_afsluiten_with_closed_deelzaak_with_internal_deelzaak_catalogi(self):
-        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+        deelzaak_same_termijn = ZaakFactory.create(
+            zaaktype=self.int_zaaktype, hoofdzaak=self.zaak
+        )
+        deelzaak_different_termijn = ZaakFactory.create(
+            zaaktype=self.int_zaaktype, hoofdzaak=self.zaak
+        )
         StatusFactory.create(
-            zaak=deelzaak,
+            zaak=deelzaak_same_termijn,
             statustype=self.int_statustype2,
             datum_status_gezet=utcdatetime(2024, 4, 5),
         )
         ResultaatFactory.create(
-            zaak=deelzaak,
+            zaak=deelzaak_same_termijn,
             resultaattype=ResultaatTypeFactory.create(
                 zaaktype=self.int_zaaktype,
-                archiefactietermijn=relativedelta(years=20),
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+        StatusFactory.create(
+            zaak=deelzaak_different_termijn,
+            statustype=self.int_statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 5),
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak_different_termijn,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=5),
                 brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
             ),
         )
@@ -310,25 +342,56 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         self.zaak.refresh_from_db()
-        deelzaak.refresh_from_db()
-        self.assertEqual(
-            self.zaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
+        deelzaak_same_termijn.refresh_from_db()
+        deelzaak_different_termijn.refresh_from_db()
+
+        # Assert that the same brondatum/startdatum_bewaartermijn is used to calculate
+        # the archiefactiedatum, but that the termijn can differ
+        self.assertTrue(
+            self.zaak.startdatum_bewaartermijn
+            == deelzaak_same_termijn.startdatum_bewaartermijn
+            == deelzaak_different_termijn.startdatum_bewaartermijn
         )
         self.assertEqual(
-            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=20)
+            self.zaak.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
+        )
+        self.assertEqual(
+            deelzaak_same_termijn.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
+        )
+        self.assertEqual(
+            deelzaak_different_termijn.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
         )
 
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_zaak_afsluiten_with_closed_deelzaak_with_external_catalogi(self):
-        deelzaak = ZaakFactory.create(zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak)
+        deelzaak_same_termijn = ZaakFactory.create(
+            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
+        )
+        deelzaak_different_termijn = ZaakFactory.create(
+            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
+        )
         StatusFactory.create(
-            zaak=deelzaak,
+            zaak=deelzaak_same_termijn,
             statustype=self.ext_statustype2,
             datum_status_gezet=utcdatetime(2024, 4, 5),
         )
-        ResultaatFactory.create(zaak=deelzaak, resultaattype=self.ext_resultaattype)
+        ResultaatFactory.create(
+            zaak=deelzaak_same_termijn, resultaattype=self.ext_resultaattype1
+        )
+        StatusFactory.create(
+            zaak=deelzaak_different_termijn,
+            statustype=self.ext_statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 5),
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak_different_termijn, resultaattype=self.ext_resultaattype2
+        )
 
         response = self.client.post(
             self.status_list_url,
@@ -339,13 +402,29 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         self.zaak.refresh_from_db()
-        deelzaak.refresh_from_db()
-        self.assertEqual(
-            self.zaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
+        deelzaak_same_termijn.refresh_from_db()
+        deelzaak_different_termijn.refresh_from_db()
+
+        # Assert that the same brondatum/startdatum_bewaartermijn is used to calculate
+        # the archiefactiedatum, but that the termijn can differ
+        self.assertTrue(
+            self.zaak.startdatum_bewaartermijn
+            == deelzaak_same_termijn.startdatum_bewaartermijn
+            == deelzaak_different_termijn.startdatum_bewaartermijn
         )
         self.assertEqual(
-            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=20)
+            self.zaak.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
+        )
+        self.assertEqual(
+            deelzaak_same_termijn.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
+        )
+        self.assertEqual(
+            deelzaak_different_termijn.archiefactiedatum,
+            self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
         )
 
     def test_reopen_deelzaak_with_internal_catalogi(self):
@@ -404,7 +483,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             statustype=self.ext_statustype2,
             datum_status_gezet=utcdatetime(2024, 4, 5),
         )
-        ResultaatFactory.create(zaak=deelzaak, resultaattype=self.ext_resultaattype)
+        ResultaatFactory.create(zaak=deelzaak, resultaattype=self.ext_resultaattype1)
 
         with self.subTest("opened hoofdzaak"):
             response = self.client.post(
@@ -457,7 +536,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                         brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
                     )
                     if internal
-                    else self.ext_resultaattype
+                    else self.ext_resultaattype1
                 ),
             )
 
