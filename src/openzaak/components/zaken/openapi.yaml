@@ -2906,7 +2906,8 @@ paths:
         - indien een zaak wordt heropend en een hoofdzaak heeft, dan mag de hoofdzaak niet gesloten zijn
 
         **Opmerkingen**
-        - Indien het statustype de eindstatus is (volgens het ZTC), dan wordt de zaak afgesloten door de einddatum te zetten.-Bij deelzaken met de afleidingswijze `hoofdzaak` word de brondatum van de hoofdzaak ingevuld nadat de hoofdzaak is afgesloten.
+        - Indien het statustype de eindstatus is (volgens het ZTC), dan wordt de zaak afgesloten door de einddatum te zetten.
+        - Bij deelzaken met een `Resultaat.resultaattype.brondatumArchiefprocedure.afleidingswijze` `hoofdzaak` word de brondatum van de hoofdzaak ingevuld nadat de hoofdzaak is afgesloten.
       summary: Maak een STATUS aan voor een ZAAK.
       parameters:
       - in: header
