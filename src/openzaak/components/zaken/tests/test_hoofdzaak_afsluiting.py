@@ -105,6 +105,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                 brondatumArchiefprocedure={
                     "afleidingswijze": "hoofdzaak",
                 },
+                archiefactietermijn="P20Y",
             ),
         )
 
@@ -318,7 +319,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.zaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
         )
         self.assertEqual(
-            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
+            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=20)
         )
 
     @tag("external-urls")
@@ -347,7 +348,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.zaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
         )
         self.assertEqual(
-            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=10)
+            deelzaak.archiefactiedatum, self.zaak.einddatum + relativedelta(years=20)
         )
 
     def test_reopen_deelzaak_with_internal_catalogi(self):

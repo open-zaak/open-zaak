@@ -478,9 +478,9 @@ class ZaakViewSet(
             "\n"
             "**Opmerkingen**\n"
             "- Indien het statustype de eindstatus is (volgens het ZTC), dan wordt de "
-            "zaak afgesloten door de einddatum te zetten."
-            "-Bij deelzaken met de afleidingswijze `hoofdzaak` word de brondatum van de hoofdzaak "
-            "ingevuld nadat de hoofdzaak is afgesloten."
+            "zaak afgesloten door de einddatum te zetten.\n"
+            "- Bij deelzaken met een `Resultaat.resultaattype.brondatumArchiefprocedure.afleidingswijze` `hoofdzaak` "
+            "word de brondatum van de hoofdzaak ingevuld nadat de hoofdzaak is afgesloten."
         ),
     ),
 )

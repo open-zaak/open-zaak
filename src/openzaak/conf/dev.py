@@ -111,6 +111,10 @@ if "test" in sys.argv:
 
     warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")
 
+    from openzaak.notifications.tests.utils import LOGGING_SETTINGS
+
+    LOGGING = LOGGING_SETTINGS
+
 ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, add_to_docs=False)
 
 # Override settings with local settings.
