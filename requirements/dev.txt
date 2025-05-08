@@ -216,7 +216,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django==5.1.7
+django==5.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -285,7 +285,7 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-celery-beat==2.7.0
+django-celery-beat==2.8.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
