@@ -253,8 +253,12 @@ elastic-apm==6.22.2
     # via open-api-framework
 face==20.1.1
     # via glom
+factory-boy==3.3.3
+    # via -r requirements/base.in
 faker==33.0.0
-    # via zgw-consumers-oas
+    # via
+    #   factory-boy
+    #   zgw-consumers-oas
 flower==2.0.1
     # via open-api-framework
 furl==2.1.3

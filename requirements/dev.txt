@@ -517,7 +517,7 @@ face==20.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   glom
-factory-boy==3.2.1
+factory-boy==3.3.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
