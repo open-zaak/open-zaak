@@ -24,7 +24,7 @@ includes/local.py
 docker/volumes/
 
 # tests & test assets
-src/**/tests/**
+src/**/tests/test_*.py
 src/openzaak/tests/schemas/
 
 # compiled static assets
