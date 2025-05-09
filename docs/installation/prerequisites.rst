@@ -14,6 +14,11 @@ repository also describes these dependencies.
 PostgreSQL with Postgis
 -----------------------
 
+.. warning::
+
+   Since Open Zaak version 1.21.0, PostgreSQL version 14 or higher is required. Attempting
+   to deploy this version of Open Zaak with PostgreSQL 13 or lower will result in errors!
+
 Open Zaak currently only supports PostgreSQL as datastore. The Zaken API are geo-capable,
 which requires the postgis_ extension to be enabled.
 
