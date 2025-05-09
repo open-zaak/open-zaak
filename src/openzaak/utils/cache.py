@@ -113,9 +113,7 @@ def requests_cache_enabled(*args, **kwargs):
     cache_name = "import_requests"
     backend = DjangoRequestsCache
 
-    class CustomOpenZaakClient(original_client, CachedSession):
-        _cache_name = cache_name
-        _backend = backend
+    class CustomCachedSession(CachedSession):
 
         def __init__(self, *args, **kwargs):
             # Initialize CachedSession with the custom backend
@@ -125,6 +123,14 @@ def requests_cache_enabled(*args, **kwargs):
                 *args,
                 **kwargs,
             )
+
+    class CustomOpenZaakClient(original_client, CustomCachedSession):
+        _cache_name = cache_name
+        _backend = backend
+
+        def __init__(self, *args, **kwargs):
+            # __mro__: original_client -> CustomCachedSession
+            super().__init__(*args, **kwargs)
 
             # FIXME `ape_pie.APIClient` doesn't forward the cache params, causing
             # sqlite to be used by default, so we explicitly set the cache here
