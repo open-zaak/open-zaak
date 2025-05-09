@@ -28,6 +28,8 @@ from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching.etags import track_object_serializer
 from vng_api_common.constants import (
+    REVERSE_VA_MAPPING,
+    VA_MAPPING,
     Archiefnominatie,
     Archiefstatus,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -112,6 +114,28 @@ from .betrokkenen import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# TODO move this to library
+class EnumField(serializers.CharField):
+    def __init__(self, enum, **kwargs):
+        self.enum = enum
+        super().__init__(**kwargs)
+
+    def to_representation(self, value):
+        # TODO error handling
+        if value is None:
+            return None
+        return REVERSE_VA_MAPPING[value]
+
+    def to_internal_value(self, data):
+        # TODO error handling
+        try:
+            return VA_MAPPING[data]
+        except KeyError:
+            raise serializers.ValidationError(
+                f"Invalid value '{data}'. Expected one of: {[e.name for e in self.enum]}"
+            )
 
 
 # Zaak API
@@ -342,6 +366,9 @@ class ZaakSerializer(
             " waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat "
             "bepalend is voor de start van de archiefactietermijn."
         ),
+    )
+    vertrouwelijkheidaanduiding = EnumField(
+        source="_vertrouwelijkheidaanduiding", enum=REVERSE_VA_MAPPING
     )
 
     inclusion_serializers = {

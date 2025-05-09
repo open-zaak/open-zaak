@@ -74,4 +74,66 @@ class FuzzyPagination(DynamicPageSizeMixin, PageNumberPagination):
         return paginated_schema
 
 
-OptimizedPagination = FuzzyPagination if settings.FUZZY_PAGINATION else ExactPagination
+class CursorPageNumberPagination(DynamicPageSizeMixin, PageNumberPagination):
+    page_size = 100  # Set a fixed page size
+
+    def paginate_queryset(self, queryset, request, view=None):
+
+        # TODO implement ordering based on params
+        ordering_field = "identificatie_ptr_id"
+        # Get the requested page number
+        self.request = request
+        page_size = self.get_page_size(request)
+        if not page_size:
+            return None
+
+        paginator = self.django_paginator_class(queryset, page_size)
+
+        self.paginator = paginator
+        # TODO error handling
+        page_number = int(self.get_page_number(request, paginator) or 1)
+        self.page_number = page_number
+
+        # The page number is used to calculate the cursor
+        if page_number == 1:
+            # For the first page, no cursor is needed
+            return list(queryset.order_by(f"-{ordering_field}")[: self.page_size])
+
+        offset = (page_number - 1) * self.page_size
+
+        # Use a subquery to find the starting ID (avoiding full offset scan)
+        start_id_qs = (
+            queryset.order_by(f"-{ordering_field}")
+            .values_list(ordering_field, flat=True)
+            .distinct()[offset : offset + 1]
+        )
+
+        try:
+            start_id = list(start_id_qs)[0]
+        except IndexError:
+            return []
+
+        paginated_qs = queryset.filter(**{f"{ordering_field}__gte": start_id}).order_by(
+            f"-{ordering_field}"
+        )[: self.page_size]
+        return list(paginated_qs)
+
+    def get_paginated_response(self, data):
+        # TODO implement count, next and previous page
+        # next_page = self.page_number + 1 if len(data) == self.page_size else None
+        # previous_page = self.page_number - 1 if self.page_number > 1 else None
+
+        return Response(
+            {
+                "count": None,
+                # 'count': self.paginator.count,
+                # 'next': self.get_next_link() if next_page else None,
+                # 'previous': self.get_previous_link() if previous_page else None,
+                "results": data,
+            }
+        )
+
+
+OptimizedPagination = (
+    FuzzyPagination if settings.FUZZY_PAGINATION else CursorPageNumberPagination
+)
