@@ -7,7 +7,6 @@ from django.core.cache import caches
 
 import requests_cache
 from requests_cache import BaseCache, clear, install_cache, uninstall_cache
-from requests_cache.backends import init_backend
 from requests_cache.backends.base import KEY_FN
 from requests_cache.cache_keys import create_key
 from requests_cache.session import CachedSession
@@ -117,6 +116,8 @@ def requests_cache_enabled(*args, **kwargs):
 
         def __init__(self, *args, **kwargs):
             # Initialize CachedSession with the custom backend
+            # `ape_pie.APIClient` doesn't forward the cache params, causing
+            # sqlite to be used by default, so we explicitly set the __init__ here
             super().__init__(
                 cache_name=cache_name,
                 backend=DjangoRequestsCache,
@@ -125,16 +126,7 @@ def requests_cache_enabled(*args, **kwargs):
             )
 
     class CustomOpenZaakClient(original_client, CustomCachedSession):
-        _cache_name = cache_name
-        _backend = backend
-
-        def __init__(self, *args, **kwargs):
-            # __mro__: original_client -> CustomCachedSession
-            super().__init__(*args, **kwargs)
-
-            # FIXME `ape_pie.APIClient` doesn't forward the cache params, causing
-            # sqlite to be used by default, so we explicitly set the cache here
-            self.cache = init_backend(cache_name, backend, **kwargs)
+        pass
 
     vng_api_common.client.Client = CustomOpenZaakClient
     install_cache(cache_name=cache_name, backend=backend, *args, **kwargs)
