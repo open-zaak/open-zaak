@@ -266,6 +266,8 @@ jobs:
         with:
           apt-packages: 'libgdal-dev gdal-bin'
           python-version: '3.11'
+          optimize-postgres: 'no'
+          setup-node: 'no'
 
       - name: Set up uWSGI and generate data
         run: |
