@@ -27,4 +27,4 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils]
+git+https://github.com/maykinmedia/commonground-api-common.git@feature/minor-optimizations[setup-configuration, testutils]
