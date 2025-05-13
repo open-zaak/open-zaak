@@ -1,6 +1,90 @@
 Changelog
 =========
 
+1.21.0 (2025-05-13)
+-------------------
+
+.. warning::
+
+    This release upgrades Django to version 5.2.1, which requires PostgreSQL version 14 or higher.
+    Attempting to deploy with PostgreSQL <14 will cause errors during deployment.
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`1933`] Add query parameter to ``/roltypen`` filter on ``Roltype.omschrijving``
+* [:open-zaak:`1920`] Add ``Zaak.opschorting.eerdere_opschorting`` attribute, to indicate
+  whether or not a ``Zaak`` has been suspended in the past
+* [:open-zaak:`1930`] Add query parameters to ``/zaken`` endpoint to filter by ``Zaak.kenmerken`` (``kenmerk__bron`` and ``kenmerk``)
+* [:open-zaak:`1859`] ``Rol.betrokkeneIdentificatie.identificatie`` maximum length is changed from 24 to 128 for ``betrokkeneType: "medewerker"``
+
+**Performance improvements**
+
+Several changes have been implemented to reduce API response times, focused on the ``/zaken`` endpoint.
+
+*Query optimizations:*
+
+* [:open-zaak:`1937`] Simplify database queries to filter ``Zaak`` list based on authorizations
+* [:open-zaak:`1960`] Replace ``zaak._zaaktype`` ``select_related`` with prefetch to prevent
+  retrieval of a lot of duplicate data in the ``zaken`` query
+* [:open-zaak:`1960`] Remove ``select_related`` on ``Zaak._zaaktype.catalogus`` for read operations,
+  to reduce the number of queries
+* Reduce the number of database queries (by using ``prefetch_related`` / ``select_related``)
+  to speed up base performance of the following endpoints:
+
+  * ``/besluittypen``
+  * ``/informatieobjecttypen``
+  * ``/statustypen``
+  * ``/resultaattypen``
+  * ``/zaaktypen``
+  * ``/statussen``
+  * ``/zaakobjecten``
+  * ``/rollen``
+
+*Other optimizations:*
+
+* [:open-zaak:`1965`] Don't run ``expand`` related code if expand query param is unused
+* [:open-zaak:`1954`] Upgrade ``django-loose-fk`` to 1.1.2 to avoid initializing the same
+  serializer fields more than necessary
+* [:open-zaak:`1970`] Optimize hyperlinked serializer fields by caching base endpoints to avoid overhead
+* [:open-zaak:`1976`] Cache the result of ``get_queryset`` per request to avoid constructing the same queryset multiple times
+* [:open-zaak:`1999`] Optimize ``current_status`` serialization by storing prefetch result on instance
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`1837`] Fix memory retention caused by expand parameter
+* [:open-zaak:`1839`] Fix closing of ``deelzaken`` that have ``afleidingswijze`` ``hoofdzaak``:
+
+  * If a ``Zaak`` with ``afleidingswijze`` ``hoofdzaak`` is closed, the ``archiefactiedatum`` is not calculated yet
+  * Once the ``hoofdzaak`` is closed, the ``archiefactiedatum`` is calculated for all
+    ``deelzaken`` by using the ``startdatumBewaartermijn`` from the ``hoofdzaak``
+
+* [:open-zaak:`1839`] Add validation to ``Zaak`` to only allows closing a ``hoofdzaak`` if all ``deelzaken`` are closed
+* [:open-zaak:`1839`] Add validation to ``Zaak`` to only allow re-opening of ``deelzaken`` if the ``hoofdzaak`` is not closed
+* [:open-zaak:`1962`] Fix Resultaattype admin page crashing if ``selectielijstklasse`` was not defined in Selectielijst API service
+* [:open-zaak:`2011`] Show appropriate ``Zaak.betalingsindicatieWeergave`` via serializer
+* [:open-zaak:`2003`] Fix broken logout button in admin interface
+* [:open-zaak:`1965`] Add empty ``_expand`` attribute for detail operation if query parameter is unused, to comply with OAS
+* [:open-zaak:`1949`] Add validation to ``RolType`` admin to indicate that ``ZaakType`` is a required field
+* [:open-zaak:`1973`] Add missing permissions to read and delete session profiles to default groups fixture
+* [:open-zaak:`1940`] Fix data migrations for large number of objects
+
+**Project maintenance**
+
+* Upgraded dependencies
+
+  * Django to version 5.2.1
+  * commonground-api-common to version 2.6.2
+  * django-loose-fk to version 1.1.2
+
+* Add options to ``src/manage.py generate_data`` command to generate API credentials
+
+  * ``--generate-superuser-credentials``: client ID ``superuser`` / secret ``superuser``
+  * ``--generate-superuser-credentials``:
+
+    * client ID ``non_superuser`` / secret ``non_superuser``: has read access to the first 15 zaaktypen
+    * client ID ``non_superuser_many_types`` / secret ``non_superuser_many_types``: has read access to all except the last 5 zaaktypen
+
+
 1.20.0 (2025-04-03)
 -------------------
 
