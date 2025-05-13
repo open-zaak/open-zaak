@@ -28,7 +28,11 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.descriptors import GegevensGroepType
-from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
+from vng_api_common.fields import (
+    RSINField,
+    VertrouwelijkheidsAanduidingField,
+    VertrouwelijkheidsAanduidingFieldInt,
+)
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
@@ -247,6 +251,17 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de openbaarheid bestemd is."
         ),
     )
+    _vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingFieldInt(
+        _("vertrouwelijkheidaanduiding"),
+        help_text=_(
+            "Aanduiding van de mate waarin zaakdossiers van ZAAKen van "
+            "dit ZAAKTYPE voor de openbaarheid bestemd zijn. Indien de zaak bij het "
+            "aanmaken geen vertrouwelijkheidaanduiding krijgt, dan wordt deze waarde gezet."
+        ),
+        blank=True,
+        null=True,
+        db_index=True,
+    )
 
     betalingsindicatie = models.CharField(
         _("betalingsindicatie"),
@@ -461,6 +476,9 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     class Meta:
         verbose_name = "zaak"
         verbose_name_plural = "zaken"
+        # indexes = [
+        #     models.Index(fields=['_zaaktype_id', '_vertrouwelijkheidaanduiding']),
+        # ]
 
     def __str__(self):
         return self.identificatie

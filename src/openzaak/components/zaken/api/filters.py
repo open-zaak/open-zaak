@@ -95,6 +95,7 @@ class MaxLoAFilter(filters.ChoiceFilter):
         )
 
         order_expression = choices.get_order_expression(self._field_name)
+        # TODO use new integerfield
         numeric_value = choices.get_choice_order(value)
 
         qs = qs.annotate(**{self.field_name: order_expression})

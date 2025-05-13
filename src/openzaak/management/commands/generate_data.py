@@ -12,7 +12,7 @@ import factory.fuzzy
 from requests.exceptions import RequestException
 from rest_framework.test import APIRequestFactory
 from vng_api_common.client import Client, ClientError, to_internal_data
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidingInt
 from vng_api_common.models import JWTSecret
 from zgw_consumers.client import build_client
 
@@ -20,6 +20,7 @@ from openzaak.components.autorisaties.tests.factories import (
     ApplicatieFactory,
     AutorisatieFactory,
 )
+from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_ALLES_LEZEN
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -47,6 +48,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -97,8 +99,11 @@ def get_sl_resultaten() -> list[dict]:
 # here is some work-around how to do it including custom queryset and factory
 class ZaakBulkFactory(factory.django.DjangoModelFactory):
     _zaaktype = factory.SubFactory(ZaakTypeFactory)
-    vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
-        choices=VertrouwelijkheidsAanduiding.values
+    # vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
+    #     choices=VertrouwelijkheidsAanduiding.values
+    # )
+    _vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
+        choices=VertrouwelijkheidsAanduidingInt.values
     )
     registratiedatum = factory.Faker("date_this_month", before_today=True)
     startdatum = factory.Faker("date_this_month", before_today=True)
@@ -640,7 +645,7 @@ class Command(BaseCommand):
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
                 scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
-                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                _max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduidingInt.zeer_geheim,
                 zaaktype=zaaktype.get_absolute_api_url(request=request),
             )
 
@@ -659,6 +664,25 @@ class Command(BaseCommand):
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
                 scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
-                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                _max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduidingInt.zeer_geheim,
                 zaaktype=zaaktype.get_absolute_api_url(request=request),
+            )
+
+        num_authorized_iotypen = max(InformatieObjectType.objects.count() - 5, 1)
+        for iotype in InformatieObjectType.objects.all()[:num_authorized_iotypen]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.drc,
+                scopes=[str(SCOPE_DOCUMENTEN_ALLES_LEZEN)],
+                _max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduidingInt.zeer_geheim,
+                zaaktype=iotype.get_absolute_api_url(request=request),
+            )
+
+        num_authorized_besluittypen = max(BesluitType.objects.count() - 5, 1)
+        for besluittype in BesluitType.objects.all()[:num_authorized_besluittypen]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.brc,
+                scopes=[str(SCOPE_BESLUITEN_ALLES_LEZEN)],
+                zaaktype=besluittype.get_absolute_api_url(request=request),
             )
