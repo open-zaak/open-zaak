@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
 from vng_api_common.caching import ETagMixin
 from vng_api_common.client import to_internal_data
+from vng_api_common.constants import VA_MAPPING
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import (
     RSINField,
@@ -387,6 +388,11 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
             raise ValueError(
                 "'verlengingstermijn' must be set if 'verlenging_mogelijk' is set."
             )
+
+        if self.vertrouwelijkheidaanduiding:
+            self._vertrouwelijkheidaanduiding = VA_MAPPING[
+                self.vertrouwelijkheidaanduiding
+            ]
 
         super().save(*args, **kwargs)
 

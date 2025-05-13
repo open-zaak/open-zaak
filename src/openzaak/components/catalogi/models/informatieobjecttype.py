@@ -8,6 +8,7 @@ from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.caching import ETagMixin
+from vng_api_common.constants import VA_MAPPING
 from vng_api_common.fields import (
     VertrouwelijkheidsAanduidingField,
     VertrouwelijkheidsAanduidingFieldInt,
@@ -145,4 +146,10 @@ class InformatieObjectType(
     def save(self, *args, **kwargs):
         if not self.pk:
             transaction.on_commit(partial(CatalogusAutorisatie.sync, [self]))
+
+        if self.vertrouwelijkheidaanduiding:
+            self._vertrouwelijkheidaanduiding = VA_MAPPING[
+                self.vertrouwelijkheidaanduiding
+            ]
+
         super().save(*args, **kwargs)

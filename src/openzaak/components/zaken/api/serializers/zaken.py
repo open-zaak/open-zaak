@@ -368,7 +368,7 @@ class ZaakSerializer(
         ),
     )
     vertrouwelijkheidaanduiding = EnumField(
-        source="_vertrouwelijkheidaanduiding", enum=REVERSE_VA_MAPPING
+        source="_vertrouwelijkheidaanduiding", enum=REVERSE_VA_MAPPING, required=False
     )
 
     inclusion_serializers = {
@@ -591,10 +591,10 @@ class ZaakSerializer(
 
     def create(self, validated_data: dict):
         # set the derived value from ZTC
-        if "vertrouwelijkheidaanduiding" not in validated_data:
+        if "_vertrouwelijkheidaanduiding" not in validated_data:
             zaaktype = validated_data["zaaktype"]
-            validated_data["vertrouwelijkheidaanduiding"] = (
-                zaaktype.vertrouwelijkheidaanduiding
+            validated_data["_vertrouwelijkheidaanduiding"] = (
+                zaaktype._vertrouwelijkheidaanduiding
             )
 
         # set by the ZaakViewSet via create and get_serializer_context
