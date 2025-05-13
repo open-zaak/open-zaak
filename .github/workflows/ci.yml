@@ -266,6 +266,8 @@ jobs:
         with:
           apt-packages: 'libgdal-dev gdal-bin'
           python-version: '3.11'
+          optimize-postgres: 'no'
+          setup-node: 'no'
 
       - name: Set up uWSGI and generate data
         run: |
@@ -291,7 +293,10 @@ jobs:
           pip install uv
           pkgs=$(cat requirements/performance-tests.in)
           grep -E "^($(echo $pkgs | sed 's/ /|/g'))([=<>]|$)" requirements/ci.txt | xargs uv pip install --system
-          pytest performance_test/ --benchmark-json output.json
+          echo '### 📊 Pytest Benchmark Results' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          pytest performance_test/ --benchmark-json output.json | tee /dev/tty | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
   publish_codecov:
     name: Publish coverage results
