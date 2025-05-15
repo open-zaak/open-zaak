@@ -5411,6 +5411,53 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+  /reserveer_documentnummer:
+    post:
+      operationId: reserveddocument_create
+      description: '**EXPERIMENTEEL** Reserveer een documentnummer binnen een specifieke
+        bronorganisatie zonder direct een informatieobject aan te maken. Dit documentnummer
+        zal toegekend worden aan het eerstvolgende EnkelvoudigInformatieObject dat
+        met dit documentnummer wordt aangemaakt binnen de bronorganisatie en het documentnummer
+        kan daarna niet hergebruikt worden'
+      summary: Reserveer een documentnummer
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - reserveer_documentnummer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservedDocumentRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - documenten.aanmaken
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservedDocument'
+          description: Created
   /verzendingen:
     get:
       operationId: verzending_list
@@ -8155,6 +8202,28 @@ components:
       - antwoordnummer
       - postbusnummer
       type: string
+    ReservedDocument:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          readOnly: true
+          default: ''
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+    ReservedDocumentRequest:
+      type: object
+      properties:
+        bronorganisatie:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
+            in een samenwerkingsketen heeft vastgelegd.
+          maxLength: 9
+      required:
+      - bronorganisatie
     SoortEnum:
       enum:
       - analoog

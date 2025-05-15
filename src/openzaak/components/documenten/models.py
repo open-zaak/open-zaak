@@ -17,7 +17,6 @@ from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.utils import build_absolute_url
@@ -32,6 +31,7 @@ from openzaak.utils.mixins import APIMixin, AuditTrailMixin, CMISClientMixin
 
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
+from .api.utils import generate_document_identificatie
 from .caching import CMISETagMixin
 from .constants import (
     AfzenderTypes,
@@ -233,9 +233,21 @@ class InformatieObject(models.Model):
     def __str__(self) -> str:
         return self.identificatie
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
-        if not self.identificatie:
-            self.identificatie = generate_unique_identification(self, "creatiedatum")
+        is_new_instance = self.pk is None
+        if is_new_instance:
+            if not getattr(self, "identificatie", None):
+                self.identificatie = generate_document_identificatie(
+                    bronorganisatie=self.bronorganisatie,
+                    date_value=self.creatiedatum,
+                )
+            else:
+                ReservedDocument.objects.filter(
+                    identificatie=self.identificatie,
+                    bronorganisatie=self.bronorganisatie,
+                ).delete()
+
         super().save(*args, **kwargs)
 
     def clean(self):
@@ -1290,3 +1302,39 @@ class Verzending(APIMixin, CMISETagMixin, models.Model):
             return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version
+
+
+class ReservedDocument(models.Model):
+    identificatie = models.CharField(
+        max_length=40,
+        blank=True,
+        default="",
+        help_text="Een binnen een gegeven context ondubbelzinnige referentie "
+        "naar het INFORMATIEOBJECT.",
+        db_index=True,
+    )
+    bronorganisatie = RSINField(
+        max_length=9,
+        help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
+        "organisatie die het informatieobject heeft gecreëerd of "
+        "heeft ontvangen en als eerste in een samenwerkingsketen "
+        "heeft vastgelegd.",
+        db_index=True,
+    )
+    date_created = models.DateTimeField(
+        auto_now_add=True,
+        help_text=_("De datum en tijd waarop het document werd gereserveerd."),
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["bronorganisatie", "identificatie"],
+                name="bronorganisatie_identificatie_unique_together",
+            ),
+        ]
+        verbose_name = _("gereserveerd document")
+        verbose_name_plural = _("gereserveerde documenten")
+
+    def __str__(self):
+        return f"{self.bronorganisatie} - {self.identificatie}"

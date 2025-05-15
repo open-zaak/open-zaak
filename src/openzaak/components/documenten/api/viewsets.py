@@ -63,6 +63,7 @@ from ..models import (
     EnkelvoudigInformatieObject,
     Gebruiksrechten,
     ObjectInformatieObject,
+    ReservedDocument,
     Verzending,
 )
 from .audits import AUDIT_DRC
@@ -96,6 +97,7 @@ from .serializers import (
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
+    ReservedDocumentSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
 )
@@ -981,3 +983,30 @@ class VerzendingViewSet(
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
         return super().destroy(request, *args, **kwargs)
+
+
+class ReservedDocumentViewSet(viewsets.ViewSet):
+    queryset = ReservedDocument.objects.all()
+    serializer_class = ReservedDocumentSerializer
+    permission_classes = (AuthRequired,)
+    required_scopes = {
+        "create": SCOPE_DOCUMENTEN_AANMAKEN,
+    }
+
+    @extend_schema(
+        summary="Reserveer een documentnummer",
+        description=mark_experimental(
+            "Reserveer een documentnummer binnen een specifieke bronorganisatie "
+            "zonder direct een informatieobject aan te maken. "
+            "Dit documentnummer zal toegekend worden aan het eerstvolgende "
+            "EnkelvoudigInformatieObject dat met dit documentnummer wordt aangemaakt "
+            "binnen de bronorganisatie en het documentnummer kan daarna niet hergebruikt worden"
+        ),
+        request=ReservedDocumentSerializer,
+        responses={status.HTTP_201_CREATED: ReservedDocumentSerializer},
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = ReservedDocumentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

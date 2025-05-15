@@ -17,6 +17,7 @@ from .viewsets import (
     EnkelvoudigInformatieObjectViewSet,
     GebruiksrechtenViewSet,
     ObjectInformatieObjectViewSet,
+    ReservedDocumentViewSet,
     VerzendingViewSet,
 )
 
@@ -31,6 +32,7 @@ router.register("gebruiksrechten", GebruiksrechtenViewSet)
 router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
+router.register("reserveer_documentnummer", ReservedDocumentViewSet)
 
 import_patterns = [
     path(
