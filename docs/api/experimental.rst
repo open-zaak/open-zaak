@@ -100,6 +100,10 @@ New import endpoints are added:
 
 The usage of import endpoints is described :ref:`here <installation_reference_import>`.
 
+New endpoints are added:
+
+* ``/api/v1/reserveer_documentnummer`` – reserve a documentnummer (identificatie) in combination with a bronorganisatie.
+
 Query parameters
 ----------------
 
