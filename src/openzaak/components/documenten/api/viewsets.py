@@ -63,6 +63,7 @@ from ..models import (
     EnkelvoudigInformatieObject,
     Gebruiksrechten,
     ObjectInformatieObject,
+    ReservedDocument,
     Verzending,
 )
 from .audits import AUDIT_DRC
@@ -96,6 +97,7 @@ from .serializers import (
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
+    ReservedDocumentSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
 )
@@ -981,3 +983,27 @@ class VerzendingViewSet(
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
         return super().destroy(request, *args, **kwargs)
+
+
+class ReservedDocumentViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = ReservedDocument.objects.all()
+    serializer_class = ReservedDocumentSerializer
+
+    @extend_schema(
+        summary="Reserveer een documentnummer",
+        description=(
+            "Reserveer een documentnummer binnen een specifieke bronorganisatie "
+            "zonder direct een informatieobject aan te maken. "
+            "Het nummer wordt later gebruikt bij het aanmaken van een EnkelvoudigInformatieObject."
+        ),
+        request=ReservedDocumentSerializer,
+        responses={status.HTTP_201_CREATED: ReservedDocumentSerializer},
+    )
+    @action(detail=False, methods=["post"], url_path="reserveer-documentnummer")
+    def reserveer_documentnummer(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        return Response(
+            self.get_serializer(instance).data, status=status.HTTP_201_CREATED
+        )

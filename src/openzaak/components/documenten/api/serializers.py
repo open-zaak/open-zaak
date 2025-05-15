@@ -7,6 +7,7 @@ import binascii
 import math
 import uuid
 from base64 import b64decode
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
@@ -55,12 +56,13 @@ from ..models import (
     EnkelvoudigInformatieObjectCanonical,
     Gebruiksrechten,
     ObjectInformatieObject,
+    ReservedDocument,
     Verzending,
 )
 from ..query.cmis import flatten_gegevens_groep
 from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
-from .utils import create_filename, merge_files
+from .utils import create_filename, generate_document_identificatie, merge_files
 from .validators import (
     InformatieObjectUniqueValidator,
     StatusValidator,
@@ -1112,3 +1114,47 @@ class VerzendingSerializer(
             "url": {"lookup_field": "uuid", "read_only": True},
         }
         validators = [VerzendingAddressValidator()]
+
+
+class ReservedDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReservedDocument
+        fields = (
+            "identificatie",
+            "bronorganisatie",
+        )
+        extra_kwargs = {
+            "identificatie": {
+                "required": False,
+                "read_only": False,
+            },
+            "bronorganisatie": {
+                "write_only": True,
+                "required": True,
+            },
+        }
+
+    def validate_identificatie(self, value):
+        if not value:
+            return value
+
+        bronorganisatie = self.initial_data.get("bronorganisatie")
+        if not ReservedDocument.objects.filter(
+            identificatie=value, bronorganisatie=bronorganisatie
+        ).exists():
+            raise serializers.ValidationError("Identificatie is not reserved.")
+        return value
+
+    def create(self, validated_data):
+        identificatie = validated_data.get("identificatie")
+        bronorganisatie = validated_data["bronorganisatie"]
+        if not identificatie:
+            identificatie = generate_document_identificatie(
+                bronorganisatie=bronorganisatie,
+                document_model=EnkelvoudigInformatieObject,
+                date_value=date.today(),
+            )
+
+        return ReservedDocument.objects.create(
+            identificatie=identificatie, bronorganisatie=bronorganisatie
+        )
