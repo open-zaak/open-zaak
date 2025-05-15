@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, reverse
+from vng_api_common.tests import AuthCheckMixin, reverse, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -28,7 +28,7 @@ from ..api.scopes import (
     SCOPE_DOCUMENTEN_BIJWERKEN,
 )
 from ..constants import ObjectInformatieObjectTypes
-from ..models import ObjectInformatieObject
+from ..models import ObjectInformatieObject, ReservedDocument
 from .factories import (
     EnkelvoudigInformatieObjectFactory,
     GebruiksrechtenFactory,
@@ -1155,3 +1155,42 @@ class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         response_data = response.json()
         self.assertEqual(response_data["count"], 4)
+
+
+@tag("gh-2018")
+class ReserveDocumentAuthTests(JWTAuthMixin, APITestCase):
+    url = reverse_lazy("reserveddocument-list")
+    bronorganisatie = "812345678"
+
+    def setUp(self):
+        super().setUp()
+
+    def test_post_reserve_document_forbidden_without_scope(self):
+        # Don't assign any scopes
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component="drc",
+            scopes=[],
+        )
+
+        response = self.client.post(self.url, {"bronorganisatie": self.bronorganisatie})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_reserve_document_allowed_with_scope(self):
+        # Assign the correct scope
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component="drc",
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+
+        response = self.client.post(self.url, {"bronorganisatie": self.bronorganisatie})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertIn("identificatie", response.data)
+        self.assertTrue(
+            ReservedDocument.objects.filter(
+                identificatie=response.data["identificatie"],
+                bronorganisatie=self.bronorganisatie,
+            ).exists()
+        )
