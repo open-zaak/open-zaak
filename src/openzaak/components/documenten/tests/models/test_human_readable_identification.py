@@ -13,15 +13,15 @@ class EIOTests(TestCase):
             identificatie="", creatiedatum=date(2019, 7, 1)
         )
 
-        self.assertEqual(eio.identificatie, "DOCUMENT-2019-0000000001")
+        self.assertEqual(eio.identificatie, "DOCUMENT-2025-0000000001")
 
     def test_default_human_readable_existing_data(self):
         EnkelvoudigInformatieObjectFactory.create(
-            creatiedatum=date(2019, 7, 1), identificatie="DOCUMENT-2019-0000000015"
+            creatiedatum=date(2025, 7, 1), identificatie="DOCUMENT-2025-0000000015"
         )
 
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            identificatie="", creatiedatum=date(2019, 9, 15)
+            identificatie="", creatiedatum=date(2025, 9, 15)
         )
 
-        self.assertEqual(eio2.identificatie, "DOCUMENT-2019-0000000016")
+        self.assertEqual(eio2.identificatie, "DOCUMENT-2025-0000000001")
