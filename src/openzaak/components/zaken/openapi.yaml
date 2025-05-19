@@ -3,7 +3,7 @@ info:
   title: Zaken API
   version: 1.5.1
   description: |
-    Een API om een zaakregistratiecomponent (ZRC) te benaderen.
+    Een API om een zaakregistratiewcomponent (ZRC) te benaderen.
 
     De ZAAK is het kernobject in deze API, waaraan verschillende andere
     resources gerelateerd zijn. De Zaken API werkt samen met andere API's voor
