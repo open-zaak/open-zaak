@@ -572,10 +572,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         create a new EnkelvoudigInformatieObject with the same
         EnkelvoudigInformatieObjectCanonical
         """
-        integriteit = (
-            validated_data.pop("integriteit", {}) or {}
+        integriteit = validated_data.pop(
+            "integriteit", None
         )  # integriteit and ondertekening can also be set to None
-        ondertekening = validated_data.pop("ondertekening", {}) or {}
+        ondertekening = validated_data.pop("ondertekening", None)
 
         # populate new version with previous version data only for PATCH
         validated_data_field_names = validated_data.keys()
@@ -598,8 +598,16 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         if settings.CMIS_ENABLED:
             # The fields integriteit and ondertekening are of "GegevensGroepType", so they need to be
             # flattened before sending to the DMS
-            flat_integriteit = flatten_gegevens_groep(integriteit, "integriteit")
-            flat_ondertekening = flatten_gegevens_groep(ondertekening, "ondertekening")
+            flat_integriteit = (
+                flatten_gegevens_groep(integriteit, "integriteit")
+                if integriteit
+                else {}
+            )
+            flat_ondertekening = (
+                flatten_gegevens_groep(ondertekening, "ondertekening")
+                if ondertekening
+                else {}
+            )
             validated_data.update(**flat_integriteit, **flat_ondertekening)
         else:
             # Remove the lock from the data from which a new
@@ -617,9 +625,19 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             )
         else:
             # The serialiser .create() method does not support nested data, so these have to be added separately
-            instance.integriteit = integriteit
-            instance.ondertekening = ondertekening
-            instance.save()
+            update_fields = []
+            if integriteit is not None:
+                instance.integriteit = integriteit
+                update_fields.extend(
+                    ["integriteit_algoritme", "integriteit_waarde", "integriteit_datum"]
+                )
+
+            if ondertekening is not None:
+                instance.ondertekening = ondertekening
+                update_fields.extend(["ondertekening_soort", "ondertekening_datum"])
+
+            if update_fields:
+                instance.save(update_fields=update_fields)
 
             bestandsdelen = instance.canonical.bestandsdelen.all()
 
