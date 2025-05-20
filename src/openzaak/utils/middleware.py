@@ -143,6 +143,10 @@ class EnabledMiddleware:
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         component_type = self.get_component_type(request)
+
+        if not component_type:
+            return None
+
         disabled = InternalService.objects.filter(
             api_type=component_type, enabled=False
         ).exists()
