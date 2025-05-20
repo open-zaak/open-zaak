@@ -70,10 +70,6 @@ billiard==4.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   celery
-black==24.4.2
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 bleach==6.1.0
     # via
     #   -c requirements/ci.txt
@@ -136,7 +132,6 @@ click==8.1.7
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   black
     #   bump-my-version
     #   celery
     #   click-didyoumean
@@ -527,10 +522,6 @@ faker==33.0.0
     #   -r requirements/ci.txt
     #   factory-boy
     #   zgw-consumers-oas
-flake8==7.1.2
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 flower==2.0.1
     # via
     #   -c requirements/ci.txt
@@ -610,10 +601,6 @@ iso8601==1.0.2
     #   -r requirements/ci.txt
     #   cmislib-maykin
     #   drc-cmis
-isort==5.0.7
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 itypes==1.2.0
     # via
     #   -c requirements/ci.txt
@@ -673,11 +660,6 @@ maykin-2fa==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-mccabe==0.7.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   flake8
 mdurl==0.1.2
     # via markdown-it-py
 mozilla-django-oidc==4.0.1
@@ -695,11 +677,6 @@ multidict==6.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-mypy-extensions==1.0.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   black
 notifications-api-common==0.7.2
     # via
     #   -c requirements/ci.txt
@@ -728,18 +705,12 @@ packaging==24.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   ansible-core
-    #   black
     #   build
     #   pytest
     #   redis
     #   sphinx
 passlib==1.7.2
     # via -r requirements/../deployment/requirements.in
-pathspec==0.9.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   black
 phonenumberslite==8.13.35
     # via
     #   -c requirements/ci.txt
@@ -749,11 +720,6 @@ pip==24.3.1
     # via pip-tools
 pip-tools==7.4.1
     # via -r requirements/dev.in
-platformdirs==4.2.2
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   black
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
@@ -792,11 +758,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
     # via google-auth
 pycodestyle==2.12.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   autopep8
-    #   flake8
+    # via autopep8
 pycparser==2.21
     # via
     #   -c requirements/ci.txt
@@ -820,11 +782,6 @@ pydantic-settings==2.7.0
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
-pyflakes==3.2.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   flake8
 pygments==2.18.0
     # via
     #   -c requirements/ci.txt
@@ -994,6 +951,10 @@ ruamel-yaml-clib==0.2.12
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   ruamel-yaml
+ruff==0.11.10
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt

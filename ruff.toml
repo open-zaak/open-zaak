@@ -1,0 +1,100 @@
+# Exclude folders and files
+exclude = [
+    "migrations",
+    "static",
+    "media",
+]
+
+# Same as Black
+line-length = 88
+indent-width = 4
+
+target-version = "py311"
+
+[lint]
+select = [
+    # https://docs.astral.sh/ruff/rules/#isort-i
+    "I",
+    # https://docs.astral.sh/ruff/rules/#error-e
+    "E",
+    # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "F",
+    # https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
+    "SIM",
+    # https://docs.astral.sh/ruff/rules/#perflint-perf
+    "PERF",
+    # https://docs.astral.sh/ruff/rules/#refurb-furb
+    "FURB",
+    # https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "B006",
+    "B010",
+    # https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "N",
+]
+
+ignore = [
+    # Checks for assertRaises and pytest.raises context managers that catch Exception or BaseException.
+    "B017",
+    # Checks for useless expressions.
+    "B018",
+    # Checks for raise statements in exception handlers that lack a from clause.
+    "B904",
+    # Whitespace before ':' (conflicts with Black)
+    "E203",
+    # Checks for lines that exceed the specified maximum character length.
+    "E501",
+    # Do not assign a lambda expression
+    "E731",
+    # Name may be undefined from '*' import
+    "F405",
+    # Checks for CamelCase imports that are aliased to lowercase names
+    "N813",
+    # Checks for CamelCase imports that are aliased to constant-style names.
+    "N814",
+    # Checks for class variable names that follow the mixedCase convention
+    "N815",
+    # Exception name should be named with Error suffix
+    "N818",
+    # Checks for instance methods that use a name other than self for their first argument.
+    "N805",
+    # Checks for the use of non-lowercase variable names in functions
+    "N806",
+    # Checks for functions names that do not follow the snake_case naming convention.
+    "N802",
+    # Checks for module names that do not follow the snake_case naming convention or are otherwise invalid.
+    "N999",
+    # Checks for for loops that can be replaced by a list comprehension.
+    "PERF401",
+    # Checks for `if` statements that can be replaced with bool
+    "SIM103",
+    # Check for if-else-blocks that can be replaced with a ternary operator
+    "SIM108",
+    #Check for environment variables that are not capitalized.
+    "SIM112",
+    # Checks for nested if statements that can be collapsed into a single if statement
+    "SIM102",
+    # Use a single `with` statement with multiple contexts instead of nested `with` statements
+    "SIM117",
+]
+
+
+# Import sorting configuration (equivalent to isort)
+[lint.isort]
+combine-as-imports = true
+force-wrap-aliases = false
+known-first-party = ["openzaak"]
+lines-after-imports = -1
+relative-imports-order = "furthest-to-closest"
+sections = { django = ["django"] }
+section-order = [
+    "future",
+    "standard-library",
+    "django",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+
+[format]
+line-ending = "lf"
