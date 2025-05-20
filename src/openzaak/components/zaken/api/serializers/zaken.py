@@ -196,7 +196,6 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
 
 
 class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ZaakIdentificatie
         fields = (
@@ -215,7 +214,6 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-
         return self.Meta.model.objects.generate(
             validated_data["bronorganisatie"],
             date.today(),

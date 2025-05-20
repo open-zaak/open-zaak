@@ -145,7 +145,6 @@ class ZaakTypeViewSet(
         return qs
 
     def perform_update(self, serializer):
-
         if not serializer.partial:
             serializer.instance.zaaktypenrelaties.all().delete()
 

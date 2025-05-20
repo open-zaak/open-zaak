@@ -3,6 +3,7 @@
 """
 Test the correct invocations for registering notification channels.
 """
+
 from io import StringIO
 from unittest.mock import MagicMock, call, patch
 

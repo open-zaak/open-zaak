@@ -11,6 +11,7 @@ they are available for Django settings initialization.
     do NOT import anything Django related here, as this file needs to be loaded
     before Django is initialized.
 """
+
 import os
 import re
 import tempfile

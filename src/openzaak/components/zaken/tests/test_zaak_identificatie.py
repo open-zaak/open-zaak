@@ -6,6 +6,7 @@ ik in mijn communicatie snel kan verwijzen naar mijn aanvraag.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/164
 """
+
 from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
@@ -26,7 +27,6 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 class US164TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_geef_zelf_identificatie(self):

@@ -272,7 +272,6 @@ class InformatieobjectRelatedQuerySet(
 
 
 class ObjectInformatieObjectQuerySet(BlockChangeMixin, InformatieobjectRelatedQuerySet):
-
     RELATIONS = {
         BesluitInformatieObject: ObjectInformatieObjectTypes.besluit,
         ZaakInformatieObject: ObjectInformatieObjectTypes.zaak,

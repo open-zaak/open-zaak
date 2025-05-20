@@ -20,7 +20,6 @@ from .utils import get_operation_url
 
 @temp_private_root()
 class EioLockAPITests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_lock_success(self):
@@ -163,7 +162,6 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
 
 
 class EioUnlockAPITests(JWTAuthMixin, APITestCase):
-
     component = ComponentTypes.drc
     scopes = [SCOPE_DOCUMENTEN_LOCK]
 

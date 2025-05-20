@@ -54,7 +54,6 @@ class BrondatumArchiefprocedureSerializer(GegevensGroepSerializer):
 class ResultaatTypeSerializer(
     NestedGegevensGroepMixin, serializers.HyperlinkedModelSerializer
 ):
-
     brondatum_archiefprocedure = BrondatumArchiefprocedureSerializer(
         label=_("Brondatum archiefprocedure"),
         required=False,

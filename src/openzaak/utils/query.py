@@ -176,7 +176,6 @@ class LooseFkAuthorizationsFilterMixin:
         authorizations: models.QuerySet,
         catalogus_authorizations: models.QuerySet,
     ) -> models.QuerySet:
-
         # todo implement error if no loose-fk field
 
         authorizations_local, authorizations_external = self.get_authorizations(

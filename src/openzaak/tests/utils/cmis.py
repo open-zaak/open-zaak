@@ -123,8 +123,6 @@ def serialise_eio(eio, eio_url, **overrides):
             "json",
             [eio],
         )
-    )[
-        0
-    ]["fields"]
+    )[0]["fields"]
     serialised_eio = get_eio_response(eio_url, **serialised_eio, **overrides)
     return camelize(serialised_eio)

@@ -29,7 +29,6 @@ from .factories import EnkelvoudigInformatieObjectFactory
 @freeze_time("2019-01-01")
 @override_settings(CMIS_ENABLED=True)
 class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
-
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
     objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)

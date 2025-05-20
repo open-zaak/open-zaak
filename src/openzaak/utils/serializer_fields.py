@@ -95,7 +95,9 @@ class FKOrServiceUrlField(FKOrURLField):
 
         # replace FKOrURLValidator with FKOrServiceUrlValidator
         self.validators = [
-            v for v in self.validators if type(v) != FKOrURLValidator  # noqa
+            v
+            for v in self.validators
+            if type(v) != FKOrURLValidator  # noqa
         ]
         self.validators += [FKOrServiceUrlValidator()]
 

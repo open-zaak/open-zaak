@@ -126,7 +126,6 @@ class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
         self.app.set_user(self.user)
 
     def test_eio_add_no_version(self):
-
         self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 0)
 
         add_url = reverse("admin:documenten_enkelvoudiginformatieobjectcanonical_add")

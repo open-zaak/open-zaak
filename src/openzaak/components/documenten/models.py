@@ -118,8 +118,7 @@ class InformatieObject(models.Model):
     beschrijving = models.TextField(
         max_length=1000,
         blank=True,
-        help_text="Een generieke beschrijving van de inhoud van het "
-        "INFORMATIEOBJECT.",
+        help_text="Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.",
     )
     ontvangstdatum = models.DateField(
         _("ontvangstdatum"),
@@ -363,8 +362,7 @@ class EnkelvoudigInformatieObject(
     link = models.URLField(
         max_length=200,
         blank=True,
-        help_text="De URL waarmee de inhoud van het INFORMATIEOBJECT op te "
-        "vragen is.",
+        help_text="De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen is.",
     )
 
     # these fields should not be modified directly, but go through the `integriteit` descriptor

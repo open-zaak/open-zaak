@@ -31,7 +31,6 @@ from .utils import isodatetime
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectValidationCMISTests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     @override_settings(SITE_DOMAIN="testserver")

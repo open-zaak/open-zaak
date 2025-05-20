@@ -3,6 +3,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
+
 from datetime import date
 
 from django.test import override_settings, tag
@@ -61,7 +62,6 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 class US345TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_zaak_causes_archiving_defaults(self):

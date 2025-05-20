@@ -19,9 +19,9 @@ class GegevensGroepTypeWithReadOnlyFields(GegevensGroepType):
         self.read_only = read_only
 
         read_only_fields_known = set(self.read_only).issubset(set(self.mapping.keys()))
-        assert (
-            read_only_fields_known
-        ), "The fields in 'read_only' must be a subset of the mapping keys"
+        assert read_only_fields_known, (
+            "The fields in 'read_only' must be a subset of the mapping keys"
+        )
 
     def __set__(self, obj, value: Optional[dict]):
         if not value:

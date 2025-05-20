@@ -3,6 +3,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/348
 """
+
 from datetime import date
 from urllib.parse import quote_plus, urlencode
 
@@ -17,7 +18,6 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
 class US345TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_filter_on_archiefactiedatum_archiefnominatie_archiefstatus(self):

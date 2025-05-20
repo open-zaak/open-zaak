@@ -3,6 +3,7 @@
 """
 Integrations of selectielijst API into Django admin.
 """
+
 from typing import Optional
 
 from django import forms

@@ -43,7 +43,6 @@ from .utils import get_zaaktype_response
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 

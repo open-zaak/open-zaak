@@ -23,7 +23,6 @@ from .factories import BesluitFactory
 
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def _create_besluit(self, **HEADERS):

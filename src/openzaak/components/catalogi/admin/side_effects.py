@@ -46,7 +46,6 @@ class SideEffectBase(ABC):
 
 
 class VersioningSideEffect(SideEffectBase):
-
     new_version = None
 
     def apply(self):

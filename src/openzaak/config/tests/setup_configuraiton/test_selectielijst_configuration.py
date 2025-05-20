@@ -15,7 +15,6 @@ CONFIG_YAML = Path(__file__).parent / "files/selectielijst_api_config.yml"
 
 
 class SelectielijstConfigurationTests(TestCase):
-
     def setUp(self):
         config = ReferentieLijstConfig.get_solo()
 
@@ -29,7 +28,6 @@ class SelectielijstConfigurationTests(TestCase):
         config.save()
 
     def test_configure(self):
-
         service = ServiceFactory(slug="selectielijst-api")
 
         execute_single_step(
@@ -43,7 +41,6 @@ class SelectielijstConfigurationTests(TestCase):
         self.assertEqual(config.allowed_years, [2025, 2026, 2027, 2028])
 
     def test_configure_with_no_service(self):
-
         with self.assertRaises(ConfigurationRunFailed) as error:
             execute_single_step(
                 SelectielijstAPIConfigurationStep, yaml_source=str(CONFIG_YAML)

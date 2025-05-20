@@ -5,6 +5,7 @@ Define the ``Objecten`` that can be related to a Zaak.
 
 Each model class roughly maps to an Object Type in RGBZ.
 """
+
 import logging
 
 from django.core.exceptions import ValidationError

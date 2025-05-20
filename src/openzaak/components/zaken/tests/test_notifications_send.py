@@ -1021,7 +1021,6 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 class InvalidNotifConfigTests(
     NotificationsConfigMixin, JWTAuthMixin, APITransactionTestCase
 ):
-
     client_id = "test"
     secret = "test"
     heeft_alle_autorisaties = True

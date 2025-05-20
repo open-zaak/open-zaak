@@ -40,7 +40,6 @@ class GeldigheidValidator:
         self.omschrijving_field = omschrijving_field
 
     def get_field_data(self, attrs, serializer):
-
         catalogus = get_from_serializer_data_or_instance("catalogus", attrs, serializer)
         begin_geldigheid = get_from_serializer_data_or_instance(
             "begin_geldigheid", attrs, serializer

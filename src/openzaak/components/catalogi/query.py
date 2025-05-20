@@ -10,7 +10,7 @@ class GeldigheidQuerySet(models.QuerySet):
         """
         qs = self.filter(
             catalogus=models.OuterRef("catalogus"),
-            **{id_field: models.OuterRef(id_field)}
+            **{id_field: models.OuterRef(id_field)},
         )
         return self.annotate(
             datum_begin_object=models.Subquery(

@@ -496,7 +496,6 @@ class ZaakUpdateValidation(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
 
 class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_cannot_use_self_as_hoofdzaak(self):

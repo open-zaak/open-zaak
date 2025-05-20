@@ -144,7 +144,6 @@ class PublishAdminMixin:
 
 class GeldigheidPublishAdminMixin(PublishAdminMixin):
     def _publish_validation_errors(self, obj):
-
         if has_overlapping_objects(
             model_manager=obj._meta.default_manager,
             catalogus=obj.catalogus,

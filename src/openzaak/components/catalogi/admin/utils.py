@@ -197,7 +197,6 @@ def import_zaaktype_for_catalogus(
     files_found = []
 
     with zipfile.ZipFile(import_file, "r") as zip_file:
-
         files_received = zip_file.namelist()
         for resource in [
             "ZaakType",
@@ -233,7 +232,6 @@ def import_zaaktype_for_catalogus(
                 for entry in data:
                     if resource == "ZaakType":
                         if identificatie_prefix:
-
                             new_identification = (
                                 f"{identificatie_prefix}_{entry['identificatie']}"
                             )

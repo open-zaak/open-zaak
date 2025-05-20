@@ -17,7 +17,6 @@ from openzaak.tests.utils import JWTAuthMixin
 
 
 class JWTExpiredTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @freeze_time("2019-01-01T12:00:00")

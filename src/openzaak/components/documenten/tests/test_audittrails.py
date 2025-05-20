@@ -28,7 +28,6 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 @freeze_time("2019-01-01")
 class AuditTrailTests(JWTAuthMixin, APITestCase):
-
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
     objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)

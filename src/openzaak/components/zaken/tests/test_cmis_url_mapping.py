@@ -31,7 +31,6 @@ from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis
 )
 @skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
 class URLMappingZIOAPITests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_no_url_mapping(self):

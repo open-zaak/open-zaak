@@ -27,7 +27,6 @@ from ..models import Besluit, BesluitInformatieObject
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def _create_besluit(self, **HEADERS):

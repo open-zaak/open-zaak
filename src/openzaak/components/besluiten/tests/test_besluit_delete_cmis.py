@@ -15,7 +15,6 @@ from .utils import get_operation_url
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitDeleteCMISTestCase(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_delete_besluit_cascades_properly(self):

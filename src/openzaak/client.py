@@ -3,6 +3,7 @@
 """
 Provide utilities to interact with other APIs as a client.
 """
+
 import logging
 
 from vng_api_common.client import Client, get_client, to_internal_data

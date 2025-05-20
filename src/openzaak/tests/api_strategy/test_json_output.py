@@ -3,6 +3,7 @@
 """
 Test the JSON output/formatting principles.
 """
+
 import json
 
 from rest_framework import status
@@ -37,7 +38,6 @@ class NoContentTypeRequestFactory(APIRequestFactory):
 
 
 class JSONFormatTests(APITestCase):
-
     factory = APIRequestFactory()
 
     def _get_response(self, request=None):

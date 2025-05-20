@@ -67,7 +67,6 @@ def sort_results(documents: List, order_by: List[str]) -> List:
 
 # TODO Refactor so that all these iterables inherit from a class that implements the shared functionality
 class CMISDocumentIterable(BaseIterable, CMISClientMixin):
-
     table = "drc:document"
     return_type = "Document"
 
@@ -98,9 +97,9 @@ class CMISDocumentIterable(BaseIterable, CMISClientMixin):
             # distinct on canonical -> we want the latest version of each document, if
             # a PWC exists, grab that. This means -> don't fetch additional versions
             if "canonical" in queryset.query.distinct_fields:
-                assert (
-                    "-versie" in queryset.query.order_by
-                ), "Undefined behaviour w/r to version sorting"
+                assert "-versie" in queryset.query.order_by, (
+                    "Undefined behaviour w/r to version sorting"
+                )
                 eio = cmis_doc_to_django_model(
                     document,
                     skip_pwc=False,
@@ -300,7 +299,6 @@ class CMISDocumentIterable(BaseIterable, CMISClientMixin):
 
 
 class CMISOioIterable(BaseIterable):
-
     table = "drc:oio"
     return_type = "Oio"
 
@@ -550,7 +548,6 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         return cmis_doc_to_django_model(new_cmis_document)
 
     def filter(self, *args, **kwargs):
-
         clone = super().filter(*args, **kwargs)
 
         filters = self._construct_filters(**kwargs)
@@ -668,7 +665,6 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
         return django_gebruiksrechten
 
     def filter(self, *args, **kwargs):
-
         filters = self.process_filters(kwargs)
 
         self._cmis_query += [tuple(x) for x in filters.items()]
@@ -687,7 +683,6 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
         return clone
 
     def process_filters(self, data):
-
         converted_data = {}
 
         for key, value in data.items():
@@ -727,7 +722,6 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
 class ObjectInformatieObjectCMISQuerySet(
     ObjectInformatieObjectQuerySet, CMISClientMixin
 ):
-
     has_been_filtered = False
 
     def __init__(self, *args, **kwargs):
@@ -749,7 +743,6 @@ class ObjectInformatieObjectCMISQuerySet(
         return len(self)
 
     def process_filters(self, data):
-
         converted_data = {}
 
         if data.get("object_type"):
@@ -858,12 +851,12 @@ class ObjectInformatieObjectCMISQuerySet(
         # different beast alltogether. The following code is just get Open Zaak on Django 3.2
         if args:
             complex_q = args[0]
-            assert (
-                len(args) == 1 and len(complex_q.children) == 1
-            ), "Cannot currently handle multiple complex query objects"
-            assert (
-                complex_q.connector == "AND"
-            ), "Can currently only handle AND complex query objects"
+            assert len(args) == 1 and len(complex_q.children) == 1, (
+                "Cannot currently handle multiple complex query objects"
+            )
+            assert complex_q.connector == "AND", (
+                "Can currently only handle AND complex query objects"
+            )
             kwargs.update(dict(complex_q.children))
 
         filters = self.process_filters(kwargs)
@@ -1007,7 +1000,6 @@ def cmis_doc_to_django_model(
 
 
 def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
-
     from ..models import EnkelvoudigInformatieObjectCanonical, Gebruiksrechten
 
     canonical = EnkelvoudigInformatieObjectCanonical()
@@ -1028,7 +1020,6 @@ def cmis_gebruiksrechten_to_django(cmis_gebruiksrechten):
 
 
 def cmis_oio_to_django(cmis_oio):
-
     from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
 
     canonical = EnkelvoudigInformatieObjectCanonical()

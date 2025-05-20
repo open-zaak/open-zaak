@@ -58,12 +58,13 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource, "besluit"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(audittrail.resource, "besluit")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}")
+        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation())
+
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
@@ -94,12 +95,12 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource, "besluit"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}"),
-        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(audittrail.resource, "besluit")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}")
+        self.assertEqual(audittrail.resource_weergave, besluit.unique_representation())
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
         self.assertEqual(old_data["toelichting"], "old")

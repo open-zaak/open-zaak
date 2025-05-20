@@ -22,7 +22,6 @@ from openzaak.utils import build_absolute_url
     ALLOWED_HOSTS=["testserver"], CMIS_ENABLED=True, SITE_DOMAIN="testserver"
 )
 class CMISUtilsTests(JWTAuthMixin, APICMISTestCase):
-
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 

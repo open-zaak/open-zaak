@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
+
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -346,7 +347,6 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
 
 class BioReadTests(JWTAuthMixin, APITestCase):
-
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
     component = ComponentTypes.brc
 

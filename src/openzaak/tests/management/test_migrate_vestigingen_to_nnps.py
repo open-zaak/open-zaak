@@ -17,7 +17,6 @@ from openzaak.components.zaken.tests.factories import RolFactory, ZaakObjectFact
 
 
 class TestMigrateVestigingenToNnps(TestCase):
-
     def call_command(self, *args, **kwargs):
         out = StringIO()
         call_command(
@@ -95,7 +94,6 @@ class TestMigrateVestigingenToNnps(TestCase):
         self.assertEqual(nnp.rol.betrokkene_type, RolTypes.niet_natuurlijk_persoon)
 
     def test_vestiging_cannot_be_migrated_when_rol_already_has_nnp(self):
-
         rol = RolFactory.create()
         vestiging = Vestiging.objects.create(
             rol=rol, handelsnaam=["Maykin", "Maykin Media"]

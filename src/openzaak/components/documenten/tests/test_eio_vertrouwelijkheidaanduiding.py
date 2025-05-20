@@ -6,6 +6,7 @@ Test value of vertrouwelijkheidaanduiding while creating EnkelvoudigInformatieOb
 See:
 https://github.com/VNG-Realisatie/gemma-zaken/issues/609
 """
+
 from base64 import b64encode
 
 from rest_framework import status
@@ -18,7 +19,6 @@ from openzaak.tests.utils import JWTAuthMixin
 
 
 class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_vertrouwelijkheidaanduiding_derived(self):

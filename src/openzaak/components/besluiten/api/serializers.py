@@ -3,6 +3,7 @@
 """
 Serializers of the Besluit Registratie Component REST API
 """
+
 from django.conf import settings
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _

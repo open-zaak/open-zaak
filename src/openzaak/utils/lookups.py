@@ -27,7 +27,6 @@ class FkOrServiceUrlFieldMixin:
     def split_lhs(
         self, compiler, connection
     ) -> Tuple[str, tuple, str, tuple, str, tuple]:
-
         fk_lhs, base_url_lhs, relative_url_lhs = self.get_cols()
 
         fk_lhs_sql, fk_params = self.process_lhs(compiler, connection, lhs=fk_lhs)

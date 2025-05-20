@@ -29,7 +29,6 @@ from .utils import ZAAK_WRITE_KWARGS
 
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def _create_zaak(self, **headers):

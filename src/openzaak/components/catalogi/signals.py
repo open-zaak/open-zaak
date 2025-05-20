@@ -39,7 +39,7 @@ def sync_autorisaties(
     sender: ModelBase,
     signal: ModelSignal,
     instance: Union[ZaakType, InformatieObjectType, BesluitType],
-    **kwargs
+    **kwargs,
 ) -> None:
     logger.debug("Received signal %r, from sender %r", signal, sender)
 

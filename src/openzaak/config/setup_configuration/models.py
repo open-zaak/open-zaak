@@ -8,7 +8,6 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 
 
 class SelectielijstAPIConfig(ConfigurationModel):
-
     allowed_years: list[PositiveInt] = DjangoModelRef(
         ReferentieLijstConfig, "allowed_years", examples=[[2017, 2020]]
     )

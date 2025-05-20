@@ -3,6 +3,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
+
 from django.conf import settings
 from django.test import override_settings
 
@@ -84,7 +85,6 @@ class US349TestCase(JWTAuthMixin, APICMISTestCase):
         self.assertEqual(error["code"], "pending-relations")
 
     def test_delete_document_fail_exising_relations_zaak(self):
-
         eio = EnkelvoudigInformatieObjectFactory.create()
         eio_uuid = eio.uuid
         eio_url = eio.get_url()

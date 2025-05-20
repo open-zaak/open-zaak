@@ -6,6 +6,7 @@ Define a dummy ROOT_URLCONF for testing.
 This enables us to test (a) view(s), processing the entire request/response
 processing stack, including middleware.
 """
+
 from django.urls import path
 
 from rest_framework.response import Response

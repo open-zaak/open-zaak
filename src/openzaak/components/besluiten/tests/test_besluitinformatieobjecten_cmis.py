@@ -22,7 +22,6 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class BesluitInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
-
     list_url = reverse_lazy("besluitinformatieobject-list", kwargs={"version": "1"})
 
     heeft_alle_autorisaties = True

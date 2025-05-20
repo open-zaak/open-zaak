@@ -32,7 +32,6 @@ from .utils import (
 @freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 

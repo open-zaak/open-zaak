@@ -3,6 +3,7 @@
 """
 Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/39
 """
+
 import base64
 from datetime import date
 from urllib.parse import urlparse
@@ -29,7 +30,6 @@ from .utils import get_operation_url
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US39TestCase(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_enkelvoudiginformatieobject(self):

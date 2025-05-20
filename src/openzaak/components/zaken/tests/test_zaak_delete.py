@@ -43,7 +43,6 @@ from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, get_operation_url
 
 
 class US349TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_delete_zaak_cascades_properly(self):

@@ -10,7 +10,6 @@ from .factories import KlantContactFactory
 
 
 class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_list_klantcontact(self):

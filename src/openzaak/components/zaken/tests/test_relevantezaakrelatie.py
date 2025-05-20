@@ -22,7 +22,6 @@ from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, get_zaak_response
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
 class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(Zaak)
 
@@ -272,7 +271,6 @@ class ExternalRelevanteZakenTestsTestCase(JWTAuthMixin, APITestCase):
 
 @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
 class LocalRelevanteAndereZakenTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(Zaak)
 

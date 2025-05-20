@@ -33,7 +33,6 @@ BETROKKENE = (
 
 
 class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
-
     heeft_alle_autorisaties = True
     maxDiff = None
 

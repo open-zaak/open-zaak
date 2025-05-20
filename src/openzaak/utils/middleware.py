@@ -34,9 +34,9 @@ def is_api_request(request: HttpRequest) -> bool:
 def override_request_host(request: HttpRequest) -> None:
     if settings.OPENZAAK_REWRITE_HOST and settings.OPENZAAK_DOMAIN:
         # keep track of the original host
-        assert not hasattr(
-            request, "_raw_host"
-        ), "You are overwriting an existing attribute!"
+        assert not hasattr(request, "_raw_host"), (
+            "You are overwriting an existing attribute!"
+        )
 
         if settings.USE_X_FORWARDED_HOST:
             logger.warning("Ignoring X-Forwarded-Host because OPENZAAK_DOMAIN is set.")

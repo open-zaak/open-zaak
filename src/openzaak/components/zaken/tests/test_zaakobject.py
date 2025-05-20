@@ -174,7 +174,6 @@ class ZaakObjectAdresTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_adres(self):
-
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
             zaak=zaak, object="", object_type=ZaakobjectTypes.adres
@@ -1188,7 +1187,6 @@ class ZaakObjectOverigeTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_read_zaakobject_overige(self):
-
         zaak = ZaakFactory.create()
         zaakobject = ZaakObjectFactory.create(
             zaak=zaak, object="", object_type=ZaakobjectTypes.overige

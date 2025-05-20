@@ -190,18 +190,18 @@ class ResultaatTypeForm(forms.ModelForm):
         if self.instance.zaaktype_id:
             proces_type = self.instance.zaaktype.selectielijst_procestype
             if "selectielijstklasse" in self.fields:
-                self.fields["selectielijstklasse"].choices = (
-                    get_selectielijst_resultaat_choices(proces_type)
-                )
+                self.fields[
+                    "selectielijstklasse"
+                ].choices = get_selectielijst_resultaat_choices(proces_type)
 
         # make the selectielijstklasse field readonly if we don't have sufficient
         # information to validate/filter it
         if not self._zaaktype or not self._zaaktype.selectielijst_procestype:
             self.fields["selectielijstklasse"].required = False
             self.fields["selectielijstklasse"].disabled = True
-            self.fields["selectielijstklasse"].choices = (
-                EMPTY_SELECTIELIJSTKLASSE_CHOICES
-            )
+            self.fields[
+                "selectielijstklasse"
+            ].choices = EMPTY_SELECTIELIJSTKLASSE_CHOICES
 
     def clean(self):
         super().clean()
@@ -427,7 +427,6 @@ class CatalogusImportForm(forms.Form):
 
 
 class ZaakTypeImportForm(forms.Form):
-
     identificatie_prefix = forms.CharField(
         label=_("identificatie prefix"),
         required=False,

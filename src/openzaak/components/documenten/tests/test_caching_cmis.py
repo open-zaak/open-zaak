@@ -3,6 +3,7 @@
 """
 Test that the caching mechanisms are in place.
 """
+
 from django.test import override_settings
 
 from rest_framework import status

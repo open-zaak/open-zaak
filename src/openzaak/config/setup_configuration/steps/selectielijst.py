@@ -35,7 +35,6 @@ class SelectielijstAPIConfigurationStep(BaseConfigurationStep[SelectielijstAPICo
     config_model = SelectielijstAPIConfig
 
     def execute(self, model: SelectielijstAPIConfig) -> None:
-
         service = get_service(model.selectielijst_api_service_identifier)
 
         config = ReferentieLijstConfig.get_solo()

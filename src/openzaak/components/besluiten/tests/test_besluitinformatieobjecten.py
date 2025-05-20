@@ -34,7 +34,6 @@ from .utils import get_besluittype_response
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-
     list_url = reverse_lazy("besluitinformatieobject-list", kwargs={"version": "1"})
 
     heeft_alle_autorisaties = True

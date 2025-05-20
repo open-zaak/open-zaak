@@ -43,7 +43,6 @@ STADSDEEL = f"https://example.com/rsgb/api/v1/wijkobjecten/{uuid.uuid4().hex}"
 
 
 class CreateZaakTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_zaak(self):
@@ -367,7 +366,6 @@ class CreateZaakTests(JWTAuthMixin, APITestCase):
 
 
 class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
-
     heeft_alle_autorisaties = True
 
     def setUp(self):

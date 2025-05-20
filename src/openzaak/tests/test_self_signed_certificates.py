@@ -10,6 +10,7 @@ Django specific.
 Note that you should have the CI docker-compose running with the mock endpoints, which
 uses the self-signed certificates.
 """
+
 import os
 from unittest import TestCase, skipIf
 
@@ -27,7 +28,6 @@ PUBLIC_INTERNET_HOST = "github.com:443"
 
 
 class SelfSignedCertificateTests(TestCase):
-
     root_cert = os.path.join(CERTS_DIR, "openzaak.crt")
 
     @classmethod

@@ -47,7 +47,6 @@ def sync_zaakbesluit(
             ZaakBesluit.objects.create_from(instance)
 
     elif signal is post_delete:
-
         if instance.zaak:
             ZaakBesluit.objects.delete_for(instance)
 

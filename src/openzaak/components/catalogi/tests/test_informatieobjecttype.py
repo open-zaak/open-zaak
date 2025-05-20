@@ -216,7 +216,6 @@ class InformatieObjectTypeAPITests(APITestCase):
         self.assertEqual(informatieobjecttype.concept, False)
 
     def test_publish_informatieobjecttype_with_overlapping_informatieobjecttype(self):
-
         catalogus = CatalogusFactory.create()
         old_informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=catalogus,
