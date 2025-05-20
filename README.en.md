@@ -16,7 +16,7 @@
 [![Documentation status](https://readthedocs.org/projects/open-zaak/badge/?version=latest)](https://open-zaak.readthedocs.io/en/latest/?badge=latest)
 [![Code coverage](https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main)](https://codecov.io/gh/open-zaak/open-zaak)
 [![Code quality checks](https://github.com/open-zaak/open-zaak/workflows/Code%20quality%20checks/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Code+quality+checks%22)
-[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Code style](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Docker](https://img.shields.io/docker/image-size/openzaak/open-zaak)](https://hub.docker.com/r/openzaak/open-zaak)
 
 This repository contains source code and documentation for production-ready APIs for case management. These APIs implement the VNG Realisatie Standard APIs for Case Management (zaakgericht werken).

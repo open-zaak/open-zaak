@@ -10,11 +10,11 @@ Before making making changes to the code, we advise you to first check the list 
 
 ### Code style
 To keep the code clean and readable, Open Zaak uses:
-- [`isort`](https://github.com/timothycrosley/isort) to order the imports
-- [`black`](https://github.com/psf/black) to format the code and keep diffs for pull requests small
-- [`flake8`](https://github.com/PyCQA/flake8) to clean up code (removing unused imports, etc.)
 
-Whenever a branch is pushed or a pull request is made, the code will be checked in CI by the tools mentioned above, so make sure to install these tools and run them locally before pushing branches/making PRs.
+- [`ruff`](https://docs.astral.sh/ruff/) to format and clean up code (removing unused imports, etc.)
+
+Whenever a branch is pushed or a pull request is made, the code will be checked in CI by Ruff, so
+make sure to install and run it locally before pushing branches/making pull requests.
 
 Open Zaak aims to meet the criteria of the [Standard for Public Code](https://standard.publiccode.net). Please make sure that your pull requests are compliant, that will make the reviews quicker.
 
