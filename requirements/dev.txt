@@ -123,6 +123,8 @@ cffi==1.16.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   cryptography
+cfgv==3.4.0
+    # via pre-commit
 charset-normalizer==2.0.12
     # via
     #   -c requirements/ci.txt
@@ -219,6 +221,8 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+distlib==0.3.9
+    # via virtualenv
 django==5.2.1
     # via
     #   -c requirements/ci.txt
@@ -522,6 +526,8 @@ faker==33.0.0
     #   -r requirements/ci.txt
     #   factory-boy
     #   zgw-consumers-oas
+filelock==3.18.0
+    # via virtualenv
 flower==2.0.1
     # via
     #   -c requirements/ci.txt
@@ -567,6 +573,8 @@ humanize==4.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   flower
+identify==2.6.10
+    # via pre-commit
 idna==3.7
     # via
     #   -c requirements/ci.txt
@@ -677,6 +685,8 @@ multidict==6.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
+nodeenv==1.9.1
+    # via pre-commit
 notifications-api-common==0.7.2
     # via
     #   -c requirements/ci.txt
@@ -720,11 +730,15 @@ pip==24.3.1
     # via pip-tools
 pip-tools==7.4.1
     # via -r requirements/dev.in
+platformdirs==4.3.8
+    # via virtualenv
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest
+pre-commit==4.2.0
+    # via -r requirements/dev.in
 prometheus-client==0.15.0
     # via
     #   -c requirements/ci.txt
@@ -882,6 +896,7 @@ pyyaml==6.0.2
     #   kubernetes
     #   kubernetes-validate
     #   oyaml
+    #   pre-commit
     #   pydantic-settings
     #   vcrpy
     #   zgw-consumers-oas
@@ -1129,6 +1144,8 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
+virtualenv==20.31.2
+    # via pre-commit
 waitress==3.0.1
     # via
     #   -c requirements/ci.txt

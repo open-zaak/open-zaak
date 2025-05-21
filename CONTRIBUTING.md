@@ -16,6 +16,18 @@ To keep the code clean and readable, Open Zaak uses:
 Whenever a branch is pushed or a pull request is made, the code will be checked in CI by Ruff, so
 make sure to install and run it locally before pushing branches/making pull requests.
 
+The project includes a [pre-commit](https://pre-commit.com) configuration to automatically
+create a pre-commit hook to apply the expected style formatting. After installing
+the dev dependencies, simply do:
+
+```
+$ pre-commit install
+```
+
+Now the various formatting hooks will be run automatically as a pre-commit hook. You
+can pass `--no-verify` to `git commit` to disable these checks for a specific commit
+during development (but keep in mind CI won't pass until your code conforms).
+
 Open Zaak aims to meet the criteria of the [Standard for Public Code](https://standard.publiccode.net). Please make sure that your pull requests are compliant, that will make the reviews quicker.
 
 ### Forking the repository
