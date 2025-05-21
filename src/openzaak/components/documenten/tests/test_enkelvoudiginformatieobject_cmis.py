@@ -131,7 +131,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
 
-        for key in response_data.keys():
+        for key in response_data:
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
@@ -314,7 +314,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APICMISTestCase):
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected.keys()))
 
-        for key in response_data.keys():
+        for key in response_data:
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected[key])
 

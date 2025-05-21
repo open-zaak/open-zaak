@@ -260,7 +260,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
 
         if not row.zaak_uuid:
             row.processed = True
-            row.succeeded = True if instance and instance.pk is not None else False
+            row.succeeded = bool(instance and instance.pk is not None)
             continue
 
         # Note that ZaakInformatieObject's will not be created using
@@ -375,7 +375,7 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
         processed = import_instance.processed + len(batch)
         is_finished = bool(import_instance.total == processed)
 
-        if not len(batch) % batch_size == 0 and not is_finished:
+        if len(batch) % batch_size != 0 and not is_finished:
             continue
 
         try:

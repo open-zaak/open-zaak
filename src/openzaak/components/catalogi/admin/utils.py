@@ -20,8 +20,8 @@ from ..models import BesluitType, Catalogus, InformatieObjectType
 
 factory = APIRequestFactory()
 REQUEST = factory.get("/")
-setattr(REQUEST, "versioning_scheme", URLPathVersioning())
-setattr(REQUEST, "version", "1")
+REQUEST.versioning_scheme = URLPathVersioning()
+REQUEST.version = "1"
 
 
 def format_serializer_errors(errors, related=False):

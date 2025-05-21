@@ -137,7 +137,7 @@ def fill_service_urls(
     logger.debug("%s service urls are migrated", model.__name__)
 
 
-class temp_disconnect_signal:
+class TempDisconnectSignal:
     """Temporarily disconnect a model from a signal"""
 
     def __init__(self, signal, receiver, sender, dispatch_uid=None):

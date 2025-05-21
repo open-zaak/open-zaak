@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 
 from vng_api_common.caching.signals import mark_related_instances_for_etag_update
 
-from openzaak.utils.migrations import temp_disconnect_signal
+from openzaak.utils.migrations import TempDisconnectSignal
 
 
 def forwards(apps, schema_editor):
@@ -17,7 +17,7 @@ def forwards(apps, schema_editor):
     # lock zaken table for writing, reads are still possible
     schema_editor.execute(f"LOCK TABLE {Zaak._meta.db_table} IN EXCLUSIVE MODE")
 
-    with temp_disconnect_signal(
+    with TempDisconnectSignal(
         post_save, mark_related_instances_for_etag_update, sender=None
     ):
         # copy over all the existing data of Zaak model to ZaakIdentificatie model
@@ -48,7 +48,7 @@ def backwards(apps, schema_editor):
     # lock zaken table for writing, reads are still possible
     schema_editor.execute(f"LOCK TABLE {Zaak._meta.db_table} IN EXCLUSIVE MODE")
 
-    with temp_disconnect_signal(
+    with TempDisconnectSignal(
         post_save, mark_related_instances_for_etag_update, sender=None
     ):
         # copy over all the existing data of Zaak model to ZaakIdentificatie model

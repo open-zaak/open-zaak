@@ -25,7 +25,7 @@ from .factories import BesluitFactory
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def _create_besluit(self, **HEADERS):
+    def _create_besluit(self, **headers):
         url = reverse(Besluit)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
@@ -38,7 +38,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "vervaldatum": "2019-04-28",
             "identificatie": "123123",
         }
-        response = self.client.post(url, besluit_data, **HEADERS)
+        response = self.client.post(url, besluit_data, **headers)
 
         return response.data
 

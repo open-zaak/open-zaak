@@ -208,7 +208,7 @@ class ProcestermijnAfleidingswijzeValidator:
         if not procestermijn:
             return
 
-        if (
+        if (  # noqa
             procestermijn == Procestermijn.nihil
             and afleidingswijze != Afleidingswijze.afgehandeld
         ) or (

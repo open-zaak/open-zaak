@@ -97,7 +97,7 @@ class RemoteRelationValidator:
 
     def __call__(self, oio: ObjectInformatieObject):
         # external object
-        if isinstance(oio.object, ProxyMixin) or isinstance(oio.object, str):
+        if isinstance(oio.object, (ProxyMixin, str)):
             invalid = self._check_remote(oio)
         else:
             invalid = self._check_local(oio)

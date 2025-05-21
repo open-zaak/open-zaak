@@ -105,26 +105,25 @@ class EioAdminInlineTests(WebTest):
 
     def test_eio_add(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        file = tempfile.NamedTemporaryFile()
-        file.write(b"some content")
-        file.seek(0)
+        with tempfile.NamedTemporaryFile() as file:
+            file.write(b"some content")
+            file.seek(0)
+            get_response = self.app.get(self.change_url)
 
-        get_response = self.app.get(self.change_url)
-
-        form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
-        form["enkelvoudiginformatieobject_set-0-identificatie"] = "12345"
-        form["enkelvoudiginformatieobject_set-0-bronorganisatie"] = "517439943"
-        form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"
-        form["enkelvoudiginformatieobject_set-0-titel"] = "some titel"
-        form["enkelvoudiginformatieobject_set-0-auteur"] = "some author"
-        form["enkelvoudiginformatieobject_set-0-_informatieobjecttype"] = (
-            informatieobjecttype.id
-        )
-        form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
-        form["enkelvoudiginformatieobject_set-0-inhoud"] = (file.name,)
-        form["enkelvoudiginformatieobject_set-0-bestandsomvang"] = 12
-        form["enkelvoudiginformatieobject_set-0-versie"] = "1"
-        form.submit()
+            form = get_response.forms["enkelvoudiginformatieobjectcanonical_form"]
+            form["enkelvoudiginformatieobject_set-0-identificatie"] = "12345"
+            form["enkelvoudiginformatieobject_set-0-bronorganisatie"] = "517439943"
+            form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"
+            form["enkelvoudiginformatieobject_set-0-titel"] = "some titel"
+            form["enkelvoudiginformatieobject_set-0-auteur"] = "some author"
+            form["enkelvoudiginformatieobject_set-0-_informatieobjecttype"] = (
+                informatieobjecttype.id
+            )
+            form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
+            form["enkelvoudiginformatieobject_set-0-inhoud"] = (file.name,)
+            form["enkelvoudiginformatieobject_set-0-bestandsomvang"] = 12
+            form["enkelvoudiginformatieobject_set-0-versie"] = "1"
+            form.submit()
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 

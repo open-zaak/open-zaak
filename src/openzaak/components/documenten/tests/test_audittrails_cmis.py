@@ -35,7 +35,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
 
     heeft_alle_autorisaties = True
 
-    def _create_enkelvoudiginformatieobject(self, **HEADERS):
+    def _create_enkelvoudiginformatieobject(self, **headers):
         ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
@@ -57,7 +57,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 
-        response = self.client.post(self.informatieobject_list_url, content, **HEADERS)
+        response = self.client.post(self.informatieobject_list_url, content, **headers)
 
         return response.data
 

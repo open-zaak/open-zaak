@@ -483,9 +483,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
     def union(self, *args, **kwargs):
         unified_queryset = super().union(*args, **kwargs)
 
-        unified_query = {}
-        for key, value in self._cmis_query:
-            unified_query[key] = value
+        unified_query = {key: value for key, value in self._cmis_query}
 
         # Adding the cmis queries of the other qs
         for qs in args:
@@ -521,7 +519,7 @@ class CMISQuerySet(InformatieobjectQuerySet, CMISClientMixin):
         # The begin_registratie field needs to be populated (could maybe be moved in cmis library?)
         kwargs["begin_registratie"] = timezone.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
         for key, value in kwargs.items():
-            if isinstance(value, datetime.datetime) or isinstance(value, datetime.date):
+            if isinstance(value, (datetime.datetime, datetime.date)):
                 kwargs[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         content = kwargs.pop("inhoud", None)
@@ -650,7 +648,7 @@ class GebruiksrechtenQuerySet(InformatieobjectRelatedQuerySet, CMISClientMixin):
         from ..models import EnkelvoudigInformatieObject
 
         for key, value in kwargs.items():
-            if isinstance(value, datetime.datetime) or isinstance(value, datetime.date):
+            if isinstance(value, (datetime.datetime, datetime.date)):
                 kwargs[key] = value.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         cmis_gebruiksrechten = self.cmis_client.create_gebruiksrechten(data=kwargs)
@@ -896,7 +894,7 @@ def format_fields(obj, obj_fields):
     """
     for field in obj_fields:
         _value = getattr(obj, field.name, None)
-        if isinstance(field, fields.CharField) or isinstance(field, fields.TextField):
+        if isinstance(field, (fields.CharField, fields.TextField)):
             if _value is None:
                 setattr(obj, field.name, "")
         elif isinstance(field, fields.DateTimeField):
@@ -956,9 +954,7 @@ def cmis_doc_to_django_model(
 
     file_is_empty = not bool(cmis_doc.get_content_stream().getvalue())
     no_file = False
-    if cmis_doc.bestandsomvang is None:
-        no_file = True
-    elif file_is_empty and cmis_doc.bestandsomvang:
+    if cmis_doc.bestandsomvang is None or file_is_empty and cmis_doc.bestandsomvang:
         no_file = True
 
     # Setting up a local file with the content of the cmis document

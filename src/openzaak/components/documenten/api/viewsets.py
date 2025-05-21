@@ -825,7 +825,7 @@ class ObjectInformatieObjectViewSet(
         object_type = serializer.validated_data["object_type"]
 
         # external object
-        if isinstance(object, ProxyMixin) or isinstance(object, str):
+        if isinstance(object, (ProxyMixin, str)):
             # Validate that the remote relation exists
             validator = CreateRemoteRelationValidator(request=self.request)
             try:
@@ -871,7 +871,7 @@ class ObjectInformatieObjectViewSet(
                 {api_settings.NON_FIELD_ERRORS_KEY: exc}, code=exc.detail[0].code
             ) from exc
 
-        if isinstance(instance.object, ProxyMixin) or isinstance(instance.object, str):
+        if isinstance(instance.object, (ProxyMixin, str)):
             super().perform_destroy(instance)
 
 
