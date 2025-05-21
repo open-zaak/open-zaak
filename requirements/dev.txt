@@ -684,7 +684,7 @@ notifications-api-common==0.7.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.9.6
+open-api-framework==0.10.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
