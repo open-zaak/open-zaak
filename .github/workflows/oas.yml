@@ -1,0 +1,40 @@
+name: OAS
+
+on:
+  push:
+    branches:
+      - main
+      - stable/*
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  oas:
+    name: Checks
+
+    strategy:
+      matrix:
+        component:
+          - autorisaties
+          - besluiten
+          - catalogi
+          - documenten
+          - zaken
+
+    uses: maykinmedia/open-api-workflows/.github/workflows/oas.yml@v5
+    with:
+      python-version: '3.11'
+      apt-packages: 'libgdal-dev gdal-bin'
+      django-settings-module: openzaak.conf.ci
+      oas-generate-command: >2
+        bin/generate_schema_for_component.sh ${{ matrix.component }}
+        src/openzaak/components/${{ matrix.component }}/openapi.yaml
+      schema-path: src/openzaak/components/${{ matrix.component }}/openapi.yaml
+      oas-artifact-name: ${{ matrix.component }}-api-oas
+      node-version-file: '.nvmrc'
+      spectral-version: '^6.15.0'
+      openapi-to-postman-version: '^5.0.0'
+      postman-artifact-name: ${{ matrix.component }}-api-postman-collection
+      openapi-generator-version: '^2.20.0'
