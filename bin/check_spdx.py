@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import os
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Set
+from typing import Any, Generator, List, Set
 
 import click
-from black import find_project_root, get_gitignore
-from pathspec import PathSpec
 
 SCAN_LINES = 5
 
@@ -37,15 +37,15 @@ FILE_TYPES = {
     is_eager=True,
 )
 def main(src):
-    # Path handling inspired on the implementation of Black: https://github.com/psf/black
-    root, source = find_project_root(src)
-    gitignore = get_gitignore(root)
+    root = os.path.abspath(os.curdir)
     sources: Set[Path] = set()
+
+    gitignore_files = get_gitignore_files()
 
     for s in src:
         p = Path(s)
         if p.is_dir():
-            sources.update(get_files_in_dir(p, root, gitignore))
+            sources.update(get_files_in_dir(p, root, gitignore_files))
         elif p.is_file() or s == "-":
             # if a file was explicitly given, we don't care about its extension
             sources.add(p)
@@ -62,11 +62,20 @@ def main(src):
         sys.exit(1)
 
 
-def get_files_in_dir(path: Path, root: Path, gitignore: PathSpec) -> List[Path]:
-    assert root.is_absolute(), f"INTERNAL ERROR: `root` must be absolute but is {root}"
+def get_gitignore_files():
+    command = ["git", "ls-files", "--others", "--ignored", "--exclude-standard"]
+    result = subprocess.run(command, capture_output=True, text=True, check=True)
+    return [line for line in result.stdout.strip().split("\n") if line]
+
+
+def get_files_in_dir(
+    path: Path, root: Path, gitignore_files: List[str]
+) -> Generator[Any, Any, Any]:
+    assert os.path.isabs(root), f"INTERNAL ERROR: `root` must be absolute but is {root}"
+
     for child in path.iterdir():
         # First ignore files matching .gitignore
-        if gitignore.match_file(child.as_posix()):
+        if child.as_posix() in gitignore_files:
             continue
 
         # Then ignore with `exclude` option.
@@ -85,7 +94,7 @@ def get_files_in_dir(path: Path, root: Path, gitignore: PathSpec) -> List[Path]:
             normalized_path += "/"
 
         if child.is_dir():
-            yield from get_files_in_dir(child, root, gitignore)
+            yield from get_files_in_dir(child, root, gitignore_files)
 
         elif child.is_file():
             yield child
