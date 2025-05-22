@@ -16,9 +16,7 @@ pytest
 codecov
 
 # Code formatting
-isort
-black
-flake8
+ruff
 
 # Documentation
 recommonmark

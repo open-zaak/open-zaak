@@ -46,10 +46,7 @@ of having apps within the project.
 - Integration with other, third-party services/interfaces should go in a
   ``openzaak.contrib`` package. This is currently (!) not the case yet.
 
-- Code style is enforced in CI with `black`_. When Black is not conclusive, stick to
-  `PEP 8`_.
-
-- Imports are sorted using isort_.
+- Code style and imports are enforced in CI with `ruff`_. 
 
 Frontend
 --------
@@ -71,8 +68,6 @@ Frontend
 - Browser support: latest and latest -1 version of the major browsers
 
 .. _Django framework: https://www.djangoproject.com/
-.. _black: https://github.com/psf/black
-.. _PEP 8: https://www.python.org/dev/peps/pep-0008/
-.. _isort: https://pycqa.github.io/isort/
+.. _ruff: https://github.com/astral-sh/ruff
 .. _React: https://reactjs.org/
 .. _ESLint: https://eslint.org/

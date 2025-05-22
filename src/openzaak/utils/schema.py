@@ -265,8 +265,7 @@ class AutoSchema(_AutoSchema):
                 # external component - external ref
                 inclusion_ref = {"$ref": get_external_schema_ref(inclusion_serializer)}
 
-            many = True if hasattr(inclusion_field, "child_relation") else False
-            if many:
+            if hasattr(inclusion_field, "child_relation"):
                 inclusion_schema = append_meta(build_array_type(inclusion_ref), meta)
             else:
                 inclusion_schema = append_meta(inclusion_ref, meta)

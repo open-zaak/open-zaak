@@ -54,7 +54,6 @@ class ExpandFilter(filters.BaseInFilter, filters.ChoiceFilter):
 
 
 class KeyValueFilter(filters.CharFilter):
-
     def __init__(self, key_field_name, value_field_name, *args, **kwargs):
         validators = kwargs.get("validators", [])
 

@@ -4,6 +4,7 @@
 The tests cover reading, creating and filtering rols with authenticatie_context.
 The related US - https://github.com/open-zaak/open-zaak/issues/1733
 """
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes

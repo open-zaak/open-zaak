@@ -27,7 +27,6 @@ from .utils import get_besluittype_response, get_operation_url
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @freeze_time("2018-09-06T12:08+0200")
@@ -155,7 +154,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             {
                 "verantwoordelijke_organisatie": "517439943",  # RSIN
                 "identificatie": "123123",
-                "besluittype": f"http://testserver/{'x'*1000}",
+                "besluittype": f"http://testserver/{'x' * 1000}",
                 "zaak": f"http://testserver{zaak_url}",
                 "datum": "2018-09-06",
                 "toelichting": "Vergunning verleend.",

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
 import io
 import json
 import zipfile
@@ -59,8 +60,8 @@ class Command(BaseCommand):
 
         factory = APIRequestFactory()
         request = factory.get("/")
-        setattr(request, "versioning_scheme", URLPathVersioning())
-        setattr(request, "version", "1")
+        request.versioning_scheme = URLPathVersioning()
+        request.version = "1"
 
         with zipfile.ZipFile(import_file, "r") as zip_file:
             for resource in IMPORT_ORDER:

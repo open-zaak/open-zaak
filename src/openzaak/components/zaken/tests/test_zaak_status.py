@@ -13,7 +13,6 @@ from .utils import ZAAK_READ_KWARGS
 
 
 class ZaakStatusTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_read_zaak_with_status(self):

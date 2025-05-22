@@ -3,6 +3,7 @@
 """
 Test that the remote loader makes authenticated calls.
 """
+
 from django.test import TestCase, override_settings
 
 import jwt

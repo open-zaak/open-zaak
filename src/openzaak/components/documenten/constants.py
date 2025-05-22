@@ -24,7 +24,7 @@ class Statussen(TextChoicesWithDescriptions):
         return {
             cls.in_bewerking: _("Aan het informatieobject wordt nog gewerkt."),
             cls.ter_vaststelling: _(
-                "Informatieobject gereed maar moet nog vastgesteld " "worden."
+                "Informatieobject gereed maar moet nog vastgesteld worden."
             ),
             cls.definitief: _(
                 "Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen."

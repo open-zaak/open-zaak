@@ -118,7 +118,7 @@ if "test" in sys.argv:
 ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, add_to_docs=False)
 
 # Override settings with local settings.
-try:
+try:  # noqa: SIM105
     from .includes.local import *  # noqa
 except ImportError:
     pass

@@ -6,6 +6,7 @@ kan worden gerouteerd.
 
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/45
 """
+
 import uuid
 
 from freezegun import freeze_time
@@ -24,7 +25,6 @@ WATERNET = f"https://waternet.nl/api/organisatorische-eenheid/{uuid.uuid4().hex}
 
 
 class US45TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @freeze_time("2018-01-01")

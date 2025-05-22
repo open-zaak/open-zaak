@@ -3,6 +3,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/349
 """
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors
@@ -20,7 +21,6 @@ from .utils import get_operation_url
 
 
 class US349TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_delete_document_cascades_properly(self):

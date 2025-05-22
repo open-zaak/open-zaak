@@ -259,7 +259,6 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
 
 class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @override_settings(ALLOWED_HOSTS=["testserver"])

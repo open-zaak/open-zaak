@@ -24,7 +24,7 @@ class ListFilterByAuthorizationsMixin:
         # because the resource _does exist_, you just don't have permission
         # to do those operations. A 403 is semantically more correct than a
         # 404, which would be the result if the queryset is always filtered.
-        if not self.action == "list":
+        if self.action != "list":
             return base
 
         # get the auth apps that are relevant for this particular request

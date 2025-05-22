@@ -6,6 +6,7 @@ Utilities to deal with OpenAPI 3 specifications.
 .. warning:: this module is import at settings load-time and CANNOT use Django models
    or anything else that requires django to be configured first.
 """
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict

@@ -3,6 +3,7 @@
 """
 Serializers of the Document Registratie Component REST API
 """
+
 import binascii
 import math
 import uuid
@@ -116,9 +117,9 @@ class AnyBase64File(Base64FileField):
         except ValueError:
             return None
 
-        assert (
-            self.view_name
-        ), "You must pass the `view_name` kwarg for private media fields"
+        assert self.view_name, (
+            "You must pass the `view_name` kwarg for private media fields"
+        )
 
         model_instance = file.instance
         request = self.context.get("request")

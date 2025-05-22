@@ -33,7 +33,7 @@ class CreateInitialSuperuserTests(TestCase):
 
         sent_mail = mail.outbox[0]
         try:
-            link = f'{settings.ALLOWED_HOSTS[0]}{reverse("admin:index")}'
+            link = f"{settings.ALLOWED_HOSTS[0]}{reverse('admin:index')}"
         except exceptions.NoReverseMatch:
             link = settings.ALLOWED_HOSTS[0]
         self.assertEqual(

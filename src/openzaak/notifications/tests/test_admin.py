@@ -3,6 +3,7 @@
 """
 Test that notifications can be send again through the admin.
 """
+
 from typing import List
 
 from django.urls import reverse

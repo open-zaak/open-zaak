@@ -812,17 +812,13 @@ class ZaakInformatieObjectViewSet(
     update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP in zijn geheel bij.",
         description=(
-            "**Er wordt gevalideerd op**\n"
-            "\n"
-            "- Alleen de WAARDE mag gewijzigd worden"
+            "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKEIGENSCHAP deels bij.",
         description=(
-            "**Er wordt gevalideerd op**\n"
-            "\n"
-            "- Alleen de WAARDE mag gewijzigd worden"
+            "**Er wordt gevalideerd op**\n\n- Alleen de WAARDE mag gewijzigd worden"
         ),
     ),
     destroy=extend_schema(
@@ -1278,7 +1274,7 @@ class ZaakBesluitViewSet(
     create=extend_schema(
         summary="Maak een ZAAKCONTACTMOMENT aan.",
         description=(
-            "**Er wordt gevalideerd op**\n" "- geldigheid URL naar de CONTACTMOMENT"
+            "**Er wordt gevalideerd op**\n- geldigheid URL naar de CONTACTMOMENT"
         ),
     ),
     destroy=extend_schema(
@@ -1358,9 +1354,7 @@ class ZaakContactMomentViewSet(
     ),
     create=extend_schema(
         summary="Maak een ZAAK-VERZOEK aan.",
-        description=(
-            "**Er wordt gevalideerd op**\n" "- geldigheid URL naar de VERZOEK"
-        ),
+        description=("**Er wordt gevalideerd op**\n- geldigheid URL naar de VERZOEK"),
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAK-VERZOEK.", description="Verwijder een ZAAK-VERZOEK."

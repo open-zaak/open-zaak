@@ -111,7 +111,7 @@ class CMISStorage(Storage):
 
         # introspect repos
         repositories = self.cmis_client.get_request(self.cmis_client.base_url)
-        for repo_id, repo_config in repositories.items():
+        for repo_config in repositories.values():
             if repo_config["repositoryUrl"] == self.cmis_client.base_url:
                 break
         else:

@@ -61,8 +61,8 @@ class Command(BaseCommand):
             )
 
         request = Request(build_fake_request())
-        setattr(request, "versioning_scheme", URLPathVersioning())
-        setattr(request, "version", "1")
+        request.versioning_scheme = URLPathVersioning()
+        request.version = "1"
 
         results = []
 

@@ -31,7 +31,6 @@ from .utils import ZAAK_WRITE_KWARGS
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def _create_zaak(self, **headers):

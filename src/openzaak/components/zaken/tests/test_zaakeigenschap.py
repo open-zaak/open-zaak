@@ -6,6 +6,7 @@ ontvangen, zodat ik voldoende details weet om de melding op te volgen.
 
 ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/52
 """
+
 from django.test import override_settings, tag
 
 import requests_mock

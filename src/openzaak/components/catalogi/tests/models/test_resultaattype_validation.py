@@ -6,6 +6,7 @@ Test the complex validation rules for Resultaattype.
 This is tested using the admin-used form class, but can/should be refactored
 to validators when using serializer validation.
 """
+
 import uuid
 from unittest.mock import patch
 
@@ -515,7 +516,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
             Afleidingswijze.termijn,
             zaaktype,
             resultaat_url,
-            **{"brondatum_archiefprocedure_procestermijn_days": ""}
+            **{"brondatum_archiefprocedure_procestermijn_days": ""},
         )
 
         valid = form.is_valid()
@@ -569,7 +570,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
                     afleidingswijze,
                     zaaktype,
                     resultaat_url,
-                    **{"brondatum_archiefprocedure_einddatum_bekend": True}
+                    **{"brondatum_archiefprocedure_einddatum_bekend": True},
                 )
 
                 self.assertFalse(form.is_valid())
@@ -607,7 +608,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
                 "brondatum_archiefprocedure_datumkenmerk": "",
                 "brondatum_archiefprocedure_objecttype": "adres",
                 "brondatum_archiefprocedure_registratie": "BRC",
-            }
+            },
         )
 
         self.assertFalse(form.is_valid())
@@ -650,7 +651,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
                 "brondatum_archiefprocedure_datumkenmerk": "",
                 "brondatum_archiefprocedure_objecttype": "",
                 "brondatum_archiefprocedure_registratie": "BRC",
-            }
+            },
         )
 
         self.assertFalse(form.is_valid())
@@ -693,7 +694,7 @@ class ResultaattypeAfleidingswijzeAndParameterFieldsValidationTests(
                 "brondatum_archiefprocedure_datumkenmerk": "",
                 "brondatum_archiefprocedure_objecttype": "",
                 "brondatum_archiefprocedure_registratie": "",
-            }
+            },
         )
 
         self.assertFalse(form.is_valid())

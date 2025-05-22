@@ -14,7 +14,6 @@ from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
 
 class ZaakOpschortingTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_eerdere_opschorting_field_cannot_be_changed(self):

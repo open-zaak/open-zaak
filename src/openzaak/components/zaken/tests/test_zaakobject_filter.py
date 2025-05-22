@@ -14,7 +14,6 @@ from .utils import get_operation_url
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakObjectFilterTestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_filter_type(self):

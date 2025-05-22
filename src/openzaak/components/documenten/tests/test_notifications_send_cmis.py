@@ -33,7 +33,6 @@ from .utils import get_operation_url
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_send_notif_create_enkelvoudiginformatieobject(self, mock_notif):

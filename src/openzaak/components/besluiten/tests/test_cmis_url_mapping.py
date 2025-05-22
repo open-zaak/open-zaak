@@ -29,7 +29,6 @@ from openzaak.utils import build_absolute_url
 )
 @skipIf(os.getenv("CMIS_BINDING") != "WEBSERVICE", "WEBSERVICE binding specific tests")
 class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_no_url_mapping(self):

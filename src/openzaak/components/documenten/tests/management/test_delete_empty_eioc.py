@@ -34,7 +34,6 @@ class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
         self.client.raise_request_exception = False
 
     def test_basic(self):
-
         eioc = EnkelvoudigInformatieObjectCanonicalFactory()
         latest = eioc.latest_version
         zaak = ZaakFactory()

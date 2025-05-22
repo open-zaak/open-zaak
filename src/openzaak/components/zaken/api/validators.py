@@ -444,7 +444,7 @@ class EitherFieldRequiredValidator:
         if self.skip_for_updates and serializer.instance:
             return
 
-        values = [attrs.get(field, None) for field in self.fields]
+        values = [attrs.get(field) for field in self.fields]
         if not any(values):
             raise serializers.ValidationError(self.message, code=self.code)
 

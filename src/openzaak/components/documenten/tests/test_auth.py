@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
+
 from django.test import override_settings, tag
 
 from privates.test import temp_private_root
@@ -489,7 +490,6 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
-
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -610,7 +610,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
 
 
 class OioReadTests(JWTAuthMixin, APITestCase):
-
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc

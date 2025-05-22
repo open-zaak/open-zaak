@@ -22,7 +22,6 @@ from .factories import BesluitFactory
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BesluitInformatieObjectCMISTests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_validate_no_informatieobjecttype_besluittype_relation(self):

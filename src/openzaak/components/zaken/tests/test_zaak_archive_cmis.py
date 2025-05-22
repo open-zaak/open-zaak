@@ -3,6 +3,7 @@
 """
 Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
+
 from datetime import date
 
 from django.test import override_settings
@@ -27,7 +28,6 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class US345CMISTestCase(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     @classmethod

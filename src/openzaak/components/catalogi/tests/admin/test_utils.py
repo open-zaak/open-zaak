@@ -11,7 +11,6 @@ from openzaak.components.catalogi.admin.utils import format_serializer_errors
 @disable_admin_mfa()
 class SerializerErrorFormatterTests(TestCase):
     def test_basic_errors(self):
-
         errors = {"field1": [ErrorDetail("Format must be valid", "invalidformat")]}
 
         self.assertEqual(
@@ -19,7 +18,6 @@ class SerializerErrorFormatterTests(TestCase):
         )
 
     def test_basic_multiple_errors(self):
-
         errors = {
             "field1": [ErrorDetail("Format must be valid", "invalidformat")],
             "field2": [ErrorDetail("Field is required", "required")],
@@ -27,7 +25,7 @@ class SerializerErrorFormatterTests(TestCase):
 
         self.assertEqual(
             format_serializer_errors(errors),
-            "field1: Format Must Be Valid\n" "field2: Field Is Required",
+            "field1: Format Must Be Valid\nfield2: Field Is Required",
         )
 
     def test_nested_errors(self):

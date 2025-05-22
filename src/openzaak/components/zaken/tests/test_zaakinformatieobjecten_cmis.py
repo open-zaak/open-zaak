@@ -28,7 +28,6 @@ from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class ZaakInformatieObjectCMISAPITests(JWTAuthMixin, APICMISTestCase):
-
     list_url = reverse_lazy(ZaakInformatieObject)
     heeft_alle_autorisaties = True
 

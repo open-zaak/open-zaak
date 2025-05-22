@@ -54,12 +54,12 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(audittrail.actie, "create")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
-        self.assertEqual(audittrail.resource, "rol"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}"),
-        self.assertEqual(audittrail.resource_weergave, rol.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource, "rol")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
+        self.assertEqual(audittrail.resource_weergave, rol.unique_representation())
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
@@ -90,12 +90,12 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(audittrail.actie, "update")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
-        self.assertEqual(audittrail.resource, "rol"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}"),
-        self.assertEqual(audittrail.resource_weergave, rol.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource, "rol")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
+        self.assertEqual(audittrail.resource_weergave, rol.unique_representation())
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
         self.assertEqual(old_data["roltoelichting"], "old")
@@ -122,12 +122,12 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
-        self.assertEqual(audittrail.resource, "rol"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}"),
-        self.assertEqual(audittrail.resource_weergave, rol.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource, "rol")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
+        self.assertEqual(audittrail.resource_weergave, rol.unique_representation())
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
@@ -151,12 +151,12 @@ class RolAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(audittrail.actie, "destroy")
         self.assertEqual(audittrail.resultaat, 0)
         self.assertEqual(audittrail.applicatie_weergave, "admin")
-        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}"),
-        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name()),
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}"),
-        self.assertEqual(audittrail.resource, "rol"),
-        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}"),
-        self.assertEqual(audittrail.resource_weergave, rol.unique_representation()),
+        self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
+        self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
+        self.assertEqual(audittrail.hoofd_object, f"http://testserver{zaak_url}")
+        self.assertEqual(audittrail.resource, "rol")
+        self.assertEqual(audittrail.resource_url, f"http://testserver{rol_url}")
+        self.assertEqual(audittrail.resource_weergave, rol.unique_representation())
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud

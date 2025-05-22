@@ -45,9 +45,9 @@ class FilterGroup:
     def _filter_inputs(self, data):
         # - Sanity check that correct data has been provided by the
         #   filterset.
-        assert set(data).issubset(
-            set(self.filter_names)
-        ), "The `data` must be a subset of the group's `.filters`."
+        assert set(data).issubset(set(self.filter_names)), (
+            "The `data` must be a subset of the group's `.filters`."
+        )
 
         # - Remove empty values that would normally be skipped by the
         #   ``Filter.filter`` method.
@@ -130,11 +130,12 @@ class FilterSetWithGroups(FilterSet):
 
         for name, value in cleaned_data.items():
             queryset = self.filters[name].filter(queryset, value)
-            assert isinstance(
-                queryset, QuerySet
-            ), "Expected '%s.%s' to return a QuerySet, but got a %s instead." % (
-                type(self).__name__,
-                name,
-                type(queryset).__name__,
+            assert isinstance(queryset, QuerySet), (
+                "Expected '%s.%s' to return a QuerySet, but got a %s instead."
+                % (
+                    type(self).__name__,
+                    name,
+                    type(queryset).__name__,
+                )
             )
         return queryset

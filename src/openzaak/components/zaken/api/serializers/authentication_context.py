@@ -45,7 +45,7 @@ class DigiDLevelOfAssurance(OrderedTextChoices):
 
 
 # Taken from django-digid-eherkenning: ``digid_eherkenning.choices``
-class eHerkenningLevelOfAssurance(OrderedTextChoices):
+class eHerkenningLevelOfAssurance(OrderedTextChoices):  # noqa: N801
     non_existent = "urn:etoegang:core:assurance-class:loa1", _("Non existent (1)")
     low = "urn:etoegang:core:assurance-class:loa2", _("Low (2)")
     low_plus = "urn:etoegang:core:assurance-class:loa2plus", _("Low (2+)")
@@ -55,12 +55,12 @@ class eHerkenningLevelOfAssurance(OrderedTextChoices):
 
 # According to https://afsprakenstelsel.etoegang.nl/Startpagina/v2/entityconcernedid-rsin
 # RSIN is not allowed for Intermediair
-class eHerkenningRepresenteeIdentifier(models.TextChoices):
+class eHerkenningRepresenteeIdentifier(models.TextChoices):  # noqa: N801
     bsn = "bsn", _("BSN")
     kvk_nummer = "kvkNummer", _("KVK-nummer")
 
 
-class eHerkenningMandateRole(models.TextChoices):
+class eHerkenningMandateRole(models.TextChoices):  # noqa: N801
     bewindvoerder = "bewindvoerder", "Bewindvoerder"
     curator = "curator", "Curator"
     mentor = "mentor", "Mentor"
@@ -88,7 +88,7 @@ class DigiDRepresenteeSerializer(serializers.Serializer):
     )
 
 
-class eHerkenningRepresenteeSerializer(serializers.Serializer):
+class eHerkenningRepresenteeSerializer(serializers.Serializer):  # noqa: N801
     identifier_type = serializers.ChoiceField(
         label=_("Identifier type"),
         required=True,
@@ -127,7 +127,7 @@ class DigiDMandateSerializer(serializers.Serializer):
     services = DigiDMandateServiceSerializer(many=True)
 
 
-class eHerkenningServiceSerializer(serializers.Serializer):
+class eHerkenningServiceSerializer(serializers.Serializer):  # noqa: N801
     id = serializers.CharField(
         label=_("Service ID"), help_text=_("The ServiceID from the service catalog")
     )
@@ -136,7 +136,7 @@ class eHerkenningServiceSerializer(serializers.Serializer):
     )
 
 
-class eHerkenningMandateSerializer(serializers.Serializer):
+class eHerkenningMandateSerializer(serializers.Serializer):  # noqa: N801
     role = serializers.ChoiceField(
         required=False,
         label=_("Role"),
@@ -203,7 +203,7 @@ class DigiDAuthContextSerializer(serializers.Serializer):
         return fields
 
 
-class eHerkenningAuthContextSerializer(serializers.Serializer):
+class eHerkenningAuthContextSerializer(serializers.Serializer):  # noqa: N801
     source = serializers.ChoiceField(
         required=True,
         label=_("Source"),

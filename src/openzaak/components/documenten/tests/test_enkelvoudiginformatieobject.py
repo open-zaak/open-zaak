@@ -32,7 +32,6 @@ from .utils import (
 @freeze_time("2018-06-27 12:12:12")
 @temp_private_root()
 class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
 
@@ -124,7 +123,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
 
-        for key in response_data.keys():
+        for key in response_data:
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
@@ -234,7 +233,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
 
-        for key in response_data.keys():
+        for key in response_data:
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected_response[key])
 
@@ -382,7 +381,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         response_data = response.json()
         self.assertEqual(sorted(response_data.keys()), sorted(expected.keys()))
 
-        for key in response_data.keys():
+        for key in response_data:
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected[key])
 

@@ -40,7 +40,6 @@ def has_overlapping_objects(
         return False
 
     if catalogus and begin_geldigheid:
-
         query = model_manager.filter(
             Q(catalogus=catalogus),
             Q(**omschrijving_query),

@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
+
 import uuid
 
 from django.test import override_settings

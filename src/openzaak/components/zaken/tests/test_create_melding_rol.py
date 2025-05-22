@@ -8,6 +8,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/169
 
 Zie ook: test_userstory_39.py
 """
+
 from datetime import date
 
 from django.test import override_settings
@@ -41,7 +42,6 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
     ALLOWED_HOSTS=["testserver", "openzaak.nl"],
 )
 class US169TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_melding(self):

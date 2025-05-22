@@ -11,7 +11,6 @@ from .utils import get_operation_url
 
 
 class BesluitDeleteTestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_delete_besluit_cascades_properly(self):

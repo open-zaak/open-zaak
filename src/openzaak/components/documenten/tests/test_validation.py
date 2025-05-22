@@ -261,7 +261,6 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
-
     url = reverse_lazy("enkelvoudiginformatieobject-list")
     heeft_alle_autorisaties = True
 

@@ -10,7 +10,6 @@ from .utils import get_operation_url
 
 
 class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_pagination_default(self):

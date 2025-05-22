@@ -474,7 +474,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             )
             self.identificatie = self.identificatie_ptr.identificatie
         elif not self.identificatie_ptr_id:
-
             reserved_identificatie = ZaakIdentificatie.objects.filter(
                 identificatie=self.identificatie, bronorganisatie=self.bronorganisatie
             )
@@ -867,9 +866,7 @@ class Rol(ETagMixin, APIMixin, models.Model):
         max_length=100,
         editable=False,
         db_index=True,
-        help_text=_(
-            "Omschrijving van de aard van de ROL, afgeleid uit " "het ROLTYPE."
-        ),
+        help_text=_("Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE."),
     )
     omschrijving_generiek = models.CharField(
         max_length=80,
@@ -1115,9 +1112,9 @@ class Rol(ETagMixin, APIMixin, models.Model):
                     },
                 }
                 if self.vestiging.vestigings_nummer:
-                    context["authorizee"]["legalSubject"][
-                        "branchNumber"
-                    ] = self.vestiging.vestigings_nummer
+                    context["authorizee"]["legalSubject"]["branchNumber"] = (
+                        self.vestiging.vestigings_nummer
+                    )
 
         return context
 
@@ -1336,7 +1333,7 @@ class ZaakKenmerk(models.Model):
     )
     bron = models.CharField(
         max_length=40,
-        help_text="De aanduiding van de administratie waar het kenmerk op " "slaat.",
+        help_text="De aanduiding van de administratie waar het kenmerk op slaat.",
     )
 
     objects = ZaakRelatedQuerySet.as_manager()

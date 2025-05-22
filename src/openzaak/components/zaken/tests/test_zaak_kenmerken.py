@@ -8,6 +8,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/163
 
 Zie ook: test_userstory_39.py, test_userstory_169.py
 """
+
 import datetime
 import uuid
 
@@ -46,7 +47,6 @@ BEHANDELAAR = (
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class US153TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_zaak_with_kenmerken(self):

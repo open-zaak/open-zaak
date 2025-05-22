@@ -49,7 +49,7 @@ class ZiotFilterAdminTests(WebTest):
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktype"})
         self.assertEqual(
             popup_zaaktypen.attrs["href"],
-            f'{reverse("admin:catalogi_zaaktype_changelist")}?{urlencode({"_to_field": "id"})}',
+            f"{reverse('admin:catalogi_zaaktype_changelist')}?{urlencode({'_to_field': 'id'})}",
         )
         # Verify that the popup screen shows only one Zaaktype
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
@@ -64,7 +64,7 @@ class ZiotFilterAdminTests(WebTest):
                 "catalogus": self.catalogus.pk,
             }
         )
-        url = f'{reverse("admin:catalogi_zaaktypeinformatieobjecttype_add")}?{query_params}'
+        url = f"{reverse('admin:catalogi_zaaktypeinformatieobjecttype_add')}?{query_params}"
         response = self.app.get(url)
 
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktype"})

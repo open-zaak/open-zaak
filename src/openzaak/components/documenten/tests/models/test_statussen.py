@@ -3,6 +3,7 @@
 """
 Tests for the business logic w/r to statussen, from RGBZ.
 """
+
 from datetime import date
 
 from django.core.exceptions import ValidationError

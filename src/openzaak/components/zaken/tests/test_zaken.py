@@ -69,7 +69,6 @@ from .utils import (
 
 
 class ApiStrategyTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_api_44_crs_headers(self):
@@ -117,7 +116,6 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
 
 
 class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_zaak_afsluiten(self):
@@ -226,7 +224,6 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
 
 
 class ZakenTests(JWTAuthMixin, APITestCase):
-
     scopes = [SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_ALLES_LEZEN]
     component = ComponentTypes.zrc
 
@@ -315,7 +312,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             url,
             {
-                "zaaktype": f"http://testserver/{'x'*1000}",
+                "zaaktype": f"http://testserver/{'x' * 1000}",
                 "bronorganisatie": "517439943",
                 "verantwoordelijkeOrganisatie": "517439943",
                 "registratiedatum": "2018-12-24",
@@ -739,7 +736,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @tag("gh-1836")
     def test_reserve_zaak_identity(self):
-
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(reverse("zaakidentificatie-list"), data)
@@ -786,7 +782,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @tag("gh-1836")
     def test_reserve_zaak_identity_with_different_bronorganisatie(self):
-
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(reverse("zaakidentificatie-list"), data)
@@ -1073,7 +1068,6 @@ class ZakenFilterTests(JWTAuthMixin, APITestCase):
 
 
 class ZaakArchivingTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_zaak_archiefactiedatum_afleidingswijze_ingangsdatum_besluit(self):
@@ -1142,7 +1136,8 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.einddatum, datum_status_gezet.date())
         self.assertEqual(
-            zaak.archiefactiedatum, date(2030, 5, 3)  # 2020-05-03 + 10 years
+            zaak.archiefactiedatum,
+            date(2030, 5, 3),  # 2020-05-03 + 10 years
         )
 
 

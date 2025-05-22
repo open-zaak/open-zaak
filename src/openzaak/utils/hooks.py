@@ -8,5 +8,5 @@ def preprocess_exclude_endpoints(endpoints, **kwargs):
     return [
         (path, path_regex, method, callback)
         for path, path_regex, method, callback in endpoints
-        if not path.split("/")[-1] == exclude
+        if path.split("/")[-1] != exclude
     ]

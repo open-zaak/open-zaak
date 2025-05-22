@@ -77,14 +77,14 @@ class BesluitTypeAdminTests(WebTest):
                 "catalogus": self.catalogus.pk,
             }
         )
-        url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
+        url = f"{reverse('admin:catalogi_besluittype_add')}?{query_params}"
         response = self.app.get(url)
 
         popup_zaaktypen = response.html.find("a", {"id": "lookup_id_zaaktypen"})
         zaaktype_changelist_url = reverse("admin:catalogi_zaaktype_changelist")
         self.assertEqual(
             popup_zaaktypen.attrs["href"],
-            f'{zaaktype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
+            f"{zaaktype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -98,7 +98,7 @@ class BesluitTypeAdminTests(WebTest):
         )
         self.assertEqual(
             popup_iotypen.attrs["href"],
-            f'{iotype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
+            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -115,7 +115,7 @@ class BesluitTypeAdminTests(WebTest):
         zaaktype_changelist_url = reverse("admin:catalogi_zaaktype_changelist")
         self.assertEqual(
             popup_zaaktypen.attrs["href"],
-            f'{zaaktype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
+            f"{zaaktype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_zaaktypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -129,7 +129,7 @@ class BesluitTypeAdminTests(WebTest):
         )
         self.assertEqual(
             popup_iotypen.attrs["href"],
-            f'{iotype_changelist_url}?{urlencode({"catalogus__exact": self.catalogus.pk})}',
+            f"{iotype_changelist_url}?{urlencode({'catalogus__exact': self.catalogus.pk})}",
         )
         popup_response = self.app.get(popup_iotypen.attrs["href"])
         rows = popup_response.html.findAll("tr")[1:]
@@ -159,7 +159,7 @@ class BesluitTypeAdminTests(WebTest):
                 "catalogus": self.catalogus.pk,
             }
         )
-        url = f'{reverse("admin:catalogi_besluittype_add")}?{query_params}'
+        url = f"{reverse('admin:catalogi_besluittype_add')}?{query_params}"
         response = self.app.get(url)
 
         form = response.forms["besluittype_form"]

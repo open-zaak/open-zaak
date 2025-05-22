@@ -45,7 +45,6 @@ from .utils import isodatetime
 
 
 class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
@@ -475,7 +474,6 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
 
 class KlantContactValidationTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     @freeze_time("2019-07-22T12:00:00")

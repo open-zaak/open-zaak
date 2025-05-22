@@ -111,7 +111,6 @@ class CatalogusZaakTypeImportSelectView(
 
         iotypen = self.request.session.get("iotypen")
         if iotypen:
-
             form_kwargs = {
                 "catalogus_pk": catalogus_pk,
                 "labels": [str(catalogus) + " - " + i["omschrijving"] for i in iotypen],
@@ -184,7 +183,6 @@ class CatalogusZaakTypeImportSelectView(
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         context = self.get_context_data(**kwargs)
 
         try:
@@ -242,7 +240,6 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
     pk_url_kwarg = "zaaktype_pk"
 
     def post(self, request, *args, **kwargs):
-
         self.object = self.get_object()
         self.errors = []
 
@@ -323,7 +320,6 @@ class ZaaktypePublishView(AdminContextMixin, PermissionRequiredMixin, DetailView
             )
 
     def send_notification(self, context_request):
-
         viewset = ZaakTypeViewSet(request=self.request)
         viewset.action = "update"
 

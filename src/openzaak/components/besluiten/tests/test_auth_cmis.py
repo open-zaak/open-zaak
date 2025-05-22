@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization amchinery is in place.
 """
+
 from django.test import override_settings, tag
 
 from rest_framework import status
@@ -51,7 +52,6 @@ class BesluitScopeForbiddenCMISTests(AuthCheckMixin, APICMISTestCase):
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class BioReadCMISTests(JWTAuthMixin, APICMISTestCase):
-
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
     component = ComponentTypes.brc
 

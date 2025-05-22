@@ -29,14 +29,13 @@ from .factories import EnkelvoudigInformatieObjectFactory
 @freeze_time("2019-01-01")
 @override_settings(CMIS_ENABLED=True)
 class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
-
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
     objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)
 
     heeft_alle_autorisaties = True
 
-    def _create_enkelvoudiginformatieobject(self, **HEADERS):
+    def _create_enkelvoudiginformatieobject(self, **headers):
         ServiceFactory.create(
             api_root="http://testserver/catalogi/api/v1/", api_type=APITypes.ztc
         )
@@ -58,7 +57,7 @@ class AuditTrailTests(JWTAuthMixin, APICMISTestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 
-        response = self.client.post(self.informatieobject_list_url, content, **HEADERS)
+        response = self.client.post(self.informatieobject_list_url, content, **headers)
 
         return response.data
 

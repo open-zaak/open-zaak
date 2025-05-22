@@ -14,7 +14,6 @@ from .utils import ZAAK_WRITE_KWARGS
 
 
 class ZaakFilterTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
     url = reverse_lazy("zaak-list")
 

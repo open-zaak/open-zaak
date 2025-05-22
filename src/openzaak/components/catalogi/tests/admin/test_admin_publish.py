@@ -535,7 +535,6 @@ class PublishWithGeldigheidTests(
         RolTypeFactory.create(zaaktype=self.zaaktype)
 
     def test_publish_zaaktype_with_existing_overlap_fails(self, request_mock):
-
         self.setUpData(request_mock)
 
         url = reverse("admin:catalogi_zaaktype_change", args=(self.zaaktype.pk,))

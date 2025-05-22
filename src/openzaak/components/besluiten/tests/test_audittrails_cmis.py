@@ -27,10 +27,9 @@ from ..models import Besluit, BesluitInformatieObject
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
-    def _create_besluit(self, **HEADERS):
+    def _create_besluit(self, **headers):
         base_besluit = "http://testserver/besluiten/api/v1/"
         base_zaak = "http://testserver/zaken/api/v1/"
         base_zaaktype = "http://testserver/catalogi/api/v1/"
@@ -73,7 +72,7 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             "identificatie": "123123",
             "zaak": f"http://testserver{reverse(zaak)}",
         }
-        response = self.client.post(url, besluit_data, **HEADERS)
+        response = self.client.post(url, besluit_data, **headers)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Mocking calls for the CMIS adapter, for when it will create a Oio

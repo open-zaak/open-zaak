@@ -248,7 +248,6 @@ class BesluitTypeAPITests(APITestCase):
         self.assertEqual(besluittype.concept, False)
 
     def test_publish_besluittype_with_overlapping_besluittype(self):
-
         catalogus = CatalogusFactory.create()
         old_besluittype = BesluitTypeFactory.create(
             catalogus=catalogus,

@@ -28,7 +28,6 @@ from .utils import (
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class StatusTests(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_filter_statussen_op_zaak(self):

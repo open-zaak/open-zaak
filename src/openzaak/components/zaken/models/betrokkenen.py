@@ -6,6 +6,7 @@ Define types of ``Betrokkenen``.
 A ``Betrokkene`` is involved with a ``Zaak`` by having a ``Rol`` in it. There
 are various types of involved 'people', which are modelled here.
 """
+
 import logging
 
 from django.contrib.postgres.fields import ArrayField

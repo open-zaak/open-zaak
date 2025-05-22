@@ -28,14 +28,13 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 @freeze_time("2019-01-01")
 class AuditTrailTests(JWTAuthMixin, APITestCase):
-
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
     gebruiksrechten_list_url = reverse_lazy(Gebruiksrechten)
     objectinformatieobject_list_url = reverse_lazy(ObjectInformatieObject)
 
     heeft_alle_autorisaties = True
 
-    def _create_enkelvoudiginformatieobject(self, **HEADERS):
+    def _create_enkelvoudiginformatieobject(self, **headers):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         content = {
@@ -54,7 +53,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
         }
 
-        response = self.client.post(self.informatieobject_list_url, content, **HEADERS)
+        response = self.client.post(self.informatieobject_list_url, content, **headers)
 
         return response.data
 

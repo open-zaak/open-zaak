@@ -83,7 +83,7 @@ class Command(BaseCommand):
 
         if options["generate_password"]:
             try:
-                link = f'{settings.ALLOWED_HOSTS[0]}{reverse("admin:index")}'
+                link = f"{settings.ALLOWED_HOSTS[0]}{reverse('admin:index')}"
             except IndexError:
                 link = "unknown url"
 

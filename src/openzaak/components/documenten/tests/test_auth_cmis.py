@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
+
 from django.conf import settings
 from django.test import override_settings, tag
 
@@ -496,7 +497,6 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APICMISTestCase):
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
-
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN, SCOPE_DOCUMENTEN_AANMAKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -635,7 +635,6 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APICMISTestCase):
 @require_cmis
 @override_settings(CMIS_ENABLED=True, SITE_DOMAIN="testserver")
 class OioReadTests(JWTAuthMixin, APICMISTestCase):
-
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc

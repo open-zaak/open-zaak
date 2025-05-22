@@ -380,7 +380,7 @@ ZAAK_IDENTIFICATIE_GENERATOR = config(
     default="use-start-datum-year",
     help_text=(
         "The method of **Zaak.identificatie** generation. Possible values are: "
-        f"{', '.join(f'``{opt}``' for opt in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.keys())} "
+        f"{', '.join(f'``{opt}``' for opt in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS)} "
     ),
 )
 

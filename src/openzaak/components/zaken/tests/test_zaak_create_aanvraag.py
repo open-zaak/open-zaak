@@ -8,6 +8,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/163
 
 Zie ook: test_userstory_39.py, test_userstory_169.py
 """
+
 from datetime import date
 
 from rest_framework import status
@@ -25,7 +26,6 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
 class US169TestCase(JWTAuthMixin, APITestCase):
-
     heeft_alle_autorisaties = True
 
     def test_create_aanvraag(self):

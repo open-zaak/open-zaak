@@ -24,7 +24,6 @@ from .utils import get_operation_url
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
-
     heeft_alle_autorisaties = True
 
     def test_lock_success(self):
@@ -175,7 +174,6 @@ class EioLockAPITests(JWTAuthMixin, APICMISTestCase):
 @require_cmis
 @override_settings(CMIS_ENABLED=True)
 class EioUnlockAPITests(JWTAuthMixin, APICMISTestCase):
-
     component = ComponentTypes.drc
     scopes = [SCOPE_DOCUMENTEN_LOCK]
 

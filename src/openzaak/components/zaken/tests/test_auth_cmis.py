@@ -3,6 +3,7 @@
 """
 Guarantee that the proper authorization machinery is in place.
 """
+
 from django.conf import settings
 from django.test import override_settings, tag
 

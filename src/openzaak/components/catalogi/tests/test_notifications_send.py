@@ -91,7 +91,6 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     def test_besluittype_delete_fail_send_notification_create_db_entry(
         self, m, mock_notif
     ):
-
         besluittype = BesluitTypeFactory.create()
         url = reverse(besluittype)
 
@@ -180,7 +179,6 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
     def test_informatieobjecttype_delete_fail_send_notification_create_db_entry(
         self, m, mock_notif
     ):
-
         iotype = InformatieObjectTypeFactory.create()
         url = reverse(iotype)
 

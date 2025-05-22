@@ -53,8 +53,6 @@ billiard==4.2.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   celery
-black==24.4.2
-    # via -r requirements/test-tools.in
 bleach==6.1.0
     # via
     #   -c requirements/base.txt
@@ -107,7 +105,6 @@ click==8.1.7
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   -r requirements/test-tools.in
-    #   black
     #   celery
     #   click-didyoumean
     #   click-plugins
@@ -472,8 +469,6 @@ faker==33.0.0
     #   -r requirements/base.txt
     #   factory-boy
     #   zgw-consumers-oas
-flake8==7.1.2
-    # via -r requirements/test-tools.in
 flower==2.0.1
     # via
     #   -c requirements/base.txt
@@ -529,8 +524,6 @@ iso8601==1.0.2
     #   -r requirements/base.txt
     #   cmislib-maykin
     #   drc-cmis
-isort==5.0.7
-    # via -r requirements/test-tools.in
 itypes==1.2.0
     # via
     #   -c requirements/base.txt
@@ -578,8 +571,6 @@ maykin-2fa==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-mccabe==0.7.0
-    # via flake8
 mozilla-django-oidc==4.0.1
     # via
     #   -c requirements/base.txt
@@ -592,14 +583,12 @@ mozilla-django-oidc-db==0.22.0
     #   open-api-framework
 multidict==6.1.0
     # via yarl
-mypy-extensions==1.0.0
-    # via black
 notifications-api-common==0.7.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework==0.9.6
+open-api-framework==0.10.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -617,19 +606,14 @@ packaging==24.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   black
     #   pytest
     #   redis
     #   sphinx
-pathspec==0.9.0
-    # via black
 phonenumberslite==8.13.35
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-platformdirs==4.2.2
-    # via black
 pluggy==1.5.0
     # via pytest
 prometheus-client==0.15.0
@@ -651,8 +635,6 @@ psycopg2==2.9.9
     #   open-api-framework
 py-cpuinfo==9.0.0
     # via pytest-benchmark
-pycodestyle==2.12.1
-    # via flake8
 pycparser==2.21
     # via
     #   -c requirements/base.txt
@@ -674,8 +656,6 @@ pydantic-settings==2.7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
-pyflakes==3.2.0
-    # via flake8
 pygments==2.18.0
     # via
     #   sphinx
@@ -805,6 +785,8 @@ ruamel-yaml-clib==0.2.12
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   ruamel-yaml
+ruff==0.11.10
+    # via -r requirements/test-tools.in
 self-certifi==1.0.0
     # via
     #   -c requirements/base.txt

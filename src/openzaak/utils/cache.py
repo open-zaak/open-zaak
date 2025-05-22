@@ -113,7 +113,6 @@ def requests_cache_enabled(*args, **kwargs):
     backend = DjangoRequestsCache
 
     class CustomCachedSession(CachedSession):
-
         def __init__(self, *args, **kwargs):
             # Initialize CachedSession with the custom backend
             # `ape_pie.APIClient` doesn't forward the cache params, causing

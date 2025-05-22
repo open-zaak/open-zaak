@@ -10,6 +10,7 @@ Factory models for the documenten application.
     :class:`openzaak.components.besluiten.models.BesluitInformatieObject`
     creation.
 """
+
 import datetime
 import os
 import string

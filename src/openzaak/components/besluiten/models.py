@@ -327,7 +327,6 @@ class BesluitInformatieObject(ETagMixin, models.Model):
         return f"({besluit_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
-
         if (
             self._informatieobject is not None
             and self._informatieobject.latest_version is None

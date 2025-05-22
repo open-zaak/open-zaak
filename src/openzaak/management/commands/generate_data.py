@@ -410,7 +410,7 @@ class Command(BaseCommand):
         zaaktypen = ZaakType.objects.order_by("id").all()
         for i, zaaktype in enumerate(zaaktypen):
             self.stdout.write(
-                f"Creating {zaken_per_zaaktype} zaken for zaaktype {i+1} / {self.zaaktypen_amount}"
+                f"Creating {zaken_per_zaaktype} zaken for zaaktype {i + 1} / {self.zaaktypen_amount}"
             )
             ZaakBulkFactory.reset_sequence(zaaktype.id * zaken_per_zaaktype)
             zaakgeometrie = (
@@ -518,7 +518,7 @@ class Command(BaseCommand):
         besluittypen = BesluitType.objects.order_by("id").all()
         for i, besluittype in enumerate(besluittypen):
             self.stdout.write(
-                f"Creating {besluiten_per_besluittype} besluiten for besluittype {i+1} / {len(besluittypen)}"
+                f"Creating {besluiten_per_besluittype} besluiten for besluittype {i + 1} / {len(besluittypen)}"
             )
             ZaakBulkFactory.reset_sequence(besluittype.id * besluiten_per_besluittype)
             besluiten = BesluitBulkFactory.build_batch(
@@ -532,7 +532,7 @@ class Command(BaseCommand):
         # documenten - 1 mln
         for i in range(self.zaken_amount // self.partition):
             self.stdout.write(
-                f"Creating {self.partition} documenten for partition {i+1}"
+                f"Creating {self.partition} documenten for partition {i + 1}"
             )
             eios_canonical = EnkelvoudigInformatieObjectCanonicalFactory.build_batch(
                 self.partition, latest_version=None

@@ -19,7 +19,6 @@ class Command(BaseCommand):
 
         migration_count = 0
         for vestiging in Vestiging.objects.iterator():
-
             if NietNatuurlijkPersoon.objects.filter(rol=vestiging.rol).exists():
                 self.stdout.write(
                     self.style.WARNING(

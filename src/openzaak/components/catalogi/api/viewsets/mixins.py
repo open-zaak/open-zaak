@@ -12,11 +12,9 @@ from ..scopes import SCOPE_CATALOGI_FORCED_DELETE
 
 
 class ConceptPublishMixin:
-
     publish_serializer = None
 
     def _publish(self, request, *args, **kwargs):
-
         instance = self.get_object()
         serializer = self.publish_serializer(
             instance,
