@@ -1,6 +1,23 @@
 Changelog
 =========
 
+1.21.1 (2025-05-27)
+-------------------
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`2030`] Ensure ``ondertekening`` and ``integriteit`` are not reset when doing PATCH requests on ``/enkelvoudiginformatieobjecten``
+* [:open-zaak:`1907`] Ensure requests-cache does not use sqlite backend when performing catalogi/zaaktypen imports
+
+**Project maintenance**
+
+* Point to main branch for README CI action badges
+* Upgrade dependencies
+  * tornado to 6.5.0
+  * open-api-framework to 0.10.0
+* Replace OAS GitHub actions workflows with single workflow
+* Replace ``black``, ``isort`` and ``flake8`` with ``ruff`` and update code-quality workflow
+
 1.21.0 (2025-05-13)
 -------------------
 
