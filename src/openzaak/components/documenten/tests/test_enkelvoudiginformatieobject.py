@@ -385,6 +385,78 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             with self.subTest(field=key):
                 self.assertEqual(response_data[key], expected[key])
 
+    @tag("gh-2030")
+    def test_patch_verzenddatum_preserves_ondertekening(self):
+        test_object = EnkelvoudigInformatieObjectFactory.create()
+        test_object.ondertekening = {
+            "soort": "analoog",
+            "datum": "2024-05-01",
+        }
+        test_object.save()
+        test_object.refresh_from_db()
+
+        detail_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": test_object.uuid}
+        )
+
+        lock_response = self.client.post(f"{detail_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data.get("lock")
+        self.assertIsNotNone(lock)
+
+        patch_response = self.client.patch(
+            detail_url,
+            {"verzenddatum": "2024-05-15", "lock": lock},
+            format="json",
+        )
+        self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+
+        self.assertIn("ondertekening", patch_response.data)
+        self.assertEqual(
+            {
+                "soort": "analoog",
+                "datum": "2024-05-01",
+            },
+            patch_response.data["ondertekening"],
+        )
+
+    @tag("gh-2030")
+    def test_patch_verzenddatum_preserves_integriteit(self):
+        test_object = EnkelvoudigInformatieObjectFactory.create()
+        test_object.integriteit = {
+            "algoritme": "sha_256",
+            "waarde": "12345",
+            "datum": "2024-05-01",
+        }
+        test_object.save()
+        test_object.refresh_from_db()
+
+        detail_url = reverse(
+            "enkelvoudiginformatieobject-detail", kwargs={"uuid": test_object.uuid}
+        )
+
+        lock_response = self.client.post(f"{detail_url}/lock")
+        self.assertEqual(lock_response.status_code, status.HTTP_200_OK)
+        lock = lock_response.data.get("lock")
+        self.assertIsNotNone(lock)
+
+        patch_response = self.client.patch(
+            detail_url,
+            {"verzenddatum": "2024-05-15", "lock": lock},
+            format="json",
+        )
+        self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+
+        self.assertIn("integriteit", patch_response.data)
+        self.assertEqual(
+            {
+                "algoritme": "sha_256",
+                "waarde": "12345",
+                "datum": "2024-05-01",
+            },
+            patch_response.data["integriteit"],
+        )
+
     def test_bestandsomvang(self):
         """
         Assert that the API shows the filesize.
