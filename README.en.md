@@ -12,10 +12,10 @@
 | **PythonVersion:** | 3.12 |
 
 [![API test platform](https://shields.api-test.nl/endpoint.svg?url=https%3A//api-test.nl/api/v1/provider-latest-badge/14bc91f7-7d8b-4bba-a020-a6c316655e65/)](https://api-test.nl/server/1/6b5fe675-694d-4948-8896-5eae88d30ef0/14bc91f7-7d8b-4bba-a020-a6c316655e65/latest/)
-[![Build status](https://github.com/open-zaak/open-zaak/workflows/Run%20CI/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Run+CI%22)
+[![Run CI](https://github.com/open-zaak/open-zaak/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/open-zaak/open-zaak/actions/workflows/ci.yml)
 [![Documentation status](https://readthedocs.org/projects/open-zaak/badge/?version=latest)](https://open-zaak.readthedocs.io/en/latest/?badge=latest)
 [![Code coverage](https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main)](https://codecov.io/gh/open-zaak/open-zaak)
-[![Code quality checks](https://github.com/open-zaak/open-zaak/workflows/Code%20quality%20checks/badge.svg)](https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Code+quality+checks%22)
+[![Code quality checks](https://github.com/open-zaak/open-zaak/actions/workflows/code_quality.yml/badge.svg?branch=main)](https://github.com/open-zaak/open-zaak/actions/workflows/code_quality.yml)
 [![Code style](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Docker](https://img.shields.io/docker/image-size/openzaak/open-zaak)](https://hub.docker.com/r/openzaak/open-zaak)
 
