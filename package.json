@@ -1,6 +1,6 @@
 {
   "name": "openzaak",
-  "version": "1.21.0",
+  "version": "1.21.1",
   "description": "Open Zaak",
   "main": "src/openzaak/static/bundles/openzaak-js.js",
   "directories": {
