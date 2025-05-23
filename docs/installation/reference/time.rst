@@ -40,13 +40,17 @@ Common claims in JWT's are ``iat`` (issued at), ``nbf`` (not before) and ``exp``
 (expiry). Clock drift can cause a JWT that's valid on the client to be considered not
 valid (yet, or anymore) on the server, leading to unexpected HTTP 403 errors.
 
-In Open Zaak, you can configure ``JWT_LEEWAY`` which allows you to specify the leeway
-in seconds. This value should be greater than the difference between server and client
-clock, but be careful to not make the value too large because that compromises security
-(i.e. - a token is valid longer than intended).
+
+TIME_LEEWAY setting
+-------------------
+
+In Open Zaak, you can configure ``TIME_LEEWAY`` which allows you to specify the leeway
+in seconds for resource & JWT validation. This value should be greater than the difference
+between server and client clock, but be careful to not make the value too large because
+that compromises security (i.e. - a token is valid longer than intended).
 
 Additionally, with Open Zaak the ``iat`` claim **must** be present, and it is validated
 against ``JWT_EXPIRY`` which determines how long a token is considered valid. The
-``JWT_LEEWAY`` configuration is also applied to this.
+``TIME_LEEWAY`` configuration is also applied to this.
 
 .. _NTP: https://en.wikipedia.org/wiki/Network_Time_Protocol
