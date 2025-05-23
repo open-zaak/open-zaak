@@ -279,6 +279,24 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         validation_error = get_validation_errors(response, "datumStatusGezet")
         self.assertEqual(validation_error["code"], "date-in-future")
 
+    @freeze_time("2019-07-22T12:00:00")
+    @override_settings(TIME_LEEWAY=5)
+    def test_status_datum_status_gezet_cannot_be_in_future_with_leeway(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
+        list_url = reverse("status-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "statustype": f"http://testserver{self.statustype_url}",
+                "datumStatusGezet": isodatetime(2019, 7, 22, 12, 00, 4),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_status_with_informatieobject_lock(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
@@ -491,6 +509,20 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "datumtijd")
         self.assertEqual(validation_error["code"], "date-in-future")
+
+    @freeze_time("2019-07-22T12:00:00")
+    @override_settings(TIME_LEEWAY=5)
+    def test_klantcontact_datumtijd_not_in_future_with_leeway(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("klantcontact-list")
+
+        response = self.client.post(
+            list_url,
+            {"zaak": zaak_url, "datumtijd": "2019-07-22T12:00:04", "kanaal": "test"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_klantcontact_invalid_zaak(self):
         list_url = reverse("klantcontact-list")

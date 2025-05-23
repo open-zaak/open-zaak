@@ -48,9 +48,9 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.data["code"], "jwt-expired")
 
-    @override_settings(JWT_EXPIRY=60 * 60, JWT_LEEWAY=3)
+    @override_settings(JWT_EXPIRY=60 * 60, TIME_LEEWAY=3)
     @freeze_time("2019-01-01T13:00:01")
-    def test_jwt_leeway_accounts_for_drft(self):
+    def test_time_leeway_accounts_for_drft(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -59,7 +59,7 @@ class JWTExpiredTests(JWTAuthMixin, APITestCase):
         self.assertNotEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertNotEqual(response.data["code"], "jwt-expired")
 
-    @override_settings(JWT_EXPIRY=60, JWT_LEEWAY=3)
+    @override_settings(JWT_EXPIRY=60, TIME_LEEWAY=3)
     @freeze_time("2019-01-01T11:59:56")
     def test_iat_greater_than_now(self):
         zaak = ZaakFactory.create()
@@ -93,7 +93,7 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=token)
 
     @freeze_time("2019-01-01T11:59:59")
-    def test_jwt_leeway_zero(self):
+    def test_time_leeway_zero(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -102,9 +102,9 @@ class JWTLeewayTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["code"], "jwt-immaturesignatureerror")
 
-    @override_settings(JWT_LEEWAY=3)
+    @override_settings(TIME_LEEWAY=3)
     @freeze_time("2019-01-01T11:59:59")
-    def test_jwt_leeway_accounts_for_drift(self):
+    def test_time_leeway_accounts_for_drift(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
