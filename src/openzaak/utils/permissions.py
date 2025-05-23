@@ -81,15 +81,15 @@ class AuthRequired(permissions.BasePermission):
         current_timestamp = time.time()
         difference = current_timestamp - iat
         # check for "negative" clock drift
-        if difference < 0 and difference < -settings.JWT_LEEWAY:
+        if difference < 0 and difference < -settings.TIME_LEEWAY:
             logger.warning(
                 "The JWT used for this request is not valid yet, the `iat` claim is "
                 "newer than the current time stamp. You may want to check the clock drift "
-                "on the Open Zaak server and/or tweak the `JWT_LEEWAY` setting.",
+                "on the Open Zaak server and/or tweak the `TIME_LEEWAY` setting.",
                 extra={"payload": payload},
             )
 
-        if difference >= (settings.JWT_EXPIRY + settings.JWT_LEEWAY):
+        if difference >= (settings.JWT_EXPIRY + settings.TIME_LEEWAY):
             raise PermissionDenied(
                 _("The JWT used for this request is expired"), code="jwt-expired"
             )
