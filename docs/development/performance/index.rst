@@ -48,7 +48,7 @@ Performance test results
 ^^^^^^
 
 ================= ========= ======================
-OZ version        Role      Median time (in ms)
+OZ version        Role      Median time (in ms, average over all endpoints)
 ================= ========= ======================
 1.9.0             Superuser 740
 1.9.0             Regular   2500
@@ -68,13 +68,15 @@ OZ version        Role      Median time (in ms)
 1.20.0 (fuzzy on) Regular   580
 1.21.0 (fuzzy on) Superuser 160
 1.21.0 (fuzzy on) Regular   220
+1.21.1 (fuzzy on) Superuser 150
+1.21.1 (fuzzy on) Regular   220
 ================= ========= ======================
 
 16 users
 ^^^^^^^^
 
 ================= ========= ======================
-OZ version        Role      Median time (in ms)
+OZ version        Role      Median time (in ms, average over all endpoints)
 ================= ========= ======================
 1.9.0             Superuser 2300
 1.9.0             Regular   13000
@@ -94,6 +96,8 @@ OZ version        Role      Median time (in ms)
 1.20.0 (fuzzy on) Regular   2100
 1.21.0 (fuzzy on) Superuser 390
 1.21.0 (fuzzy on) Regular   510
+1.21.1 (fuzzy on) Superuser 390
+1.21.1 (fuzzy on) Regular   510
 ================= ========= ======================
 
 
