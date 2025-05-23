@@ -409,7 +409,7 @@ six==1.16.0
     #   url-normalize
 sqlparse==0.5.0
     # via django
-tornado==6.4.2
+tornado==6.5
     # via flower
 typing-extensions==4.12.2
     # via
