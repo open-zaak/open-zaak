@@ -979,7 +979,7 @@ sentry-sdk==2.13.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-setuptools==75.8.0
+setuptools==78.1.1
     # via
     #   google-auth
     #   kubernetes
@@ -1082,7 +1082,7 @@ tblib==1.7.0
     #   -r requirements/ci.txt
 tomlkit==0.13.2
     # via bump-my-version
-tornado==6.4.2
+tornado==6.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
