@@ -119,7 +119,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -742,7 +742,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -1908,7 +1908,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -2756,7 +2756,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -4952,7 +4952,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -6734,7 +6734,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query
@@ -10450,7 +10450,7 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
         schema:
           type: integer
       - in: query

@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import AuditTrailViewsetMixin
-from vng_api_common.filters import Backend
+from vng_api_common.filters_backend import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
