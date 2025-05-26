@@ -5,13 +5,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**.py'
-      - '**.yml'
   pull_request:
-    paths:
-      - '**.py'
-      - '**.yml'
   workflow_dispatch:
 
 jobs:
