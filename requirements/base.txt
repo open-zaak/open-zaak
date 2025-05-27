@@ -398,6 +398,8 @@ ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
 self-certifi==1.0.0
     # via -r requirements/base.in
+semantic-version==2.10.0
+    # via django-upgrade-check
 sentry-sdk==2.13.0
     # via open-api-framework
 six==1.16.0
