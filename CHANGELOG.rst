@@ -1,6 +1,31 @@
 Changelog
 =========
 
+1.21.1 (2025-05-27)
+-------------------
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`2030`] Ensure ``ondertekening`` and ``integriteit`` are not reset when doing PATCH requests on ``/enkelvoudiginformatieobjecten``
+* [:open-zaak:`1907`] Ensure requests-cache does not use sqlite backend when performing catalogi/zaaktypen imports
+* [:open-zaak:`2025`] Avoid doing unnecessary database query in ``EnabledMiddleware`` for non-API requests
+* Do not use ``save_outgoing_requests`` log handler if ``LOG_REQUESTS`` is set to false
+
+**Project maintenance**
+
+* Point to main branch for README CI action badges
+* Upgrade dependencies
+
+  * [:open-api-framework:`140`] python to 3.12
+  * tornado to 6.5.0
+  * open-api-framework to 0.10.1
+  * commonground-api-common to 2.6.4
+  * django-sendfile2 to 0.7.2
+
+* [:open-api-framework:`132`] Remove pytest and check_sphinx.py, replace with simpler commands
+* Replace OAS GitHub actions workflows with single workflow
+* Replace ``black``, ``isort`` and ``flake8`` with ``ruff`` and update code-quality workflow
+
 1.21.0 (2025-05-13)
 -------------------
 

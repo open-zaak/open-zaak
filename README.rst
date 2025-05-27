@@ -7,7 +7,7 @@ Open Zaak
 
 .. _`Read this in English`: README.en.md
 
-:Version: 1.21.0
+:Version: 1.21.1
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.12
@@ -95,13 +95,13 @@ Licensed under the EUPL_
 
 .. _EUPL: LICENSE.md
 
-.. |build-status| image:: https://github.com/open-zaak/open-zaak/workflows/Run%20CI/badge.svg
+.. |build-status| image:: https://github.com/open-zaak/open-zaak/actions/workflows/ci.yml/badge.svg?branch=main
     :alt: Build status
-    :target: https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Run+CI%22
+    :target: https://github.com/open-zaak/open-zaak/actions/workflows/ci.yml
 
-.. |code-quality| image:: https://github.com/open-zaak/open-zaak/workflows/Code%20quality%20checks/badge.svg
+.. |code-quality| image:: https://github.com/open-zaak/open-zaak/actions/workflows/code_quality.yml/badge.svg?branch=main
      :alt: Code quality checks
-     :target: https://github.com/open-zaak/open-zaak/actions?query=workflow%3A%22Code+quality+checks%22
+     :target: https://github.com/open-zaak/open-zaak/actions/workflows/code_quality.yml
 
 .. |docs| image:: https://readthedocs.org/projects/open-zaak/badge/?version=latest
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest

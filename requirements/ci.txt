@@ -588,7 +588,7 @@ notifications-api-common==0.7.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework==0.10.0
+open-api-framework==0.10.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -856,7 +856,7 @@ sqlparse==0.5.0
     #   django
 tblib==1.7.0
     # via -r requirements/test-tools.in
-tornado==6.4.2
+tornado==6.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
