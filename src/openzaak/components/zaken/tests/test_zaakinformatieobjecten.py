@@ -18,8 +18,8 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
-from zgw_consumers.test import mock_service_oas_get
 from zgw_consumers.test.factories import ServiceFactory
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,

@@ -27,4 +27,8 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils]
+commonground-api-common[setup-configuration]
+git+https://github.com/maykinmedia/zgw-consumers.git@issue/101-remove-oas-fields
+# `vng_api_common.tests.reverse` is used in some non-test related code and that module
+# also imports requests_mock. so we need this to avoid importerrors
+requests-mock

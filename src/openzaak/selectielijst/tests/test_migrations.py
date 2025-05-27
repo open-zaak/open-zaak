@@ -81,4 +81,3 @@ class MigrateSelectielijstApiRootToServiceMissingService(TestMigrations):
         self.assertEqual(config.service.label, "VNG Selectielijst")
         self.assertEqual(config.service.slug, "vng-selectielijst")
         self.assertEqual(config.service.api_type, APITypes.orc)
-        self.assertEqual(config.service.oas, self.api_root)

@@ -27,9 +27,9 @@ router.register(
     "zaken",
     ZaakViewSet,
     [
-        routers.nested("zaakeigenschappen", ZaakEigenschapViewSet),
-        routers.nested("audittrail", ZaakAuditTrailViewSet),
-        routers.nested("besluiten", ZaakBesluitViewSet),
+        routers.Nested("zaakeigenschappen", ZaakEigenschapViewSet),
+        routers.Nested("audittrail", ZaakAuditTrailViewSet),
+        routers.Nested("besluiten", ZaakBesluitViewSet),
     ],
 )
 router.register("statussen", StatusViewSet)

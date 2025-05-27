@@ -14,7 +14,10 @@ from openzaak.components.zaken.tests.factories import (
 from openzaak.utils.query import QueryBlocked
 
 from ...models import ObjectInformatieObject
-from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
+from ..factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
+    EnkelvoudigInformatieObjectFactory,
+)
 
 
 @tag("oio")
@@ -98,10 +101,10 @@ class BlockChangeTestCase(TestCase):
         )
 
     def test_bulk_create(self):
-        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create(inhoud__filename="file2.bin")
         zaak = ZaakFactory.create()
         oio = ObjectInformatieObject(
-            informatieobject=canonical, zaak=zaak, object_type="zaak"
+            informatieobject=eio.canonical, zaak=zaak, object_type="zaak"
         )
 
         self.assertRaises(

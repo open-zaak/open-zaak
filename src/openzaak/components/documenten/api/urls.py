@@ -25,7 +25,7 @@ router = routers.DefaultRouter()
 router.register(
     "enkelvoudiginformatieobjecten",
     EnkelvoudigInformatieObjectViewSet,
-    [routers.nested("audittrail", EnkelvoudigInformatieObjectAuditTrailViewSet)],
+    [routers.Nested("audittrail", EnkelvoudigInformatieObjectAuditTrailViewSet)],
     basename="enkelvoudiginformatieobject",
 )
 router.register("gebruiksrechten", GebruiksrechtenViewSet)
