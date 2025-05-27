@@ -495,13 +495,3 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
 )
 
 NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
-
-#
-# django-upgrade-check
-#
-
-UPGRADE_CHECK_PATHS: UpgradePaths = {
-    "2.6.0": UpgradeCheck(VersionRange(minimum="2.5.0")),
-}
-
-UPGRADE_CHECK_STRICT = False
