@@ -3,10 +3,12 @@
 import re
 import shutil
 import uuid
+from datetime import date
 from pathlib import Path, PurePath
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.db.models import Max
 
 
 def merge_files(part_files, file_dir, file_name) -> str:
@@ -46,3 +48,38 @@ def check_path(url, resource):
         return False
 
     return True
+
+
+def generate_document_identificatie(bronorganisatie: str, date_value: date):
+    from openzaak.components.documenten.models import (
+        EnkelvoudigInformatieObject,
+        ReservedDocument,
+    )
+
+    model_name = "DOCUMENT"
+
+    year = date_value.year
+    prefix = f"{model_name}-{year}"
+    pattern = prefix + r"-\d{10}"
+
+    issued_max = EnkelvoudigInformatieObject._default_manager.filter(
+        identificatie__startswith=prefix,
+        identificatie__regex=pattern,
+    ).aggregate(Max("identificatie"))["identificatie__max"]
+
+    reserved_max = ReservedDocument.objects.filter(
+        bronorganisatie=bronorganisatie,
+        identificatie__startswith=prefix,
+        identificatie__regex=pattern,
+    ).aggregate(Max("identificatie"))["identificatie__max"]
+
+    def extract_number(identificatie):
+        if identificatie is None:
+            return 0
+        return int(identificatie.split("-")[-1])
+
+    max_number = max(extract_number(issued_max), extract_number(reserved_max))
+    next_number = max_number + 1
+    padded_number = str(next_number).zfill(10)
+
+    return f"{prefix}-{padded_number}"
