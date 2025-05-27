@@ -7,8 +7,6 @@ from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
-from upgrade_check import UpgradeCheck, VersionRange
-from upgrade_check.constraints import UpgradePaths
 
 from openzaak.utils.monitoring import filter_sensitive_data
 
