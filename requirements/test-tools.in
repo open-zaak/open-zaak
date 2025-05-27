@@ -10,8 +10,8 @@ pyquery
 requests-mock
 tblib
 vcrpy
-git+https://github.com/maykinmedia/zgw-consumers-oas.git@feature/add-mock-oas-get[mocks]
-git+https://github.com/maykinmedia/commonground-api-common.git@issue/generate-jwt[testutils]
+zgw-consumers-oas[mocks]
+commonground-api-common[testutils]
 
 # CI tools
 pytest

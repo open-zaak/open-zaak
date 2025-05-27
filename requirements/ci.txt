@@ -131,7 +131,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@b95df641a79642b42f8955db0e6ff49e03c01371
+commonground-api-common==2.6.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -946,7 +946,7 @@ zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@43f00357034
     #   -r requirements/base.txt
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas @ git+https://github.com/maykinmedia/zgw-consumers-oas.git@c76b3e95f4937e7f20c5ca97eabd2617e36f4767
+zgw-consumers-oas==1.1.0
     # via
     #   -r requirements/test-tools.in
     #   commonground-api-common
