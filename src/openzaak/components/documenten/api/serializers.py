@@ -20,6 +20,7 @@ from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 
 from drf_extra_fields.fields import Base64FileField
+from drf_spectacular.extensions import OpenApiSerializerExtension
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
@@ -1163,3 +1164,30 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
         return ReservedDocument.objects.create(
             identificatie=identificatie, bronorganisatie=bronorganisatie
         )
+
+
+class ReserveerDocumentRequestSerializer(serializers.Serializer):
+    bronorganisatie = serializers.CharField(required=True)
+    amount = serializers.IntegerField(min_value=1, default=1, required=False)
+
+
+class ReservedDocumentSerializerExtension(OpenApiSerializerExtension):
+    target_class = "your_app.serializers.ReservedDocumentSerializer"  # full import path
+
+    def match(self, direction):
+        return direction == "response"
+
+    def get_name(self):
+        return "ReservedDocumentSerializerOrList"
+
+    def map_serializer(self, auto_schema, direction):
+        return {
+            "oneOf": [
+                auto_schema._map_serializer(
+                    self.target, direction=direction, many=False
+                ),
+                auto_schema._map_serializer(
+                    self.target, direction=direction, many=True
+                ),
+            ]
+        }
