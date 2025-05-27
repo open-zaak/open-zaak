@@ -27,7 +27,7 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils]
 git+https://github.com/maykinmedia/zgw-consumers.git@release/1.0.0
+commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool]
