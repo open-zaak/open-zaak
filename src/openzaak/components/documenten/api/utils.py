@@ -50,7 +50,9 @@ def check_path(url, resource):
     return True
 
 
-def generate_document_identificatie(bronorganisatie: str, date_value: date):
+def generate_document_identificatie(
+    bronorganisatie: str, date_value: date, aantal: int = 1
+):
     from openzaak.components.documenten.models import (
         EnkelvoudigInformatieObject,
         ReservedDocument,
@@ -79,7 +81,11 @@ def generate_document_identificatie(bronorganisatie: str, date_value: date):
         return int(identificatie.split("-")[-1])
 
     max_number = max(extract_number(issued_max), extract_number(reserved_max))
-    next_number = max_number + 1
-    padded_number = str(next_number).zfill(10)
+    start_number = max_number + 1
 
-    return f"{prefix}-{padded_number}"
+    identificaties = [
+        f"{prefix}-{str(i).zfill(10)}"
+        for i in range(start_number, start_number + aantal)
+    ]
+
+    return identificaties[0] if aantal == 1 else identificaties
