@@ -5,13 +5,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**.py'
-      - '**.yml'
   pull_request:
-    paths:
-      - '**.py'
-      - '**.yml'
   workflow_dispatch:
 
 jobs:
@@ -19,7 +13,7 @@ jobs:
     uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@v5
     with:
       apt-packages: 'libgdal-dev gdal-bin'
-      python-version: '3.11'
+      python-version: '3.12'
       node-version: '18'
       postgres-image: 'postgis/postgis:16-3.5'
 
@@ -36,7 +30,7 @@ jobs:
       - uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl'
-          python-version: '3.11'
+          python-version: '3.12'
           setup-node: false
       - name: Run check
         run: ./bin/check_spdx.py src

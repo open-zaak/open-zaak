@@ -32,7 +32,7 @@ from vng_api_common.audittrails.viewsets import (
 )
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.client import to_internal_data
-from vng_api_common.filters import Backend
+from vng_api_common.filters_backend import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
