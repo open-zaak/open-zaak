@@ -378,8 +378,11 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
+    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
+    # via -r requirements/base.in
+requests-mock==1.12.1
     # via -r requirements/base.in
 ruamel-yaml==0.18.10
     # via django-setup-configuration
