@@ -5453,11 +5453,7 @@ paths:
                 type: string
                 format: uri
               description: URL waar de resource leeft.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReservedDocument'
-          description: Created
+          description: No response body
   /verzendingen:
     get:
       operationId: verzending_list
@@ -8202,15 +8198,6 @@ components:
       - antwoordnummer
       - postbusnummer
       type: string
-    ReservedDocument:
-      type: object
-      properties:
-        identificatie:
-          type: string
-          readOnly: true
-          default: ''
-          description: Een binnen een gegeven context ondubbelzinnige referentie naar
-            het INFORMATIEOBJECT.
     ReservedDocumentRequest:
       type: object
       properties:
@@ -8222,6 +8209,10 @@ components:
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
           maxLength: 9
+        aantal:
+          type: integer
+          minimum: 1
+          default: 1
       required:
       - bronorganisatie
     SoortEnum:
