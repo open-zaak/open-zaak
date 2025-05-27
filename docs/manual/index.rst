@@ -24,3 +24,4 @@ directly in the management interface.
    other_apis
    adfs
    oidc
+   archiving
