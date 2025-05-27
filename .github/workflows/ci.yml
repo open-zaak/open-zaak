@@ -71,7 +71,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           cache: 'pip'
           cache-dependency-path: 'requirements/*.txt'
       - uses: actions/setup-node@v3
@@ -141,7 +141,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
-          python-version: '3.11'
+          python-version: '3.12'
           optimize-postgres: 'yes'
           pg-service: 'postgres'
           setup-node: 'yes'
@@ -211,7 +211,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin'
-          python-version: '3.11'
+          python-version: '3.12'
           optimize-postgres: 'yes'
           pg-service: 'postgres'
           setup-node: 'yes'
@@ -265,7 +265,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'libgdal-dev gdal-bin'
-          python-version: '3.11'
+          python-version: '3.12'
           optimize-postgres: 'no'
           setup-node: 'no'
 
@@ -337,7 +337,7 @@ jobs:
         uses: maykinmedia/setup-django-backend@v1.3
         with:
           apt-packages: 'libgdal-dev gdal-bin'
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Generate environment variable documentation using OAf and check if it was updated
         run: |
@@ -374,7 +374,7 @@ jobs:
     with:
       apt-packages: 'libgdal-dev gdal-bin'
       main-branch: 'main'
-      python-version: '3.11'
+      python-version: '3.12'
       django-settings-module: openzaak.conf.ci
       docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}

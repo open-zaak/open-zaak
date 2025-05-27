@@ -10,9 +10,9 @@ Open Zaak
 :Version: 1.21.0
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
-:PythonVersion: 3.11
+:PythonVersion: 3.12
 
-|build-status| |docs| |coverage| |code-quality| |ruff| |docker|
+|build-status| |docs| |coverage| |code-quality| |ruff| |docker| |docker| |python-version|
 
 Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
@@ -114,6 +114,9 @@ Licensed under the EUPL_
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
     :target: https://github.com/astral-sh/ruff
     :alt: Ruff
+    
+.. |python-version| image:: https://img.shields.io/badge/python-3.12-blue.svg
+    :alt: Supported Python version
 
 .. |docker| image:: https://img.shields.io/docker/image-size/openzaak/open-zaak
     :target: https://hub.docker.com/r/openzaak/open-zaak

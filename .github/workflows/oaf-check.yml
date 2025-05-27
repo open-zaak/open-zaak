@@ -16,4 +16,4 @@ jobs:
     uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@v5
 
     with:
-      python-version: '3.11'
+      python-version: '3.12'
