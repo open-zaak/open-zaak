@@ -16,7 +16,7 @@ router = routers.DefaultRouter()
 router.register(
     "besluiten",
     BesluitViewSet,
-    [routers.nested("audittrail", BesluitAuditTrailViewSet)],
+    [routers.Nested("audittrail", BesluitAuditTrailViewSet)],
 )
 router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
 
