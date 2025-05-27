@@ -7,6 +7,8 @@ from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
+from upgrade_check import UpgradeCheck, VersionRange
+from upgrade_check.constraints import UpgradePaths
 
 from openzaak.utils.monitoring import filter_sensitive_data
 
@@ -97,6 +99,8 @@ INSTALLED_APPS = (
         "openzaak.config",
         "openzaak.selectielijst",
         "openzaak.notifications",
+        # Django libraries
+        "upgrade_check",
     ]
     + PLUGIN_INSTALLED_APPS
 )
@@ -491,3 +495,13 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
 )
 
 NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
+
+#
+# django-upgrade-check
+#
+
+UPGRADE_CHECK_PATHS: UpgradePaths = {
+    "2.6.0": UpgradeCheck(VersionRange(minimum="2.5.0")),
+}
+
+UPGRADE_CHECK_STRICT = False
