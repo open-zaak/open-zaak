@@ -111,6 +111,7 @@ jobs:
       matrix:
         postgres: ['14', '15', '16', '17']
         postgis: ['3.2', '3.5']
+        use_pooling: [false]
         exclude:
           # postgis 3.2 is not compatible with recent postgres versions
           - postgres: '17'
@@ -119,9 +120,13 @@ jobs:
             postgis: '3.2'
           - postgres: '15'
             postgis: '3.2'
+        include:
+          - postgres: '17'
+            postgis: '3.5'
+            use_pooling: true
 
 
-    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }})
+    name: Tests (PG ${{ matrix.postgres }}, postgis ${{ matrix.postgis }}) ${{matrix.use_pooling && 'with connection pooling' || ''}}
 
     services:
       postgres:
@@ -147,6 +152,7 @@ jobs:
           setup-node: 'yes'
 
       - name: Run tests
+      
         run: |
           echo "# Profiling stats" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_OUTPUT
@@ -161,14 +167,19 @@ jobs:
             --verbosity 2
           coverage combine
           mv .coverage .coverage-regular
+        env:
+          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+          SECRET_KEY: dummy
+          DB_USER: postgres
+          DB_PASSWORD: ''
+          DB_POOL_ENABLED: ${{ matrix.use_pooling }}
+          
 
       - name: Upload Coverage Report
-        # TODO find a better way to upload this only once
-        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' }}
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-regular-tests
-          path: ${{ github.workspace }}/.coverage-regular
+          name: coverage-regular-tests-pg${{ matrix.postgres }}-postgis${{ matrix.postgis }}${{ matrix.use_pooling && '-pooling' || '' }}
+          path:  ${{ github.workspace }}/.coverage-regular
           include-hidden-files: true
 
 
@@ -307,22 +318,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Download Coverage Reports
         uses: actions/download-artifact@v4
         with:
-          name: coverage-regular-tests
           path: coverage-data
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-cmis-tests
-          path: coverage-data
+
       - name: Combine reports
         run: |
           pip install $(grep codecov= requirements/ci.txt)
           ls -la coverage-data
-          coverage combine coverage-data/.coverage-regular coverage-data/.coverage-cmis
+          coverage_files=$(find coverage-data -name '.coverage-regular' -o -name '.coverage-cmis')
+          coverage combine $coverage_files
           coverage report
+
       - name: Publish coverage report
         uses: codecov/codecov-action@v4
         with:
