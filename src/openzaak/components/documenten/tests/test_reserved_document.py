@@ -10,7 +10,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
-from openzaak.components.documenten.api.serializers import ReservedDocumentSerializer
 from openzaak.components.documenten.api.utils import generate_document_identificatie
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -90,9 +89,9 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
         }
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
+        identificatie = response.data["identificatie"]
         reserved_doc = ReservedDocument.objects.get(
-            identificatie=response.data["identificatie"],
+            identificatie=identificatie,
             bronorganisatie=self.bronorganisatie,
         )
 
@@ -134,7 +133,6 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
 
         response_data = response.data
         self.assertIn("identificatie", response_data)
-
         identificatie = response_data["identificatie"]
         self.assertIsNotNone(identificatie)
         self.assertTrue(identificatie.startswith(f"DOCUMENT-{date.today().year}-"))
@@ -147,20 +145,41 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
         )
         self.assertIsNotNone(reserved)
 
-    def test_serializer_creates_identificatie_when_missing(self):
-        data = {"bronorganisatie": self.bronorganisatie}
+    @freeze_time("2025-01-01")
+    def test_create_multiple_reservations(self):
+        data = {"bronorganisatie": self.bronorganisatie, "aantal": 3}
 
-        serializer = ReservedDocumentSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), msg=serializer.errors)
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        instance = serializer.save()
+        results = response.data
+        self.assertIsInstance(results, list)
+        self.assertEqual(len(results), 3)
 
-        self.assertIsNotNone(instance.identificatie)
-        self.assertTrue(
-            instance.identificatie.startswith(f"DOCUMENT-{date.today().year}-")
-        )
+        expected_ids = [
+            "DOCUMENT-2025-0000000001",
+            "DOCUMENT-2025-0000000002",
+            "DOCUMENT-2025-0000000003",
+        ]
+        actual_ids = [item["identificatie"] for item in results]
 
-        self.assertTrue(ReservedDocument.objects.filter(id=instance.id).exists())
+        self.assertEqual(actual_ids, expected_ids)
+
+        for identificatie in expected_ids:
+            self.assertTrue(
+                ReservedDocument.objects.filter(
+                    identificatie=identificatie,
+                    bronorganisatie=self.bronorganisatie,
+                ).exists()
+            )
+
+    def test_create_reservation_with_invalid_amount(self):
+        data = {"bronorganisatie": self.bronorganisatie, "aantal": 0}
+
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        invalid_params = response.data.get("invalid_params", [])
+        self.assertTrue(any(param.get("name") == "aantal" for param in invalid_params))
 
 
 @tag("gh-2018")
