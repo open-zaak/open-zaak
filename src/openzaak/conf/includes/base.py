@@ -97,6 +97,8 @@ INSTALLED_APPS = (
         "openzaak.config",
         "openzaak.selectielijst",
         "openzaak.notifications",
+        # Django libraries
+        "upgrade_check",
     ]
     + PLUGIN_INSTALLED_APPS
 )

@@ -259,6 +259,7 @@ django==5.2.1
     #   django-solo
     #   django-timezone-field
     #   django-two-factor-auth
+    #   django-upgrade-check
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -431,6 +432,10 @@ django-two-factor-auth==1.17.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   maykin-2fa
+django-upgrade-check==1.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 django-webtest==1.9.13
     # via
     #   -c requirements/ci.txt
@@ -974,6 +979,11 @@ self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+semantic-version==2.10.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-upgrade-check
 sentry-sdk==2.13.0
     # via
     #   -c requirements/ci.txt
