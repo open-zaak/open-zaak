@@ -523,6 +523,7 @@ JWT_EXPIRY = config(
     help_text="duration a JWT is considered to be valid, in seconds.",
 )
 # leeway when comparing timestamps - non-zero value account for clock drift
+# This variable is deprecated; the `TIME_LEEWAY` variable should be used for everything instead.
 JWT_LEEWAY = config(
     "JWT_LEEWAY",
     default=0,
@@ -531,9 +532,23 @@ JWT_LEEWAY = config(
         "``nbf`` claims. Clock drift between server and client can occur. This setting allows "
         "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
         "not make this larger than a couple of minutes."
+        "setting a leeway using ``JWT_LEEWAY`` will soon be deprecated, "
+        "please migrate to the ``TIME_LEEWAY`` setting."
     ),
     auto_display_default=False,
 )
+
+TIME_LEEWAY = config(
+    "TIME_LEEWAY",
+    default=JWT_LEEWAY,
+    help_text=(
+        "Some validation & JWT validation has a time aspect (usually in the form of the ``iat`` and "
+        "``nbf`` claims). Clock drift between server and client can occur. This setting allows "
+        "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
+        "not make this larger than a couple of minutes."
+    ),
+)
+
 
 CMIS_ENABLED = config(
     "CMIS_ENABLED",
