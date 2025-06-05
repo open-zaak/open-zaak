@@ -456,6 +456,8 @@ elastic-apm==6.22.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
+exceptiongroup==1.3.0
+    # via pytest
 face==20.1.1
     # via
     #   -c requirements/base.txt
@@ -628,6 +630,14 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
+psycopg==3.2.9
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+psycopg-pool==3.2.6
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 psycopg2==2.9.9
     # via
     #   -c requirements/base.txt
@@ -856,6 +866,10 @@ sqlparse==0.5.0
     #   django
 tblib==1.7.0
     # via -r requirements/test-tools.in
+tomli==2.2.1
+    # via
+    #   pytest
+    #   sphinx
 tornado==6.5
     # via
     #   -c requirements/base.txt
@@ -865,8 +879,13 @@ typing-extensions==4.12.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   asgiref
+    #   exceptiongroup
     #   faker
     #   mozilla-django-oidc-db
+    #   multidict
+    #   psycopg
+    #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl
