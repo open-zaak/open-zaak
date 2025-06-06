@@ -1135,8 +1135,13 @@ class VerzendingSerializer(
 
 
 class ReservedDocumentSerializer(serializers.ModelSerializer):
-    aantal = serializers.IntegerField(min_value=1, default=1, required=False, write_only=True, help_text=_("Het aantal identificaties om te reserveren."))
-
+    aantal = serializers.IntegerField(
+        min_value=1,
+        default=1,
+        required=False,
+        write_only=True,
+        help_text=_("Het aantal identificaties om te reserveren."),
+    )
 
     class Meta:
         model = ReservedDocument
