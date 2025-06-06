@@ -1006,25 +1006,21 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             "binnen de bronorganisatie en het documentnummer kan daarna niet hergebruikt worden"
         ),
         request=ReservedDocumentSerializer,
-        responses={
-            status.HTTP_201_CREATED: OpenApiResponse(
-                examples=[
-                    OpenApiExample(
-                        "Enkele reservering",
-                        value={"identificatie": "DOCUMENT-2025-0000000001"},
-                        response_only=True,
-                    ),
-                    OpenApiExample(
-                        "Meerdere reserveringen",
-                        value=[
-                            {"identificatie": "DOCUMENT-2025-0000000001"},
-                            {"identificatie": "DOCUMENT-2025-0000000002"},
-                        ],
-                        response_only=True,
-                    ),
+        examples=[
+            OpenApiExample(
+                "Enkele reservering",
+                value={"identificatie": "DOCUMENT-2025-0000000001"},
+                response_only=True,
+            ),
+            OpenApiExample(
+                "Meerdere reserveringen",
+                value=[
+                    {"identificatie": "DOCUMENT-2025-0000000001"},
+                    {"identificatie": "DOCUMENT-2025-0000000002"},
                 ],
-            )
-        },
+                response_only=True,
+            ),
+        ],
     )
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
