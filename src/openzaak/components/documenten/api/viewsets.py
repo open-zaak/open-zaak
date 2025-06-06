@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+from datetime import date
 from pathlib import Path
 
 from django.conf import settings
@@ -11,6 +12,7 @@ from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
+    OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
     extend_schema,
@@ -101,6 +103,7 @@ from .serializers import (
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
 )
+from .utils import generate_document_identificatie
 from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
 
 # Openapi query parameters for version querying
@@ -1003,10 +1006,49 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             "binnen de bronorganisatie en het documentnummer kan daarna niet hergebruikt worden"
         ),
         request=ReservedDocumentSerializer,
-        responses={status.HTTP_201_CREATED: ReservedDocumentSerializer},
+        examples=[
+            OpenApiExample(
+                "Enkele reservering",
+                value={"identificatie": "DOCUMENT-2025-0000000001"},
+                response_only=True,
+            ),
+            OpenApiExample(
+                "Meerdere reserveringen",
+                value=[
+                    {"identificatie": "DOCUMENT-2025-0000000001"},
+                    {"identificatie": "DOCUMENT-2025-0000000002"},
+                ],
+                response_only=True,
+            ),
+        ],
     )
     def create(self, request, *args, **kwargs):
-        serializer = ReservedDocumentSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        bronorganisatie = serializer.validated_data["bronorganisatie"]
+        aantal = serializer.validated_data.get("aantal", 1)
+
+        today = date.today()
+        identificaties = generate_document_identificatie(
+            bronorganisatie=bronorganisatie,
+            date_value=today,
+            aantal=aantal,
+        )
+
+        if aantal == 1:
+            instance = ReservedDocument.objects.create(
+                identificatie=identificaties,
+                bronorganisatie=bronorganisatie,
+            )
+            output_serializer = self.serializer_class(instance)
+            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+        instances = [
+            ReservedDocument(identificatie=ident, bronorganisatie=bronorganisatie)
+            for ident in identificaties
+        ]
+        ReservedDocument.objects.bulk_create(instances)
+
+        output_serializer = self.serializer_class(instances, many=True)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)

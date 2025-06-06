@@ -1186,11 +1186,11 @@ class ReserveDocumentAuthTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, {"bronorganisatie": self.bronorganisatie})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        self.assertIn("identificatie", response.data)
+        response_data = response.data
+        self.assertIn("identificatie", response_data)
         self.assertTrue(
             ReservedDocument.objects.filter(
-                identificatie=response.data["identificatie"],
+                identificatie=response_data["identificatie"],
                 bronorganisatie=self.bronorganisatie,
             ).exists()
         )

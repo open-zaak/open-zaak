@@ -8,7 +8,6 @@ import binascii
 import math
 import uuid
 from base64 import b64decode
-from datetime import date
 from pathlib import Path
 from typing import Optional
 
@@ -63,7 +62,7 @@ from ..models import (
 from ..query.cmis import flatten_gegevens_groep
 from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
-from .utils import create_filename, generate_document_identificatie, merge_files
+from .utils import create_filename, merge_files
 from .validators import (
     InformatieObjectUniqueValidator,
     StatusValidator,
@@ -1136,11 +1135,20 @@ class VerzendingSerializer(
 
 
 class ReservedDocumentSerializer(serializers.ModelSerializer):
+    aantal = serializers.IntegerField(
+        min_value=1,
+        default=1,
+        required=False,
+        write_only=True,
+        help_text=_("Het aantal identificaties om te reserveren."),
+    )
+
     class Meta:
         model = ReservedDocument
         fields = (
             "identificatie",
             "bronorganisatie",
+            "aantal",
         )
         extra_kwargs = {
             "identificatie": {
@@ -1152,14 +1160,3 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
                 "required": True,
             },
         }
-
-    def create(self, validated_data):
-        bronorganisatie = validated_data["bronorganisatie"]
-        identificatie = generate_document_identificatie(
-            bronorganisatie=bronorganisatie,
-            date_value=date.today(),
-        )
-
-        return ReservedDocument.objects.create(
-            identificatie=identificatie, bronorganisatie=bronorganisatie
-        )
