@@ -8321,14 +8321,25 @@ components:
       - postbusnummer
       type: string
     ReservedDocument:
-      type: object
-      properties:
-        identificatie:
-          type: string
-          readOnly: true
-          default: ''
-          description: Een binnen een gegeven context ondubbelzinnige referentie naar
-            het INFORMATIEOBJECT.
+      oneOf:
+      - type: object
+        properties:
+          identificatie:
+            type: string
+            readOnly: true
+            default: ''
+            description: Een binnen een gegeven context ondubbelzinnige referentie
+              naar het INFORMATIEOBJECT.
+      - type: array
+        items:
+          type: object
+          properties:
+            identificatie:
+              type: string
+              readOnly: true
+              default: ''
+              description: Een binnen een gegeven context ondubbelzinnige referentie
+                naar het INFORMATIEOBJECT.
     ReservedDocumentRequest:
       type: object
       properties:

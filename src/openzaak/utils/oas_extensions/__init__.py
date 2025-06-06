@@ -7,3 +7,4 @@ from .hyperlink_identity import HyperlinkedIdentityFieldExtension  # noqa
 from .loose_fk import FKOrURLFieldFieldExtension  # noqa
 from .polymorphic import PolymorphicSerializerExtension  # noqa
 from .query import CamelizeFilterExtension  # noqa
+from .object_or_array import ReservedDocumentSerializerExtension  # noqa
