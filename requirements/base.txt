@@ -417,7 +417,6 @@ tornado==6.5
     # via flower
 typing-extensions==4.12.2
     # via
-    #   asgiref
     #   faker
     #   mozilla-django-oidc-db
     #   psycopg
