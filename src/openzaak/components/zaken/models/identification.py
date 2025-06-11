@@ -40,6 +40,47 @@ class ZaakIdentificatieManager(models.Manager):
                 identificatie=identification, bronorganisatie=organisation
             )
 
+    def generate_bulk(self, organisation: str, date: date, amount: int):
+        """
+        Bulk generate multiple unique identificaties.
+
+        This method uses the same PostgreSQL advisory lock to avoid race conditions
+        and ensures identificaties are unique even when called concurrently.
+
+        :param organisation: The organisation (bronorganisatie) to use.
+        :param date: The date to include in the identificatie.
+        :param amount: How many identificaties to generate.
+        :return: List of created ZaakIdentificatie instances.
+        """
+        with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
+            prefix = f"ZAAK-{date.year}-"
+
+            last_instance = (
+                self.filter(
+                    identificatie__startswith=prefix,
+                    bronorganisatie=organisation,
+                )
+                .order_by("-identificatie")
+                .first()
+            )
+
+            if last_instance:
+                last_number = int(last_instance.identificatie.split("-")[-1])
+            else:
+                last_number = 0
+
+            instances = []
+            for i in range(1, amount + 1):
+                new_number = last_number + i
+                identificatie = f"{prefix}{new_number:010d}"
+                instance = self.model(
+                    identificatie=identificatie,
+                    bronorganisatie=organisation,
+                )
+                instances.append(instance)
+
+            return self.bulk_create(instances)
+
 
 class ZaakIdentificatie(models.Model):
     """

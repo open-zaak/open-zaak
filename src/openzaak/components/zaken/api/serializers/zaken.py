@@ -196,11 +196,20 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
 
 
 class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
+    aantal = serializers.IntegerField(
+        min_value=1,
+        default=1,
+        required=False,
+        write_only=True,
+        help_text=_("Het aantal identificaties om te reserveren."),
+    )
+
     class Meta:
         model = ZaakIdentificatie
         fields = (
             "zaaknummer",
             "bronorganisatie",
+            "aantal",
         )
 
         extra_kwargs = {
@@ -214,9 +223,20 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        return self.Meta.model.objects.generate(
-            validated_data["bronorganisatie"],
-            date.today(),
+        aantal = validated_data.pop("aantal")
+        bronorganisatie = validated_data["bronorganisatie"]
+        today = date.today()
+
+        if aantal == 1:
+            return self.Meta.model.objects.generate(
+                bronorganisatie,
+                today,
+            )
+
+        return self.Meta.model.objects.generate_bulk(
+            bronorganisatie,
+            today,
+            aantal,
         )
 
     def update(self, instance, data):  # pragma:nocover
