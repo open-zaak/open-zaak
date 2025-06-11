@@ -1,3 +1,70 @@
+[project]
+requires-python = "== 3.12"
+
+# Bumpversion configuration
+
+[tool.bumpversion]
+commit = false
+tag = false
+current_version = "1.21.1"
+pre_commit_hooks = [
+    "npm i",  # ensure that package-lock.json is updated
+]
+
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(\\.dev(?P<dev>\\d+))?"
+serialize = [
+    "{major}.{minor}.{patch}.dev{dev}",
+    "{major}.{minor}.{patch}",
+]
+
+[tool.bumpversion.parts.dev]
+
+[[tool.bumpversion.files]]
+filename = "README.rst"
+
+[[tool.bumpversion.files]]
+filename = "README.en.md"
+
+[[tool.bumpversion.files]]
+filename = "package.json" 
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?:-(?P<dev>\\d+)-alpha)?"
+serialize = [
+    "{major}.{minor}.{patch}-{dev}-alpha",
+    "{major}.{minor}.{patch}",
+]
+
+search = '"version": "{current_version}"'
+replace = '"version": "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "deployment/kubernetes/apps.yml"
+search = "openzaak_version: '{current_version}'"
+replace = "openzaak_version: '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "deployment/single-server/open-zaak.yml"
+search = "openzaak_version: '{current_version}'"
+replace = "openzaak_version: '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "src/openzaak/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "publiccode.yaml"
+search = "softwareVersion: {current_version}"
+replace = "softwareVersion: {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "publiccode.yaml"
+search = "releaseDate: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
+replace = "releaseDate: '{now:%Y-%m-%d}'"
+regex = true
+
+
+# Ruff configuration
+[tool.ruff]
 # Exclude folders and files
 exclude = [
     "migrations",
@@ -11,7 +78,7 @@ indent-width = 4
 
 target-version = "py312"
 
-[lint]
+[tool.ruff.lint]
 select = [
     # https://docs.astral.sh/ruff/rules/#isort-i
     "I",
@@ -30,6 +97,8 @@ select = [
     "B010",
     # https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N",
+    "TID251",# tidy-imports
+    "TID253",
 ]
 
 ignore = [
@@ -77,9 +146,7 @@ ignore = [
     "SIM117",
 ]
 
-
-# Import sorting configuration (equivalent to isort)
-[lint.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 force-wrap-aliases = false
 known-first-party = ["openzaak"]
@@ -95,6 +162,5 @@ section-order = [
     "local-folder",
 ]
 
-
-[format]
+[tool.ruff.format]
 line-ending = "lf"
