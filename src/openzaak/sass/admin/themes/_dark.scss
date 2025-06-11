@@ -32,6 +32,7 @@
 }
 
 @mixin djai-variables {
+
   // use a more specific selector so that the dark theme overrides the default,
   // less specific selector.
   .djai-dropdown-menu {
@@ -44,6 +45,7 @@
 }
 
 @mixin bootstrap {
+
   .btn,
   .btn:hover {
     color: var(--body-fg);
@@ -59,8 +61,10 @@
  * Aggregate the bits and pieces to define the dark theme style rules.
  */
 @mixin styles {
+
   // Include the relevant variables
   @media (prefers-color-scheme: dark) {
+
     // This either gets overridden by the more specific light theme selector, or applies
     // in auto mode through the media query.
     :root {
@@ -70,6 +74,7 @@
     // only apply based on browser preferences if the theme is not explicitly set to
     // light or dark
     html[data-theme='auto'] {
+      @include variables;
       @include djai-variables;
       @include bootstrap;
     }
