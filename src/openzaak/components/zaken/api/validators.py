@@ -3,7 +3,7 @@
 import json
 import logging
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Iterable, Optional
 
 from django.conf import settings
@@ -141,7 +141,7 @@ class DateNotInFutureValidator:
     message = _("Deze datum mag niet in de toekomst zijn")
 
     def __call__(self, value):
-        now = timezone.now()
+        now = timezone.now() + timedelta(seconds=settings.TIME_LEEWAY)
 
         if type(value) is date:  # noqa - datetime is subclass of date
             now = now.date()

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -291,6 +292,52 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             validation_error = get_validation_errors(response, "laatsteBetaaldatum")
             self.assertEqual(validation_error["code"], "betaling-nvt")
+
+    @freeze_time("2019-07-22T12:00:00")
+    def test_laatste_betaaldatum_cannot_be_in_future(self):
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+                "betalingsindicatie": BetalingsIndicatie.geheel,
+                "laatsteBetaaldatum": "2019-07-22T13:00:00",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        validation_error = get_validation_errors(response, "laatsteBetaaldatum")
+        self.assertEqual(validation_error["code"], "future_not_allowed")
+
+    @freeze_time("2019-07-22T12:00:00")
+    @override_settings(TIME_LEEWAY=5)
+    def test_laatste_betaaldatum_cannot_be_in_future_with_leeway(self):
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+                "betalingsindicatie": BetalingsIndicatie.geheel,
+                "laatsteBetaaldatum": "2019-07-22T12:00:04",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_invalide_product_of_dienst(self):
         url = reverse("zaak-list")
