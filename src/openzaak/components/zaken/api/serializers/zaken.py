@@ -45,7 +45,7 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 from vng_api_common.utils import get_help_text
-from vng_api_common.validators import IsImmutableValidator
+from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
@@ -483,7 +483,7 @@ class ZaakSerializer(
                 "queryset": Zaak.objects.all(),
                 "validators": [NotSelfValidator(), HoofdzaakValidator()],
             },
-            "laatste_betaaldatum": {"validators": [DateNotInFutureValidator()]},
+            "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
         }
         validators = [
             # Replace a default "unique together" constraint.

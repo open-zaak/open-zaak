@@ -315,7 +315,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "laatsteBetaaldatum")
-        self.assertEqual(validation_error["code"], "date-in-future")
+        self.assertEqual(validation_error["code"], "future_not_allowed")
 
     @freeze_time("2019-07-22T12:00:00")
     @override_settings(TIME_LEEWAY=5)
