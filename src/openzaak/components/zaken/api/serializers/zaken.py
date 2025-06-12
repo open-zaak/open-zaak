@@ -228,7 +228,7 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         today = date.today()
 
         if aantal == 1:
-            return ZaakIdentificatie.objects.generate(bronorganisatie, today)
+            return ZaakIdentificatie.objects.create(bronorganisatie, today)
 
         return ZaakIdentificatie.objects.bulk_generate(bronorganisatie, today, aantal)
 
