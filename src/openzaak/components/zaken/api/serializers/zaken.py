@@ -228,9 +228,12 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         today = date.today()
 
         if aantal == 1:
-            return ZaakIdentificatie.objects.create(bronorganisatie, today)
+            return self.Meta.model.objects.generate(
+                validated_data["bronorganisatie"],
+                date.today(),
+            )
 
-        return ZaakIdentificatie.objects.bulk_generate(bronorganisatie, today, aantal)
+        return ZaakIdentificatie.objects.bulk_create(bronorganisatie, today, aantal)
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")

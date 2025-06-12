@@ -10,6 +10,7 @@ from django.utils import timezone
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -870,6 +871,32 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak6["betalingsindicatie"], BetalingsIndicatie.nvt)
         self.assertEqual(
             zaak6["betalingsindicatieWeergave"], BetalingsIndicatie.nvt.label
+        )
+
+    @freeze_time("2025-01-01")
+    def test_reserve_multiple_zaaknummers(self):
+        from vng_api_common.tests import reverse_lazy
+
+        data = {
+            "bronorganisatie": "517439943",
+            "aantal": 1,
+        }
+
+        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        result = response.data
+        self.assertEqual(len(result), 1)
+        expected_id = "ZAAK-2025-0000000001"
+
+        self.assertEqual(expected_id, result.get("zaaknummer"))
+
+        self.assertTrue(
+            ZaakIdentificatie.objects.filter(
+                identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
+            ).exists()
         )
 
 
