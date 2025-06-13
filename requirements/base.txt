@@ -40,6 +40,7 @@ cbor2==5.6.3
 celery==5.4.0
     # via
     #   django-celery-beat
+    #   django-structlog
     #   flower
     #   notifications-api-common
     #   open-api-framework
