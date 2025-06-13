@@ -35,6 +35,11 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesSto
 # Production logging facility.
 LOGGING["loggers"].update(
     {
+        "django": {
+            "handlers": logging_root_handlers,
+            "level": "INFO",
+            "propagate": False,
+        },
         "django.security.DisallowedHost": {
             "handlers": logging_django_handlers,
             "level": "CRITICAL",
