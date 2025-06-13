@@ -16,6 +16,8 @@ os.environ.setdefault(
 os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("RELEASE", "dev")
 os.environ.setdefault("ENVIRONMENT", "development")
+os.environ.setdefault("DISABLE_2FA", "True")
+os.environ.setdefault("LOG_FORMAT_CONSOLE", "plain_console")
 
 os.environ.setdefault("DB_NAME", "openzaak")
 os.environ.setdefault("DB_USER", "openzaak")
@@ -38,20 +40,18 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 LOGGING["loggers"].update(
     {
-        "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
-        "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
-        "django": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
+        "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "django": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django.utils.autoreload": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-        "performance": {"handlers": ["console"], "level": "INFO", "propagate": True},
+        "performance": {"handlers": ["console"], "level": "INFO", "propagate": False},
     }
 )
 
-if not LOG_QUERIES:
-    LOGGING["loggers"]["django.db.backends"]["handlers"] = ["django"]
 
 #
 # Library settings
