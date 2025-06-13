@@ -1,20 +1,23 @@
 /* SPDX-License-Identifier: EUPL-1.2 */
 /* Copyright (C) 2019 - 2020 Dimpact */
 /* Colors */
-$color-primary: #2E8DD0;
-$color-primary-dark: #124078;
-$color-primary-light: #c4dce8;
+// TODO: these sass variables are deprecated in favour of design tokens/css custom
+// properties.
+$color_primary: #04a5bb;
+$color_primary_dark: #017092;
+$color_primary_light: #c3eaef;
 
-$color-secondary: #f3f3f3;
-$color-secondary-dark: #ddd;
-$color-secondary-light: #fff;
+$color_secondary: #f3f3f3;
+$color_secondary_dark: #ddd;
+$color_secondary_light: #fff;
 
-$color-link: #005DD0;
-$color-link-hover: #124078;
+$color_link: #017092;
+$color_link_hover: #051f31;
 
-$color-darkest: #000;
-$color-dark: #333;
-$color-lightest: #fff;
+$color_darkest: #000;
+$color_dark: #333;
+$color_dark_light: #888;
+$color_lightest: #fff;
 
 $color-error: #ba2121; // default django admin color
 

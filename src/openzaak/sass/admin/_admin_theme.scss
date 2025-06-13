@@ -5,7 +5,14 @@ Generic admin styling overrides.
 
 DO NOT PUT ANY TARGET APP-SPECIFIC RULES HERE.
 */
+@use './themes/dark' as dark-theme;
+@use './themes/light' as light-theme;
+
 @import "./vars";
+
+@include light-theme.styles;
+@include dark-theme.styles;
+
 
 // override django CSS variables
 // see admin/static/admin/css/base.css for a reference
@@ -135,22 +142,62 @@ div.breadcrumbs {
   font-weight: bold !important;
 }
 
-/* Icons */
-.addlink {
-  background: url("../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
+@mixin icon-override($iconUrl) {
+  background: none;
+  // display: inline-flex;
+  // align-items: center;
+  // padding-left: 0;
+  color: var(--body-fg);
+  position: relative;
+
+  // need to use pseudo element, otherwise the text in the same element is not visible
+  // because of the mask clipping
+  &:before {
+    display: block;
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+    background: var(--body-fg) !important;
+    color: var(--body-fg);
+    mask-image: url($iconUrl);
+    mask-repeat: no-repeat;
+    mask-size: 14px 14px;
+    mask-position: 0px 0px;
+  }
 }
+
+/* Icons */
+// .addlink {
+//   background: url("../img/admin/plus-square-regular.svg") 0 0/14px 14px no-repeat;
+// }
+.addlink {
+  @include icon-override('../img/admin/plus-square-regular.svg');
+}
+
+.object-tools a.addlink {
+  &:before {
+    display: none;
+  }
+}
+
 .changelink,
 .inlinechangelink {
-  background: url("../img/admin/edit-regular.svg") 0 0/14px 14px no-repeat;
+  @include icon-override('../img/admin/edit-regular.svg');
 }
 .deletelink {
-  background: url("../img/admin/trash-alt-regular.svg") 0 0/14px 14px no-repeat;
+  background: url('../img/admin/trash-alt-regular.svg') 0 0/14px 14px no-repeat;
 }
 .datetimeshortcuts .clock-icon {
-  background: url("../img/admin/clock-regular.svg") 0 0/14px 14px no-repeat !important;
+  @include icon-override('../img/admin/clock-regular.svg');
+  background: none !important;
 }
 .datetimeshortcuts .date-icon {
-  background: url("../img/admin/calendar-alt-regular.svg") 0 0/14px 14px no-repeat !important;
+  @include icon-override('../img/admin/calendar-alt-regular.svg');
+  background: none !important;
 }
 
 /**

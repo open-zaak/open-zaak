@@ -1,0 +1,89 @@
+/* SPDX-License-Identifier: EUPL-1.2 */
+/* Copyright (C) 2025 Dimpact */
+/**
+ * Dark theme implementation.
+ *
+ * Use this as:
+ *
+ *   @use './themes/dark' as dark-theme;
+ *
+ *   @include dark-theme.styles;
+ */
+
+/**
+ * Define the CSS properties overriding default admin theme.
+ */
+@mixin variables {
+  --primary: #037383 !important;
+  --secondary: #037383 !important;
+
+  --breadcrumbs-fg: #2fc0ec;
+  --breadcrumbs-link-hover: #888;
+  --breadcrumbs-bg: #333;
+
+  --link-fg: #04a5bb;
+  --link-hover-color: #b2cddf;
+
+  --hairline-color: #686868;
+
+  --button-hover-bg: #04a5bb;
+  --default-button-bg: #04a5bb;
+  --default-button-hover-bg: #888;
+}
+
+@mixin djai-variables {
+
+  // use a more specific selector so that the dark theme overrides the default,
+  // less specific selector.
+  .djai-dropdown-menu {
+    --djai-tab-bg--hover: #04a5bb;
+    --djai-tab-fg--active: #fff;
+    --djai-dropdown-bg--hover: #04a5bb;
+
+    --oz-djai-border-bottom-color: #333;
+  }
+}
+
+@mixin bootstrap {
+
+  .btn,
+  .btn:hover {
+    color: var(--body-fg);
+  }
+
+  pre {
+    color: var(--body-fg);
+  }
+}
+
+
+/**
+ * Aggregate the bits and pieces to define the dark theme style rules.
+ */
+@mixin styles {
+
+  // Include the relevant variables
+  @media (prefers-color-scheme: dark) {
+
+    // This either gets overridden by the more specific light theme selector, or applies
+    // in auto mode through the media query.
+    :root {
+      @include variables;
+    }
+
+    // only apply based on browser preferences if the theme is not explicitly set to
+    // light or dark
+    html[data-theme='auto'] {
+      @include variables;
+      @include djai-variables;
+      @include bootstrap;
+    }
+  }
+
+  // explicit dark-mode -> apply all relevant styles
+  html[data-theme='dark'] {
+    @include variables;
+    @include djai-variables;
+    @include bootstrap;
+  }
+}
