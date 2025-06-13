@@ -233,7 +233,31 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
                 date.today(),
             )
 
-        return ZaakIdentificatie.objects.bulk_create(bronorganisatie, today, aantal)
+        prefix = f"ZAAK-{today.year}-"
+        last_instance = (
+            self.Meta.model.objects.filter(
+                identificatie__startswith=prefix,
+                bronorganisatie=bronorganisatie,
+            )
+            .order_by("-identificatie")
+            .first()
+        )
+
+        if last_instance:
+            last_number = int(last_instance.identificatie.split("-")[-1])
+        else:
+            last_number = 0
+
+        instances = []
+        for i in range(1, aantal + 1):
+            new_number = last_number + i
+            identificatie = f"{prefix}{new_number:010d}"
+            instance = self.Meta.model(
+                identificatie=identificatie, bronorganisatie=bronorganisatie
+            )
+            instances.append(instance)
+
+        return self.Meta.model.objects.bulk_create(instances)
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")
