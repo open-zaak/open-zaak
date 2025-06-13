@@ -22,7 +22,7 @@ from vng_api_common.constants import (
     RolTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -875,8 +875,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @freeze_time("2025-01-01")
     def test_reserve_one_zaaknummer(self):
-        from vng_api_common.tests import reverse_lazy
-
         data = {
             "bronorganisatie": "517439943",
             "aantal": 1,
@@ -901,8 +899,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @freeze_time("2025-01-01")
     def test_reserve_multiple_zaaknummers(self):
-        from vng_api_common.tests import reverse_lazy
-
         data = {
             "bronorganisatie": "517439943",
             "aantal": 3,
@@ -934,8 +930,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
     @freeze_time("2025-01-01")
     def test_reserve_zaaknummers_continues_from_last_identificatie(self):
-        from vng_api_common.tests import reverse_lazy
-
         ZaakIdentificatie.objects.create(
             identificatie="ZAAK-2025-0000000010", bronorganisatie="517439943"
         )
