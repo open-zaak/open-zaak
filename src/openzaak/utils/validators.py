@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import json
-import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
 from rest_framework.utils.representation import smart_repr
@@ -24,7 +24,7 @@ from openzaak.config.models import FeatureFlags
 from ..loaders import AuthorizedRequestsLoader
 from .serializer_fields import FKOrServiceUrlValidator
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class PublishValidator(FKOrServiceUrlValidator):
@@ -252,9 +252,7 @@ class ResourceValidator(ResourceValidatorMixin, URLValidator):
         try:
             obj = response.json()
         except json.JSONDecodeError:
-            logger.info(
-                "URL %s doesn't seem to point to a JSON endpoint", url, exc_info=True
-            )
+            logger.info("json_decode_failed", url=url, exc_info=True)
             raise error
 
         # obtain schema for shape matching
@@ -262,9 +260,7 @@ class ResourceValidator(ResourceValidatorMixin, URLValidator):
 
         # check if the shape matches
         if not obj_has_shape(obj, schema, self.resource):
-            logger.info(
-                "URL %s doesn't seem to point to a valid shape", url, exc_info=True
-            )
+            logger.info("invalid_response_shape", url=url, exc_info=True)
             raise error
 
         return obj

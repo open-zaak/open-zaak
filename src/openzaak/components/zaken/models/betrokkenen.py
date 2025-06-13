@@ -7,14 +7,13 @@ A ``Betrokkene`` is involved with a ``Zaak`` by having a ``Rol`` in it. There
 are various types of involved 'people', which are modelled here.
 """
 
-import logging
-
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from vng_api_common.fields import BSNField, RSINField
 
 from openzaak.utils.help_text import mark_experimental
@@ -23,7 +22,7 @@ from ..constants import GeslachtsAanduiding, SoortRechtsvorm
 from .objecten import ZakelijkRechtHeeftAlsGerechtigde
 from .zaken import Rol, ZaakObject
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = [
     "AbstractRolZaakobjectRelation",

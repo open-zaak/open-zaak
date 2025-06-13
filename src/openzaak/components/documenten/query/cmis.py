@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 import copy
 import datetime
-import logging
 import uuid
 from itertools import groupby
 from operator import attrgetter, itemgetter
@@ -14,6 +13,7 @@ from django.db.models.query import BaseIterable
 from django.utils import timezone
 from django.utils.text import slugify
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
@@ -39,7 +39,7 @@ from .django import (
     ObjectInformatieObjectQuerySet,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 # map query names from django models to properties on the CMIS models

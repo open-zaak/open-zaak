@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
 import functools
-import logging
 import shutil
 from contextlib import contextmanager
 from datetime import datetime
@@ -14,10 +13,12 @@ from django.core.cache import cache
 from django.db import DatabaseError
 from django.utils import timezone
 
+import structlog
+
 from openzaak.import_data.models import Import, ImportStatusChoices
 from openzaak.utils.fields import get_default_path
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
@@ -78,12 +79,18 @@ def finish_import(
 
         updated_fields.append("comment")
 
-    logger.info(f"Finishing import with status {status.label}")
+    logger.info(
+        "finishing_import",
+        status_label=status.label,
+    )
 
     try:
         instance.save(update_fields=updated_fields)
     except DatabaseError as e:
-        logger.critical(f"Unable to save import state due to database error: {str(e)}")
+        logger.critical(
+            "unable_to_save_import_state_due_to_database_error",
+            error=str(e),
+        )
 
 
 def finish_batch(import_instance: Import, batch: list, headers: list) -> None:
@@ -102,14 +109,21 @@ def finish_batch(import_instance: Import, batch: list, headers: list) -> None:
         )
     except DatabaseError as e:
         logger.critical(
-            f"Unable to save batch statistics for batch {batch_number} due to database "
-            f"error: {str(e)}"
+            "unable_to_save_batch_statistics_due_to_database_error",
+            batch_number=batch_number,
+            error=str(e),
         )
 
-    logger.info(f"Writing batch number {batch_number} to report file")
-    write_to_file(import_instance, batch, headers)
+        logger.info(
+            "writing_batch_to_report_file",
+            batch_number=batch_number,
+        )
+        write_to_file(import_instance, batch, headers)
 
-    logger.info(f"Removing files for unimported rows for batch number {batch_number}")
+    logger.info(
+        "removing_files_for_unimported_rows",
+        batch_number=batch_number,
+    )
     cleanup_import_files(batch)
 
 
@@ -123,7 +137,11 @@ def cleanup_import_files(batch: list) -> None:
         if not path or not path.exists():
             continue
 
-        logger.debug(f"Removing {path} for row {row.row_index}")
+        logger.debug(
+            "removing_file_for_row",
+            path=str(path),
+            row_index=row.row_index,
+        )
 
         if path.is_dir():
             shutil.rmtree(path, ignore_errors=True)
@@ -153,7 +171,11 @@ def write_to_file(instance: Import, batch: list, headers: list) -> None:
     else:
         mode = "w+"
 
-    logger.debug(f"Using file mode {mode} for file {file_path or default_path}")
+    logger.debug(
+        "using_file_mode",
+        mode=mode,
+        file_path=str(file_path or default_path),
+    )
 
     with open(file_path or default_path, mode) as _export_file:
         csv_writer = csv.writer(_export_file, delimiter=",", quotechar='"')
@@ -176,7 +198,8 @@ def write_to_file(instance: Import, batch: list, headers: list) -> None:
         instance.save(update_fields=["report_file"])
     except DatabaseError as e:
         logger.critical(
-            f"Unable to save new report file due to database error: {str(e)}"
+            "unable_to_save_new_report_file_due_to_database_error",
+            error=str(e),
         )
 
 
@@ -186,13 +209,21 @@ LOCK_EXPIRE = 60 * (60 * 24)  # 24 hours
 @contextmanager
 def task_lock(lock_id, oid):
     timeout_at = monotonic() + LOCK_EXPIRE - 3
-    logger.info(f"Lock id {lock_id}:{oid} cache added.")
+    logger.info(
+        "lock_cache_added",
+        lock_id=lock_id,
+        oid=oid,
+    )
     status = cache.add(lock_id, oid, LOCK_EXPIRE)
     try:
         yield status
     finally:
         if monotonic() < timeout_at and status:
-            logger.warning(f"Lock id {lock_id}:{oid} cache deleted")
+            logger.warning(
+                "lock_cache_deleted",
+                lock_id=lock_id,
+                oid=oid,
+            )
             cache.delete(lock_id)
 
 
@@ -205,6 +236,9 @@ def task_locker(func):
         with task_lock(lock_id, instance.app.oid) as acquired:
             if acquired:
                 return func(*args, **kwargs)
-        logger.warning(f"Task {instance.name} already running, dispatch ignored...")
+        logger.warning(
+            "task_already_running_dispatch_ignored",
+            task_name=instance.name,
+        )
 
     return wrapped

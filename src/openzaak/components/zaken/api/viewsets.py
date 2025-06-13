@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import logging
 from typing import Optional
 
 from django.db import models, transaction
@@ -8,6 +7,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -113,7 +113,7 @@ from .serializers import (
     ZaakZoekSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 ZAAK_UUID_PARAMETER = OpenApiParameter(
     "zaak_uuid",

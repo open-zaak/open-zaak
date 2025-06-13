@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import uuid as _uuid
 
 from django.apps import apps
@@ -8,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import RSINField
@@ -24,7 +24,7 @@ from openzaak.utils.mixins import AuditTrailMixin
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = ["Besluit", "BesluitInformatieObject"]
 

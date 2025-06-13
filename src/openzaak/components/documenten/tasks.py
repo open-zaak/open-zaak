@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-import logging
 import shutil
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -11,6 +10,7 @@ from django.db import Error as DatabaseError, IntegrityError, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
+import structlog
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.utils import generate_unique_identification
 
@@ -34,7 +34,7 @@ from openzaak.import_data.utils import (
 )
 from openzaak.utils.fields import get_default_path
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def _import_document_row(
@@ -52,7 +52,10 @@ def _import_document_row(
             f"Validation failed for line {row_index}: insufficient row count"
         )
 
-        logger.warning(error_message)
+        logger.warning(
+            "validation_failed_insufficient_row_count",
+            row_index=row_index,
+        )
 
         length = len(row)
         missing_count = expected_column_count - length
@@ -73,7 +76,11 @@ def _import_document_row(
     except Exception as e:
         error_message = f"Unable to import line {row_index}: {e}"
 
-        logger.warning(error_message)
+        logger.warning(
+            "unable_to_import_line",
+            row_index=row_index,
+            error=str(e),
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -91,7 +98,11 @@ def _import_document_row(
                 f"{eio_serializer.errors}"
             )
 
-            logger.warning(error_message)
+            logger.warning(
+                "validation_error_during_deserialization",
+                row_index=row_index,
+                errors=eio_serializer.errors,
+            )
             document_row.comment = error_message
             document_row.processed = True
 
@@ -99,7 +110,11 @@ def _import_document_row(
     except DisallowedHost as e:
         error_message = f"Unable to import line {row_index}: {e}"
 
-        logger.warning(error_message)
+        logger.warning(
+            "unable_to_import_line",
+            row_index=row_index,
+            error=str(e),
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -115,7 +130,10 @@ def _import_document_row(
                 f"Given UUID for row {row_index} is not a valid UUID (version 4)"
             )
 
-            logger.warning(error_message)
+            logger.warning(
+                "invalid_uuid_version_4",
+                row_index=row_index,
+            )
             document_row.comment = error_message
             document_row.processed = True
 
@@ -127,7 +145,10 @@ def _import_document_row(
                 "existing EIO."
             )
 
-            logger.warning(error_message)
+            logger.warning(
+                "duplicate_uuid_found_not_overwriting_eio",
+                row_index=row_index,
+            )
             document_row.comment = error_message
             document_row.processed = True
 
@@ -159,7 +180,10 @@ def _import_document_row(
     if zaak_uuid and zaak_uuid not in zaak_uuids:
         error_message = f"Zaak ID specified for row {row_index} is unknown."
 
-        logger.warning(error_message)
+        logger.warning(
+            "unknown_zaak_id_specified",
+            row_index=row_index,
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -174,7 +198,11 @@ def _import_document_row(
             f"{str(e)}"
         )
 
-        logger.warning(error_message)
+        logger.warning(
+            "validation_error_validating_enkelvoudiginformatieobject",
+            row_index=row_index,
+            error=str(e),
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -189,7 +217,11 @@ def _import_document_row(
             f"row {row_index}"
         )
 
-        logger.warning(error_message)
+        logger.warning(
+            "invalid_filepath_for_row",
+            path=str(path),
+            row_index=row_index,
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -206,7 +238,11 @@ def _import_document_row(
     except Exception as e:
         error_message = f"Unable to copy file for row {row_index}: \n {str(e)}"
 
-        logger.warning(error_message)
+        logger.warning(
+            "unable_to_copy_file",
+            row_index=row_index,
+            error=str(e),
+        )
         document_row.comment = error_message
         document_row.processed = True
 
@@ -358,7 +394,8 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
 
         if len(batch) % batch_size == 0:
             logger.info(
-                f"Starting batch {import_instance.get_batch_number(batch_size)}"
+                "starting_batch",
+                batch_number=import_instance.get_batch_number(batch_size),
             )
 
             identifiers = _get_identifiers(batch_size)
@@ -380,8 +417,8 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
 
         try:
             logger.debug(
-                "Creating EIO's and ZEIO's for batch "
-                f"{import_instance.get_batch_number(batch_size)}"
+                "creating_eios_and_zeios_for_batch",
+                batch_number=import_instance.get_batch_number(batch_size),
             )
             _batch_create_eios(batch, zaak_uuids)
         except IntegrityError as e:
@@ -394,17 +431,19 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
             import_instance.save(update_fields=["comment"])
 
             logger.warning(
-                f"{error_message} \n Trying to continue with batch "
-                f"{import_instance.get_batch_number(batch_size) + 1}"
+                "integrity_error_during_batch",
+                batch_number=import_instance.get_batch_number(batch_size),
+                error=str(e),
+                next_batch=import_instance.get_batch_number(batch_size) + 1,
             )
 
         except DatabaseError as e:
             logger.critical(
-                "A critical error occured during batch "
-                f"{import_instance.get_batch_number(batch_size)}. "
-                f"Finishing import due to database error: \n{str(e)}"
+                "critical_error_during_batch_finishing_import",
+                batch_number=import_instance.get_batch_number(batch_size),
+                error=str(e),
             )
-            logger.info("Trying to stop the import process gracefully")
+            logger.info("trying_to_stop_import_process_gracefully")
 
             finish_batch(import_instance, batch, DocumentRow.export_headers)
             finish_import(
@@ -418,8 +457,10 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
         finish_batch(import_instance, batch, DocumentRow.export_headers)
 
         remaining_batches = import_instance.get_remaining_batches(batch_size)
-        logger.info(f"{remaining_batches} batches remaining")
-
+        logger.info(
+            "batches_remaining",
+            remaining_batches=remaining_batches,
+        )
         batch.clear()
 
     finish_import(import_instance, ImportStatusChoices.finished)
