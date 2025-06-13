@@ -16,6 +16,7 @@ django-loose-fk
 django-privates
 django-relativedelta
 django-celery-beat
+django-structlog
 
 # Admin and UI libraries
 django-sniplates
