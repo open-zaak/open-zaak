@@ -16,9 +16,13 @@ services:
       - db:/var/lib/postgresql/data
     ports:
       - "11234:5432"
+    networks:
+      - open-zaak-dev
 
   redis:
     image: redis
+    networks:
+      - open-zaak-dev
 
   web.local:
     build: .
@@ -47,6 +51,8 @@ services:
       CELERY_LOGLEVEL: DEBUG
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-4}
       ENVIRONMENT: dev
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_NOTIFICATIONS_IN_DB: ${LOG_NOTIFICATIONS_IN_DB:-yes}
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
       interval: 30s
@@ -66,6 +72,8 @@ services:
     depends_on:
       web-init:
         condition: service_completed_successfully
+    networks:
+      - open-zaak-dev
 
   web-init:
     build: .
@@ -80,6 +88,8 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - open-zaak-dev
 
   celery:
     build: .
@@ -96,6 +106,8 @@ services:
     depends_on:
       web.local:
         condition: service_healthy
+    networks:
+      - open-zaak-dev
 
   celery-beat:
     build: .
@@ -104,6 +116,8 @@ services:
     command: /celery_beat.sh
     depends_on:
       - celery
+    networks:
+      - open-zaak-dev
 
   celery-flower:
     build: .
@@ -115,6 +129,8 @@ services:
     depends_on:
       - redis
       - celery
+    networks:
+      - open-zaak-dev
 
   nginx:
     image: nginx
@@ -130,3 +146,7 @@ volumes:
   db:
   media:
   private-media:
+
+networks:
+  open-zaak-dev:
+    name: open-zaak-dev
