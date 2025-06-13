@@ -16,6 +16,7 @@ import os
 import re
 import tempfile
 
+import structlog
 from dotenv import load_dotenv
 from self_certifi import load_self_signed_certs as _load_self_signed_certs
 
@@ -26,6 +27,8 @@ def setup_env():
     # load the environment variables containing the secrets/config
     dotenv_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, ".env")
     load_dotenv(dotenv_path)
+
+    structlog.contextvars.bind_contextvars(source="app")
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openzaak.conf.dev")
 
