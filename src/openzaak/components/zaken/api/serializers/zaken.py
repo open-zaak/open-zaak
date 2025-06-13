@@ -196,11 +196,20 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
 
 
 class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
+    aantal = serializers.IntegerField(
+        min_value=1,
+        default=1,
+        required=False,
+        write_only=True,
+        help_text=_("Het aantal identificaties om te reserveren."),
+    )
+
     class Meta:
         model = ZaakIdentificatie
         fields = (
             "zaaknummer",
             "bronorganisatie",
+            "aantal",
         )
 
         extra_kwargs = {
@@ -214,10 +223,41 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        return self.Meta.model.objects.generate(
-            validated_data["bronorganisatie"],
-            date.today(),
+        aantal = validated_data.pop("aantal", 1)
+        bronorganisatie = validated_data["bronorganisatie"]
+        today = date.today()
+
+        if aantal == 1:
+            return self.Meta.model.objects.generate(
+                validated_data["bronorganisatie"],
+                date.today(),
+            )
+
+        prefix = f"ZAAK-{today.year}-"
+        last_instance = (
+            self.Meta.model.objects.filter(
+                identificatie__startswith=prefix,
+                bronorganisatie=bronorganisatie,
+            )
+            .order_by("-identificatie")
+            .first()
         )
+
+        if last_instance:
+            last_number = int(last_instance.identificatie.split("-")[-1])
+        else:
+            last_number = 0
+
+        instances = []
+        for i in range(1, aantal + 1):
+            new_number = last_number + i
+            identificatie = f"{prefix}{new_number:010d}"
+            instance = self.Meta.model(
+                identificatie=identificatie, bronorganisatie=bronorganisatie
+            )
+            instances.append(instance)
+
+        return self.Meta.model.objects.bulk_create(instances)
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")

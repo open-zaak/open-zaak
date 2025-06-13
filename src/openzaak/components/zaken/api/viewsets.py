@@ -1455,6 +1455,11 @@ class ReserveerZaakNummerViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializer = ReserveZaakIdentificatieSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        result = serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if isinstance(result, list):
+            response_data = ReserveZaakIdentificatieSerializer(result, many=True).data
+        else:
+            response_data = ReserveZaakIdentificatieSerializer(result).data
+
+        return Response(response_data, status=status.HTTP_201_CREATED)

@@ -14409,6 +14409,12 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+        aantal:
+          type: integer
+          minimum: 1
+          writeOnly: true
+          default: 1
+          description: Het aantal identificaties om te reserveren.
       required:
       - bronorganisatie
     Resultaat:
