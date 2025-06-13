@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
+import structlog
 from rest_framework import serializers
 
 from ...models import Adres
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class ObjectAdresSerializer(serializers.ModelSerializer):

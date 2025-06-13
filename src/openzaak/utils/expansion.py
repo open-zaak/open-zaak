@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-import logging
 from typing import Dict, Iterator, List, Optional, Tuple, Type, Union
 
 from django.db import models
 from django.utils.module_loading import import_string
 
+import structlog
 from django_loose_fk.loaders import FetchError
 from django_loose_fk.virtual_models import ProxyMixin
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -20,7 +20,7 @@ from rest_framework_inclusions.renderer import (
 
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 EXPAND_KEY = "_expand"
 EXPAND_QUERY_PARAM = "expand"
@@ -355,12 +355,12 @@ class ExpandJSONRenderer(InclusionJSONRenderer, CamelCaseJSONRenderer):
         view = renderer_context.get("view")
         if view is not None and hasattr(view, "action"):
             if not view.action:
-                logger.debug("Skipping inclusions for view that has no action")
+                logger.debug("skipping_inclusions_no_action")
                 return None
             action = getattr(view, view.action)
             if should_skip_inclusions(action, serializer):
                 logger.debug(
-                    "Skipping inclusion machinery for custom action %r", action
+                    "skipping_inclusion_machinery_for_custom_action", action=action
                 )
                 return None
 

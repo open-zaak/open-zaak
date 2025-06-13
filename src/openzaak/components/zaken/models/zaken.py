@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import logging
 import uuid
 from datetime import date
 from typing import Optional
@@ -17,6 +16,7 @@ from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.loaders import FetchError
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
@@ -54,7 +54,7 @@ from ..query import (
 )
 from .identification import ZaakIdentificatie
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = [
     "Zaak",

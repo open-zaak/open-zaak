@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
@@ -24,7 +23,7 @@ from .authentication_context import (
     eHerkenningAuthContextSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class SubVerblijfBuitenlandSerializer(serializers.ModelSerializer):

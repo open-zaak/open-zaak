@@ -28,7 +28,7 @@ app.autodiscover_tasks()
 # Use django's logging settings as these are reset by Celery by default
 @setup_logging.connect()
 def config_loggers(*args, **kwargs):
-    from logging.config import dictConfig
+    from logging.config import dictConfig  # noqa
 
     dictConfig(settings.LOGGING)
 

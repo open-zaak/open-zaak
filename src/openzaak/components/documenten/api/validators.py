@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 from collections import OrderedDict
 from typing import Union
 
@@ -8,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from requests import RequestException
 from rest_framework import serializers
@@ -23,7 +23,7 @@ from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
 from ..validators import validate_status
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class StatusValidator:
@@ -104,7 +104,8 @@ class RemoteRelationValidator:
 
         if invalid:
             logger.info(
-                "Relation between %s and informatieobject still exists", oio.object_type
+                "relation_between_object_and_informatieobject_still_exists",
+                object_type=oio.object_type,
             )
             raise serializers.ValidationError(self.message, self.code)
 

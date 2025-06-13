@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import os
 from dataclasses import dataclass
 from typing import Dict, Optional
@@ -8,6 +7,7 @@ from typing import Dict, Optional
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 
+import structlog
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from vng_api_common.middleware import (
@@ -19,7 +19,7 @@ from openzaak.config.models import InternalService
 
 from .constants import COMPONENT_MAPPING
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 WARNING_HEADER = "Warning"
 DEPRECATION_WARNING_CODE = 299
@@ -39,7 +39,7 @@ def override_request_host(request: HttpRequest) -> None:
         )
 
         if settings.USE_X_FORWARDED_HOST:
-            logger.warning("Ignoring X-Forwarded-Host because OPENZAAK_DOMAIN is set.")
+            logger.warning("ignoring_x_forwarded_host_due_to_openzaak_domain")
             del request.META["HTTP_X_FORWARDED_HOST"]
 
         # for logging/debugging purposes: track the original host
@@ -79,7 +79,11 @@ class LogHeadersMiddleware:
         return self.get_response(request) if self.get_response else None
 
     def log(self, request: HttpRequest):
-        logger.debug("Request headers for %s: %r", request.path, request.headers)
+        logger.debug(
+            "request_headers_logged",
+            path=request.path,
+            headers=dict(request.headers),
+        )
 
 
 def get_version_mapping() -> Dict[str, str]:

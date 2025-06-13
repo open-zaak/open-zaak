@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import time
 from typing import Any, Dict
 from urllib.parse import urlparse
@@ -14,6 +13,7 @@ from django.db.models import ObjectDoesNotExist
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from rest_framework import exceptions, permissions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
@@ -23,7 +23,7 @@ from vng_api_common.utils import get_resource_for_path
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class AuthRequired(permissions.BasePermission):
@@ -83,10 +83,10 @@ class AuthRequired(permissions.BasePermission):
         # check for "negative" clock drift
         if difference < 0 and difference < -settings.TIME_LEEWAY:
             logger.warning(
-                "The JWT used for this request is not valid yet, the `iat` claim is "
-                "newer than the current time stamp. You may want to check the clock drift "
-                "on the Open Zaak server and/or tweak the `TIME_LEEWAY` setting.",
-                extra={"payload": payload},
+                "jwt_not_valid_yet",
+                payload=payload,
+                time_difference=difference,
+                time_leeway=settings.TIME_LEEWAY,
             )
 
         if difference >= (settings.JWT_EXPIRY + settings.TIME_LEEWAY):

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
+import structlog
 from rest_framework import serializers
 from vng_api_common.serializers import add_choice_values_help_text
 
@@ -42,7 +41,7 @@ from .betrokkenen import (
     NietNatuurlijkPersoonIdentificatieSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class ObjectBuurtSerializer(serializers.ModelSerializer):

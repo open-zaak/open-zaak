@@ -162,5 +162,8 @@ section-order = [
     "local-folder",
 ]
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api.logging]
+msg = "Use `structlog.stdlib.get_logger(__name__)` instead."
+
 [tool.ruff.format]
 line-ending = "lf"
