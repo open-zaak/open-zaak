@@ -22,7 +22,7 @@ from vng_api_common.constants import (
     RolTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -814,6 +814,76 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.identificatie, zaaknummer)
         self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
 
+    @freeze_time("2025-01-01")
+    def test_reserve_one_zaaknummer(self):
+        data = {
+            "bronorganisatie": "517439943",
+            "aantal": 1,
+        }
+
+        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data, {"zaaknummer": "ZAAK-2025-0000000001"})
+
+        self.assertTrue(
+            ZaakIdentificatie.objects.filter(
+                identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
+            ).exists()
+        )
+
+    @freeze_time("2025-01-01")
+    def test_reserve_multiple_zaaknummers(self):
+        data = {
+            "bronorganisatie": "517439943",
+            "aantal": 3,
+        }
+
+        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        result = response.data
+        self.assertEqual(len(result), 3)
+
+        expected_ids = [
+            "ZAAK-2025-0000000001",
+            "ZAAK-2025-0000000002",
+            "ZAAK-2025-0000000003",
+        ]
+
+        actual_ids = [item["zaaknummer"] for item in result]
+        self.assertEqual(actual_ids, expected_ids)
+
+        for zaaknummer in expected_ids:
+            self.assertTrue(
+                ZaakIdentificatie.objects.filter(
+                    identificatie=zaaknummer, bronorganisatie="517439943"
+                ).exists()
+            )
+
+    @freeze_time("2025-01-01")
+    def test_reserve_zaaknummers_continues_from_last_identificatie(self):
+        ZaakIdentificatie.objects.create(
+            identificatie="ZAAK-2025-0000000010", bronorganisatie="517439943"
+        )
+
+        data = {
+            "bronorganisatie": "517439943",
+            "aantal": 2,
+        }
+
+        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data[0]["zaaknummer"], "ZAAK-2025-0000000011")
+        self.assertEqual(response.data[1]["zaaknummer"], "ZAAK-2025-0000000012")
+
     @tag("gh-2011")
     def test_betalingsindicatie_weergave(self):
         """
@@ -871,32 +941,6 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak6["betalingsindicatie"], BetalingsIndicatie.nvt)
         self.assertEqual(
             zaak6["betalingsindicatieWeergave"], BetalingsIndicatie.nvt.label
-        )
-
-    @freeze_time("2025-01-01")
-    def test_reserve_multiple_zaaknummers(self):
-        from vng_api_common.tests import reverse_lazy
-
-        data = {
-            "bronorganisatie": "517439943",
-            "aantal": 1,
-        }
-
-        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        result = response.data
-        self.assertEqual(len(result), 1)
-        expected_id = "ZAAK-2025-0000000001"
-
-        self.assertEqual(expected_id, result.get("zaaknummer"))
-
-        self.assertTrue(
-            ZaakIdentificatie.objects.filter(
-                identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
-            ).exists()
         )
 
 
