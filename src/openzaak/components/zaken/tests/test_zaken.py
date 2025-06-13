@@ -874,7 +874,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
 
     @freeze_time("2025-01-01")
-    def test_reserve_multiple_zaaknummers(self):
+    def test_reserve_one_zaaknummer(self):
         from vng_api_common.tests import reverse_lazy
 
         data = {
@@ -898,6 +898,39 @@ class ZakenTests(JWTAuthMixin, APITestCase):
                 identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
             ).exists()
         )
+
+    @freeze_time("2025-01-01")
+    def test_reserve_multiple_zaaknummers(self):
+        from vng_api_common.tests import reverse_lazy
+
+        data = {
+            "bronorganisatie": "517439943",
+            "aantal": 3,
+        }
+
+        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        result = response.data
+        self.assertEqual(len(result), 3)
+
+        expected_ids = [
+            "ZAAK-2025-0000000001",
+            "ZAAK-2025-0000000002",
+            "ZAAK-2025-0000000003",
+        ]
+
+        actual_ids = [item["zaaknummer"] for item in result]
+        self.assertEqual(actual_ids, expected_ids)
+
+        for zaaknummer in expected_ids:
+            self.assertTrue(
+                ZaakIdentificatie.objects.filter(
+                    identificatie=zaaknummer, bronorganisatie="517439943"
+                ).exists()
+            )
 
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
