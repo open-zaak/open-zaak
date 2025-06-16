@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from requests_mock import Mocker
-from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 mock_brc_oas_get = partial(
     mock_service_oas_get,
