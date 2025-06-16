@@ -28,5 +28,6 @@ humanize
 drc-cmis
 
 commonground-api-common[setup-configuration, testutils]
+git+https://github.com/maykinmedia/zgw-consumers.git@release/1.0.0
 
 psycopg[pool]

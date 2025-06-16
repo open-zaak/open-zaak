@@ -387,12 +387,9 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
-    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
-requests-mock==1.12.1
-    # via commonground-api-common
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
@@ -417,7 +414,6 @@ tornado==6.5
     # via flower
 typing-extensions==4.12.2
     # via
-    #   asgiref
     #   faker
     #   mozilla-django-oidc-db
     #   psycopg
@@ -461,8 +457,9 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   elastic-apm
-zgw-consumers==0.37.0
+zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@e807980e9131fbe9aaba1351eaeb5b2d2b63a6ac
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   notifications-api-common
 zgw-consumers-oas==1.0.0
