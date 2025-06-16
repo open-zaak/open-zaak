@@ -15,7 +15,7 @@ From the root of the repository:
 
 ```bash
 docker compose up -d
-docker compose -f docker/docker-compose.observability.yml up
+docker compose -f docker/docker-compose.observability.yaml up
 ```
 
 You can now navigate to:
