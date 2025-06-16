@@ -778,7 +778,9 @@ requests-cache==0.9.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 requests-mock==1.12.1
-    # via -r requirements/test-tools.in
+    # via
+    #   -r requirements/test-tools.in
+    #   zgw-consumers-oas
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/base.txt
@@ -955,7 +957,8 @@ zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@e807980e913
     #   -r requirements/base.txt
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas==1.0.0
+zgw-consumers-oas==1.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   -r requirements/test-tools.in

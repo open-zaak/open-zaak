@@ -462,5 +462,5 @@ zgw-consumers @ git+https://github.com/maykinmedia/zgw-consumers.git@e807980e913
     #   -r requirements/base.in
     #   commonground-api-common
     #   notifications-api-common
-zgw-consumers-oas==1.0.0
+zgw-consumers-oas==1.1.0
     # via commonground-api-common

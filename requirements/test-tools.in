@@ -10,6 +10,7 @@ pyquery
 requests-mock
 tblib
 vcrpy
+zgw-consumers-oas[mocks]
 
 # CI tools
 pytest
