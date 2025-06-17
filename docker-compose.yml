@@ -72,6 +72,9 @@ services:
     depends_on:
       web-init:
         condition: service_completed_successfully
+    labels:
+      - app=open-zaak
+      - service=api
     networks:
       - open-zaak-dev
 
