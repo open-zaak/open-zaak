@@ -114,11 +114,11 @@ def finish_batch(import_instance: Import, batch: list, headers: list) -> None:
             error=str(e),
         )
 
-        logger.info(
-            "writing_batch_to_report_file",
-            batch_number=batch_number,
-        )
-        write_to_file(import_instance, batch, headers)
+    logger.info(
+        "writing_batch_to_report_file",
+        batch_number=batch_number,
+    )
+    write_to_file(import_instance, batch, headers)
 
     logger.info(
         "removing_files_for_unimported_rows",

@@ -55,7 +55,6 @@ def _import_document_row(
         logger.warning(
             "validation_failed_insufficient_row_count",
             row_index=row_index,
-            message=error_message,
         )
 
         length = len(row)
@@ -81,7 +80,6 @@ def _import_document_row(
             "unable_to_import_line",
             row_index=row_index,
             error=str(e),
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -104,7 +102,6 @@ def _import_document_row(
                 "validation_error_during_deserialization",
                 row_index=row_index,
                 errors=eio_serializer.errors,
-                message=error_message,
             )
             document_row.comment = error_message
             document_row.processed = True
@@ -117,7 +114,6 @@ def _import_document_row(
             "unable_to_import_line",
             row_index=row_index,
             error=str(e),
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -137,7 +133,6 @@ def _import_document_row(
             logger.warning(
                 "invalid_uuid_version_4",
                 row_index=row_index,
-                message=error_message,
             )
             document_row.comment = error_message
             document_row.processed = True
@@ -153,7 +148,6 @@ def _import_document_row(
             logger.warning(
                 "duplicate_uuid_found_not_overwriting_eio",
                 row_index=row_index,
-                message=error_message,
             )
             document_row.comment = error_message
             document_row.processed = True
@@ -189,7 +183,6 @@ def _import_document_row(
         logger.warning(
             "unknown_zaak_id_specified",
             row_index=row_index,
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -209,7 +202,6 @@ def _import_document_row(
             "validation_error_validating_enkelvoudiginformatieobject",
             row_index=row_index,
             error=str(e),
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -229,7 +221,6 @@ def _import_document_row(
             "invalid_filepath_for_row",
             path=str(path),
             row_index=row_index,
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -251,7 +242,6 @@ def _import_document_row(
             "unable_to_copy_file",
             row_index=row_index,
             error=str(e),
-            message=error_message,
         )
         document_row.comment = error_message
         document_row.processed = True
@@ -445,7 +435,6 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
                 batch_number=import_instance.get_batch_number(batch_size),
                 error=str(e),
                 next_batch=import_instance.get_batch_number(batch_size) + 1,
-                message=error_message,
             )
 
         except DatabaseError as e:
