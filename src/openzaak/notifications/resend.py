@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import logging  # noqa
 import warnings
 
 from django.utils import timezone
 
-import structlog
 from notifications_api_common.models import NotificationsConfig
 from requests.exceptions import RequestException
 
 from .models import FailedNotification
 
-notifs_logger = structlog.stdlib.get_logger("notifications_api_common.tasks")
+notifs_logger = logging.getLogger("notifications_api_common.tasks")
 
 
 class ResendFailure(Exception):
@@ -36,11 +36,13 @@ def resend_notification(notification: FailedNotification) -> None:
         response.raise_for_status()
     except RequestException as error:
         notifs_logger.warning(
-            "could_not_deliver_message",
-            client_base_url=client.base_url,
-            notification_msg=notification.message,
-            final_try=True,
+            "Could not deliver message to %s",
+            client.base_url,
             exc_info=True,
+            extra={
+                "notification_msg": notification.message,
+                "final_try": True,
+            },
         )
         raise ResendFailure from error
     finally:

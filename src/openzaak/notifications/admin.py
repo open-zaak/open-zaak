@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+import logging  # noqa
+
 from django.contrib import admin
 from django.db import transaction
 from django.db.models import QuerySet
@@ -8,12 +10,10 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-import structlog
-
 from .models import FailedNotification
 from .resend import ResendFailure, resend_notification
 
-logger = structlog.stdlib.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @admin.action(description=_("Resend %(verbose_name_plural)s"))
@@ -22,10 +22,7 @@ def resend_notifications(
 ) -> None:
     for failed in queryset:
         if failed.retried_at is not None:
-            logger.info(
-                "not_resending_already_resent_notification",
-                failed_pk=failed.pk,
-            )
+            logger.info("Not resending already re-sent notification %d", failed.pk)
             continue
 
         with transaction.atomic():
@@ -34,11 +31,7 @@ def resend_notifications(
             except ResendFailure:
                 continue
             except Exception:
-                logger.error(
-                    "resend_failed",
-                    failed_pk=failed.pk,
-                    exc_info=True,
-                )
+                logger.exception("Resend for %d failed", failed.pk)
                 continue
 
 
