@@ -784,7 +784,10 @@ requests-cache==0.9.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 requests-mock==1.12.1
-    # via -r requirements/test-tools.in
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   -r requirements/test-tools.in
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/base.txt
