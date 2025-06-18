@@ -45,3 +45,8 @@ AXES_BEHIND_REVERSE_PROXY = False
 # Warning output
 #
 warnings.filterwarnings("ignore", r".*", SystemTimeWarning, "urllib3.connection")
+
+# The combination of DB pooling enabled, tests running in parallel & the upgrade check
+# (which runs queries?) causes the tests to fail.
+if DB_POOL_ENABLED:
+    INSTALLED_APPS.remove("upgrade_check")
