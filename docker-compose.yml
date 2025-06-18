@@ -51,7 +51,6 @@ services:
       CELERY_LOGLEVEL: DEBUG
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-4}
       ENVIRONMENT: dev
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_NOTIFICATIONS_IN_DB: ${LOG_NOTIFICATIONS_IN_DB:-yes}
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
