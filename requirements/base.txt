@@ -121,6 +121,7 @@ django==5.2.1
     #   django-solo
     #   django-timezone-field
     #   django-two-factor-auth
+    #   django-upgrade-check
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -212,6 +213,8 @@ django-timezone-field==7.0
     # via django-celery-beat
 django-two-factor-auth==1.17.0
     # via maykin-2fa
+django-upgrade-check==1.1.0
+    # via open-api-framework
 djangorestframework==3.15.2
     # via
     #   commonground-api-common
@@ -305,7 +308,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 notifications-api-common==0.7.2
     # via commonground-api-common
-open-api-framework==0.10.1
+open-api-framework==0.10.2
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
@@ -387,18 +390,17 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
-    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
-requests-mock==1.12.1
-    # via commonground-api-common
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
 self-certifi==1.0.0
     # via -r requirements/base.in
+semantic-version==2.10.0
+    # via django-upgrade-check
 sentry-sdk==2.13.0
     # via open-api-framework
 six==1.16.0
@@ -417,7 +419,6 @@ tornado==6.5
     # via flower
 typing-extensions==4.12.2
     # via
-    #   asgiref
     #   faker
     #   mozilla-django-oidc-db
     #   psycopg
