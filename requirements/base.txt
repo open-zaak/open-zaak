@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.6.6
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@0836e79f7cdc799e6cfe4958f02dcda1af5aad0c
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -417,7 +417,6 @@ tornado==6.5
     # via flower
 typing-extensions==4.12.2
     # via
-    #   asgiref
     #   faker
     #   mozilla-django-oidc-db
     #   psycopg
