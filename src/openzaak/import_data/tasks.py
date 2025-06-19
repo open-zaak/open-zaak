@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-import logging
 from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
 
+import structlog
+
 from openzaak import celery_app
 from openzaak.import_data.models import Import, ImportStatusChoices
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @celery_app.task()
@@ -21,6 +22,9 @@ def remove_imports():
         status__in=ImportStatusChoices.deletion_choices,
     )
 
-    logger.info(f"Removing imports {','.join([str(i) for i in imports])}")
+    logger.info(
+        "removing_imports",
+        import_ids=[str(i) for i in imports],
+    )
 
     imports.delete()

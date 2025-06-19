@@ -16,6 +16,7 @@ django-loose-fk
 django-privates
 django-relativedelta
 django-celery-beat
+django-structlog[celery]
 
 # Admin and UI libraries
 django-sniplates
@@ -27,6 +28,6 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils]
+commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool]

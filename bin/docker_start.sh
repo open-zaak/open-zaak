@@ -40,6 +40,7 @@ fi
 # Start server
 >&2 echo "Starting server"
 exec uwsgi \
+    --ini "${SCRIPTPATH}/uwsgi.ini" \
     --http :$uwsgi_port \
     --http-keepalive \
     --manage-script-name \

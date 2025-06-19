@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
 from django.apps import apps
 from django.contrib import admin, messages
 from django.db import transaction
@@ -11,6 +9,7 @@ from django.http import HttpRequest
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 
 from openzaak.selectielijst.admin_fields import (
@@ -54,7 +53,7 @@ from .roltype import RolTypeAdmin
 from .statustype import StatusTypeAdmin
 from .zaakobjecttype import ZaakObjectTypeAdmin
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @admin.register(ZaakTypenRelatie)
@@ -393,7 +392,11 @@ class ZaakTypeAdmin(
                     db_field, request, procestype_jaar, **kwargs
                 )
             except AttributeError as e:
-                logger.exception(e)
+                logger.error(
+                    "exception_occurred",
+                    error=str(e),
+                    exc_info=True,
+                )
 
                 msg = _(
                     "Something went wrong while fetching procestypen, "

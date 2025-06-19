@@ -9,7 +9,7 @@ run first, and this code assumes that the
 configured for the handler.
 """
 
-import logging
+import logging  # noqa
 import traceback
 
 

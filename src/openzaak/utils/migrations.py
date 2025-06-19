@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-import logging
 import re
 from urllib.parse import urlsplit, urlunsplit
 
 from django.db.models.functions import Length
 from django.utils.text import slugify
 
+import structlog
 from zgw_consumers.constants import APITypes
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def get_service(model, url: str):
@@ -91,10 +91,10 @@ def fill_service_urls(
                 )
                 cache_get_service[url] = service
                 logger.warning(
-                    "Service was not found for url %s in object %s. Service %s was created automatically.",
-                    url,
-                    instance,
-                    service,
+                    "service_created_automatically",
+                    url=url,
+                    instance=instance,
+                    service=service,
                 )
 
         relative_url = url[len(service.api_root) :]
@@ -114,10 +114,10 @@ def fill_service_urls(
             )
             total_updated += BATCH_SIZE
             logger.info(
-                "Processed %d of %d %s instances",
-                total_updated,
-                total_objects,
-                model.__name__,
+                "bulk_update_progress",
+                total_updated=total_updated,
+                total_objects=total_objects,
+                model_name=model.__name__,
             )
             instances_to_update.clear()
 
@@ -128,13 +128,16 @@ def fill_service_urls(
         )
         total_updated += len(instances_to_update)
         logger.info(
-            "Processed %d of %d %s instances",
-            total_updated,
-            total_objects,
-            model.__name__,
+            "bulk_update_progress",
+            total_updated=total_updated,
+            total_objects=total_objects,
+            model_name=model.__name__,
         )
 
-    logger.debug("%s service urls are migrated", model.__name__)
+    logger.debug(
+        "service_urls_migrated",
+        model_name=model.__name__,
+    )
 
 
 class TempDisconnectSignal:

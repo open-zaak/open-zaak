@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import logging
 from datetime import date
 from typing import Optional
 
@@ -21,6 +20,7 @@ from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
@@ -111,7 +111,7 @@ from .betrokkenen import (
     RolVestigingSerializer,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 # Zaak API
@@ -598,6 +598,28 @@ class ZaakSerializer(
         for field in empty_relation_fields:
             # point to the .none() queryset for output serialization
             self.fields[field].source_attrs.append("none")
+
+        logger.info(
+            "zaak_created",
+            uuid=str(obj.uuid),
+            identificatie=obj.identificatie,
+            vertrouwelijkheidaanduiding=obj.vertrouwelijkheidaanduiding,
+            zaaktype=str(obj.zaaktype),
+        )
+
+        return obj
+
+    @transaction.atomic
+    def update(self, instance, validated_data: dict):
+        obj = super().update(instance, validated_data)
+
+        logger.info(
+            "zaak_updated",
+            uuid=str(obj.uuid),
+            identificatie=obj.identificatie,
+            vertrouwelijkheidaanduiding=obj.vertrouwelijkheidaanduiding,
+            zaaktype=str(obj.zaaktype),
+        )
 
         return obj
 

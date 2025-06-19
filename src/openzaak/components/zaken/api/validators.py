@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import json
-import logging
 import re
 from datetime import date, datetime, timedelta
 from typing import Iterable, Optional
@@ -14,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 import jq
 import jsonschema
+import structlog
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from vng_api_common.constants import Archiefstatus
@@ -35,7 +35,7 @@ from ...catalogi.models import StatusType
 from ..constants import AardZaakRelatie, IndicatieMachtiging
 from ..models import Status, Zaak
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class RolOccurenceValidator:
@@ -486,7 +486,7 @@ class ObjectTypeOverigeDefinitieValidator:
 
         if attrs.get("object_identificatie"):
             logger.warning(
-                "Both object URL and objectIdentificatie supplied, clearing the latter."
+                "both_object_url_and_object_identificatie_supplied_clearing_latter"
             )
             attrs["object_identificatie"] = None
 

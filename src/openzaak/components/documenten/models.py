@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import uuid as _uuid
 from urllib.parse import urlparse
 
@@ -12,6 +11,7 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from drc_cmis.utils import exceptions
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
@@ -54,7 +54,7 @@ from .query.django import (
 from .utils import private_media_storage_cmis
 from .validators import validate_status
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = [
     "InformatieObject",

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import typing
 from typing import Dict, List, Optional, Type
 
@@ -8,6 +7,7 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from drf_spectacular.openapi import (
     AutoSchema as _AutoSchema,
     ResolvedComponent,
@@ -37,7 +37,7 @@ from .expansion import EXPAND_KEY
 from .mixins import ExpandMixin
 from .permissions import AuthRequired
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 COMMON_ERROR_STATUSES = [e.status_code for e in COMMON_ERRORS]
@@ -119,7 +119,7 @@ class AutoSchema(_AutoSchema):
         # general errors
         general_klasses = DEFAULT_ACTION_ERRORS.get(action)
         if general_klasses is None:
-            logger.debug("Unknown action %s, no default error responses added")
+            logger.debug("unknown_action", action=action)
             return {}
 
         exception_klasses = general_klasses[:]
