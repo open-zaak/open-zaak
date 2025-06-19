@@ -367,19 +367,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "db",
         },
-        "celery_console": {
-            "level": CELERY_LOGLEVEL,
-            "class": "logging.StreamHandler",
-            "formatter": "timestamped",
-        },
-        "celery_file": {
-            "level": CELERY_LOGLEVEL,
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "celery.log",
-            "formatter": "verbose",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
         # replaces the "django" and "project" handlers - in containerized applications
         # the best practices is to log to stdout (use the console handler).
         "json_file": {
@@ -477,11 +464,6 @@ LOGGING = {
             "handlers": logging_root_handlers,
             "level": "INFO",
             "propagate": False,
-        },
-        "celery": {
-            "handlers": ["celery_console"] if LOG_STDOUT else ["celery_file"],
-            "level": CELERY_LOGLEVEL,
-            "propagate": True,
         },
     },
 }
