@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import time
-from typing import Any, Dict
 from urllib.parse import urlparse
 
 from django.core.exceptions import (

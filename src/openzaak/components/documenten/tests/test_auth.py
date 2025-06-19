@@ -44,11 +44,25 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
         urls = [
             reverse("enkelvoudiginformatieobject-list"),
             reverse("enkelvoudiginformatieobject--zoek"),
-            reverse("verzending-list"),
         ]
         for url in urls:
             with self.subTest(url=url):
                 self.assertForbidden(url, method="post")
+
+    def test_cannot_create_verzending_without_correct_scope(self):
+        url = reverse("verzending-list")
+        eio = EnkelvoudigInformatieObjectFactory()
+        self.assertForbidden(
+            url,
+            method="post",
+            request_kwargs={
+                "data": {
+                    "informatieobject": reverse(
+                        "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+                    )
+                }
+            },
+        )
 
     def test_cannot_read_without_correct_scope(self):
         eio = EnkelvoudigInformatieObjectFactory.create()

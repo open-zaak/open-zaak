@@ -166,7 +166,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@c69853f5da5dc78756d3c123adfa35ba59f2055e
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@7adc7f06232f3831854f3173e1806e3d10b7f964
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -830,7 +830,7 @@ pygments==2.18.0
     #   sphinx-tabs
 pyinstrument==5.0.1
     # via -r requirements/dev.in
-pyjwt==2.4.0
+pyjwt==2.10.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
