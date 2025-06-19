@@ -31,3 +31,6 @@ drc-cmis
 commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool]
+
+# TODO temp
+git+https://github.com/maykinmedia/commonground-api-common.git@issue/jwt-500-exception
