@@ -4,12 +4,9 @@ from typing import List, Union
 from urllib.parse import urlparse
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
-import jwt
 from django_loose_fk.loaders import get_loader_class
 from django_loose_fk.utils import get_resource_for_path
-from rest_framework.exceptions import PermissionDenied
 from vng_api_common.authorizations.middleware import (
     AuthMiddleware as _AuthMiddleware,
     JWTAuth as _JWTAuth,
@@ -24,16 +21,6 @@ loader = get_loader_class()()
 
 class JWTAuth(_JWTAuth):
     component = None
-
-    @property
-    def payload(self):
-        try:
-            return super().payload
-        except jwt.PyJWTError as exc:
-            raise PermissionDenied(
-                _("JWT did not validate, try checking the `nbf` and `iat`"),
-                code="jwt-{err}".format(err=type(exc).__name__.lower()),
-            )
 
     @property
     def applicaties(self) -> Union[models.QuerySet, List, None]:
