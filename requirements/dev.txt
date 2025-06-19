@@ -165,7 +165,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.6.6
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@c69853f5da5dc78756d3c123adfa35ba59f2055e
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -511,12 +511,6 @@ elastic-apm==6.22.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-exceptiongroup==1.3.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   anyio
-    #   pytest
 face==20.1.1
     # via
     #   -c requirements/ci.txt
@@ -956,7 +950,6 @@ requests-mock==1.12.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   commonground-api-common
 requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
@@ -1094,15 +1087,6 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-tomli==2.2.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   build
-    #   pip-tools
-    #   pyproject-hooks
-    #   pytest
-    #   sphinx
 tomlkit==0.13.2
     # via bump-my-version
 tornado==6.5
@@ -1115,18 +1099,14 @@ typing-extensions==4.12.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
-    #   asgiref
-    #   exceptiongroup
     #   faker
     #   mozilla-django-oidc-db
-    #   multidict
     #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl
     #   qrcode
-    #   rich
     #   rich-click
     #   zgw-consumers
     #   zgw-consumers-oas

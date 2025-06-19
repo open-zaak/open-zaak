@@ -19,9 +19,6 @@ class ImportAuthRequired(AuthRequired):
         if not has_handler:
             view.http_method_not_allowed(request)
 
-        # JWTs are only valid for a short amount of time
-        self.check_jwt_expiry(request.jwt_auth.payload)
-
         if bypass_permissions(request):
             return True
 
