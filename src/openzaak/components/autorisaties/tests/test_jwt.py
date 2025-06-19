@@ -10,7 +10,7 @@ from .utils import get_operation_url
 
 
 class JWTTests(JWTAuthMixin, APITestCase):
-    def test_request_without_eat(self):
+    def test_request_without_iat(self):
         # generate credentials without iat
         payload = {
             # standard claims
@@ -31,4 +31,4 @@ class JWTTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         data = response.json()
-        self.assertEqual(data["code"], "jwt-missing-iat-claim")
+        self.assertEqual(data["code"], "jwt-missingrequiredclaimerror")

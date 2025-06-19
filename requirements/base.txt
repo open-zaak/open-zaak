@@ -66,7 +66,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@c69853f5da5dc78756d3c123adfa35ba59f2055e
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@0836e79f7cdc799e6cfe4958f02dcda1af5aad0c
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -387,9 +387,12 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
+    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
+requests-mock==1.12.1
+    # via commonground-api-common
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
