@@ -10,7 +10,7 @@ from .utils import get_operation_url
 
 
 class JWTTests(JWTAuthMixin, APITestCase):
-    def test_request_without_eat(self):
+    def test_request_without_iat(self):
         # generate credentials without iat
         payload = {
             # standard claims

@@ -68,7 +68,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@c69853f5da5dc78756d3c123adfa35ba59f2055e
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@7adc7f06232f3831854f3173e1806e3d10b7f964
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -345,7 +345,7 @@ pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.0
     # via django-setup-configuration
-pyjwt==2.4.0
+pyjwt==2.10.1
     # via
     #   commonground-api-common
     #   zgw-consumers
@@ -399,9 +399,12 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
+    #   requests-mock
     #   zgw-consumers
 requests-cache==0.9.4
     # via -r requirements/base.in
+requests-mock==1.12.1
+    # via commonground-api-common
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
