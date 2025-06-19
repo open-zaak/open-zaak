@@ -28,7 +28,7 @@ Afleidingswijze
 ---------------
 
 Naast de selectielijstklasse moet ook een afleidingswijze worden gekozen. In de volgende tabel is te zien welke afleidingswijzen zijn toegestaan per procestermijn.
-nihil + afgehandeld & ingeschatte_bestaansduur_procesobject + termijn kunnen alleen in combinatie met elkaar worden geselecteerd.
+``nihil`` + ``afgehandeld`` & ``ingeschatte_bestaansduur_procesobject`` + ``termijn`` kunnen alleen in combinatie met elkaar worden geselecteerd.
 De andere afleidingswijzen zijn toegestaan bij de andere procestermijnen
 
 .. list-table::
@@ -39,13 +39,19 @@ De andere afleidingswijzen zijn toegestaan bij de andere procestermijnen
    * - nihil
      - afgehandeld
    * - bestaansduur_processobject
-     - ander_datumkenmerk, eigenschap, gerelateerde_zaak, hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit, zaakobject
+     - | ander_datumkenmerk, eigenschap, gerelateerde_zaak,
+       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | zaakobject
    * - ingeschatte_bestaansduur_procesobject
-     - termijn
+     - | termijn
    * - vast_te_leggen_datum
-     - ander_datumkenmerk, eigenschap, gerelateerde_zaak, hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit, zaakobject
+     - | ander_datumkenmerk, eigenschap, gerelateerde_zaak,
+       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | zaakobject
    * - samengevoegd_met_bewaartermijn
-     - ander_datumkenmerk, eigenschap, gerelateerde_zaak, hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit, zaakobject
+     - | ander_datumkenmerk, eigenschap, gerelateerde_zaak,
+       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | zaakobject
 
 Daarnaast zijn bij de bepaling van de brondatum archiefprocedure per afleidingswijze een aantal velden verplicht:
 
