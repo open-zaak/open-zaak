@@ -24,13 +24,13 @@ class BrondatumCalculator:
 
     def calculate(self) -> Union[None, date]:
         if self.zaak.archiefactiedatum:
-            return
+            return None
 
         resultaattype = self.zaak.resultaat.resultaattype
 
         archiefactietermijn = resultaattype.archiefactietermijn
         if not archiefactietermijn:
-            return
+            return None
 
         # if zaak.startdatum_bewaartermijn is filled -> use as brondatum
         if self.zaak.startdatum_bewaartermijn:
@@ -56,7 +56,7 @@ class BrondatumCalculator:
             )
 
         if not brondatum:
-            return
+            return None
         self.brondatum = brondatum
         return brondatum + archiefactietermijn
 
@@ -72,7 +72,7 @@ def get_brondatum(
     objecttype: str = None,
     procestermijn: relativedelta = None,
     einddatum: date = None,
-) -> date:
+) -> Union[None, date]:
     """
     To calculate the Archiefactiedatum, we first need the "brondatum" which is like the start date of the storage
     period.
@@ -98,6 +98,7 @@ def get_brondatum(
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
         # TODO: Document that hoofdzaak can not an external zaak
+        # TODO: will always return None because deelzaken have to be closed before the hoofdzaak.
         return zaak.hoofdzaak.einddatum if zaak.hoofdzaak else None
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.eigenschap:
