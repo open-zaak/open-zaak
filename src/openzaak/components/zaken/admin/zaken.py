@@ -23,6 +23,7 @@ from ..models import (
     Resultaat,
     Rol,
     Status,
+    SubStatus,
     Zaak,
     ZaakBesluit,
     ZaakContactMoment,
@@ -101,6 +102,20 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     date_hierarchy = "datum_status_gezet"
     raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
+
+
+@admin.register(SubStatus)
+class SubStatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
+    list_display = ["zaak", "status"]
+    list_select_related = ["zaak", "status"]
+    search_fields = (
+        "uuid",
+        "zaak__identificatie",
+        "zaak__uuid",
+        "status__uuid",
+    )
+    raw_id_fields = ["zaak", "status"]
+    viewset = "openzaak.components.zaken.api.viewsets.SubStatusViewSet"
 
 
 @admin.register(ZaakObject)
@@ -563,6 +578,12 @@ class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class SubStatusInline(EditInlineAdminMixin, admin.TabularInline):
+    model = SubStatus
+    fields = SubStatusAdmin.list_display
+    fk_name = "zaak"
+
+
 class ZaakObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakObject
     fields = ZaakObjectAdmin.list_display
@@ -681,6 +702,7 @@ class ZaakAdmin(
     ordering = ("-identificatie", "startdatum")
     inlines = [
         StatusInline,
+        SubStatusInline,
         ZaakObjectInline,
         ZaakInformatieObjectInline,
         ZaakContactMomentInline,
