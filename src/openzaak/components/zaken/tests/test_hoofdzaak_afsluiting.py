@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from datetime import date
 
 from django.test import override_settings, tag
 
@@ -175,7 +174,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
             deelzaak.refresh_from_db()
 
-            self.assertEqual(deelzaak.archiefnominatie, Archiefnominatie.vernietigen)
+            self.assertIsNone(deelzaak.archiefnominatie)
             self.assertIsNone(deelzaak.archiefactiedatum)
             self.assertIsNone(deelzaak.startdatum_bewaartermijn)
 
@@ -776,6 +775,12 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         self.assertIsNone(self.zaak.archiefnominatie)
         self.assertIsNone(self.zaak.archiefactiedatum)
-        self.assertEqual(
-            self.zaak.startdatum_bewaartermijn, date(2024, 4, 5)
-        )  # afgehandeld == eind_datum
+        self.assertIsNone(self.zaak.startdatum_bewaartermijn)
+
+        self.assertIsNone(deelzaak.archiefnominatie)
+        self.assertIsNone(deelzaak.zaak.archiefactiedatum)
+        self.assertIsNone(deelzaak.startdatum_bewaartermijn)
+
+        self.assertIsNone(ext_deelzaak.archiefnominatie)
+        self.assertIsNone(ext_deelzaak.zaak.archiefactiedatum)
+        self.assertIsNone(ext_deelzaak.startdatum_bewaartermijn)
