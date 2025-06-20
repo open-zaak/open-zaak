@@ -779,11 +779,3 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             self.zaak.startdatum_bewaartermijn, date(2024, 4, 5)
         )  # afgehandeld == eind_datum
-
-        self.assertEqual(deelzaak.archiefnominatie, Archiefnominatie.vernietigen)
-        self.assertIsNone(deelzaak.zaak.archiefactiedatum)
-        self.assertIsNone(deelzaak.startdatum_bewaartermijn)
-
-        self.assertEqual(ext_deelzaak.archiefnominatie, Archiefnominatie.vernietigen)
-        self.assertIsNone(ext_deelzaak.zaak.archiefactiedatum)
-        self.assertIsNone(ext_deelzaak.startdatum_bewaartermijn)

@@ -805,10 +805,8 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Save updated information on the ZAAK
             zaak.save(update_fields=_zaak_fields_changed)
 
-            # Update deelzaken only if hoofdzaak changed to or from it's eind status.
-            if (is_eindstatus or is_reopening) and zaak.deelzaken.exists():
-                brondatum = brondatum_calculator.brondatum if is_eindstatus else None
-                self.update_deelzaken(zaak.deelzaken, brondatum)
+            if is_eindstatus and zaak.deelzaken.exists():
+                self.update_deelzaken(zaak.deelzaken, brondatum_calculator.brondatum)
 
         return obj
 
@@ -827,7 +825,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             brondatum,
         )
 
-    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date | None):
+    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date):
         resultaattype_archiefactietermijn = (
             Resultaat.objects.filter(zaak_id=OuterRef("pk"))
             .annotate(
@@ -851,11 +849,11 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         qs.filter(
             resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
         ).update(
-            archiefactiedatum=F("computed_archiefactiedatum") if brondatum else None,
+            archiefactiedatum=F("computed_archiefactiedatum"),
             startdatum_bewaartermijn=brondatum,
         )
 
-    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date | None):
+    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date):
         for deelzaak in qs.iterator():
             resultaattype = deelzaak.resultaat.resultaattype
 
@@ -865,8 +863,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ):
                 deelzaak.archiefactiedatum = (
                     brondatum + resultaattype.archiefactietermijn
-                    if brondatum
-                    else brondatum
                 )
                 deelzaak.startdatum_bewaartermijn = brondatum
                 deelzaak.save(
