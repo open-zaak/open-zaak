@@ -10,8 +10,11 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import (
+    OpenApiExample,
     OpenApiParameter,
+    OpenApiResponse,
     OpenApiTypes,
+    PolymorphicProxySerializer,
     extend_schema,
     extend_schema_view,
 )
@@ -1424,20 +1427,47 @@ class ZaakVerzoekViewSet(
 
 @extend_schema_view(
     create=extend_schema(
-        "zaak_reserveer_zaaknummer",
+        operation_id="zaak_reserveer_zaaknummer",
         summary="Reserveer een zaaknummer",
         description=mark_experimental(
             "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
             "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
-            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden."
+            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
+            "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
+            "Als `aantal > 1`, wordt een lijst van objecten teruggegeven."
         ),
         request=ReserveZaakIdentificatieSerializer,
         responses={
-            status.HTTP_201_CREATED: ReserveZaakIdentificatieSerializer(),
+            status.HTTP_201_CREATED: OpenApiResponse(
+                response=PolymorphicProxySerializer(
+                    component_name="OneOrMultipleZaakIdentificaties",
+                    serializers=[
+                        ReserveZaakIdentificatieSerializer,
+                        ReserveZaakIdentificatieSerializer(many=True),
+                    ],
+                    resource_type_field_name=None,
+                    many=False,
+                )
+            ),
             **VALIDATION_ERROR_RESPONSES,
             **COMMON_ERROR_RESPONSES,
             **PRECONDITION_ERROR_RESPONSES,
         },
+        examples=[
+            OpenApiExample(
+                "Enkele reservering",
+                value={"identificatie": "ZAAK-2025-0000000001"},
+                response_only=True,
+            ),
+            OpenApiExample(
+                "Meerdere reserveringen",
+                value=[
+                    {"identificatie": "ZAAK-2025-0000000001"},
+                    {"identificatie": "ZAAK-2025-0000000002"},
+                ],
+                response_only=True,
+            ),
+        ],
     )
 )
 class ReserveerZaakNummerViewSet(viewsets.ViewSet):
@@ -1455,6 +1485,11 @@ class ReserveerZaakNummerViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializer = ReserveZaakIdentificatieSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        result = serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if isinstance(result, list):
+            response_data = ReserveZaakIdentificatieSerializer(result, many=True).data
+        else:
+            response_data = ReserveZaakIdentificatieSerializer(result).data
+
+        return Response(response_data, status=status.HTTP_201_CREATED)

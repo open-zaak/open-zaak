@@ -564,10 +564,11 @@ paths:
   /reserveer_zaaknummer:
     post:
       operationId: zaak_reserveer_zaaknummer
-      description: '**EXPERIMENTEEL** Reserveer een zaaknummer binnen een specifieke
-        bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend
-        worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen
-        de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.'
+      description: |-
+        **EXPERIMENTEEL** Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.
+
+        Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.
+        Als `aantal > 1`, wordt een lijst van objecten teruggegeven.
       summary: Reserveer een zaaknummer
       parameters:
       - in: header
@@ -605,7 +606,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReserveZaakIdentificatie'
+                $ref: '#/components/schemas/OneOrMultipleZaakIdentificaties'
+              examples:
+                EnkeleReservering:
+                  value:
+                    identificatie: ZAAK-2025-0000000001
+                  summary: Enkele reservering
+                MeerdereReserveringen:
+                  value:
+                  - identificatie: ZAAK-2025-0000000001
+                  - identificatie: ZAAK-2025-0000000002
+                  summary: Meerdere reserveringen
           description: Created
         '400':
           headers:
@@ -13631,6 +13642,12 @@ components:
       required:
       - avgAard
       - identificatie
+    OneOrMultipleZaakIdentificaties:
+      oneOf:
+      - $ref: '#/components/schemas/ReserveZaakIdentificatie'
+      - type: array
+        items:
+          $ref: '#/components/schemas/ReserveZaakIdentificatie'
     Opschorting:
       type: object
       properties:
@@ -14409,6 +14426,12 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+        aantal:
+          type: integer
+          minimum: 1
+          writeOnly: true
+          default: 1
+          description: Het aantal identificaties om te reserveren.
       required:
       - bronorganisatie
     Resultaat:
