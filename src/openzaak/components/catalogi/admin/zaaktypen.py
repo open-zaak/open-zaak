@@ -392,10 +392,9 @@ class ZaakTypeAdmin(
                     db_field, request, procestype_jaar, **kwargs
                 )
             except AttributeError as e:
-                logger.error(
+                logger.exception(
                     "exception_occurred",
                     error=str(e),
-                    exc_info=True,
                 )
 
                 msg = _(

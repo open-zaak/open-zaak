@@ -50,11 +50,11 @@ def _import_document_row(
 
     if len(row) < expected_column_count:
         error_message = (
-            f"Validation failed for line {row_index}: insufficient row count"
+            f"Validation failed for line {row_index}: insufficient column count"
         )
 
         logger.warning(
-            "validation_failed_insufficient_row_count",
+            "validation_failed_insufficient_column_count",
             row_index=row_index,
         )
 
@@ -420,7 +420,7 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
 
         try:
             logger.debug(
-                "creating_eios_and_zeios_for_batch",
+                "creating_eios_and_zios_for_batch",
                 batch_number=import_instance.get_batch_number(batch_size),
             )
             _batch_create_eios(batch, zaak_uuids)

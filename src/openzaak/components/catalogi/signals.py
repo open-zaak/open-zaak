@@ -75,8 +75,11 @@ def sync_autorisaties(
         catalogusautorisatie__isnull=True,
         id__in=app_ids,
     )
+
+    app_ids_to_delete = list(apps_to_delete.values_list("id", flat=True))
+
     logger.info(
         "deleting_applications",
-        apps_to_delete=apps_to_delete,
+        apps_to_delete=app_ids_to_delete,
     )
     apps_to_delete.delete()

@@ -485,9 +485,7 @@ class ObjectTypeOverigeDefinitieValidator:
             )
 
         if attrs.get("object_identificatie"):
-            logger.warning(
-                "both_object_url_and_object_identificatie_supplied_clearing_latter"
-            )
+            logger.warning("use_object_url_instead_of_object_identificatie")
             attrs["object_identificatie"] = None
 
         # now validate the schema
