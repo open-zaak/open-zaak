@@ -11,6 +11,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 import structlog
+from structlog.contextvars import bind_contextvars
 from vng_api_common.constants import RelatieAarden
 from vng_api_common.utils import generate_unique_identification
 
@@ -372,6 +373,8 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
     request = _reconstruct_request(request_headers)
 
     file_path = import_instance.import_file.path
+
+    bind_contextvars(import_id=import_pk, file_path=file_path)
 
     import_instance.total = get_total_count(file_path)
     import_instance.started_on = timezone.now()
