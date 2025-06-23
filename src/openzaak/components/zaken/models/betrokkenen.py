@@ -13,7 +13,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-import structlog
 from vng_api_common.fields import BSNField, RSINField
 
 from openzaak.utils.help_text import mark_experimental
@@ -21,8 +20,6 @@ from openzaak.utils.help_text import mark_experimental
 from ..constants import GeslachtsAanduiding, SoortRechtsvorm
 from .objecten import ZakelijkRechtHeeftAlsGerechtigde
 from .zaken import Rol, ZaakObject
-
-logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = [
     "AbstractRolZaakobjectRelation",

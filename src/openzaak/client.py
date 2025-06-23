@@ -4,10 +4,7 @@
 Provide utilities to interact with other APIs as a client.
 """
 
-import structlog
 from vng_api_common.client import Client, get_client, to_internal_data
-
-logger = structlog.stdlib.get_logger(__name__)
 
 
 def fetch_object(url: str) -> dict | list | None:

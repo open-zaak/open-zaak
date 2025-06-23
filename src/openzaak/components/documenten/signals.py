@@ -5,8 +5,6 @@ from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete, post_save
 from django.dispatch import receiver
 
-import structlog
-
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -19,8 +17,6 @@ from .api.viewsets import (
 from .models import EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
 from .typing import IORelation
 from .utils import private_media_storage_cmis
-
-logger = structlog.stdlib.get_logger(__name__)
 
 
 @receiver([post_save, post_delete], dispatch_uid="documenten.sync_oio")

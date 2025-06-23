@@ -13,7 +13,6 @@ from django.db.models.query import BaseIterable
 from django.utils import timezone
 from django.utils.text import slugify
 
-import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drc_cmis.utils.mapper import mapper
 from rest_framework.request import Request
@@ -38,9 +37,6 @@ from .django import (
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
-
-logger = structlog.stdlib.get_logger(__name__)
-
 
 # map query names from django models to properties on the CMIS models
 EIO_PROPERTY_MAP = {

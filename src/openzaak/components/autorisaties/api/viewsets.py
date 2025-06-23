@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models import Prefetch, Q
 
-import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -25,8 +24,6 @@ from .kanalen import KANAAL_AUTORISATIES
 from .permissions import AutorisatiesAuthRequired
 from .scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from .serializers import ApplicatieSerializer
-
-logger = structlog.stdlib.get_logger(__name__)
 
 IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
 HAS_AUTORISATIES = Q(autorisaties__isnull=False)
