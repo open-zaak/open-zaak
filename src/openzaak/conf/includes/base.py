@@ -492,6 +492,7 @@ structlog.configure(
 #
 DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
 DJANGO_STRUCTLOG_CELERY_ENABLED = True
+
 #
 # AUTH settings - user accounts, passwords, backends...
 #
