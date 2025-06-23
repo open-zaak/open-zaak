@@ -25,3 +25,4 @@ directly in the management interface.
    adfs
    oidc
    archiving
+   logging
