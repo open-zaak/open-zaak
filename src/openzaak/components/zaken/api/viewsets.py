@@ -380,6 +380,17 @@ class ZaakViewSet(
 
         return super().create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        zaak = serializer.instance
+        logger.info(
+            "zaak_created",
+            uuid=str(zaak.uuid),
+            identificatie=zaak.identificatie,
+            vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            zaaktype=str(zaak.zaaktype),
+        )
+
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
         serializer = GenerateZaakIdentificatieSerializer(data=data)
@@ -411,6 +422,16 @@ class ZaakViewSet(
                 msg = "Modifying a closed case with current scope is forbidden"
                 raise PermissionDenied(detail=msg)
         super().perform_update(serializer)
+
+        updated_zaak = serializer.instance
+
+        logger.info(
+            "zaak_updated",
+            uuid=str(updated_zaak.uuid),
+            identificatie=updated_zaak.identificatie,
+            vertrouwelijkheidaanduiding=updated_zaak.vertrouwelijkheidaanduiding,
+            zaaktype=str(updated_zaak.zaaktype),
+        )
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():
@@ -445,6 +466,14 @@ class ZaakViewSet(
         transaction.on_commit(_delete_oios)
 
         super().perform_destroy(instance)
+
+        logger.info(
+            "zaak_deleted",
+            uuid=str(instance.uuid),
+            identificatie=instance.identificatie,
+            vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
+            zaaktype=str(instance.zaaktype),
+        )
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(

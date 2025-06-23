@@ -599,28 +599,6 @@ class ZaakSerializer(
             # point to the .none() queryset for output serialization
             self.fields[field].source_attrs.append("none")
 
-        logger.info(
-            "zaak_created",
-            uuid=str(obj.uuid),
-            identificatie=obj.identificatie,
-            vertrouwelijkheidaanduiding=obj.vertrouwelijkheidaanduiding,
-            zaaktype=str(obj.zaaktype),
-        )
-
-        return obj
-
-    @transaction.atomic
-    def update(self, instance, validated_data: dict):
-        obj = super().update(instance, validated_data)
-
-        logger.info(
-            "zaak_updated",
-            uuid=str(obj.uuid),
-            identificatie=obj.identificatie,
-            vertrouwelijkheidaanduiding=obj.vertrouwelijkheidaanduiding,
-            zaaktype=str(obj.zaaktype),
-        )
-
         return obj
 
 
