@@ -259,6 +259,7 @@ django==5.2.1
     #   django-solo
     #   django-timezone-field
     #   django-two-factor-auth
+    #   django-upgrade-check
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -431,6 +432,11 @@ django-two-factor-auth==1.17.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   maykin-2fa
+django-upgrade-check==1.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   open-api-framework
 django-webtest==1.9.13
     # via
     #   -c requirements/ci.txt
@@ -511,12 +517,6 @@ elastic-apm==6.22.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-exceptiongroup==1.3.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   anyio
-    #   pytest
 face==20.1.1
     # via
     #   -c requirements/ci.txt
@@ -700,7 +700,7 @@ notifications-api-common==0.7.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.10.1
+open-api-framework==0.10.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -956,7 +956,6 @@ requests-mock==1.12.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   commonground-api-common
 requests-oauthlib==1.3.0
     # via kubernetes
 resolvelib==0.5.4
@@ -988,6 +987,11 @@ self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+semantic-version==2.10.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-upgrade-check
 sentry-sdk==2.13.0
     # via
     #   -c requirements/ci.txt
@@ -1094,15 +1098,6 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-tomli==2.2.1
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   build
-    #   pip-tools
-    #   pyproject-hooks
-    #   pytest
-    #   sphinx
 tomlkit==0.13.2
     # via bump-my-version
 tornado==6.5
@@ -1115,18 +1110,14 @@ typing-extensions==4.12.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
-    #   asgiref
-    #   exceptiongroup
     #   faker
     #   mozilla-django-oidc-db
-    #   multidict
     #   psycopg
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl
     #   qrcode
-    #   rich
     #   rich-click
     #   zgw-consumers
     #   zgw-consumers-oas
