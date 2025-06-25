@@ -450,11 +450,13 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_add_resultaat_on_zaak_with_hoofdzaak_causes_archiefactiedatum_to_be_set(
+    def test_add_resultaat_on_zaak_with_hoofdzaak_causes_archiefactiedatum_to_be_null(
         self,
     ):
         """
-        Add RESULTAAT that causes `archiefactiedatum` to be set.
+        Add RESULTAAT that causes `archiefactiedatum` to be null.
+
+        the archiefactiedatum is set when the hoofdzaak closes.
         """
         hoofd_zaak = ZaakFactory.create(einddatum=date(2019, 1, 1))
 
@@ -494,7 +496,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         zaak.refresh_from_db()
-        self.assertEqual(zaak.archiefactiedatum, date(2029, 1, 1))
+        self.assertIsNone(zaak.archiefactiedatum)
 
     def test_add_resultaat_on_zaak_with_ander_datumkenmerk_causes_archiefactiedatum_to_remain_empty(
         self,
