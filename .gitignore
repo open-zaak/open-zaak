@@ -41,6 +41,7 @@ src/openzaak/conf/includes/local.py
 /static/
 /mail/
 /log/*.log*
+/log/*.jsonl*
 /log/nginx/*.log*
 .env
 /private-media/

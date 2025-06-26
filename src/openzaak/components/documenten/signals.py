@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
 from django.core.signals import setting_changed
 from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete, post_save
@@ -19,8 +17,6 @@ from .api.viewsets import (
 from .models import EnkelvoudigInformatieObject, Gebruiksrechten, ObjectInformatieObject
 from .typing import IORelation
 from .utils import private_media_storage_cmis
-
-logger = logging.getLogger(__name__)
 
 
 @receiver([post_save, post_delete], dispatch_uid="documenten.sync_oio")

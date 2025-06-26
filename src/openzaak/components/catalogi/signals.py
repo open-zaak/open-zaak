@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 from typing import Union
 
 from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete
 from django.dispatch import receiver
 
+import structlog
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 
 from openzaak.utils import build_absolute_url
 
 from .models import BesluitType, InformatieObjectType, ZaakType
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 FIELD_MAP = {
     ZaakType: "zaaktype",
@@ -41,7 +41,11 @@ def sync_autorisaties(
     instance: Union[ZaakType, InformatieObjectType, BesluitType],
     **kwargs,
 ) -> None:
-    logger.debug("Received signal %r, from sender %r", signal, sender)
+    logger.debug(
+        "received_signal",
+        signal=signal,
+        sender=sender,
+    )
 
     instance_path = instance.get_absolute_api_url()
     instance_url = build_absolute_url(instance_path)
@@ -71,5 +75,11 @@ def sync_autorisaties(
         catalogusautorisatie__isnull=True,
         id__in=app_ids,
     )
-    logger.info("Deleting applications: %s", apps_to_delete)
+
+    app_ids_to_delete = list(apps_to_delete.values_list("id", flat=True))
+
+    logger.info(
+        "deleting_applications",
+        apps_to_delete=app_ids_to_delete,
+    )
     apps_to_delete.delete()

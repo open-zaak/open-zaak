@@ -5,6 +5,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         pkg-config \
         build-essential \
         libpq-dev \
+         # required for (log) routing support in uwsgi
+         libpcre3 \
+         libpcre3-dev \
         git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -50,6 +53,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         postgresql-client \
         gettext \
         binutils \
+        libpcre3 \
         libproj-dev \
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*
@@ -70,6 +74,7 @@ COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
 COPY ./bin/load_fixtures.sh /load_fixtures.sh
 COPY ./bin/dump_auth_config.sh /dump_auth_config.sh
+COPY ./bin/uwsgi.ini /
 
 RUN mkdir /app/log /app/config /app/media /app/private-media /app/tmp
 # prevent writing to the container layer, which would degrade performance.

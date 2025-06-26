@@ -16,6 +16,7 @@ asgiref==3.8.1
     #   django
     #   django-axes
     #   django-cors-headers
+    #   django-structlog
 asn1crypto==1.5.1
     # via webauthn
 attrs==21.4.0
@@ -39,6 +40,7 @@ cbor2==5.6.3
 celery==5.4.0
     # via
     #   django-celery-beat
+    #   django-structlog
     #   flower
     #   notifications-api-common
     #   open-api-framework
@@ -119,6 +121,7 @@ django==5.2.1
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
     #   django-upgrade-check
@@ -161,6 +164,8 @@ django-filter==24.2
     #   open-api-framework
 django-formtools==2.5.1
     # via django-two-factor-auth
+django-ipware==7.0.1
+    # via django-structlog
 django-jsonform==2.22.0
     # via
     #   mozilla-django-oidc-db
@@ -209,6 +214,8 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-structlog==9.1.1
+    # via -r requirements/base.in
 django-timezone-field==7.0
     # via django-celery-beat
 django-two-factor-auth==1.17.0
@@ -369,6 +376,8 @@ python-dotenv==1.0.1
     # via
     #   open-api-framework
     #   pydantic-settings
+python-ipware==3.0.0
+    # via django-ipware
 pytz==2022.6
     # via flower
 pyyaml==6.0.2
@@ -418,6 +427,8 @@ six==1.16.0
     #   url-normalize
 sqlparse==0.5.0
     # via django
+structlog==25.4.0
+    # via django-structlog
 tornado==6.5
     # via flower
 typing-extensions==4.12.2

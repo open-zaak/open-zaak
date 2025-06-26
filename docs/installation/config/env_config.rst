@@ -55,6 +55,8 @@ Logging
 * ``LOG_OUTGOING_REQUESTS_DB_SAVE``: Whether or not outgoing request logs should be saved to the database. Defaults to: ``False``.
 * ``LOG_OUTGOING_REQUESTS_DB_SAVE_BODY``: Whether or not outgoing request bodies should be saved to the database. Defaults to: ``True``.
 * ``LOG_OUTGOING_REQUESTS_MAX_AGE``: The amount of time after which request logs should be deleted from the database. Defaults to: ``7``.
+* ``ENABLE_STRUCTLOG_REQUESTS``: enable structured logging of requests. Defaults to: ``True``.
+* ``LOG_FORMAT_CONSOLE``: The format for the console logging handler, possible options: ``json``, ``plain_console``. Defaults to: ``json``.
 
 
 Celery

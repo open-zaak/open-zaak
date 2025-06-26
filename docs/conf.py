@@ -17,6 +17,9 @@ os.environ["LOG_REQUESTS"] = "false"
 import openzaak  # noqa isort:skip
 from openzaak.setup import setup_env  # noqa isort:skip
 
+# Import as private variable to avoid errors on build
+from importlib.metadata import version as _version
+
 setup_env()
 django.setup()
 
@@ -48,6 +51,7 @@ release = openzaak.__version__
 extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
     "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
@@ -117,5 +121,13 @@ extlinks = {
     "open-api-framework": (
         "https://github.com/maykinmedia/open-api-framework/issues/%s",
         "#%s",
+    ),
+}
+
+django_structlog_version = _version("django-structlog")
+intersphinx_mapping = {
+    "django-structlog": (
+        f"https://django-structlog.readthedocs.io/en/{django_structlog_version}",
+        None,
     ),
 }

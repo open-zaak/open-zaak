@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
-
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_filters import rest_framework as filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -31,7 +30,7 @@ from .serializers import (
 )
 from .utils import check_path
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class ObjectFilter(FkOrUrlFieldFilter):
@@ -55,9 +54,8 @@ class ObjectFilter(FkOrUrlFieldFilter):
             return qs.filter(**{self.verzoek_field_name: value})
         else:
             logger.debug(
-                "Could not determine object type for URL %s, "
-                "filtering to empty result set.",
-                value,
+                "could_not_determine_object_type_for_url",
+                url=value,
             )
             return qs.none()
 

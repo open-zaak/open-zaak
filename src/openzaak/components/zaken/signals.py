@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-import logging
-
 from django.db.models.base import ModelBase
 from django.db.models.signals import ModelSignal, post_delete, post_save
 from django.dispatch import receiver
+
+import structlog
 
 from openzaak.components.besluiten.models import Besluit
 
 from .models import ZaakBesluit
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @receiver(

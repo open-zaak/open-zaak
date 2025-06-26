@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import logging
 import uuid as _uuid
 
 from django.apps import apps
@@ -23,8 +22,6 @@ from openzaak.utils.mixins import AuditTrailMixin
 
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet
-
-logger = logging.getLogger(__name__)
 
 __all__ = ["Besluit", "BesluitInformatieObject"]
 

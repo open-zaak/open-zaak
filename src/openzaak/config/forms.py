@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import logging
 from typing import Dict
 from urllib.parse import urljoin
 
 from django.forms import ModelForm
 
 import requests
+import structlog
 from zgw_consumers.models import NLXConfig, Service
 from zgw_consumers.nlx import get_nlx_services
 
 from .models import InternalService
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class NLXConfigForm(ModelForm):
@@ -41,7 +41,10 @@ def get_nlx_choices() -> Dict[str, dict]:
     try:
         services_per_organization = get_nlx_services()
     except requests.RequestException:
-        logger.warning("Failed fetching the NLX services", exc_info=True)
+        logger.warning(
+            "failed_fetching_nlx_services",
+            exc_info=True,
+        )
         return {}
 
     for org, services in services_per_organization:

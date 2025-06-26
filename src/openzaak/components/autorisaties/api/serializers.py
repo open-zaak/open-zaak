@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-import logging
-
 from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
 
+import structlog
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.serializers import (
     ApplicatieSerializer as _ApplicatieSerializer,
@@ -16,7 +15,7 @@ from vng_api_common.models import JWTSecret
 
 from openzaak.utils import build_absolute_url
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class ApplicatieSerializer(_ApplicatieSerializer):
@@ -106,7 +105,7 @@ class ApplicatieSerializer(_ApplicatieSerializer):
             and instance.catalogusautorisatie_set.exists()
         ):
             logger.info(
-                "Updating Applicatie %s via the API, deleting existing CatalogusAutorisaties"
+                "updating_applicatie_via_api_deleting_existing_catalogusautorisaties",
             )
             instance.catalogusautorisatie_set.all().delete()
 

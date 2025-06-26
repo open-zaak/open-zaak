@@ -305,7 +305,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(document_row.processed)
         self.assertFalse(document_row.succeeded)
 
-        self.assertIn("insufficient row count", document_row.comment)
+        self.assertIn("insufficient column count", document_row.comment)
 
         default_file_path = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
 

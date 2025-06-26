@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-import logging
-
 from django.db.models import QuerySet
 
+import structlog
 from django_filters import OrderingFilter as _OrderingFilter, constants
 from vng_api_common.filtersets import FilterSet
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 
 class OrderingFilter(_OrderingFilter):
@@ -107,7 +106,7 @@ class FilterSetWithGroups(FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.groups:
-            logger.warn("FilterSetWithGroups used without any groups.")
+            logger.warning("filterset_with_groups_without_any_groups")
         for group in self.groups:
             group.set_parent(self)
 

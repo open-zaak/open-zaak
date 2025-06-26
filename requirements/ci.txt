@@ -31,6 +31,7 @@ asgiref==3.8.1
     #   django
     #   django-axes
     #   django-cors-headers
+    #   django-structlog
 asn1crypto==1.5.1
     # via
     #   -c requirements/base.txt
@@ -210,6 +211,7 @@ django==5.2.1
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
     #   django-upgrade-check
@@ -280,6 +282,11 @@ django-formtools==2.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
+django-ipware==7.0.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-structlog
 django-jsonform==2.22.0
     # via
     #   -c requirements/base.txt
@@ -369,6 +376,10 @@ django-solo==2.0.0
     #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
+django-structlog==9.1.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 django-timezone-field==7.0
     # via
     #   -c requirements/base.txt
@@ -737,6 +748,11 @@ python-dotenv==1.0.1
     #   -r requirements/base.txt
     #   open-api-framework
     #   pydantic-settings
+python-ipware==3.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-ipware
 pytz==2022.6
     # via
     #   -c requirements/base.txt
@@ -872,6 +888,11 @@ sqlparse==0.5.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django
+structlog==25.4.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-structlog
 tblib==1.7.0
     # via -r requirements/test-tools.in
 tornado==6.5

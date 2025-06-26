@@ -6,12 +6,12 @@ Define the ``Objecten`` that can be related to a Zaak.
 Each model class roughly maps to an Object Type in RGBZ.
 """
 
-import logging
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+import structlog
 
 from ..constants import (
     TyperingInrichtingselement,
@@ -21,7 +21,7 @@ from ..constants import (
 )
 from .zaken import ZaakObject
 
-logger = logging.getLogger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 __all__ = [
     "Buurt",

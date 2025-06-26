@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 import copy
 import datetime
-import logging
 import uuid
 from itertools import groupby
 from operator import attrgetter, itemgetter
@@ -38,9 +37,6 @@ from .django import (
     InformatieobjectRelatedQuerySet,
     ObjectInformatieObjectQuerySet,
 )
-
-logger = logging.getLogger(__name__)
-
 
 # map query names from django models to properties on the CMIS models
 EIO_PROPERTY_MAP = {
