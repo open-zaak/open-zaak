@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
+from datetime import date
+
 from django.test import override_settings, tag
 
 import requests_mock
@@ -142,6 +144,59 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         # the same between running whole test class & tests separately.
         OpenIDConnectConfig.clear_cache()
         OutgoingRequestsLogConfig.clear_cache()
+
+    def test_deelzaak(self):
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=10),
+                archiefnominatie=Archiefnominatie.vernietigen,
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+
+        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+
+        with self.subTest("close deelzaak"):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": deelzaak_url,
+                    "statustype": f"http://testserver{self.int_statustype2_url}",
+                    "datumStatusGezet": utcdatetime(
+                        2018, 10, 22, 16, 00, 00
+                    ).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            deelzaak.refresh_from_db()
+
+            self.assertEqual(deelzaak.archiefnominatie, Archiefnominatie.vernietigen)
+            self.assertIsNone(deelzaak.archiefactiedatum)
+            self.assertIsNone(deelzaak.startdatum_bewaartermijn)
+
+        with self.subTest("reopen deelzaak"):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": deelzaak_url,
+                    "statustype": f"http://testserver{self.int_statustype1_url}",
+                    "datumStatusGezet": utcdatetime(
+                        2018, 10, 25, 16, 00, 00
+                    ).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            deelzaak.refresh_from_db()
+
+            self.assertIsNone(deelzaak.archiefnominatie)
+            self.assertIsNone(deelzaak.archiefactiedatum)
+            self.assertIsNone(deelzaak.startdatum_bewaartermijn)
 
     def test_validation_with_internal_deelzaak_catalogi(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
@@ -649,3 +704,78 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                 },
             )
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_close_and_reopen_hoofdzaak(self):
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+        ext_deelzaak = ZaakFactory.create(
+            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
+        )
+
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=20),
+                archiefnominatie=Archiefnominatie.vernietigen,
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
+        )
+        ResultaatFactory.create(
+            zaak=ext_deelzaak, resultaattype=self.ext_resultaattype1
+        )
+
+        # close deelzaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # close ext deelzaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": reverse("zaak-detail", kwargs={"uuid": ext_deelzaak.uuid}),
+                "statustype": self.ext_statustype2,
+                "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # close hoofdzaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # reopen hoofdzaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.int_statustype1_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.zaak.refresh_from_db()
+        deelzaak.refresh_from_db()
+        ext_deelzaak.refresh_from_db()
+
+        self.assertIsNone(self.zaak.archiefnominatie)
+        self.assertIsNone(self.zaak.archiefactiedatum)
+        self.assertEqual(
+            self.zaak.startdatum_bewaartermijn, date(2024, 4, 5)
+        )  # afgehandeld == eind_datum

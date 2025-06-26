@@ -825,13 +825,17 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Save updated information on the ZAAK
             zaak.save(update_fields=_zaak_fields_changed)
 
-            # update deelzaken
-            if zaak.deelzaken.exists():
+            if is_eindstatus and zaak.deelzaken.exists():
                 self.update_deelzaken(zaak.deelzaken, brondatum_calculator.brondatum)
 
         return obj
 
-    def update_deelzaken(self, qs, brondatum):
+    def update_deelzaken(self, qs, brondatum: date | None):
+        """
+        Updates archiefactiedatum & startdatum_bewaartermijn.
+
+        Archiefnominatie is based on the resulttype and is set when the deelzaak itself is closed.
+        """
         self._update_deelzaken_with_internal_catalogi(
             qs.filter(_zaaktype__isnull=False),
             brondatum,
@@ -841,7 +845,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             brondatum,
         )
 
-    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum):
+    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date):
         resultaattype_archiefactietermijn = (
             Resultaat.objects.filter(zaak_id=OuterRef("pk"))
             .annotate(
@@ -869,7 +873,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             startdatum_bewaartermijn=brondatum,
         )
 
-    def _update_deelzaken_with_external_catalogi(self, qs, brondatum):
+    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date):
         for deelzaak in qs.iterator():
             resultaattype = deelzaak.resultaat.resultaattype
 
