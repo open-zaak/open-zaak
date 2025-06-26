@@ -634,7 +634,7 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
-psycopg==3.2.9
+psycopg==3.2.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

@@ -761,7 +761,7 @@ propcache==0.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-psycopg==3.2.9
+psycopg==3.2.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

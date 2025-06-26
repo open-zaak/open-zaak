@@ -322,7 +322,7 @@ prometheus-client==0.15.0
     # via flower
 prompt-toolkit==3.0.31
     # via click-repl
-psycopg==3.2.9
+psycopg==3.2.6
     # via -r requirements/base.in
 psycopg-pool==3.2.6
     # via psycopg
