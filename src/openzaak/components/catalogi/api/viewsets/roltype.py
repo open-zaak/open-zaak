@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
@@ -19,6 +20,8 @@ from ..scopes import (
 )
 from ..serializers import RolTypeSerializer
 from .mixins import ZaakTypeConceptMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -89,3 +92,28 @@ class RolTypeViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "roltype_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "roltype_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        super().perform_destroy(instance)
+        logger.info(
+            "roltype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )

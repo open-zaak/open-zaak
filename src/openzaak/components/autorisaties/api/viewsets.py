@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models import Prefetch, Q
 
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -28,6 +29,8 @@ from .serializers import ApplicatieSerializer
 IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
 HAS_AUTORISATIES = Q(autorisaties__isnull=False)
 HAS_CATALOGUS_AUTORISATIES = Q(catalogusautorisatie__isnull=False)
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -179,6 +182,40 @@ class ApplicatieViewSet(
             return None
         return super().paginator
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "applicatie_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=instance.uuid,
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "applicatie_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=instance.uuid,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = instance.uuid
+        instance.delete()
+        logger.info(
+            "applicatie_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "applicatie_partial_updated",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
     @extend_schema(
         "applicatie_consumer",
         summary="Vraag een applicatie op, op basis van clientId",
@@ -193,10 +230,9 @@ class ApplicatieViewSet(
     )
     @action(methods=("get",), detail=False, name="applicatie_consumer")
     def consumer(self, request, *args, **kwargs):
-        """
-        Vraag een applicatie op, op basis van clientId
-
-        Gegeven een `clientId`, via de query string, zoek de bijbehorende applicatie
-        op. Het antwoord bevat de applicatie met ingesloten autorisaties.
-        """
-        return self.retrieve(request, *args, **kwargs)
+        response = self.retrieve(request, *args, **kwargs)
+        logger.info(
+            "applicatie_consumer",
+            client_id=request.jwt_auth.client_id,
+        )
+        return response
