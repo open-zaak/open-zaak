@@ -8,6 +8,7 @@ from django.db import transaction
 from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
 from drf_spectacular.types import OpenApiTypes
@@ -105,6 +106,8 @@ from .serializers import (
 )
 from .utils import generate_document_identificatie
 from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
+
+logger = structlog.stdlib.get_logger(__name__)
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = OpenApiParameter(
@@ -451,6 +454,71 @@ class EnkelvoudigInformatieObjectViewSet(
 
     _zoek.is_search_action = True
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "eio_create_completed",
+            user=str(request.user),
+            response_data=response.data,
+            path=request.get_full_path(),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "eio_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "eio_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            response_data=response.data,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "eio_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            response_data=response.data,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "eio_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "eio_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
 
 @extend_schema_view(
     create=extend_schema(
@@ -718,6 +786,65 @@ class GebruiksrechtenViewSet(
             return GebruiksrechtenDetailFilter
         return GebruiksrechtenFilter
 
+    def list(self, request, *args, **kwargs):
+        logger.info(
+            "gebruiksrechten_list_requested",
+            user=str(request.user),
+            query_params=request.query_params.dict(),
+        )
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_list_completed",
+            user=str(request.user),
+            count=len(response.data) if isinstance(response.data, list) else None,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid", None),
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "gebruiksrechten_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -750,6 +877,28 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
 
     main_resource_lookup_field = "enkelvoudiginformatieobject_uuid"
     permission_classes = (AuthRequired,)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "audit_trail_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "audit_trail_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("pk") or kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
 
 
 @extend_schema_view(
@@ -841,6 +990,13 @@ class ObjectInformatieObjectViewSet(
                 ) from exc
 
             super().perform_create(serializer)
+            logger.info(
+                "objectinformatieobject_create_completed",
+                user=str(self.request.user),
+                informatieobject=str(informatieobject),
+                object=str(object),
+                object_type=str(object_type),
+            )
             return
         # object was already created by BIO/ZIO creation,
         # so just set the instance
@@ -878,6 +1034,12 @@ class ObjectInformatieObjectViewSet(
 
         if isinstance(instance.object, (ProxyMixin, str)):
             super().perform_destroy(instance)
+            logger.info(
+                "objectinformatieobject_destroy_completed",
+                user=str(self.request.user),
+                uuid=str(instance.uuid),
+                object=str(instance.object),
+            )
 
 
 @extend_schema_view(update=extend_schema(summary="Upload een bestandsdeel"))
@@ -891,6 +1053,17 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     required_scopes = {
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "bestandsdeel_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
 
 @extend_schema_view(
@@ -960,32 +1133,79 @@ class VerzendingViewSet(
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "verzending_create_completed",
+            user=str(request.user),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def list(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().list(request, *args, **kwargs)
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "verzending_list_completed",
+            user=str(request.user),
+            query_params=request.query_params.dict(),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            status_code=response.status_code,
+        )
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().retrieve(request, *args, **kwargs)
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "verzending_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            status_code=response.status_code,
+        )
+        return response
 
     def update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().update(request, *args, **kwargs)
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "verzending_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def partial_update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().partial_update(request, *args, **kwargs)
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "verzending_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def destroy(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().destroy(request, *args, **kwargs)
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "verzending_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            status_code=response.status_code,
+        )
+        return response
 
 
 class ReservedDocumentViewSet(viewsets.ViewSet):
@@ -1042,13 +1262,20 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
                 bronorganisatie=bronorganisatie,
             )
             output_serializer = self.serializer_class(instance)
-            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            instances = [
+                ReservedDocument(identificatie=ident, bronorganisatie=bronorganisatie)
+                for ident in identificaties
+            ]
+            ReservedDocument.objects.bulk_create(instances)
+            output_serializer = self.serializer_class(instances, many=True)
 
-        instances = [
-            ReservedDocument(identificatie=ident, bronorganisatie=bronorganisatie)
-            for ident in identificaties
-        ]
-        ReservedDocument.objects.bulk_create(instances)
+        logger.info(
+            "reserved_document_created",
+            user=str(request.user),
+            bronorganisatie=bronorganisatie,
+            aantal=aantal,
+            identificaties=identificaties,
+        )
 
-        output_serializer = self.serializer_class(instances, many=True)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)

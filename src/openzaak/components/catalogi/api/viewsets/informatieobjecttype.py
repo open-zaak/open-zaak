@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import structlog
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
@@ -33,6 +34,8 @@ from ..serializers import (
     InformatieObjectTypeSerializer,
 )
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -131,6 +134,68 @@ class InformatieObjectTypeViewSet(
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
     @extend_schema(
         "informatieobjecttype_publish",
         summary="Publiceer het concept INFORMATIEOBJECTTYPE.",
@@ -148,5 +213,12 @@ class InformatieObjectTypeViewSet(
         },
     )
     @action(detail=True, methods=["post"], name="informatieobjecttype_publish")
-    def publish(self, *args, **kwargs):
-        return super()._publish(*args, **kwargs)
+    def publish(self, request, *args, **kwargs):
+        response = super()._publish(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_publish_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response

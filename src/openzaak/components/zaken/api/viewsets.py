@@ -592,6 +592,32 @@ class StatusViewSet(
                 raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)
+        status_obj = serializer.instance
+        logger.info(
+            "status_created",
+            uuid=str(status_obj.uuid),
+            zaak_uuid=str(status_obj.zaak.uuid) if status_obj.zaak else None,
+            statustype=str(status_obj.statustype)
+            if hasattr(status_obj, "statustype")
+            else None,
+            gezetdoor=str(status_obj.gezetdoor) if status_obj.gezetdoor else None,
+        )
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info("status_listed", user=str(request.user), count=len(response.data))
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "status_retrieved",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
 
 
 @extend_schema_view(
@@ -682,6 +708,72 @@ class ZaakObjectViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "zaakobject_listed",
+            user=str(request.user),
+            count=len(response.data),
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakobject_retrieved",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "zaakobject_created",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            object_url=str(getattr(instance, "object", None)),
+            object_type=str(instance.object_type),
+            user=str(self.request.user),
+        )
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakobject_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakobject_partially_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "zaakobject_deleted",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response
 
 
 @extend_schema_view(
@@ -796,6 +888,72 @@ class ZaakInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "zaakinformatieobject_listed",
+            user=str(request.user),
+            count=len(response.data),
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakinformatieobject_retrieved",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            informatieobject_url=getattr(instance, "_objectinformatieobject_url", None),
+            user=str(request.user),
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "zaakinformatieobject_created",
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+            user=str(request.user),
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakinformatieobject_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "zaakinformatieobject_partially_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "zaakinformatieobject_deleted",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            informatieobject_url=getattr(instance, "_objectinformatieobject_url", None),
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response
+
     def perform_destroy(self, instance):
         with transaction.atomic():
             super().perform_destroy(instance)
@@ -906,6 +1064,16 @@ class ZaakEigenschapViewSet(
             request, *args, **kwargs
         )
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "zaakeigenschap_created",
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+            user=str(request.user),
+        )
+        return response
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -971,6 +1139,18 @@ class KlantContactViewSet(
         "Maak gebruik van de vervangende contactmomenten API."
     )
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+
+        logger.info(
+            "klantcontact_created",
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+            user=str(request.user),
+        )
+
+        return response
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -1030,6 +1210,7 @@ class RolViewSet(
     filterset_class = RolFilter
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
+    http_method_names = ["get", "post", "put", "delete", "head", "options"]
 
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "zaak"
@@ -1042,6 +1223,41 @@ class RolViewSet(
     }
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "rol_created",
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+            betrokkene_type=response.data.get("betrokkene_type"),
+            betrokkene_identificatie=response.data.get("betrokkene_identificatie"),
+            user=str(request.user),
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "rol_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "rol_deleted",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response
 
 
 @extend_schema_view(
@@ -1117,6 +1333,42 @@ class ResultaatViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "resultaat_created",
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+            resultaattype=response.data.get("resultaattype"),
+            user=str(request.user),
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        logger.info(
+            "resultaat_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            resultaattype=str(instance.resultaattype),
+            user=str(request.user),
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "resultaat_deleted",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
+            resultaattype=str(instance.resultaattype),
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response
+
 
 @extend_schema(parameters=[ZAAK_UUID_PARAMETER])
 @extend_schema_view(
@@ -1136,6 +1388,31 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
 
     main_resource_lookup_field = "zaak_uuid"
     permission_classes = (AuthRequired,)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "audittrail_list",
+            view="ZaakAuditTrailViewSet",
+            zaak_uuid=self.kwargs.get("zaak_uuid"),
+            user=str(request.user),
+            method=request.method,
+            count=len(response.data),
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "audittrail_retrieve",
+            view="ZaakAuditTrailViewSet",
+            zaak_uuid=self.kwargs.get("zaak_uuid"),
+            audittrail_uuid=kwargs.get("uuid"),
+            user=str(request.user),
+            method=request.method,
+            status_code=response.status_code,
+        )
+        return response
 
 
 @extend_schema(parameters=[ZAAK_UUID_PARAMETER])
@@ -1227,6 +1504,12 @@ class ZaakBesluitViewSet(
         # external besluit
         if isinstance(besluit, ProxyMixin):
             super().perform_create(serializer)
+            logger.info(
+                "zaakbesluit_created_external",
+                besluit_uuid=str(besluit.uuid),
+                zaak_uuid=str(self._get_zaak().uuid),
+                user=str(self.request.user),
+            )
             return
 
         # for local besluit nothing extra happens here, since the creation is entirely managed via
@@ -1234,10 +1517,14 @@ class ZaakBesluitViewSet(
         # serializer.
         try:
             serializer.instance = self.get_queryset().get(
-                **{
-                    "besluit": serializer.validated_data["besluit"],
-                    "zaak": self._get_zaak(),
-                }
+                besluit=besluit,
+                zaak=self._get_zaak(),
+            )
+            logger.info(
+                "zaakbesluit_relation_exists",
+                besluit_uuid=str(besluit.uuid),
+                zaak_uuid=str(self._get_zaak().uuid),
+                user=str(self.request.user),
             )
         except ZaakBesluit.DoesNotExist:
             raise ValidationError(
@@ -1269,8 +1556,15 @@ class ZaakBesluitViewSet(
         """
         # external besluit
         if isinstance(instance.besluit, ProxyMixin):
-            super().perform_destroy(instance)
-            return
+            response = super().perform_destroy(instance)
+            logger.info(
+                "zaakbesluit_deleted_external",
+                besluit_uuid=str(instance.besluit.uuid),
+                zaak_uuid=str(instance.zaak.uuid),
+                user=str(self.request.user),
+                view=self.__class__.__name__,
+            )
+            return response
 
         # for local besluit the actual relation information must be updated in the Besluiten API,
         # so this is just a check.
@@ -1284,8 +1578,16 @@ class ZaakBesluitViewSet(
                 },
                 code="inconsistent-relation",
             )
-        super().perform_destroy(instance)
-        return
+
+        response = super().perform_destroy(instance)
+        logger.info(
+            "zaakbesluit_relation_deleted",
+            besluit_uuid=str(instance.besluit.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            user=str(self.request.user),
+            view=self.__class__.__name__,
+        )
+        return response
 
     def initialize_request(self, request, *args, **kwargs):
         # workaround for drf-nested-viewset injecting the URL kwarg into request.data
@@ -1356,16 +1658,42 @@ class ZaakContactMomentViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
-    def perform_destroy(self, instance):
-        with transaction.atomic():
-            super().perform_destroy(instance)
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "zaakcontactmoment_listed",
+            status_code=response.status_code,
+            user=str(request.user),
+            count=len(response.data),
+        )
+        return response
 
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "zaakcontactmoment_retrieved",
+            status_code=response.status_code,
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "zaakcontactmoment_created",
+            status_code=response.status_code,
+            user=str(request.user),
+            uuid=response.data.get("uuid"),
+            zaak_uuid=response.data.get("zaak"),
+        )
+        return response
+
+    def perform_destroy(self, instance):
         if instance._objectcontactmoment:
             try:
                 delete_remote_objectcontactmoment(instance._objectcontactmoment)
             except Exception as exception:
-                # bring back the instance
-                instance.save()
                 raise ValidationError(
                     {
                         "contactmoment": _(
@@ -1374,6 +1702,17 @@ class ZaakContactMomentViewSet(
                     },
                     code="pending-relations",
                 )
+        with transaction.atomic():
+            super().perform_destroy(instance)
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "zaakcontactmoment_deleted",
+            status_code=response.status_code,
+            user=str(request.user),
+        )
+        return response
 
 
 @extend_schema_view(
@@ -1434,6 +1773,46 @@ class ZaakVerzoekViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "zaakverzoek_list",
+            status_code=response.status_code,
+            user=str(request.user),
+            path=request.get_full_path(),
+            method=request.method,
+            view=self.__class__.__name__,
+            count=len(response.data),
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "zaakverzoek_retrieve",
+            status_code=response.status_code,
+            user=str(request.user),
+            path=request.get_full_path(),
+            method=request.method,
+            view=self.__class__.__name__,
+            uuid=kwargs.get("uuid"),
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "zaakverzoek_create",
+            status_code=response.status_code,
+            user=str(request.user),
+            path=request.get_full_path(),
+            method=request.method,
+            view=self.__class__.__name__,
+            data=request.data,
+            uuid=response.data.get("uuid") if response.data else None,
+        )
+        return response
+
     def perform_destroy(self, instance):
         with transaction.atomic():
             super().perform_destroy(instance)
@@ -1442,8 +1821,7 @@ class ZaakVerzoekViewSet(
             try:
                 delete_remote_objectverzoek(instance._objectverzoek)
             except Exception as exception:
-                # bring back the instance
-                instance.save()
+                instance.save()  # revert deletion
                 raise ValidationError(
                     {
                         "verzoek": _("Could not delete remote relation: {exc}").format(
@@ -1452,6 +1830,16 @@ class ZaakVerzoekViewSet(
                     },
                     code="pending-relations",
                 )
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "zaakverzoek_destroy",
+            status_code=response.status_code,
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response
 
 
 @extend_schema_view(
@@ -1520,5 +1908,16 @@ class ReserveerZaakNummerViewSet(viewsets.ViewSet):
             response_data = ReserveZaakIdentificatieSerializer(result, many=True).data
         else:
             response_data = ReserveZaakIdentificatieSerializer(result).data
+
+        logger.info(
+            "reserveerzaaknummer_created",
+            user=str(request.user),
+            path=request.get_full_path(),
+            method=request.method,
+            view=self.__class__.__name__,
+            input_data=request.data,
+            response_data=response_data,
+            count=len(response_data) if isinstance(response_data, list) else 1,
+        )
 
         return Response(response_data, status=status.HTTP_201_CREATED)
