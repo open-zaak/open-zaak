@@ -8,6 +8,7 @@ from django.db import transaction
 from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from django_sendfile import sendfile
 from drf_spectacular.types import OpenApiTypes
@@ -105,6 +106,8 @@ from .serializers import (
 )
 from .utils import generate_document_identificatie
 from .validators import CreateRemoteRelationValidator, RemoteRelationValidator
+
+logger = structlog.stdlib.get_logger(__name__)
 
 # Openapi query parameters for version querying
 VERSIE_QUERY_PARAM = OpenApiParameter(
@@ -451,6 +454,23 @@ class EnkelvoudigInformatieObjectViewSet(
 
     _zoek.is_search_action = True
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "enkelvoudiginformatieobject_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "enkelvoudiginformatieobject_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
 
 @extend_schema_view(
     create=extend_schema(
@@ -718,6 +738,32 @@ class GebruiksrechtenViewSet(
             return GebruiksrechtenDetailFilter
         return GebruiksrechtenFilter
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "gebruiksrechten_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "gebruiksrechten_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = instance.uuid
+        instance.delete()
+        logger.info(
+            "gebruiksrechten_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -841,6 +887,13 @@ class ObjectInformatieObjectViewSet(
                 ) from exc
 
             super().perform_create(serializer)
+            logger.info(
+                "objectinformatieobject_created",
+                client_id=self.request.jwt_auth.client_id,
+                informatieobject=str(informatieobject),
+                object=str(object),
+                object_type=str(object_type),
+            )
             return
         # object was already created by BIO/ZIO creation,
         # so just set the instance
@@ -878,6 +931,12 @@ class ObjectInformatieObjectViewSet(
 
         if isinstance(instance.object, (ProxyMixin, str)):
             super().perform_destroy(instance)
+            logger.info(
+                "objectinformatieobject_deleted",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=str(instance.uuid),
+                object=str(instance.object),
+            )
 
 
 @extend_schema_view(update=extend_schema(summary="Upload een bestandsdeel"))
@@ -891,6 +950,14 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     required_scopes = {
         "update": SCOPE_DOCUMENTEN_BIJWERKEN,
     }
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "bestandsdeel_uploaded",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
 
 
 @extend_schema_view(
@@ -960,7 +1027,14 @@ class VerzendingViewSet(
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "verzending_created",
+            client_id=request.jwt_auth.client_id,
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def list(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -975,17 +1049,40 @@ class VerzendingViewSet(
     def update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().update(request, *args, **kwargs)
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "verzending_updated",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def partial_update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().partial_update(request, *args, **kwargs)
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "verzending_partial_updated",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+            data=request.data,
+            status_code=response.status_code,
+        )
+        return response
 
     def destroy(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        return super().destroy(request, *args, **kwargs)
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "verzending_deleted",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+            status_code=response.status_code,
+        )
+        return response
 
 
 class ReservedDocumentViewSet(viewsets.ViewSet):
@@ -1036,19 +1133,39 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             aantal=aantal,
         )
 
+        output_data = self.create_reserved_documents(
+            bronorganisatie, identificaties, aantal
+        )
+
+        return Response(output_data, status=status.HTTP_201_CREATED)
+
+    def create_reserved_documents(self, bronorganisatie, identificaties, aantal):
         if aantal == 1:
             instance = ReservedDocument.objects.create(
                 identificatie=identificaties,
                 bronorganisatie=bronorganisatie,
             )
+            logger.info(
+                "reserved_document_created",
+                client_id=self.request.jwt_auth.client_id,
+                bronorganisatie=instance.bronorganisatie,
+                identificatie=instance.identificatie,
+                aantal=1,
+            )
             output_serializer = self.serializer_class(instance)
-            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
-
-        instances = [
-            ReservedDocument(identificatie=ident, bronorganisatie=bronorganisatie)
-            for ident in identificaties
-        ]
-        ReservedDocument.objects.bulk_create(instances)
-
-        output_serializer = self.serializer_class(instances, many=True)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+            return output_serializer.data
+        else:
+            instances = [
+                ReservedDocument(identificatie=ident, bronorganisatie=bronorganisatie)
+                for ident in identificaties
+            ]
+            ReservedDocument.objects.bulk_create(instances)
+            logger.info(
+                "reserved_document_created_bulk",
+                client_id=self.request.jwt_auth.client_id,
+                bronorganisatie=bronorganisatie,
+                aantal=aantal,
+                identificaties=[inst.identificatie for inst in instances],
+            )
+            output_serializer = self.serializer_class(instances, many=True)
+            return output_serializer.data

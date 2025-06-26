@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import DatabaseError, transaction
+
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -23,6 +26,8 @@ from ..scopes import (
 )
 from ..serializers import BesluitTypePublishSerializer, BesluitTypeSerializer
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -103,6 +108,41 @@ class BesluitTypeViewSet(
     notifications_kanaal = KANAAL_BESLUITTYPEN
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "besluittype_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(
+            "besluittype_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        try:
+            super().perform_destroy(instance)
+            logger.info(
+                "besluittype_deleted",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+            )
+        except DatabaseError as e:
+            logger.error(
+                "besluittype_delete_failed",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+                error=str(e),
+            )
+            raise
+
     @extend_schema(
         "besluittype_publish",
         summary="Publiceer het concept BESLUITTYPE.",
@@ -120,5 +160,11 @@ class BesluitTypeViewSet(
         },
     )
     @action(detail=True, methods=["post"], name="besluittype_publish")
-    def publish(self, *args, **kwargs):
-        return super()._publish(*args, **kwargs)
+    def publish(self, request, *args, **kwargs):
+        response = super()._publish(request, *args, **kwargs)
+        logger.info(
+            "besluittype_published",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+        )
+        return response
