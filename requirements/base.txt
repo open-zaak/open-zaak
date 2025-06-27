@@ -9,8 +9,6 @@ ape-pie==0.2.0
     #   commonground-api-common
     #   notifications-api-common
     #   zgw-consumers
-appdirs==1.4.4
-    # via requests-cache
 asgiref==3.8.1
     # via
     #   django
@@ -33,7 +31,7 @@ boltons==24.0.0
     # via
     #   face
     #   glom
-cattrs==1.10.0
+cattrs==23.1.2
     # via requests-cache
 cbor2==5.6.3
     # via webauthn
@@ -325,6 +323,8 @@ packaging==24.0
     # via redis
 phonenumberslite==8.13.35
     # via django-two-factor-auth
+platformdirs==4.3.8
+    # via requests-cache
 prometheus-client==0.15.0
     # via flower
 prompt-toolkit==3.0.31
@@ -401,7 +401,7 @@ requests==2.32.3
     #   requests-cache
     #   requests-mock
     #   zgw-consumers
-requests-cache==0.9.4
+requests-cache==1.2.1
     # via -r requirements/base.in
 requests-mock==1.12.1
     # via commonground-api-common
@@ -453,7 +453,7 @@ uritemplate==4.1.1
     #   drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.19
+urllib3==2.5.0
     # via
     #   elastic-apm
     #   requests

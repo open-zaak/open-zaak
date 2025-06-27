@@ -19,11 +19,6 @@ ape-pie==0.2.0
     #   commonground-api-common
     #   notifications-api-common
     #   zgw-consumers
-appdirs==1.4.4
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   requests-cache
 asgiref==3.8.1
     # via
     #   -c requirements/base.txt
@@ -65,7 +60,7 @@ boltons==24.0.0
     #   -r requirements/base.txt
     #   face
     #   glom
-cattrs==1.10.0
+cattrs==23.1.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -631,6 +626,11 @@ phonenumberslite==8.13.35
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
+platformdirs==4.3.8
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   requests-cache
 pluggy==1.5.0
     # via pytest
 prometheus-client==0.15.0
@@ -795,7 +795,7 @@ requests==2.32.3
     #   requests-mock
     #   sphinx
     #   zgw-consumers
-requests-cache==0.9.4
+requests-cache==1.2.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -931,7 +931,7 @@ url-normalize==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==1.26.19
+urllib3==2.5.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
