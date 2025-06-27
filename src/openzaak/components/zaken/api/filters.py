@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from django_filters import filters
+from django_filters import DateTimeFilter, filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
 from django_loose_fk.utils import get_resource_for_path, is_local
 from drf_spectacular.plumbing import build_choice_description_list
@@ -26,6 +26,7 @@ from ..models import (
     Resultaat,
     Rol,
     Status,
+    SubStatus,
     Zaak,
     ZaakContactMoment,
     ZaakInformatieObject,
@@ -435,6 +436,17 @@ class StatusFilter(FilterSet):
             )
 
         return queryset.none()
+
+
+class SubStatusFilter(FilterSet):
+    tijdstip__gt = DateTimeFilter(field_name="tijdstip", lookup_expr="gt")
+    tijdstip__lt = DateTimeFilter(field_name="tijdstip", lookup_expr="lt")
+    tijdstip__gte = DateTimeFilter(field_name="tijdstip", lookup_expr="gte")
+    tijdstip__lte = DateTimeFilter(field_name="tijdstip", lookup_expr="lte")
+
+    class Meta:
+        model = SubStatus
+        fields = ("zaak", "doelgroep", "status")
 
 
 class ResultaatFilter(FilterSet):
