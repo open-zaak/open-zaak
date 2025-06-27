@@ -390,7 +390,7 @@ qrcode==7.4.2
     # via django-two-factor-auth
 redis==4.1.4
     # via django-redis
-requests==2.32.3
+requests==2.32.4
     # via
     #   ape-pie
     #   commonground-api-common
