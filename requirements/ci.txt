@@ -779,7 +779,7 @@ redis==4.1.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-redis
-requests==2.32.3
+requests==2.32.4
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
