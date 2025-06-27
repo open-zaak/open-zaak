@@ -54,7 +54,7 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
-autopep8==1.5.2
+autopep8==2.3.2
     # via django-silk
 babel==2.16.0
     # via
