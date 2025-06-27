@@ -6,6 +6,7 @@ from typing import Optional
 from django.conf import settings
 from django.db import transaction
 from django.db.models import (
+    CharField,
     DateField,
     DurationField,
     ExpressionWrapper,
@@ -775,6 +776,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # are we re-opening the case?
         is_reopening = zaak.einddatum and not is_eindstatus
 
+        afleidingswijze_deelzaak = (
+            zaak.hoofdzaak
+            and zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
+            == Afleidingswijze.hoofdzaak
+        )
+
         # if the eindstatus is being set, we need to calculate some more things:
         # 1. zaak.einddatum, which may be relevant for archiving purposes
         # 2. zaak.archiefactiedatum, if not explicitly filled in
@@ -793,31 +800,37 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             zaak.einddatum = None
         _zaak_fields_changed.append("einddatum")
 
-        if is_eindstatus:
-            # in case of eindstatus - retrieve archive parameters from resultaattype
+        if not afleidingswijze_deelzaak:
+            if is_eindstatus:
+                # in case of eindstatus - retrieve archive parameters from resultaattype
 
-            # Archiving: Use default archiefnominatie
-            if not zaak.archiefnominatie:
-                zaak.archiefnominatie = brondatum_calculator.get_archiefnominatie()
-                _zaak_fields_changed.append("archiefnominatie")
+                # Archiving: Use default archiefnominatie
+                if not zaak.archiefnominatie:
+                    zaak.archiefnominatie = brondatum_calculator.get_archiefnominatie()
+                    _zaak_fields_changed.append("archiefnominatie")
 
-            # Archiving: Calculate archiefactiedatum
-            if not zaak.archiefactiedatum:
-                zaak.archiefactiedatum = brondatum_calculator.calculate()
+                # Archiving: Calculate archiefactiedatum
+                if not zaak.archiefactiedatum:
+                    zaak.archiefactiedatum = brondatum_calculator.calculate()
 
-                if zaak.archiefactiedatum is not None:
-                    _zaak_fields_changed.append("archiefactiedatum")
+                    if zaak.archiefactiedatum is not None:
+                        _zaak_fields_changed.append("archiefactiedatum")
 
-            # Archiving: Calculate brondatum if it's not filled
-            if not zaak.startdatum_bewaartermijn:
-                zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
-                if zaak.startdatum_bewaartermijn is not None:
-                    _zaak_fields_changed.append("startdatum_bewaartermijn")
+                # Archiving: Calculate brondatum if it's not filled
+                if not zaak.startdatum_bewaartermijn:
+                    zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
+                    if zaak.startdatum_bewaartermijn is not None:
+                        _zaak_fields_changed.append("startdatum_bewaartermijn")
 
-        elif is_reopening:
-            zaak.archiefnominatie = None
-            zaak.archiefactiedatum = None
-            _zaak_fields_changed += ["archiefnominatie", "archiefactiedatum"]
+            elif is_reopening:
+                zaak.archiefnominatie = None
+                zaak.archiefactiedatum = None
+                zaak.startdatum_bewaartermijn = None
+                _zaak_fields_changed += [
+                    "archiefnominatie",
+                    "archiefactiedatum",
+                    "startdatum_bewaartermijn",
+                ]
 
         with transaction.atomic():
             obj = super().create(validated_data)
@@ -825,8 +838,10 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             # Save updated information on the ZAAK
             zaak.save(update_fields=_zaak_fields_changed)
 
-            if is_eindstatus and zaak.deelzaken.exists():
-                self.update_deelzaken(zaak.deelzaken, brondatum_calculator.brondatum)
+            # Update deelzaken only if hoofdzaak changed to or from it's eind status.
+            if (is_eindstatus or is_reopening) and zaak.deelzaken.exists():
+                brondatum = brondatum_calculator.brondatum if is_eindstatus else None
+                self.update_deelzaken(zaak.deelzaken, brondatum)
 
         return obj
 
@@ -845,20 +860,25 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             brondatum,
         )
 
-    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date):
-        resultaattype_archiefactietermijn = (
-            Resultaat.objects.filter(zaak_id=OuterRef("pk"))
-            .annotate(
-                archief_termijn_duration=Cast(
-                    "_resultaattype__archiefactietermijn", DurationField()
-                )
+    def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date | None):
+        resultaat_qs = Resultaat.objects.filter(zaak_id=OuterRef("pk"))
+
+        resultaattype_archiefactietermijn = resultaat_qs.annotate(
+            archief_termijn_duration=Cast(
+                "_resultaattype__archiefactietermijn", DurationField()
             )
-            .values("archief_termijn_duration")[:1]
-        )
+        ).values("archief_termijn_duration")[:1]
+
+        resultaattype_archiefnominatie = resultaat_qs.values(
+            "_resultaattype__archiefnominatie"
+        )[:1]
 
         qs = qs.annotate(
             termijn=Subquery(
                 resultaattype_archiefactietermijn, output_field=DurationField()
+            ),
+            resultaattype_archiefnominatie=Subquery(
+                resultaattype_archiefnominatie, output_field=CharField()
             ),
             computed_archiefactiedatum=ExpressionWrapper(
                 Value(brondatum, DateField()) + F("termijn"),
@@ -869,11 +889,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         qs.filter(
             resultaat___resultaattype__brondatum_archiefprocedure_afleidingswijze=Afleidingswijze.hoofdzaak
         ).update(
-            archiefactiedatum=F("computed_archiefactiedatum"),
+            archiefnominatie=F("resultaattype_archiefnominatie") if brondatum else None,
+            archiefactiedatum=F("computed_archiefactiedatum") if brondatum else None,
             startdatum_bewaartermijn=brondatum,
         )
 
-    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date):
+    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date | None):
         for deelzaak in qs.iterator():
             resultaattype = deelzaak.resultaat.resultaattype
 
@@ -883,10 +904,19 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ):
                 deelzaak.archiefactiedatum = (
                     brondatum + resultaattype.archiefactietermijn
+                    if brondatum
+                    else brondatum
                 )
                 deelzaak.startdatum_bewaartermijn = brondatum
+                deelzaak.archiefnominatie = (
+                    resultaattype.archiefnominatie if brondatum else None
+                )
                 deelzaak.save(
-                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
+                    update_fields=[
+                        "archiefnominatie",
+                        "archiefactiedatum",
+                        "startdatum_bewaartermijn",
+                    ]
                 )
 
 
