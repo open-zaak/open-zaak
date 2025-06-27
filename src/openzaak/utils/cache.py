@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
 from contextlib import contextmanager
-from typing import Iterable, Union
+from typing import Iterable
 
 from django.core.cache import caches
 
 import requests_cache
 from requests_cache import BaseCache, clear, install_cache, uninstall_cache
-from requests_cache.backends.base import KEY_FN
-from requests_cache.cache_keys import create_key
+from requests_cache.policy import CacheSettings
 from requests_cache.session import CachedSession
 
 
@@ -68,21 +67,13 @@ class DjangoRequestsCache(requests_cache.BaseCache):
     Custom cache backend for requests-cache that uses the Django cache framework
     """
 
-    def __init__(
-        self,
-        cache_name: str,
-        match_headers: Union[Iterable[str], bool] = False,
-        ignored_parameters: Iterable[str] = None,
-        key_fn: KEY_FN = None,
-        **kwargs,
-    ):
+    def __init__(self, cache_name: str, **kwargs):
+        self.cache_name = cache_name
         self.responses = DjangoCacheStorage(cache_name=cache_name)
         self.redirects = DjangoCacheStorage(cache_name=cache_name)
-        self.cache_name = cache_name
-
-        self.ignored_parameters = ignored_parameters
-        self.key_fn = key_fn or create_key
-        self.match_headers = match_headers or kwargs.pop("include_get_headers", False)
+        self._settings = (
+            CacheSettings()
+        )  # Init and public access is done in CachedSession
 
     def update(self, other: BaseCache):
         """Update this cache with the contents of another cache"""
@@ -110,7 +101,7 @@ def requests_cache_enabled(*args, **kwargs):
     original_client = vng_api_common.client.Client
 
     cache_name = "import_requests"
-    backend = DjangoRequestsCache
+    backend = DjangoRequestsCache(cache_name)
 
     class CustomCachedSession(CachedSession):
         def __init__(self, *args, **kwargs):
@@ -119,7 +110,7 @@ def requests_cache_enabled(*args, **kwargs):
             # sqlite to be used by default, so we explicitly set the __init__ here
             super().__init__(
                 cache_name=cache_name,
-                backend=DjangoRequestsCache,
+                backend=backend,
                 *args,
                 **kwargs,
             )
