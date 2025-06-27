@@ -3,6 +3,7 @@
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -46,6 +47,8 @@ from .scopes import (
     SCOPE_BESLUITEN_BIJWERKEN,
 )
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -139,14 +142,90 @@ class BesluitViewSet(
     notifications_kanaal = KANAAL_BESLUITEN
     audit = AUDIT_BRC
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "besluit_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "besluit_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "besluit_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "besluit_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "besluit_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
     @transaction.atomic
     def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+        uuid = str(instance.uuid)
+        try:
+            super().perform_destroy(instance)
+            logger.info(
+                "besluit_destroy_completed",
+                user=str(self.request.user),
+                uuid=uuid,
+                view=self.__class__.__name__,
+            )
+        except Exception as e:
+            logger.error(
+                "besluit_destroy_failed",
+                user=str(self.request.user),
+                uuid=uuid,
+                error=str(e),
+                view=self.__class__.__name__,
+            )
+            raise
 
         if isinstance(instance.zaak, ProxyMixin) and instance._zaakbesluit_url:
             try:
                 delete_remote_zaakbesluit(instance._zaakbesluit_url)
             except Exception as exception:
+                logger.error(
+                    "delete_remote_zaakbesluit_failed",
+                    user=str(self.request.user),
+                    uuid=uuid,
+                    error=str(exception),
+                    zaakbesluit_url=instance._zaakbesluit_url,
+                )
                 raise ValidationError(
                     {
                         "zaak": _(
@@ -236,9 +315,58 @@ class BesluitInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "besluitinformatieobject_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "besluitinformatieobject_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "besluitinformatieobject_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
     def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
         with transaction.atomic():
-            super().perform_destroy(instance)
+            try:
+                super().perform_destroy(instance)
+                logger.info(
+                    "besluitinformatieobject_destroy_completed",
+                    user=str(self.request.user),
+                    uuid=uuid,
+                    view=self.__class__.__name__,
+                )
+            except Exception as e:
+                logger.error(
+                    "besluitinformatieobject_destroy_failed",
+                    user=str(self.request.user),
+                    uuid=uuid,
+                    error=str(e),
+                    view=self.__class__.__name__,
+                )
+                raise
 
         if (
             isinstance(instance.informatieobject, ProxyMixin)
@@ -247,7 +375,13 @@ class BesluitInformatieObjectViewSet(
             try:
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception as exception:
-                # bring back the instance
+                logger.error(
+                    "delete_remote_oio_failed",
+                    user=str(self.request.user),
+                    uuid=uuid,
+                    error=str(exception),
+                    objectinformatieobject_url=instance._objectinformatieobject_url,
+                )
                 instance.save()
                 raise ValidationError(
                     {
@@ -280,3 +414,25 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
 
     main_resource_lookup_field = "besluit_uuid"
     permission_classes = (AuthRequired,)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "besluit_audittrail_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "besluit_audittrail_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response

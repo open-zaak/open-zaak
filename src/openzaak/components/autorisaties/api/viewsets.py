@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models import Prefetch, Q
 
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -28,6 +29,8 @@ from .serializers import ApplicatieSerializer
 IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
 HAS_AUTORISATIES = Q(autorisaties__isnull=False)
 HAS_CATALOGUS_AUTORISATIES = Q(catalogusautorisatie__isnull=False)
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -179,6 +182,68 @@ class ApplicatieViewSet(
             return None
         return super().paginator
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "applicatie_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "applicatie_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "applicatie_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid", None),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "applicatie_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "applicatie_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "applicatie_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
     @extend_schema(
         "applicatie_consumer",
         summary="Vraag een applicatie op, op basis van clientId",
@@ -193,10 +258,10 @@ class ApplicatieViewSet(
     )
     @action(methods=("get",), detail=False, name="applicatie_consumer")
     def consumer(self, request, *args, **kwargs):
-        """
-        Vraag een applicatie op, op basis van clientId
-
-        Gegeven een `clientId`, via de query string, zoek de bijbehorende applicatie
-        op. Het antwoord bevat de applicatie met ingesloten autorisaties.
-        """
-        return self.retrieve(request, *args, **kwargs)
+        response = self.retrieve(request, *args, **kwargs)
+        logger.info(
+            "applicatie_consumer_completed",
+            user=str(request.user),
+            view=self.__class__.__name__,
+        )
+        return response

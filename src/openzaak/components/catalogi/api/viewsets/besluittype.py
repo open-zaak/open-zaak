@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -23,6 +24,8 @@ from ..scopes import (
 )
 from ..serializers import BesluitTypePublishSerializer, BesluitTypeSerializer
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -103,6 +106,68 @@ class BesluitTypeViewSet(
     notifications_kanaal = KANAAL_BESLUITTYPEN
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        logger.info(
+            "besluittype_list_completed",
+            user=str(request.user),
+            result_count=len(response.data)
+            if isinstance(response.data, list)
+            else None,
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        logger.info(
+            "besluittype_retrieve_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        logger.info(
+            "besluittype_create_completed",
+            user=str(request.user),
+            created_id=response.data.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        logger.info(
+            "besluittype_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        logger.info(
+            "besluittype_partial_update_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super().destroy(request, *args, **kwargs)
+        logger.info(
+            "besluittype_destroy_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
+
     @extend_schema(
         "besluittype_publish",
         summary="Publiceer het concept BESLUITTYPE.",
@@ -120,5 +185,12 @@ class BesluitTypeViewSet(
         },
     )
     @action(detail=True, methods=["post"], name="besluittype_publish")
-    def publish(self, *args, **kwargs):
-        return super()._publish(*args, **kwargs)
+    def publish(self, request, *args, **kwargs):
+        response = super()._publish(request, *args, **kwargs)
+        logger.info(
+            "besluittype_publish_completed",
+            user=str(request.user),
+            uuid=kwargs.get("uuid"),
+            view=self.__class__.__name__,
+        )
+        return response
