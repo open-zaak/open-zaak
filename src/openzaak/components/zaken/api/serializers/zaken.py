@@ -776,7 +776,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # are we re-opening the case?
         is_reopening = zaak.einddatum and not is_eindstatus
 
-        is_deelzaak = (
+        afleidingswijze_deelzaak = (
             zaak.hoofdzaak
             and zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
             == Afleidingswijze.hoofdzaak
@@ -800,7 +800,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             zaak.einddatum = None
         _zaak_fields_changed.append("einddatum")
 
-        if not is_deelzaak:
+        if not afleidingswijze_deelzaak:
             if is_eindstatus:
                 # in case of eindstatus - retrieve archive parameters from resultaattype
 
