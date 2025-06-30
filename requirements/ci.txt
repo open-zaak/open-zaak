@@ -945,7 +945,7 @@ uwsgi==2.0.26
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-vcrpy==6.0.2
+vcrpy==7.0.0
     # via -r requirements/test-tools.in
 vine==5.1.0
     # via

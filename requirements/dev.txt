@@ -1173,7 +1173,7 @@ uwsgi==2.0.26
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-vcrpy==6.0.2
+vcrpy==7.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
