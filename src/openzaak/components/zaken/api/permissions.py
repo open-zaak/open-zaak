@@ -21,9 +21,6 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
         if bypass_permissions(request):
             return True
 
-        # JWTs are only valid for a short amount of time
-        self.check_jwt_expiry(request.jwt_auth.payload)
-
         scopes_required = get_required_scopes(request, view)
         component = self.get_component(view)
 

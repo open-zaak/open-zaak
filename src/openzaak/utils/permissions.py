@@ -1,10 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-import time
-from typing import Any, Dict
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.core.exceptions import (
     ImproperlyConfigured,
     ValidationError as DjangoValidationError,
@@ -15,7 +12,6 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from rest_framework import exceptions, permissions
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
@@ -61,39 +57,6 @@ class AuthRequired(permissions.BasePermission):
     def get_main_object(self, obj, permission_main_object):
         return getattr(obj, permission_main_object)
 
-    def check_jwt_expiry(self, payload: Dict[str, Any]) -> None:
-        """
-        Verify that the token was issued recently enough.
-
-        The Django settings define how long a JWT is considered to be valid. Adding
-        that duration to the issued-at claim determines the upper limit for token
-        validity.
-        """
-        if not payload:
-            return
-
-        iat = payload.get("iat")
-        if iat is None:
-            raise PermissionDenied(
-                _("The JWT is mising the 'iat' claim."), code="jwt-missing-iat-claim"
-            )
-
-        current_timestamp = time.time()
-        difference = current_timestamp - iat
-        # check for "negative" clock drift
-        if difference < 0 and difference < -settings.TIME_LEEWAY:
-            logger.warning(
-                "jwt_not_valid_yet",
-                payload=payload,
-                time_difference=difference,
-                time_leeway=settings.TIME_LEEWAY,
-            )
-
-        if difference >= (settings.JWT_EXPIRY + settings.TIME_LEEWAY):
-            raise PermissionDenied(
-                _("The JWT used for this request is expired"), code="jwt-expired"
-            )
-
     @convert_cmis_adapter_exceptions
     def has_permission(self, request: Request, view) -> bool:
         # permission checks run before the handler is determined. if there is no handler,
@@ -102,9 +65,6 @@ class AuthRequired(permissions.BasePermission):
         has_handler = hasattr(view, request.method.lower())
         if not has_handler:
             view.http_method_not_allowed(request)
-
-        # JWTs are only valid for a short amount of time
-        self.check_jwt_expiry(request.jwt_auth.payload)
 
         from rest_framework.viewsets import ViewSetMixin
 
