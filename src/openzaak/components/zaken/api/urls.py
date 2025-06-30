@@ -13,6 +13,7 @@ from .viewsets import (
     ResultaatViewSet,
     RolViewSet,
     StatusViewSet,
+    SubStatusViewSet,
     ZaakAuditTrailViewSet,
     ZaakBesluitViewSet,
     ZaakContactMomentViewSet,
@@ -34,6 +35,7 @@ router.register(
     ],
 )
 router.register("statussen", StatusViewSet)
+router.register("substatussen", SubStatusViewSet)
 router.register("zaakobjecten", ZaakObjectViewSet)
 router.register("klantcontacten", KlantContactViewSet)
 router.register("rollen", RolViewSet)

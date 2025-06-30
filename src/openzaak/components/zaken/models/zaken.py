@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -44,7 +45,12 @@ from openzaak.utils.fields import (
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
-from ..constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+from ..constants import (
+    AardZaakRelatie,
+    BetalingsIndicatie,
+    Doelgroep,
+    IndicatieMachtiging,
+)
 from ..query import (
     StatusQuerySet,
     ZaakBesluitQuerySet,
@@ -60,6 +66,7 @@ __all__ = [
     "Zaak",
     "RelevanteZaakRelatie",
     "Status",
+    "SubStatus",
     "Resultaat",
     "Rol",
     "ZaakObject",
@@ -707,6 +714,61 @@ class Status(ETagMixin, APIMixin, models.Model):
             return self.max_datum_status_gezet == self.datum_status_gezet
 
         return self.zaak.current_status_uuid == self.uuid
+
+
+class SubStatus(models.Model):
+    """
+    Modelleer een SUBSTATUS bij een STATUS van een ZAAK.
+    Een SUBSTATUS is een informatieve status die op gedetaileerder niveau weergeeft
+    wat de voortgang is van een ZAAK
+    """
+
+    uuid = models.UUIDField(
+        unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
+    )
+    # relaties
+    zaak = models.ForeignKey(
+        Zaak,
+        on_delete=models.CASCADE,
+        help_text=("URL-referentie naar de ZAAK."),
+    )
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.CASCADE,
+        help_text=("URL-referentie naar de hoofdSTATUS."),
+    )
+
+    # extra informatie
+    tijdstip = models.DateTimeField(
+        help_text="Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.",
+        blank=True,
+        default=timezone.now,
+    )
+    omschrijving = models.TextField(
+        max_length=200,
+        help_text="Een, voor de initiator van de zaak relevante, toelichting "
+        "op de substatus bij een hoofdstatus van een zaak.",
+    )
+    doelgroep = models.CharField(
+        max_length=100,
+        blank=True,
+        choices=Doelgroep.choices,
+        default=Doelgroep.betrokkenen,
+        help_text="Indicatie van van de zichtbaarheid van een substatus.",
+        db_index=True,
+    )
+
+    objects = ZaakRelatedQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = "substatus"
+        verbose_name_plural = "substatussen"
+
+    def __str__(self):
+        return "SubStatus op {} - {}...".format(self.tijdstip, self.omschrijving[:20])
+
+    def unique_representation(self):
+        return f"({self.zaak.unique_representation()}) - substatus {self.tijdstip}"
 
 
 class Resultaat(ETagMixin, APIMixin, models.Model):

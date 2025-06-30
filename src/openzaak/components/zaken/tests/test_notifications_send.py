@@ -38,6 +38,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.tests.factories import StatusFactory
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
@@ -103,6 +104,54 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "kanaal": "zaken",
                 "hoofdObject": data["url"],
                 "resource": "zaak",
+                "resourceUrl": data["url"],
+                "actie": "create",
+                "aanmaakdatum": "2012-01-14T00:00:00Z",
+                "kenmerken": {
+                    "bronorganisatie": "517439943",
+                    "zaaktype": f"http://testserver{zaaktype_url}",
+                    "zaaktype.catalogus": f"http://testserver{catalogus_url}",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                },
+            },
+        )
+
+    def test_send_notif_create_substatus(self, mock_notif):
+        """
+        Check if notifications will be send when a Substatus is created
+        """
+        url = get_operation_url("substatus_create")
+        zaak = ZaakFactory.create(
+            bronorganisatie="517439943",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        zaak_status = StatusFactory.create(
+            zaak=zaak, statustype__zaaktype=zaak.zaaktype
+        )
+        zaak_url = reverse(zaak)
+        zaaktype_url = reverse(zaak.zaaktype)
+        catalogus_url = reverse(zaak.zaaktype.catalogus)
+        status_url = reverse(zaak_status)
+
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "status": f"http://testserver{status_url}",
+            "omschrijving": "foo",
+            "tijdstip": "2012-01-01T12:00:00",
+            "doelgroep": "intern",
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        mock_notif.assert_called_once_with(
+            {
+                "kanaal": "zaken",
+                "hoofdObject": f"http://testserver{zaak_url}",
+                "resource": "substatus",
                 "resourceUrl": data["url"],
                 "actie": "create",
                 "aanmaakdatum": "2012-01-14T00:00:00Z",

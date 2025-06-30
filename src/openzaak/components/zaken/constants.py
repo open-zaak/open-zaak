@@ -92,6 +92,11 @@ class AardZaakRelatie(models.TextChoices):
     overig = ("overig", mark_experimental(_("Overig")))
 
 
+class Doelgroep(models.TextChoices):
+    betrokkenen = "betrokkenen", "betrokkenen"
+    intern = "intern", "Intern"
+
+
 # for zaaokbject models
 class TyperingInrichtingselement(models.TextChoices):
     bak = "bak", _("Bak")

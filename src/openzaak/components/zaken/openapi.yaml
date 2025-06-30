@@ -77,6 +77,7 @@ info:
     **Resources en acties**
     - `zaak`: create, update, destroy
     - `status`: create
+    - `substatus`: create
     - `zaakobject`: create, update, destroy
     - `zaakinformatieobject`: create
     - `zaakeigenschap`: create, update, destroy
@@ -3286,6 +3287,493 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+  /substatussen:
+    get:
+      operationId: substatus_list
+      description: '**EXPERIMENTEEL** Deze lijst kan gefilterd wordt met query-string
+        parameters.'
+      summary: Alle SUBSTATUSsen van STATUSsen opvragen.
+      parameters:
+      - in: query
+        name: doelgroep
+        schema:
+          type: string
+          enum:
+          - betrokkenen
+          - intern
+        description: |+
+          Indicatie van van de zichtbaarheid van een substatus.
+
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: integer
+        description: URL-referentie naar de hoofdSTATUS.
+      - in: query
+        name: tijdstip__gt
+        schema:
+          type: string
+          format: date-time
+        description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+      - in: query
+        name: tijdstip__gte
+        schema:
+          type: string
+          format: date-time
+        description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+      - in: query
+        name: tijdstip__lt
+        schema:
+          type: string
+          format: date-time
+        description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+      - in: query
+        name: tijdstip__lte
+        schema:
+          type: string
+          format: date-time
+        description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+      - in: query
+        name: zaak
+        schema:
+          type: integer
+        description: URL-referentie naar de ZAAK.
+      tags:
+      - substatussen
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSubStatusList'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    post:
+      operationId: substatus_create
+      description: |-
+        **EXPERIMENTEEL** **Er wordt gevalideerd op**
+        - geldigheid URL naar de ZAAK
+        - geldigheid URL naar de STATUS
+        - STATUS moet horen bij de ZAAK
+      summary: Maak een SUBSTATUS aan bij een STATUS voor een ZAAK.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
+      tags:
+      - substatussen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubStatusRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (zaken.aanmaken | zaken.statussen.toevoegen)
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubStatus'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+  /substatussen/{uuid}:
+    get:
+      operationId: substatus_read
+      description: '**EXPERIMENTEEL** Een specifieke SUBSTATUS bij een STATUS van
+        een ZAAK opvragen.'
+      summary: Een specifieke SUBSTATUS bij een STATUS van een ZAAK opvragen.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - substatussen
+      security:
+      - JWT-Claims:
+        - zaken.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubStatus'
+          description: OK
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /zaakcontactmomenten:
     get:
       operationId: zaakcontactmoment_list
@@ -12178,6 +12666,11 @@ components:
       required:
       - identifier
       - identifierType
+    DoelgroepEnum:
+      enum:
+      - betrokkenen
+      - intern
+      type: string
     EHerkenningAuthContextLevelOfAssuranceEnum:
       enum:
       - urn:etoegang:core:assurance-class:loa1
@@ -14002,6 +14495,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Status'
+    PaginatedSubStatusList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubStatus'
     PaginatedZaakList:
       type: object
       required:
@@ -14909,6 +15425,86 @@ components:
       required:
       - datumStatusGezet
       - statustype
+      - zaak
+    SubStatus:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: URL-referentie naar de hoofdSTATUS.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          description: Een, voor de initiator van de zaak relevante, toelichting op
+            de substatus bij een hoofdstatus van een zaak.
+          maxLength: 200
+        tijdstip:
+          type: string
+          format: date-time
+          description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+        doelgroep:
+          description: Indicatie van van de zichtbaarheid van een substatus.
+          oneOf:
+          - $ref: '#/components/schemas/DoelgroepEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+      required:
+      - omschrijving
+      - zaak
+    SubStatusRequest:
+      type: object
+      properties:
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: URL-referentie naar de hoofdSTATUS.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          minLength: 1
+          description: Een, voor de initiator van de zaak relevante, toelichting op
+            de substatus bij een hoofdstatus van een zaak.
+          maxLength: 200
+        tijdstip:
+          type: string
+          format: date-time
+          description: Het tijdstip waarop de STATUS de SUBSTATUS heeft verkregen.
+        doelgroep:
+          description: Indicatie van van de zichtbaarheid van een substatus.
+          oneOf:
+          - $ref: '#/components/schemas/DoelgroepEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+      required:
+      - omschrijving
       - zaak
     SubVerblijfBuitenland:
       type: object
