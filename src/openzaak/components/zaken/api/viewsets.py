@@ -1601,6 +1601,15 @@ class ReserveerZaakNummerViewSet(viewsets.ViewSet):
     create=extend_schema(
         operation_id="zaak_reserveer_zaaknummer",
         deprecated=True,
+        description=mark_experimental(
+            "LET OP: dit endpoint is verouderd en zal in de toekomst verwijderd worden, "
+            "gebruik in plaats van dit endpoint `/zaaknummer_reserveren`\n\n"
+            "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
+            "Dit zaaknummer zal toegekend worden aan de eerstvolgende Zaak die met dit zaaknummer wordt aangemaakt "
+            "binnen de bronorganisatie en het zaaknummer kan daarna niet hergebruikt worden.\n\n"
+            "Als `aantal` niet wordt opgegeven of gelijk is aan 1, wordt een enkel object teruggegeven.\n"
+            "Als `aantal > 1`, wordt een lijst van objecten teruggegeven."
+        ),
     )
 )
 class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
