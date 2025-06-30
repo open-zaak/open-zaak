@@ -26,7 +26,8 @@ Endpoints
 New endpoints are added:
 
 * PUT ``/api/v1/rollen/{uuid}``
-* POST ``/api/v1/zaaknummer_reserveren``
+* POST ``/api/v1/zaaknummer_reserveren`` – reserve a zaaknummer (identificatie) in combination with a bronorganisatie.
+  The optional ``amount`` attribute can be specified to reserve identifications in bulk
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``
 
@@ -105,6 +106,7 @@ The usage of import endpoints is described :ref:`here <installation_reference_im
 New endpoints are added:
 
 * ``/api/v1/documentnummer_reserveren`` – reserve a documentnummer (identificatie) in combination with a bronorganisatie.
+  The optional ``amount`` attribute can be specified to reserve identifications in bulk
 
 Query parameters
 ----------------
