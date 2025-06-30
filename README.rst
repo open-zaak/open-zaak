@@ -7,7 +7,7 @@ Open Zaak
 
 .. _`Read this in English`: README.en.md
 
-:Version: 1.21.2
+:Version: 1.22.0-beta
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.12
@@ -114,7 +114,7 @@ Licensed under the EUPL_
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
     :target: https://github.com/astral-sh/ruff
     :alt: Ruff
-    
+
 .. |python-version| image:: https://img.shields.io/badge/python-3.12-blue.svg
     :alt: Supported Python version
 

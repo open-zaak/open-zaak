@@ -1,6 +1,78 @@
 Changelog
 =========
 
+1.22.0-beta (2025-07-04)
+------------------------
+
+.. note::
+
+  This beta release is done because the upgrade from ``psycopg2`` to ``psycopg`` seems
+  to introduce some additional latency for concurrent requests on some Zaken API endpoints
+  (particularly ``/zaakobjecten``). Once these issues are addressed, a proper ``1.22.0``
+  version will be released
+
+**New features**
+
+.. note::
+
+  The logging format has been changed from unstructured to structured with `structlog <https://www.structlog.org/en/stable/>`_.
+  For more information on the available log events and their context, see :ref:`manual_logging`.
+
+* [:open-zaak:`2045`] Add log events for create/update/delete operations for the ``/zaken`` endpoint
+* [:open-zaak:`635`] Add ``TIME_LEEWAY`` environment variable to define leeway for
+  time based validation via the API and JWT time validation (see :ref:`installation_env_config` > Optional for more information)
+
+.. warning::
+
+  ``TIME_LEEWAY`` is a replacement for the existing ``JWT_LEEWAY`` environment variable,
+  ``JWT_LEEWAY`` is now marked as deprecated and will be removed in the next major release
+
+* [:open-zaak:`1852`] Add database connection pooling environment variables (see :ref:`installation_env_config` > Database for more information)
+
+  * ``DB_POOL_ENABLED``
+  * ``DB_POOL_MIN_SIZE``
+  * ``DB_POOL_MAX_SIZE``
+  * ``DB_POOL_TIMEOUT``
+  * ``DB_POOL_MAX_WAITING``
+  * ``DB_POOL_MAX_LIFETIME``
+  * ``DB_POOL_MAX_IDLE``
+  * ``DB_POOL_RECONNECT_TIMEOUT``
+  * ``DB_POOL_NUM_WORKERS``
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`1148`] Add ``/substatussen`` endpoint for new ``Substatus`` resource
+* [:open-zaak:`2080`] Add alias ``/zaaknummer_reserveren`` for ``/reserveer_zaaknummer`` endpoint
+  and mention that ``/reserveer_zaaknummer`` will be removed in the next major release
+* [:open-zaak:`2018`] Add ``/documentnummer_reserveren`` endpoint for ``EnkelvoudigInformatieObject``
+* [:open-zaak:`2019`] Add optional ``amount`` attribute to ``documentnummer_reserveren`` to allow reserving identifications in bulk
+* [:open-zaak:`2020`] Add optional ``amount`` attribute to ``zaaknummer_reserveren`` to allow reserving identifications in bulk
+
+**Bugfixes and QoL**
+
+* [:open-api-framework:`149`] Add missing theme toggle in admin interface
+* [:open-api-framework:`149`] Fix light/dark themes for admin interface
+
+**Project maintenance**
+
+* [:open-api-framework:`139`] Integrate django-upgrade-check
+* Upgrade dependencies
+
+  * ``vcrpy`` to 7.0.0
+  * ``Django`` to 5.2.3
+  * ``requests`` to 2.32.4
+  * ``urllib3`` to 2.5.0
+  * ``requests-cache`` to 1.2.1
+  * ``open-api-framework`` to 0.11.0
+  * ``commonground-api-common`` to 2.6.7
+
+**Documentation**
+
+* Add documentation for archiving (see :ref:`archiving`):
+
+  * [:open-zaak:`2002`] Add procestermijn -> afleidingswijze table to archiving documentation
+  * [:open-zaak:`2002`] Add documentation on resultaattype selectielijstklasse & afleidingswijze validation
+
 1.21.2 (2025-07-04)
 -------------------
 
