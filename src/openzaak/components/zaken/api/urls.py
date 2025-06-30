@@ -7,6 +7,7 @@ from vng_api_common import routers
 
 from ..api.schema import custom_settings
 from .viewsets import (
+    DeprecatedReserveerZaakNummerViewSet,
     KlantContactViewSet,
     ReserveerZaakNummerViewSet,
     ResultaatViewSet,
@@ -40,7 +41,13 @@ router.register("resultaten", ResultaatViewSet)
 router.register("zaakinformatieobjecten", ZaakInformatieObjectViewSet)
 router.register("zaakcontactmomenten", ZaakContactMomentViewSet)
 router.register("zaakverzoeken", ZaakVerzoekViewSet)
-router.register("reserveer_zaaknummer", ReserveerZaakNummerViewSet)
+router.register("zaaknummer_reserveren", ReserveerZaakNummerViewSet)
+# XXX: alias for this endpoint, will be removed in 2.0
+router.register(
+    "reserveer_zaaknummer",
+    DeprecatedReserveerZaakNummerViewSet,
+    basename="zaakidentificatie_alias",
+)
 
 urlpatterns = [
     re_path(

@@ -32,7 +32,7 @@ router.register("gebruiksrechten", GebruiksrechtenViewSet)
 router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
-router.register("reserveer_documentnummer", ReservedDocumentViewSet)
+router.register("documentnummer_reserveren", ReservedDocumentViewSet)
 
 import_patterns = [
     path(
