@@ -907,6 +907,7 @@ class ZaakEigenschapViewSet(
         )
 
 
+# XXX: remove in 2.0
 @extend_schema_view(
     list=extend_schema(
         summary="Alle KLANTCONTACTen opvragen.",
@@ -1456,7 +1457,7 @@ class ZaakVerzoekViewSet(
 
 @extend_schema_view(
     create=extend_schema(
-        operation_id="zaak_reserveer_zaaknummer",
+        operation_id="zaaknummer_reserveren",
         summary="Reserveer een zaaknummer",
         description=mark_experimental(
             "Reserveer een zaaknummer binnen een specifieke bronorganisatie zonder direct een Zaak aan te maken. "
@@ -1522,3 +1523,16 @@ class ReserveerZaakNummerViewSet(viewsets.ViewSet):
             response_data = ReserveZaakIdentificatieSerializer(result).data
 
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema_view(
+    create=extend_schema(
+        operation_id="zaak_reserveer_zaaknummer",
+        deprecated=True,
+    )
+)
+class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
+    deprecation_message = (
+        "This endpoint is an alias for `/zaaknummer_reserveren` and will be removed in "
+        "the next major version. Please use `/zaaknummer_reserveren` instead."
+    )

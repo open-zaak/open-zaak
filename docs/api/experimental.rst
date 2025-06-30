@@ -26,7 +26,7 @@ Endpoints
 New endpoints are added:
 
 * PUT ``/api/v1/rollen/{uuid}``
-* POST ``/api/v1/reserveer_zaaknummer``
+* POST ``/api/v1/zaaknummer_reserveren``
 
 Attributes
 ----------
