@@ -28,11 +28,6 @@ ape-pie==0.2.0
     #   commonground-api-common
     #   notifications-api-common
     #   zgw-consumers
-appdirs==1.4.4
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   requests-cache
 asgiref==3.8.1
     # via
     #   -c requirements/ci.txt
@@ -90,7 +85,7 @@ bump-my-version==1.1.2
     # via -r requirements/dev.in
 cachetools==4.1.1
     # via google-auth
-cattrs==1.10.0
+cattrs==23.1.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -224,7 +219,7 @@ dictdiffer==0.9.0
     #   -r requirements/ci.txt
 distlib==0.3.9
     # via virtualenv
-django==5.2.1
+django==5.2.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -748,7 +743,11 @@ pip==24.3.1
 pip-tools==7.4.1
     # via -r requirements/dev.in
 platformdirs==4.3.8
-    # via virtualenv
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   requests-cache
+    #   virtualenv
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
@@ -946,7 +945,7 @@ redis==4.1.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-redis
-requests==2.32.3
+requests==2.32.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -964,7 +963,7 @@ requests==2.32.3
     #   requests-oauthlib
     #   sphinx
     #   zgw-consumers
-requests-cache==0.9.4
+requests-cache==1.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1159,7 +1158,7 @@ url-normalize==1.4.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-cache
-urllib3==1.26.19
+urllib3==2.5.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1174,7 +1173,7 @@ uwsgi==2.0.26
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-vcrpy==6.0.2
+vcrpy==7.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
