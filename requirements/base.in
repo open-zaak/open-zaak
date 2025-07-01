@@ -28,3 +28,4 @@ humanize
 drc-cmis
 
 commonground-api-common[setup-configuration, testutils]
+psycopg[c]
