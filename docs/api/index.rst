@@ -14,21 +14,22 @@ Supported API versions
 
 The following API's are available in Open Zaak:
 
-======================  ==========================================
-API                     Specification version(s)
-======================  ==========================================
-`Zaken API`_            `1.5.1 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml>`__
-`Documenten API`_       `1.4.2 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/documenten-api/1.4.2/src/openapi.yaml>`__
-`Catalogi API`_         `1.3.1 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.3.1/src/openapi.yaml>`__
-`Besluiten API`_        `1.1.0 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/brc/1.1.x/openapi.yaml>`__
-`Autorisaties API`_     `1.0.0 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/autorisaties-api/1.0.0/src/openapi.yaml>`__
-======================  ==========================================
+======================  ============================================================================================================================================================ ================================
+API                     Specification version(s)                                                                                                                                     Open Zaak API
+======================  ============================================================================================================================================================ ================================
+`Zaken API`_            `1.5.1 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml>`__                           `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/master/src/openzaak/components/zaken/openapi.yaml>`__
+`Documenten API`_       `1.4.2 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/documenten-api/1.4.2/src/openapi.yaml>`__                      `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/master/src/openzaak/components/documenten/openapi.yaml>`__
+`Catalogi API`_         `1.3.1 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/catalogi-api/1.3.1/src/openapi.yaml>`__                        `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/master/src/openzaak/components/catalogi/openapi.yaml>`__
+`Besluiten API`_        `1.1.0 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/gemma-zaken/master/api-specificatie/brc/1.1.x/openapi.yaml>`__ `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/master/src/openzaak/components/besluiten/openapi.yaml>`__
+`Autorisaties API`_     `1.0.0 <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/VNG-Realisatie/autorisaties-api/1.0.0/src/openapi.yaml>`__                    `ReDoc <https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-zaak/open-zaak/master/src/openzaak/components/autorisaties/openapi.yaml>`__
+======================  ============================================================================================================================================================ ================================
 
 .. _`Zaken API`: https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/
 .. _`Documenten API`: https://vng-realisatie.github.io/gemma-zaken/standaard/documenten/
 .. _`Catalogi API`: https://vng-realisatie.github.io/gemma-zaken/standaard/catalogi/
 .. _`Besluiten API`: https://vng-realisatie.github.io/gemma-zaken/standaard/besluiten/
 .. _`Autorisaties API`: https://vng-realisatie.github.io/gemma-zaken/standaard/autorisaties/
+.. _
 
 In addition, Open Zaak requires access to a `Notificaties API`_. Open Zaak uses
 `Open Notificaties`_ by default.
