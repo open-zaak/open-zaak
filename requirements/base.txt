@@ -335,6 +335,8 @@ psycopg-binary==3.2.9
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
+psycopg2==2.9.10
+    # via open-api-framework
 pycparser==2.21
     # via cffi
 pydantic==2.10.4

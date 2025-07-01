@@ -783,6 +783,11 @@ psycopg-pool==3.2.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+psycopg2==2.9.10
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   open-api-framework
 py-cpuinfo==9.0.0
     # via
     #   -c requirements/ci.txt

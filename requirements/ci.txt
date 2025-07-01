@@ -657,6 +657,11 @@ psycopg-pool==3.2.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+psycopg2==2.9.10
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   open-api-framework
 py-cpuinfo==9.0.0
     # via pytest-benchmark
 pycparser==2.21
