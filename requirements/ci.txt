@@ -649,6 +649,10 @@ psycopg==3.2.9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+psycopg-binary==3.2.9
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 psycopg-pool==3.2.6
     # via
     #   -c requirements/base.txt

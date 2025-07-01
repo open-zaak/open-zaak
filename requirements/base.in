@@ -30,4 +30,4 @@ drc-cmis
 
 commonground-api-common[setup-configuration, testutils, oas]
 
-psycopg[pool]
+psycopg[pool, binary]
