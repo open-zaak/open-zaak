@@ -329,12 +329,6 @@ prometheus-client==0.15.0
     # via flower
 prompt-toolkit==3.0.31
     # via click-repl
-psycopg==3.2.9
-    # via -r requirements/base.in
-psycopg-binary==3.2.9
-    # via psycopg
-psycopg-pool==3.2.6
-    # via psycopg
 psycopg2==2.9.9
     # via open-api-framework
 pycparser==2.21
@@ -437,8 +431,6 @@ typing-extensions==4.12.2
     # via
     #   faker
     #   mozilla-django-oidc-db
-    #   psycopg
-    #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl

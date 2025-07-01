@@ -645,18 +645,6 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
-psycopg==3.2.9
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-psycopg-binary==3.2.9
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-psycopg-pool==3.2.6
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
 psycopg2==2.9.9
     # via
     #   -c requirements/base.txt
@@ -910,8 +898,6 @@ typing-extensions==4.12.2
     #   -r requirements/base.txt
     #   faker
     #   mozilla-django-oidc-db
-    #   psycopg
-    #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl

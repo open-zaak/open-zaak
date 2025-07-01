@@ -771,18 +771,6 @@ propcache==0.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-psycopg==3.2.9
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-psycopg-binary==3.2.9
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-psycopg-pool==3.2.6
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 psycopg2==2.9.9
     # via
     #   -c requirements/ci.txt
@@ -1136,8 +1124,6 @@ typing-extensions==4.12.2
     #   anyio
     #   faker
     #   mozilla-django-oidc-db
-    #   psycopg
-    #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   pyopenssl

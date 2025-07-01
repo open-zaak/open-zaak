@@ -122,7 +122,7 @@ class OIDCFLowTests(WebTest):
             self.assertEqual(
                 error_page.context["oidc_error"],
                 'duplicate key value violates unique constraint "filled_email_unique"\n'
-                "DETAIL:  Key (email)=(admin@example.com) already exists.",
+                "DETAIL:  Key (email)=(admin@example.com) already exists.\n",
             )
             self.assertContains(
                 error_page, "duplicate key value violates unique constraint"
