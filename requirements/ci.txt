@@ -600,7 +600,7 @@ notifications-api-common==0.7.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework==0.10.3
+open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@07a717fe96a95247974e48b8fa0a31a564de7b81
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -649,19 +649,16 @@ psycopg==3.2.9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   open-api-framework
 psycopg-binary==3.2.9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   psycopg
 psycopg-pool==3.2.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-psycopg2==2.9.9
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   open-api-framework
 py-cpuinfo==9.0.0
     # via pytest-benchmark
 pycparser==2.21

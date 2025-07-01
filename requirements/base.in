@@ -1,4 +1,4 @@
-open-api-framework
+git+https://github.com/maykinmedia/open-api-framework.git@feature/psycopg3
 
 # Core python libraries
 jq
