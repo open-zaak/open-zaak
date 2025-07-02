@@ -52,7 +52,7 @@ from openzaak.utils.mixins import (
     ExpandMixin,
 )
 from openzaak.utils.pagination import OptimizedPagination
-from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 from openzaak.utils.schema import (
     COMMON_ERROR_RESPONSES,
     FILE_ERROR_RESPONSES,
@@ -60,6 +60,7 @@ from openzaak.utils.schema import (
 )
 from openzaak.utils.views import AuditTrailViewSet
 
+from ...zaken.api.scopes import SCOPE_ZAKEN_CREATE
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -81,7 +82,10 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
-from .permissions import InformationObjectAuthRequired
+from .permissions import (
+    InformationObjectAuthRequired,
+    DocumentReserverenAuthRequired,
+)
 from .renderers import BinaryFileRenderer
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
@@ -100,6 +104,7 @@ from .serializers import (
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
+    RegisterDocumentSerializer,
     ReservedDocumentSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
@@ -1178,3 +1183,46 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             )
             output_serializer = self.serializer_class(instances, many=True)
             return output_serializer.data
+
+
+class RegisterDocumentViewSet(
+    viewsets.GenericViewSet, viewsets.mixins.CreateModelMixin
+):
+
+    queryset = EnkelvoudigInformatieObject.objects.all()
+    serializer_class = RegisterDocumentSerializer
+    permission_classes = (DocumentReserverenAuthRequired,)
+    # object_fields = ("identificatie",)
+    # required_scopes = {
+    #     "list": (SCOPE_DOCUMENTEN_AANMAKEN, SCOPE_ZAKEN_CREATE),
+    # }
+
+    object_mapping = {
+        "enkelvoudiginformatieobject": "documenten",
+        "zaakinformatieobject": "zaken",
+    }
+
+    required_scopes = {
+        "enkelvoudiginformatieobject":{
+            "create": SCOPE_DOCUMENTEN_AANMAKEN,
+        },
+        "zaakinformatieobject": {
+            "create": SCOPE_ZAKEN_CREATE,
+        }
+    }
+
+    # def get_viewsets(self):
+    #     from ...zaken.api.viewsets import ZaakInformatieObjectViewSet
+    #
+    #     return EnkelvoudigInformatieObjectViewSet, ZaakInformatieObjectViewSet
+    #
+    # def check_permissions(self, request):
+    #     """
+    #     Check if the request should be permitted.
+    #     Raises an appropriate exception if the request is not permitted.
+    #     """
+    #     for viewset_cls in self.get_viewsets():
+    #         viewset = viewset_cls()
+    #         viewset.action = self.action
+    #         setattr(viewset, "post", viewset.create)
+    #         viewset.check_permissions(request)
