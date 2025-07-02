@@ -23,7 +23,7 @@ Features
 --------
 
 Feature implementation is the connection between the core group and the
-technical team. The core group may request features or consider the 
+technical team. The core group may request features or consider the
 requested (big) features from the Github issues.
 
 **Upgrading to latest API standards**
@@ -220,7 +220,7 @@ improvements that could/should help get potential contributors started.
 **Document dev/virtualenv setup**
 
 There are some best-practices w/r to storing ``KUBECONFIG`` in project-specific
-locations and/or installing the Ansible dependencies inside of the virtualenv instead
+locations instead
 of the global system directories. This should be documented with an example setup.
 
 *Impact*
@@ -228,18 +228,6 @@ of the global system directories. This should be documented with an example setu
 - less confusion for (potential) service providers by having a reference
 - sizing: small
 
-**Automate the Ansible collection publishing to Ansible galaxy**
-
-Currently, publishing is a manual action by uploading the artifact through the browser.
-
-This can be automated after a succesful CI build on Travis instead, which would also
-make it easier for committers other than Joeri/Sergei to publish changes.
-
-*Impact*
-
-- removes manual step from contributors
-- removes need to manage auth/permissions on Ansible Galaxy
-- sizing: small
 
 **Docker Hub paid plan**
 
