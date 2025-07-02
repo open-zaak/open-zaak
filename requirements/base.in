@@ -17,6 +17,7 @@ django-privates
 django-relativedelta
 django-celery-beat
 django-structlog[celery]
+django-extensions
 
 # Admin and UI libraries
 django-sniplates
@@ -31,3 +32,5 @@ drc-cmis
 commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]
+
+graphviz

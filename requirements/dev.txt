@@ -310,8 +310,11 @@ django-db-logger==0.1.12
     #   -r requirements/ci.txt
 django-debug-toolbar==5.0.1
     # via -r requirements/dev.in
-django-extensions==3.1.5
-    # via -r requirements/dev.in
+django-extensions==4.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   -r requirements/dev.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/ci.txt
@@ -569,6 +572,10 @@ google-auth==1.21.2
     # via kubernetes
 gprof2dot==2019.11.30
     # via django-silk
+graphviz==0.21
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 h11==0.16.0
     # via httpcore
 httpcore==1.0.9
@@ -824,6 +831,10 @@ pydantic-settings==2.7.0
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
+pydotplus==2.0.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 pygments==2.18.0
     # via
     #   -c requirements/ci.txt
@@ -831,6 +842,10 @@ pygments==2.18.0
     #   rich
     #   sphinx
     #   sphinx-tabs
+pygraphviz==1.14
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 pyinstrument==5.0.1
     # via -r requirements/dev.in
 pyjwt==2.10.1
@@ -851,6 +866,7 @@ pyparsing==3.0.7
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   httplib2
+    #   pydotplus
 pypng==0.20220715.0
     # via
     #   -c requirements/ci.txt

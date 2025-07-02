@@ -187,6 +187,7 @@ django==5.2.3
     #   django-cors-headers
     #   django-csp
     #   django-db-logger
+    #   django-extensions
     #   django-extra-views
     #   django-filter
     #   django-formtools
@@ -261,6 +262,11 @@ django-db-logger==0.1.12
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+django-extensions==4.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   -r requirements/test-tools.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/base.txt
@@ -500,6 +506,11 @@ glom==23.5.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   mozilla-django-oidc-db
+graphviz==0.21
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   -r requirements/test-tools.in
 httplib2==0.20.4
     # via
     #   -c requirements/base.txt
@@ -685,10 +696,14 @@ pydantic-settings==2.7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
+pydotplus==2.0.2
+    # via -r requirements/test-tools.in
 pygments==2.18.0
     # via
     #   sphinx
     #   sphinx-tabs
+pygraphviz==1.14
+    # via -r requirements/test-tools.in
 pyjwt==2.10.1
     # via
     #   -c requirements/base.txt
@@ -707,6 +722,7 @@ pyparsing==3.0.7
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   httplib2
+    #   pydotplus
 pypng==0.20220715.0
     # via
     #   -c requirements/base.txt
@@ -803,6 +819,7 @@ requests-cache==1.2.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   -r requirements/test-tools.in
 requests-mock==1.12.1
     # via
     #   -c requirements/base.txt

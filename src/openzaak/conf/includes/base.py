@@ -216,6 +216,7 @@ INSTALLED_APPS = (
         "drc_cmis",
         "django_celery_beat",
         "django_structlog",
+        "django_extensions",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",

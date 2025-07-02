@@ -29,6 +29,11 @@ sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-qthelp==1.0.2
 sphinxcontrib-serializinghtml==2.0.0
 sphinx-tabs==3.4.7
+graphviz
+requests-cache
+django-extensions
+pygraphviz 
+pydotplus
 
 # SPDX header checks
 click

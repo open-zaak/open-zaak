@@ -265,7 +265,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
@@ -312,7 +311,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Download Coverage Reports
         uses: actions/download-artifact@v4
         with:
@@ -340,11 +338,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "libgdal-dev gdal-bin graphviz graphviz-dev pkg-config python3-dev"
           python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -r requirements/ci.txt
+
+      - name: Install Python graphviz bindings
+        run: pip install pygraphviz pydotplus
+
+      - name: Verify graphviz Python packages
+        run: |
+          python -c "import pygraphviz; print('pygraphviz installed')"
+          python -c "import pydotplus; print('pydotplus installed')"
+
+      - name: Build docs
+        run: make -C docs SPHINXOPTS="-W" html
 
       - name: Generate environment variable documentation using OAf and check if it was updated
         run: |
@@ -379,7 +394,7 @@ jobs:
     needs:
       - store-reusable-workflow-vars
     with:
-      apt-packages: "libgdal-dev gdal-bin"
+      apt-packages: "libgdal-dev gdal-bin graphviz graphviz-dev pkg-config"
       main-branch: "main"
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci
