@@ -90,4 +90,3 @@ Example:
 .. _Cloud Native: https://www.cncf.io/about/who-we-are/
 .. _Haven: https://haven.commonground.nl/
 .. _NGINX: https://www.nginx.com/
-.. _Ansible: https://www.ansible.com/
