@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from typing import Union
 from urllib.parse import urlparse
 
 from django.core.exceptions import (
@@ -15,6 +16,7 @@ from rest_framework import exceptions, permissions
 from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
+from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -148,3 +150,108 @@ class AuthRequired(permissions.BasePermission):
         main_object_data = self.format_data(main_object, request)
         fields = self.get_fields(main_object_data)
         return request.jwt_auth.has_auth(scopes_required, component, **fields)
+
+
+
+class MultipleObjectsAuthRequired(permissions.BasePermission):
+
+    permission_fields: dict
+    main_resources: dict
+
+    def get_required_scopes(self,
+        request: Request, view: Union["APIView", "ViewSetMixin"], field: str
+    ) -> Union[Scope, None]:
+        if not hasattr(view, "required_scopes"):
+            raise ImproperlyConfigured(
+                "The View(Set) must have a `required_scopes` attribute"
+            )
+
+        # viewsets mark detail routes by providing the initkwarg, see
+        # rest_framework.routers.SimpleRouter.get_urls
+        detail = getattr(view, "detail", False)
+        action = getattr(view, "action", None)
+
+        # auto-generated head method doesn't get an action assigned
+        if action is None and detail and view.request.method == "HEAD":
+            action = "retrieve"
+
+        from rest_framework.viewsets import ViewSetMixin
+
+        # if action is not set, fall back to the request method
+        if action is None and not isinstance(view, ViewSetMixin):
+            action = request.method.lower()
+
+        scopes_required = view.required_scopes.get(field).get(action)
+        return scopes_required
+
+    def has_permission(self, request, view):
+        has_handler = hasattr(view, request.method.lower())
+        if not has_handler:
+            view.http_method_not_allowed(request)
+
+
+        if bypass_permissions(request):
+            return True
+
+        for field in view.required_scopes:
+
+            scopes_required = self.get_required_scopes(request, view, field)
+            component = view.object_mapping.get(field)
+
+            if not self.permission_fields:
+                if not request.jwt_auth.has_auth(scopes_required, component):
+                    return False
+
+            main_resource = self.get_main_resource()
+
+            if view.action == "create":
+                if view.__class__ is main_resource:
+                    main_object_data = request.data.get(field)
+                    fields = self.get_fields(main_object_data)
+                    # validate fields, since it's a user input
+                    non_empty_fields = {
+                        name: value for name, value in fields.items() if value
+                    }
+                    if non_empty_fields:
+                        serializer = getattr(view.serializer_class, field)(
+                            data=non_empty_fields,
+                            partial=True,
+                            context={"request": request},
+                        )
+                        serializer.is_valid(raise_exception=True)
+
+                else:
+                    main_object_url = request.data[view.permission_main_object]
+                    main_object_path = urlparse(main_object_url).path
+                    try:
+                        main_object = get_resource_for_path(main_object_path)
+                    except ObjectDoesNotExist:
+                        raise ValidationError(
+                            {
+                                view.permission_main_object: ValidationError(
+                                    _("The object does not exist in the database"),
+                                    code="object-does-not-exist",
+                                ).detail
+                            }
+                        )
+                    except DjangoValidationError as exc:
+                        err_dict = as_serializer_error(
+                            ValidationError({view.permission_main_object: exc})
+                        )
+                        raise ValidationError(err_dict)
+
+                    main_object_data = self.format_data(main_object, request)
+                    fields = self.get_fields(main_object_data)
+
+                return request.jwt_auth.has_auth(scopes_required, component, **fields)
+
+            # detect if this is an unsupported method - if it's a viewset and the
+            # action was not mapped, it's not supported and DRF will catch it
+            if view.action is None and isinstance(view, ViewSetMixin):
+                return True
+
+            # by default - check if the action is allowed at all
+            return request.jwt_auth.has_auth(scopes_required, component)
+
+    def has_object_permission(self):
+        raise NotImplementedError()

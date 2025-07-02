@@ -44,6 +44,7 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
+from ...zaken.api.serializers import ZaakInformatieObjectSerializer
 from ..constants import (
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
@@ -555,6 +556,8 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        if not self.instance:
+            self.instance = instance  # TODO
         ret = super().to_representation(instance)
         # With Alfresco, the URL cannot be retrieved using the
         # latest_version property of the canonical object
@@ -1160,3 +1163,50 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
                 "required": True,
             },
         }
+
+
+class ZaakInformatieObjectSerializerHidden(ZaakInformatieObjectSerializer):
+    informatieobject = serializers.HiddenField(default=None)
+
+
+# TODO
+# class ZaakInformatieObjectSerializerID(ZaakInformatieObjectSerializer):
+#     informatieobject = serializers.SlugRelatedField
+
+
+class RegisterDocumentSerializer(serializers.Serializer):
+    enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
+    zaakinformatieobject = ZaakInformatieObjectSerializerHidden()
+
+    @transaction.atomic
+    def create(self, validated_data):
+        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"]
+        zaakinformatieobject = validated_data["zaakinformatieobject"]
+
+        eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
+            data=enkelvoudiginformatieobject, context=self.context
+        )
+        eio_serializer.is_valid(raise_exception=True)
+        eio = eio_serializer.save()
+
+        zio_serializer = ZaakInformatieObjectSerializer(
+            data=zaakinformatieobject
+            | {
+                "informatieobject": reverse(
+                    "enkelvoudiginformatieobject-detail",
+                    kwargs={"uuid": eio.uuid},
+                    request=self.context["request"],
+                )
+            },
+            context=self.context,
+        )
+        zio_serializer.is_valid(raise_exception=True)
+        zio = zio_serializer.save()
+
+        return {
+            "enkelvoudiginformatieobject": eio,
+            "zaakinformatieobject": zio,
+        }
+
+    def to_internal_value(self, data):
+        return data
