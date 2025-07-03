@@ -706,7 +706,7 @@ notifications-api-common==0.7.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.10.3
+open-api-framework==0.11.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -775,19 +775,16 @@ psycopg==3.2.9
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   open-api-framework
 psycopg-binary==3.2.9
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   psycopg
 psycopg-pool==3.2.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-psycopg2==2.9.9
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   open-api-framework
 py-cpuinfo==9.0.0
     # via
     #   -c requirements/ci.txt
