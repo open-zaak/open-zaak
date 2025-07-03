@@ -25,7 +25,9 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
         component = self.get_component(view)
 
         main_object = view._get_zaak()
-        main_object_data = self.format_data(main_object, request, self.get_main_resource(self.main_resource))
+        main_object_data = self.format_data(
+            main_object, request, self.get_main_resource(self.main_resource)
+        )
 
         fields = self.get_fields(main_object_data, self.permission_fields)
         return request.jwt_auth.has_auth(scopes_required, component, **fields)
