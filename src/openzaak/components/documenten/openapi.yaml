@@ -300,7 +300,7 @@ paths:
         required: true
       security:
       - JWT-Claims:
-        - documenten.aanmaken
+        - (documenten.aanmaken | zaken.aanmaken)
       responses:
         '201':
           headers:
@@ -7320,12 +7320,20 @@ components:
       - informatieobjecttype
       - taal
       - titel
-    EnkelvoudigInformatieObjectCreateLockRequest:
+    EnkelvoudigInformatieObjectCreateLock:
       type: object
       description: |-
         This serializer class is used by EnkelvoudigInformatieObjectViewSet for
         create operation for large files
       properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
         identificatie:
           type: string
           description: Een binnen een gegeven context ondubbelzinnige referentie naar
@@ -7333,7 +7341,6 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
@@ -7344,7 +7351,6 @@ components:
           description: Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.
         titel:
           type: string
-          minLength: 1
           description: De naam waaronder het INFORMATIEOBJECT formeel bekend is.
           maxLength: 200
         vertrouwelijkheidaanduiding:
@@ -7366,7 +7372,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         auteur:
           type: string
-          minLength: 1
           description: De persoon of organisatie die in de eerste plaats verantwoordelijk
             is voor het creëren van de inhoud van het INFORMATIEOBJECT.
           maxLength: 200
@@ -7391,10 +7396,21 @@ components:
           maxLength: 255
         taal:
           type: string
-          minLength: 3
           description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
             is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
           maxLength: 3
+          minLength: 3
+        versie:
+          type: integer
+          readOnly: true
+          description: Het (automatische) versienummer van het INFORMATIEOBJECT. Deze
+            begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.
+        beginRegistratie:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Een datumtijd in ISO8601 formaat waarop deze versie van het
+            INFORMATIEOBJECT is aangemaakt of gewijzigd.
         bestandsnaam:
           type: string
           description: De naam van het fysieke bestand waarin de inhoud van het informatieobject
@@ -7402,7 +7418,7 @@ components:
           maxLength: 255
         inhoud:
           type: string
-          format: byte
+          format: uri
           description: Minimal accepted size of uploaded file = 4294967296 bytes (or
             4.0 GiB)
           nullable: true
@@ -7450,32 +7466,48 @@ components:
           description: De essentiële opmaakaspecten van een INFORMATIEOBJECT.
         ondertekening:
           allOf:
-          - $ref: '#/components/schemas/OndertekeningRequest'
+          - $ref: '#/components/schemas/Ondertekening'
           nullable: true
           description: Aanduiding van de rechtskracht van een informatieobject. Mag
             niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking'
             of 'ter vaststelling' heeft.
         integriteit:
           allOf:
-          - $ref: '#/components/schemas/IntegriteitRequest'
+          - $ref: '#/components/schemas/Integriteit'
           nullable: true
           description: Uitdrukking van mate van volledigheid en onbeschadigd zijn
             van digitaal bestand.
         informatieobjecttype:
           type: string
-          minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
             API).
           format: uri
+          minLength: 1
           maxLength: 200
+        locked:
+          type: boolean
+          readOnly: true
+          title: geblokkeerd
+          description: Geeft aan of het document gelocked is. Alleen als een document
+            gelocked is, mogen er aanpassingen gemaakt worden.
+        bestandsdelen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BestandsDeel'
+          readOnly: true
         trefwoorden:
           type: array
           items:
             type: string
-            minLength: 1
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        lock:
+          type: string
+          readOnly: true
+          description: Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt
+            moet worden bij document updates. Documenten met base64-encoded bestandsdata
+            worden zonder lock aangemaakt.
       required:
       - auteur
       - bronorganisatie
@@ -7483,9 +7515,11 @@ components:
       - informatieobjecttype
       - taal
       - titel
-    EnkelvoudigInformatieObjectRequest:
+    EnkelvoudigInformatieObjectCreateLockRequest:
       type: object
-      description: Serializer for the EnkelvoudigInformatieObject model
+      description: |-
+        This serializer class is used by EnkelvoudigInformatieObjectViewSet for
+        create operation for large files
       properties:
         identificatie:
           type: string
@@ -8638,23 +8672,23 @@ components:
     RegisterDocument:
       type: object
       properties:
-        enkelvoudigInformatieObject:
-          $ref: '#/components/schemas/EnkelvoudigInformatieObject'
-        zaakInformatieObject:
+        enkelvoudiginformatieobject:
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLock'
+        zaakinformatieobject:
           $ref: '#/components/schemas/ZaakInformatieObjectSerializerHidden'
       required:
-      - enkelvoudigInformatieObject
-      - zaakInformatieObject
+      - enkelvoudiginformatieobject
+      - zaakinformatieobject
     RegisterDocumentRequest:
       type: object
       properties:
-        enkelvoudigInformatieObject:
-          $ref: '#/components/schemas/EnkelvoudigInformatieObjectRequest'
-        zaakInformatieObject:
+        enkelvoudiginformatieobject:
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockRequest'
+        zaakinformatieobject:
           $ref: '#/components/schemas/ZaakInformatieObjectSerializerHiddenRequest'
       required:
-      - enkelvoudigInformatieObject
-      - zaakInformatieObject
+      - enkelvoudiginformatieobject
+      - zaakinformatieobject
     ReservedDocument:
       oneOf:
       - type: object

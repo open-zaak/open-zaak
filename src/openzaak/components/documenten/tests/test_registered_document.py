@@ -1,43 +1,109 @@
 import uuid
 from base64 import b64encode
+from datetime import date
+
+from django.test import override_settings
+from django.utils import timezone
 
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.constants import (
+    ComponentTypes,
+    RelatieAarden,
+    VertrouwelijkheidsAanduiding,
+)
+from vng_api_common.models import JWTSecret
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
+from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
+    ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.documenten.tests.utils import get_operation_url
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import StatusFactory, ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 
 
 @freeze_time("2025-01-01T12:00:00")
-class ReservedDocumentTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("document_registreren-list")
-    # heeft_alle_autorisaties = True
-    scopes = [SCOPE_DOCUMENTEN_AANMAKEN]
-    component = ComponentTypes.drc
+@override_settings(OPENZAAK_DOMAIN="testserver")
+class RegisteredDocumentAuthTests(JWTAuthMixin, APITestCase):
+    url = reverse_lazy("registereddocument-list")
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
-    def test_register_document(self):
-        zaak = ZaakFactory()
-        zaak_url = reverse(zaak)
+    @classmethod
+    def setUpClass(cls):
+        APITestCase.setUpClass()
 
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        JWTSecret.objects.get_or_create(
+            identifier=cls.client_id, defaults={"secret": cls.secret}
+        )
+
+        cls.applicatie = Applicatie.objects.create(
+            client_ids=[cls.client_id],
+            label="for test",
+            heeft_alle_autorisaties=False,
+        )
+
+        cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        cls.informatieobjecttype_url = cls.check_for_instance(cls.informatieobjecttype)
+
+        cls.zaaktype = ZaakTypeFactory.create()
+        cls.zaaktype_url = cls.check_for_instance(cls.zaaktype)
 
         ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=zaak.zaaktype, informatieobjecttype=informatieobjecttype
+            zaaktype=cls.zaaktype, informatieobjecttype=cls.informatieobjecttype
         )
+
+    def _add_documenten_auth(self, informatieobjecttype=None):
+        self.autorisatie = Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+            zaaktype="",
+            informatieobjecttype=self.informatieobjecttype_url
+            if informatieobjecttype is None
+            else informatieobjecttype,
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+    def _add_zaken_auth(self, zaaktype=None):
+        self.autorisatie = Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_CREATE],
+            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
+            informatieobjecttype="",
+            besluittype="",
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+    def _add_catalogi_auth(self, component: ComponentTypes, catalogus, scopes):
+        CatalogusAutorisatieFactory.create(
+            applicatie=self.applicatie,
+            component=component,
+            scopes=scopes,
+            catalogus=catalogus,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+    def setUp(self):
+        super().setUp()
+
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(zaak)
 
         status_url = reverse(StatusFactory.create(zaak=zaak))
 
-        content = {
+        self.content = {
             "enkelvoudiginformatieobject": {
                 "identificatie": uuid.uuid4().hex,
                 "bronorganisatie": "159351741",
@@ -50,8 +116,8 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
                 "inhoud": b64encode(b"some file content").decode("utf-8"),
                 "link": "http://een.link",
                 "beschrijving": "test_beschrijving",
-                "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
-                "vertrouwelijkheidaanduiding": "openbaar",
+                "informatieobjecttype": self.informatieobjecttype_url,
+                "vertrouwelijkheidaanduiding": "geheim",
                 "verschijningsvorm": "Vorm A",
                 "trefwoorden": ["some", "other"],
             },
@@ -64,68 +130,288 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
             },
         }
 
+    def test_register_document(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_register_document_no_auth(self):
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_no_zaken_auth(self):
+        self._add_documenten_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_no_documenten_auth(self):
+        self._add_documenten_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_invalid_vertrouwelijkheidaanduiding(self):
+        self.max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
+
+        self._add_documenten_auth()
+        self._add_zaken_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_no_zaakttype_in_auth(self):
+        self._add_documenten_auth()
+        self._add_zaken_auth(zaaktype="")
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_no_informatieobjecttype_in_auth(self):
+        self._add_documenten_auth(informatieobjecttype="")
+        self._add_zaken_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_with_catalogus_auths(self):
+        self._add_catalogi_auth(
+            ComponentTypes.drc,
+            self.informatieobjecttype.catalogus,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_register_document_with_drc_catalogus_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.drc,
+            self.informatieobjecttype.catalogus,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_with_zrc_catalogus_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_register_document_with_zrc_catalogus_and_drc_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+        self._add_documenten_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+
+@freeze_time("2025-01-01T12:00:00")
+@override_settings(OPENZAAK_DOMAIN="testserver")
+class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
+    url = reverse_lazy("registereddocument-list")
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.zaak = ZaakFactory.create()
+        self.zaak_url = reverse(self.zaak)
+
+        self.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        self.informatieobjecttype_url = reverse(self.informatieobjecttype)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=self.zaak.zaaktype, informatieobjecttype=self.informatieobjecttype
+        )
+
+        self.status = StatusFactory.create(zaak=self.zaak)
+        self.status_url = reverse(self.status)
+
+        self.enkelvoudiginformatieobject = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2025-01-01",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": "dummy.txt",
+            "inhoud": b64encode(b"some file content").decode("utf-8"),
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": f"http://testserver{self.informatieobjecttype_url}",
+            "vertrouwelijkheidaanduiding": "openbaar",
+            "verschijningsvorm": "Vorm A",
+            "trefwoorden": ["some", "other"],
+        }
+
+        self.zaakinformatieobject = {
+            "zaak": f"http://testserver{self.zaak_url}",
+            "titel": "string",
+            "beschrijving": "string",
+            "vernietigingsdatum": "2019-08-24T14:15:22Z",
+            "status": f"http://testserver{self.status_url}",
+        }
+
+    def test_register_document(self):
+        content = {
+            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
+            "zaakinformatieobject": self.zaakinformatieobject,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        eio = EnkelvoudigInformatieObject.objects.get()
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(
+            eio.identificatie, content["enkelvoudiginformatieobject"]["identificatie"]
+        )
+        self.assertEqual(eio.bronorganisatie, "159351741")
+        self.assertEqual(eio.creatiedatum, date(2025, 1, 1))
+        self.assertEqual(eio.titel, "detailed summary")
+        self.assertEqual(eio.auteur, "test_auteur")
+        self.assertEqual(eio.formaat, "txt")
+        self.assertEqual(eio.taal, "eng")
+        self.assertEqual(eio.versie, 1)
+        self.assertAlmostEqual(eio.begin_registratie, timezone.now())
+        self.assertEqual(eio.bestandsnaam, "dummy.txt")
+        self.assertEqual(eio.inhoud.read(), b"some file content")
+        self.assertEqual(eio.link, "http://een.link")
+        self.assertEqual(eio.beschrijving, "test_beschrijving")
+        self.assertEqual(eio.informatieobjecttype, self.informatieobjecttype)
+        self.assertEqual(eio.vertrouwelijkheidaanduiding, "openbaar")
+        self.assertEqual(eio.verschijningsvorm, "Vorm A")
+        self.assertEqual(eio.trefwoorden, ["some", "other"])
+
+        zio = ZaakInformatieObject.objects.get()
+        self.assertEqual(zio.zaak, self.zaak)
+        self.assertEqual(zio.aard_relatie, RelatieAarden.hoort_bij)
+        self.assertEqual(zio.status, self.status)
+        self.assertEqual(
+            zio.vernietigingsdatum.isoformat(), "2019-08-24T14:15:22+00:00"
+        )
+
+        expected_eio_url = reverse(eio)
+        expected_file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        expected_zio_url = reverse(zio)
+
+        expected_response = {
+            "enkelvoudiginformatieobject": content["enkelvoudiginformatieobject"]
+            | {
+                "url": f"http://testserver{expected_eio_url}",
+                "inhoud": f"http://testserver{expected_file_url}?versie=1",
+                "versie": 1,
+                "bestandsdelen": [],
+                "beginRegistratie": eio.begin_registratie.isoformat().replace(
+                    "+00:00", "Z"
+                ),
+                "vertrouwelijkheidaanduiding": "openbaar",
+                "bestandsomvang": eio.inhoud.size,
+                "integriteit": {"algoritme": "", "waarde": "", "datum": None},
+                "ontvangstdatum": None,
+                "verzenddatum": None,
+                "ondertekening": {"soort": "", "datum": None},
+                "indicatieGebruiksrecht": None,
+                "status": "",
+                "locked": False,
+                "lock": "",
+                "verschijningsvorm": "Vorm A",
+            },
+            "zaakinformatieobject": content["zaakinformatieobject"]
+            | {
+                "url": f"http://testserver{expected_zio_url}",
+                "uuid": str(zio.uuid),
+                "titel": "string",
+                "beschrijving": "string",
+                "registratiedatum": "2025-01-01T12:00:00Z",
+                "aardRelatieWeergave": RelatieAarden.hoort_bij.label,
+                "vernietigingsdatum": "2019-08-24T14:15:22Z",
+            },
+        }
+
+        response_data = response.json()
+        self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
+
+        for obj in response_data:
+            for key in response_data[obj]:
+                with self.subTest(field=key):
+                    self.assertEqual(
+                        response_data[obj][key], expected_response[obj][key]
+                    )
+
+    def test_invalid_inhoud(self):
+        content = {
+            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject
+            | {
+                "inhoud": [1, 2, 3],
+            },
+            "zaakinformatieobject": self.zaakinformatieobject,
+        }
+
         # Send to the API
         response = self.client.post(self.url, content)
 
         # Test response
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
 
-        # # Test database
-        # stored_object = EnkelvoudigInformatieObject.objects.get()
-        #
-        # self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
-        # self.assertEqual(stored_object.identificatie, content["identificatie"])
-        # self.assertEqual(stored_object.bronorganisatie, "159351741")
-        # self.assertEqual(stored_object.creatiedatum, date(2018, 6, 27))
-        # self.assertEqual(stored_object.titel, "detailed summary")
-        # self.assertEqual(stored_object.auteur, "test_auteur")
-        # self.assertEqual(stored_object.formaat, "txt")
-        # self.assertEqual(stored_object.taal, "eng")
-        # self.assertEqual(stored_object.versie, 1)
-        # self.assertAlmostEqual(stored_object.begin_registratie, timezone.now())
-        # self.assertEqual(stored_object.bestandsnaam, "dummy.txt")
-        # self.assertEqual(stored_object.inhoud.read(), b"some file content")
-        # self.assertEqual(stored_object.link, "http://een.link")
-        # self.assertEqual(stored_object.beschrijving, "test_beschrijving")
-        # self.assertEqual(stored_object.informatieobjecttype, informatieobjecttype)
-        # self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
-        # self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
-        # self.assertEqual(stored_object.trefwoorden, ["some", "other"])
-        #
-        # expected_url = reverse(stored_object)
-        # expected_file_url = get_operation_url(
-        #     "enkelvoudiginformatieobject_download", uuid=stored_object.uuid
-        # )
-        #
-        # expected_response = content.copy()
-        # expected_response.update(
-        #     {
-        #         "url": f"http://testserver{expected_url}",
-        #         "inhoud": f"http://testserver{expected_file_url}?versie=1",
-        #         "versie": 1,
-        #         "bestandsdelen": [],
-        #         "beginRegistratie": stored_object.begin_registratie.isoformat().replace(
-        #             "+00:00", "Z"
-        #         ),
-        #         "vertrouwelijkheidaanduiding": "openbaar",
-        #         "bestandsomvang": stored_object.inhoud.size,
-        #         "integriteit": {"algoritme": "", "waarde": "", "datum": None},
-        #         "ontvangstdatum": None,
-        #         "verzenddatum": None,
-        #         "ondertekening": {"soort": "", "datum": None},
-        #         "indicatieGebruiksrecht": None,
-        #         "status": "",
-        #         "locked": False,
-        #         "lock": "",
-        #         "verschijningsvorm": "Vorm A",
-        #     }
-        # )
-        #
-        # response_data = response.json()
-        # self.assertEqual(
-        #     sorted(response_data.keys()), sorted(expected_response.keys())
-        # )
-        #
-        # for key in response_data:
-        #     with self.subTest(field=key):
-        #         self.assertEqual(response_data[key], expected_response[key])
+        error = get_validation_errors(response, "inhoud")
+
+        self.assertEqual(error["code"], "invalid")  # TODO this should be nested?
+
+    def test_no_zaaktypeinformatieobjecttype(self):
+        zaak_url = reverse(ZaakFactory.create())
+
+        content = {
+            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
+            "zaakinformatieobject": self.zaakinformatieobject
+            | {
+                "zaak": f"http://testserver{zaak_url}",
+            },
+        }
+
+        # Send to the API
+        response = self.client.post(self.url, content)
+
+        # Test response
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(
+            error["code"], "missing-zaaktype-informatieobjecttype-relation"
+        )
+
+    def test_create_invalid_url(self):
+        content = {
+            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
+            "zaakinformatieobject": self.zaakinformatieobject | {"zaak": "invalidurl"},
+        }
+
+        # Send to the API
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "object-does-not-exist")
