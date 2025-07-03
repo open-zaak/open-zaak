@@ -337,6 +337,7 @@ class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
             | {
                 "url": f"http://testserver{expected_zio_url}",
                 "uuid": str(zio.uuid),
+                "informatieobject": f"http://testserver{expected_eio_url}",
                 "titel": "string",
                 "beschrijving": "string",
                 "registratiedatum": "2025-01-01T12:00:00Z",

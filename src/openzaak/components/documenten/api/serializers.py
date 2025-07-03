@@ -1173,6 +1173,7 @@ class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
 
         self.fields["informatieobject"].read_only = True
 
+
 class RegisterDocumentSerializer(serializers.Serializer):
     enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
     zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()

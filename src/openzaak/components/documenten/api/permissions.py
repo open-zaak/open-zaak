@@ -19,11 +19,6 @@ class InformationObjectAuthRequired(AuthRequired):
         return obj.get_informatieobject(permission_main_object)
 
 
-class RegisterDocumentAuthRequired(AuthRequired):
-    permission_fields = ("zaakinformatieobject",)
-    main_resource = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
-
-
 class DocumentReserverenAuthRequired(MultipleObjectsAuthRequired):
     permission_fields = {
         "enkelvoudiginformatieobject": InformationObjectAuthRequired.permission_fields,
