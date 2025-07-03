@@ -70,6 +70,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           cache: "pip"
           cache-dependency-path: "requirements/*.txt"
@@ -143,7 +144,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
+          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -215,7 +216,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
+          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -269,7 +270,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "no"
           setup-node: "no"
@@ -344,7 +345,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
 
       - name: Generate environment variable documentation using OAf and check if it was updated
@@ -359,6 +360,29 @@ jobs:
           fi
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+
+      - name: Build HTML docs
+        run: make SPHINXOPTS="-W" html
+        working-directory: docs
+
+      - name: Commit and push built docs if UML images changed
+        run: |
+          changes=$(git diff --name-only docs/_static/uml)
+          if [ ! -z "$changes" ]; then
+            echo "Detected changes in UML images:"
+            echo "$changes"
+
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            
+            git add -f docs/_static/uml
+            git commit -m "Update built docs [skip ci]" || echo "No changes to commit"
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "No changes detected in UML images. Skipping commit and push."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
@@ -380,7 +404,7 @@ jobs:
     needs:
       - store-reusable-workflow-vars
     with:
-      apt-packages: "libgdal-dev gdal-bin"
+      apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
       main-branch: "main"
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci
