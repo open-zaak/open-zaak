@@ -232,6 +232,8 @@ INSTALLED_APPS = (
     + PLUGIN_INSTALLED_APPS
 )
 
+INSTALLED_APPS.remove("upgrade_check")
+
 MIDDLEWARE = [
     "openzaak.utils.middleware.OverrideHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
