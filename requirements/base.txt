@@ -313,7 +313,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 notifications-api-common==0.7.2
     # via commonground-api-common
-open-api-framework==0.10.3
+open-api-framework==0.11.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
@@ -330,13 +330,13 @@ prometheus-client==0.15.0
 prompt-toolkit==3.0.31
     # via click-repl
 psycopg==3.2.9
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   open-api-framework
 psycopg-binary==3.2.9
     # via psycopg
 psycopg-pool==3.2.6
     # via psycopg
-psycopg2==2.9.9
-    # via open-api-framework
 pycparser==2.21
     # via cffi
 pydantic==2.10.4
