@@ -39,16 +39,25 @@ fi
 
 # Start server
 >&2 echo "Starting server"
-exec uwsgi \
-    --ini "${SCRIPTPATH}/uwsgi.ini" \
-    --http :$uwsgi_port \
-    --http-keepalive \
-    --manage-script-name \
-    --mount $mountpoint=openzaak.wsgi:application \
-    --static-map /static=/app/static \
-    --static-map /media=/app/media  \
-    --chdir src \
-    --enable-threads \
-    --processes $uwsgi_processes \
-    --threads $uwsgi_threads \
-    --buffer-size=65535
+# exec uwsgi \
+#     --ini "${SCRIPTPATH}/uwsgi.ini" \
+#     --http :$uwsgi_port \
+#     --http-keepalive \
+#     --manage-script-name \
+#     --mount $mountpoint=openzaak.wsgi:application \
+#     --static-map /static=/app/static \
+#     --static-map /media=/app/media  \
+#     --chdir src \
+#     --enable-threads \
+#     --processes $uwsgi_processes \
+#     --threads $uwsgi_threads \
+#     --buffer-size=65535
+
+cd src/
+exec python -m uvicorn openzaak.asgi:application \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --workers 4 \
+    --lifespan off \
+    --forwarded-allow-ips "*" \
+    --proxy-headers
