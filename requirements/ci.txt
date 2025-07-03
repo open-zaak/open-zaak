@@ -183,6 +183,7 @@ django==5.2.3
     #   django-cors-headers
     #   django-csp
     #   django-db-logger
+    #   django-extensions
     #   django-extra-views
     #   django-filter
     #   django-formtools
@@ -252,6 +253,10 @@ django-csp==3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 django-db-logger==0.1.12
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+django-extensions==4.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

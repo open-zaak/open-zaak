@@ -296,8 +296,11 @@ django-db-logger==0.1.12
     #   -r requirements/ci.txt
 django-debug-toolbar==5.0.1
     # via -r requirements/dev.in
-django-extensions==3.1.5
-    # via -r requirements/dev.in
+django-extensions==4.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   -r requirements/dev.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/ci.txt

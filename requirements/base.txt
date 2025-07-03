@@ -98,6 +98,7 @@ django==5.2.3
     #   django-cors-headers
     #   django-csp
     #   django-db-logger
+    #   django-extensions
     #   django-extra-views
     #   django-filter
     #   django-formtools
@@ -150,6 +151,8 @@ django-cors-headers==4.4.0
 django-csp==3.8
     # via open-api-framework
 django-db-logger==0.1.12
+    # via -r requirements/base.in
+django-extensions==4.1
     # via -r requirements/base.in
 django-extra-views==0.14.0
     # via -r requirements/base.in

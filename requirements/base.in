@@ -17,6 +17,7 @@ django-privates
 django-relativedelta
 django-celery-beat
 django-structlog[celery]
+django-extensions
 
 # Admin and UI libraries
 django-sniplates
