@@ -1189,6 +1189,7 @@ class RegisterDocumentSerializer(serializers.Serializer):
         eio_serializer.is_valid(raise_exception=True)
         eio = eio_serializer.save()
 
+        # url vs uuid
         zio_serializer = ZaakInformatieObjectSerializer(
             data=zaakinformatieobject
             | {
@@ -1208,5 +1209,9 @@ class RegisterDocumentSerializer(serializers.Serializer):
             "zaakinformatieobject": zio,
         }
 
+    # TODO is this skipping validation?
     def to_internal_value(self, data):
+        """
+        Normally this transforms json into data but the nested serializers still expect strings.
+        """
         return data

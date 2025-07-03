@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from openzaak.components.zaken.api.permissions import ZaakAuthRequired
-from openzaak.components.zaken.api.serializers import ZaakInformatieObjectSerializer
 from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
@@ -23,7 +22,6 @@ class InformationObjectAuthRequired(AuthRequired):
 class RegisterDocumentAuthRequired(AuthRequired):
     permission_fields = ("zaakinformatieobject",)
     main_resource = "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet"
-
 
 
 class DocumentReserverenAuthRequired(MultipleObjectsAuthRequired):
