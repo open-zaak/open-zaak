@@ -9,6 +9,7 @@ import os
 import sys
 
 import django
+from django.core.management import call_command
 from django.utils.translation import activate
 
 sys.path.insert(0, os.path.abspath("../src"))
@@ -52,6 +53,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.graphviz",
     "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
@@ -59,6 +61,7 @@ extensions = [
     "django_setup_configuration.documentation.setup_config_example",
     "django_setup_configuration.documentation.setup_config_usage",
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -92,7 +95,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ["_static"]
 
 todo_include_todos = True
 
@@ -131,3 +134,44 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+
+#
+#   Datamodel image creation
+#
+graphviz_output_format = "png"
+
+
+def generate_django_model_graphs_with_django_extensions(app):
+    output_dir = os.path.join(app.srcdir, "_static", "uml")
+    os.makedirs(output_dir, exist_ok=True)
+
+    project_root = os.path.abspath(os.path.join(app.srcdir, ".."))
+    components_dir = os.path.join(project_root, "src", "openzaak", "components")
+
+    apps_in_components = [
+        d
+        for d in os.listdir(components_dir)
+        if os.path.isdir(os.path.join(components_dir, d))
+        and os.path.isfile(os.path.join(components_dir, d, "__init__.py"))
+    ]
+
+    print(f"Apps found for graph generation: {apps_in_components}")
+    for comp in apps_in_components:
+        output_path = os.path.join(output_dir, f"{comp}.png")
+        print(f"Generating graph for {comp} at {output_path}")
+        try:
+            call_command(
+                "graph_models",
+                comp,
+                output=output_path,
+                rankdir="LR",
+                hide_edge_labels=True,
+            )
+            print(f"Graph generated for {comp}")
+        except Exception as e:
+            print(f"Failed to generate graph for {comp}: {e}")
+
+
+def setup(app):
+    app.connect("builder-inited", generate_django_model_graphs_with_django_extensions)
