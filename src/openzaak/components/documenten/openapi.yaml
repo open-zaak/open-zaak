@@ -280,7 +280,7 @@ paths:
           description: Internal server error
   /document_registreren:
     post:
-      operationId: document_registreren_create
+      operationId: registereddocument_create
       parameters:
       - in: header
         name: Content-Type
@@ -8675,7 +8675,7 @@ components:
         enkelvoudiginformatieobject:
           $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLock'
         zaakinformatieobject:
-          $ref: '#/components/schemas/ZaakInformatieObjectSerializerHidden'
+          $ref: '#/components/schemas/ZaakInformatieObjectReadOnly'
       required:
       - enkelvoudiginformatieobject
       - zaakinformatieobject
@@ -8685,7 +8685,7 @@ components:
         enkelvoudiginformatieobject:
           $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockRequest'
         zaakinformatieobject:
-          $ref: '#/components/schemas/ZaakInformatieObjectSerializerHiddenRequest'
+          $ref: '#/components/schemas/ZaakInformatieObjectReadOnlyRequest'
       required:
       - enkelvoudiginformatieobject
       - zaakinformatieobject
@@ -9035,7 +9035,7 @@ components:
             de actie heeft plaatsgevonden.
         nieuw:
           description: Volledige JSON body van het object na de actie.
-    ZaakInformatieObjectSerializerHidden:
+    ZaakInformatieObjectReadOnly:
       type: object
       properties:
         url:
@@ -9051,6 +9051,14 @@ components:
           format: uuid
           readOnly: true
           description: Unieke resource identifier (UUID4)
+        informatieobject:
+          type: string
+          readOnly: true
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
+          minLength: 1
+          maxLength: 1000
         zaak:
           type: string
           format: uri
@@ -9093,8 +9101,9 @@ components:
           minLength: 1
           maxLength: 1000
       required:
+      - informatieobject
       - zaak
-    ZaakInformatieObjectSerializerHiddenRequest:
+    ZaakInformatieObjectReadOnlyRequest:
       type: object
       properties:
         zaak:

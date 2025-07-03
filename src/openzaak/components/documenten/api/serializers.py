@@ -556,8 +556,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        # instance is used in by AnyBase64File.to_representation
         if not self.instance:
-            self.instance = instance  # TODO
+            self.instance = instance
+
         ret = super().to_representation(instance)
         # With Alfresco, the URL cannot be retrieved using the
         # latest_version property of the canonical object
@@ -1165,18 +1167,15 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
         }
 
 
-class ZaakInformatieObjectSerializerHidden(ZaakInformatieObjectSerializer):
-    informatieobject = serializers.HiddenField(default=None)
+class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-
-# TODO
-# class ZaakInformatieObjectSerializerID(ZaakInformatieObjectSerializer):
-#     informatieobject = serializers.SlugRelatedField
-
+        self.fields["informatieobject"].read_only = True
 
 class RegisterDocumentSerializer(serializers.Serializer):
     enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
-    zaakinformatieobject = ZaakInformatieObjectSerializerHidden()
+    zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()
 
     @transaction.atomic
     def create(self, validated_data):
