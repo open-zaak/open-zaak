@@ -361,28 +361,18 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
 
-      - name: Build HTML docs
-        run: make SPHINXOPTS="-W" html
-        working-directory: docs
+      # - name: Build HTML docs
+      #   run: make SPHINXOPTS="-W" html
+      #   working-directory: docs
 
-      - name: Commit and push built docs if UML images changed
-        run: |
-          changes=$(git diff --name-only docs/_static/uml)
-          if [ ! -z "$changes" ]; then
-            echo "Detected changes in UML images:"
-            echo "$changes"
-
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            
-            git add -f docs/_static/uml
-            git commit -m "Update built docs [skip ci]" || echo "No changes to commit"
-            git push origin HEAD:${{ github.ref_name }}
-          else
-            echo "No changes detected in UML images. Skipping commit and push."
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Check if UML images were updated
+      #   run: |
+      #     changes=$(git diff docs/_static/uml)
+      #     if [ ! -z "$changes" ]; then
+      #         echo "$changes"
+      #         echo "Please update the UML images in docs/_static/uml"
+      #         exit 1
+      #     fi
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
