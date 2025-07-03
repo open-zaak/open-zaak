@@ -142,7 +142,7 @@ intersphinx_mapping = {
 graphviz_output_format = "png"
 
 
-def generate_django_model_graphs_with_django_extensions(app):
+def generate_django_model_graphs(app):
     output_dir = os.path.join(app.srcdir, "_static", "uml")
     os.makedirs(output_dir, exist_ok=True)
 
@@ -156,10 +156,8 @@ def generate_django_model_graphs_with_django_extensions(app):
         and os.path.isfile(os.path.join(components_dir, d, "__init__.py"))
     ]
 
-    print(f"Apps found for graph generation: {apps_in_components}")
     for comp in apps_in_components:
         output_path = os.path.join(output_dir, f"{comp}.png")
-        print(f"Generating graph for {comp} at {output_path}")
         try:
             call_command(
                 "graph_models",
@@ -168,10 +166,9 @@ def generate_django_model_graphs_with_django_extensions(app):
                 rankdir="LR",
                 hide_edge_labels=True,
             )
-            print(f"Graph generated for {comp}")
         except Exception as e:
             print(f"Failed to generate graph for {comp}: {e}")
 
 
 def setup(app):
-    app.connect("builder-inited", generate_django_model_graphs_with_django_extensions)
+    app.connect("builder-inited", generate_django_model_graphs)
