@@ -212,6 +212,7 @@ django==5.2.1
     #   django-solo
     #   django-timezone-field
     #   django-two-factor-auth
+    #   django-upgrade-check
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -378,6 +379,11 @@ django-two-factor-auth==1.17.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   maykin-2fa
+django-upgrade-check==1.1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   open-api-framework
 django-webtest==1.9.13
     # via -r requirements/test-tools.in
 djangorestframework==3.15.2
@@ -588,7 +594,7 @@ notifications-api-common==0.7.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-open-api-framework==0.10.1
+open-api-framework==0.11.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -628,11 +634,16 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
-psycopg2==2.9.9
+psycopg==3.2.9
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
+psycopg-binary==3.2.9
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   psycopg
 py-cpuinfo==9.0.0
     # via pytest-benchmark
 pycparser==2.21
@@ -791,6 +802,11 @@ self-certifi==1.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+semantic-version==2.10.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-upgrade-check
 sentry-sdk==2.13.0
     # via
     #   -c requirements/base.txt
@@ -867,6 +883,7 @@ typing-extensions==4.12.2
     #   -r requirements/base.txt
     #   faker
     #   mozilla-django-oidc-db
+    #   psycopg
     #   pydantic
     #   pydantic-core
     #   pyopenssl

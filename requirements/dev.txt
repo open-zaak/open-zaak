@@ -259,6 +259,7 @@ django==5.2.1
     #   django-solo
     #   django-timezone-field
     #   django-two-factor-auth
+    #   django-upgrade-check
     #   djangorestframework
     #   djangorestframework-inclusions
     #   drc-cmis
@@ -431,6 +432,11 @@ django-two-factor-auth==1.17.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   maykin-2fa
+django-upgrade-check==1.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   open-api-framework
 django-webtest==1.9.13
     # via
     #   -c requirements/ci.txt
@@ -694,7 +700,7 @@ notifications-api-common==0.7.2
     #   commonground-api-common
 oauthlib==3.1.0
     # via requests-oauthlib
-open-api-framework==0.10.1
+open-api-framework==0.11.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -755,11 +761,16 @@ propcache==0.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-psycopg2==2.9.9
+psycopg==3.2.9
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
+psycopg-binary==3.2.9
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   psycopg
 py-cpuinfo==9.0.0
     # via
     #   -c requirements/ci.txt
@@ -974,6 +985,11 @@ self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+semantic-version==2.10.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-upgrade-check
 sentry-sdk==2.13.0
     # via
     #   -c requirements/ci.txt
@@ -1094,6 +1110,7 @@ typing-extensions==4.12.2
     #   anyio
     #   faker
     #   mozilla-django-oidc-db
+    #   psycopg
     #   pydantic
     #   pydantic-core
     #   pyopenssl
