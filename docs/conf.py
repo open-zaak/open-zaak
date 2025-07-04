@@ -7,8 +7,10 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
+from io import StringIO
 
 import django
+from django.core.management import call_command
 from django.utils.translation import activate
 
 sys.path.insert(0, os.path.abspath("../src"))
@@ -52,6 +54,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.graphviz",
     "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
@@ -59,6 +62,7 @@ extensions = [
     "django_setup_configuration.documentation.setup_config_example",
     "django_setup_configuration.documentation.setup_config_usage",
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -92,7 +96,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ["_static"]
 
 todo_include_todos = True
 
@@ -131,3 +135,197 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+
+#
+#   Datamodel image creation
+#
+graphviz_output_format = "png"
+
+
+def split_and_sort_dot(lines):
+    header, blocks, footer = [], [], []
+    block, in_graph = [], False
+    in_label_block = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Collect header before graph start
+        if not in_graph:
+            header.append(line)
+            if stripped.startswith("digraph") or stripped == "{":
+                in_graph = True
+            continue
+
+        # Detect end of graph
+        if stripped == "}":
+            if block:
+                blocks.append(block)
+                block = []
+            footer.append(line)
+            in_graph = False
+            continue
+
+        # Skip empty lines before first block
+        if not block and stripped == "":
+            header.append(line)
+            continue
+
+        # Inside multiline label block
+        if in_label_block:
+            block.append(line)
+            if stripped.endswith(">];") or stripped.endswith(">]"):
+                blocks.append(block)
+                block = []
+                in_label_block = False
+            continue
+
+        # Start of label block
+        if " [label=<" in line or ' [label="' in line:
+            in_label_block = True
+            block.append(line)
+            continue
+
+        # Normal block lines (edges or simple nodes)
+        block.append(line)
+        if stripped.endswith(";"):
+            blocks.append(block)
+            block = []
+
+    def sort_label_table_rows(block_lines):
+        # Find indices of <TABLE> and </TABLE>
+        label_start_idx = None
+        label_end_idx = None
+        for i, line in enumerate(block_lines):
+            if "<TABLE" in line:
+                label_start_idx = i
+            if "</TABLE>" in line:
+                label_end_idx = i
+                break
+        if label_start_idx is None or label_end_idx is None:
+            return block_lines  # no table found, return as is
+
+        before = block_lines[: label_start_idx + 1]
+        table_content = block_lines[label_start_idx + 1 : label_end_idx]
+        after = block_lines[label_end_idx:]
+
+        # Extract TR blocks
+        trs = []
+        current_tr = []
+        in_tr = False
+        for line in table_content:
+            if "<TR>" in line:
+                in_tr = True
+                current_tr = [line]
+            elif "</TR>" in line:
+                current_tr.append(line)
+                trs.append(current_tr)
+                current_tr = []
+                in_tr = False
+            elif in_tr:
+                current_tr.append(line)
+            else:
+                # Lines outside TR (rare) just keep as separate blocks
+                trs.append([line])
+
+        # Sort TR blocks by field name, except keep header TR first
+        header_tr = trs[0] if trs else []
+        data_trs = trs[1:] if len(trs) > 1 else []
+
+        def get_field_name(tr_lines):
+            for line in tr_lines:
+                m = re.search(r"<FONT[^>]*>([^<]+)</FONT>", line)
+                if m:
+                    return m.group(1).strip().lower()
+            return ""
+
+        data_trs.sort(key=get_field_name)
+
+        sorted_table_content = []
+        if header_tr:
+            sorted_table_content.extend(header_tr)
+        for tr in data_trs:
+            sorted_table_content.extend(tr)
+
+        return before + sorted_table_content + after
+
+    def sort_key(block):
+        first_line = block[0].strip()
+        if "->" in first_line:
+            return ("z", first_line.lower())  # edges after nodes
+        node_name = first_line.split()[0].split("[")[0].lower()
+        return ("a", node_name)
+
+    # Sort fields inside label blocks
+    sorted_blocks = []
+    for block in blocks:
+        first_line = block[0].strip()
+        if " [label=<" in first_line or ' [label="' in first_line:
+            block = sort_label_table_rows(block)
+        sorted_blocks.append(block)
+
+    sorted_blocks.sort(key=sort_key)
+
+    return header + [line for b in sorted_blocks for line in b] + footer
+
+
+def generate_django_model_graphs(app):
+    output_dir = os.path.join(app.srcdir, "_static", "uml")
+    os.makedirs(output_dir, exist_ok=True)
+
+    project_root = os.path.abspath(os.path.join(app.srcdir, ".."))
+    components_dir = os.path.join(project_root, "src", "openzaak", "components")
+
+    apps_in_components = [
+        d
+        for d in os.listdir(components_dir)
+        if os.path.isdir(os.path.join(components_dir, d))
+        and os.path.isfile(os.path.join(components_dir, d, "__init__.py"))
+    ]
+
+    for comp in apps_in_components:
+        dot_path = os.path.join(output_dir, f"{comp}.dot")
+        png_path = os.path.join(output_dir, f"{comp}.png")
+
+        buf = StringIO()
+        try:
+            call_command(
+                "graph_models",
+                comp,
+                stdout=buf,
+                rankdir="LR",
+                hide_edge_labels=True,
+            )
+            raw_dot_lines = buf.getvalue().splitlines()
+
+            dot_body_lines = [
+                line
+                for line in raw_dot_lines
+                if not line.strip().startswith("// Dotfile")
+                and not line.strip().startswith("// Created")
+                and not line.strip().startswith("// Cli Options")
+            ]
+
+            sorted_dot_body = split_and_sort_dot(dot_body_lines)
+
+            with open(dot_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(sorted_dot_body) + "\n")
+        except Exception as exc:
+            print(f"Failed to generate .dot for {comp}: {exc}")
+            continue
+
+        try:
+            call_command(
+                "graph_models",
+                comp,
+                output=png_path,
+                rankdir="LR",
+                hide_edge_labels=True,
+            )
+        except Exception as exc:
+            print(f"Failed to generate PNG for {comp}: {exc}")
+
+
+def setup(app):
+    app.connect("builder-inited", generate_django_model_graphs)

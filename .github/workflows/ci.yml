@@ -70,6 +70,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           cache: "pip"
           cache-dependency-path: "requirements/*.txt"
@@ -82,7 +83,9 @@ jobs:
           sudo apt-get update \
           && sudo apt-get install -y --no-install-recommends \
             libgdal-dev \
-            gdal-bin
+            gdal-bin \
+            graphviz \
+            libgraphviz-dev
 
       - name: Install dependencies
         run: |
@@ -143,7 +146,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
+          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -215,7 +218,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
+          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -269,7 +272,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
           optimize-postgres: "no"
           setup-node: "no"
@@ -343,7 +346,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
           python-version: "3.12"
 
       - name: Generate environment variable documentation using OAf and check if it was updated
@@ -358,6 +361,20 @@ jobs:
           fi
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+
+      - name: Build HTML docs
+        run: make SPHINXOPTS="-W" html
+        working-directory: docs
+
+      - name: Check if UML .dot files were modified
+        run: |
+          DOT_DIFF=$(git diff -w -- docs/_static/uml/*.dot || true)
+          if [ -n "$DOT_DIFF" ]; then
+            echo "UML .dot file content has changed"
+            echo "Please update the diagrams documentation by running \`cd docs | make html\`"
+            echo "$DOT_DIFF"
+            exit 1
+          fi
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
@@ -379,7 +396,7 @@ jobs:
     needs:
       - store-reusable-workflow-vars
     with:
-      apt-packages: "libgdal-dev gdal-bin"
+      apt-packages: "libgdal-dev gdal-bin graphviz libgraphviz-dev"
       main-branch: "main"
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci
