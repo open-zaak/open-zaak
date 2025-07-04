@@ -6706,6 +6706,7 @@ components:
         wijzigingen:
           $ref: '#/components/schemas/Wijzigingen'
       required:
+      - aanmaakdatum
       - actie
       - bron
       - hoofdObject
@@ -6744,6 +6745,10 @@ components:
           description: Hash string, which represents id of the lock of related informatieobject
       required:
       - lock
+      - omvang
+      - url
+      - volgnummer
+      - voltooid
     BestandsDeelRequest:
       type: object
       properties:
@@ -7161,11 +7166,16 @@ components:
           description: Een lijst van trefwoorden gescheiden door comma's.
       required:
       - auteur
+      - beginRegistratie
+      - bestandsdelen
       - bronorganisatie
       - creatiedatum
       - informatieobjecttype
+      - locked
       - taal
       - titel
+      - url
+      - versie
     EnkelvoudigInformatieObjectCreateLockRequest:
       type: object
       description: |-
@@ -7625,6 +7635,7 @@ components:
       - informatieobject
       - omschrijvingVoorwaarden
       - startdatum
+      - url
     GebruiksrechtenRequest:
       type: object
       properties:
@@ -7680,6 +7691,7 @@ components:
           type: string
           readOnly: true
       required:
+      - status
       - total
     ImportCreate:
       type: object
@@ -7701,6 +7713,10 @@ components:
           readOnly: true
           description: De URL waar het rapportage bestand gedownload kan worden van
             de IMPORT wanneer deze is afgerond.
+      required:
+      - reportUrl
+      - statusUrl
+      - uploadUrl
     Integriteit:
       type: object
       properties:
@@ -7784,6 +7800,8 @@ components:
           type: string
           readOnly: true
           description: Hash string, wordt gebruikt als ID voor de lock
+      required:
+      - lock
     ObjectInformatieObject:
       type: object
       properties:
@@ -7821,6 +7839,7 @@ components:
       - informatieobject
       - object
       - objectType
+      - url
     ObjectInformatieObjectRequest:
       type: object
       properties:
@@ -8330,6 +8349,8 @@ components:
             default: ''
             description: Een binnen een gegeven context ondubbelzinnige referentie
               naar het INFORMATIEOBJECT.
+        required:
+        - identificatie
       - type: array
         items:
           type: object
@@ -8340,6 +8361,8 @@ components:
               default: ''
               description: Een binnen een gegeven context ondubbelzinnige referentie
                 naar het INFORMATIEOBJECT.
+          required:
+          - identificatie
     ReservedDocumentRequest:
       type: object
       properties:
@@ -8546,6 +8569,7 @@ components:
       - betrokkene
       - contactPersoon
       - informatieobject
+      - url
     VerzendingRequest:
       type: object
       description: |-

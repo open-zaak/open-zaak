@@ -1558,14 +1558,14 @@ class ZaakVerzoekViewSet(
         examples=[
             OpenApiExample(
                 "Enkele reservering",
-                value={"identificatie": "ZAAK-2025-0000000001"},
+                value={"zaaknummer": "ZAAK-2025-0000000001"},
                 response_only=True,
             ),
             OpenApiExample(
                 "Meerdere reserveringen",
                 value=[
-                    {"identificatie": "ZAAK-2025-0000000001"},
-                    {"identificatie": "ZAAK-2025-0000000002"},
+                    {"zaaknummer": "ZAAK-2025-0000000001"},
+                    {"zaaknummer": "ZAAK-2025-0000000002"},
                 ],
                 response_only=True,
             ),

@@ -2201,6 +2201,7 @@ components:
         wijzigingen:
           $ref: '#/components/schemas/Wijzigingen'
       required:
+      - aanmaakdatum
       - actie
       - bron
       - hoofdObject
@@ -2306,7 +2307,9 @@ components:
       - besluittype
       - datum
       - ingangsdatum
+      - url
       - verantwoordelijkeOrganisatie
+      - vervalredenWeergave
     BesluitInformatieObject:
       type: object
       properties:
@@ -2334,6 +2337,7 @@ components:
       required:
       - besluit
       - informatieobject
+      - url
     BesluitInformatieObjectRequest:
       type: object
       properties:
