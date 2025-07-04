@@ -260,7 +260,6 @@ django-extensions==4.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   -r requirements/test-tools.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/base.txt
@@ -682,8 +681,6 @@ pygments==2.18.0
     # via
     #   sphinx
     #   sphinx-tabs
-pygraphviz==1.14
-    # via -r requirements/test-tools.in
 pyjwt==2.10.1
     # via
     #   -c requirements/base.txt

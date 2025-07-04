@@ -26,7 +26,7 @@ jobs:
     uses: maykinmedia/open-api-workflows/.github/workflows/oas.yml@v5
     with:
       python-version: "3.12"
-      apt-packages: "libgdal-dev gdal-bin  graphviz libgraphviz-dev"
+      apt-packages: "libgdal-dev gdal-bin"
       django-settings-module: openzaak.conf.ci
       oas-generate-command: >2
         bin/generate_schema_for_component.sh ${{ matrix.component }}

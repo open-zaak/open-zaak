@@ -791,10 +791,6 @@ pygments==2.18.0
     #   rich
     #   sphinx
     #   sphinx-tabs
-pygraphviz==1.14
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 pyinstrument==5.0.1
     # via -r requirements/dev.in
 pyjwt==2.10.1
