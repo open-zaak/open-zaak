@@ -83,7 +83,9 @@ jobs:
           sudo apt-get update \
           && sudo apt-get install -y --no-install-recommends \
             libgdal-dev \
-            gdal-bin
+            gdal-bin \
+            graphviz \
+            libgraphviz-dev
 
       - name: Install dependencies
         run: |
@@ -361,18 +363,16 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: openzaak.conf.ci
 
-      # - name: Build HTML docs
-      #   run: make SPHINXOPTS="-W" html
-      #   working-directory: docs
+      - name: Build HTML docs
+        run: make SPHINXOPTS="-W" html
+        working-directory: docs
 
-      # - name: Check if UML images were updated
-      #   run: |
-      #     changes=$(git diff docs/_static/uml)
-      #     if [ ! -z "$changes" ]; then
-      #         echo "$changes"
-      #         echo "Please update the UML images in docs/_static/uml"
-      #         exit 1
-      #     fi
+      - name: Check if UML images were updated
+        run: |
+          if ! git diff --quiet HEAD -- docs/_static/uml; then
+            echo "UML images have changed. Please update the UML images in docs/_static/uml"
+            exit 1
+          fi
 
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
