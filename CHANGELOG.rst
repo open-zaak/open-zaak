@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.21.2 (2025-07-04)
+-------------------
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`2072`] Ensure archiving parameters for deelzaken are set to ``null`` when hoofdzaak is reopened
+* [:open-zaak:`2041`] Add condition to fix 500 error when hoofdzaak with deelzaken changes to non eindstatus
+
 1.21.1 (2025-05-27)
 -------------------
 
