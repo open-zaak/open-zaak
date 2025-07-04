@@ -1,4 +1,0 @@
-collections:
-  - name: openzaak.deploy
-    version: 0.17.0
-    source: https://galaxy.ansible.com
