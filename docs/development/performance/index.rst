@@ -47,62 +47,66 @@ Performance test results
 1 user
 ^^^^^^
 
-================= ========= ======================
-OZ version        Role      Median time (in ms, average over all endpoints)
-================= ========= ======================
-1.9.0             Superuser 740
-1.9.0             Regular   2500
-1.10.2            Superuser 790
-1.10.2            Regular   1600
-1.13.0            Superuser 860
-1.13.0            Regular   1700
-1.14.0 (fuzzy on) Superuser 640
-1.14.0 (fuzzy on) Regular   690
-1.17.0 (fuzzy on) Superuser 480
-1.17.0 (fuzzy on) Regular   610
-1.18.0 (fuzzy on) Superuser 510
-1.18.0 (fuzzy on) Regular   550
-1.19.0 (fuzzy on) Superuser 540
-1.19.0 (fuzzy on) Regular   610
-1.20.0 (fuzzy on) Superuser 570
-1.20.0 (fuzzy on) Regular   580
-1.21.0 (fuzzy on) Superuser 160
-1.21.0 (fuzzy on) Regular   220
-1.21.1 (fuzzy on) Superuser 150
-1.21.1 (fuzzy on) Regular   220
-1.21.2 (fuzzy on) Superuser 160
-1.21.2 (fuzzy on) Regular   200
-================= ========= ======================
+====================== ========= ======================
+OZ version             Role      Median time (in ms, average over all endpoints)
+====================== ========= ======================
+1.9.0                  Superuser 740
+1.9.0                  Regular   2500
+1.10.2                 Superuser 790
+1.10.2                 Regular   1600
+1.13.0                 Superuser 860
+1.13.0                 Regular   1700
+1.14.0 (fuzzy on)      Superuser 640
+1.14.0 (fuzzy on)      Regular   690
+1.17.0 (fuzzy on)      Superuser 480
+1.17.0 (fuzzy on)      Regular   610
+1.18.0 (fuzzy on)      Superuser 510
+1.18.0 (fuzzy on)      Regular   550
+1.19.0 (fuzzy on)      Superuser 540
+1.19.0 (fuzzy on)      Regular   610
+1.20.0 (fuzzy on)      Superuser 570
+1.20.0 (fuzzy on)      Regular   580
+1.21.0 (fuzzy on)      Superuser 160
+1.21.0 (fuzzy on)      Regular   220
+1.21.1 (fuzzy on)      Superuser 150
+1.21.1 (fuzzy on)      Regular   220
+1.21.2 (fuzzy on)      Superuser 160
+1.21.2 (fuzzy on)      Regular   200
+1.22.0-beta (fuzzy on) Superuser 160
+1.22.0-beta (fuzzy on) Regular   200
+====================== ========= ======================
 
 16 users
 ^^^^^^^^
 
-================= ========= ======================
-OZ version        Role      Median time (in ms, average over all endpoints)
-================= ========= ======================
-1.9.0             Superuser 2300
-1.9.0             Regular   13000
-1.10.2            Superuser 3200
-1.10.2            Regular   11000
-1.13.0            Superuser 3400
-1.13.0            Regular   11000
-1.14.0 (fuzzy on) Superuser 2600
-1.14.0 (fuzzy on) Regular   3400
-1.17.0 (fuzzy on) Superuser 3300
-1.17.0 (fuzzy on) Regular   4000
-1.18.0 (fuzzy on) Superuser 1900
-1.18.0 (fuzzy on) Regular   2300
-1.19.0 (fuzzy on) Superuser 2100
-1.19.0 (fuzzy on) Regular   2200
-1.20.0 (fuzzy on) Superuser 2200
-1.20.0 (fuzzy on) Regular   2100
-1.21.0 (fuzzy on) Superuser 390
-1.21.0 (fuzzy on) Regular   510
-1.21.1 (fuzzy on) Superuser 390
-1.21.1 (fuzzy on) Regular   510
-1.21.1 (fuzzy on) Superuser 400
-1.21.1 (fuzzy on) Regular   540
-================= ========= ======================
+====================== ========= ======================
+OZ version             Role      Median time (in ms, average over all endpoints)
+====================== ========= ======================
+1.9.0                  Superuser 2300
+1.9.0                  Regular   13000
+1.10.2                 Superuser 3200
+1.10.2                 Regular   11000
+1.13.0                 Superuser 3400
+1.13.0                 Regular   11000
+1.14.0 (fuzzy on)      Superuser 2600
+1.14.0 (fuzzy on)      Regular   3400
+1.17.0 (fuzzy on)      Superuser 3300
+1.17.0 (fuzzy on)      Regular   4000
+1.18.0 (fuzzy on)      Superuser 1900
+1.18.0 (fuzzy on)      Regular   2300
+1.19.0 (fuzzy on)      Superuser 2100
+1.19.0 (fuzzy on)      Regular   2200
+1.20.0 (fuzzy on)      Superuser 2200
+1.20.0 (fuzzy on)      Regular   2100
+1.21.0 (fuzzy on)      Superuser 390
+1.21.0 (fuzzy on)      Regular   510
+1.21.1 (fuzzy on)      Superuser 390
+1.21.1 (fuzzy on)      Regular   510
+1.21.1 (fuzzy on)      Superuser 400
+1.21.1 (fuzzy on)      Regular   540
+1.22.0-beta (fuzzy on) Superuser 520
+1.22.0-beta (fuzzy on) Regular   660
+====================== ========= ======================
 
 
 .. toctree::
