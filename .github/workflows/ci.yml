@@ -367,10 +367,12 @@ jobs:
         run: make SPHINXOPTS="-W" html
         working-directory: docs
 
-      - name: Check if UML images were updated
+      - name: Check if UML .dot files were modified
         run: |
-          if ! git diff --quiet HEAD -- docs/_static/uml; then
-            echo "UML images have changed. Please update the UML images in docs/_static/uml"
+          DOT_DIFF=$(git diff -- docs/_static/uml/*.dot || true)
+          if [ -n "$DOT_DIFF" ]; then
+            echo "UML .dot file content has changed"
+            echo "Please update the diagrams documentation by running \`cd docs | make html\`"
             exit 1
           fi
 
