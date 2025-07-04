@@ -59,6 +59,7 @@ from openzaak.utils.schema import (
 )
 from openzaak.utils.views import AuditTrailViewSet
 
+from ...zaken.api.scopes import SCOPE_ZAKEN_CREATE
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -80,7 +81,10 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
-from .permissions import InformationObjectAuthRequired
+from .permissions import (
+    DocumentReserverenAuthRequired,
+    InformationObjectAuthRequired,
+)
 from .renderers import BinaryFileRenderer
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
@@ -99,6 +103,7 @@ from .serializers import (
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
+    RegisterDocumentSerializer,
     ReservedDocumentSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
@@ -1052,3 +1057,21 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
 
         output_serializer = self.serializer_class(instances, many=True)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RegisterDocumentViewSet(
+    viewsets.GenericViewSet, viewsets.mixins.CreateModelMixin
+):
+    queryset = EnkelvoudigInformatieObject.objects.all()
+    serializer_class = RegisterDocumentSerializer
+    permission_classes = (DocumentReserverenAuthRequired,)
+
+    # TODO  only used for api spec and `|` should be `&`
+    required_scopes = {
+        "create": SCOPE_DOCUMENTEN_AANMAKEN | SCOPE_ZAKEN_CREATE,
+    }
+
+    viewset_classes = {
+        "enkelvoudiginformatieobject": "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        "zaakinformatieobject": "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+    }

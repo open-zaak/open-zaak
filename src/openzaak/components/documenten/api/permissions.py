@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from openzaak.utils.permissions import AuthRequired
+from openzaak.components.zaken.api.permissions import ZaakAuthRequired
+from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
 class InformationObjectAuthRequired(AuthRequired):
@@ -16,3 +17,14 @@ class InformationObjectAuthRequired(AuthRequired):
 
     def get_main_object(self, obj, permission_main_object):
         return obj.get_informatieobject(permission_main_object)
+
+
+class DocumentReserverenAuthRequired(MultipleObjectsAuthRequired):
+    permission_fields = {
+        "enkelvoudiginformatieobject": InformationObjectAuthRequired.permission_fields,
+        "zaakinformatieobject": ZaakAuthRequired.permission_fields,
+    }
+    main_resources = {
+        "enkelvoudiginformatieobject": InformationObjectAuthRequired.main_resource,
+        "zaakinformatieobject": ZaakAuthRequired.main_resource,
+    }

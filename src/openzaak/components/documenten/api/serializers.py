@@ -44,6 +44,7 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
+from ...zaken.api.serializers import ZaakInformatieObjectSerializer
 from ..constants import (
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
@@ -555,6 +556,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        # instance is used in by AnyBase64File.to_representation
+        if not self.instance:
+            self.instance = instance
+
         ret = super().to_representation(instance)
         # With Alfresco, the URL cannot be retrieved using the
         # latest_version property of the canonical object
@@ -1160,3 +1165,53 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
                 "required": True,
             },
         }
+
+
+class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["informatieobject"].read_only = True
+
+
+class RegisterDocumentSerializer(serializers.Serializer):
+    enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
+    zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()
+
+    @transaction.atomic
+    def create(self, validated_data):
+        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"]
+        zaakinformatieobject = validated_data["zaakinformatieobject"]
+
+        eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
+            data=enkelvoudiginformatieobject, context=self.context
+        )
+        eio_serializer.is_valid(raise_exception=True)
+        eio = eio_serializer.save()
+
+        # url vs uuid
+        zio_serializer = ZaakInformatieObjectSerializer(
+            data=zaakinformatieobject
+            | {
+                "informatieobject": reverse(
+                    "enkelvoudiginformatieobject-detail",
+                    kwargs={"uuid": eio.uuid},
+                    request=self.context["request"],
+                )
+            },
+            context=self.context,
+        )
+        zio_serializer.is_valid(raise_exception=True)
+        zio = zio_serializer.save()
+
+        return {
+            "enkelvoudiginformatieobject": eio,
+            "zaakinformatieobject": zio,
+        }
+
+    # TODO is this skipping validation?
+    def to_internal_value(self, data):
+        """
+        Normally this transforms json into data but the nested serializers still expect strings.
+        """
+        return data
