@@ -1185,6 +1185,7 @@ components:
       required:
       - clientIds
       - label
+      - url
     ApplicatieRequest:
       type: object
       properties:
@@ -1280,6 +1281,7 @@ components:
             van acties/operaties, zoals gedocumenteerd bij de betreffende component.
       required:
       - component
+      - componentWeergave
       - scopes
     Base_AutorisatieBaseSerializerRequest:
       type: object

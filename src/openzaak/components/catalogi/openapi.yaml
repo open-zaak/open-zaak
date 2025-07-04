@@ -10324,9 +10324,17 @@ components:
           description: De datum van de aller laatste versie van het object.
       required:
       - beginGeldigheid
+      - beginObject
       - catalogus
+      - concept
+      - eindeObject
       - informatieobjecttypen
       - publicatieIndicatie
+      - resultaattypen
+      - resultaattypenOmschrijving
+      - url
+      - vastgelegdIn
+      - zaaktypen
     BesluitTypeRequest:
       type: object
       properties:
@@ -10761,9 +10769,13 @@ components:
           description: Datum waarop de versie van de zaaktypecatalogus van toepassing
             is geworden.
       required:
+      - besluittypen
       - contactpersoonBeheerNaam
       - domein
+      - informatieobjecttypen
       - rsin
+      - url
+      - zaaktypen
     CatalogusRequest:
       type: object
       properties:
@@ -10940,10 +10952,15 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
+      - beginObject
+      - catalogus
       - definitie
+      - eindeObject
       - naam
       - specificatie
+      - url
       - zaaktype
+      - zaaktypeIdentificatie
     EigenschapRequest:
       type: object
       description: Adds nested create feature
@@ -11236,10 +11253,16 @@ components:
           description: De datum van de aller laatste versie van het object.
       required:
       - beginGeldigheid
+      - beginObject
+      - besluittypen
       - catalogus
+      - concept
+      - eindeObject
       - informatieobjectcategorie
       - omschrijving
+      - url
       - vertrouwelijkheidaanduiding
+      - zaaktypen
     InformatieObjectTypeRequest:
       type: object
       properties:
@@ -12532,10 +12555,18 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
+      - beginObject
+      - besluittypeOmschrijving
+      - catalogus
+      - eindeObject
+      - informatieobjecttypeOmschrijving
       - omschrijving
+      - omschrijvingGeneriek
       - resultaattypeomschrijving
       - selectielijstklasse
+      - url
       - zaaktype
+      - zaaktypeIdentificatie
     ResultaatTypeRequest:
       type: object
       description: |-
@@ -12733,9 +12764,14 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
+      - beginObject
+      - catalogus
+      - eindeObject
       - omschrijving
       - omschrijvingGeneriek
+      - url
       - zaaktype
+      - zaaktypeIdentificatie
     RolTypeRequest:
       type: object
       description: Adds nested create feature
@@ -12896,9 +12932,17 @@ components:
           readOnly: true
           description: De datum van de aller laatste versie van het object.
       required:
+      - beginObject
+      - catalogus
+      - eigenschappen
+      - eindeObject
+      - isEindstatus
       - omschrijving
+      - url
       - volgnummer
+      - zaakobjecttypen
       - zaaktype
+      - zaaktypeIdentificatie
     StatusTypeRequest:
       type: object
       description: Adds nested create feature
@@ -13094,9 +13138,15 @@ components:
           description: De datum van de aller laatste versie van het object.
       required:
       - anderObjecttype
+      - beginObject
+      - catalogus
+      - eindeObject
       - objecttype
       - relatieOmschrijving
+      - resultaattypen
+      - url
       - zaaktype
+      - zaaktypeIdentificatie
     ZaakObjectTypeRequest:
       type: object
       properties:
@@ -13425,24 +13475,34 @@ components:
       required:
       - aanleiding
       - beginGeldigheid
+      - beginObject
       - besluittypen
       - catalogus
+      - concept
       - doel
       - doorlooptijd
+      - eigenschappen
+      - eindeObject
       - gerelateerdeZaaktypen
       - handelingBehandelaar
       - handelingInitiator
       - indicatieInternOfExtern
+      - informatieobjecttypen
       - omschrijving
       - onderwerp
       - opschortingEnAanhoudingMogelijk
       - productenOfDiensten
       - publicatieIndicatie
       - referentieproces
+      - resultaattypen
+      - roltypen
+      - statustypen
+      - url
       - verantwoordelijke
       - verlengingMogelijk
       - versiedatum
       - vertrouwelijkheidaanduiding
+      - zaakobjecttypen
     ZaakTypeInformatieObjectType:
       type: object
       description: |-
@@ -13508,10 +13568,13 @@ components:
           readOnly: true
           description: URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort.
       required:
+      - catalogus
       - informatieobjecttype
       - richting
+      - url
       - volgnummer
       - zaaktype
+      - zaaktypeIdentificatie
     ZaakTypeInformatieObjectTypeRequest:
       type: object
       description: |-
