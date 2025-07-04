@@ -2,6 +2,16 @@ digraph model_graph {
 
 
 
+
+
+  // Relations
+  vng_api_common_authorizations_models_Applicatie [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Applicatie</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
   fontname = "Roboto"
   fontsize = 8
   splines  = true
@@ -78,18 +88,10 @@ digraph model_graph {
   
     </TABLE>
     >]
+  openzaak_components_autorisaties_models_CatalogusAutorisatie -> openzaak_components_catalogi_models_catalogus_Catalogus
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
 
 
-
-
-  // Relations
-  vng_api_common_authorizations_models_Applicatie [label=<
-  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
-  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Applicatie</FONT>
-  </TD></TR>
-  </TABLE>
-  >]
   openzaak_components_autorisaties_models_CatalogusAutorisatie -> vng_api_common_authorizations_models_Applicatie
   [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
   openzaak_components_catalogi_models_catalogus_Catalogus [label=<
@@ -99,6 +101,4 @@ digraph model_graph {
   </TD></TR>
   </TABLE>
   >]
-  openzaak_components_autorisaties_models_CatalogusAutorisatie -> openzaak_components_catalogi_models_catalogus_Catalogus
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
 }

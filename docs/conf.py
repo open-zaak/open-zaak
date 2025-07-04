@@ -146,15 +146,19 @@ graphviz_output_format = "png"
 def split_and_sort_dot(lines):
     header, blocks, footer = [], [], []
     block, in_graph = [], False
+    in_label_block = False
 
     for line in lines:
         stripped = line.strip()
+
+        # Collect header before graph start
         if not in_graph:
             header.append(line)
             if stripped.startswith("digraph") or stripped == "{":
                 in_graph = True
             continue
 
+        # Detect end of graph
         if stripped == "}":
             if block:
                 blocks.append(block)
@@ -163,18 +167,107 @@ def split_and_sort_dot(lines):
             in_graph = False
             continue
 
+        # Skip empty lines before first block
         if not block and stripped == "":
             header.append(line)
             continue
 
+        # Inside multiline label block
+        if in_label_block:
+            block.append(line)
+            if stripped.endswith(">];") or stripped.endswith(">]"):
+                blocks.append(block)
+                block = []
+                in_label_block = False
+            continue
+
+        # Start of label block
+        if " [label=<" in line or ' [label="' in line:
+            in_label_block = True
+            block.append(line)
+            continue
+
+        # Normal block lines (edges or simple nodes)
         block.append(line)
-        if stripped.endswith("];") or stripped.endswith(";"):
+        if stripped.endswith(";"):
             blocks.append(block)
             block = []
 
-    # sort blocks by first word in first line
-    blocks.sort(key=lambda b: b[0].strip().split()[0])
-    return header + [line for b in blocks for line in b] + footer
+    def sort_label_table_rows(block_lines):
+        # Find indices of <TABLE> and </TABLE>
+        label_start_idx = None
+        label_end_idx = None
+        for i, line in enumerate(block_lines):
+            if "<TABLE" in line:
+                label_start_idx = i
+            if "</TABLE>" in line:
+                label_end_idx = i
+                break
+        if label_start_idx is None or label_end_idx is None:
+            return block_lines  # no table found, return as is
+
+        before = block_lines[: label_start_idx + 1]
+        table_content = block_lines[label_start_idx + 1 : label_end_idx]
+        after = block_lines[label_end_idx:]
+
+        # Extract TR blocks
+        trs = []
+        current_tr = []
+        in_tr = False
+        for line in table_content:
+            if "<TR>" in line:
+                in_tr = True
+                current_tr = [line]
+            elif "</TR>" in line:
+                current_tr.append(line)
+                trs.append(current_tr)
+                current_tr = []
+                in_tr = False
+            elif in_tr:
+                current_tr.append(line)
+            else:
+                # Lines outside TR (rare) just keep as separate blocks
+                trs.append([line])
+
+        # Sort TR blocks by field name, except keep header TR first
+        header_tr = trs[0] if trs else []
+        data_trs = trs[1:] if len(trs) > 1 else []
+
+        def get_field_name(tr_lines):
+            for line in tr_lines:
+                m = re.search(r"<FONT[^>]*>([^<]+)</FONT>", line)
+                if m:
+                    return m.group(1).strip().lower()
+            return ""
+
+        data_trs.sort(key=get_field_name)
+
+        sorted_table_content = []
+        if header_tr:
+            sorted_table_content.extend(header_tr)
+        for tr in data_trs:
+            sorted_table_content.extend(tr)
+
+        return before + sorted_table_content + after
+
+    def sort_key(block):
+        first_line = block[0].strip()
+        if "->" in first_line:
+            return ("z", first_line.lower())  # edges after nodes
+        node_name = first_line.split()[0].split("[")[0].lower()
+        return ("a", node_name)
+
+    # Sort fields inside label blocks
+    sorted_blocks = []
+    for block in blocks:
+        first_line = block[0].strip()
+        if " [label=<" in first_line or ' [label="' in first_line:
+            block = sort_label_table_rows(block)
+        sorted_blocks.append(block)
+
+    sorted_blocks.sort(key=sort_key)
+
+    return header + [line for b in sorted_blocks for line in b] + footer
 
 
 def generate_django_model_graphs(app):

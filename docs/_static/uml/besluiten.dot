@@ -5,6 +5,56 @@ digraph model_graph {
 
 
 
+
+  // Relations
+  zgw_consumers_models_services_Service [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Service</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  fontname = "Roboto"
+  fontsize = 8
+  splines  = true
+  rankdir = "LR"
+
+  node [
+    fontname = "Roboto"
+    fontsize = 8
+    shape = "plaintext"
+  ]
+
+  edge [
+    fontname = "Roboto"
+    fontsize = 8
+  ]
+
+  // Labels
+
+
+  vng_api_common_caching_models_ETagMixin [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    ETagMixin
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">_etag</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+  openzaak_components_besluiten_models_Besluit [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    Besluit<BR/>&lt;<FONT FACE="Roboto"><I>ETagMixin</I></FONT>&gt;
     </B></FONT></TD></TR>
   
   
@@ -209,7 +259,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_besluiten_models_BesluitInformatieObject [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -299,11 +348,23 @@ digraph model_graph {
   
     </TABLE>
     >]
+  openzaak_components_besluiten_models_Besluit -> openzaak_components_catalogi_models_besluittype_BesluitType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+  zgw_consumers_models_services_Service [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Service</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
+  openzaak_components_besluiten_models_Besluit -> openzaak_components_zaken_models_zaken_Zaak
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
 
+  openzaak_components_besluiten_models_Besluit -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
 
-
-
-  // Relations
+  openzaak_components_besluiten_models_BesluitInformatieObject -> openzaak_components_besluiten_models_Besluit
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
   zgw_consumers_models_services_Service [label=<
   <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
   <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -313,54 +374,6 @@ digraph model_graph {
   >]
   openzaak_components_besluiten_models_Besluit -> zgw_consumers_models_services_Service
   [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  fontname = "Roboto"
-  fontsize = 8
-  splines  = true
-  rankdir = "LR"
-
-  node [
-    fontname = "Roboto"
-    fontsize = 8
-    shape = "plaintext"
-  ]
-
-  edge [
-    fontname = "Roboto"
-    fontsize = 8
-  ]
-
-  // Labels
-
-
-  vng_api_common_caching_models_ETagMixin [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    ETagMixin
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">_etag</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  openzaak_components_besluiten_models_Besluit [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    Besluit<BR/>&lt;<FONT FACE="Roboto"><I>ETagMixin</I></FONT>&gt;
-  openzaak_components_besluiten_models_Besluit -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_besluiten_models_BesluitInformatieObject -> openzaak_components_besluiten_models_Besluit
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_besluiten_models_BesluitInformatieObject -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
   openzaak_components_catalogi_models_besluittype_BesluitType [label=<
   <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
   <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -368,16 +381,7 @@ digraph model_graph {
   </TD></TR>
   </TABLE>
   >]
-  openzaak_components_besluiten_models_Besluit -> openzaak_components_catalogi_models_besluittype_BesluitType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_documenten_models_EnkelvoudigInformatieObjectCanonical [label=<
-  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
-  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">EnkelvoudigInformatieObjectCanonical</FONT>
-  </TD></TR>
-  </TABLE>
-  >]
-  openzaak_components_besluiten_models_BesluitInformatieObject -> openzaak_components_documenten_models_EnkelvoudigInformatieObjectCanonical
+  openzaak_components_besluiten_models_Besluit -> zgw_consumers_models_services_Service
   [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
   openzaak_components_zaken_models_zaken_Zaak [label=<
   <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
@@ -386,24 +390,20 @@ digraph model_graph {
   </TD></TR>
   </TABLE>
   >]
-  openzaak_components_besluiten_models_Besluit -> openzaak_components_zaken_models_zaken_Zaak
+  openzaak_components_besluiten_models_BesluitInformatieObject -> openzaak_components_documenten_models_EnkelvoudigInformatieObjectCanonical
   [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  zgw_consumers_models_services_Service [label=<
-  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
-  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Service</FONT>
-  </TD></TR>
-  </TABLE>
-  >]
-  openzaak_components_besluiten_models_Besluit -> zgw_consumers_models_services_Service
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  zgw_consumers_models_services_Service [label=<
-  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
-  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">Service</FONT>
-  </TD></TR>
-  </TABLE>
-  >]
+
+  openzaak_components_besluiten_models_BesluitInformatieObject -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+
   openzaak_components_besluiten_models_BesluitInformatieObject -> zgw_consumers_models_services_Service
   [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+  openzaak_components_documenten_models_EnkelvoudigInformatieObjectCanonical [label=<
+  <TABLE BGCOLOR="white" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+  <TR><TD COLSPAN="2" CELLPADDING="4" ALIGN="CENTER" BGCOLOR="#1b563f">
+  <FONT FACE="Roboto" POINT-SIZE="12" COLOR="white">EnkelvoudigInformatieObjectCanonical</FONT>
+  </TD></TR>
+  </TABLE>
+  >]
 }

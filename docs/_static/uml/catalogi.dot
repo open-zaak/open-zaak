@@ -20,30 +20,179 @@ digraph model_graph {
 
 
 
+  // Relations
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_catalogus_Catalogus
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_mixins_ConceptMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_catalogus_Catalogus -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_eigenschap_EigenschapSpecificatie
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_statustype_StatusType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_eigenschap_Eigenschap -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_catalogus_Catalogus
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_mixins_ConceptMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_statustype_StatusType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_relatieklassen_ZaakTypenRelatie -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_besluittype_BesluitType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_roltype_RolType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_roltype_RolType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_roltype_RolType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_statustype_StatusType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_statustype_StatusType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_statustype_StatusType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_statustype_CheckListItem -> openzaak_components_catalogi_models_statustype_StatusType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_statustype_StatusType
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_catalogus_Catalogus
+  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_zaaktype_ZaakType
+  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
+
+  openzaak_components_catalogi_models_zaaktype_ZaakType -> vng_api_common_caching_models_ETagMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_mixins_ConceptMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
+
+  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
+  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
 
 
+  fontname = "Roboto"
+  fontsize = 8
+  splines  = true
+  rankdir = "LR"
+
+  node [
+    fontname = "Roboto"
+    fontsize = 8
+    shape = "plaintext"
+  ]
+
+  edge [
+    fontname = "Roboto"
+    fontsize = 8
+  ]
+
+  // Labels
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  openzaak_components_catalogi_models_mixins_ConceptMixin [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    ConceptMixin
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">concept</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+  openzaak_components_catalogi_models_besluittype_BesluitType [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    BesluitType<BR/>&lt;<FONT FACE="Roboto"><I>ETagMixin,GeldigheidMixin,ConceptMixin</I></FONT>&gt;
     </B></FONT></TD></TR>
   
   
@@ -168,7 +317,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_catalogi_models_catalogus_Catalogus [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -266,65 +414,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
-  openzaak_components_catalogi_models_eigenschap_EigenschapSpecificatie [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    EigenschapSpecificatie
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>AutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">formaat</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">groep</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">kardinaliteit</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">lengte</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">waardenverzameling</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">ArrayField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
   openzaak_components_catalogi_models_eigenschap_Eigenschap [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -422,7 +511,63 @@ digraph model_graph {
   
     </TABLE>
     >]
-
+  openzaak_components_catalogi_models_eigenschap_EigenschapSpecificatie [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    EigenschapSpecificatie
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">formaat</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">groep</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">kardinaliteit</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">lengte</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">waardenverzameling</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">ArrayField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
   openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -560,7 +705,56 @@ digraph model_graph {
   
     </TABLE>
     >]
-
+  openzaak_components_catalogi_models_mixins_GeldigheidMixin [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    GeldigheidMixin
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">datum_begin_geldigheid</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">DateField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_einde_geldigheid</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
+  openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    OptionalGeldigheidMixin
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_begin_geldigheid</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_einde_geldigheid</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
   openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -634,7 +828,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_catalogi_models_relatieklassen_ZaakTypenRelatie [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -684,7 +877,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_catalogi_models_resultaattype_ResultaatType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -870,7 +1062,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_catalogi_models_roltype_RolType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -944,7 +1135,63 @@ digraph model_graph {
   
     </TABLE>
     >]
-
+  openzaak_components_catalogi_models_statustype_CheckListItem [label=<
+    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
+    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
+    CheckListItem
+    </B></FONT></TD></TR>
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>id</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>AutoField</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto"><B>statustype</B></FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">itemnaam</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">toelichting</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">verplicht</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">BooleanField</FONT>
+    </TD></TR>
+  
+  
+  
+    <TR><TD ALIGN="LEFT" BORDER="0">
+    <FONT FACE="Roboto">vraagstelling</FONT>
+    </TD><TD ALIGN="LEFT">
+    <FONT FACE="Roboto">CharField</FONT>
+    </TD></TR>
+  
+  
+    </TABLE>
+    >]
   openzaak_components_catalogi_models_statustype_StatusType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -1058,65 +1305,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
-  openzaak_components_catalogi_models_statustype_CheckListItem [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    CheckListItem
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>id</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>AutoField</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto"><B>statustype</B></FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto"><B>ForeignKey (id)</B></FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">itemnaam</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">toelichting</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">verplicht</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">BooleanField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">vraagstelling</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">CharField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
   openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -1206,7 +1394,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
   openzaak_components_catalogi_models_zaaktype_ZaakType [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -1536,59 +1723,6 @@ digraph model_graph {
   
     </TABLE>
     >]
-
-
-
-
-  // Relations
-
-  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_catalogus_Catalogus
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  fontname = "Roboto"
-  fontsize = 8
-  splines  = true
-  rankdir = "LR"
-
-  node [
-    fontname = "Roboto"
-    fontsize = 8
-    shape = "plaintext"
-  ]
-
-  edge [
-    fontname = "Roboto"
-    fontsize = 8
-  ]
-
-  // Labels
-
-
-  openzaak_components_catalogi_models_mixins_GeldigheidMixin [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    GeldigheidMixin
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">datum_begin_geldigheid</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_einde_geldigheid</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
   vng_api_common_caching_models_ETagMixin [label=<
     <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
@@ -1606,138 +1740,4 @@ digraph model_graph {
   
     </TABLE>
     >]
-
-  openzaak_components_catalogi_models_mixins_ConceptMixin [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    ConceptMixin
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT FACE="Roboto">concept</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT FACE="Roboto">BooleanField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    OptionalGeldigheidMixin
-    </B></FONT></TD></TR>
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_begin_geldigheid</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-  
-    <TR><TD ALIGN="LEFT" BORDER="0">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">datum_einde_geldigheid</FONT>
-    </TD><TD ALIGN="LEFT">
-    <FONT COLOR="#7B7B7B" FACE="Roboto">DateField</FONT>
-    </TD></TR>
-  
-  
-    </TABLE>
-    >]
-
-  openzaak_components_catalogi_models_besluittype_BesluitType [label=<
-    <TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
-    <TR><TD COLSPAN="2" CELLPADDING="5" ALIGN="CENTER" BGCOLOR="#1b563f">
-    <FONT FACE="Roboto" COLOR="white" POINT-SIZE="10"><B>
-    BesluitType<BR/>&lt;<FONT FACE="Roboto"><I>ETagMixin,GeldigheidMixin,ConceptMixin</I></FONT>&gt;
-  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_besluittype_BesluitType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_besluittype_BesluitType -> openzaak_components_catalogi_models_mixins_ConceptMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_catalogus_Catalogus -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_eigenschap_EigenschapSpecificatie
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_statustype_StatusType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_eigenschap_Eigenschap -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_eigenschap_Eigenschap -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_catalogus_Catalogus
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType -> openzaak_components_catalogi_models_mixins_ConceptMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> openzaak_components_catalogi_models_statustype_StatusType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_relatieklassen_ZaakTypeInformatieObjectType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_relatieklassen_ZaakTypenRelatie -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_informatieobjecttype_InformatieObjectType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_besluittype_BesluitType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_resultaattype_ResultaatType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_roltype_RolType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_roltype_RolType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_roltype_RolType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_statustype_CheckListItem -> openzaak_components_catalogi_models_statustype_StatusType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_statustype_StatusType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_statustype_StatusType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_statustype_StatusType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_statustype_StatusType
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_zaakobjecttype_ZaakObjectType -> openzaak_components_catalogi_models_mixins_OptionalGeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_catalogus_Catalogus
-  [label=" "] [arrowhead=none, arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_zaaktype_ZaakType
-  [label=" "] [arrowhead=dot arrowtail=dot, dir=both];
-  openzaak_components_catalogi_models_zaaktype_ZaakType -> vng_api_common_caching_models_ETagMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_mixins_ConceptMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
-  openzaak_components_catalogi_models_zaaktype_ZaakType -> openzaak_components_catalogi_models_mixins_GeldigheidMixin
-  [label=" "] [arrowhead=empty, arrowtail=none, dir=both];
 }

@@ -368,10 +368,11 @@ jobs:
 
       - name: Check if UML .dot files were modified
         run: |
-          DOT_DIFF=$(git diff -- docs/_static/uml/*.dot || true)
+          DOT_DIFF=$(git diff -w -- docs/_static/uml/*.dot || true)
           if [ -n "$DOT_DIFF" ]; then
             echo "UML .dot file content has changed"
             echo "Please update the diagrams documentation by running \`cd docs | make html\`"
+            echo "$DOT_DIFF"
             exit 1
           fi
 
