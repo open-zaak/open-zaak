@@ -15,9 +15,41 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.autorisaties.api.scopes import (
+    SCOPE_AUTORISATIES_BIJWERKEN,
+    SCOPE_AUTORISATIES_LEZEN,
+)
 from openzaak.components.autorisaties.models import Applicatie
-from openzaak.components.catalogi.models import ResultaatType, StatusType, ZaakType
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+    SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
+    SCOPE_BESLUITEN_BIJWERKEN,
+)
+from openzaak.components.catalogi.api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
+)
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ResultaatType,
+    StatusType,
+    ZaakType,
+)
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_LOCK,
+)
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_ALLES_VERWIJDEREN,
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+)
 from openzaak.components.zaken.models import Zaak
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
@@ -25,24 +57,23 @@ from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 
 
 class GenerateDataTests(SelectieLijstMixin, APITestCase):
-    @override_settings(
-        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
-    )
-    @requests_mock.Mocker()
-    def test_generate_data_yes(self, m):
+    def setUp(self):
+        super().setUp()
+
         # mocks for Selectielijst API calls
-        config = ReferentieLijstConfig.get_solo()
+        self.config = ReferentieLijstConfig.get_solo()
+        m = requests_mock.Mocker()
         mock_selectielijst_oas_get(m)
         m.get(
-            f"{config.service.api_root}resultaten",
+            f"{self.config.service.api_root}resultaten",
             json={
                 "previous": None,
                 "next": None,
                 "count": 1,
                 "results": [
                     {
-                        "url": f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
-                        "procesType": f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+                        "url": f"{self.config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                        "procesType": f"{self.config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
                         "nummer": 1,
                         "volledigNummer": "1.1",
                         "naam": "Ingericht",
@@ -57,11 +88,11 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             },
         )
         m.get(
-            f"{config.service.api_root}resultaattypeomschrijvingen",
+            f"{self.config.service.api_root}resultaattypeomschrijvingen",
             json=[
                 {
                     "url": (
-                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        f"{self.config.service.api_root}resultaattypeomschrijvingen"
                         "/ce8cf476-0b59-496f-8eee-957a7c6e2506"
                     ),
                     "omschrijving": "Afgebroken",
@@ -70,7 +101,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 },
                 {
                     "url": (
-                        f"{config.service.api_root}resultaattypeomschrijvingen"
+                        f"{self.config.service.api_root}resultaattypeomschrijvingen"
                         "/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3"
                     ),
                     "omschrijving": "Afgehandeld",
@@ -79,15 +110,19 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 },
             ],
         )
+        m.start()
+        self.addCleanup(m.stop)
 
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_yes(self):
         with patch("builtins.input", lambda *args: "yes"):
             call_command(
                 "generate_data",
                 partition=1,
                 zaaktypen=30,
                 zaken=30,
-                generate_superuser_credentials=True,
-                generate_non_superuser_credentials=True,
             )
 
         # check that the data is generated
@@ -123,14 +158,15 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
         self.assertTrue(zaaktype.identificatie.startswith("ZAAKTYPE_"))
         self.assertEqual(
             zaaktype.selectielijst_procestype,
-            f"{config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+            f"{self.config.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
         )
+
         # zaken
         for zaak in Zaak.objects.all():
             with self.subTest(zaak):
                 self.assertEqual(
                     zaak.selectielijstklasse,
-                    f"{config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
+                    f"{self.config.service.api_root}resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829",
                 )
                 self.assertIsNotNone(zaak.archiefactiedatum)
                 self.assertIsNotNone(zaak.zaakgeometrie)
@@ -139,6 +175,19 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             StatusType.objects.filter(statustype_omschrijving="").count(), 0
         )
 
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_with_superuser_credentials(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=30,
+                zaken=30,
+                generate_superuser_credentials=True,
+            )
+
         with self.subTest("generate superuser credentials"):
             credential = JWTSecret.objects.get(identifier="superuser")
             self.assertEqual(credential.secret, "superuser")
@@ -146,17 +195,47 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             applicatie = Applicatie.objects.get(client_ids=["superuser"])
             self.assertEqual(applicatie.heeft_alle_autorisaties, True)
 
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_with_non_superuser_credentials(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                partition=1,
+                zaaktypen=30,
+                zaken=30,
+                generate_non_superuser_credentials=True,
+            )
+
+        zaaktype = ZaakType.objects.order_by("pk").first()
+        iotype = InformatieObjectType.objects.order_by("pk").first()
+        besluittype = BesluitType.objects.order_by("pk").first()
+
         with self.subTest("generate non superuser credentials"):
             credential = JWTSecret.objects.get(identifier="non_superuser")
             self.assertEqual(credential.secret, "non_superuser")
 
             applicatie = Applicatie.objects.get(client_ids=["non_superuser"])
-            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
-            self.assertEqual(applicatie.autorisaties.count(), 15)
 
-            autorisatie = applicatie.autorisaties.order_by("pk").first()
-            self.assertEqual(autorisatie.component, ComponentTypes.zrc)
-            self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
+
+            zrc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.zrc
+            )
+
+            self.assertEqual(zrc_autorisaties.count(), 15)
+
+            autorisatie = zrc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_ZAKEN_ALLES_LEZEN),
+                    str(SCOPE_ZAKEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_ZAKEN_CREATE),
+                    str(SCOPE_ZAKEN_BIJWERKEN),
+                ],
+            )
             self.assertEqual(
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
@@ -166,6 +245,83 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             )
             self.assertEqual(
                 autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
+            )
+
+            drc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.drc
+            )
+
+            self.assertEqual(drc_autorisaties.count(), 15)
+
+            autorisatie = drc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_LEZEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                    str(SCOPE_DOCUMENTEN_LOCK),
+                ],
+            )
+            self.assertEqual(
+                autorisatie.max_vertrouwelijkheidaanduiding,
+                VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+            iotype_uri = reverse(
+                "informatieobjecttype-detail",
+                kwargs={"uuid": iotype.uuid, "version": 1},
+            )
+            self.assertEqual(
+                autorisatie.informatieobjecttype, f"http://openzaak.local{iotype_uri}"
+            )
+
+            brc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.brc
+            )
+
+            self.assertEqual(brc_autorisaties.count(), 15)
+
+            autorisatie = brc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_ALLES_LEZEN),
+                    str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
+                ],
+            )
+            besluittype_uri = reverse(
+                "besluittype-detail",
+                kwargs={"uuid": besluittype.uuid, "version": 1},
+            )
+            self.assertEqual(
+                autorisatie.besluittype, f"http://openzaak.local{besluittype_uri}"
+            )
+
+            ztc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.ztc
+            )
+
+            self.assertEqual(ztc_autorisaties.count(), 1)
+
+            autorisatie = ztc_autorisaties.get()
+            self.assertEqual(
+                autorisatie.scopes,
+                [str(SCOPE_CATALOGI_READ), str(SCOPE_CATALOGI_WRITE)],
+            )
+
+            ac_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.ac
+            )
+
+            self.assertEqual(ac_autorisaties.count(), 1)
+
+            autorisatie = ac_autorisaties.get()
+            self.assertEqual(
+                autorisatie.scopes,
+                [str(SCOPE_AUTORISATIES_BIJWERKEN), str(SCOPE_AUTORISATIES_LEZEN)],
             )
 
         with self.subTest("generate non superuser credentials for many zaaktypen"):
@@ -173,12 +329,25 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             self.assertEqual(credential.secret, "non_superuser_many_types")
 
             applicatie = Applicatie.objects.get(client_ids=["non_superuser_many_types"])
-            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
-            self.assertEqual(applicatie.autorisaties.count(), 25)
 
-            autorisatie = applicatie.autorisaties.order_by("pk").first()
-            self.assertEqual(autorisatie.component, ComponentTypes.zrc)
-            self.assertEqual(autorisatie.scopes, [str(SCOPE_ZAKEN_ALLES_LEZEN)])
+            self.assertEqual(applicatie.heeft_alle_autorisaties, False)
+
+            zrc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.zrc
+            )
+
+            self.assertEqual(zrc_autorisaties.count(), 25)
+
+            autorisatie = zrc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_ZAKEN_ALLES_LEZEN),
+                    str(SCOPE_ZAKEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_ZAKEN_CREATE),
+                    str(SCOPE_ZAKEN_BIJWERKEN),
+                ],
+            )
             self.assertEqual(
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
@@ -188,6 +357,83 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             )
             self.assertEqual(
                 autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
+            )
+
+            drc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.drc
+            )
+
+            self.assertEqual(drc_autorisaties.count(), 25)
+
+            autorisatie = drc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_LEZEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                    str(SCOPE_DOCUMENTEN_LOCK),
+                ],
+            )
+            self.assertEqual(
+                autorisatie.max_vertrouwelijkheidaanduiding,
+                VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+            iotype_uri = reverse(
+                "informatieobjecttype-detail",
+                kwargs={"uuid": iotype.uuid, "version": 1},
+            )
+            self.assertEqual(
+                autorisatie.informatieobjecttype, f"http://openzaak.local{iotype_uri}"
+            )
+
+            brc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.brc
+            )
+
+            self.assertEqual(brc_autorisaties.count(), 25)
+
+            autorisatie = brc_autorisaties.order_by("pk").first()
+            self.assertEqual(
+                autorisatie.scopes,
+                [
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_ALLES_LEZEN),
+                    str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
+                ],
+            )
+            besluittype_uri = reverse(
+                "besluittype-detail",
+                kwargs={"uuid": besluittype.uuid, "version": 1},
+            )
+            self.assertEqual(
+                autorisatie.besluittype, f"http://openzaak.local{besluittype_uri}"
+            )
+
+            ztc_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.ztc
+            )
+
+            self.assertEqual(ztc_autorisaties.count(), 1)
+
+            autorisatie = ztc_autorisaties.get()
+            self.assertEqual(
+                autorisatie.scopes,
+                [str(SCOPE_CATALOGI_READ), str(SCOPE_CATALOGI_WRITE)],
+            )
+
+            ac_autorisaties = applicatie.autorisaties.filter(
+                component=ComponentTypes.ac
+            )
+
+            self.assertEqual(ac_autorisaties.count(), 1)
+
+            autorisatie = ac_autorisaties.get()
+            self.assertEqual(
+                autorisatie.scopes,
+                [str(SCOPE_AUTORISATIES_BIJWERKEN), str(SCOPE_AUTORISATIES_LEZEN)],
             )
 
     @requests_mock.Mocker()
