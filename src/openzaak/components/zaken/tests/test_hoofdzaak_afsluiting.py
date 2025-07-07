@@ -784,3 +784,55 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(ext_deelzaak.archiefnominatie)
         self.assertIsNone(ext_deelzaak.zaak.archiefactiedatum)
         self.assertIsNone(ext_deelzaak.startdatum_bewaartermijn)
+
+    @tag("gh-2098")
+    def test_change_deelzaak_status_without_resultaat(self):
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+
+        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+
+        with self.subTest("change deelzaak status"):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": deelzaak_url,
+                    "statustype": f"http://testserver{self.int_statustype1_url}",
+                    "datumStatusGezet": utcdatetime(
+                        2018, 10, 22, 16, 00, 00
+                    ).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            deelzaak.refresh_from_db()
+            self.assertIsNone(deelzaak.archiefnominatie)
+            self.assertIsNone(deelzaak.einddatum)
+
+    @tag("gh-2098")
+    def test_reopen_deelzaak_status_without_resultaat(self):
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+
+        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+
+        StatusFactory.create(
+            zaak=deelzaak,
+            statustype=self.int_statustype2,
+            datum_status_gezet=utcdatetime(2024, 4, 4),
+        )
+
+        with self.subTest("reopen deelzaak"):
+            response = self.client.post(
+                self.status_list_url,
+                {
+                    "zaak": deelzaak_url,
+                    "statustype": f"http://testserver{self.int_statustype1_url}",
+                    "datumStatusGezet": utcdatetime(
+                        2018, 10, 22, 16, 00, 00
+                    ).isoformat(),
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        deelzaak.refresh_from_db()
+        self.assertIsNone(deelzaak.archiefnominatie)
+        self.assertIsNone(deelzaak.einddatum)
