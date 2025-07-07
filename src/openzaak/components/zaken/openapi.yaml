@@ -614,12 +614,12 @@ paths:
               examples:
                 EnkeleReservering:
                   value:
-                    identificatie: ZAAK-2025-0000000001
+                    zaaknummer: ZAAK-2025-0000000001
                   summary: Enkele reservering
                 MeerdereReserveringen:
                   value:
-                  - identificatie: ZAAK-2025-0000000001
-                  - identificatie: ZAAK-2025-0000000002
+                  - zaaknummer: ZAAK-2025-0000000001
+                  - zaaknummer: ZAAK-2025-0000000002
                   summary: Meerdere reserveringen
           description: Created
         '400':
@@ -5444,12 +5444,12 @@ paths:
               examples:
                 EnkeleReservering:
                   value:
-                    identificatie: ZAAK-2025-0000000001
+                    zaaknummer: ZAAK-2025-0000000001
                   summary: Enkele reservering
                 MeerdereReserveringen:
                   value:
-                  - identificatie: ZAAK-2025-0000000001
-                  - identificatie: ZAAK-2025-0000000002
+                  - zaaknummer: ZAAK-2025-0000000001
+                  - zaaknummer: ZAAK-2025-0000000002
                   summary: Meerdere reserveringen
           description: Created
         '400':
@@ -12015,6 +12015,7 @@ components:
         wijzigingen:
           $ref: '#/components/schemas/Wijzigingen'
       required:
+      - aanmaakdatum
       - actie
       - bron
       - hoofdObject
@@ -12151,7 +12152,13 @@ components:
             de ROL eindigt binnen de ZAAK.'
       required:
       - betrokkeneType
+      - omschrijving
+      - omschrijvingGeneriek
+      - registratiedatum
       - roltype
+      - statussen
+      - url
+      - uuid
       - zaak
     Base_RolSerializerRequest:
       type: object
@@ -12330,6 +12337,8 @@ components:
           maxLength: 80
       required:
       - objectType
+      - url
+      - uuid
       - zaak
     Base_ZaakObjectSerializerRequest:
       type: object
@@ -12936,6 +12945,8 @@ components:
           maxLength: 1000
       required:
       - datumtijd
+      - url
+      - uuid
       - zaak
     KlantContactRequest:
       type: object
@@ -14338,6 +14349,7 @@ components:
             van de zaak.
           maxLength: 200
       required:
+      - eerdereOpschorting
       - indicatie
       - reden
     OpschortingRequest:
@@ -15111,6 +15123,8 @@ components:
           title: Zaakidentificatie
           description: De unieke identificatie van de ZAAK binnen de organisatie die
             verantwoordelijk is voor de behandeling van de ZAAK.
+      required:
+      - zaaknummer
     ReserveZaakIdentificatieRequest:
       type: object
       properties:
@@ -15164,6 +15178,8 @@ components:
           maxLength: 1000
       required:
       - resultaattype
+      - url
+      - uuid
       - zaak
     ResultaatRequest:
       type: object
@@ -15389,8 +15405,12 @@ components:
           description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
       required:
       - datumStatusGezet
+      - indicatieLaatstGezetteStatus
       - statustype
+      - url
+      - uuid
       - zaak
+      - zaakinformatieobjecten
     StatusRequest:
       type: object
       properties:
@@ -15473,6 +15493,8 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
       required:
       - omschrijving
+      - url
+      - uuid
       - zaak
     SubStatusRequest:
       type: object
@@ -16219,9 +16241,20 @@ components:
             of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
             heeft en dat bepalend is voor de start van de archiefactietermijn.
       required:
+      - betalingsindicatieWeergave
       - bronorganisatie
+      - deelzaken
+      - eigenschappen
+      - einddatum
+      - resultaat
+      - rollen
       - startdatum
+      - status
+      - url
+      - uuid
       - verantwoordelijkeOrganisatie
+      - zaakinformatieobjecten
+      - zaakobjecten
       - zaaktype
     ZaakBesluit:
       type: object
@@ -16244,6 +16277,8 @@ components:
           maxLength: 1000
       required:
       - besluit
+      - url
+      - uuid
     ZaakBesluitRequest:
       type: object
       description: Serializer the reverse relation between Besluit-Zaak.
@@ -16285,6 +16320,8 @@ components:
           maxLength: 1000
       required:
       - contactmoment
+      - url
+      - uuid
       - zaak
     ZaakContactMomentRequest:
       type: object
@@ -16341,6 +16378,9 @@ components:
           type: string
       required:
       - eigenschap
+      - naam
+      - url
+      - uuid
       - waarde
       - zaak
     ZaakEigenschapRequest:
@@ -16435,7 +16475,11 @@ components:
           minLength: 1
           maxLength: 1000
       required:
+      - aardRelatieWeergave
       - informatieobject
+      - registratiedatum
+      - url
+      - uuid
       - zaak
     ZaakInformatieObjectRequest:
       type: object
@@ -16900,6 +16944,8 @@ components:
           description: URL-referentie naar het VERZOEK (in de Klantinteractie API)
           maxLength: 1000
       required:
+      - url
+      - uuid
       - verzoek
       - zaak
     ZaakVerzoekRequest:
