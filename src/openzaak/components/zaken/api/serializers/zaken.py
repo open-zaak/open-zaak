@@ -780,6 +780,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
         afleidingswijze_deelzaak = (
             zaak.hoofdzaak
+            and hasattr(zaak, "resultaat")
             and zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
             == Afleidingswijze.hoofdzaak
         )
