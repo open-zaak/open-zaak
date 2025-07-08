@@ -1408,6 +1408,19 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.data["einde_geldigheid"], "2020-01-01")
         zaaktype.delete()
 
+    def test_update_published_zaaktype_requires_forced_write_scope(self):
+        zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
+
+        response = self.client.patch(
+            reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": "1"}),
+            {"omschrijving": "Updated description"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "non-concept-object")
+
 
 class ZaakTypePublishTests(APITestCase):
     def set_realted_items(self, zaaktype):
