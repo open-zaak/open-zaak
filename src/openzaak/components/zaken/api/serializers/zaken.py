@@ -36,6 +36,7 @@ from vng_api_common.constants import (
     RolOmschrijving,
     RolTypes,
 )
+from vng_api_common.notes.api.serializers import NotitieSerializerMixin
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import (
     CachedHyperlinkedIdentityField,
@@ -85,6 +86,7 @@ from ...models import (
     ZaakIdentificatie,
     ZaakInformatieObject,
     ZaakKenmerk,
+    ZaakNotitie,
     ZaakVerzoek,
 )
 from ..validators import (
@@ -1498,3 +1500,24 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             zaakverzoek.save()
 
         return zaakverzoek
+
+
+class ZaakNotitieSerializer(
+    serializers.HyperlinkedModelSerializer, NotitieSerializerMixin
+):
+    gerelateerd_aan = CachedHyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        lookup_field="uuid",
+        view_name="zaak-detail",
+        source="zaak",
+        help_text=_("URL-referenties naar ZAAKEN."),
+    )
+
+    class Meta(NotitieSerializerMixin.Meta):
+        model = ZaakNotitie
+        fields = NotitieSerializerMixin.Meta.fields + ("url",)
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "uuid": {"read_only": True},
+            "zaak": {"lookup_field": "uuid"},
+        }
