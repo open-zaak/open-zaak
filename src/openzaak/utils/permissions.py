@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from typing import Sequence
 from urllib.parse import urlparse
 
 from django.core.exceptions import (
@@ -62,14 +63,20 @@ class AuthRequired(permissions.BasePermission):
             view.http_method_not_allowed(request)
 
     def validate_create(
-        self, request, view, main_object_data, permission_fields, main_resource
+        self,
+        request,
+        view,
+        main_object_data,
+        permission_fields,
+        main_resource,
+        serializer_class,
     ):
         if view.__class__ is main_resource:
             fields = self.get_fields(main_object_data, permission_fields)
             # validate fields, since it's a user input
             non_empty_fields = {name: value for name, value in fields.items() if value}
             if non_empty_fields:
-                serializer = view.get_serializer(
+                serializer = serializer_class(
                     data=non_empty_fields,
                     partial=True,
                     context={"request": request},
@@ -77,10 +84,19 @@ class AuthRequired(permissions.BasePermission):
                 serializer.is_valid(raise_exception=True)
 
         else:
-            main_object_url = main_object_data[view.permission_main_object]
-            main_object_path = urlparse(main_object_url).path
             try:
+                main_object_url = main_object_data[view.permission_main_object]
+                main_object_path = urlparse(main_object_url).path
                 main_object = get_resource_for_path(main_object_path)
+            except KeyError:
+                raise ValidationError(
+                    {
+                        view.permission_main_object: _(
+                            "{} is required for permissions"
+                        ).format(view.permission_main_object),
+                    },
+                    code="required",
+                )
             except ObjectDoesNotExist:
                 raise ValidationError(
                     {
@@ -124,6 +140,7 @@ class AuthRequired(permissions.BasePermission):
                 request.data,
                 self.permission_fields,
                 self.get_main_resource(self.main_resource),
+                view.get_serializer_class(),
             )
             return request.jwt_auth.has_auth(scopes_required, component, **fields)
 
@@ -158,13 +175,11 @@ class AuthRequired(permissions.BasePermission):
 
 
 class MultipleObjectsAuthRequired(AuthRequired):
-    permission_fields: dict
+    permission_fields: dict[str, Sequence[str]]
     main_resources: dict
 
-    def get_field_viewset(self, request, viewset, action):
+    def get_field_viewset(self, viewset, action):
         field_viewset = import_string(viewset)()
-        field_viewset.request = request
-        field_viewset.format_kwarg = "json"
         field_viewset.action = action
 
         return field_viewset
@@ -183,11 +198,11 @@ class MultipleObjectsAuthRequired(AuthRequired):
             return False  # TODO could validate scopes on RegisterDocumentViewSet but component should be defined somewhere or raise ImproperlyConfigured
 
         for field, viewset in view.viewset_classes.items():
-            # CatalogusAutorisatie is cached in JWTAuth
+            # CatalogusAutorisatie (_autorisaties) is cached in JWTAuth
             if hasattr(request.jwt_auth, "_autorisaties"):
                 del request.jwt_auth._autorisaties
 
-            fieldset_view = self.get_field_viewset(request, viewset, view.action)
+            fieldset_view = self.get_field_viewset(viewset, view.action)
 
             scopes_required = get_required_scopes(request, fieldset_view)
             component = self.get_component(fieldset_view)
@@ -197,9 +212,10 @@ class MultipleObjectsAuthRequired(AuthRequired):
                 fields = self.validate_create(
                     request,
                     fieldset_view,
-                    request.data.get(field),
+                    request.data.get(field, {}),
                     self.permission_fields.get(field),
                     self.get_main_resource(self.main_resources.get(field)),
+                    fieldset_view.get_serializer_class(),
                 )
 
             if not request.jwt_auth.has_auth(scopes_required, component, **fields):

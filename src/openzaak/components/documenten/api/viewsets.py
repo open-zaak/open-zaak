@@ -60,7 +60,7 @@ from openzaak.utils.schema import (
 )
 from openzaak.utils.views import AuditTrailViewSet
 
-from ...zaken.api.scopes import SCOPE_ZAKEN_CREATE
+from ...zaken.api.scopes import SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -97,6 +97,7 @@ from .scopes import (
 )
 from .serializers import (
     BestandsDeelSerializer,
+    DocumentRegistrerenSerializer,
     EIOZoekSerializer,
     EnkelvoudigInformatieObjectCreateLockSerializer,
     EnkelvoudigInformatieObjectSerializer,
@@ -104,7 +105,6 @@ from .serializers import (
     GebruiksrechtenSerializer,
     LockEnkelvoudigInformatieObjectSerializer,
     ObjectInformatieObjectSerializer,
-    RegisterDocumentSerializer,
     ReservedDocumentSerializer,
     UnlockEnkelvoudigInformatieObjectSerializer,
     VerzendingSerializer,
@@ -1185,19 +1185,27 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             return output_serializer.data
 
 
-class RegisterDocumentViewSet(
-    viewsets.GenericViewSet, viewsets.mixins.CreateModelMixin
-):
+class DocumentRegistrerenViewSet(viewsets.ViewSet):
     queryset = EnkelvoudigInformatieObject.objects.all()
-    serializer_class = RegisterDocumentSerializer
+    serializer_class = DocumentRegistrerenSerializer
     permission_classes = (DocumentReserverenAuthRequired,)
 
     # TODO  only used for api spec and `|` should be `&`
     required_scopes = {
-        "create": SCOPE_DOCUMENTEN_AANMAKEN | SCOPE_ZAKEN_CREATE,
+        "create": SCOPE_DOCUMENTEN_AANMAKEN
+        | (SCOPE_ZAKEN_CREATE | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN),
     }
 
     viewset_classes = {
         "enkelvoudiginformatieobject": "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
         "zaakinformatieobject": "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
     }
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

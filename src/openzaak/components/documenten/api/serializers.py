@@ -44,7 +44,10 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
-from ...zaken.api.serializers import ZaakInformatieObjectSerializer
+from ...zaken.api.serializers import (
+    ZaakInformatieObjectReadOnlySerializer,
+    ZaakInformatieObjectSerializer,
+)
 from ..constants import (
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
@@ -1167,14 +1170,7 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
         }
 
 
-class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["informatieobject"].read_only = True
-
-
-class RegisterDocumentSerializer(serializers.Serializer):
+class DocumentRegistrerenSerializer(serializers.Serializer):
     enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
     zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()
 
@@ -1192,13 +1188,7 @@ class RegisterDocumentSerializer(serializers.Serializer):
         # url vs uuid
         zio_serializer = ZaakInformatieObjectSerializer(
             data=zaakinformatieobject
-            | {
-                "informatieobject": reverse(
-                    "enkelvoudiginformatieobject-detail",
-                    kwargs={"uuid": eio.uuid},
-                    request=self.context["request"],
-                )
-            },
+            | {"informatieobject": eio_serializer.data["url"]},
             context=self.context,
         )
         zio_serializer.is_valid(raise_exception=True)
@@ -1214,4 +1204,6 @@ class RegisterDocumentSerializer(serializers.Serializer):
         """
         Normally this transforms json into data but the nested serializers still expect strings.
         """
+        super().to_internal_value(data)
+
         return data

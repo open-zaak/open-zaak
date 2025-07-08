@@ -1085,6 +1085,27 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         return super().run_validators(value)
 
 
+class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
+    # TODO OR...
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self.fields["informatieobject"].read_only = True
+    #     self.fields["informatieobject"].required = False
+    #     self.fields["informatieobject"].validators = []
+
+    informatieobject = EnkelvoudigInformatieObjectField(
+        max_length=1000,
+        min_length=1,
+        help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
+        required=False,
+        read_only=True,
+    )
+
+    class Meta(ZaakInformatieObjectSerializer.Meta):
+        validators = []
+
+
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
     zaak = CachedHyperlinkedRelatedField(

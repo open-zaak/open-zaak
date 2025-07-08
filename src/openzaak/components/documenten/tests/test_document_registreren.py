@@ -34,7 +34,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
-class RegisteredDocumentAuthTests(JWTAuthMixin, APITestCase):
+class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("registereddocument-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
@@ -216,10 +216,44 @@ class RegisteredDocumentAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    def test_register_document_with_invalid_zaak_url(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        content = self.content.copy()
+        content["zaakinformatieobject"]["zaak"] = "invalidurl"
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "object-does-not-exist")
+
+    def test_register_document_without_zaak(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        content = self.content.copy()
+        content["zaakinformatieobject"].pop("zaak")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "required")
+
 
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
-class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
+class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("registereddocument-list")
     heeft_alle_autorisaties = True
 
@@ -347,14 +381,26 @@ class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
         }
 
         response_data = response.json()
-        self.assertEqual(sorted(response_data.keys()), sorted(expected_response.keys()))
+        self.assertEqual(response_data, expected_response)
 
-        for obj in response_data:
-            for key in response_data[obj]:
-                with self.subTest(field=key):
-                    self.assertEqual(
-                        response_data[obj][key], expected_response[obj][key]
-                    )
+    def test_register_document_without_informatieobjecttype(self):
+        content = {
+            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
+            "zaakinformatieobject": self.zaakinformatieobject,
+        }
+        content["enkelvoudiginformatieobject"].pop("informatieobjecttype")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(
+            response, "enkelvoudiginformatieobject.informatieobjecttype"
+        )
+        self.assertEqual(error["code"], "required")
 
     def test_invalid_inhoud(self):
         content = {
@@ -373,9 +419,10 @@ class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "inhoud")
+        self.assertEqual(len(response.data["invalid_params"]), 1)
 
-        self.assertEqual(error["code"], "invalid")  # TODO this should be nested?
+        error = get_validation_errors(response, "enkelvoudiginformatieobject.inhoud")
+        self.assertEqual(error["code"], "invalid")
 
     def test_no_zaaktypeinformatieobjecttype(self):
         zaak_url = reverse(ZaakFactory.create())
@@ -401,10 +448,9 @@ class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
             error["code"], "missing-zaaktype-informatieobjecttype-relation"
         )
 
-    def test_create_invalid_url(self):
+    def test_create_missing_enkelvoudiginformatieobject(self):
         content = {
-            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
-            "zaakinformatieobject": self.zaakinformatieobject | {"zaak": "invalidurl"},
+            "zaakinformatieobject": self.zaakinformatieobject,
         }
 
         # Send to the API
@@ -414,5 +460,6 @@ class RegisteredDocumentValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "zaak")
-        self.assertEqual(error["code"], "object-does-not-exist")
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "enkelvoudiginformatieobject")
+        self.assertEqual(error["code"], "required")
