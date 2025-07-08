@@ -28,6 +28,7 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils, oas]
+# commonground-api-common[setup-configuration, testutils, oas]
 
+git+https://github.com/maykinmedia/commonground-api-common.git@feature/open-zaak-2071-create-notes[setup-configuration, testutils, oas]
 psycopg[pool, binary]

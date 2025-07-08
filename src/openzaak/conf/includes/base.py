@@ -87,6 +87,7 @@ INSTALLED_APPS = (
         "vng_api_common.authorizations",
         "vng_api_common.audittrails",
         "vng_api_common.notifications",
+        "vng_api_common.notes",
         "rest_framework_gis",
         "sniplates",  # TODO can this be removed?
         "django_better_admin_arrayfield",  # TODO can this be removed?

@@ -38,6 +38,7 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.client import to_internal_data
 from vng_api_common.filters_backend import Backend
 from vng_api_common.geo import GeoMixin
+from vng_api_common.notes.api.viewsets import NotitieViewSetMixin
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
@@ -74,6 +75,7 @@ from ..models import (
     ZaakEigenschap,
     ZaakIdentificatie,
     ZaakInformatieObject,
+    ZaakNotitie,
     ZaakObject,
     ZaakVerzoek,
 )
@@ -114,6 +116,7 @@ from .serializers import (
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
+    ZaakNotitieSerializer,
     ZaakObjectSerializer,
     ZaakSerializer,
     ZaakVerzoekSerializer,
@@ -1900,3 +1903,46 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
         "This endpoint is an alias for `/zaaknummer_reserveren` and will be removed in "
         "the next major version. Please use `/zaaknummer_reserveren` instead."
     )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle ZAAKNOTITIE ophalen.",
+        description="Alle ZAAKNOTITIE ophalen.",
+    ),
+    retrieve=extend_schema(
+        summary="Verzoek voor een specifieke ZAAKNOTITIE.",
+        description="Verzoek voor een specifieke ZAAKNOTITIE.",
+    ),
+    create=extend_schema(
+        summary="Maak een ZAAKNOTITIE.",
+        description=("Maak een ZAAKNOTITIE."),
+    ),
+    update=extend_schema(
+        summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
+        description=("Werk een ZAAKNOTITIE in zijn geheel bij."),
+    ),
+    partial_update=extend_schema(
+        summary="Een ZAAKNOTITIE gedeeltelijk bijwerken.",
+        description=("Een ZAAKNOTITIE gedeeltelijk bijwerken."),
+    ),
+    destroy=extend_schema(
+        summary="Een ZAAKNOTITIE verwijderen.",
+        description="Een ZAAKNOTITIE verwijderen.",
+    ),
+)
+class ZaakNotitieViewSet(
+    NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
+):
+    queryset = ZaakNotitie.objects.order_by("-pk")
+    serializer_class = ZaakNotitieSerializer
+    lookup_field = "uuid"
+    pagination_class = OptimizedPagination
+    # permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "zaak"
+    required_scopes = {
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN,
+    }
