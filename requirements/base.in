@@ -28,6 +28,6 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils, oas]
+git+https://github.com/maykinmedia/commonground-api-common.git@issue/105-remove-coreapi[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]

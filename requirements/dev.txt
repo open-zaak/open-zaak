@@ -161,7 +161,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.6.7
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@7fcadbeee98d39b01b98d53492f38eee81e0036e
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -176,7 +176,6 @@ coreapi==2.3.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   commonground-api-common
     #   django-loose-fk
 coreschema==0.0.4
     # via
