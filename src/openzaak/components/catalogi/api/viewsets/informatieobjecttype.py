@@ -137,7 +137,8 @@ class InformatieObjectTypeViewSet(
     concept_related_fields = ["besluittypen", "zaaktypen"]
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "informatieobjecttype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -145,11 +146,13 @@ class InformatieObjectTypeViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "informatieobjecttype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     @transaction.atomic
@@ -157,11 +160,6 @@ class InformatieObjectTypeViewSet(
         uuid = str(instance.uuid)
         try:
             super().perform_destroy(instance)
-            logger.info(
-                "informatieobjecttype_deleted",
-                client_id=self.request.jwt_auth.client_id,
-                uuid=uuid,
-            )
         except DatabaseError as e:
             logger.error(
                 "informatieobjecttype_delete_failed",
@@ -170,6 +168,12 @@ class InformatieObjectTypeViewSet(
                 error=str(e),
             )
             raise
+
+        logger.info(
+            "informatieobjecttype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
 
     @extend_schema(
         "informatieobjecttype_publish",

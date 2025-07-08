@@ -101,7 +101,8 @@ class StatusTypeViewSet(
     }
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "statustype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -109,11 +110,13 @@ class StatusTypeViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "statustype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     def perform_destroy(self, instance):

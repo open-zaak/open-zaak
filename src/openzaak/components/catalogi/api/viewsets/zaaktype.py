@@ -81,7 +81,7 @@ logger = structlog.stdlib.get_logger(__name__)
 )
 @conditional_retrieve()
 class ZaakTypeViewSet(
-    CacheQuerysetMixin,
+    CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
     ConceptPublishMixin,
     ConceptDestroyMixin,
@@ -146,7 +146,8 @@ class ZaakTypeViewSet(
         return qs
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "zaaktype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -156,11 +157,13 @@ class ZaakTypeViewSet(
     def perform_update(self, serializer):
         if not serializer.partial:
             serializer.instance.zaaktypenrelaties.all().delete()
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "zaaktype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     def perform_destroy(self, instance):

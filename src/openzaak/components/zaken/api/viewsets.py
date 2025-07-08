@@ -43,6 +43,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
     delete_remote_objectverzoek,
@@ -437,6 +438,7 @@ class ZaakViewSet(
             identificatie=updated_zaak.identificatie,
             vertrouwelijkheidaanduiding=updated_zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(updated_zaak.zaaktype),
+            partial=serializer.partial,
         )
 
     def perform_destroy(self, instance: Zaak):
@@ -778,7 +780,8 @@ class ZaakObjectViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "zaakobject_updated",
             uuid=str(instance.uuid),
@@ -913,40 +916,35 @@ class ZaakInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "zaakinformatieobject_created",
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
-            client_id=request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
 
-    def update(self, request, *args, **kwargs):
-        response = super().update(request, *args, **kwargs)
-        instance = self.get_object()
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "zaakinformatieobject_updated",
             uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            client_id=request.jwt_auth.client_id,
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
+            partial=serializer.partial,
         )
-        return response
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        response = super().destroy(request, *args, **kwargs)
-        logger.info(
-            "zaakinformatieobject_deleted",
-            uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            informatieobject_url=getattr(instance, "_objectinformatieobject_url", None),
-            client_id=request.jwt_auth.client_id,
-        )
-        return response
+    def perform_destroy(self, instance: ZaakInformatieObject):
+        uuid = str(instance.uuid)
+        zaak_uuid = str(instance.zaak.uuid)
 
-    def perform_destroy(self, instance):
         with transaction.atomic():
             super().perform_destroy(instance)
 
@@ -967,6 +965,13 @@ class ZaakInformatieObjectViewSet(
                     },
                     code="pending-relations",
                 )
+
+        logger.info(
+            "zaakinformatieobject_deleted",
+            uuid=uuid,
+            zaak_uuid=zaak_uuid,
+            client_id=self.request.jwt_auth.client_id,
+        )
 
 
 @extend_schema(parameters=[ZAAK_UUID_PARAMETER])
@@ -1056,15 +1061,43 @@ class ZaakEigenschapViewSet(
             request, *args, **kwargs
         )
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "zaakeigenschap_created",
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
-            client_id=request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+        instance = serializer.instance
+
+        logger.info(
+            "zaakeigenschap_updated",
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
+            partial=serializer.partial,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        zaak_uuid = str(instance.zaak.uuid)
+
+        super().perform_destroy(instance)
+
+        logger.info(
+            "zaakeigenschap_deleted",
+            uuid=uuid,
+            zaak_uuid=zaak_uuid,
+            client_id=self.request.jwt_auth.client_id,
+        )
 
 
 # XXX: remove in 2.0
@@ -1132,17 +1165,17 @@ class KlantContactViewSet(
         "Maak gebruik van de vervangende contactmomenten API."
     )
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
 
         logger.info(
             "klantcontact_created",
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
-            client_id=request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
         )
-
-        return response
 
 
 @extend_schema_view(
@@ -1216,39 +1249,43 @@ class RolViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "rol_created",
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
-            betrokkene_type=response.data.get("betrokkene_type"),
-            betrokkene_identificatie=response.data.get("betrokkene_identificatie"),
-            client_id=request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
 
-    def update(self, request, *args, **kwargs):
-        response = super().update(request, *args, **kwargs)
-        instance = self.get_object()
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "rol_updated",
             uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            client_id=request.jwt_auth.client_id,
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
+            partial=serializer.partial,
         )
-        return response
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        response = super().destroy(request, *args, **kwargs)
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        zaak_uuid = str(instance.zaak.uuid)
+
+        super().perform_destroy(instance)
+
         logger.info(
             "rol_deleted",
-            uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            client_id=request.jwt_auth.client_id,
+            uuid=uuid,
+            zaak_uuid=zaak_uuid,
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
 
 
 @extend_schema_view(
@@ -1324,40 +1361,43 @@ class ResultaatViewSet(
     notifications_kanaal = KANAAL_ZAKEN
     audit = AUDIT_ZRC
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "resultaat_created",
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
-            resultaattype=response.data.get("resultaattype"),
-            client_id=request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
 
-    def update(self, request, *args, **kwargs):
-        response = super().update(request, *args, **kwargs)
-        instance = self.get_object()
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "resultaat_updated",
             uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            resultaattype=str(instance.resultaattype),
-            client_id=request.jwt_auth.client_id,
+            zaak_uuid=str(instance.zaak.uuid),
+            client_id=self.request.jwt_auth.client_id,
+            partial=serializer.partial,
         )
-        return response
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        response = super().destroy(request, *args, **kwargs)
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        zaak_uuid = str(instance.zaak.uuid)
+
+        super().perform_destroy(instance)
+
         logger.info(
             "resultaat_deleted",
-            uuid=str(instance.uuid),
-            zaak_uuid=str(instance.zaak.uuid) if instance.zaak else None,
-            resultaattype=str(instance.resultaattype),
-            client_id=request.jwt_auth.client_id,
+            uuid=uuid,
+            zaak_uuid=zaak_uuid,
+            client_id=self.request.jwt_auth.client_id,
         )
-        return response
 
 
 @extend_schema(parameters=[ZAAK_UUID_PARAMETER])
@@ -1465,14 +1505,15 @@ class ZaakBesluitViewSet(
         Handle the creation logic.
         """
         besluit = serializer.validated_data["besluit"]
+        besluit_url = get_loose_fk_object_url(besluit, self.request)
 
         # external besluit
         if isinstance(besluit, ProxyMixin):
             super().perform_create(serializer)
             logger.info(
                 "zaakbesluit_created_external",
-                besluit_uuid=str(besluit.uuid),
-                zaak_uuid=str(self._get_zaak().uuid),
+                besluit_url=besluit_url,
+                zaak_uuid=self.kwargs["zaak_uuid"],
                 client_id=self.request.jwt_auth.client_id,
             )
             return
@@ -1487,8 +1528,8 @@ class ZaakBesluitViewSet(
             )
             logger.info(
                 "zaakbesluit_relation_exists",
-                besluit_uuid=str(besluit.uuid),
-                zaak_uuid=str(self._get_zaak().uuid),
+                besluit_url=besluit_url,
+                zaak_uuid=self.kwargs["zaak_uuid"],
                 client_id=self.request.jwt_auth.client_id,
             )
         except ZaakBesluit.DoesNotExist:
@@ -1515,19 +1556,23 @@ class ZaakBesluitViewSet(
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance: ZaakBesluit):
         """
         'Delete' the relation between zaak & besluit.
         """
+        uuid = str(instance.uuid)
+        zaak_uuid = str(instance.zaak.uuid)
+        besluit_url = get_loose_fk_object_url(instance.besluit, self.request)
         # external besluit
         if isinstance(instance.besluit, ProxyMixin):
+            super().perform_destroy(instance)
             logger.info(
                 "zaakbesluit_deleted_external",
-                besluit_uuid=str(instance.besluit.uuid),
-                zaak_uuid=str(instance.zaak.uuid),
+                uuid=uuid,
+                besluit_url=besluit_url,
+                zaak_uuid=zaak_uuid,
                 client_id=self.request.jwt_auth.client_id,
             )
-            super().perform_destroy(instance)
             return
 
         # for local besluit the actual relation information must be updated in the Besluiten API,
@@ -1545,8 +1590,9 @@ class ZaakBesluitViewSet(
 
         logger.info(
             "zaakbesluit_relation_deleted",
-            besluit_uuid=str(instance.besluit.uuid),
-            zaak_uuid=str(instance.zaak.uuid),
+            uuid=uuid,
+            besluit_url=besluit_url,
+            zaak_uuid=zaak_uuid,
             client_id=self.request.jwt_auth.client_id,
         )
         super().perform_destroy(instance)
@@ -1620,22 +1666,29 @@ class ZaakContactMomentViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "zaakcontactmoment_created",
-            status_code=response.status_code,
-            client_id=request.jwt_auth.client_id,
-            uuid=response.data.get("uuid"),
-            zaak_uuid=response.data.get("zaak"),
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            zaak_uuid=str(instance.zaak.uuid),
         )
-        return response
 
     def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        with transaction.atomic():
+            super().perform_destroy(instance)
+
         if instance._objectcontactmoment:
             try:
                 delete_remote_objectcontactmoment(instance._objectcontactmoment)
             except Exception as exception:
+                # bring back the instance
+                instance.save()
                 raise ValidationError(
                     {
                         "contactmoment": _(
@@ -1644,17 +1697,12 @@ class ZaakContactMomentViewSet(
                     },
                     code="pending-relations",
                 )
-        with transaction.atomic():
-            super().perform_destroy(instance)
 
-    def destroy(self, request, *args, **kwargs):
-        response = super().destroy(request, *args, **kwargs)
         logger.info(
             "zaakcontactmoment_deleted",
-            status_code=response.status_code,
-            client_id=request.jwt_auth.client_id,
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
         )
-        return response
 
 
 @extend_schema_view(
@@ -1715,20 +1763,19 @@ class ZaakVerzoekViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
         logger.info(
             "zaakverzoek_created",
-            status_code=response.status_code,
-            client_id=request.jwt_auth.client_id,
-            path=request.get_full_path(),
-            method=request.method,
-            data=request.data,
-            uuid=response.data.get("uuid") if response.data else None,
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
         )
-        return response
 
     def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
         with transaction.atomic():
             super().perform_destroy(instance)
 
@@ -1746,14 +1793,11 @@ class ZaakVerzoekViewSet(
                     code="pending-relations",
                 )
 
-    def destroy(self, request, *args, **kwargs):
-        response = super().destroy(request, *args, **kwargs)
         logger.info(
             "zaakverzoek_deleted",
-            status_code=response.status_code,
-            client_id=request.jwt_auth.client_id,
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
         )
-        return response
 
 
 @extend_schema_view(

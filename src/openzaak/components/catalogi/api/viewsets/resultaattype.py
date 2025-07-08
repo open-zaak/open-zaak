@@ -97,7 +97,8 @@ class ResultaatTypeViewSet(
     }
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "resultaattype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -105,11 +106,13 @@ class ResultaatTypeViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "resultaattype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     def perform_destroy(self, instance):

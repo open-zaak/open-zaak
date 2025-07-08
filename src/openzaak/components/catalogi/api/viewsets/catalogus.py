@@ -59,7 +59,8 @@ class CatalogusViewSet(
     }
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "catalogus_created",
             client_id=self.request.jwt_auth.client_id,

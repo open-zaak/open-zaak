@@ -17,7 +17,7 @@ from notifications_api_common.viewsets import (
     NotificationViewSetMixin,
 )
 from rest_framework import mixins, viewsets
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import ValidationError
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -143,13 +143,8 @@ class BesluitViewSet(
     audit = AUDIT_BRC
 
     def perform_create(self, serializer):
-        zaak = serializer.validated_data.get("zaak")
-        if zaak and zaak.einddatum is not None:
-            raise PermissionDenied(
-                "Je mag geen gegevens aanpassen van een gesloten zaak."
-            )
-
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "besluit_created",
             client_id=self.request.jwt_auth.client_id,
@@ -157,7 +152,8 @@ class BesluitViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "besluit_updated",
             client_id=self.request.jwt_auth.client_id,
@@ -286,7 +282,8 @@ class BesluitInformatieObjectViewSet(
         return super().notifications_wrap_in_atomic_block
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "besluitinformatieobject_created",
             client_id=self.request.jwt_auth.client_id,

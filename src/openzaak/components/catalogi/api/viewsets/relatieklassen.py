@@ -125,7 +125,8 @@ class ZaakTypeInformatieObjectTypeViewSet(
         return ~(Q(zaaktype__concept=True) | Q(informatieobjecttype__concept=True))
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "zaaktype_informatieobjecttype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -133,11 +134,13 @@ class ZaakTypeInformatieObjectTypeViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "zaaktype_informatieobjecttype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     @transaction.atomic

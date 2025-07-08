@@ -183,7 +183,8 @@ class ApplicatieViewSet(
         return super().paginator
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "applicatie_created",
             client_id=self.request.jwt_auth.client_id,
@@ -191,7 +192,8 @@ class ApplicatieViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "applicatie_updated",
             client_id=self.request.jwt_auth.client_id,
@@ -201,7 +203,7 @@ class ApplicatieViewSet(
 
     def perform_destroy(self, instance):
         uuid = str(instance.uuid)
-        instance.delete()
+        super().perform_destroy(instance)
         logger.info(
             "applicatie_deleted",
             client_id=self.request.jwt_auth.client_id,

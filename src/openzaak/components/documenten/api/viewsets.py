@@ -455,7 +455,8 @@ class EnkelvoudigInformatieObjectViewSet(
     _zoek.is_search_action = True
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "enkelvoudiginformatieobject_created",
             client_id=self.request.jwt_auth.client_id,
@@ -463,7 +464,8 @@ class EnkelvoudigInformatieObjectViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "enkelvoudiginformatieobject_updated",
             client_id=self.request.jwt_auth.client_id,
@@ -739,7 +741,8 @@ class GebruiksrechtenViewSet(
         return GebruiksrechtenFilter
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "gebruiksrechten_created",
             client_id=self.request.jwt_auth.client_id,
@@ -747,7 +750,8 @@ class GebruiksrechtenViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "gebruiksrechten_updated",
             client_id=self.request.jwt_auth.client_id,
@@ -756,7 +760,7 @@ class GebruiksrechtenViewSet(
         )
 
     def perform_destroy(self, instance):
-        uuid = instance.uuid
+        uuid = str(instance.uuid)
         instance.delete()
         logger.info(
             "gebruiksrechten_deleted",
@@ -952,7 +956,8 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
     }
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "bestandsdeel_uploaded",
             client_id=self.request.jwt_auth.client_id,
@@ -1027,14 +1032,7 @@ class VerzendingViewSet(
     def create(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        response = super().create(request, *args, **kwargs)
-        logger.info(
-            "verzending_created",
-            client_id=request.jwt_auth.client_id,
-            data=request.data,
-            status_code=response.status_code,
-        )
-        return response
+        return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
@@ -1049,40 +1047,51 @@ class VerzendingViewSet(
     def update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        response = super().update(request, *args, **kwargs)
-        logger.info(
-            "verzending_updated",
-            client_id=request.jwt_auth.client_id,
-            uuid=kwargs.get("uuid"),
-            data=request.data,
-            status_code=response.status_code,
-        )
-        return response
+        return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        response = super().partial_update(request, *args, **kwargs)
-        logger.info(
-            "verzending_partial_updated",
-            client_id=request.jwt_auth.client_id,
-            uuid=kwargs.get("uuid"),
-            data=request.data,
-            status_code=response.status_code,
-        )
-        return response
+        return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         if settings.CMIS_ENABLED:
             raise CMISNotSupportedException()
-        response = super().destroy(request, *args, **kwargs)
+        return super().destroy(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        instance = serializer.instance
+
+        logger.info(
+            "verzending_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=instance.uuid,
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+        instance = serializer.instance
+
+        logger.info(
+            "verzending_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+
+        super().perform_destroy(instance)
+
         logger.info(
             "verzending_deleted",
-            client_id=request.jwt_auth.client_id,
-            uuid=kwargs.get("uuid"),
-            status_code=response.status_code,
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
         )
-        return response
 
 
 class ReservedDocumentViewSet(viewsets.ViewSet):

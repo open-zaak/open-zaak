@@ -109,7 +109,8 @@ class BesluitTypeViewSet(
     concept_related_fields = ["informatieobjecttypen", "zaaktypen"]
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        super().perform_create(serializer)
+        instance = serializer.instance
         logger.info(
             "besluittype_created",
             client_id=self.request.jwt_auth.client_id,
@@ -117,11 +118,13 @@ class BesluitTypeViewSet(
         )
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        super().perform_update(serializer)
+        instance = serializer.instance
         logger.info(
             "besluittype_updated",
             client_id=self.request.jwt_auth.client_id,
             uuid=str(instance.uuid),
+            partial=serializer.partial,
         )
 
     @transaction.atomic
@@ -129,11 +132,6 @@ class BesluitTypeViewSet(
         uuid = str(instance.uuid)
         try:
             super().perform_destroy(instance)
-            logger.info(
-                "besluittype_deleted",
-                client_id=self.request.jwt_auth.client_id,
-                uuid=uuid,
-            )
         except DatabaseError as e:
             logger.error(
                 "besluittype_delete_failed",
@@ -142,6 +140,12 @@ class BesluitTypeViewSet(
                 error=str(e),
             )
             raise
+
+        logger.info(
+            "besluittype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
 
     @extend_schema(
         "besluittype_publish",
