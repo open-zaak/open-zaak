@@ -1086,14 +1086,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
-    # TODO OR...
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.fields["informatieobject"].read_only = True
-    #     self.fields["informatieobject"].required = False
-    #     self.fields["informatieobject"].validators = []
-
     informatieobject = EnkelvoudigInformatieObjectField(
         max_length=1000,
         min_length=1,

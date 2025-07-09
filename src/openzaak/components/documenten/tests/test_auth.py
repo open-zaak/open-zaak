@@ -376,6 +376,40 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
 
+        with self.subTest("without vertrouwelijkheidaanduiding"):
+            response = self.client.post(
+                url,
+                {
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+        with self.subTest("without informatieobjecttype"):
+            response = self.client.post(
+                url,
+                {
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "bronorganisatie": "517439943",
+                    "creatiedatum": "2018-12-24",
+                    "titel": "foo",
+                    "auteur": "bar",
+                    "taal": "nld",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+            )
+
     @tag("gh-1661")
     def test_eio_update_with_catalogus_autorisatie(self):
         """

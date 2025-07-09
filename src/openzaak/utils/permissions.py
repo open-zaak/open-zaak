@@ -195,7 +195,7 @@ class MultipleObjectsAuthRequired(AuthRequired):
             return True
 
         if not view.viewset_classes:
-            return False  # TODO could validate scopes on RegisterDocumentViewSet but component should be defined somewhere or raise ImproperlyConfigured
+            return False  # TODO could raise ImproperlyConfigured
 
         for field, viewset in view.viewset_classes.items():
             # CatalogusAutorisatie (_autorisaties) is cached in JWTAuth

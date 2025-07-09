@@ -250,6 +250,130 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "zaak")
         self.assertEqual(error["code"], "required")
 
+    def test_register_document_without_informatieobjecttype(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        content = self.content.copy()
+        content["enkelvoudiginformatieobject"].pop("informatieobjecttype")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(
+            response, "enkelvoudiginformatieobject.informatieobjecttype"
+        )
+        self.assertEqual(error["code"], "required")
+
+    def test_register_document_without_informatieobjecttype_catalogi_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.drc,
+            self.informatieobjecttype.catalogus,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+
+        content = self.content.copy()
+        content["enkelvoudiginformatieobject"].pop("informatieobjecttype")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(
+            response, "enkelvoudiginformatieobject.informatieobjecttype"
+        )
+        self.assertEqual(error["code"], "required")
+
+    def test_register_document_without_zaakinformatieobject(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        content = self.content.copy()
+        content.pop("zaakinformatieobject")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "required")
+
+    def test_register_document_without_zaakinformatieobject_catalogi_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.drc,
+            self.informatieobjecttype.catalogus,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+
+        content = self.content.copy()
+        content.pop("zaakinformatieobject")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "required")
+
+    def test_register_document_without_enkelvoudiginformatieobject(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        content = self.content.copy()
+        content.pop("enkelvoudiginformatieobject")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "enkelvoudiginformatieobject")
+        self.assertEqual(error["code"], "required")
+
+    def test_register_document_without_enkelvoudiginformatieobject_catalogi_auth(self):
+        self._add_catalogi_auth(
+            ComponentTypes.drc,
+            self.informatieobjecttype.catalogus,
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+        )
+        self._add_catalogi_auth(
+            ComponentTypes.zrc, self.zaaktype.catalogus, scopes=[SCOPE_ZAKEN_CREATE]
+        )
+
+        content = self.content.copy()
+        content.pop("enkelvoudiginformatieobject")
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "enkelvoudiginformatieobject")
+        self.assertEqual(error["code"], "required")
+
 
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
@@ -382,25 +506,6 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
 
         response_data = response.json()
         self.assertEqual(response_data, expected_response)
-
-    def test_register_document_without_informatieobjecttype(self):
-        content = {
-            "enkelvoudiginformatieobject": self.enkelvoudiginformatieobject,
-            "zaakinformatieobject": self.zaakinformatieobject,
-        }
-        content["enkelvoudiginformatieobject"].pop("informatieobjecttype")
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        self.assertEqual(len(response.data["invalid_params"]), 1)
-        error = get_validation_errors(
-            response, "enkelvoudiginformatieobject.informatieobjecttype"
-        )
-        self.assertEqual(error["code"], "required")
 
     def test_invalid_inhoud(self):
         content = {

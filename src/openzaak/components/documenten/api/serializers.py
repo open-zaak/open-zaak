@@ -1199,7 +1199,6 @@ class DocumentRegistrerenSerializer(serializers.Serializer):
             "zaakinformatieobject": zio,
         }
 
-    # TODO is this skipping validation?
     def to_internal_value(self, data):
         """
         Normally this transforms json into data but the nested serializers still expect strings.
