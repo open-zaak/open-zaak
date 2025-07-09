@@ -194,8 +194,8 @@ class MultipleObjectsAuthRequired(AuthRequired):
         if view.action is None and isinstance(view, ViewSetMixin):
             return True
 
-        if not view.viewset_classes:
-            return False  # TODO could raise ImproperlyConfigured
+        if not getattr(view, "viewset_classes", None):
+            return False  # TODO could raise ImproperlyConfigured, permission_main_object can also be forgotten on viewset
 
         for field, viewset in view.viewset_classes.items():
             # CatalogusAutorisatie (_autorisaties) is cached in JWTAuth
