@@ -1,11 +1,10 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.core.exceptions import ImproperlyConfigured
-from django.http import HttpRequest
 from django.test import TestCase, override_settings
+
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.request import Request
-from vng_api_common.tests import reverse
 from rest_framework.test import APIRequestFactory
 
 from openzaak.components.zaken.api.viewsets import ZaakViewSet
@@ -13,13 +12,12 @@ from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
 class AuthRequiredTests(TestCase):
-
     def setUp(self):
         self.auth = AuthRequired()
 
     def test_main_resource_missing(self):
         with self.assertRaises(ImproperlyConfigured):
-           self.auth.get_main_resource(None)
+            self.auth.get_main_resource(None)
 
     @override_settings(DEBUG=True)
     @patch("openzaak.utils.permissions.AuthRequired.has_handler", return_value=None)
@@ -34,8 +32,8 @@ class AuthRequiredTests(TestCase):
 
         self.assertTrue(result)
 
-class MultipleObjectsAuthRequiredTests(TestCase):
 
+class MultipleObjectsAuthRequiredTests(TestCase):
     def setUp(self):
         self.auth = MultipleObjectsAuthRequired()
 

@@ -60,7 +60,11 @@ from openzaak.utils.schema import (
 )
 from openzaak.utils.views import AuditTrailViewSet
 
-from ...zaken.api.scopes import SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+from ...zaken.api.scopes import (
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+)
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -1185,15 +1189,24 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             return output_serializer.data
 
 
+@extend_schema(
+    summary="Registreer een document",
+    description=mark_experimental(
+        "Maak een EnkelvoudigInformatieObject en een ZaakInformatieObject aan om het document direct aan een zaak te linken."
+    ),
+)
 class DocumentRegistrerenViewSet(viewsets.ViewSet):
     queryset = EnkelvoudigInformatieObject.objects.all()
     serializer_class = DocumentRegistrerenSerializer
     permission_classes = (DocumentReserverenAuthRequired,)
 
-    # TODO  only used for api spec and `|` should be `&`
     required_scopes = {
         "create": SCOPE_DOCUMENTEN_AANMAKEN
-        | (SCOPE_ZAKEN_CREATE | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN),
+        & (
+            SCOPE_ZAKEN_CREATE
+            | SCOPE_ZAKEN_BIJWERKEN
+            | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+        ),
     }
 
     viewset_classes = {
@@ -1207,5 +1220,13 @@ class DocumentRegistrerenViewSet(viewsets.ViewSet):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        logger.info(
+            "document_geregistreerd",
+            enkelvoudiginformatieobject_url=serializer.data[
+                "enkelvoudiginformatieobject"
+            ]["url"],
+            zaak_url=serializer.data["zaakinformatieobject"]["zaak"],
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

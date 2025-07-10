@@ -281,6 +281,9 @@ paths:
   /document_registreren:
     post:
       operationId: registereddocument_create
+      description: '**EXPERIMENTEEL** Maak een EnkelvoudigInformatieObject en een
+        ZaakInformatieObject aan om het document direct aan een zaak te linken.'
+      summary: Registreer een document
       parameters:
       - in: header
         name: Content-Type
@@ -300,7 +303,7 @@ paths:
         required: true
       security:
       - JWT-Claims:
-        - (documenten.aanmaken | zaken.aanmaken | zaken.geforceerd-bijwerken)
+        - (documenten.aanmaken & zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
       responses:
         '201':
           headers:

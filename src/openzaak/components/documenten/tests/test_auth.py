@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse, reverse_lazy
+from vng_api_common.tests.schema import get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -409,6 +410,8 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             self.assertEqual(
                 response.status_code, status.HTTP_400_BAD_REQUEST, response.data
             )
+            error = get_validation_errors(response, "informatieobjecttype")
+            self.assertEqual(error["code"], "required")
 
     @tag("gh-1661")
     def test_eio_update_with_catalogus_autorisatie(self):

@@ -1095,6 +1095,7 @@ class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
     )
 
     class Meta(ZaakInformatieObjectSerializer.Meta):
+        # ZaakInformatieObjectSerializer validates with informatieobject which this serializer won't have.
         validators = []
 
 

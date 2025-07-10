@@ -28,7 +28,10 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tests.utils import get_operation_url
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
 from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.components.zaken.tests.factories import StatusFactory, ZaakFactory
+from openzaak.components.zaken.tests.factories import (
+    StatusFactory,
+    ZaakFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin
 
 
@@ -558,7 +561,6 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             "zaakinformatieobject": self.zaakinformatieobject,
         }
 
-        # Send to the API
         response = self.client.post(self.url, content)
 
         self.assertEqual(
