@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -46,6 +47,8 @@ from .scopes import (
     SCOPE_BESLUITEN_BIJWERKEN,
 )
 from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -139,14 +142,56 @@ class BesluitViewSet(
     notifications_kanaal = KANAAL_BESLUITEN
     audit = AUDIT_BRC
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "besluit_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "besluit_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
     @transaction.atomic
     def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+        uuid = str(instance.uuid)
+        try:
+            super().perform_destroy(instance)
+        except DatabaseError as e:
+            logger.error(
+                "besluit_delete_failed",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+                error=str(e),
+            )
+            raise
+
+        logger.info(
+            "besluit_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
 
         if isinstance(instance.zaak, ProxyMixin) and instance._zaakbesluit_url:
             try:
                 delete_remote_zaakbesluit(instance._zaakbesluit_url)
             except Exception as exception:
+                logger.error(
+                    "delete_remote_zaakbesluit_failed",
+                    client_id=self.request.jwt_auth.client_id,
+                    uuid=uuid,
+                    error=str(exception),
+                    zaakbesluit_url=instance._zaakbesluit_url,
+                )
                 raise ValidationError(
                     {
                         "zaak": _(
@@ -236,9 +281,33 @@ class BesluitInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "besluitinformatieobject_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
     def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
         with transaction.atomic():
-            super().perform_destroy(instance)
+            try:
+                super().perform_destroy(instance)
+            except DatabaseError as e:
+                logger.error(
+                    "besluitinformatieobject_delete_failed",
+                    client_id=self.request.jwt_auth.client_id,
+                    uuid=uuid,
+                    error=str(e),
+                )
+                raise
+            logger.info(
+                "besluitinformatieobject_deleted",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+            )
 
         if (
             isinstance(instance.informatieobject, ProxyMixin)
@@ -247,7 +316,13 @@ class BesluitInformatieObjectViewSet(
             try:
                 delete_remote_oio(instance._objectinformatieobject_url)
             except Exception as exception:
-                # bring back the instance
+                logger.error(
+                    "delete_remote_oio_failed",
+                    client_id=self.request.jwt_auth.client_id,
+                    uuid=uuid,
+                    error=str(exception),
+                    objectinformatieobject_url=instance._objectinformatieobject_url,
+                )
                 instance.save()
                 raise ValidationError(
                     {

@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import DatabaseError, transaction
+
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
@@ -19,6 +22,8 @@ from ..scopes import (
 )
 from ..serializers import EigenschapSerializer
 from .mixins import ZaakTypeConceptMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -93,3 +98,42 @@ class EigenschapViewSet(
         "partial_update": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_WRITE,
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
     }
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "eigenschap_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "eigenschap_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        try:
+            super().perform_destroy(instance)
+        except DatabaseError as e:
+            logger.error(
+                "eigenschap_delete_failed",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+                error=str(e),
+            )
+            raise
+
+        logger.info(
+            "eigenschap_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )

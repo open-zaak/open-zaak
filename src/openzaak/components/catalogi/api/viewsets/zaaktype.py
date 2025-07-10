@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -29,6 +29,8 @@ from .mixins import (
     ConceptPublishMixin,
     M2MConceptDestroyMixin,
 )
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -97,7 +99,6 @@ class ZaakTypeViewSet(
 
     queryset = (
         ZaakType.objects.prefetch_related(
-            # prefetch catalogus rather than select related -> far fewer catalogi, so less data to transfer
             "catalogus",
             "statustypen",
             "zaaktypenrelaties",
@@ -144,14 +145,37 @@ class ZaakTypeViewSet(
             qs = qs.prefetch_related(None)
         return qs
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "zaaktype_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
     def perform_update(self, serializer):
         if not serializer.partial:
             serializer.instance.zaaktypenrelaties.all().delete()
-
         super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "zaaktype_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        super().perform_destroy(instance)
+        logger.info(
+            "zaaktype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
 
     @extend_schema(
-        "zaaktype_publish",
         summary="Publiceer het concept ZAAKTYPE.",
         description=(
             "Publiceren van het zaaktype zorgt ervoor dat dit in een Zaken API kan gebruikt "
@@ -169,4 +193,10 @@ class ZaakTypeViewSet(
     )
     @action(detail=True, methods=["post"], name="zaaktype_publish")
     def publish(self, request, *args, **kwargs):
-        return super()._publish(request, *args, **kwargs)
+        response = super()._publish(request, *args, **kwargs)
+        logger.info(
+            "zaaktype_published",
+            client_id=request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+        )
+        return response

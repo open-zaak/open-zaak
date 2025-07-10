@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models import Prefetch, Q
 
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
@@ -28,6 +29,8 @@ from .serializers import ApplicatieSerializer
 IS_SUPERUSER = Q(heeft_alle_autorisaties=True)
 HAS_AUTORISATIES = Q(autorisaties__isnull=False)
 HAS_CATALOGUS_AUTORISATIES = Q(catalogusautorisatie__isnull=False)
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -179,6 +182,34 @@ class ApplicatieViewSet(
             return None
         return super().paginator
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "applicatie_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "applicatie_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        super().perform_destroy(instance)
+        logger.info(
+            "applicatie_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
+
     @extend_schema(
         "applicatie_consumer",
         summary="Vraag een applicatie op, op basis van clientId",
@@ -195,7 +226,6 @@ class ApplicatieViewSet(
     def consumer(self, request, *args, **kwargs):
         """
         Vraag een applicatie op, op basis van clientId
-
         Gegeven een `clientId`, via de query string, zoek de bijbehorende applicatie
         op. Het antwoord bevat de applicatie met ingesloten autorisaties.
         """

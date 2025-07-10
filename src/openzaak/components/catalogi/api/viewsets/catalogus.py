@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
 from vng_api_common.caching import conditional_retrieve
@@ -13,6 +14,8 @@ from ...models import Catalogus
 from ..filters import CatalogusFilter
 from ..scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..serializers import CatalogusSerializer
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -54,3 +57,12 @@ class CatalogusViewSet(
         "retrieve": SCOPE_CATALOGI_READ,
         "create": SCOPE_CATALOGI_WRITE,
     }
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "catalogus_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )

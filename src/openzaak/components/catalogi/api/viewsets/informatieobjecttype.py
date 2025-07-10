@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import DatabaseError, transaction
+
+import structlog
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
@@ -33,6 +36,8 @@ from ..serializers import (
     InformatieObjectTypeSerializer,
 )
 from .mixins import ConceptMixin, M2MConceptDestroyMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -131,6 +136,45 @@ class InformatieObjectTypeViewSet(
     notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
     concept_related_fields = ["besluittypen", "zaaktypen"]
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "informatieobjecttype_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "informatieobjecttype_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    @transaction.atomic
+    def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
+        try:
+            super().perform_destroy(instance)
+        except DatabaseError as e:
+            logger.error(
+                "informatieobjecttype_delete_failed",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+                error=str(e),
+            )
+            raise
+
+        logger.info(
+            "informatieobjecttype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )
+
     @extend_schema(
         "informatieobjecttype_publish",
         summary="Publiceer het concept INFORMATIEOBJECTTYPE.",
@@ -148,5 +192,11 @@ class InformatieObjectTypeViewSet(
         },
     )
     @action(detail=True, methods=["post"], name="informatieobjecttype_publish")
-    def publish(self, *args, **kwargs):
-        return super()._publish(*args, **kwargs)
+    def publish(self, request, *args, **kwargs):
+        response = super()._publish(request, *args, **kwargs)
+        logger.info(
+            "informatieobjecttype_published",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=kwargs.get("uuid"),
+        )
+        return response

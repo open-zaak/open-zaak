@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
@@ -23,6 +25,8 @@ from ..scopes import (
 )
 from ..serializers import ZaakTypeInformatieObjectTypeSerializer
 from .mixins import ConceptDestroyMixin, ConceptFilterMixin
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 @extend_schema_view(
@@ -120,17 +124,46 @@ class ZaakTypeInformatieObjectTypeViewSet(
     def get_concept_filter(self):
         return ~(Q(zaaktype__concept=True) | Q(informatieobjecttype__concept=True))
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        instance = serializer.instance
+        logger.info(
+            "zaaktype_informatieobjecttype_created",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+        )
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        instance = serializer.instance
+        logger.info(
+            "zaaktype_informatieobjecttype_updated",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=str(instance.uuid),
+            partial=serializer.partial,
+        )
+
+    @transaction.atomic
     def perform_destroy(self, instance):
+        uuid = str(instance.uuid)
         forced_delete = self.request.jwt_auth.has_auth(
             scopes=SCOPE_CATALOGI_FORCED_DELETE,
             init_component=self.queryset.model._meta.app_label,
         )
-
-        if not forced_delete:
-            if not self.get_concept(instance):
-                msg = _("Objects related to non-concept objects can't be destroyed")
-                raise ValidationError(
-                    {"nonFieldErrors": msg}, code="non-concept-relation"
-                )
+        code = "non-concept-relation"
+        if not forced_delete and not self.get_concept(instance):
+            msg = _("Objects related to non-concept objects can't be destroyed")
+            logger.warning(
+                "zaaktype_informatieobjecttype_delete_blocked",
+                client_id=self.request.jwt_auth.client_id,
+                uuid=uuid,
+                reason=code,
+            )
+            raise ValidationError({"nonFieldErrors": msg}, code=code)
 
         super().perform_destroy(instance)
+        logger.info(
+            "zaaktype_informatieobjecttype_deleted",
+            client_id=self.request.jwt_auth.client_id,
+            uuid=uuid,
+        )

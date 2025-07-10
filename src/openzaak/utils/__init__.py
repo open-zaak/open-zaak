@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import HttpRequest
 
 import dateutil.parser
+from django_loose_fk.virtual_models import ProxyMixin
 from furl import furl
 
 
@@ -61,3 +62,13 @@ def build_fake_request(*, method="get", **kwargs) -> HttpRequest:
     environ.update(kwargs)
     func = getattr(request_factory, method.lower())
     return func("/", **environ)
+
+
+def get_loose_fk_object_url(instance, request):
+    from vng_api_common.tests import reverse
+
+    if isinstance(instance, ProxyMixin):
+        return instance._loose_fk_data["url"]
+
+    path = reverse(instance)
+    return build_absolute_url(path, request)
