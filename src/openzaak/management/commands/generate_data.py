@@ -3,6 +3,7 @@
 import random
 from itertools import groupby, islice
 
+from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
@@ -16,14 +17,28 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.models import JWTSecret
 from zgw_consumers.client import build_client
 
+from openzaak.components.autorisaties.api.scopes import (
+    SCOPE_AUTORISATIES_BIJWERKEN,
+    SCOPE_AUTORISATIES_LEZEN,
+)
 from openzaak.components.autorisaties.tests.factories import (
     ApplicatieFactory,
     AutorisatieFactory,
+)
+from openzaak.components.besluiten.api.scopes import (
+    SCOPE_BESLUITEN_AANMAKEN,
+    SCOPE_BESLUITEN_ALLES_LEZEN,
+    SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
+    SCOPE_BESLUITEN_BIJWERKEN,
 )
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
+)
+from openzaak.components.catalogi.api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
 )
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.models import (
@@ -47,6 +62,13 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
+from openzaak.components.documenten.api.scopes import (
+    SCOPE_DOCUMENTEN_AANMAKEN,
+    SCOPE_DOCUMENTEN_ALLES_LEZEN,
+    SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN,
+    SCOPE_DOCUMENTEN_BIJWERKEN,
+    SCOPE_DOCUMENTEN_LOCK,
+)
 from openzaak.components.documenten.constants import ObjectInformatieObjectTypes
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -57,7 +79,12 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_ALLES_LEZEN
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_ALLES_VERWIJDEREN,
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+)
 from openzaak.components.zaken.models import (
     Resultaat,
     Rol,
@@ -633,16 +660,75 @@ class Command(BaseCommand):
             client_ids=["non_superuser"], heeft_alle_autorisaties=False
         )
 
+        request = APIRequestFactory().get(
+            "/", HTTP_HOST=get_openzaak_domain(), secure=settings.IS_HTTPS
+        )
+
         num_authorized_zaaktypen = min(ZaakType.objects.count(), 15)
-        request = APIRequestFactory().get("/", HTTP_HOST=get_openzaak_domain())
         for zaaktype in ZaakType.objects.order_by("pk")[:num_authorized_zaaktypen]:
             AutorisatieFactory.create(
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
-                scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
+                scopes=[
+                    str(SCOPE_ZAKEN_ALLES_LEZEN),
+                    str(SCOPE_ZAKEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_ZAKEN_CREATE),
+                    str(SCOPE_ZAKEN_BIJWERKEN),
+                ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
                 zaaktype=zaaktype.get_absolute_api_url(request=request),
             )
+
+        num_authorized_besluittypen = min(BesluitType.objects.count(), 15)
+        for besluittype in BesluitType.objects.order_by("pk")[
+            :num_authorized_besluittypen
+        ]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.brc,
+                scopes=[
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_ALLES_LEZEN),
+                    str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
+                ],
+                besluittype=besluittype.get_absolute_api_url(request=request),
+            )
+
+        num_authorized_iotypen = min(InformatieObjectType.objects.count(), 15)
+        for iotype in InformatieObjectType.objects.order_by("pk")[
+            :num_authorized_iotypen
+        ]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.drc,
+                scopes=[
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_LEZEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                    str(SCOPE_DOCUMENTEN_LOCK),
+                ],
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                informatieobjecttype=iotype.get_absolute_api_url(request=request),
+            )
+
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[
+                str(SCOPE_CATALOGI_READ),
+                str(SCOPE_CATALOGI_WRITE),
+            ],
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.ac,
+            scopes=[
+                str(SCOPE_AUTORISATIES_BIJWERKEN),
+                str(SCOPE_AUTORISATIES_LEZEN),
+            ],
+        )
 
     def generate_non_superuser_credentials_many_authorized_types(self):
         JWTSecret.objects.get_or_create(
@@ -658,7 +744,63 @@ class Command(BaseCommand):
             AutorisatieFactory.create(
                 applicatie=applicatie,
                 component=ComponentTypes.zrc,
-                scopes=[str(SCOPE_ZAKEN_ALLES_LEZEN)],
+                scopes=[
+                    str(SCOPE_ZAKEN_ALLES_LEZEN),
+                    str(SCOPE_ZAKEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_ZAKEN_CREATE),
+                    str(SCOPE_ZAKEN_BIJWERKEN),
+                ],
                 max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
                 zaaktype=zaaktype.get_absolute_api_url(request=request),
             )
+
+        num_authorized_besluittypen = max(BesluitType.objects.count() - 5, 1)
+        for besluittype in BesluitType.objects.order_by("pk")[
+            :num_authorized_besluittypen
+        ]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.brc,
+                scopes=[
+                    str(SCOPE_BESLUITEN_BIJWERKEN),
+                    str(SCOPE_BESLUITEN_AANMAKEN),
+                    str(SCOPE_BESLUITEN_ALLES_LEZEN),
+                    str(SCOPE_BESLUITEN_ALLES_VERWIJDEREN),
+                ],
+                besluittype=besluittype.get_absolute_api_url(request=request),
+            )
+
+        num_authorized_iotypen = max(InformatieObjectType.objects.count() - 5, 1)
+        for iotype in InformatieObjectType.objects.order_by("pk")[
+            :num_authorized_iotypen
+        ]:
+            AutorisatieFactory.create(
+                applicatie=applicatie,
+                component=ComponentTypes.drc,
+                scopes=[
+                    str(SCOPE_DOCUMENTEN_AANMAKEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_LEZEN),
+                    str(SCOPE_DOCUMENTEN_ALLES_VERWIJDEREN),
+                    str(SCOPE_DOCUMENTEN_BIJWERKEN),
+                    str(SCOPE_DOCUMENTEN_LOCK),
+                ],
+                max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+                informatieobjecttype=iotype.get_absolute_api_url(request=request),
+            )
+
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[
+                str(SCOPE_CATALOGI_READ),
+                str(SCOPE_CATALOGI_WRITE),
+            ],
+        )
+        AutorisatieFactory.create(
+            applicatie=applicatie,
+            component=ComponentTypes.ac,
+            scopes=[
+                str(SCOPE_AUTORISATIES_BIJWERKEN),
+                str(SCOPE_AUTORISATIES_LEZEN),
+            ],
+        )
