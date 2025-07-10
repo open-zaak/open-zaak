@@ -203,3 +203,13 @@ class ZaakKenmerkFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = "zaken.ZaakKenmerk"
+
+
+class ZaakNotitieFactory(factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    onderwerp = factory.Faker("sentence")
+    tekst = factory.Faker("paragraph")
+    aangemaakt_door = factory.Faker("name")
+
+    class Meta:
+        model = "zaken.ZaakNotitie"

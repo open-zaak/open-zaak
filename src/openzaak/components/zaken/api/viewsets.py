@@ -1934,15 +1934,17 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
 class ZaakNotitieViewSet(
     NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
 ):
-    queryset = ZaakNotitie.objects.order_by("-pk")
+    queryset = ZaakNotitie.objects.select_related("zaak").order_by("-pk")
+
     serializer_class = ZaakNotitieSerializer
     lookup_field = "uuid"
     pagination_class = OptimizedPagination
-    # permission_classes = (ZaakAuthRequired,)
-    permission_main_object = "zaak"
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "gerelateerd_aan"  # zaak
     required_scopes = {
         "list": SCOPE_ZAKEN_ALLES_LEZEN,
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN,
     }
