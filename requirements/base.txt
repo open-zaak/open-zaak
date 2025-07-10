@@ -180,7 +180,7 @@ django-otp==1.5.0
     # via django-two-factor-auth
 django-phonenumber-field==7.3.0
     # via django-two-factor-auth
-django-privates==2.0.0.post0
+django-privates==3.1.1
     # via
     #   -r requirements/base.in
     #   django-simple-certmanager
