@@ -574,7 +574,36 @@ paths:
           type: string
         description: Naam of identificatie van de auteur van de notitie
       - in: query
+        name: aangemaaktDoor__icontains
+        schema:
+          type: string
+        description: Naam of identificatie van de auteur van de notitie
+      - in: query
         name: aanmaakdatum
+        schema:
+          type: string
+          format: date-time
+        description: De datum waarop de handeling is gedaan.
+      - in: query
+        name: aanmaakdatum__gt
+        schema:
+          type: string
+          format: date-time
+        description: De datum waarop de handeling is gedaan.
+      - in: query
+        name: aanmaakdatum__gte
+        schema:
+          type: string
+          format: date-time
+        description: De datum waarop de handeling is gedaan.
+      - in: query
+        name: aanmaakdatum__lt
+        schema:
+          type: string
+          format: date-time
+        description: De datum waarop de handeling is gedaan.
+      - in: query
+        name: aanmaakdatum__lte
         schema:
           type: string
           format: date-time
@@ -596,6 +625,11 @@ paths:
 
       - in: query
         name: onderwerp
+        schema:
+          type: string
+        description: Korte omschrijving of titel van de notitie
+      - in: query
+        name: onderwerp__icontains
         schema:
           type: string
         description: Korte omschrijving of titel van de notitie
@@ -624,7 +658,36 @@ paths:
           type: string
         description: De volledige inhoud of beschrijving van de notitie
       - in: query
+        name: tekst__icontains
+        schema:
+          type: string
+        description: De volledige inhoud of beschrijving van de notitie
+      - in: query
         name: wijzigingsdatum
+        schema:
+          type: string
+          format: date-time
+        description: Datum en tijd waarop de notitie voor het laatst is gewijzigd
+      - in: query
+        name: wijzigingsdatum__gt
+        schema:
+          type: string
+          format: date-time
+        description: Datum en tijd waarop de notitie voor het laatst is gewijzigd
+      - in: query
+        name: wijzigingsdatum__gte
+        schema:
+          type: string
+          format: date-time
+        description: Datum en tijd waarop de notitie voor het laatst is gewijzigd
+      - in: query
+        name: wijzigingsdatum__lt
+        schema:
+          type: string
+          format: date-time
+        description: Datum en tijd waarop de notitie voor het laatst is gewijzigd
+      - in: query
+        name: wijzigingsdatum__lte
         schema:
           type: string
           format: date-time
@@ -632,7 +695,8 @@ paths:
       tags:
       - notities
       security:
-      - {}
+      - JWT-Claims:
+        - zaken.lezen
       responses:
         '200':
           headers:
@@ -776,7 +840,8 @@ paths:
               $ref: '#/components/schemas/ZaakNotitieRequest'
         required: true
       security:
-      - {}
+      - JWT-Claims:
+        - zaken.bijwerken
       responses:
         '201':
           headers:
@@ -919,7 +984,8 @@ paths:
       tags:
       - notities
       security:
-      - {}
+      - JWT-Claims:
+        - zaken.lezen
       responses:
         '200':
           headers:
@@ -1070,7 +1136,8 @@ paths:
               $ref: '#/components/schemas/ZaakNotitieRequest'
         required: true
       security:
-      - {}
+      - JWT-Claims:
+        - zaken.bijwerken
       responses:
         '200':
           headers:
@@ -1231,8 +1298,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakNotitieRequest'
-      security:
-      - {}
       responses:
         '200':
           headers:
@@ -1381,7 +1446,8 @@ paths:
       tags:
       - notities
       security:
-      - {}
+      - JWT-Claims:
+        - zaken.bijwerken
       responses:
         '204':
           headers:

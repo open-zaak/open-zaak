@@ -125,7 +125,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@d6f3ce9b5a835a9912081594177857aa973b66d3
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@820bb1d7ba220d5c3008df1fb4b9befbf21114ab
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
