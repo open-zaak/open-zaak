@@ -216,6 +216,7 @@ INSTALLED_APPS = (
         "drc_cmis",
         "django_celery_beat",
         "django_structlog",
+        # "cacheops",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",
@@ -706,6 +707,17 @@ CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
 # TODO is there a better way to fix this?
 CSP_INCLUDE_NONCE_IN.remove("script-src")  # error with GISModelAdmin.
 CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with redoc.
+
+# TODO
+CACHEOPS_REDIS = "redis://localhost:6379/1"
+CACHEOPS = {
+    'autorisaties.*': {'ops': 'all', 'timeout': 60*60},
+    'vng_api_common.*': {'ops': 'all', 'timeout': 60*60},
+    'authorizations.*': {'ops': 'all', 'timeout': 60*60},
+    'catalogi.*': {'ops': 'all', 'timeout': 60*60},
+    'config.*': {'ops': 'all', 'timeout': 60*60},
+}
+
 #
 # OpenZaak configuration
 #
