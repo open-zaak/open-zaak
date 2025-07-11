@@ -336,6 +336,11 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
+    # _json = models.JSONField(
+    #     blank=True,
+    #     null=True,
+    # )
+
     objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
