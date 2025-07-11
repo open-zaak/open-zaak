@@ -227,6 +227,7 @@ django==5.2.3
     #   django-admin-index
     #   django-appconf
     #   django-axes
+    #   django-cacheops
     #   django-celery-beat
     #   django-cors-headers
     #   django-csp
@@ -287,6 +288,10 @@ django-axes==6.5.1
     #   -r requirements/ci.txt
     #   open-api-framework
 django-better-admin-arrayfield==1.4.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+django-cacheops==7.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -549,6 +554,11 @@ freezegun==1.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+funcy==2.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-cacheops
 furl==2.1.3
     # via
     #   -c requirements/ci.txt
@@ -945,6 +955,7 @@ redis==4.1.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-cacheops
     #   django-redis
 requests==2.32.4
     # via

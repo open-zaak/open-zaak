@@ -31,3 +31,5 @@ drc-cmis
 commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]
+
+django-cacheops
