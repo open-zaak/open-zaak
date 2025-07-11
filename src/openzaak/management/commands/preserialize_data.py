@@ -10,13 +10,20 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.zaken.api.serializers import ZaakSerializer
+from openzaak.components.catalogi.api.serializers import ZaakTypeSerializer
 from openzaak.components.zaken.models import (
     Zaak,
 )
+from openzaak.components.catalogi.models import ZaakType
 from openzaak.utils import get_openzaak_domain
 
 logger = structlog.stdlib.get_logger(__name__)
 
+
+MODELS = [
+    (Zaak, ZaakSerializer,),
+    # (ZaakType, ZaakTypeSerializer,)
+]
 
 class Command(BaseCommand):
     help = (
@@ -42,34 +49,40 @@ class Command(BaseCommand):
         request.version = "1"
 
         BATCH_SIZE = 1000
-        instances_to_update = []
-        total_updated = 0
-        objects = Zaak.objects.all()
-        # objects = Zaak.objects.filter(_json__isnull=True)
-        total_objects = objects.count()
 
-        serializer = ZaakSerializer(context={"request": request, "ignore_json": True})
+        for model, serializer_class in MODELS:
+            instances_to_update = []
+            total_updated = 0
+            objects = model.objects.all()
+            # objects = Zaak.objects.filter(_json__isnull=True)
+            total_objects = objects.count()
 
-        for zaak in objects.iterator(chunk_size=1000):
-            zaak._json = serializer.to_representation(zaak)
-            instances_to_update.append(zaak)
+            for batch_start in range(0, total_objects, BATCH_SIZE):
+                batch = list(objects[batch_start : batch_start + BATCH_SIZE])
 
-            if len(instances_to_update) >= BATCH_SIZE:
-                Zaak.objects.bulk_update(instances_to_update, ["_json"])
-                total_updated += BATCH_SIZE
+                serializer = serializer_class(
+                    batch, many=True, context={"request": request, "ignore_json": True}
+                )
+                serialized_data = serializer.data
+
+                for zaak, data in zip(batch, serialized_data):
+                    zaak._json = data
+
+                model.objects.bulk_update(batch, ["_json"])
+                total_updated += len(batch)
+
                 logger.info(
                     "preserialize_progress",
                     total_updated=total_updated,
                     total_objects=total_objects,
                 )
-                instances_to_update.clear()
 
-        # Final batch update
-        if instances_to_update:
-            Zaak.objects.bulk_update(instances_to_update, ["_json"])
-            total_updated += len(instances_to_update)
-            logger.info(
-                "preserialize_progress",
-                total_updated=total_updated,
-                total_objects=total_objects,
-            )
+            # Final batch update
+            if instances_to_update:
+                model.objects.bulk_update(instances_to_update, ["_json"])
+                total_updated += len(instances_to_update)
+                logger.info(
+                    "preserialize_progress",
+                    total_updated=total_updated,
+                    total_objects=total_objects,
+                )
