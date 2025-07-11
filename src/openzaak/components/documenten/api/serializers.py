@@ -1176,8 +1176,16 @@ class DocumentRegistrerenSerializer(serializers.Serializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"]
-        zaakinformatieobject = validated_data["zaakinformatieobject"]
+        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"] | {
+            "inhoud": self.initial_data["enkelvoudiginformatieobject"]["inhoud"],
+            "informatieobjecttype": self.initial_data["enkelvoudiginformatieobject"][
+                "informatieobjecttype"
+            ],
+        }
+        zaakinformatieobject = validated_data["zaakinformatieobject"] | {
+            "zaak": self.initial_data["zaakinformatieobject"]["zaak"],
+            "status": self.initial_data["zaakinformatieobject"]["status"],
+        }
 
         eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
             data=enkelvoudiginformatieobject, context=self.context
@@ -1198,11 +1206,3 @@ class DocumentRegistrerenSerializer(serializers.Serializer):
             "enkelvoudiginformatieobject": eio,
             "zaakinformatieobject": zio,
         }
-
-    def to_internal_value(self, data):
-        """
-        Normally this transforms json into data but the nested serializers still expect strings.
-        """
-        super().to_internal_value(data)
-
-        return data

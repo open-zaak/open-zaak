@@ -191,6 +191,8 @@ class MultipleObjectsAuthRequired(AuthRequired):
         if bypass_permissions(request):
             return True
 
+        # detect if this is an unsupported method - if it's a viewset and the
+        # action was not mapped, it's not supported and DRF will catch it
         if view.action is None and isinstance(view, ViewSetMixin):
             return True
 

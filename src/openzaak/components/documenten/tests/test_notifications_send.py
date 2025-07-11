@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import base64
 import uuid
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.test import override_settings, tag
 
@@ -15,7 +15,10 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
@@ -23,6 +26,7 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
 
+from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 from .utils import get_operation_url
 
@@ -75,6 +79,90 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
+        )
+
+    def test_send_notif_register_document(self, mock_notif):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        _status = StatusFactory.create(zaak=zaak)
+        status_url = reverse(_status)
+
+        url = get_operation_url("registereddocument_create")
+
+        data = {
+            "enkelvoudiginformatieobject": {
+                "identificatie": "AMS20180701001",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-07-01",
+                "titel": "text_extra.txt",
+                "auteur": "ANONIEM",
+                "formaat": "text/plain",
+                "taal": "dut",
+                "inhoud": base64.b64encode(b"Extra tekst in bijlage").decode("utf-8"),
+                "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            },
+            "zaakinformatieobject": {
+                "zaak": f"http://testserver{zaak_url}",
+                "titel": "string",
+                "beschrijving": "string",
+                "vernietigingsdatum": "2019-08-24T14:15:22Z",
+                "status": f"http://testserver{status_url}",
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(mock_notif.call_count, 2)
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "documenten",
+                        "hoofdObject": data["enkelvoudiginformatieobject"]["url"],
+                        "resource": "enkelvoudiginformatieobject",
+                        "resourceUrl": data["enkelvoudiginformatieobject"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "159351741",
+                            "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                            "informatieobjecttype.catalogus": f"http://testserver{reverse(informatieobjecttype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaakinformatieobject"]["zaak"],
+                        "resource": "zaakinformatieobject",
+                        "resourceUrl": data["zaakinformatieobject"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
 

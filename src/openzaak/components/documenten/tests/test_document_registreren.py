@@ -26,7 +26,10 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.api.scopes import SCOPE_DOCUMENTEN_AANMAKEN
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tests.utils import get_operation_url
-from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_CREATE
+from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_CREATE,
+    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+)
 from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.components.zaken.tests.factories import (
     StatusFactory,
@@ -65,11 +68,14 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
             zaaktype=cls.zaaktype, informatieobjecttype=cls.informatieobjecttype
         )
 
-    def _add_documenten_auth(self, informatieobjecttype=None):
+    def _add_documenten_auth(self, informatieobjecttype=None, scopes=None):
+        if scopes is None:
+            scopes = []
+
         self.autorisatie = Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.drc,
-            scopes=[SCOPE_DOCUMENTEN_AANMAKEN],
+            scopes=[SCOPE_DOCUMENTEN_AANMAKEN] + scopes,
             zaaktype="",
             informatieobjecttype=self.informatieobjecttype_url
             if informatieobjecttype is None
@@ -78,11 +84,14 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-    def _add_zaken_auth(self, zaaktype=None):
+    def _add_zaken_auth(self, zaaktype=None, scopes=None):
+        if scopes is None:
+            scopes = []
+
         self.autorisatie = Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
-            scopes=[SCOPE_ZAKEN_CREATE],
+            scopes=[SCOPE_ZAKEN_CREATE] + scopes,
             zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
             informatieobjecttype="",
             besluittype="",
@@ -101,10 +110,10 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaak_url = reverse(zaak)
+        self.zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_url = reverse(self.zaak)
 
-        status_url = reverse(StatusFactory.create(zaak=zaak))
+        status_url = reverse(StatusFactory.create(zaak=self.zaak))
 
         self.content = {
             "enkelvoudiginformatieobject": {
@@ -376,6 +385,36 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data["invalid_params"]), 1)
         error = get_validation_errors(response, "enkelvoudiginformatieobject")
         self.assertEqual(error["code"], "required")
+
+    def test_register_with_closed_zaak(self):
+        self._add_zaken_auth()
+        self._add_documenten_auth()
+
+        self.zaak.einddatum = timezone.now()
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        response = self.client.post(self.url, self.content)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(
+            response.data["detail"],
+            "Je mag geen gegevens aanpassen van een gesloten zaak.",
+        )
+
+    def test_register_with_closed_zaak_with_force_scope(self):
+        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN])
+        self._add_documenten_auth()
+
+        self.zaak.einddatum = timezone.now()
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        response = self.client.post(self.url, self.content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 @freeze_time("2025-01-01T12:00:00")
