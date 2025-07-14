@@ -16,7 +16,6 @@ from vng_api_common.utils import get_resource_for_path, get_viewset_for_path
 
 
 class MultipleNotificationMixin(NotificationMixin):
-    # TODO NotificationMixinBase kanaal usage
     notification_fields = dict[str, dict[str, str]]
 
     def get_kanaal(self, field=None):
@@ -137,14 +136,3 @@ class MultipleNotificationMixin(NotificationMixin):
             send_notification.delay(message)
 
         transaction.on_commit(_send)
-
-
-# TODO unused
-# class MultipleNotificationCreateMixin(MultipleNotificationMixin):
-#     def create(self, request, *args, **kwargs):
-#         with conditional_atomic(self.notifications_wrap_in_atomic_block)():
-#             response = super().create(request, *args, **kwargs)
-#
-#             for field in self.fields:
-#                 self.notify(response.status_code, response.data[field], field)
-#             return response

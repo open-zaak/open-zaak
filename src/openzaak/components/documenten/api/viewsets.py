@@ -1211,7 +1211,6 @@ class DocumentRegistrerenViewSet(
     ClosedZaakMixin,
     MultipleAuditTrailMixin,
 ):
-    # queryset = EnkelvoudigInformatieObject.objects.all()
     serializer_class = DocumentRegistrerenSerializer
     permission_classes = (DocumentReserverenAuthRequired,)
 
