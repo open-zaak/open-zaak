@@ -156,6 +156,19 @@ DB_POOL_NUM_WORKERS = config(
 
 
 if DB_POOL_ENABLED:
+    # FIXME Workaround for https://github.com/elastic/apm-agent-python/issues/2094
+    # apm-agent-python does not instrument ConnectionPool yet
+    import psycopg
+
+    class WrapperConnectionClass(psycopg.Connection):
+        @classmethod
+        def connect(
+            cls,
+            conninfo: str = "",
+            **kwargs,
+        ) -> "psycopg.Connection[psycopg.rows.TupleRow]":
+            return psycopg.connect(conninfo, **kwargs)
+
     DATABASES["default"]["OPTIONS"] = {
         "pool": {
             "min_size": DB_POOL_MIN_SIZE,
@@ -166,6 +179,7 @@ if DB_POOL_ENABLED:
             "max_idle": DB_POOL_MAX_IDLE,
             "reconnect_timeout": DB_POOL_RECONNECT_TIMEOUT,
             "num_workers": DB_POOL_NUM_WORKERS,
+            "connection_class": WrapperConnectionClass,
         }
     }
 
