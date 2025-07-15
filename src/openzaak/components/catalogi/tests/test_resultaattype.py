@@ -1242,6 +1242,7 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": "vast_te_leggen_datum",
+                "bewaartermijn": "P5Y"
             },
         )
         m.get(
@@ -1250,6 +1251,7 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
                 "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
+                "bewaartermijn": "P10Y"
             },
         )
         m.get(
