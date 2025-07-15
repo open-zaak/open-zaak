@@ -42,7 +42,7 @@ DATABASES["default"]["CONN_MAX_AGE"] = config(
     help_text=(
         "The lifetime of a database connection, as an integer of seconds. "
         "Use 0 to close database connections at the end of each request — Django’s historical behavior. "
-        "This setting must be set to 0 if connection pooling is used. Defaults to: ``60``."
+        "This setting is ignored if connection pooling is used. Defaults to: ``60``."
     ),
     group="Database",
     auto_display_default=False,
@@ -168,6 +168,8 @@ if DB_POOL_ENABLED:
             "num_workers": DB_POOL_NUM_WORKERS,
         }
     }
+    # Cannot use a `CONN_MAX_AGE` other than 0 with connection pooling
+    DATABASES["default"]["CONN_MAX_AGE"] = 0
 
 
 # Geospatial libraries
