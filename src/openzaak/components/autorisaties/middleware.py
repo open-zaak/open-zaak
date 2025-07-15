@@ -104,7 +104,11 @@ class JWTAuth(_JWTAuth):
                 autorisaties = self.filter_default(
                     autorisaties, field_name, field_value
                 )
-                if has_catalogus_autorisaties and loader.is_local_url(field_value):
+                if (
+                    has_catalogus_autorisaties
+                    and field_value
+                    and loader.is_local_url(field_value)
+                ):
                     resolved = get_resource_for_path(urlparse(field_value).path)
                     catalogus_autorisaties = self.filter_default(
                         catalogus_autorisaties, "catalogus", resolved.catalogus

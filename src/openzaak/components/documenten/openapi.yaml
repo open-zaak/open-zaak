@@ -278,6 +278,158 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+  /document_registreren:
+    post:
+      operationId: registereddocument_create
+      description: '**EXPERIMENTEEL** Maak een EnkelvoudigInformatieObject en een
+        ZaakInformatieObject aan om het document direct aan een zaak te linken.'
+      summary: Registreer een document
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - document_registreren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentRegistrerenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (documenten.aanmaken & zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentRegistreren'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /documentnummer_reserveren:
     post:
       operationId: reserveddocument_create
@@ -6595,6 +6747,11 @@ components:
       - afzender
       - geadresseerde
       type: string
+    AardRelatieWeergaveEnum:
+      enum:
+      - 'Hoort bij, omgekeerd: kent'
+      - 'Legt vast, omgekeerd: kan vastgelegd zijn als'
+      type: string
     AlgoritmeEnum:
       enum:
       - crc_16
@@ -6984,6 +7141,26 @@ components:
       - postadresPostcode
       - postadresType
       - woonplaatsnaam
+    DocumentRegistreren:
+      type: object
+      properties:
+        enkelvoudiginformatieobject:
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLock'
+        zaakinformatieobject:
+          $ref: '#/components/schemas/ZaakInformatieObjectReadOnly'
+      required:
+      - enkelvoudiginformatieobject
+      - zaakinformatieobject
+    DocumentRegistrerenRequest:
+      type: object
+      properties:
+        enkelvoudiginformatieobject:
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockRequest'
+        zaakinformatieobject:
+          $ref: '#/components/schemas/ZaakInformatieObjectReadOnlyRequest'
+      required:
+      - enkelvoudiginformatieobject
+      - zaakinformatieobject
     EnkelvoudigInformatieObject:
       type: object
       description: Serializer for the EnkelvoudigInformatieObject model
@@ -7171,6 +7348,207 @@ components:
       - bronorganisatie
       - creatiedatum
       - informatieobjecttype
+      - locked
+      - taal
+      - titel
+      - url
+      - versie
+    EnkelvoudigInformatieObjectCreateLock:
+      type: object
+      description: |-
+        This serializer class is used by EnkelvoudigInformatieObjectViewSet for
+        create operation for large files
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        identificatie:
+          type: string
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+          maxLength: 40
+        bronorganisatie:
+          type: string
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
+            in een samenwerkingsketen heeft vastgelegd.
+          maxLength: 9
+        creatiedatum:
+          type: string
+          format: date
+          description: Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.
+        titel:
+          type: string
+          description: De naam waaronder het INFORMATIEOBJECT formeel bekend is.
+          maxLength: 200
+        vertrouwelijkheidaanduiding:
+          description: |-
+            Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+          oneOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        auteur:
+          type: string
+          description: De persoon of organisatie die in de eerste plaats verantwoordelijk
+            is voor het creëren van de inhoud van het INFORMATIEOBJECT.
+          maxLength: 200
+        status:
+          description: |-
+            Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.
+
+            Uitleg bij mogelijke waarden:
+
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        formaat:
+          type: string
+          description: 'Het "Media Type" (voorheen "MIME type") voor de wijze waaropde
+            inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand.
+            Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml'
+          maxLength: 255
+        taal:
+          type: string
+          description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+          minLength: 3
+        versie:
+          type: integer
+          readOnly: true
+          description: Het (automatische) versienummer van het INFORMATIEOBJECT. Deze
+            begint bij 1 als het INFORMATIEOBJECT aangemaakt wordt.
+        beginRegistratie:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Een datumtijd in ISO8601 formaat waarop deze versie van het
+            INFORMATIEOBJECT is aangemaakt of gewijzigd.
+        bestandsnaam:
+          type: string
+          description: De naam van het fysieke bestand waarin de inhoud van het informatieobject
+            is vastgelegd, inclusief extensie.
+          maxLength: 255
+        inhoud:
+          type: string
+          format: uri
+          description: Minimal accepted size of uploaded file = 4294967296 bytes (or
+            4.0 GiB)
+          nullable: true
+        bestandsomvang:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.
+        link:
+          type: string
+          format: uri
+          description: De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.
+          maxLength: 1000
+        ontvangstdatum:
+          type: string
+          format: date
+          nullable: true
+          description: |-
+            **DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+             De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.
+        verzenddatum:
+          type: string
+          format: date
+          nullable: true
+          description: |-
+            **DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.
+        indicatieGebruiksrecht:
+          type: boolean
+          nullable: true
+          description: Indicatie of er beperkingen gelden aangaande het gebruik van
+            het informatieobject anders dan raadpleging. Dit veld mag `null` zijn
+            om aan te geven dat de indicatie nog niet bekend is. Als de indicatie
+            gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen
+            via de GEBRUIKSRECHTen resource.
+        verschijningsvorm:
+          type: string
+          description: De essentiële opmaakaspecten van een INFORMATIEOBJECT.
+        ondertekening:
+          allOf:
+          - $ref: '#/components/schemas/Ondertekening'
+          nullable: true
+          description: Aanduiding van de rechtskracht van een informatieobject. Mag
+            niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking'
+            of 'ter vaststelling' heeft.
+        integriteit:
+          allOf:
+          - $ref: '#/components/schemas/Integriteit'
+          nullable: true
+          description: Uitdrukking van mate van volledigheid en onbeschadigd zijn
+            van digitaal bestand.
+        informatieobjecttype:
+          type: string
+          description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
+            API).
+          format: uri
+          minLength: 1
+          maxLength: 200
+        locked:
+          type: boolean
+          readOnly: true
+          title: geblokkeerd
+          description: Geeft aan of het document gelocked is. Alleen als een document
+            gelocked is, mogen er aanpassingen gemaakt worden.
+        bestandsdelen:
+          type: array
+          items:
+            $ref: '#/components/schemas/BestandsDeel'
+          readOnly: true
+        trefwoorden:
+          type: array
+          items:
+            type: string
+            title: Trefwoord
+            maxLength: 100
+          description: Een lijst van trefwoorden gescheiden door comma's.
+        lock:
+          type: string
+          readOnly: true
+          description: Het gegenereerde lock ID voor grote bestandsuploads wat gebruikt
+            moet worden bij document updates. Documenten met base64-encoded bestandsdata
+            worden zonder lock aangemaakt.
+      required:
+      - auteur
+      - beginRegistratie
+      - bestandsdelen
+      - bronorganisatie
+      - creatiedatum
+      - informatieobjecttype
+      - lock
       - locked
       - taal
       - titel
@@ -8690,6 +9068,113 @@ components:
             de actie heeft plaatsgevonden.
         nieuw:
           description: Volledige JSON body van het object na de actie.
+    ZaakInformatieObjectReadOnly:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        informatieobject:
+          type: string
+          readOnly: true
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        aardRelatieWeergave:
+          allOf:
+          - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
+          readOnly: true
+        titel:
+          type: string
+          description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een op het object gerichte beschrijving van de inhoud vanhet
+            INFORMATIEOBJECT.
+        registratiedatum:
+          type: string
+          format: date-time
+          readOnly: true
+          description: De datum waarop de behandelende organisatie het INFORMATIEOBJECT
+            heeft geregistreerd bij het OBJECT. Geldige waardes zijn datumtijden gelegen
+            op of voor de huidige datum en tijd.
+        vernietigingsdatum:
+          type: string
+          format: date-time
+          nullable: true
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - aardRelatieWeergave
+      - informatieobject
+      - registratiedatum
+      - url
+      - uuid
+      - zaak
+    ZaakInformatieObjectReadOnlyRequest:
+      type: object
+      properties:
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        titel:
+          type: string
+          description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een op het object gerichte beschrijving van de inhoud vanhet
+            INFORMATIEOBJECT.
+        vernietigingsdatum:
+          type: string
+          format: date-time
+          nullable: true
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - zaak
   securitySchemes:
     JWT-Claims:
       type: http

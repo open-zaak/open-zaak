@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
+import base64
 import uuid
 from base64 import b64encode
 from datetime import datetime
@@ -11,12 +12,17 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
+from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
-from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin
 
+from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from ..models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
@@ -24,6 +30,7 @@ from ..models import (
     ObjectInformatieObject,
 )
 from .factories import EnkelvoudigInformatieObjectFactory
+from .utils import get_operation_url
 
 
 @freeze_time("2019-01-01")
@@ -305,6 +312,70 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # Verify that the resource weergave stored in the AuditTrail matches
         # the unique representation as defined in the Zaak model
         self.assertIn(audittrail.resource_weergave, eio_unique_representation)
+
+    def test_register_document_audittrails(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaak.zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        _status = StatusFactory.create(zaak=zaak)
+        status_url = reverse(_status)
+
+        url = get_operation_url("registereddocument_create")
+
+        data = {
+            "enkelvoudiginformatieobject": {
+                "identificatie": "AMS20180701001",
+                "bronorganisatie": "159351741",
+                "creatiedatum": "2018-07-01",
+                "titel": "text_extra.txt",
+                "auteur": "ANONIEM",
+                "formaat": "text/plain",
+                "taal": "dut",
+                "inhoud": base64.b64encode(b"Extra tekst in bijlage").decode("utf-8"),
+                "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            },
+            "zaakinformatieobject": {
+                "zaak": f"http://testserver{zaak_url}",
+                "titel": "string",
+                "beschrijving": "string",
+                "vernietigingsdatum": "2019-08-24T14:15:22Z",
+                "status": f"http://testserver{status_url}",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(AuditTrail.objects.count(), 2)
+
+        eio_audittrail = AuditTrail.objects.filter(
+            hoofd_object=response.data["enkelvoudiginformatieobject"]["url"]
+        ).get()
+
+        self.assertEqual(eio_audittrail.bron, "DRC")
+        self.assertEqual(eio_audittrail.actie, "create")
+        self.assertEqual(eio_audittrail.resource, "enkelvoudiginformatieobject")
+        self.assertEqual(eio_audittrail.oud, None)
+        self.assertEqual(
+            eio_audittrail.nieuw, response.data["enkelvoudiginformatieobject"]
+        )
+
+        zio_audittrail = AuditTrail.objects.filter(
+            hoofd_object=response.data["zaakinformatieobject"]["zaak"]
+        ).get()
+
+        self.assertEqual(zio_audittrail.bron, "ZRC")
+        self.assertEqual(zio_audittrail.actie, "create")
+        self.assertEqual(zio_audittrail.resource, "zaakinformatieobject")
+        self.assertEqual(zio_audittrail.oud, None)
+        self.assertEqual(zio_audittrail.nieuw, response.data["zaakinformatieobject"])
 
 
 class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):

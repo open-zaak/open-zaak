@@ -76,6 +76,7 @@ The events below are emitted when API operations are performed.
 * ``objectinformatieobject_deleted`` (INFO). Additional context: ``client_id``, ``uuid``, ``object``.
 * ``reserved_document_created_bulk`` (INFO). Additional context: ``client_id``, ``bronorganisatie``, ``aantal``, ``identificaties``.
 * ``reserved_document_created`` (INFO). Additional context: ``client_id``, ``bronorganisatie``, ``identificatie``, ``aantal``.
+* ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 * ``resultaat_created`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``.
 * ``resultaat_deleted`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``.
 * ``resultaat_updated`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``, ``partial``.

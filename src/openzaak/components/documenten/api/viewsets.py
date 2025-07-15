@@ -28,6 +28,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import AuditTrailViewsetMixin
+from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -42,6 +43,9 @@ from openzaak.import_data.views import (
     ImportStatusView,
     ImportUploadView,
 )
+from openzaak.notifications.viewsets import (
+    MultipleNotificationMixin,
+)
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.help_text import mark_experimental
@@ -50,6 +54,7 @@ from openzaak.utils.mixins import (
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     ExpandMixin,
+    MultipleAuditTrailMixin,
 )
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -60,6 +65,16 @@ from openzaak.utils.schema import (
 )
 from openzaak.utils.views import AuditTrailViewSet
 
+from ...zaken.api.audits import AUDIT_ZRC
+from ...zaken.api.kanalen import KANAAL_ZAKEN
+from ...zaken.api.mixins import ClosedZaakMixin
+from ...zaken.api.scopes import (
+    SCOPE_ZAKEN_BIJWERKEN,
+    SCOPE_ZAKEN_CREATE,
+    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+)
+from ...zaken.api.serializers import ZaakSerializer
+from ...zaken.models import Zaak, ZaakInformatieObject
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -81,7 +96,10 @@ from .filters import (
 )
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
-from .permissions import InformationObjectAuthRequired
+from .permissions import (
+    DocumentReserverenAuthRequired,
+    InformationObjectAuthRequired,
+)
 from .renderers import BinaryFileRenderer
 from .scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
@@ -93,6 +111,7 @@ from .scopes import (
 )
 from .serializers import (
     BestandsDeelSerializer,
+    DocumentRegistrerenSerializer,
     EIOZoekSerializer,
     EnkelvoudigInformatieObjectCreateLockSerializer,
     EnkelvoudigInformatieObjectSerializer,
@@ -1178,3 +1197,109 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             )
             output_serializer = self.serializer_class(instances, many=True)
             return output_serializer.data
+
+
+@extend_schema(
+    summary="Registreer een document",
+    description=mark_experimental(
+        "Maak een EnkelvoudigInformatieObject en een ZaakInformatieObject aan om het document direct aan een zaak te linken."
+    ),
+)
+class DocumentRegistrerenViewSet(
+    viewsets.ViewSet,
+    MultipleNotificationMixin,
+    ClosedZaakMixin,
+    MultipleAuditTrailMixin,
+):
+    serializer_class = DocumentRegistrerenSerializer
+    permission_classes = (DocumentReserverenAuthRequired,)
+
+    required_scopes = {
+        "create": SCOPE_DOCUMENTEN_AANMAKEN
+        & (
+            SCOPE_ZAKEN_CREATE
+            | SCOPE_ZAKEN_BIJWERKEN
+            | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+        ),
+    }
+
+    viewset_classes = {
+        "enkelvoudiginformatieobject": "openzaak.components.documenten.api.viewsets.EnkelvoudigInformatieObjectViewSet",
+        "zaakinformatieobject": "openzaak.components.zaken.api.viewsets.ZaakInformatieObjectViewSet",
+    }
+
+    notification_fields = {
+        "enkelvoudiginformatieobject": {
+            "notifications_kanaal": KANAAL_DOCUMENTEN,
+            "model": EnkelvoudigInformatieObject,
+        },
+        "zaakinformatieobject": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": ZaakInformatieObject,
+        },
+    }
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["enkelvoudiginformatieobject"],
+            unique_representation=serializer.instance[
+                "enkelvoudiginformatieobject"
+            ].unique_representation(),
+            audit=AUDIT_DRC,
+            basename="enkelvoudiginformatieobject",
+            main_object=serializer.data["enkelvoudiginformatieobject"]["url"],
+        )
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["zaakinformatieobject"],
+            unique_representation=serializer.instance[
+                "zaakinformatieobject"
+            ].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="zaakinformatieobject",
+            main_object=serializer.data["zaakinformatieobject"]["zaak"],
+        )
+
+        self.notify(response.status_code, response.data)
+        return response
+
+    def _has_override(self, zaak: Zaak) -> bool:
+        """Override of ClosedZaakMixin._has_override to hardcode init_component since this does not have a queryset"""
+        jwt_auth = self.request.jwt_auth
+        zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
+        return jwt_auth.has_auth(
+            scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+            zaaktype=zaak_data["zaaktype"],
+            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+            init_component="zaken",
+        )
+
+    def perform_create(self, serializer):
+        zaak = serializer.validated_data.get("zaakinformatieobject").get("zaak")
+        self._check_zaak_closed(zaak)
+
+        serializer.save()
+
+        logger.info(
+            "document_geregistreerd",
+            enkelvoudiginformatieobject_url=serializer.data[
+                "enkelvoudiginformatieobject"
+            ]["url"],
+            zaak_url=serializer.data["zaakinformatieobject"]["zaak"],
+        )

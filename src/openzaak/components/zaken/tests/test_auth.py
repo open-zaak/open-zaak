@@ -14,6 +14,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, reverse
+from vng_api_common.tests.schema import get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import (
     AutorisatieFactory,
@@ -25,9 +26,11 @@ from openzaak.components.catalogi.tests.factories import (
     CatalogusFactory,
     EigenschapFactory,
     ZaakTypeFactory,
+    ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
 
+from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -1041,6 +1044,37 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         zaak_url = reverse(zio1.zaak)
         self.assertEqual(response.data[0]["zaak"], f"http://testserver{zaak_url}")
+
+    def test_create_zaakinformatieobject_without_zaak(self):
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        enkelvoudiginformatieobject = EnkelvoudigInformatieObjectFactory.create()
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaak.zaaktype,
+            informatieobjecttype=enkelvoudiginformatieobject.informatieobjecttype,
+        )
+        _status = StatusFactory.create(zaak=zaak)
+
+        zaakinformatieobject = {
+            "titel": "string",
+            "informatieobject": f"http://testserver{reverse(enkelvoudiginformatieobject)}",
+            "beschrijving": "string",
+            "vernietigingsdatum": "2019-08-24T14:15:22Z",
+            "status": f"http://testserver{reverse(_status)}",
+        }
+
+        url = reverse("zaakinformatieobject-list")
+
+        response = self.client.post(url, zaakinformatieobject)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "zaak")
+        self.assertEqual(error["code"], "required")
 
 
 class ZaakEigenschapTests(JWTAuthMixin, APITestCase):

@@ -107,6 +107,7 @@ New endpoints are added:
 
 * ``/api/v1/documentnummer_reserveren`` – reserve a documentnummer (identificatie) in combination with a bronorganisatie.
   The optional ``amount`` attribute can be specified to reserve identifications in bulk
+* ``/api/v1/document_registreren`` – create a enkelvoudiginformatieobject in combination with a zaakinformatieobject to immediately link it to a zaak.
 
 Query parameters
 ----------------

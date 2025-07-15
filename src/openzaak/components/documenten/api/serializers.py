@@ -44,6 +44,10 @@ from openzaak.utils.validators import (
     PublishValidator,
 )
 
+from ...zaken.api.serializers import (
+    ZaakInformatieObjectReadOnlySerializer,
+    ZaakInformatieObjectSerializer,
+)
 from ..constants import (
     ChecksumAlgoritmes,
     ObjectInformatieObjectTypes,
@@ -555,6 +559,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         return eio
 
     def to_representation(self, instance):
+        # instance is used in by AnyBase64File.to_representation
+        if not self.instance:
+            self.instance = instance
+
         ret = super().to_representation(instance)
         # With Alfresco, the URL cannot be retrieved using the
         # latest_version property of the canonical object
@@ -1159,4 +1167,42 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
                 "write_only": True,
                 "required": True,
             },
+        }
+
+
+class DocumentRegistrerenSerializer(serializers.Serializer):
+    enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
+    zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()
+
+    @transaction.atomic
+    def create(self, validated_data):
+        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"] | {
+            "inhoud": self.initial_data["enkelvoudiginformatieobject"].get("inhoud"),
+            "informatieobjecttype": self.initial_data[
+                "enkelvoudiginformatieobject"
+            ].get("informatieobjecttype"),
+        }
+        zaakinformatieobject = validated_data["zaakinformatieobject"] | {
+            "zaak": self.initial_data["zaakinformatieobject"].get("zaak"),
+            "status": self.initial_data["zaakinformatieobject"].get("status"),
+        }
+
+        eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
+            data=enkelvoudiginformatieobject, context=self.context
+        )
+        eio_serializer.is_valid(raise_exception=True)
+        eio = eio_serializer.save()
+
+        # url vs uuid
+        zio_serializer = ZaakInformatieObjectSerializer(
+            data=zaakinformatieobject
+            | {"informatieobject": eio_serializer.data["url"]},
+            context=self.context,
+        )
+        zio_serializer.is_valid(raise_exception=True)
+        zio = zio_serializer.save()
+
+        return {
+            "enkelvoudiginformatieobject": eio,
+            "zaakinformatieobject": zio,
         }

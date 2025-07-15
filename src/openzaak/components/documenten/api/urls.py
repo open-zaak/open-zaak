@@ -8,6 +8,7 @@ from vng_api_common import routers
 from ..api.schema import custom_settings
 from .viewsets import (
     BestandsDeelViewSet,
+    DocumentRegistrerenViewSet,
     EnkelvoudigInformatieObjectAuditTrailViewSet,
     EnkelvoudigInformatieObjectImportDestroyView,
     EnkelvoudigInformatieObjectImportReportView,
@@ -33,6 +34,9 @@ router.register("objectinformatieobjecten", ObjectInformatieObjectViewSet)
 router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
 router.register("documentnummer_reserveren", ReservedDocumentViewSet)
+router.register(
+    "document_registreren", DocumentRegistrerenViewSet, basename="registereddocument"
+)
 
 import_patterns = [
     path(
