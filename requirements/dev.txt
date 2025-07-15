@@ -159,7 +159,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.7.0
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@6eddd373d9002d79c43a754e87fea2cb3b804632
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -688,7 +688,7 @@ multidict==6.1.0
     #   yarl
 nodeenv==1.9.1
     # via pre-commit
-notifications-api-common==0.7.2
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@ee8afe8879591cb2785bb5711359fb6413e35c48
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

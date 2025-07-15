@@ -6,9 +6,6 @@ from dictdiffer import diff
 from drc_cmis import client_builder
 from drc_cmis.connections import use_cmis_connection_pool
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.audittrails.viewsets import AuditTrailMixin as _AuditTrailMixin
-from vng_api_common.compat import get_header
-from vng_api_common.constants import CommonResourceAction
 from vng_api_common.models import APIMixin as _APIMixin
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
@@ -42,72 +39,6 @@ class AuditTrailMixin:
             changes = format_dict_diff(list(diff(oud, nieuw)))
             res.append((audit, changes))
         return res
-
-
-# TODO move/refactor into commonground_api_common
-class MultipleAuditTrailMixin(_AuditTrailMixin):
-    def create_audittrail(
-        self,
-        status_code,
-        action,
-        version_before_edit,
-        version_after_edit,
-        unique_representation,
-        audit=None,
-        basename=None,
-        main_object=None,
-    ):
-        """
-        Create the audittrail for the action that has been carried out.
-        """
-        from vng_api_common.audittrails.viewsets import logger
-
-        data = version_after_edit if version_after_edit else version_before_edit
-
-        jwt_auth = self.request.jwt_auth
-        applications = jwt_auth.applicaties
-        if len(applications) > 1:
-            logger.warning(
-                "Unexpectedly found %d applications, expected at most one",
-                len(applications),
-            )
-
-        if applications:
-            application = applications[0]
-            app_id, app_presentation = str(application.uuid), application.label
-        else:
-            app_id = get_header(self.request, "X-NLX-Request-Application-Id")
-            app_presentation = app_id  # we don't have any extra information...
-
-        user_id = jwt_auth.payload.get("user_id") or ""
-        user_representation = jwt_auth.payload.get("user_representation") or ""
-
-        toelichting = get_header(self.request, "X-Audit-Toelichting") or ""
-
-        logrecord_id = get_header(self.request, "X-NLX-Logrecord-ID") or ""
-        action_labels = dict(
-            zip(CommonResourceAction.names, CommonResourceAction.labels)
-        )
-
-        trail = AuditTrail(
-            bron=audit.component_name,
-            logrecord_id=logrecord_id,
-            applicatie_id=app_id,
-            applicatie_weergave=app_presentation,
-            actie=action,
-            actie_weergave=action_labels.get(action, ""),
-            gebruikers_id=user_id,
-            gebruikers_weergave=user_representation,
-            resultaat=status_code,
-            hoofd_object=main_object,
-            resource=basename,
-            resource_url=data["url"],
-            toelichting=toelichting,
-            resource_weergave=unique_representation,
-            oud=version_before_edit,
-            nieuw=version_after_edit,
-        )
-        trail.save()
 
 
 class CMISClientMixin:

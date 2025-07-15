@@ -54,7 +54,6 @@ from openzaak.utils.mixins import (
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     ExpandMixin,
-    MultipleAuditTrailMixin,
 )
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -1209,7 +1208,7 @@ class DocumentRegistrerenViewSet(
     viewsets.ViewSet,
     MultipleNotificationMixin,
     ClosedZaakMixin,
-    MultipleAuditTrailMixin,
+    AuditTrailViewsetMixin,
 ):
     serializer_class = DocumentRegistrerenSerializer
     permission_classes = (DocumentReserverenAuthRequired,)
