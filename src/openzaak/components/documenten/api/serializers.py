@@ -1177,14 +1177,14 @@ class DocumentRegistrerenSerializer(serializers.Serializer):
     @transaction.atomic
     def create(self, validated_data):
         enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"] | {
-            "inhoud": self.initial_data["enkelvoudiginformatieobject"]["inhoud"],
-            "informatieobjecttype": self.initial_data["enkelvoudiginformatieobject"][
-                "informatieobjecttype"
-            ],
+            "inhoud": self.initial_data["enkelvoudiginformatieobject"].get("inhoud"),
+            "informatieobjecttype": self.initial_data[
+                "enkelvoudiginformatieobject"
+            ].get("informatieobjecttype"),
         }
         zaakinformatieobject = validated_data["zaakinformatieobject"] | {
-            "zaak": self.initial_data["zaakinformatieobject"]["zaak"],
-            "status": self.initial_data["zaakinformatieobject"]["status"],
+            "zaak": self.initial_data["zaakinformatieobject"].get("zaak"),
+            "status": self.initial_data["zaakinformatieobject"].get("status"),
         }
 
         eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(

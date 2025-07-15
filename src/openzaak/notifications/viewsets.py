@@ -15,13 +15,14 @@ from notifications_api_common.viewsets import NotificationMixin
 from vng_api_common.utils import get_resource_for_path, get_viewset_for_path
 
 
+# TODO move/refactor into notifications_api_common
 class MultipleNotificationMixin(NotificationMixin):
-    notification_fields = dict[str, dict[str, str]]
+    notification_fields: dict[str, dict[str, str]]
 
     def get_kanaal(self, field=None):
         try:
             return self.notification_fields[field]["notifications_kanaal"]
-        except KeyError:
+        except (KeyError, AttributeError):
             raise ImproperlyConfigured(
                 "'%s' should either include a `notification_variables` "
                 "attribute, or override the `get_kanaal()` method."
@@ -94,7 +95,6 @@ class MultipleNotificationMixin(NotificationMixin):
         status_code: int,
         data: Union[List, Dict],
         instance: models.Model = None,
-        field: str = None,
     ) -> None:
         from notifications_api_common.viewsets import logger
 
@@ -108,9 +108,6 @@ class MultipleNotificationMixin(NotificationMixin):
                 status_code,
             )
             return
-
-        # build the content of the notification
-        message = self.construct_message(data, instance=instance, field=field)
 
         # build the client from the singleton config.
         # This will raise an exception if the config is not complete unless
@@ -132,7 +129,12 @@ class MultipleNotificationMixin(NotificationMixin):
         #
         # The 'send_notification' task is passed down to the task queue on transaction commit
 
-        def _send():
-            send_notification.delay(message)
+        def _send(msg):
+            send_notification.delay(msg)
 
-        transaction.on_commit(_send)
+        for field in self.notification_fields:
+            # build the content of the notification
+            message = self.construct_message(
+                data[field], instance=instance, field=field
+            )
+            transaction.on_commit(lambda msg=message: _send(msg))

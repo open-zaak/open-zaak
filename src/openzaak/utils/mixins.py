@@ -44,6 +44,7 @@ class AuditTrailMixin:
         return res
 
 
+# TODO move/refactor into commonground_api_common
 class MultipleAuditTrailMixin(_AuditTrailMixin):
     def create_audittrail(
         self,
@@ -54,6 +55,7 @@ class MultipleAuditTrailMixin(_AuditTrailMixin):
         unique_representation,
         audit=None,
         basename=None,
+        main_object=None,
     ):
         """
         Create the audittrail for the action that has been carried out.
@@ -61,8 +63,6 @@ class MultipleAuditTrailMixin(_AuditTrailMixin):
         from vng_api_common.audittrails.viewsets import logger
 
         data = version_after_edit if version_after_edit else version_before_edit
-
-        main_object = data["url"]
 
         jwt_auth = self.request.jwt_auth
         applications = jwt_auth.applicaties

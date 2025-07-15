@@ -1260,6 +1260,7 @@ class DocumentRegistrerenViewSet(
             ].unique_representation(),
             audit=AUDIT_DRC,
             basename="enkelvoudiginformatieobject",
+            main_object=serializer.data["enkelvoudiginformatieobject"]["url"],
         )
 
         self.create_audittrail(
@@ -1272,10 +1273,10 @@ class DocumentRegistrerenViewSet(
             ].unique_representation(),
             audit=AUDIT_ZRC,
             basename="zaakinformatieobject",
+            main_object=serializer.data["zaakinformatieobject"]["zaak"],
         )
 
-        for field in self.notification_fields:
-            self.notify(response.status_code, response.data[field], field=field)
+        self.notify(response.status_code, response.data)
         return response
 
     def _has_override(self, zaak: Zaak) -> bool:

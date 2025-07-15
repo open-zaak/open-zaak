@@ -368,7 +368,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         zio_audittrail = AuditTrail.objects.filter(
-            hoofd_object=response.data["zaakinformatieobject"]["url"]
+            hoofd_object=response.data["zaakinformatieobject"]["zaak"]
         ).get()
 
         self.assertEqual(zio_audittrail.bron, "ZRC")
