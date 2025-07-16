@@ -206,7 +206,7 @@ class ZaakKenmerkFactory(factory.django.DjangoModelFactory):
 
 
 class ZaakNotitieFactory(factory.django.DjangoModelFactory):
-    zaak = factory.SubFactory(ZaakFactory)
+    gerelateerd_aan = factory.SubFactory(ZaakFactory)
     onderwerp = factory.Faker("sentence")
     tekst = factory.Faker("paragraph")
     aangemaakt_door = factory.Faker("name")

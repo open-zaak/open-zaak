@@ -30,7 +30,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.notes.models import NotitieMixin
+from vng_api_common.notes.models import NotitieBaseClass
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.client import fetch_object
@@ -56,6 +56,7 @@ from ..query import (
     StatusQuerySet,
     ZaakBesluitQuerySet,
     ZaakInformatieObjectQuerySet,
+    ZaakNotitieQuerySet,
     ZaakQuerySet,
     ZaakRelatedQuerySet,
 )
@@ -1779,12 +1780,12 @@ class ZaakVerzoek(models.Model):
         return f"({self.zaak.unique_representation()}) - {self.verzoek}"
 
 
-class ZaakNotitie(APIMixin, NotitieMixin):
-    zaak = models.ForeignKey(
+class ZaakNotitie(APIMixin, NotitieBaseClass):
+    gerelateerd_aan = models.ForeignKey(
         Zaak, on_delete=models.CASCADE, help_text=_("URL-referentie naar de ZAAK.")
     )
 
-    objects = ZaakRelatedQuerySet.as_manager()
+    objects = ZaakNotitieQuerySet.as_manager()
 
     class Meta:
         verbose_name = "zaaknotitie"

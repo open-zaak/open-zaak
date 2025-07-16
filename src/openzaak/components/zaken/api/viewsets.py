@@ -1907,34 +1907,34 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Alle ZAAKNOTITIE ophalen.",
-        description="Alle ZAAKNOTITIE ophalen.",
+        summary="Alle ZAAKNOTITIEs opvragen.",
+        description=mark_experimental("Alle ZAAKNOTITIEs opvragen."),
     ),
     retrieve=extend_schema(
-        summary="Verzoek voor een specifieke ZAAKNOTITIE.",
-        description="Verzoek voor een specifieke ZAAKNOTITIE.",
+        summary="Een specifieke ZAAKNOTITIE opvragen.",
+        description=mark_experimental("Een specifieke ZAAKNOTITIE opvragen."),
     ),
     create=extend_schema(
-        summary="Maak een ZAAKNOTITIE.",
-        description=("Maak een ZAAKNOTITIE."),
+        summary="Maak een ZAAKNOTITIE aan.",
+        description=mark_experimental("Maak een ZAAKNOTITIE aan."),
     ),
     update=extend_schema(
         summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
-        description=("Werk een ZAAKNOTITIE in zijn geheel bij."),
+        description=mark_experimental("Werk een ZAAKNOTITIE in zijn geheel bij."),
     ),
     partial_update=extend_schema(
-        summary="Een ZAAKNOTITIE gedeeltelijk bijwerken.",
-        description=("Een ZAAKNOTITIE gedeeltelijk bijwerken."),
+        summary="Werk een ZAAKNOTITIE deels bij.",
+        description=mark_experimental("Werk een ZAAKNOTITIE deels bij."),
     ),
     destroy=extend_schema(
-        summary="Een ZAAKNOTITIE verwijderen.",
-        description="Een ZAAKNOTITIE verwijderen.",
+        summary="Verwijder een ZAAKNOTITIE.",
+        description=mark_experimental("Verwijder een ZAAKNOTITIE."),
     ),
 )
 class ZaakNotitieViewSet(
     NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
 ):
-    queryset = ZaakNotitie.objects.select_related("zaak").order_by("-pk")
+    queryset = ZaakNotitie.objects.select_related("gerelateerd_aan").order_by("-pk")
 
     serializer_class = ZaakNotitieSerializer
     lookup_field = "uuid"

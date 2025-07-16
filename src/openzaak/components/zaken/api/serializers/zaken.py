@@ -1509,8 +1509,7 @@ class ZaakNotitieSerializer(
         queryset=Zaak.objects.all(),
         lookup_field="uuid",
         view_name="zaak-detail",
-        source="zaak",
-        help_text=_("URL-referenties naar ZAAKEN."),
+        help_text=_("URL-referentie naar een ZAAK."),
     )
 
     class Meta(NotitieSerializerMixin.Meta):
@@ -1518,6 +1517,5 @@ class ZaakNotitieSerializer(
         fields = NotitieSerializerMixin.Meta.fields + ("url",)
         extra_kwargs = {
             "url": {"lookup_field": "uuid"},
-            "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "gerelateerd_aan": {"lookup_field": "uuid"},
         }
