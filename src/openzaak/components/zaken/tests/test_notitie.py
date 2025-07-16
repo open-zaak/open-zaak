@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.notes.constants import NotitieStatus, NotitieType
-from vng_api_common.tests import TypeCheckMixin, reverse
+from vng_api_common.tests import reverse
 
 from openzaak.tests.utils import JWTAuthMixin
 
