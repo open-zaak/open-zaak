@@ -66,12 +66,13 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@820bb1d7ba220d5c3008df1fb4b9befbf21114ab
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@6e00cc232018f58316d51343ce0c43233346b170
     # via
     #   -r requirements/base.in
     #   drc-cmis
     #   open-api-framework
 coreapi==2.3.3
+    # via django-loose-fk
 coreschema==0.0.4
     # via coreapi
 cron-descriptor==1.4.3

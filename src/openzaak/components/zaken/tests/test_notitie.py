@@ -45,7 +45,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
                     "wijzigingsdatum": notitie.wijzigingsdatum.strftime(
                         "%Y-%m-%dT%H:%M:%SZ"
                     ),
-                    "gerelateerdAan": f"http://testserver{reverse(notitie.zaak)}",
+                    "gerelateerdAan": f"http://testserver{reverse(notitie.gerelateerd_aan)}",
                 }
             ],
         )
@@ -75,7 +75,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
                 "wijzigingsdatum": notitie.wijzigingsdatum.strftime(
                     "%Y-%m-%dT%H:%M:%SZ"
                 ),
-                "gerelateerdAan": f"http://testserver{reverse(notitie.zaak)}",
+                "gerelateerdAan": f"http://testserver{reverse(notitie.gerelateerd_aan)}",
             },
         )
 
@@ -98,7 +98,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(notitie.onderwerp, "Test onderwerp")
         self.assertEqual(notitie.tekst, "Test tekst")
         self.assertEqual(notitie.aangemaakt_door, "Test")
-        self.assertEqual(notitie.zaak, zaak)
+        self.assertEqual(notitie.gerelateerd_aan, zaak)
 
     def test_update(self):
         notitie = ZaakNotitieFactory.create(onderwerp="Old Value")
@@ -109,7 +109,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             "aangemaaktDoor": notitie.aangemaakt_door,
             "notitieType": notitie.notitie_type.value,
             "status": notitie.status.value,
-            "gerelateerdAan": f"http://testserver{reverse('zaak-detail', kwargs={'uuid': notitie.zaak.uuid})}",
+            "gerelateerdAan": f"http://testserver{reverse(notitie.gerelateerd_aan)}",
         }
 
         response = self.client.put(detail_url, data)

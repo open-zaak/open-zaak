@@ -565,8 +565,8 @@ paths:
   /notities:
     get:
       operationId: zaaknotitie_list
-      description: Alle ZAAKNOTITIE ophalen.
-      summary: Alle ZAAKNOTITIE ophalen.
+      description: '**EXPERIMENTEEL** Alle ZAAKNOTITIEs opvragen.'
+      summary: Alle ZAAKNOTITIEs opvragen.
       parameters:
       - in: query
         name: aangemaaktDoor
@@ -611,8 +611,8 @@ paths:
       - in: query
         name: gerelateerdAan
         schema:
-          type: string
-        description: URL van het gerelateerde object
+          type: integer
+        description: URL-referentie naar de ZAAK.
       - in: query
         name: notitieType
         schema:
@@ -820,8 +820,8 @@ paths:
           description: Internal server error
     post:
       operationId: zaaknotitie_create
-      description: Maak een ZAAKNOTITIE.
-      summary: Maak een ZAAKNOTITIE.
+      description: '**EXPERIMENTEEL** Maak een ZAAKNOTITIE aan.'
+      summary: Maak een ZAAKNOTITIE aan.
       parameters:
       - in: header
         name: Content-Type
@@ -971,15 +971,15 @@ paths:
   /notities/{uuid}:
     get:
       operationId: zaaknotitie_read
-      description: Verzoek voor een specifieke ZAAKNOTITIE.
-      summary: Verzoek voor een specifieke ZAAKNOTITIE.
+      description: '**EXPERIMENTEEL** Een specifieke ZAAKNOTITIE opvragen.'
+      summary: Een specifieke ZAAKNOTITIE opvragen.
       parameters:
       - in: path
         name: uuid
         schema:
           type: string
           format: uuid
-          description: Unieke identificatie door notitie
+          description: Unieke identificatie voor deze notitie
         required: true
       tags:
       - notities
@@ -1109,7 +1109,7 @@ paths:
           description: Internal server error
     put:
       operationId: zaaknotitie_update
-      description: Werk een ZAAKNOTITIE in zijn geheel bij.
+      description: '**EXPERIMENTEEL** Werk een ZAAKNOTITIE in zijn geheel bij.'
       summary: Werk een ZAAKNOTITIE in zijn geheel bij.
       parameters:
       - in: header
@@ -1125,7 +1125,7 @@ paths:
         schema:
           type: string
           format: uuid
-          description: Unieke identificatie door notitie
+          description: Unieke identificatie voor deze notitie
         required: true
       tags:
       - notities
@@ -1273,8 +1273,8 @@ paths:
           description: Internal server error
     patch:
       operationId: zaaknotitie_partial_update
-      description: Een ZAAKNOTITIE gedeeltelijk bijwerken.
-      summary: Een ZAAKNOTITIE gedeeltelijk bijwerken.
+      description: '**EXPERIMENTEEL** Werk een ZAAKNOTITIE deels bij.'
+      summary: Werk een ZAAKNOTITIE deels bij.
       parameters:
       - in: header
         name: Content-Type
@@ -1289,7 +1289,7 @@ paths:
         schema:
           type: string
           format: uuid
-          description: Unieke identificatie door notitie
+          description: Unieke identificatie voor deze notitie
         required: true
       tags:
       - notities
@@ -1433,15 +1433,15 @@ paths:
           description: Internal server error
     delete:
       operationId: zaaknotitie_delete
-      description: Een ZAAKNOTITIE verwijderen.
-      summary: Een ZAAKNOTITIE verwijderen.
+      description: '**EXPERIMENTEEL** Verwijder een ZAAKNOTITIE.'
+      summary: Verwijder een ZAAKNOTITIE.
       parameters:
       - in: path
         name: uuid
         schema:
           type: string
           format: uuid
-          description: Unieke identificatie door notitie
+          description: Unieke identificatie voor deze notitie
         required: true
       tags:
       - notities
@@ -15726,10 +15726,12 @@ components:
       properties:
         onderwerp:
           type: string
+          minLength: 1
           description: Korte omschrijving of titel van de notitie
           maxLength: 255
         tekst:
           type: string
+          minLength: 1
           description: De volledige inhoud of beschrijving van de notitie
         aangemaaktDoor:
           type: string
@@ -15745,7 +15747,7 @@ components:
         gerelateerdAan:
           type: string
           format: uri
-          description: URL-referenties naar ZAAKEN.
+          description: URL-referentie naar een ZAAK.
     PatchedZaakObjectRequest:
       oneOf:
       - $ref: '#/components/schemas/adres_ZaakObjectSerializerRequest'
@@ -17679,7 +17681,7 @@ components:
         gerelateerdAan:
           type: string
           format: uri
-          description: URL-referenties naar ZAAKEN.
+          description: URL-referentie naar een ZAAK.
         url:
           type: string
           format: uri
@@ -17691,6 +17693,8 @@ components:
       required:
       - aanmaakdatum
       - gerelateerdAan
+      - onderwerp
+      - tekst
       - url
       - wijzigingsdatum
     ZaakNotitieRequest:
@@ -17698,10 +17702,12 @@ components:
       properties:
         onderwerp:
           type: string
+          minLength: 1
           description: Korte omschrijving of titel van de notitie
           maxLength: 255
         tekst:
           type: string
+          minLength: 1
           description: De volledige inhoud of beschrijving van de notitie
         aangemaaktDoor:
           type: string
@@ -17717,9 +17723,11 @@ components:
         gerelateerdAan:
           type: string
           format: uri
-          description: URL-referenties naar ZAAKEN.
+          description: URL-referentie naar een ZAAK.
       required:
       - gerelateerdAan
+      - onderwerp
+      - tekst
     ZaakObject:
       oneOf:
       - $ref: '#/components/schemas/adres_ZaakObjectSerializer'
