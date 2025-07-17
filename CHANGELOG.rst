@@ -1,15 +1,8 @@
 Changelog
 =========
 
-1.22.0-beta (2025-07-04)
-------------------------
-
-.. note::
-
-  This beta release is done because the upgrade from ``psycopg2`` to ``psycopg`` seems
-  to introduce some additional latency for concurrent requests on some Zaken API endpoints
-  (particularly ``/zaakobjecten``). Once these issues are addressed, a proper ``1.22.0``
-  version will be released
+1.22.0 (2025-07-18)
+-------------------
 
 **New features**
 
@@ -52,6 +45,7 @@ Changelog
 
 * [:open-api-framework:`149`] Add missing theme toggle in admin interface
 * [:open-api-framework:`149`] Fix light/dark themes for admin interface
+* [:open-zaak:`2098`] Fix error when deelzaak changes status without resultaat
 
 **Project maintenance**
 
