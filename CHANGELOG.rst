@@ -1,15 +1,8 @@
 Changelog
 =========
 
-1.22.0-beta (2025-07-04)
-------------------------
-
-.. note::
-
-  This beta release is done because the upgrade from ``psycopg2`` to ``psycopg`` seems
-  to introduce some additional latency for concurrent requests on some Zaken API endpoints
-  (particularly ``/zaakobjecten``). Once these issues are addressed, a proper ``1.22.0``
-  version will be released
+1.22.0 (2025-07-22)
+-------------------
 
 **New features**
 
@@ -39,6 +32,12 @@ Changelog
   * ``DB_POOL_RECONNECT_TIMEOUT``
   * ``DB_POOL_NUM_WORKERS``
 
+.. warning::
+
+  The connection pooling settings apply to each uWSGI process and each replica, this means
+  that when running with 2 replicas and 4 processes for example, there will effectively be 8
+  connection pools with the above settings.
+
 **Experimental features** (see :ref:`api_experimental`)
 
 * [:open-zaak:`1148`] Add ``/substatussen`` endpoint for new ``Substatus`` resource
@@ -52,9 +51,11 @@ Changelog
 
 * [:open-api-framework:`149`] Add missing theme toggle in admin interface
 * [:open-api-framework:`149`] Fix light/dark themes for admin interface
+* [:open-zaak:`2098`] Fix error when deelzaak changes status without resultaat
 
 **Project maintenance**
 
+* Add environment variable ``DB_DISABLE_SERVER_SIDE_CURSORS`` to disable server side cursors (see :ref:`installation_env_config` > Database for more information)
 * [:open-api-framework:`139`] Integrate django-upgrade-check
 * Upgrade dependencies
 
@@ -63,7 +64,7 @@ Changelog
   * ``requests`` to 2.32.4
   * ``urllib3`` to 2.5.0
   * ``requests-cache`` to 1.2.1
-  * ``open-api-framework`` to 0.11.0
+  * ``open-api-framework`` to 0.12.0
   * ``commonground-api-common`` to 2.6.7
 
 **Documentation**

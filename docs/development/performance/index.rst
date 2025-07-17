@@ -44,6 +44,13 @@ There should be enough data in the database for the performance testing:
 Performance test results
 ------------------------
 
+.. warning::
+
+    The test results from 1.22.0 seem to have slightly degraded compared to 1.21.2,
+    but this is only the case if the Open Zaak instance and Postgres database server are
+    running on the same server. In most setups (like when using Kubernetes), this is not the case
+    (see also https://github.com/psycopg/psycopg/issues/448)
+
 1 user
 ^^^^^^
 
@@ -72,8 +79,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.21.1 (fuzzy on)      Regular   220
 1.21.2 (fuzzy on)      Superuser 160
 1.21.2 (fuzzy on)      Regular   200
-1.22.0-beta (fuzzy on) Superuser 160
-1.22.0-beta (fuzzy on) Regular   200
+1.22.0 (fuzzy on)      Superuser 160
+1.22.0 (fuzzy on)      Regular   200
 ====================== ========= ======================
 
 16 users
@@ -104,8 +111,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.21.1 (fuzzy on)      Regular   510
 1.21.1 (fuzzy on)      Superuser 400
 1.21.1 (fuzzy on)      Regular   540
-1.22.0-beta (fuzzy on) Superuser 520
-1.22.0-beta (fuzzy on) Regular   660
+1.22.0 (fuzzy on)      Superuser 520
+1.22.0 (fuzzy on)      Regular   660
 ====================== ========= ======================
 
 
