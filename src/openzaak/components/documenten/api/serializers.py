@@ -1176,27 +1176,17 @@ class DocumentRegistrerenSerializer(serializers.Serializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        enkelvoudiginformatieobject = validated_data["enkelvoudiginformatieobject"] | {
-            "inhoud": self.initial_data["enkelvoudiginformatieobject"].get("inhoud"),
-            "informatieobjecttype": self.initial_data[
-                "enkelvoudiginformatieobject"
-            ].get("informatieobjecttype"),
-        }
-        zaakinformatieobject = validated_data["zaakinformatieobject"] | {
-            "zaak": self.initial_data["zaakinformatieobject"].get("zaak"),
-            "status": self.initial_data["zaakinformatieobject"].get("status"),
-        }
-
-        eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
-            data=enkelvoudiginformatieobject, context=self.context
+        eio = EnkelvoudigInformatieObjectCreateLockSerializer().create(
+            validated_data["enkelvoudiginformatieobject"]
         )
-        eio_serializer.is_valid(raise_exception=True)
-        eio = eio_serializer.save()
 
-        # url vs uuid
         zio_serializer = ZaakInformatieObjectSerializer(
-            data=zaakinformatieobject
-            | {"informatieobject": eio_serializer.data["url"]},
+            data=self.initial_data["zaakinformatieobject"]
+            | {
+                "informatieobject": eio.get_absolute_api_url(
+                    request=self.context["request"]
+                )
+            },
             context=self.context,
         )
         zio_serializer.is_valid(raise_exception=True)
