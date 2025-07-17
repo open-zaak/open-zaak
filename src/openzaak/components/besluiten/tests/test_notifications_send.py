@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.test import override_settings, tag
 
@@ -12,7 +12,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse
 
-from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    InformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -72,6 +75,103 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
                 },
             },
+        )
+
+    def test_send_notif_verwerk_besluit(self, mock_notif):
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=besluittype.catalogus
+        )
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+
+        informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_1 = reverse(informatieobject_1)
+
+        informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_2 = reverse(informatieobject_2)
+
+        url = reverse("verwerkbesluit-list")
+
+        data = {
+            "besluit": {
+                "verantwoordelijkeOrganisatie": "517439943",  # RSIN
+                "besluittype": f"http://testserver{besluittype_url}",
+                "identificatie": "123123",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+            "besluitinformatieobjecten": [
+                {"informatieobject": f"http://testserver{informatieobject_url_1}"},
+                {"informatieobject": f"http://testserver{informatieobject_url_2}"},
+            ],
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+
+        self.assertEqual(mock_notif.call_count, 3)
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": data["besluit"]["url"],
+                        "resource": "besluit",
+                        "resourceUrl": data["besluit"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": data["besluit"]["url"],
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": data["besluitinformatieobjecten"][0]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": data["besluit"]["url"],
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": data["besluitinformatieobjecten"][1]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_send_notif_delete_resultaat(self, mock_notif):
