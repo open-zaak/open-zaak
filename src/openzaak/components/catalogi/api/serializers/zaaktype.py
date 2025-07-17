@@ -310,6 +310,11 @@ class ZaakTypeSerializer(
             BronZaaktypeSerializer().update(zaaktype, bronzaaktype_data)
         return zaaktype
 
+    def to_representation(self, instance):
+        # if instance._json and not self.context.get("ignore_json", False):
+        #     return instance._json
+        return super().to_representation(instance)
+
 
 class ZaakTypePublishSerializer(HyperlinkedModelSerializer):
     class Meta:
