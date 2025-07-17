@@ -59,4 +59,4 @@ jobs:
       - name: load into other db
         run: |
           createdb -h localhost -U postgres test
-          psql -h localhost -U postgres -d test -f dump.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d test -f dump.sql
