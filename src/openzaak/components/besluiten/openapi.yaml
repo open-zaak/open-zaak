@@ -96,6 +96,158 @@ info:
     name: EUPL 1.2
     url: https://opensource.org/licenses/EUPL-1.2
 paths:
+  /besluit_verwerken:
+    post:
+      operationId: verwerkbesluit_create
+      description: '**EXPERIMENTEEL** Maak een Besluit aan met en een of meerdere
+        BesluitInformatieObject(en) aan om documenten direct aan een besluit te linken.'
+      summary: Verwerk een besluit
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - besluit_verwerken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BesluitVerwerkenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - besluiten.aanmaken
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitVerwerken'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /besluiten:
     get:
       operationId: besluit_list
@@ -2338,6 +2490,47 @@ components:
       - besluit
       - informatieobject
       - url
+    BesluitInformatieObjectReadOnly:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        informatieobject:
+          type: string
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API) waarin (een deel van) het besluit beschreven is.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        besluit:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - besluit
+      - informatieobject
+      - url
+    BesluitInformatieObjectReadOnlyRequest:
+      type: object
+      properties:
+        informatieobject:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API) waarin (een deel van) het besluit beschreven is.
+          format: uri
+          maxLength: 1000
+      required:
+      - informatieobject
     BesluitInformatieObjectRequest:
       type: object
       properties:
@@ -2445,6 +2638,30 @@ components:
       - datum
       - ingangsdatum
       - verantwoordelijkeOrganisatie
+    BesluitVerwerken:
+      type: object
+      properties:
+        besluit:
+          $ref: '#/components/schemas/Besluit'
+        besluitinformatieobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/BesluitInformatieObjectReadOnly'
+      required:
+      - besluit
+      - besluitinformatieobjecten
+    BesluitVerwerkenRequest:
+      type: object
+      properties:
+        besluit:
+          $ref: '#/components/schemas/BesluitRequest'
+        besluitinformatieobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/BesluitInformatieObjectReadOnlyRequest'
+      required:
+      - besluit
+      - besluitinformatieobjecten
     BlankEnum:
       enum:
       - ''
