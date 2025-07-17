@@ -9,6 +9,7 @@ from ..api.schema import custom_settings
 from .viewsets import (
     BesluitAuditTrailViewSet,
     BesluitInformatieObjectViewSet,
+    BesluitVerwerkenViewSet,
     BesluitViewSet,
 )
 
@@ -19,6 +20,7 @@ router.register(
     [routers.Nested("audittrail", BesluitAuditTrailViewSet)],
 )
 router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
+router.register("besluit_verwerken", BesluitVerwerkenViewSet, basename="verwerkbesluit")
 
 
 urlpatterns = [
