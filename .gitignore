@@ -46,10 +46,3 @@ src/openzaak/conf/includes/local.py
 .env
 /private-media/
 /import-data/
-
-# Ansible secrets
-deployment/single-server/vars/*
-!deployment/single-server/vars/*example*
-
-deployment/kubernetes/vars/*
-!deployment/kubernetes/vars/*example*
