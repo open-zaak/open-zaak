@@ -293,6 +293,7 @@ jobs:
           SITE_DOMAIN: localhost:8000
           ALLOWED_HOSTS: localhost,127.0.0.1
           FUZZY_PAGINATION: true
+          DB_CONN_MAX_AGE: 60
       - name: Run tests
         run: |
           pip install uv
