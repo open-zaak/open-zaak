@@ -260,25 +260,39 @@ class ZaakViewSet(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
             "_zaaktype",
-            "deelzaken",
+            models.Prefetch(
+                "deelzaken", queryset=Zaak.objects.all().only("uuid", "hoofdzaak")
+            ),
             models.Prefetch(
                 "relevante_andere_zaken",
                 queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
             ),
             "zaakkenmerk_set",
-            "resultaat",
-            "zaakeigenschap_set",
+            models.Prefetch(
+                "resultaat", queryset=Resultaat.objects.all().only("uuid", "zaak")
+            ),
+            models.Prefetch(
+                "zaakeigenschap_set",
+                queryset=ZaakEigenschap.objects.all().only("uuid", "zaak"),
+            ),
             models.Prefetch(
                 "status_set",
-                queryset=Status.objects.order_by("-datum_status_gezet"),
+                queryset=Status.objects.order_by("-datum_status_gezet").only(
+                    "uuid", "zaak"
+                ),
                 # explicitly store result on this attribute, that way we can retrieve
                 # the first status by simple list indexing, which is faster than calling
                 # `.first()`, because the latter instantiates a new queryset
                 to_attr="prefetched_statuses",
             ),
-            "rol_set",
-            "zaakinformatieobject_set",
-            "zaakobject_set",
+            models.Prefetch("rol_set", queryset=Rol.objects.all().only("uuid", "zaak")),
+            models.Prefetch(
+                "zaakinformatieobject_set",
+                queryset=ZaakInformatieObject.objects.all().only("uuid", "zaak"),
+            ),
+            models.Prefetch(
+                "zaakobject_set", queryset=ZaakObject.objects.all().only("uuid", "zaak")
+            ),
         )
         .order_by("-pk")
         .distinct()
