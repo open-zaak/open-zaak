@@ -45,7 +45,7 @@ done
 # dump full schema
 pg_dump --schema-only -f "$DUMP_FILE"
 
-# dump data of tables added to INCLUDES
-pg_dump "${INCLUDES[@]}" --disable-triggers --data-only | sed '/^SET\|^SELECT pg_catalog.set_config/d' >> "$DUMP_FILE"
+# dump data of tables added to INCLUDES # --disable-triggers
+pg_dump "${INCLUDES[@]}" --data-only | sed '/^SET\|^SELECT pg_catalog.set_config/d' >> "$DUMP_FILE"
 
 >&2 echo "database was exported to $DUMP_FILE"
