@@ -55,3 +55,8 @@ jobs:
           grep documenten_gebruiksrechten dump.sql
           grep zaken_rol dump.sql
           ! grep auth_group dump.sql
+
+      - name: load into other db
+        run: |
+          createdb -h localhost -U postgres test
+          psql -U postgres -d test -f dump.sql
