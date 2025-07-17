@@ -1,4 +1,4 @@
-open-api-framework
+open-api-framework[celery,cors,markup,geo,csp,commonground,inclusions,sanitization,server,redis]
 
 # Core python libraries
 jq
