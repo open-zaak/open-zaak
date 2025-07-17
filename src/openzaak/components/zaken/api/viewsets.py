@@ -270,29 +270,29 @@ class ZaakViewSet(
     """
 
     queryset = (
-        Zaak.objects.prefetch_related(
+        Zaak.objects.all(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
-            "deelzaken",
-            models.Prefetch(
-                "relevante_andere_zaken",
-                queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
-            ),
-            "zaakkenmerk_set",
-            "resultaat",
-            "zaakeigenschap_set",
-            models.Prefetch(
-                "status_set",
-                queryset=Status.objects.order_by("-datum_status_gezet"),
-                # explicitly store result on this attribute, that way we can retrieve
-                # the first status by simple list indexing, which is faster than calling
-                # `.first()`, because the latter instantiates a new queryset
-                to_attr="prefetched_statuses",
-            ),
-            "rol_set",
-            "zaakinformatieobject_set",
-            "zaakobject_set",
+            # "_zaaktype",
+            # "deelzaken",
+            # models.Prefetch(
+            #     "relevante_andere_zaken",
+            #     queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+            # ),
+            # "zaakkenmerk_set",
+            # "resultaat",
+            # "zaakeigenschap_set",
+            # models.Prefetch(
+            #     "status_set",
+            #     queryset=Status.objects.order_by("-datum_status_gezet"),
+            #     # explicitly store result on this attribute, that way we can retrieve
+            #     # the first status by simple list indexing, which is faster than calling
+            #     # `.first()`, because the latter instantiates a new queryset
+            #     to_attr="prefetched_statuses",
+            # ),
+            # "rol_set",
+            # "zaakinformatieobject_set",
+            # "zaakobject_set",
         )
         .order_by("-pk")
         .distinct()
