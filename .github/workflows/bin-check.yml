@@ -50,13 +50,13 @@ jobs:
 
       - name: validate dump
         run: |
-          grep besluiten_besluit dump.sql
-          grep catalogi_resultaattype dump.sql
-          grep documenten_gebruiksrechten dump.sql
-          grep zaken_rol dump.sql
-          ! grep auth_group dump.sql
+          grep "COPY public.besluiten_besluit" dump.sql
+          grep "COPY public.catalogi_resultaattype" dump.sql
+          grep "COPY public.documenten_gebruiksrechten" dump.sql
+          grep "COPY public.zaken_rol" dump.sql
+          ! grep "COPY public.auth_group" dump.sql
 
       - name: load into other db
         run: |
           createdb -h localhost -U postgres test
-          psql -U postgres -d test -f dump.sql
+          psql -h localhost -U postgres -d test -f dump.sql
