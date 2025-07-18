@@ -327,7 +327,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         _status = StatusFactory.create(zaak=zaak)
         status_url = reverse(_status)
 
-        url = get_operation_url("registereddocument_create")
+        url = get_operation_url("registreerdocument_create")
 
         data = {
             "enkelvoudiginformatieobject": {
