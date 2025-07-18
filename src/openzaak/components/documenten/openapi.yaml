@@ -7147,7 +7147,7 @@ components:
         enkelvoudiginformatieobject:
           $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLock'
         zaakinformatieobject:
-          $ref: '#/components/schemas/ZaakInformatieObjectReadOnly'
+          $ref: '#/components/schemas/ZaakInformatieObjectSub'
       required:
       - enkelvoudiginformatieobject
       - zaakinformatieobject
@@ -7157,7 +7157,7 @@ components:
         enkelvoudiginformatieobject:
           $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockRequest'
         zaakinformatieobject:
-          $ref: '#/components/schemas/ZaakInformatieObjectReadOnlyRequest'
+          $ref: '#/components/schemas/ZaakInformatieObjectSubRequest'
       required:
       - enkelvoudiginformatieobject
       - zaakinformatieobject
@@ -9068,7 +9068,7 @@ components:
             de actie heeft plaatsgevonden.
         nieuw:
           description: Volledige JSON body van het object na de actie.
-    ZaakInformatieObjectReadOnly:
+    ZaakInformatieObjectSub:
       type: object
       properties:
         url:
@@ -9140,7 +9140,7 @@ components:
       - url
       - uuid
       - zaak
-    ZaakInformatieObjectReadOnlyRequest:
+    ZaakInformatieObjectSubRequest:
       type: object
       properties:
         zaak:

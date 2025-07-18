@@ -1085,7 +1085,7 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         return super().run_validators(value)
 
 
-class ZaakInformatieObjectReadOnlySerializer(ZaakInformatieObjectSerializer):
+class ZaakInformatieObjectSubSerializer(ZaakInformatieObjectSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
         max_length=1000,
         min_length=1,

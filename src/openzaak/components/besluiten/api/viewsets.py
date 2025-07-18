@@ -16,37 +16,48 @@ from notifications_api_common.viewsets import (
     NotificationDestroyMixin,
     NotificationViewSetMixin,
 )
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
+from vng_api_common.constants import CommonResourceAction
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
+from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.mixins import CacheQuerysetMixin, MultipleAuditTrailMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
 
+from ...zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+from ...zaken.api.serializers import ZaakSerializer
+from ...zaken.models import Zaak
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
-from .permissions import BesluitAuthRequired
+from .permissions import BesluitAuthRequired, BesluitVerwerkenAuthRequired
 from .scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
     SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     SCOPE_BESLUITEN_BIJWERKEN,
 )
-from .serializers import BesluitInformatieObjectSerializer, BesluitSerializer
+from .serializers import (
+    BesluitInformatieObjectSerializer,
+    BesluitSerializer,
+    BesluitVerwerkenSerializer,
+)
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -355,3 +366,101 @@ class BesluitAuditTrailViewSet(AuditTrailViewSet):
 
     main_resource_lookup_field = "besluit_uuid"
     permission_classes = (AuthRequired,)
+
+
+@extend_schema(
+    summary="Verwerk een besluit",
+    description=mark_experimental(
+        "Maak een Besluit aan met en een of meerdere BesluitInformatieObject(en) aan om documenten direct aan een besluit te linken."
+    ),
+)
+class BesluitVerwerkenViewSet(
+    viewsets.ViewSet,
+    MultipleNotificationMixin,
+    ClosedZaakMixin,
+    MultipleAuditTrailMixin,
+):
+    serializer_class = BesluitVerwerkenSerializer
+    permission_classes = (BesluitVerwerkenAuthRequired,)
+
+    required_scopes = {"create": SCOPE_BESLUITEN_AANMAKEN}
+
+    viewset_classes = {
+        "besluit": "openzaak.components.besluiten.api.viewsets.BesluitViewSet",
+    }
+
+    notification_fields = {
+        "besluit": {
+            "notifications_kanaal": KANAAL_BESLUITEN,
+            "model": Besluit,
+        },
+        "besluitinformatieobjecten": {
+            "notifications_kanaal": KANAAL_BESLUITEN,
+            "model": BesluitInformatieObject,
+        },
+    }
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["besluit"],
+            unique_representation=serializer.instance[
+                "besluit"
+            ].unique_representation(),
+            audit=AUDIT_BRC,
+            basename="besluit",
+            main_object=serializer.data["besluit"]["url"],
+        )
+
+        for i, data in enumerate(serializer.data["besluitinformatieobjecten"]):
+            self.create_audittrail(
+                response.status_code,
+                CommonResourceAction.create,
+                version_before_edit=None,
+                version_after_edit=data,
+                unique_representation=serializer.instance["besluitinformatieobjecten"][
+                    i
+                ].unique_representation(),
+                audit=AUDIT_BRC,
+                basename="besluitinformatieobject",
+                main_object=data["url"],
+            )
+        self.notify(response.status_code, response.data)
+        return response
+
+    def _has_override(self, zaak: Zaak) -> bool:
+        """Override of ClosedZaakMixin._has_override to hardcode init_component since this does not have a queryset"""
+        jwt_auth = self.request.jwt_auth
+        zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
+        return jwt_auth.has_auth(
+            scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+            zaaktype=zaak_data["zaaktype"],
+            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+            init_component="besluiten",
+        )
+
+    def perform_create(self, serializer):
+        zaak = serializer.validated_data.get("besluit").get("zaak")
+        self._check_zaak_closed(zaak)
+
+        serializer.save()
+
+        logger.info(
+            "besluit_verwerkt",
+            besluit_url=serializer.data["besluit"]["url"],
+            besluitinformatieobjecten_urls=[
+                bio["url"] for bio in serializer.data["besluitinformatieobjecten"]
+            ],
+        )

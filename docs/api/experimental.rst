@@ -165,6 +165,13 @@ Notifications
 
 For ``besluiten`` notification channel a new "kenmerk" ``besluittype.catalogus`` is added.
 
+Endpoints
+---------
+
+New endpoints are added:
+
+* ``/api/v1/besluit_verwerken`` – create a besluit in combination with one or more besluitinformatieobject(en) to immediately link them.
+
 
 Autorisaties API
 ================

@@ -134,7 +134,10 @@ class MultipleNotificationMixin(NotificationMixin):
 
         for field in self.notification_fields:
             # build the content of the notification
-            message = self.construct_message(
-                data[field], instance=instance, field=field
-            )
-            transaction.on_commit(lambda msg=message: _send(msg))
+            field_data = data[field]
+
+            notifications = field_data if isinstance(field_data, list) else [field_data]
+
+            for notif in notifications:
+                message = self.construct_message(notif, instance=instance, field=field)
+                transaction.on_commit(lambda msg=message: _send(msg))

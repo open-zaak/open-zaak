@@ -97,7 +97,7 @@ from .filters import (
 from .kanalen import KANAAL_DOCUMENTEN
 from .mixins import UpdateWithoutPartialMixin
 from .permissions import (
-    DocumentReserverenAuthRequired,
+    DocumentRegistrerenAuthRequired,
     InformationObjectAuthRequired,
 )
 from .renderers import BinaryFileRenderer
@@ -1212,7 +1212,7 @@ class DocumentRegistrerenViewSet(
     MultipleAuditTrailMixin,
 ):
     serializer_class = DocumentRegistrerenSerializer
-    permission_classes = (DocumentReserverenAuthRequired,)
+    permission_classes = (DocumentRegistrerenAuthRequired,)
 
     required_scopes = {
         "create": SCOPE_DOCUMENTEN_AANMAKEN
