@@ -8,7 +8,9 @@ Dump data
 
 Met het script `dump_data.sh` kan de data van alle componenten (zaken, documenten...) worden geëxporteerd naar een sql bestand.
 
-Standaard wordt naast het volledige schema alle catalogi, zaak, besluit & document data. Om alleen specifieke data te exporteren kunnen de gewenste component namen worden meegegeven:
+Standaard wordt het volledige schema en data in twee sql bestanden gegenereerd. dit kan worden aangepast via de flags ``--data-only``, ``--schema-only`` & ``--combined``
+waardoor een bestand wordt gegenereerd. De data dump bevat standaard alle catalogi, zaak, besluit & document data.
+Om alleen specifieke data te exporteren kunnen de gewenste component namen worden meegegeven:
 
 .. code-block:: shell
 
