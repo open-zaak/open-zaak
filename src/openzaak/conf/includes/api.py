@@ -51,7 +51,7 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "COMPONENT_NO_READ_ONLY_REQUIRED": False,
     "DEFAULT_GENERATOR_CLASS": "openzaak.utils.generators.SchemaGenerator",
-    "GET_LIB_DOC_EXCLUDES": "openzaak.utils.hooks.get_lib_doc_excludes" # exclude docstrings from classes defined in function
+    "GET_LIB_DOC_EXCLUDES": "openzaak.utils.hooks.get_lib_doc_excludes",  # exclude docstrings from classes defined in function
 }
 
 

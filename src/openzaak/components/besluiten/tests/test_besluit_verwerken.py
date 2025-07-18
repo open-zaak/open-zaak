@@ -344,7 +344,9 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         content = {
             "besluit": self.besluit,
             "besluitinformatieobjecten": [
-                {"informatieobject": 'http://testserver/documenten/api/v1/enkelvoudiginformatieobjecten/852e5ca8-cdbe-42ab-ae80-aa79a15cc9e4'},
+                {
+                    "informatieobject": "http://testserver/documenten/api/v1/enkelvoudiginformatieobjecten/852e5ca8-cdbe-42ab-ae80-aa79a15cc9e4"
+                },
             ],
         }
 
@@ -355,5 +357,7 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(len(response.data["invalid_params"]), 1)
-        error = get_validation_errors(response, "besluitinformatieobjecten.0.informatieobject")
+        error = get_validation_errors(
+            response, "besluitinformatieobjecten.0.informatieobject"
+        )
         self.assertEqual(error["code"], "does_not_exist")
