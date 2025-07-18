@@ -30,8 +30,8 @@ drc-cmis
 
 #commonground-api-common[setup-configuration, testutils, oas]
 
-git+https://github.com/maykinmedia/commonground-api-common.git@feature/oz-2114-make-audittrailminx-better-subclassable[setup-configuration, testutils, oas]
-git+https://github.com/maykinmedia/notifications-api-common.git@feature/oz-2144-make-notificationMixin-better-subclassable
+git+https://github.com/maykinmedia/commonground-api-common.git@main[setup-configuration, testutils, oas]
+git+https://github.com/maykinmedia/notifications-api-common.git@main
 
 psycopg[pool, binary]
 
