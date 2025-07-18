@@ -88,7 +88,7 @@ def validate_brondatumarchiefprocedure(
     empty = []
     required = []
     for key, value in mapping.items():
-        if bool(data[key]) != value:
+        if bool(data.get(key)) != value:
             error = True
             if value:
                 required.append(key)

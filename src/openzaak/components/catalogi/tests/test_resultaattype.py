@@ -1242,6 +1242,7 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
                 "url": SELECTIELIJSTKLASSE_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": "vast_te_leggen_datum",
+                "bewaartermijn": "P5Y"
             },
         )
         m.get(
@@ -1250,6 +1251,7 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
                 "url": SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
                 "procesType": PROCESTYPE_URL,
                 "procestermijn": Procestermijn.nihil,
+                "bewaartermijn": "P10Y"
             },
         )
         m.get(
@@ -1971,3 +1973,30 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
                 else:
                     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
                     ResultaatType.objects.get().delete()
+
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    def test_archiefprocedure_without_nonrequired_properties(self, *mocks):
+        """
+        regression test for https://github.com/open-zaak/open-zaak/issues/2102
+        """
+        zaaktype = ZaakTypeFactory.create(
+            selectielijst_procestype=PROCESTYPE_URL, concept=True
+        )
+        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "omschrijving": "Toegekend",
+            "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
+            "selectielijstklasse": SELECTIELIJSTKLASSE_PROCESTERMIJN_NIHIL_URL,
+            "archiefnominatie": "vernietigen",
+            "brondatumArchiefprocedure": {"afleidingswijze": "afgehandeld"},
+        }
+
+        with requests_mock.Mocker() as m:
+            self._setup_mock_responses(m)
+
+            response = self.client.post(self.list_url, data)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
