@@ -38,7 +38,7 @@ jobs:
           createdb -h localhost -U postgres openzaak
           python src/manage.py migrate
           echo "yes" | src/manage.py generate_data --zaken=1 --zaaktypen=1 --without-zaakgeometrie
-          SCRIPTPATH=bin DUMP_FILE=dump.sql bin/dump_data.sh
+          SCRIPTPATH=bin DUMP_FILE=dump.sql bin/dump_data.sh --combined
         env:
           DB_PASSWORD: ""
           DB_USER: postgres
