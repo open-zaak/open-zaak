@@ -243,7 +243,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         return super().run_validators(value)
 
 
-class BesluitInformatieObjectReadOnlySerializer(BesluitInformatieObjectSerializer):
+class BesluitInformatieObjectSubSerializer(BesluitInformatieObjectSerializer):
     class Meta(BesluitInformatieObjectSerializer.Meta):
         # BesluitInformatieObjectSerializer validates with besluit which this serializer won't have.
         validators = []
@@ -252,25 +252,23 @@ class BesluitInformatieObjectReadOnlySerializer(BesluitInformatieObjectSerialize
 
 class BesluitVerwerkenSerializer(serializers.Serializer):
     besluit = BesluitSerializer()
-    besluitinformatieobjecten = BesluitInformatieObjectReadOnlySerializer(many=True)
+    besluitinformatieobjecten = BesluitInformatieObjectSubSerializer(many=True)
 
+    @transaction.atomic
     def create(self, validated_data):
         besluit = BesluitSerializer().create(validated_data["besluit"])
+
+        besluit_data = {
+            "besluit": besluit.get_absolute_api_url(request=self.context["request"])
+        }
 
         bios = []
         for bio in self.initial_data["besluitinformatieobjecten"]:
             bio_serializer = BesluitInformatieObjectSerializer(
-                data=bio
-                | {
-                    "besluit": besluit.get_absolute_api_url(
-                        request=self.context["request"]
-                    )
-                },
+                data=bio | besluit_data,
                 context=self.context,
             )
             bio_serializer.is_valid(raise_exception=True)
-            bio = bio_serializer.save()
-
-            bios.append(bio)
+            bios.append(bio_serializer.save())
 
         return {"besluit": besluit, "besluitinformatieobjecten": bios}

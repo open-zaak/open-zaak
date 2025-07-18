@@ -19,7 +19,7 @@ class InformationObjectAuthRequired(AuthRequired):
         return obj.get_informatieobject(permission_main_object)
 
 
-class DocumentReserverenAuthRequired(MultipleObjectsAuthRequired):
+class DocumentRegistrerenAuthRequired(MultipleObjectsAuthRequired):
     permission_fields = {
         "enkelvoudiginformatieobject": InformationObjectAuthRequired.permission_fields,
         "zaakinformatieobject": ZaakAuthRequired.permission_fields,
