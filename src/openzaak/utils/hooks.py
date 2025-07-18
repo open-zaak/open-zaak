@@ -5,6 +5,7 @@ from drf_spectacular.plumbing import (
     get_lib_doc_excludes as default_get_lib_doc_excludes,
 )
 
+
 def preprocess_exclude_endpoints(endpoints, **kwargs):
     """
     preprocessing hook that filters out endpoints from OAS
@@ -24,4 +25,3 @@ def get_lib_doc_excludes():
     from .serializers import ConvertNoneMixin
 
     return default_get_lib_doc_excludes() + [ConvertNoneMixin]
-
