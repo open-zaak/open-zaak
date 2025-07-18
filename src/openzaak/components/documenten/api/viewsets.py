@@ -27,7 +27,10 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
-from vng_api_common.audittrails.viewsets import AuditTrailViewsetMixin
+from vng_api_common.audittrails.viewsets import (
+    AuditTrailMixin,
+    AuditTrailViewsetMixin,
+)
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
 from vng_api_common.search import SearchMixin
@@ -54,7 +57,6 @@ from openzaak.utils.mixins import (
     CMISConnectionPoolMixin,
     ConvertCMISAdapterExceptions,
     ExpandMixin,
-    MultipleAuditTrailMixin,
 )
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
@@ -1209,7 +1211,7 @@ class DocumentRegistrerenViewSet(
     viewsets.ViewSet,
     MultipleNotificationMixin,
     ClosedZaakMixin,
-    MultipleAuditTrailMixin,
+    AuditTrailMixin,
 ):
     serializer_class = DocumentRegistrerenSerializer
     permission_classes = (DocumentReserverenAuthRequired,)
