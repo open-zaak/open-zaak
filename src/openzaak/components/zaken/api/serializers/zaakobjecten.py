@@ -282,3 +282,17 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             serializer.create(group_data)
 
         return zaakobject
+
+
+class ZaakObjectSubSerializer(ZaakObjectSerializer):
+    discriminator = Discriminator(
+        discriminator_field="object_type",
+        mapping={**ZaakObjectSerializer.discriminator.mapping},
+        group_field="object_identificatie",
+        same_model=False,
+    )
+
+    class Meta(ZaakObjectSerializer.Meta):
+        # ZaakObjectSerializer validates with zaak which this serializer won't have.
+        validators = []
+        read_only_fields = ("zaak",)

@@ -43,7 +43,7 @@ from openzaak.tests.utils import JWTAuthMixin
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registereddocument-list")
+    url = reverse_lazy("registreerdocument-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -422,7 +422,7 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registereddocument-list")
+    url = reverse_lazy("registreerdocument-list")
     heeft_alle_autorisaties = True
 
     def setUp(self):

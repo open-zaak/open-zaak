@@ -3,7 +3,7 @@
 from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
 
-from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
 class ZaakAuthRequired(AuthRequired):
@@ -35,3 +35,12 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
     def has_object_permission(self, request: Request, view, obj) -> bool:
         # all checks are made in has_permission stage
         return True
+
+
+class ZaaKRegistrerenAuthRequired(MultipleObjectsAuthRequired):
+    permission_fields = {
+        "zaak": ZaakAuthRequired.permission_fields,
+    }
+    main_resources = {
+        "zaak": ZaakAuthRequired.main_resource,
+    }

@@ -3776,6 +3776,157 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+  /zaak_registreren:
+    post:
+      operationId: registreerzaak_create
+      description: '**EXPERIMENTEEL** '
+      summary: Registreer een zaak
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - zaak_registreren
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakRegistrerenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (zaken.aanmaken & (zaken.bijwerken | zaken.geforceerd-bijwerken))
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakRegistreren'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /zaakcontactmomenten:
     get:
       operationId: zaakcontactmoment_list
@@ -13282,6 +13433,217 @@ components:
       - betrokkeneType
       - roltype
       - zaak
+    Base_RolSubSerializer:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          readOnly: true
+          description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
+        omschrijvingGeneriek:
+          type: string
+          readOnly: true
+          description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
+            \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
+            \ (Adviseur) Kennis in dienst stellen van de behandeling van (een deel\
+            \ van) een zaak.\n* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling\
+            \ doen van (een deel van) een zaak.\n* `belanghebbende` - (Belanghebbende)\
+            \ Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de\
+            \ behandeling en/of de uitkomst van een zaak.\n* `beslisser` - (Beslisser)\
+            \ Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.\n\
+            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak\
+            \ ..\n* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn\
+            \ voor vragen van burgers en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator)\
+            \ Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd\
+            \ wordt conform de daarover gemaakte afspraken.\n* `mede_initiator` -\
+            \ (Mede-initiator) "
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        registratiedatum:
+          type: string
+          format: date-time
+          readOnly: true
+          description: De datum waarop dit object is geregistreerd.
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRol'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        statussen:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - omschrijving
+      - omschrijvingGeneriek
+      - registratiedatum
+      - roltype
+      - statussen
+      - url
+      - uuid
+      - zaak
+    Base_RolSubSerializerRequest:
+      type: object
+      properties:
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          maxLength: 1000
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRolRequest'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - roltype
     Base_ZaakObjectSerializer:
       type: object
       properties:
@@ -13465,6 +13827,183 @@ components:
       required:
       - objectType
       - zaak
+    Base_ZaakObjectSubSerializer:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        object:
+          type: string
+          format: uri
+          description: URL-referentie naar de resource die het OBJECT beschrijft.
+          maxLength: 1000
+        zaakobjecttype:
+          type: string
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        objectType:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeEnum'
+          description: |-
+            Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
+
+            Uitleg bij mogelijke waarden:
+
+            * `adres` - Adres
+            * `besluit` - Besluit
+            * `buurt` - Buurt
+            * `enkelvoudig_document` - Enkelvoudig document
+            * `gemeente` - Gemeente
+            * `gemeentelijke_openbare_ruimte` - Gemeentelijke openbare ruimte
+            * `huishouden` - Huishouden
+            * `inrichtingselement` - Inrichtingselement
+            * `kadastrale_onroerende_zaak` - Kadastrale onroerende zaak
+            * `kunstwerkdeel` - Kunstwerkdeel
+            * `maatschappelijke_activiteit` - Maatschappelijke activiteit
+            * `medewerker` - Medewerker
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `openbare_ruimte` - Openbare ruimte
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `pand` - Pand
+            * `spoorbaandeel` - Spoorbaandeel
+            * `status` - Status
+            * `terreindeel` - Terreindeel
+            * `terrein_gebouwd_object` - Terrein gebouwd object
+            * `vestiging` - Vestiging
+            * `waterdeel` - Waterdeel
+            * `wegdeel` - Wegdeel
+            * `wijk` - Wijk
+            * `woonplaats` - Woonplaats
+            * `woz_deelobject` - Woz deel object
+            * `woz_object` - Woz object
+            * `woz_waarde` - Woz waarde
+            * `zakelijk_recht` - Zakelijk recht
+            * `overige` - Overige
+        objectTypeOverige:
+          type: string
+          description: Beschrijft het type OBJECT als `objectType` de waarde "overige"
+            heeft.
+          pattern: '[a-z_]+'
+          maxLength: 100
+        objectTypeOverigeDefinitie:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeOverigeDefinitie'
+          nullable: true
+          title: definitie object type overige
+          description: |-
+            Verwijzing naar het schema van het type OBJECT als `objectType` de waarde "overige" heeft.
+
+            * De URL referentie moet naar een JSON endpoint   wijzen waarin het objecttype gedefinieerd is, inclusief het   [JSON-schema](https://json-schema.org/).
+            * Gebruik het `schema` attribuut om te verwijzen naar het schema binnen   de objecttype resource (deze gebruikt het   [jq](http://stedolan.github.io/jq/) formaat.
+            * Gebruik het `objectData` attribuut om te verwijzen naar de gegevens   binnen het OBJECT. Deze gebruikt ook het   [jq](http://stedolan.github.io/jq/) formaat.
+
+            Indien je hier gebruikt van maakt, dan moet je een OBJECT url opgeven en is het gebruik van objectIdentificatie niet mogelijk. De opgegeven OBJECT url wordt gevalideerd tegen het schema van het opgegeven objecttype.
+        relatieomschrijving:
+          type: string
+          description: Omschrijving van de betrekking tussen de ZAAK en het OBJECT.
+          maxLength: 80
+      required:
+      - objectType
+      - url
+      - uuid
+      - zaak
+    Base_ZaakObjectSubSerializerRequest:
+      type: object
+      properties:
+        object:
+          type: string
+          format: uri
+          description: URL-referentie naar de resource die het OBJECT beschrijft.
+          maxLength: 1000
+        zaakobjecttype:
+          type: string
+          description: URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        objectType:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeEnum'
+          description: |-
+            Beschrijft het type OBJECT gerelateerd aan de ZAAK. Als er geen passend type is, dan moet het type worden opgegeven onder `objectTypeOverige`.
+
+            Uitleg bij mogelijke waarden:
+
+            * `adres` - Adres
+            * `besluit` - Besluit
+            * `buurt` - Buurt
+            * `enkelvoudig_document` - Enkelvoudig document
+            * `gemeente` - Gemeente
+            * `gemeentelijke_openbare_ruimte` - Gemeentelijke openbare ruimte
+            * `huishouden` - Huishouden
+            * `inrichtingselement` - Inrichtingselement
+            * `kadastrale_onroerende_zaak` - Kadastrale onroerende zaak
+            * `kunstwerkdeel` - Kunstwerkdeel
+            * `maatschappelijke_activiteit` - Maatschappelijke activiteit
+            * `medewerker` - Medewerker
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `openbare_ruimte` - Openbare ruimte
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `pand` - Pand
+            * `spoorbaandeel` - Spoorbaandeel
+            * `status` - Status
+            * `terreindeel` - Terreindeel
+            * `terrein_gebouwd_object` - Terrein gebouwd object
+            * `vestiging` - Vestiging
+            * `waterdeel` - Waterdeel
+            * `wegdeel` - Wegdeel
+            * `wijk` - Wijk
+            * `woonplaats` - Woonplaats
+            * `woz_deelobject` - Woz deel object
+            * `woz_object` - Woz object
+            * `woz_waarde` - Woz waarde
+            * `zakelijk_recht` - Zakelijk recht
+            * `overige` - Overige
+        objectTypeOverige:
+          type: string
+          description: Beschrijft het type OBJECT als `objectType` de waarde "overige"
+            heeft.
+          pattern: '[a-z_]+'
+          maxLength: 100
+        objectTypeOverigeDefinitie:
+          allOf:
+          - $ref: '#/components/schemas/ObjectTypeOverigeDefinitieRequest'
+          nullable: true
+          title: definitie object type overige
+          description: |-
+            Verwijzing naar het schema van het type OBJECT als `objectType` de waarde "overige" heeft.
+
+            * De URL referentie moet naar een JSON endpoint   wijzen waarin het objecttype gedefinieerd is, inclusief het   [JSON-schema](https://json-schema.org/).
+            * Gebruik het `schema` attribuut om te verwijzen naar het schema binnen   de objecttype resource (deze gebruikt het   [jq](http://stedolan.github.io/jq/) formaat.
+            * Gebruik het `objectData` attribuut om te verwijzen naar de gegevens   binnen het OBJECT. Deze gebruikt ook het   [jq](http://stedolan.github.io/jq/) formaat.
+
+            Indien je hier gebruikt van maakt, dan moet je een OBJECT url opgeven en is het gebruik van objectIdentificatie niet mogelijk. De opgegeven OBJECT url wordt gevalideerd tegen het schema van het opgegeven objecttype.
+        relatieomschrijving:
+          type: string
+          description: Omschrijving van de betrekking tussen de ZAAK en het OBJECT.
+          maxLength: 80
+      required:
+      - objectType
     BetalingsindicatieEnum:
       enum:
       - nvt
@@ -16405,6 +16944,36 @@ components:
           vestiging: '#/components/schemas/vestiging_RolSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSerializerRequest'
           medewerker: '#/components/schemas/medewerker_RolSerializerRequest'
+    RolSub:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolSubSerializer'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolSubSerializer'
+      - $ref: '#/components/schemas/vestiging_RolSubSerializer'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolSubSerializer'
+      - $ref: '#/components/schemas/medewerker_RolSubSerializer'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolSubSerializer'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolSubSerializer'
+          vestiging: '#/components/schemas/vestiging_RolSubSerializer'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSubSerializer'
+          medewerker: '#/components/schemas/medewerker_RolSubSerializer'
+    RolSubRequest:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_RolSubSerializerRequest'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolSubSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolSubSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_RolSubSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSubSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_RolSubSerializerRequest'
     RolVestiging:
       type: object
       properties:
@@ -16549,6 +17118,105 @@ components:
       - datumStatusGezet
       - statustype
       - zaak
+    StatusSub:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        statustype:
+          type: string
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        datumStatusGezet:
+          type: string
+          format: date-time
+          description: De datum waarop de ZAAK de status heeft verkregen.
+        statustoelichting:
+          type: string
+          description: Een, voor de initiator van de zaak relevante, toelichting op
+            de status van een zaak.
+          maxLength: 1000
+        indicatieLaatstGezetteStatus:
+          type: boolean
+          description: Het gegeven is afleidbaar uit de historie van de attribuutsoort
+            Datum status gezet van van alle statussen bij de desbetreffende zaak.
+          readOnly: true
+        gezetdoor:
+          type: string
+          format: uri
+          nullable: true
+          title: Gezet door
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          minLength: 1
+          maxLength: 1000
+        zaakinformatieobjecten:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+      required:
+      - datumStatusGezet
+      - indicatieLaatstGezetteStatus
+      - statustype
+      - url
+      - uuid
+      - zaak
+      - zaakinformatieobjecten
+    StatusSubRequest:
+      type: object
+      properties:
+        statustype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        datumStatusGezet:
+          type: string
+          format: date-time
+          description: De datum waarop de ZAAK de status heeft verkregen.
+        statustoelichting:
+          type: string
+          description: Een, voor de initiator van de zaak relevante, toelichting op
+            de status van een zaak.
+          maxLength: 1000
+        gezetdoor:
+          type: string
+          format: uri
+          nullable: true
+          title: Gezet door
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - datumStatusGezet
+      - statustype
     SubStatus:
       type: object
       properties:
@@ -17625,6 +18293,113 @@ components:
       required:
       - informatieobject
       - zaak
+    ZaakInformatieObjectSub:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        informatieobject:
+          type: string
+          readOnly: true
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        aardRelatieWeergave:
+          allOf:
+          - $ref: '#/components/schemas/AardRelatieWeergaveEnum'
+          readOnly: true
+        titel:
+          type: string
+          description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een op het object gerichte beschrijving van de inhoud vanhet
+            INFORMATIEOBJECT.
+        registratiedatum:
+          type: string
+          format: date-time
+          readOnly: true
+          description: De datum waarop de behandelende organisatie het INFORMATIEOBJECT
+            heeft geregistreerd bij het OBJECT. Geldige waardes zijn datumtijden gelegen
+            op of voor de huidige datum en tijd.
+        vernietigingsdatum:
+          type: string
+          format: date-time
+          nullable: true
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - aardRelatieWeergave
+      - informatieobject
+      - registratiedatum
+      - url
+      - uuid
+      - zaak
+    ZaakInformatieObjectSubRequest:
+      type: object
+      properties:
+        zaak:
+          type: string
+          format: uri
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        titel:
+          type: string
+          description: De naam waaronder het INFORMATIEOBJECT binnen het OBJECT bekend
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een op het object gerichte beschrijving van de inhoud vanhet
+            INFORMATIEOBJECT.
+        vernietigingsdatum:
+          type: string
+          format: date-time
+          nullable: true
+          description: De datum waarop het informatieobject uit het zaakdossier verwijderd
+            moet worden.
+        status:
+          type: string
+          format: uri
+          nullable: true
+          description: De bij de desbetreffende ZAAK behorende STATUS waarvoor het
+            ZAAK-INFORMATIEOBJECT relevant is (geweest) met het oog op het bereiken
+            van die STATUS en/of de communicatie daarover.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - zaak
     ZaakKenmerk:
       type: object
       properties:
@@ -17870,6 +18645,186 @@ components:
           woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSerializerRequest'
           zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSerializerRequest'
           overige: '#/components/schemas/overige_ZaakObjectSerializerRequest'
+    ZaakObjectSub:
+      oneOf:
+      - $ref: '#/components/schemas/adres_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/besluit_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/buurt_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/gemeente_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/huishouden_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/medewerker_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/pand_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/status_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/terreindeel_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/vestiging_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/waterdeel_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/wegdeel_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/wijk_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/woonplaats_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/woz_object_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/overige_ZaakObjectSubSerializer'
+      discriminator:
+        propertyName: objectType
+        mapping:
+          adres: '#/components/schemas/adres_ZaakObjectSubSerializer'
+          besluit: '#/components/schemas/besluit_ZaakObjectSubSerializer'
+          buurt: '#/components/schemas/buurt_ZaakObjectSubSerializer'
+          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSubSerializer'
+          gemeente: '#/components/schemas/gemeente_ZaakObjectSubSerializer'
+          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSubSerializer'
+          huishouden: '#/components/schemas/huishouden_ZaakObjectSubSerializer'
+          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSubSerializer'
+          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSubSerializer'
+          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSubSerializer'
+          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSubSerializer'
+          medewerker: '#/components/schemas/medewerker_ZaakObjectSubSerializer'
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializer'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializer'
+          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializer'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializer'
+          pand: '#/components/schemas/pand_ZaakObjectSubSerializer'
+          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializer'
+          status: '#/components/schemas/status_ZaakObjectSubSerializer'
+          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSubSerializer'
+          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSubSerializer'
+          vestiging: '#/components/schemas/vestiging_ZaakObjectSubSerializer'
+          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSubSerializer'
+          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSubSerializer'
+          wijk: '#/components/schemas/wijk_ZaakObjectSubSerializer'
+          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSubSerializer'
+          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSubSerializer'
+          woz_object: '#/components/schemas/woz_object_ZaakObjectSubSerializer'
+          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSubSerializer'
+          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSubSerializer'
+          overige: '#/components/schemas/overige_ZaakObjectSubSerializer'
+    ZaakObjectSubRequest:
+      oneOf:
+      - $ref: '#/components/schemas/adres_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/besluit_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/buurt_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/enkelvoudig_document_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/gemeente_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/huishouden_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/inrichtingselement_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/kunstwerkdeel_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/status_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/terreindeel_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/waterdeel_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/wegdeel_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/wijk_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/woonplaats_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/woz_deelobject_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/woz_object_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/woz_waarde_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/zakelijk_recht_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/overige_ZaakObjectSubSerializerRequest'
+      discriminator:
+        propertyName: objectType
+        mapping:
+          adres: '#/components/schemas/adres_ZaakObjectSubSerializerRequest'
+          besluit: '#/components/schemas/besluit_ZaakObjectSubSerializerRequest'
+          buurt: '#/components/schemas/buurt_ZaakObjectSubSerializerRequest'
+          enkelvoudig_document: '#/components/schemas/enkelvoudig_document_ZaakObjectSubSerializerRequest'
+          gemeente: '#/components/schemas/gemeente_ZaakObjectSubSerializerRequest'
+          gemeentelijke_openbare_ruimte: '#/components/schemas/gemeentelijke_openbare_ruimte_ZaakObjectSubSerializerRequest'
+          huishouden: '#/components/schemas/huishouden_ZaakObjectSubSerializerRequest'
+          inrichtingselement: '#/components/schemas/inrichtingselement_ZaakObjectSubSerializerRequest'
+          kadastrale_onroerende_zaak: '#/components/schemas/kadastrale_onroerende_zaak_ZaakObjectSubSerializerRequest'
+          kunstwerkdeel: '#/components/schemas/kunstwerkdeel_ZaakObjectSubSerializerRequest'
+          maatschappelijke_activiteit: '#/components/schemas/maatschappelijke_activiteit_ZaakObjectSubSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_ZaakObjectSubSerializerRequest'
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_ZaakObjectSubSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest'
+          openbare_ruimte: '#/components/schemas/openbare_ruimte_ZaakObjectSubSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_ZaakObjectSubSerializerRequest'
+          pand: '#/components/schemas/pand_ZaakObjectSubSerializerRequest'
+          spoorbaandeel: '#/components/schemas/spoorbaandeel_ZaakObjectSubSerializerRequest'
+          status: '#/components/schemas/status_ZaakObjectSubSerializerRequest'
+          terreindeel: '#/components/schemas/terreindeel_ZaakObjectSubSerializerRequest'
+          terrein_gebouwd_object: '#/components/schemas/terrein_gebouwd_object_ZaakObjectSubSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_ZaakObjectSubSerializerRequest'
+          waterdeel: '#/components/schemas/waterdeel_ZaakObjectSubSerializerRequest'
+          wegdeel: '#/components/schemas/wegdeel_ZaakObjectSubSerializerRequest'
+          wijk: '#/components/schemas/wijk_ZaakObjectSubSerializerRequest'
+          woonplaats: '#/components/schemas/woonplaats_ZaakObjectSubSerializerRequest'
+          woz_deelobject: '#/components/schemas/woz_deelobject_ZaakObjectSubSerializerRequest'
+          woz_object: '#/components/schemas/woz_object_ZaakObjectSubSerializerRequest'
+          woz_waarde: '#/components/schemas/woz_waarde_ZaakObjectSubSerializerRequest'
+          zakelijk_recht: '#/components/schemas/zakelijk_recht_ZaakObjectSubSerializerRequest'
+          overige: '#/components/schemas/overige_ZaakObjectSubSerializerRequest'
+    ZaakRegistreren:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/Zaak'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolSub'
+        zaakinformatieobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakInformatieObjectSub'
+        zaakobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakObjectSub'
+        status:
+          $ref: '#/components/schemas/StatusSub'
+      required:
+      - rollen
+      - status
+      - zaak
+    ZaakRegistrerenRequest:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakRequest'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolSubRequest'
+        zaakinformatieobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakInformatieObjectSubRequest'
+        zaakobjecten:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakObjectSubRequest'
+        status:
+          $ref: '#/components/schemas/StatusSubRequest'
+      required:
+      - rollen
+      - status
+      - zaak
     ZaakRequest:
       type: object
       description: |-
@@ -18165,25 +19120,47 @@ components:
     adres_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectAdres'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdres'
     adres_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectAdresRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdresRequest'
+    adres_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdres'
+    adres_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdresRequest'
     besluit_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
     besluit_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+    besluit_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+    besluit_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
     buurt_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectBuurt'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurt'
     buurt_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectBuurtRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurtRequest'
+    buurt_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurt'
+    buurt_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurtRequest'
     eHerkenningAuthContext:
       type: object
       properties:
@@ -18391,62 +19368,124 @@ components:
     enkelvoudig_document_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+    enkelvoudig_document_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+    enkelvoudig_document_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
     gemeente_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectGemeente'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeente'
     gemeente_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectGemeenteRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeenteRequest'
+    gemeente_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeente'
+    gemeente_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeenteRequest'
     gemeentelijke_openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
     gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
+    gemeentelijke_openbare_ruimte_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
+    gemeentelijke_openbare_ruimte_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
     huishouden_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectHuishouden'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishouden'
     huishouden_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectHuishoudenRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishoudenRequest'
+    huishouden_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishouden'
+    huishouden_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishoudenRequest'
     inrichtingselement_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselement'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselement'
     inrichtingselement_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselementRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselementRequest'
+    inrichtingselement_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselement'
+    inrichtingselement_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselementRequest'
     kadastrale_onroerende_zaak_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaak'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaak'
     kadastrale_onroerende_zaak_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
+    kadastrale_onroerende_zaak_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaak'
+    kadastrale_onroerende_zaak_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
     kunstwerkdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeel'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeel'
     kunstwerkdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeelRequest'
+    kunstwerkdeel_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeel'
+    kunstwerkdeel_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeelRequest'
     maatschappelijke_activiteit_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteit'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteit'
     maatschappelijke_activiteit_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
+    maatschappelijke_activiteit_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteit'
+    maatschappelijke_activiteit_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
     medewerker_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
@@ -18455,14 +19494,30 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
       - $ref: '#/components/schemas/RolMedewerkerRequest'
+    medewerker_RolSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializer'
+      - $ref: '#/components/schemas/RolMedewerker'
+    medewerker_RolSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolMedewerkerRequest'
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatie'
     medewerker_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatieRequest'
+    medewerker_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatie'
+    medewerker_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatieRequest'
     natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
@@ -18471,14 +19526,30 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
       - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
+    natuurlijk_persoon_RolSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializer'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoon'
+    natuurlijk_persoon_RolSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatie'
     natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatieRequest'
+    natuurlijk_persoon_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatie'
+    natuurlijk_persoon_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatieRequest'
     niet_natuurlijk_persoon_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
@@ -18487,14 +19558,30 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
       - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
+    niet_natuurlijk_persoon_RolSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializer'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
+    niet_natuurlijk_persoon_RolSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatie'
     niet_natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
+    niet_natuurlijk_persoon_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatie'
+    niet_natuurlijk_persoon_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
     object_identificatie_MedewerkerIdentificatie:
       type: object
       properties:
@@ -18775,14 +19862,302 @@ components:
       properties:
         objectIdentificatie:
           $ref: '#/components/schemas/VestigingIdentificatieRequest'
+    object_identificatie_object_identificatie_MedewerkerIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatie'
+    object_identificatie_object_identificatie_MedewerkerIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatieRequest'
+    object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatie'
+    object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatieRequest'
+    object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatie'
+    object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
+    object_identificatie_object_identificatie_ObjectAdres:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectAdres'
+    object_identificatie_object_identificatie_ObjectAdresRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectAdresRequest'
+    object_identificatie_object_identificatie_ObjectBuurt:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectBuurt'
+    object_identificatie_object_identificatie_ObjectBuurtRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectBuurtRequest'
+    object_identificatie_object_identificatie_ObjectGemeente:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectGemeente'
+    object_identificatie_object_identificatie_ObjectGemeenteRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectGemeenteRequest'
+    object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimte:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
+    object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
+    object_identificatie_object_identificatie_ObjectHuishouden:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectHuishouden'
+    object_identificatie_object_identificatie_ObjectHuishoudenRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectHuishoudenRequest'
+    object_identificatie_object_identificatie_ObjectInrichtingselement:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselement'
+    object_identificatie_object_identificatie_ObjectInrichtingselementRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselementRequest'
+    object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaak:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaak'
+    object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaakRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
+    object_identificatie_object_identificatie_ObjectKunstwerkdeel:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeel'
+    object_identificatie_object_identificatie_ObjectKunstwerkdeelRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeelRequest'
+    object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteit:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteit'
+    object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteitRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
+    object_identificatie_object_identificatie_ObjectOpenbareRuimte:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimte'
+    object_identificatie_object_identificatie_ObjectOpenbareRuimteRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimteRequest'
+    object_identificatie_object_identificatie_ObjectOverige:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectOverige'
+    object_identificatie_object_identificatie_ObjectOverigeRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectOverigeRequest'
+    object_identificatie_object_identificatie_ObjectPand:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectPand'
+    object_identificatie_object_identificatie_ObjectPandRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
+    object_identificatie_object_identificatie_ObjectSpoorbaandeel:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeel'
+    object_identificatie_object_identificatie_ObjectSpoorbaandeelRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeelRequest'
+    object_identificatie_object_identificatie_ObjectTerreinGebouwdObject:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObject'
+    object_identificatie_object_identificatie_ObjectTerreinGebouwdObjectRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObjectRequest'
+    object_identificatie_object_identificatie_ObjectTerreindeel:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectTerreindeel'
+    object_identificatie_object_identificatie_ObjectTerreindeelRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectTerreindeelRequest'
+    object_identificatie_object_identificatie_ObjectWaterdeel:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWaterdeel'
+    object_identificatie_object_identificatie_ObjectWaterdeelRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWaterdeelRequest'
+    object_identificatie_object_identificatie_ObjectWegdeel:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWegdeel'
+    object_identificatie_object_identificatie_ObjectWegdeelRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWegdeelRequest'
+    object_identificatie_object_identificatie_ObjectWijk:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWijk'
+    object_identificatie_object_identificatie_ObjectWijkRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWijkRequest'
+    object_identificatie_object_identificatie_ObjectWoonplaats:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWoonplaats'
+    object_identificatie_object_identificatie_ObjectWoonplaatsRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWoonplaatsRequest'
+    object_identificatie_object_identificatie_ObjectWozDeelobject:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobject'
+    object_identificatie_object_identificatie_ObjectWozDeelobjectRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobjectRequest'
+    object_identificatie_object_identificatie_ObjectWozObject:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozObject'
+    object_identificatie_object_identificatie_ObjectWozObjectRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozObjectRequest'
+    object_identificatie_object_identificatie_ObjectWozWaarde:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozWaarde'
+    object_identificatie_object_identificatie_ObjectWozWaardeRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectWozWaardeRequest'
+    object_identificatie_object_identificatie_ObjectZakelijkRecht:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRecht'
+    object_identificatie_object_identificatie_ObjectZakelijkRechtRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRechtRequest'
+    object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatie'
+    object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
+    object_identificatie_object_identificatie_VestigingIdentificatie:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_VestigingIdentificatie'
+    object_identificatie_object_identificatie_VestigingIdentificatieRequest:
+      type: object
+      properties:
+        objectIdentificatie:
+          $ref: '#/components/schemas/object_identificatie_VestigingIdentificatieRequest'
     openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimte'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimte'
     openbare_ruimte_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimteRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimteRequest'
+    openbare_ruimte_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimte'
+    openbare_ruimte_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimteRequest'
     organisatorische_eenheid_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
@@ -18791,60 +20166,122 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
       - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
+    organisatorische_eenheid_RolSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializer'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheid'
+    organisatorische_eenheid_RolSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatie'
     organisatorische_eenheid_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
+    organisatorische_eenheid_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatie'
+    organisatorische_eenheid_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
     overige_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectOverige'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverige'
     overige_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectOverigeRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverigeRequest'
+    overige_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverige'
+    overige_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverigeRequest'
     pand_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectPand'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPand'
     pand_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPandRequest'
+    pand_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPand'
+    pand_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPandRequest'
     spoorbaandeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeel'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeel'
     spoorbaandeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeelRequest'
+    spoorbaandeel_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeel'
+    spoorbaandeel_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeelRequest'
     status_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
     status_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
+    status_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+    status_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
     terrein_gebouwd_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObject'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObject'
     terrein_gebouwd_object_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObjectRequest'
+    terrein_gebouwd_object_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObject'
+    terrein_gebouwd_object_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObjectRequest'
     terreindeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeel'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeel'
     terreindeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeelRequest'
+    terreindeel_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeel'
+    terreindeel_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeelRequest'
     vestiging_RolSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializer'
@@ -18853,78 +20290,158 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSerializerRequest'
       - $ref: '#/components/schemas/RolVestigingRequest'
+    vestiging_RolSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializer'
+      - $ref: '#/components/schemas/RolVestiging'
+    vestiging_RolSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolVestigingRequest'
     vestiging_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatie'
     vestiging_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatieRequest'
+    vestiging_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatie'
+    vestiging_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatieRequest'
     waterdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeel'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeel'
     waterdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeelRequest'
+    waterdeel_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeel'
+    waterdeel_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeelRequest'
     wegdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWegdeel'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeel'
     wegdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWegdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeelRequest'
+    wegdeel_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeel'
+    wegdeel_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeelRequest'
     wijk_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWijk'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijk'
     wijk_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWijkRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijkRequest'
+    wijk_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijk'
+    wijk_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijkRequest'
     woonplaats_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaats'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaats'
     woonplaats_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaatsRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaatsRequest'
+    woonplaats_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaats'
+    woonplaats_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaatsRequest'
     woz_deelobject_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobject'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobject'
     woz_deelobject_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobjectRequest'
+    woz_deelobject_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobject'
+    woz_deelobject_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobjectRequest'
     woz_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozObject'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObject'
     woz_object_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozObjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObjectRequest'
+    woz_object_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObject'
+    woz_object_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObjectRequest'
     woz_waarde_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozWaarde'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaarde'
     woz_waarde_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectWozWaardeRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaardeRequest'
+    woz_waarde_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaarde'
+    woz_waarde_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaardeRequest'
     zakelijk_recht_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRecht'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRecht'
     zakelijk_recht_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRechtRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRechtRequest'
+    zakelijk_recht_ZaakObjectSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRecht'
+    zakelijk_recht_ZaakObjectSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_ZaakObjectSubSerializerRequest'
+      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRechtRequest'
   securitySchemes:
     JWT-Claims:
       type: http

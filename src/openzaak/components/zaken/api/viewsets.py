@@ -94,7 +94,11 @@ from .filters import (
 )
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
-from .permissions import ZaakAuthRequired, ZaakNestedAuthRequired
+from .permissions import (
+    ZaakAuthRequired,
+    ZaakNestedAuthRequired,
+    ZaaKRegistrerenAuthRequired,
+)
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -118,6 +122,7 @@ from .serializers import (
     ZaakInformatieObjectSerializer,
     ZaakNotitieSerializer,
     ZaakObjectSerializer,
+    ZaakRegistrerenSerializer,
     ZaakSerializer,
     ZaakVerzoekSerializer,
     ZaakZoekSerializer,
@@ -1950,3 +1955,37 @@ class ZaakNotitieViewSet(
         "update": SCOPE_ZAKEN_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN,
     }
+
+@extend_schema(
+    summary="Registreer een zaak",
+    description=mark_experimental(
+        ""  # TODO
+    ),
+)
+class ZaakRegistrerenViewset(viewsets.ViewSet):
+    serializer_class = ZaakRegistrerenSerializer
+    permission_classes = (ZaaKRegistrerenAuthRequired,)
+    required_scopes = {
+        "create": SCOPE_ZAKEN_CREATE
+        & (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
+    }
+
+    viewset_classes = {
+        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return response
+
+    def perform_create(self, serializer):
+        serializer.save()
