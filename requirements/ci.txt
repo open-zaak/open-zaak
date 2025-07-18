@@ -125,7 +125,7 @@ cmislib-maykin==0.7.4
     #   drc-cmis
 codecov==2.1.13
     # via -r requirements/test-tools.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@6eddd373d9002d79c43a754e87fea2cb3b804632
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@718f17841ac839a9f214a898008f14e3e085a80d
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -584,7 +584,7 @@ mozilla-django-oidc-db==0.22.0
     #   open-api-framework
 multidict==6.1.0
     # via yarl
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@ee8afe8879591cb2785bb5711359fb6413e35c48
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@dd010040a2756081b015fc709550e2e9133503ff
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
