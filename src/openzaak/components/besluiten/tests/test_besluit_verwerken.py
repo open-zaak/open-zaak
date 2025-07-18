@@ -339,3 +339,21 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data["invalid_params"]), 1)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "unique")
+
+    def test_invalid_informatieobject(self):
+        content = {
+            "besluit": self.besluit,
+            "besluitinformatieobjecten": [
+                {"informatieobject": 'http://testserver/documenten/api/v1/enkelvoudiginformatieobjecten/852e5ca8-cdbe-42ab-ae80-aa79a15cc9e4'},
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        self.assertEqual(len(response.data["invalid_params"]), 1)
+        error = get_validation_errors(response, "besluitinformatieobjecten.0.informatieobject")
+        self.assertEqual(error["code"], "does_not_exist")

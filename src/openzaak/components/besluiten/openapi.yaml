@@ -2364,13 +2364,6 @@ components:
       - wijzigingen
     Besluit:
       type: object
-      description: |-
-        Convert None values to the empty-value field type.
-
-        DRF skips the :meth:`rest_framework.fields.Field.to_representation` call if the
-        value of the instance is ``None``. However, fields can be not-nullable (indicated
-        by ``allow_null=False``), which means the value must be converted to the empty value
-        for that particular field type.
       properties:
         url:
           type: string
@@ -2490,7 +2483,26 @@ components:
       - besluit
       - informatieobject
       - url
-    BesluitInformatieObjectReadOnly:
+    BesluitInformatieObjectRequest:
+      type: object
+      properties:
+        informatieobject:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API) waarin (een deel van) het besluit beschreven is.
+          format: uri
+          maxLength: 1000
+        besluit:
+          type: string
+          format: uri
+          description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
+      required:
+      - besluit
+      - informatieobject
+    BesluitInformatieObjectSub:
       type: object
       properties:
         url:
@@ -2519,7 +2531,7 @@ components:
       - besluit
       - informatieobject
       - url
-    BesluitInformatieObjectReadOnlyRequest:
+    BesluitInformatieObjectSubRequest:
       type: object
       properties:
         informatieobject:
@@ -2530,35 +2542,9 @@ components:
           format: uri
           maxLength: 1000
       required:
-      - informatieobject
-    BesluitInformatieObjectRequest:
-      type: object
-      properties:
-        informatieobject:
-          type: string
-          minLength: 1
-          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
-            API) waarin (een deel van) het besluit beschreven is.
-          format: uri
-          maxLength: 1000
-        besluit:
-          type: string
-          format: uri
-          description: URL-referentie naar het BESLUIT.
-          minLength: 1
-          maxLength: 1000
-      required:
-      - besluit
       - informatieobject
     BesluitRequest:
       type: object
-      description: |-
-        Convert None values to the empty-value field type.
-
-        DRF skips the :meth:`rest_framework.fields.Field.to_representation` call if the
-        value of the instance is ``None``. However, fields can be not-nullable (indicated
-        by ``allow_null=False``), which means the value must be converted to the empty value
-        for that particular field type.
       properties:
         identificatie:
           type: string
@@ -2646,7 +2632,7 @@ components:
         besluitinformatieobjecten:
           type: array
           items:
-            $ref: '#/components/schemas/BesluitInformatieObjectReadOnly'
+            $ref: '#/components/schemas/BesluitInformatieObjectSub'
       required:
       - besluit
       - besluitinformatieobjecten
@@ -2658,7 +2644,7 @@ components:
         besluitinformatieobjecten:
           type: array
           items:
-            $ref: '#/components/schemas/BesluitInformatieObjectReadOnlyRequest'
+            $ref: '#/components/schemas/BesluitInformatieObjectSubRequest'
       required:
       - besluit
       - besluitinformatieobjecten
@@ -2748,13 +2734,6 @@ components:
             $ref: '#/components/schemas/Besluit'
     PatchedBesluitRequest:
       type: object
-      description: |-
-        Convert None values to the empty-value field type.
-
-        DRF skips the :meth:`rest_framework.fields.Field.to_representation` call if the
-        value of the instance is ``None``. However, fields can be not-nullable (indicated
-        by ``allow_null=False``), which means the value must be converted to the empty value
-        for that particular field type.
       properties:
         identificatie:
           type: string

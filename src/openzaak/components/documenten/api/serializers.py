@@ -45,7 +45,7 @@ from openzaak.utils.validators import (
 )
 
 from ...zaken.api.serializers import (
-    ZaakInformatieObjectReadOnlySerializer,
+    ZaakInformatieObjectSubSerializer,
     ZaakInformatieObjectSerializer,
 )
 from ..constants import (
@@ -1172,7 +1172,7 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
 
 class DocumentRegistrerenSerializer(serializers.Serializer):
     enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
-    zaakinformatieobject = ZaakInformatieObjectReadOnlySerializer()
+    zaakinformatieobject = ZaakInformatieObjectSubSerializer()
 
     @transaction.atomic
     def create(self, validated_data):
