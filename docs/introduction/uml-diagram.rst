@@ -1,6 +1,6 @@
 UML Diagrams
 ============
 
-This section contains the UML diagrams for the components.
+This section contains UML diagrams for resources per components.
 
 .. uml_images::

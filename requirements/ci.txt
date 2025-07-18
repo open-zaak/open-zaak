@@ -49,10 +49,11 @@ billiard==4.2.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   celery
-bleach==6.1.0
+bleach==6.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   django-markup
 boltons==24.0.0
     # via
     #   -c requirements/base.txt
@@ -162,11 +163,6 @@ cryptography==44.0.1
     #   webauthn
 cssselect==1.2.0
     # via pyquery
-deprecated==1.2.14
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
-    #   redis
 dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
@@ -208,6 +204,7 @@ django==5.2.3
     #   django-two-factor-auth
     #   django-upgrade-check
     #   djangorestframework
+    #   djangorestframework-gis
     #   djangorestframework-inclusions
     #   drc-cmis
     #   drf-extra-fields
@@ -244,7 +241,7 @@ django-celery-beat==2.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django-cors-headers==4.4.0
+django-cors-headers==4.7.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -270,6 +267,7 @@ django-filter==24.2
     #   -r requirements/base.txt
     #   commonground-api-common
     #   django-loose-fk
+    #   djangorestframework-gis
     #   open-api-framework
 django-formtools==2.5.1
     # via
@@ -296,7 +294,7 @@ django-loose-fk==1.1.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django-markup==1.8.1
+django-markup==1.9.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -320,7 +318,7 @@ django-privates==3.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-simple-certmanager
-django-redis==5.4.0
+django-redis==6.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -408,7 +406,7 @@ djangorestframework-camel-case==1.4.2
     #   -r requirements/base.txt
     #   commonground-api-common
     #   notifications-api-common
-djangorestframework-gis==1.0
+djangorestframework-gis==1.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -420,7 +418,9 @@ docutils==0.21.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   django-markup
     #   django-setup-configuration
+    #   python-creole
     #   recommonmark
     #   sphinx
     #   sphinx-rtd-theme
@@ -566,6 +566,7 @@ markdown==3.3.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   django-markup
     #   sphinx-markdown-tables
 markupsafe==2.1.1
     # via
@@ -589,6 +590,11 @@ mozilla-django-oidc-db==0.22.0
     #   open-api-framework
 multidict==6.1.0
     # via yarl
+nh3==0.3.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   textile
 notifications-api-common==0.8.1
     # via
     #   -c requirements/base.txt
@@ -608,13 +614,12 @@ oyaml==1.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-packaging==24.0
+packaging==25.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   kombu
     #   pytest
-    #   redis
     #   sphinx
 phonenumberslite==8.13.35
     # via
@@ -628,7 +633,7 @@ platformdirs==4.3.8
     #   requests-cache
 pluggy==1.5.0
     # via pytest
-prometheus-client==0.15.0
+prometheus-client==0.22.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -677,8 +682,11 @@ pydantic-settings==2.7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
-pygments==2.18.0
+pygments==2.19.2
     # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-markup
     #   sphinx
     #   sphinx-tabs
 pyjwt==2.10.1
@@ -718,6 +726,11 @@ pytest==8.3.3
     #   pytest-benchmark
 pytest-benchmark==5.1.0
     # via -r requirements/performance-tests.in
+python-creole==1.4.10
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-markup
 python-crontab==3.2.0
     # via
     #   -c requirements/base.txt
@@ -749,7 +762,7 @@ python-ipware==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-ipware
-pytz==2022.6
+pytz==2025.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -770,11 +783,16 @@ qrcode==7.4.2
     #   django-two-factor-auth
 recommonmark==0.7.1
     # via -r requirements/test-tools.in
-redis==4.1.4
+redis==6.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-redis
+regex==2024.11.6
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   textile
 requests==2.32.4
     # via
     #   -c requirements/base.txt
@@ -830,7 +848,6 @@ six==1.16.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   bleach
     #   click-repl
     #   cmislib-maykin
     #   django-db-logger
@@ -838,6 +855,11 @@ six==1.16.0
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
+smartypants==2.0.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-markup
 snowballstemmer==2.2.0
     # via sphinx
 soupsieve==1.9.5
@@ -891,7 +913,12 @@ structlog==25.4.0
     #   django-structlog
 tblib==1.7.0
     # via -r requirements/test-tools.in
-tornado==6.5
+textile==4.0.3
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-markup
+tornado==6.5.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -936,7 +963,7 @@ urllib3==2.5.0
     #   requests-cache
     #   sentry-sdk
     #   vcrpy
-uwsgi==2.0.26
+uwsgi==2.0.30
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -974,7 +1001,6 @@ wrapt==1.16.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   deprecated
     #   elastic-apm
     #   vcrpy
 yarl==1.17.1
