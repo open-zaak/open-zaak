@@ -32,6 +32,20 @@ if SENTRY_DSN:
 #
 # DATABASE and CACHING setup
 #
+
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = config(
+    "DB_DISABLE_SERVER_SIDE_CURSORS",
+    False,
+    help_text=(
+        "Whether or not server side cursors should be disabled for Postgres connections. "
+        "Setting this to true is required when using a connection pooler in "
+        "transaction mode (like PgBouncer). "
+        "**WARNING:** the effect of disabling server side cursors on performance has not "
+        "been thoroughly tested yet."
+    ),
+    group="Database",
+)
+
 # Define this variable here to ensure it shows up in the envvar documentation
 DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 

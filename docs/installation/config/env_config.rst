@@ -41,6 +41,7 @@ Database
 * ``DB_POOL_MAX_IDLE``: Maximum time, in seconds, that a connection can stay unused in the pool before being closed, and the pool shrunk. This only happens to connections more than min_size, if max_size allowed the pool to grow. Defaults to: ``600``.
 * ``DB_POOL_RECONNECT_TIMEOUT``: Maximum time, in seconds, the pool will try to create a connection. If a connection attempt fails, the pool will try to reconnect a few times, using an exponential backoff and some random factor to avoid mass attempts. If repeated attempts fail, after reconnect_timeout second the connection attempt is aborted and the reconnect_failed() callback invoked. Defaults to: ``300``.
 * ``DB_POOL_NUM_WORKERS``: Number of background worker threads used to maintain the pool state. Background workers are used for example to create new connections and to clean up connections when they are returned to the pool. Defaults to: ``3``.
+* ``DB_DISABLE_SERVER_SIDE_CURSORS``: Whether or not server side cursors should be disabled for Postgres connections. Setting this to true is required when using a connection pooler in transaction mode (like PgBouncer). **WARNING:** the effect of disabling server side cursors on performance has not been thoroughly tested yet. Defaults to: ``False``.
 
 
 Logging
