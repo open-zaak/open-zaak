@@ -32,6 +32,9 @@ if SENTRY_DSN:
 #
 # DATABASE and CACHING setup
 #
+
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+
 # Define this variable here to ensure it shows up in the envvar documentation
 DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 
