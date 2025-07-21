@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Dump component data
+# This script is not intended for a data migration to another Open Zaak instance.
 # Run this script from the root of the repository
-# dump_data.sh for all apps or dump_data.sh zaken documenten ... to specify specific apps
+#
 # Note that postgres 17 requires postgres-client-17
 #
 # By default a schema and data dump are created separately. This can be changed with the flags --data-only, --schema-only
@@ -17,8 +18,8 @@ DEFAULT_APPS=(besluiten catalogi documenten zaken)
 
 export PGHOST=${DB_HOST:-db}
 export PGPORT=${DB_PORT:-5432}
-export PGUSER=${DB_USER:-postgres}
-export PGDATABASE=${DB_NAME:-postgres}
+export PGUSER=${DB_USER:-openzaak}
+export PGDATABASE=${DB_NAME:-openzaak}
 export PGPASSWORD=${DB_PASSWORD:-""}
 
 SCRIPT=$(readlink -f "$0")
