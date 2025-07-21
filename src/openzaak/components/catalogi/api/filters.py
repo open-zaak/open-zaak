@@ -30,11 +30,11 @@ from ..models import (
 )
 
 # custom filter to show concept and non-concepts
-STATUS_HELP_TEXT = """filter objects depending on their concept status:
+STATUS_HELP_TEXT = _("""filter objects depending on their concept status:
 * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
 * `concept`: Toon objecten waarvan het attribuut `concept` true is.
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-"""
+""")
 STATUS_VERSION_HELP_TEXT = _("""Object versions are based on `{version_field}` field, which means that objects with the same 
 `{version_field}` can be published (and have `definitief` status) only if they have 
 non-overlapping validity (geldigheids) dates.
