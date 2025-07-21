@@ -3,7 +3,11 @@
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import URLValidator
 from django.db import models
+from django.db.models import OuterRef, Subquery
+from django.urls.exceptions import Resolver404
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
@@ -121,6 +125,8 @@ class ZaakFilter(FilterSetWithGroups):
                 "rol__betrokkene_type",
                 "rol__betrokkene",
                 "rol__omschrijving_generiek",
+                "status__statustype",
+                "resultaat__resultaattype",
             ]
         )
     ]
@@ -147,6 +153,20 @@ class ZaakFilter(FilterSetWithGroups):
             "(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))"
         ),
         lookup_expr="icontains",
+    )
+
+    status__statustype = filters.CharFilter(
+        method="filter_current_status_statustype",
+        help_text=mark_experimental(
+            "Filter Zaken waarbij de huidige status het opgegeven statustype (URL) heeft."
+        ),
+        validators=[URLValidator()],
+    )
+
+    resultaat__resultaattype = filters.CharFilter(
+        method="filter_resultaattype_url",
+        help_text=mark_experimental("Filter Zaken with this resultaattype (URL)."),
+        validators=[URLValidator()],
     )
 
     maximale_vertrouwelijkheidaanduiding = MaximaleVertrouwelijkheidaanduidingFilter(
@@ -306,6 +326,34 @@ class ZaakFilter(FilterSetWithGroups):
             "rol__betrokkene": ["exact"],
             "rol__omschrijving_generiek": ["exact"],
         }
+
+    def filter_current_status_statustype(self, queryset, name, value):
+        parsed = urlparse(value)
+        try:
+            resource = get_resource_for_path(parsed.path)
+        except (ObjectDoesNotExist, Resolver404):
+            return queryset.none()
+
+        statustype_id = resource.id
+
+        latest_status_subquery = (
+            Status.objects.filter(zaak=OuterRef("pk"))
+            .order_by("-datum_status_gezet", "-pk")
+            .values("_statustype_id")[:1]
+        )
+
+        return queryset.annotate(
+            latest_statustype_id=Subquery(latest_status_subquery)
+        ).filter(latest_statustype_id=statustype_id)
+
+    def filter_resultaattype_url(self, queryset, name, value):
+        parsed = urlparse(value)
+        try:
+            resource = get_resource_for_path(parsed.path)
+        except (ObjectDoesNotExist, Resolver404):
+            return queryset.none()
+
+        return queryset.filter(resultaat__resultaattype=resource)
 
 
 class ZaakDetailFilter(FilterSet):
