@@ -10,20 +10,22 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.versioning import URLPathVersioning
 
 from openzaak.components.zaken.api.serializers import ZaakSerializer
-from openzaak.components.catalogi.api.serializers import ZaakTypeSerializer
 from openzaak.components.zaken.models import (
     Zaak,
 )
-from openzaak.components.catalogi.models import ZaakType
 from openzaak.utils import get_openzaak_domain
 
 logger = structlog.stdlib.get_logger(__name__)
 
 
 MODELS = [
-    (Zaak, ZaakSerializer,),
+    (
+        Zaak,
+        ZaakSerializer,
+    ),
     # (ZaakType, ZaakTypeSerializer,)
 ]
+
 
 class Command(BaseCommand):
     help = (
