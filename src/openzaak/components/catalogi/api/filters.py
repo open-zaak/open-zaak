@@ -30,11 +30,15 @@ from ..models import (
 )
 
 # custom filter to show concept and non-concepts
-STATUS_HELP_TEXT = """filter objects depending on their concept status:
+STATUS_HELP_TEXT = _("""filter objects depending on their concept status:
 * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
 * `concept`: Toon objecten waarvan het attribuut `concept` true is.
 * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-"""
+""")
+STATUS_VERSION_HELP_TEXT = _("""Object versions are based on `{version_field}` field, which means that objects with the same
+`{version_field}` can be published (and have `definitief` status) only if they have
+non-overlapping validity (geldigheids) dates.
+""")
 DATUM_GELDIGHEID_HELP_TEXT = "filter objecten op hun geldigheids datum."
 
 
@@ -198,7 +202,9 @@ class ZaakTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_HELP_TEXT
+        + "\n"
+        + STATUS_VERSION_HELP_TEXT.format(version_field="identificatie"),
         choices=StatusChoices.choices,
     )
     trefwoorden = CharArrayFilter(field_name="trefwoorden", lookup_expr="contains")
@@ -222,7 +228,9 @@ class InformatieObjectTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_HELP_TEXT
+        + "\n"
+        + STATUS_VERSION_HELP_TEXT.format(version_field="omschrijving"),
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(
@@ -265,7 +273,9 @@ class BesluitTypeFilter(FilterSet):
     status = filters.ChoiceFilter(
         field_name="concept",
         method=status_filter,
-        help_text=STATUS_HELP_TEXT,
+        help_text=STATUS_HELP_TEXT
+        + "\n"
+        + STATUS_VERSION_HELP_TEXT.format(version_field="omschrijving"),
         choices=StatusChoices.choices,
     )
     datum_geldigheid = filters.DateFilter(

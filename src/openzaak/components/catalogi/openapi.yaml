@@ -171,13 +171,14 @@ paths:
           - alles
           - concept
           - definitief
-        description: |+
-          filter objects depending on their concept status:
-          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-
-
+        description: "filter objects depending on their concept status:\n* `alles`:\
+          \ Toon objecten waarvan het attribuut `concept` true of false is.\n* `concept`:\
+          \ Toon objecten waarvan het attribuut `concept` true is.\n* `definitief`:\
+          \ Toon objecten waarvan het attribuut `concept` false is (standaard).\n\
+          Object versions are based on `omschrijving` field, which means that objects\
+          \ with the same \n`omschrijving` can be published (and have `definitief`\
+          \ status) only if they have \nnon-overlapping validity (geldigheids) dates.\n\
+          \n\n"
       - in: query
         name: zaaktypen
         schema:
@@ -2858,13 +2859,14 @@ paths:
           - alles
           - concept
           - definitief
-        description: |+
-          filter objects depending on their concept status:
-          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-
-
+        description: "filter objects depending on their concept status:\n* `alles`:\
+          \ Toon objecten waarvan het attribuut `concept` true of false is.\n* `concept`:\
+          \ Toon objecten waarvan het attribuut `concept` true is.\n* `definitief`:\
+          \ Toon objecten waarvan het attribuut `concept` false is (standaard).\n\
+          Object versions are based on `omschrijving` field, which means that objects\
+          \ with the same \n`omschrijving` can be published (and have `definitief`\
+          \ status) only if they have \nnon-overlapping validity (geldigheids) dates.\n\
+          \n\n"
       - in: query
         name: zaaktype
         schema:
@@ -9058,13 +9060,14 @@ paths:
           - alles
           - concept
           - definitief
-        description: |+
-          filter objects depending on their concept status:
-          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
-          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
-          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
-
-
+        description: "filter objects depending on their concept status:\n* `alles`:\
+          \ Toon objecten waarvan het attribuut `concept` true of false is.\n* `concept`:\
+          \ Toon objecten waarvan het attribuut `concept` true is.\n* `definitief`:\
+          \ Toon objecten waarvan het attribuut `concept` false is (standaard).\n\
+          Object versions are based on `identificatie` field, which means that objects\
+          \ with the same \n`identificatie` can be published (and have `definitief`\
+          \ status) only if they have \nnon-overlapping validity (geldigheids) dates.\n\
+          \n\n"
       - in: query
         name: trefwoorden
         schema:
