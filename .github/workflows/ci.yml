@@ -384,7 +384,8 @@ jobs:
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci
       docker-image-name: ${{ needs.store-reusable-workflow-vars.outputs.image-name }}
-      docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
+      # docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
+      run-docs: false
 
   open-api-publish:
     uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v5
