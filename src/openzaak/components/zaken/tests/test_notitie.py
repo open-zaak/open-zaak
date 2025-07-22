@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.notes.constants import NotitieStatus, NotitieType
-from vng_api_common.tests import reverse
+from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -101,7 +101,10 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(notitie.gerelateerd_aan, zaak)
 
     def test_update(self):
-        notitie = ZaakNotitieFactory.create(onderwerp="Old Value")
+        notitie = ZaakNotitieFactory.create(
+            onderwerp="Old Value",
+            status=NotitieStatus.CONCEPT,
+        )
         detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
         data = {
             "onderwerp": "New Value",
@@ -117,6 +120,20 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
 
         notitie = ZaakNotitie.objects.get()
         self.assertEqual(notitie.onderwerp, "New Value")
+
+        # test notitie with 'DEFINITIEF' status can no longer be edited
+        notitie = ZaakNotitie.objects.get()
+        notitie.status = NotitieStatus.DEFINITIEF
+        notitie.save()
+
+        response = self.client.put(detail_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "status")
+        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(
+            error["reason"],
+            "Notitie can only be modified when status is 'CONCEPT'",
+        )
 
     def test_delete(self):
         notitie = ZaakNotitieFactory.create(onderwerp="Old Value")

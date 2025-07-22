@@ -823,23 +823,32 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
             response_data[0]["url"], f"http://testserver{reverse(notitie)}"
         )
 
-    def test_read_permissions(self):
-        notitie = ZaakNotitieFactory.create(
-            gerelateerd_aan__zaaktype=self.zaaktype,
-            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+    def test_create_zaaknotitie_limited_to_authorized_zaken(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
         )
-        ZaakNotitieFactory.create(
-            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        for zaak in [zaak1, zaak2]:
+            with self.subTest(
+                zaaktype=zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            ):
+                response = self.client.post(self.url, {"gerelateerdAan": reverse(zaak)})
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        zaak3 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        ZaakNotitieFactory.create(
-            gerelateerd_aan__zaaktype=self.zaaktype,
-            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
-        )
-        response = self.client.get(self.url, **ZAAK_READ_KWARGS)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = response.data["results"]
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["url"], f"http://testserver{reverse(notitie)}")
+        data = {
+            "onderwerp": "Test onderwerp",
+            "tekst": "Test tekst",
+            "aangemaaktDoor": "Test",
+            "gerelateerdAan": reverse(zaak3),
+        }
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_write_operations_forbidden(self):
         # scope not provided for writes, so this should 403 (not 404!)

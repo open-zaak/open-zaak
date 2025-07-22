@@ -45,7 +45,7 @@ router.register("zaakinformatieobjecten", ZaakInformatieObjectViewSet)
 router.register("zaakcontactmomenten", ZaakContactMomentViewSet)
 router.register("zaakverzoeken", ZaakVerzoekViewSet)
 router.register("zaaknummer_reserveren", ReserveerZaakNummerViewSet)
-router.register("notities", ZaakNotitieViewSet)
+router.register("zaaknotities", ZaakNotitieViewSet)
 
 # XXX: alias for this endpoint, will be removed in 2.0
 router.register(

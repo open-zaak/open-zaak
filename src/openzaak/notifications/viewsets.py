@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from typing import Dict, List, Union
-from urllib.parse import urlparse
+from django.db import transaction
 
 from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import NotificationMixin

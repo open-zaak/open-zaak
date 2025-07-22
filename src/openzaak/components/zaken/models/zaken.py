@@ -1788,5 +1788,5 @@ class ZaakNotitie(APIMixin, NotitieBaseClass):
     objects = ZaakNotitieQuerySet.as_manager()
 
     class Meta:
-        verbose_name = "zaaknotitie"
-        verbose_name_plural = "zaaknotities"
+        verbose_name = _("zaaknotitie")
+        verbose_name_plural = _("zaaknotities")
