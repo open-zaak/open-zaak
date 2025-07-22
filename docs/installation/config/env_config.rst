@@ -32,7 +32,7 @@ Database
 * ``DB_PASSWORD``: password of the database user. Defaults to: ``openzaak``.
 * ``DB_HOST``: hostname of the PostgreSQL database. Defaults to ``db`` for the docker environment, otherwise defaults to ``localhost``.
 * ``DB_PORT``: port number of the database. Defaults to: ``5432``.
-* ``DB_CONN_MAX_AGE``: The lifetime of a database connection, as an integer of seconds. Use 0 to close database connections at the end of each request — Django’s historical behavior. This setting cannot be set in combination with connection pooling. Defaults to: ``0``.
+* ``DB_CONN_MAX_AGE``: The lifetime of a database connection, as an integer of seconds. Use 0 to close database connections at the end of each request — Django’s historical behavior. This setting is ignored if connection pooling is used. Defaults to: ``60``.
 * ``DB_POOL_ENABLED``: Whether to use connection pooling. Defaults to: ``False``.
 * ``DB_POOL_MIN_SIZE``: The minimum number of connection the pool will hold. The pool will actively try to create new connections if some are lost (closed, broken) and will try to never go below min_size. Defaults to: ``4``.
 * ``DB_POOL_MAX_SIZE``: The maximum number of connections the pool will hold. If None, or equal to min_size, the pool will not grow or shrink. If larger than min_size, the pool can grow if more than min_size connections are requested at the same time and will shrink back after the extra connections have been unused for more than max_idle seconds. Defaults to: ``None``.
@@ -42,6 +42,7 @@ Database
 * ``DB_POOL_MAX_IDLE``: Maximum time, in seconds, that a connection can stay unused in the pool before being closed, and the pool shrunk. This only happens to connections more than min_size, if max_size allowed the pool to grow. Defaults to: ``600``.
 * ``DB_POOL_RECONNECT_TIMEOUT``: Maximum time, in seconds, the pool will try to create a connection. If a connection attempt fails, the pool will try to reconnect a few times, using an exponential backoff and some random factor to avoid mass attempts. If repeated attempts fail, after reconnect_timeout second the connection attempt is aborted and the reconnect_failed() callback invoked. Defaults to: ``300``.
 * ``DB_POOL_NUM_WORKERS``: Number of background worker threads used to maintain the pool state. Background workers are used for example to create new connections and to clean up connections when they are returned to the pool. Defaults to: ``3``.
+* ``DB_DISABLE_SERVER_SIDE_CURSORS``: Whether or not server side cursors should be disabled for Postgres connections. Setting this to true is required when using a connection pooler in transaction mode (like PgBouncer). **WARNING:** the effect of disabling server side cursors on performance has not been thoroughly tested yet. Defaults to: ``False``.
 
 
 Logging
