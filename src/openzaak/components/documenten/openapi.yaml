@@ -303,7 +303,7 @@ paths:
         required: true
       security:
       - JWT-Claims:
-        - (documenten.aanmaken & zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken)
+        - (documenten.aanmaken & (zaken.aanmaken | zaken.bijwerken | zaken.geforceerd-bijwerken))
       responses:
         '201':
           headers:

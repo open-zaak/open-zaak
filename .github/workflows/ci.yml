@@ -380,7 +380,7 @@ jobs:
     needs:
       - store-reusable-workflow-vars
     with:
-      apt-packages: "libgdal-dev gdal-bin"
+      apt-packages: "libgdal-dev gdal-bin graphviz graphviz-dev"
       main-branch: "main"
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci

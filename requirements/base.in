@@ -1,5 +1,5 @@
 open-api-framework[celery,cors,markup,geo,csp,commonground,inclusions,sanitization,server,redis]
-
+django-csp==3.8.0
 # Core python libraries
 jq
 jsonschema
@@ -17,6 +17,7 @@ django-privates
 django-relativedelta
 django-celery-beat
 django-structlog[celery]
+django-extensions
 
 # Admin and UI libraries
 django-sniplates

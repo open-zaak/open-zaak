@@ -9,6 +9,7 @@ import os
 import sys
 
 import django
+from django.core.management import call_command
 from django.utils.translation import activate
 
 sys.path.insert(0, os.path.abspath("../src"))
@@ -52,13 +53,16 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.graphviz",
     "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
     "sphinx.ext.autodoc",
     "django_setup_configuration.documentation.setup_config_example",
     "django_setup_configuration.documentation.setup_config_usage",
+    "uml_directive.uml",
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -92,7 +96,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ["_static"]
 
 todo_include_todos = True
 
@@ -131,3 +135,64 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+
+#
+#   Datamodel image creation
+#
+graphviz_output_format = "png"
+
+
+def generate_django_model_graphs(app):
+    output_dir = os.path.join(app.srcdir, "_static", "uml")
+    os.makedirs(output_dir, exist_ok=True)
+
+    project_root = os.path.abspath(os.path.join(app.srcdir, ".."))
+    components_dir = os.path.join(project_root, "src", "openzaak", "components")
+
+    apps_in_components = [
+        d
+        for d in os.listdir(components_dir)
+        if os.path.isdir(os.path.join(components_dir, d))
+        and os.path.isfile(os.path.join(components_dir, d, "__init__.py"))
+    ]
+
+    # Define grouped apps you want in one diagram
+    grouped_apps = {
+        "autorisaties": ["autorisaties", "authorizations"],
+    }
+
+    for group_name, app_list in grouped_apps.items():
+        png_path = os.path.join(output_dir, f"{group_name}.png")
+        try:
+            call_command(
+                "graph_models",
+                *app_list,
+                output=png_path,
+                rankdir="LR",
+                hide_edge_labels=True,
+            )
+        except Exception as exc:
+            print(f"Failed to generate PNG for {group_name}: {exc}")
+
+    # Generate separate diagrams for the remaining apps
+    excluded_apps = set(app for group in grouped_apps.values() for app in group)
+    for comp in apps_in_components:
+        if comp in excluded_apps:
+            continue
+
+        png_path = os.path.join(output_dir, f"{comp}.png")
+        try:
+            call_command(
+                "graph_models",
+                comp,
+                output=png_path,
+                rankdir="LR",
+                hide_edge_labels=True,
+            )
+        except Exception as exc:
+            print(f"Failed to generate PNG for {comp}: {exc}")
+
+
+def setup(app):
+    app.connect("builder-inited", generate_django_model_graphs)
