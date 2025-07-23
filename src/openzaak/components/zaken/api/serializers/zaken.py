@@ -934,7 +934,7 @@ class StatusSubSerializer(StatusSerializer):
         read_only_fields = ("zaak",)
 
     def validate(self, attrs):
-        return attrs  # TODO test
+        return attrs
 
 
 class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
@@ -1368,6 +1368,9 @@ class RolSubSerializer(RolSerializer):
         # RolSerializer validates with zaak which this serializer won't have.
         validators = []
         read_only_fields = ("zaak",)
+
+    def validate(self, attrs):
+        return attrs
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):

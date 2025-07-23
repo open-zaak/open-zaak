@@ -334,8 +334,6 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             _status.datum_status_gezet.isoformat(), "2023-01-01T00:00:00+00:00"
         )
 
-        self.maxDiff = None
-
         expected_zaak_url = reverse(zaak)
         expected_rol_url = reverse(rol)
         expected_zio_url = reverse(zio)
@@ -454,6 +452,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
                     "uuid": str(zaakobject.uuid),
                     "zaak": f"http://testserver{expected_zaak_url}",
                     "zaakobjecttype": None,
+                    "objectIdentificatie": {"overigeData": {"someField": "some value"}},
                 }
             ],
             "status": {
@@ -574,4 +573,107 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+    def test_register_zaak_with_zaakobject_not_overig_and_object_type_overige(self):
+        self.zaakobject.pop("objectTypeOverige")
+
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "zaakinformatieobjecten": [self.zio],
+            "zaakobjecten": [self.zaakobject],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "missing-object-type-overige")
+
+    def test_register_zaak_with_rol_without_betrokkene(self):
+        self.rol.pop("betrokkene")
+
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "zaakinformatieobjecten": [self.zio],
+            "zaakobjecten": [self.zaakobject],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "invalid-betrokkene")
+
+    def test_with_other_rol_and_zaakobject_poly_type(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [
+                {
+                    "betrokkeneIdentificatie": {
+                        "kvkNummer": "12345678",
+                        "vestigingsNummer": "123456789012",
+                    },
+                    "betrokkene_type": RolTypes.vestiging,
+                    "roltype": f"http://testserver{self.roltype_url}",
+                    "roltoelichting": "awerw",
+                }
+            ],
+            "zaakinformatieobjecten": [self.zio],
+            "zaakobjecten": [
+                {
+                    "objectType": ZaakobjectTypes.medewerker,
+                    "objectIdentificatie": {
+                        "identificatie": "123456",
+                        "achternaam": "Jong",
+                        "voorletters": "J",
+                        "voorvoegselAchternaam": "van",
+                    },
+                }
+            ],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response_data = response.json()
+        betrokkene_identificatie = {
+            "handelsnaam": [],
+            "kvkNummer": "12345678",
+            "subVerblijfBuitenland": None,
+            "verblijfsadres": None,
+            "vestigingsNummer": "123456789012",
+        }
+
+        self.assertCountEqual(response_data["rollen"][0]["betrokkeneType"], "vestiging")
+        self.assertCountEqual(
+            response_data["rollen"][0]["betrokkeneIdentificatie"],
+            betrokkene_identificatie,
+        )
+
+        object_identificatie = {
+            "achternaam": "Jong",
+            "identificatie": "123456",
+            "voorletters": "J",
+            "voorvoegselAchternaam": "van",
+        }
+
+        self.assertCountEqual(
+            response_data["zaakobjecten"][0]["objectType"], "medewerker"
+        )
+        self.assertCountEqual(
+            response_data["zaakobjecten"][0]["objectIdentificatie"],
+            object_identificatie,
         )

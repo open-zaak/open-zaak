@@ -91,42 +91,46 @@ class ObjectTypeOverigeDefinitieSerializer(serializers.Serializer):
     )
 
 
+# TODO fix in cgac
+mapping = {
+    ZaakobjectTypes.adres: ObjectAdresSerializer(),
+    ZaakobjectTypes.besluit: None,
+    ZaakobjectTypes.buurt: ObjectBuurtSerializer(),
+    ZaakobjectTypes.enkelvoudig_document: None,
+    ZaakobjectTypes.gemeente: ObjectGemeenteSerializer(),
+    ZaakobjectTypes.gemeentelijke_openbare_ruimte: ObjectGemeentelijkeOpenbareRuimteSerializer(),
+    ZaakobjectTypes.huishouden: ObjectHuishoudenSerializer(),
+    ZaakobjectTypes.inrichtingselement: ObjectInrichtingselementSerializer(),
+    ZaakobjectTypes.kadastrale_onroerende_zaak: ObjectKadastraleOnroerendeZaakSerializer(),
+    ZaakobjectTypes.kunstwerkdeel: ObjectKunstwerkdeelSerializer(),
+    ZaakobjectTypes.maatschappelijke_activiteit: ObjectMaatschappelijkeActiviteitSerializer(),
+    ZaakobjectTypes.medewerker: MedewerkerIdentificatieSerializer(),
+    ZaakobjectTypes.natuurlijk_persoon: NatuurlijkPersoonIdentificatieSerializer(),
+    ZaakobjectTypes.niet_natuurlijk_persoon: NietNatuurlijkPersoonIdentificatieSerializer(),
+    ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
+    ZaakobjectTypes.organisatorische_eenheid: OrganisatorischeEenheidIdentificatieSerializer(),
+    ZaakobjectTypes.pand: ObjectPandSerializer(),
+    ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),
+    ZaakobjectTypes.status: None,
+    ZaakobjectTypes.terreindeel: ObjectTerreindeelSerializer(),
+    ZaakobjectTypes.terrein_gebouwd_object: ObjectTerreinGebouwdObjectSerializer(),
+    ZaakobjectTypes.vestiging: VestigingIdentificatieSerializer(),
+    ZaakobjectTypes.waterdeel: ObjectWaterdeelSerializer(),
+    ZaakobjectTypes.wegdeel: ObjectWegdeelSerializer(),
+    ZaakobjectTypes.wijk: ObjectWijkSerializer(),
+    ZaakobjectTypes.woonplaats: ObjectWoonplaatsSerializer(),
+    ZaakobjectTypes.woz_deelobject: ObjectWozDeelobjectSerializer(),
+    ZaakobjectTypes.woz_object: ObjectWozObjectSerializer(),
+    ZaakobjectTypes.woz_waarde: ObjectWozWaardeSerializer(),
+    ZaakobjectTypes.zakelijk_recht: ObjectZakelijkRechtSerializer(),
+    ZaakobjectTypes.overige: ObjectOverigeSerializer(),
+}
+
+
 class ZaakObjectSerializer(PolymorphicSerializer):
     discriminator = Discriminator(
         discriminator_field="object_type",
-        mapping={
-            ZaakobjectTypes.adres: ObjectAdresSerializer(),
-            ZaakobjectTypes.besluit: None,
-            ZaakobjectTypes.buurt: ObjectBuurtSerializer(),
-            ZaakobjectTypes.enkelvoudig_document: None,
-            ZaakobjectTypes.gemeente: ObjectGemeenteSerializer(),
-            ZaakobjectTypes.gemeentelijke_openbare_ruimte: ObjectGemeentelijkeOpenbareRuimteSerializer(),
-            ZaakobjectTypes.huishouden: ObjectHuishoudenSerializer(),
-            ZaakobjectTypes.inrichtingselement: ObjectInrichtingselementSerializer(),
-            ZaakobjectTypes.kadastrale_onroerende_zaak: ObjectKadastraleOnroerendeZaakSerializer(),
-            ZaakobjectTypes.kunstwerkdeel: ObjectKunstwerkdeelSerializer(),
-            ZaakobjectTypes.maatschappelijke_activiteit: ObjectMaatschappelijkeActiviteitSerializer(),
-            ZaakobjectTypes.medewerker: MedewerkerIdentificatieSerializer(),
-            ZaakobjectTypes.natuurlijk_persoon: NatuurlijkPersoonIdentificatieSerializer(),
-            ZaakobjectTypes.niet_natuurlijk_persoon: NietNatuurlijkPersoonIdentificatieSerializer(),
-            ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
-            ZaakobjectTypes.organisatorische_eenheid: OrganisatorischeEenheidIdentificatieSerializer(),
-            ZaakobjectTypes.pand: ObjectPandSerializer(),
-            ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),
-            ZaakobjectTypes.status: None,
-            ZaakobjectTypes.terreindeel: ObjectTerreindeelSerializer(),
-            ZaakobjectTypes.terrein_gebouwd_object: ObjectTerreinGebouwdObjectSerializer(),
-            ZaakobjectTypes.vestiging: VestigingIdentificatieSerializer(),
-            ZaakobjectTypes.waterdeel: ObjectWaterdeelSerializer(),
-            ZaakobjectTypes.wegdeel: ObjectWegdeelSerializer(),
-            ZaakobjectTypes.wijk: ObjectWijkSerializer(),
-            ZaakobjectTypes.woonplaats: ObjectWoonplaatsSerializer(),
-            ZaakobjectTypes.woz_deelobject: ObjectWozDeelobjectSerializer(),
-            ZaakobjectTypes.woz_object: ObjectWozObjectSerializer(),
-            ZaakobjectTypes.woz_waarde: ObjectWozWaardeSerializer(),
-            ZaakobjectTypes.zakelijk_recht: ObjectZakelijkRechtSerializer(),
-            ZaakobjectTypes.overige: ObjectOverigeSerializer(),
-        },
+        mapping=mapping.copy(),
         group_field="object_identificatie",
         same_model=False,
     )
@@ -287,7 +291,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 class ZaakObjectSubSerializer(ZaakObjectSerializer):
     discriminator = Discriminator(
         discriminator_field="object_type",
-        mapping={**ZaakObjectSerializer.discriminator.mapping},
+        mapping=mapping.copy(),
         group_field="object_identificatie",
         same_model=False,
     )
@@ -296,3 +300,6 @@ class ZaakObjectSubSerializer(ZaakObjectSerializer):
         # ZaakObjectSerializer validates with zaak which this serializer won't have.
         validators = []
         read_only_fields = ("zaak",)
+
+    def validate(self, attrs):
+        return attrs
