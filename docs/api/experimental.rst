@@ -35,6 +35,7 @@ New endpoints are added:
 * PUT ``/api/v1/rollen/{uuid}``
 * POST ``/api/v1/zaaknummer_reserveren`` – reserve a zaaknummer (identificatie) in combination with a bronorganisatie.
   The optional ``amount`` attribute can be specified to reserve identifications in bulk
+* ``/api/v1/zaak_registreren`` – create a zaak in combination with a status, rollen, zaakinformatieobjecten & zaakobjecten to immediately link it to a zaak.
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``
 

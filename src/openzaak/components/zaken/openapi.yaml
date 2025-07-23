@@ -3779,7 +3779,9 @@ paths:
   /zaak_registreren:
     post:
       operationId: registreerzaak_create
-      description: '**EXPERIMENTEEL** '
+      description: '**EXPERIMENTEEL** Maak een Zaak samen met een status, rollen,
+        zaakinformatieobjecten en zaakobjecten aan om alles direct aan een zaak te
+        linken.'
       summary: Registreer een zaak
       parameters:
       - in: header
@@ -18293,7 +18295,7 @@ components:
       required:
       - informatieobject
       - zaak
-    ZaakInformatieObjectSub:
+    ZaakInformatieObjectSubZaak:
       type: object
       properties:
         url:
@@ -18311,7 +18313,6 @@ components:
           description: Unieke resource identifier (UUID4)
         informatieobject:
           type: string
-          readOnly: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
           format: uri
@@ -18320,6 +18321,7 @@ components:
         zaak:
           type: string
           format: uri
+          readOnly: true
           description: URL-referentie naar de ZAAK.
           minLength: 1
           maxLength: 1000
@@ -18365,14 +18367,15 @@ components:
       - url
       - uuid
       - zaak
-    ZaakInformatieObjectSubRequest:
+    ZaakInformatieObjectSubZaakRequest:
       type: object
       properties:
-        zaak:
+        informatieobject:
           type: string
-          format: uri
-          description: URL-referentie naar de ZAAK.
           minLength: 1
+          description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
+            API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
         titel:
           type: string
@@ -18399,7 +18402,7 @@ components:
           minLength: 1
           maxLength: 1000
       required:
-      - zaak
+      - informatieobject
     ZaakKenmerk:
       type: object
       properties:
@@ -18791,7 +18794,7 @@ components:
         zaakinformatieobjecten:
           type: array
           items:
-            $ref: '#/components/schemas/ZaakInformatieObjectSub'
+            $ref: '#/components/schemas/ZaakInformatieObjectSubZaak'
         zaakobjecten:
           type: array
           items:
@@ -18814,7 +18817,7 @@ components:
         zaakinformatieobjecten:
           type: array
           items:
-            $ref: '#/components/schemas/ZaakInformatieObjectSubRequest'
+            $ref: '#/components/schemas/ZaakInformatieObjectSubZaakRequest'
         zaakobjecten:
           type: array
           items:
@@ -19120,11 +19123,11 @@ components:
     adres_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdres'
+      - $ref: '#/components/schemas/object_identificatie_ObjectAdres'
     adres_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectAdresRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectAdresRequest'
     adres_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19148,11 +19151,11 @@ components:
     buurt_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurt'
+      - $ref: '#/components/schemas/object_identificatie_ObjectBuurt'
     buurt_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectBuurtRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectBuurtRequest'
     buurt_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19377,11 +19380,11 @@ components:
     gemeente_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeente'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeente'
     gemeente_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeenteRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeenteRequest'
     gemeente_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19393,11 +19396,11 @@ components:
     gemeentelijke_openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimte'
     gemeentelijke_openbare_ruimte_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectGemeentelijkeOpenbareRuimteRequest'
     gemeentelijke_openbare_ruimte_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19409,11 +19412,11 @@ components:
     huishouden_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishouden'
+      - $ref: '#/components/schemas/object_identificatie_ObjectHuishouden'
     huishouden_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectHuishoudenRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectHuishoudenRequest'
     huishouden_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19425,11 +19428,11 @@ components:
     inrichtingselement_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselement'
+      - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselement'
     inrichtingselement_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectInrichtingselementRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectInrichtingselementRequest'
     inrichtingselement_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19441,11 +19444,11 @@ components:
     kadastrale_onroerende_zaak_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaak'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaak'
     kadastrale_onroerende_zaak_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKadastraleOnroerendeZaakRequest'
     kadastrale_onroerende_zaak_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19457,11 +19460,11 @@ components:
     kunstwerkdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeel'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeel'
     kunstwerkdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectKunstwerkdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectKunstwerkdeelRequest'
     kunstwerkdeel_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19473,11 +19476,11 @@ components:
     maatschappelijke_activiteit_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteit'
+      - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteit'
     maatschappelijke_activiteit_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectMaatschappelijkeActiviteitRequest'
     maatschappelijke_activiteit_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19505,11 +19508,11 @@ components:
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatie'
     medewerker_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_MedewerkerIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_MedewerkerIdentificatieRequest'
     medewerker_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19537,11 +19540,11 @@ components:
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatie'
     natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NatuurlijkPersoonIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_NatuurlijkPersoonIdentificatieRequest'
     natuurlijk_persoon_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -19569,11 +19572,11 @@ components:
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatie'
     niet_natuurlijk_persoon_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_NietNatuurlijkPersoonIdentificatieRequest'
     niet_natuurlijk_persoon_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20145,11 +20148,11 @@ components:
     openbare_ruimte_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimte'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimte'
     openbare_ruimte_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOpenbareRuimteRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOpenbareRuimteRequest'
     openbare_ruimte_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20177,11 +20180,11 @@ components:
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatie'
     organisatorische_eenheid_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_OrganisatorischeEenheidIdentificatieRequest'
     organisatorische_eenheid_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20193,11 +20196,11 @@ components:
     overige_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverige'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOverige'
     overige_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectOverigeRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectOverigeRequest'
     overige_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20209,11 +20212,11 @@ components:
     pand_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPand'
+      - $ref: '#/components/schemas/object_identificatie_ObjectPand'
     pand_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectPandRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectPandRequest'
     pand_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20225,11 +20228,11 @@ components:
     spoorbaandeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeel'
+      - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeel'
     spoorbaandeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectSpoorbaandeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectSpoorbaandeelRequest'
     spoorbaandeel_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20253,11 +20256,11 @@ components:
     terrein_gebouwd_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObject'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObject'
     terrein_gebouwd_object_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreinGebouwdObjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreinGebouwdObjectRequest'
     terrein_gebouwd_object_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20269,11 +20272,11 @@ components:
     terreindeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeel'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeel'
     terreindeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectTerreindeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectTerreindeelRequest'
     terreindeel_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20301,11 +20304,11 @@ components:
     vestiging_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatie'
+      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatie'
     vestiging_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_VestigingIdentificatieRequest'
+      - $ref: '#/components/schemas/object_identificatie_VestigingIdentificatieRequest'
     vestiging_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20317,11 +20320,11 @@ components:
     waterdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeel'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeel'
     waterdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWaterdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWaterdeelRequest'
     waterdeel_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20333,11 +20336,11 @@ components:
     wegdeel_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeel'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWegdeel'
     wegdeel_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWegdeelRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWegdeelRequest'
     wegdeel_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20349,11 +20352,11 @@ components:
     wijk_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijk'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWijk'
     wijk_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWijkRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWijkRequest'
     wijk_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20365,11 +20368,11 @@ components:
     woonplaats_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaats'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaats'
     woonplaats_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWoonplaatsRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWoonplaatsRequest'
     woonplaats_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20381,11 +20384,11 @@ components:
     woz_deelobject_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobject'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobject'
     woz_deelobject_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozDeelobjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozDeelobjectRequest'
     woz_deelobject_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20397,11 +20400,11 @@ components:
     woz_object_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObject'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozObject'
     woz_object_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozObjectRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozObjectRequest'
     woz_object_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20413,11 +20416,11 @@ components:
     woz_waarde_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaarde'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozWaarde'
     woz_waarde_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectWozWaardeRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectWozWaardeRequest'
     woz_waarde_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
@@ -20429,11 +20432,11 @@ components:
     zakelijk_recht_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRecht'
+      - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRecht'
     zakelijk_recht_ZaakObjectSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializerRequest'
-      - $ref: '#/components/schemas/object_identificatie_object_identificatie_ObjectZakelijkRechtRequest'
+      - $ref: '#/components/schemas/object_identificatie_ObjectZakelijkRechtRequest'
     zakelijk_recht_ZaakObjectSubSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSubSerializer'
