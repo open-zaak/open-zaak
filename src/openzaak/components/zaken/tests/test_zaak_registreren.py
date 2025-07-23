@@ -14,7 +14,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -28,7 +28,9 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.api.scopes import (
+    SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
+    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
 from openzaak.components.zaken.models import (
     Rol,
@@ -64,7 +66,6 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         )
 
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.informatieobjecttype_url = cls.check_for_instance(cls.informatieobjecttype)
 
         cls.zaaktype = ZaakTypeFactory.create(
             concept=False, catalogus=cls.informatieobjecttype.catalogus
@@ -81,7 +82,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_url = cls.check_for_instance(cls.statustype)
 
-        StatusTypeFactory.create(zaaktype=cls.zaaktype)
+        cls.end_statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
 
     def _add_zaken_auth(self, zaaktype=None, scopes=None):
         if scopes is None:
@@ -155,7 +156,19 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         }
 
     def test_registreer_zaak(self):
+        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN])
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_registreer_zaak_without_update_scope(self):
         self._add_zaken_auth()
+
+        response = self.client.post(self.url, self.content)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_registreer_zaak_with_force_scope(self):
+        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN])
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -165,7 +178,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_registreer_zaak_no_zaaktype_in_auth(self):
-        self._add_zaken_auth(zaaktype="")
+        self._add_zaken_auth(zaaktype="", scopes=[SCOPE_ZAKEN_BIJWERKEN])
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -174,14 +187,27 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self._add_catalogi_auth(
             ComponentTypes.zrc,
             self.informatieobjecttype.catalogus,
-            scopes=[SCOPE_ZAKEN_CREATE],
+            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN],
         )
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    def test_register_zaak_with_end_status(self):
+        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN])
 
-# TODO add test that adds eind status which causes an error. disable validate method?
+        content = self.content.copy()
+
+        content["status"]["statustype"] = self.check_for_instance(self.end_statustype)
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "resultaat-does-not-exist")
 
 
 @freeze_time("2025-01-01T12:00:00")
@@ -194,7 +220,6 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
         super().setUp()
 
         self.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        self.informatieobjecttype_url = reverse(self.informatieobjecttype)
 
         self.zaaktype = ZaakTypeFactory.create(
             concept=False, catalogus=self.informatieobjecttype.catalogus
@@ -446,3 +471,107 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
 
         response_data = response.json()
         self.assertEqual(response_data, expected_response)
+
+    def test_register_zaak_minimal(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_register_zaak_missing_related_objects(self):
+        content = {
+            "zaak": self.zaak,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        rol_error = get_validation_errors(response, "rollen")
+        self.assertEqual(rol_error["code"], "required")
+
+        status_error = get_validation_errors(response, "status")
+        self.assertEqual(status_error["code"], "required")
+
+    def test_zaaktype_statustype_relation(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "status": self.status
+            | {"statustype": self.check_for_instance(StatusTypeFactory.create())},
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_zaaktype_roltype_relation(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [
+                self.rol | {"roltype": self.check_for_instance(RolTypeFactory.create())}
+            ],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_no_zaaktypeinformatieobjecttype(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "zaakinformatieobjecten": [
+                self.zio
+                | {
+                    "informatieobject": self.check_for_instance(
+                        EnkelvoudigInformatieObjectFactory.create()
+                    )
+                }
+            ],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(
+            error["code"], "missing-zaaktype-informatieobjecttype-relation"
+        )
+
+    def test_register_zaak_with_end_status(self):
+        content = {
+            "zaak": self.zaak,
+            "rollen": [self.rol],
+            "zaakinformatieobjecten": [self.zio],
+            "zaakobjecten": [self.zaakobject],
+            "status": self.status
+            | {"statustype": self.check_for_instance(self.statustype_2)},
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )

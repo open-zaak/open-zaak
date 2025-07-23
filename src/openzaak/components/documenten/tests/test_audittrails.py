@@ -30,7 +30,6 @@ from ..models import (
     ObjectInformatieObject,
 )
 from .factories import EnkelvoudigInformatieObjectFactory
-from .utils import get_operation_url
 
 
 @freeze_time("2019-01-01")
@@ -327,7 +326,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         _status = StatusFactory.create(zaak=zaak)
         status_url = reverse(_status)
 
-        url = get_operation_url("registreerdocument_create")
+        url = reverse("registreerdocument-list")
 
         data = {
             "enkelvoudiginformatieobject": {

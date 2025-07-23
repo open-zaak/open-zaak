@@ -9,12 +9,20 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
-from vng_api_common.constants import VertrouwelijkheidsAanduiding, ZaakobjectTypes
+from vng_api_common.constants import (
+    RolOmschrijving,
+    RolTypes,
+    VertrouwelijkheidsAanduiding,
+    ZaakobjectTypes,
+)
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
+    InformatieObjectTypeFactory,
     ResultaatTypeFactory,
+    RolTypeFactory,
+    StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
@@ -25,6 +33,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import Resultaat, Zaak, ZaakInformatieObject, ZaakObject
 from .factories import RolFactory, ZaakFactory, ZaakObjectFactory
+from .test_rol import BETROKKENE
 from .utils import ZAAK_WRITE_KWARGS
 
 
@@ -64,6 +73,137 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_create_audittrail.resultaat, 201)
         self.assertEqual(zaak_create_audittrail.oud, None)
         self.assertEqual(zaak_create_audittrail.nieuw, zaak_response)
+
+    def test_register_zaak_audittrails(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=False, catalogus=informatieobjecttype.catalogus
+        )
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        roltype = RolTypeFactory(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.adviseur
+        )
+        roltype_url = self.check_for_instance(roltype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url = reverse(informatieobject)
+
+        informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_2 = reverse(informatieobject_2)
+
+        url = reverse("registreerzaak-list")
+
+        data = {
+            "zaak": {
+                "zaaktype": zaaktype_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2011-06-11",
+                "startdatum": "2018-06-11",
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                },
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "test",
+                },
+            ],
+            "zaakinformatieobjecten": [
+                {
+                    "informatieobject": f"http://testserver{informatieobject_url}",
+                    "titel": "string",
+                    "beschrijving": "string",
+                    "vernietigingsdatum": "2011-08-24T14:15:22Z",
+                },
+                {
+                    "informatieobject": f"http://testserver{informatieobject_url_2}",
+                    "titel": "string",
+                    "beschrijving": "string",
+                    "vernietigingsdatum": "2011-08-24T14:15:22Z",
+                },
+            ],
+            "zaakobjecten": [
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+                },
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "test"}},
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        print(response.data)
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(AuditTrail.objects.count(), 8)
+
+        zaak_audittrail = AuditTrail.objects.get(resource="zaak")
+
+        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.actie, "create")
+        self.assertEqual(zaak_audittrail.oud, None)
+        self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
+        self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+
+        status_audittrail = AuditTrail.objects.get(resource="status")
+
+        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.resource, "status")
+        self.assertEqual(status_audittrail.oud, None)
+        self.assertEqual(status_audittrail.nieuw, response.data["status"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["status"]["url"])
+
+        for trail in AuditTrail.objects.filter(resource="rol"):
+            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.actie, "create")
+            self.assertEqual(trail.oud, None)
+
+        for trail in AuditTrail.objects.filter(resource="zaakobject"):
+            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.actie, "create")
+            self.assertEqual(trail.oud, None)
+
+        for trail in AuditTrail.objects.filter(resource="zaakinformatieobject"):
+            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.actie, "create")
+            self.assertEqual(trail.oud, None)
 
     def test_create_and_delete_resultaat_audittrails(self):
         zaak_response = self._create_zaak()
