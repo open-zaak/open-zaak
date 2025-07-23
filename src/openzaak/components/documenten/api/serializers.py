@@ -45,8 +45,8 @@ from openzaak.utils.validators import (
 )
 
 from ...zaken.api.serializers import (
-    ZaakInformatieObjectSubSerializer,
     ZaakInformatieObjectSerializer,
+    ZaakInformatieObjectSubSerializer,
 )
 from ..constants import (
     ChecksumAlgoritmes,

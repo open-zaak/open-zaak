@@ -125,7 +125,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_register_document_with_catalogus_auth(self):
+    def test_verwerk_besluit_with_catalogus_auth(self):
         self._add_catalogi_auth(
             ComponentTypes.brc,
             self.informatieobjecttype.catalogus,
@@ -247,8 +247,6 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             besluitinformatieobject.informatieobject, self.informatieobject.canonical
         )
-
-        self.maxDiff = None
 
         expected_besluit_url = reverse(besluit)
         expected_besluitinformatieobject_url = reverse(besluitinformatieobject)

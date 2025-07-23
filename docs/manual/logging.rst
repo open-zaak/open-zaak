@@ -45,6 +45,7 @@ The events below are emitted when API operations are performed.
 * ``besluit_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``besluit_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``besluit_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
+* ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``besluitinformatieobject_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``besluitinformatieobject_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``besluitinformatieobject_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.

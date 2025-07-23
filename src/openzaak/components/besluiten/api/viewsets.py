@@ -22,6 +22,7 @@ from rest_framework.response import Response
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
+    AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
@@ -34,7 +35,7 @@ from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import CacheQuerysetMixin, MultipleAuditTrailMixin
+from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
@@ -378,7 +379,7 @@ class BesluitVerwerkenViewSet(
     viewsets.ViewSet,
     MultipleNotificationMixin,
     ClosedZaakMixin,
-    MultipleAuditTrailMixin,
+    AuditTrailMixin,
 ):
     serializer_class = BesluitVerwerkenSerializer
     permission_classes = (BesluitVerwerkenAuthRequired,)
