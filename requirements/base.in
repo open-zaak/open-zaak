@@ -28,10 +28,6 @@ drf-writable-nested
 humanize
 drc-cmis
 
-#commonground-api-common[setup-configuration, testutils, oas]
-
-git+https://github.com/maykinmedia/commonground-api-common.git@main[setup-configuration, testutils, oas]
-git+https://github.com/maykinmedia/notifications-api-common.git@main
+commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]
-
