@@ -1583,14 +1583,20 @@ class ZaakRegistrerenSerializer(serializers.Serializer):
 
         zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
 
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid(raise_exception=True)
+        status = status_serializer.save()
+
         rollen = []
-        for rol in self.initial_data["rollen"]:
+        for rol in self.initial_data.get("rollen") or []:
             rol_serializer = RolSerializer(data=rol | zaak_data, context=self.context)
             rol_serializer.is_valid(raise_exception=True)
             rollen.append(rol_serializer.save())
 
         zios = []
-        for zio in self.initial_data["zaakinformatieobjecten"]:
+        for zio in self.initial_data.get("zaakinformatieobjecten") or []:
             zio_serializer = ZaakInformatieObjectSerializer(
                 data=zio | zaak_data, context=self.context
             )
@@ -1598,18 +1604,12 @@ class ZaakRegistrerenSerializer(serializers.Serializer):
             zios.append(zio_serializer.save())
 
         zaakobjecten = []
-        for zaakobject in self.initial_data["zaakobjecten"]:
+        for zaakobject in self.initial_data.get("zaakobjecten") or []:
             zaakobject_serializer = ZaakObjectSerializer(
                 data=zaakobject | zaak_data, context=self.context
             )
             zaakobject_serializer.is_valid(raise_exception=True)
             zaakobjecten.append(zaakobject_serializer.save())
-
-        status_serializer = StatusSerializer(
-            data=self.initial_data["status"] | zaak_data, context=self.context
-        )
-        status_serializer.is_valid(raise_exception=True)
-        status = status_serializer.save()
 
         return {
             "zaak": zaak,

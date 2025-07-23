@@ -32,10 +32,12 @@ from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
+    AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.client import to_internal_data
+from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
 from vng_api_common.geo import GeoMixin
 from vng_api_common.notes.api.viewsets import NotitieViewSetMixin
@@ -44,6 +46,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
@@ -52,7 +55,10 @@ from openzaak.utils.api import (
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.mixins import CacheQuerysetMixin, ExpandMixin
+from openzaak.utils.mixins import (
+    CacheQuerysetMixin,
+    ExpandMixin,
+)
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import (
@@ -1959,10 +1965,12 @@ class ZaakNotitieViewSet(
 @extend_schema(
     summary="Registreer een zaak",
     description=mark_experimental(
-        ""  # TODO
+        "Maak een Zaak samen met een status, rollen, zaakinformatieobjecten en zaakobjecten aan om alles direct aan een zaak te linken."
     ),
 )
-class ZaakRegistrerenViewset(viewsets.ViewSet):
+class ZaakRegistrerenViewset(
+    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
+):
     serializer_class = ZaakRegistrerenSerializer
     permission_classes = (ZaaKRegistrerenAuthRequired,)
     required_scopes = {
@@ -1972,6 +1980,33 @@ class ZaakRegistrerenViewset(viewsets.ViewSet):
 
     viewset_classes = {
         "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+
+    extra_scopes = {"zaak": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN}
+
+    permission_main_object = "zaak"
+
+    notification_fields = {
+        "zaak": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Zaak,
+        },
+        "status": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Status,
+        },
+        "rollen": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Rol,
+        },
+        "zaakinformatieobjecten": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": ZaakInformatieObject,
+        },
+        "zaakobjecten": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": ZaakObject,
+        },
     }
 
     @transaction.atomic
@@ -1985,7 +2020,49 @@ class ZaakRegistrerenViewset(viewsets.ViewSet):
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        self._create_audit_logs(response, serializer)
+        self.notify(response.status_code, response.data)
         return response
+
+    def _create_audit_logs(self, response, serializer):
+        for field, sub_serializer in serializer.fields.items():
+            is_many = getattr(sub_serializer, "many", False)
+
+            field_data = serializer.data[field] if is_many else [serializer.data[field]]
+            instances = (
+                serializer.instance[field] if is_many else [serializer.instance[field]]
+            )
+            model = (
+                sub_serializer.child.Meta.model
+                if is_many
+                else sub_serializer.Meta.model
+            )
+            basename = model._meta.model_name
+
+            for i, data in enumerate(field_data):
+                self.create_audittrail(
+                    response.status_code,
+                    CommonResourceAction.create,
+                    version_before_edit=None,
+                    version_after_edit=data,
+                    unique_representation=instances[i].unique_representation(),
+                    audit=AUDIT_ZRC,
+                    basename=basename,
+                    main_object=data["url"],
+                )
 
     def perform_create(self, serializer):
         serializer.save()
+
+        logger.info(
+            "zaak_geregistreerd",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
+            zaakinformatieobjecten_urls=[
+                zio["url"] for zio in serializer.data["zaakinformatieobjecten"]
+            ],
+            rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
+            zaakobjecten_urls=[
+                zaakobject["url"] for zaakobject in serializer.data["zaakobjecten"]
+            ],
+        )
