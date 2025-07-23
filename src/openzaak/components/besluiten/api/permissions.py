@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from openzaak.utils.permissions import AuthRequired
+from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
 class BesluitAuthRequired(AuthRequired):
@@ -11,3 +11,12 @@ class BesluitAuthRequired(AuthRequired):
 
     permission_fields = ("besluittype",)
     main_resource = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
+
+
+class BesluitVerwerkenAuthRequired(MultipleObjectsAuthRequired):
+    permission_fields = {
+        "besluit": BesluitAuthRequired.permission_fields,
+    }
+    main_resources = {
+        "besluit": BesluitAuthRequired.main_resource,
+    }

@@ -12,7 +12,10 @@ from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
-from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
+    InformatieObjectTypeFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
@@ -132,6 +135,66 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(bio_create_audittrail.resultaat, 201)
         self.assertEqual(bio_create_audittrail.oud, None)
         self.assertEqual(bio_create_audittrail.nieuw, besluitinformatieobject_response)
+
+    def test_verwerk_besluit_audittrails(self):
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=besluittype.catalogus
+        )
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+
+        informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_1 = reverse(informatieobject_1)
+
+        informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_2 = reverse(informatieobject_2)
+
+        url = reverse("verwerkbesluit-list")
+
+        data = {
+            "besluit": {
+                "verantwoordelijkeOrganisatie": "000000000",
+                "besluittype": f"http://testserver{besluittype_url}",
+                "datum": "2019-04-25",
+                "ingangsdatum": "2019-04-26",
+                "vervaldatum": "2019-04-28",
+                "identificatie": "123123",
+            },
+            "besluitinformatieobjecten": [
+                {"informatieobject": f"http://testserver{informatieobject_url_1}"},
+                {"informatieobject": f"http://testserver{informatieobject_url_2}"},
+            ],
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(AuditTrail.objects.count(), 3)
+
+        besluit_audittrail = AuditTrail.objects.get(
+            hoofd_object=response.data["besluit"]["url"]
+        )
+
+        self.assertEqual(besluit_audittrail.bron, "BRC")
+        self.assertEqual(besluit_audittrail.actie, "create")
+        self.assertEqual(besluit_audittrail.resource, "besluit")
+        self.assertEqual(besluit_audittrail.oud, None)
+        self.assertEqual(besluit_audittrail.nieuw, response.data["besluit"])
+
+        for trail in AuditTrail.objects.filter(
+            nieuw__in=response.data["besluitinformatieobjecten"]
+        ):
+            self.assertEqual(trail.bron, "BRC")
+            self.assertEqual(trail.actie, "create")
+            self.assertEqual(trail.resource, "besluitinformatieobject")
+            self.assertEqual(trail.oud, None)
 
     def test_delete_besluit_cascade_audittrails(self):
         besluit_data = self._create_besluit()
