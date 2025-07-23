@@ -207,6 +207,10 @@ class MultipleObjectsAuthRequired(AuthRequired):
             fieldset_view = self.get_field_viewset(viewset, view.action)
 
             scopes_required = get_required_scopes(request, fieldset_view)
+
+            if hasattr(view, "extra_scopes") and view.extra_scopes.get(field):
+                scopes_required &= view.extra_scopes.get(field)
+
             component = self.get_component(fieldset_view)
             fields = []
 
