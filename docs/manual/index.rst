@@ -26,3 +26,4 @@ directly in the management interface.
    oidc
    archiving
    logging
+   scripts
