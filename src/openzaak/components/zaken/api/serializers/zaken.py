@@ -36,6 +36,8 @@ from vng_api_common.constants import (
     RolOmschrijving,
     RolTypes,
 )
+from vng_api_common.notes.api.serializers import NotitieSerializerMixin
+from vng_api_common.notes.constants import NotitieStatus
 from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import (
     CachedHyperlinkedIdentityField,
@@ -85,6 +87,7 @@ from ...models import (
     ZaakIdentificatie,
     ZaakInformatieObject,
     ZaakKenmerk,
+    ZaakNotitie,
     ZaakVerzoek,
 )
 from ..validators import (
@@ -1498,3 +1501,30 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             zaakverzoek.save()
 
         return zaakverzoek
+
+
+class ZaakNotitieSerializer(
+    serializers.HyperlinkedModelSerializer, NotitieSerializerMixin
+):
+    gerelateerd_aan = CachedHyperlinkedRelatedField(
+        queryset=Zaak.objects.all(),
+        lookup_field="uuid",
+        view_name="zaak-detail",
+        help_text=_("URL-referentie naar een ZAAK."),
+    )
+
+    class Meta(NotitieSerializerMixin.Meta):
+        model = ZaakNotitie
+        fields = fields = ("url",) + NotitieSerializerMixin.Meta.fields
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid"},
+            "gerelateerd_aan": {"lookup_field": "uuid"},
+        }
+
+    def update(self, instance, validated_data):
+        if instance.status != NotitieStatus.CONCEPT:
+            raise serializers.ValidationError(
+                {"status": _("Notitie can only be modified when status is 'CONCEPT'")},
+                code="invalid",
+            )
+        return super().update(instance, validated_data)

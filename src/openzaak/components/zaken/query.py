@@ -49,6 +49,10 @@ class ZaakRelatedQuerySet(ZaakAuthorizationsFilterMixin, models.QuerySet):
     authorizations_lookup = "zaak"
 
 
+class ZaakNotitieQuerySet(ZaakRelatedQuerySet):
+    authorizations_lookup = "gerelateerd_aan"
+
+
 class StatusQuerySet(ZaakRelatedQuerySet):
     def annotate_with_max_datum_status_gezet(self):
         """

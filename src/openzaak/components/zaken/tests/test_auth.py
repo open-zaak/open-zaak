@@ -47,6 +47,7 @@ from .factories import (
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
+    ZaakNotitieFactory,
     ZaakObjectFactory,
 )
 from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, get_operation_url
@@ -784,6 +785,85 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response_data[0]["url"], f"http://testserver{reverse(status1)}"
         )
+
+
+class ZaakNotitieTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
+    url = reverse("zaaknotitie-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    def test_list_zaaknotitie_limited_to_authorized_zaken(self):
+        # must show up
+        notitie = ZaakNotitieFactory.create(
+            gerelateerd_aan__zaaktype=self.zaaktype,
+            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        ZaakNotitieFactory.create(
+            gerelateerd_aan__zaaktype=self.zaaktype,
+            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        # must not show up
+        ZaakNotitieFactory.create(
+            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(
+            response_data[0]["url"], f"http://testserver{reverse(notitie)}"
+        )
+
+    def test_create_zaaknotitie_limited_to_authorized_zaken(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        for zaak in [zaak1, zaak2]:
+            with self.subTest(
+                zaaktype=zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            ):
+                response = self.client.post(self.url, {"gerelateerdAan": reverse(zaak)})
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        zaak3 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        data = {
+            "onderwerp": "Test onderwerp",
+            "tekst": "Test tekst",
+            "aangemaaktDoor": "Test",
+            "gerelateerdAan": reverse(zaak3),
+        }
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_write_operations_forbidden(self):
+        # scope not provided for writes, so this should 403 (not 404!)
+        notitie = ZaakNotitieFactory.create(
+            gerelateerd_aan__zaaktype=self.zaaktype,
+            gerelateerd_aan__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+
+        url = reverse(notitie)
+
+        for method in ["put", "patch", "delete"]:
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(url)
+
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class ResultaatTests(JWTAuthMixin, APITestCase):

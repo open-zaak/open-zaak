@@ -38,6 +38,7 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.client import to_internal_data
 from vng_api_common.filters_backend import Backend
 from vng_api_common.geo import GeoMixin
+from vng_api_common.notes.api.viewsets import NotitieViewSetMixin
 from vng_api_common.search import SearchMixin
 from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
@@ -74,6 +75,7 @@ from ..models import (
     ZaakEigenschap,
     ZaakIdentificatie,
     ZaakInformatieObject,
+    ZaakNotitie,
     ZaakObject,
     ZaakVerzoek,
 )
@@ -114,6 +116,7 @@ from .serializers import (
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
+    ZaakNotitieSerializer,
     ZaakObjectSerializer,
     ZaakSerializer,
     ZaakVerzoekSerializer,
@@ -1900,3 +1903,50 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
         "This endpoint is an alias for `/zaaknummer_reserveren` and will be removed in "
         "the next major version. Please use `/zaaknummer_reserveren` instead."
     )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="Alle ZAAKNOTITIEs opvragen.",
+        description=mark_experimental("Alle ZAAKNOTITIEs opvragen."),
+    ),
+    retrieve=extend_schema(
+        summary="Een specifieke ZAAKNOTITIE opvragen.",
+        description=mark_experimental("Een specifieke ZAAKNOTITIE opvragen."),
+    ),
+    create=extend_schema(
+        summary="Maak een ZAAKNOTITIE aan.",
+        description=mark_experimental("Maak een ZAAKNOTITIE aan."),
+    ),
+    update=extend_schema(
+        summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
+        description=mark_experimental("Werk een ZAAKNOTITIE in zijn geheel bij.")
+        + "\n\n **WARNING**: Notitie can only be modified when status is **CONCEPT**",
+    ),
+    partial_update=extend_schema(
+        summary="Werk een ZAAKNOTITIE deels bij.",
+        description=mark_experimental("Werk een ZAAKNOTITIE deels bij.")
+        + "\n\n **WARNING**: Notitie can only be modified when status is **CONCEPT**",
+    ),
+    destroy=extend_schema(
+        summary="Verwijder een ZAAKNOTITIE.",
+        description=mark_experimental("Verwijder een ZAAKNOTITIE."),
+    ),
+)
+class ZaakNotitieViewSet(
+    NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
+):
+    queryset = ZaakNotitie.objects.select_related("gerelateerd_aan").order_by("-pk")
+
+    serializer_class = ZaakNotitieSerializer
+    lookup_field = "uuid"
+    pagination_class = OptimizedPagination
+    permission_classes = (ZaakAuthRequired,)
+    permission_main_object = "gerelateerd_aan"  # zaak
+    required_scopes = {
+        "list": SCOPE_ZAKEN_ALLES_LEZEN,
+        "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
+        "create": SCOPE_ZAKEN_BIJWERKEN,
+        "update": SCOPE_ZAKEN_BIJWERKEN,
+        "destroy": SCOPE_ZAKEN_BIJWERKEN,
+    }

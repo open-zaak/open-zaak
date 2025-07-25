@@ -15,6 +15,13 @@ additions for the convenience of the clients. Below is the full list of deviatio
 Zaken API
 =========
 
+Notities
+-------------
+
+The ``notities`` endpoint has been added to the ``zaken`` API and supports GET, POST, PUT, PATCH and DELETE operations.
+
+* ``/api/v1/notities``
+
 Notifications
 -------------
 
