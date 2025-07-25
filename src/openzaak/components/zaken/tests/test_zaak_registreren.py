@@ -39,6 +39,7 @@ from openzaak.components.zaken.models import (
     ZaakInformatieObject,
     ZaakObject,
 )
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -474,6 +475,27 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
     def test_register_zaak_minimal(self):
         content = {
             "zaak": self.zaak,
+            "rollen": [self.rol],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_register_with_zaak_relations(self):
+        relevante_zaak = ZaakFactory.create()
+        content = {
+            "zaak": self.zaak
+            | {
+                "kenmerken": [{"kenmerk": "test", "bron": "test"}],
+                "relevanteAndereZaken": [
+                    {
+                        "url": self.check_for_instance(relevante_zaak),
+                        "aardRelatie": "bijdrage",
+                    }
+                ],
+            },
             "rollen": [self.rol],
             "status": self.status,
         }

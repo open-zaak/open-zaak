@@ -3785,6 +3785,25 @@ paths:
       summary: Registreer een zaak
       parameters:
       - in: header
+        name: Accept-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+          data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
+          the same as WGS84).'
+      - in: header
+        name: Content-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+          According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
+          as WGS84).'
+        required: true
+      - in: header
         name: Content-Type
         schema:
           type: string
@@ -3816,6 +3835,15 @@ paths:
                 type: string
                 format: uri
               description: URL waar de resource leeft.
+            Content-Crs:
+              schema:
+                type: string
+                enum:
+                - EPSG:4326
+              description: 'The ''Coordinate Reference System'' (CRS) of the request
+                data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
+                is the same as WGS84).'
+              required: true
           content:
             application/json:
               schema:
@@ -3893,6 +3921,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Gone
+        '412':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Precondition failed
         '415':
           headers:
             API-version:
