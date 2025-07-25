@@ -7441,6 +7441,11 @@ paths:
           geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
           gebruikt.
       - in: query
+        name: resultaat__resultaattype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype (URL).'
+      - in: query
         name: rol__betrokkene
         schema:
           type: string
@@ -7608,6 +7613,12 @@ paths:
           type: string
           format: date
         description: De datum waarop met de uitvoering van de zaak is gestart
+      - in: query
+        name: status__statustype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter Zaken waarbij de huidige status het
+          opgegeven statustype (URL) heeft.'
       - in: query
         name: uiterlijkeEinddatumAfdoening
         schema:
@@ -11157,6 +11168,11 @@ paths:
           geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
           gebruikt.
       - in: query
+        name: resultaat__resultaattype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype (URL).'
+      - in: query
         name: rol__betrokkene
         schema:
           type: string
@@ -11324,6 +11340,12 @@ paths:
           type: string
           format: date
         description: De datum waarop met de uitvoering van de zaak is gestart
+      - in: query
+        name: status__statustype
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Filter Zaken waarbij de huidige status het
+          opgegeven statustype (URL) heeft.'
       - in: query
         name: uiterlijkeEinddatumAfdoening
         schema:
@@ -11588,6 +11610,14 @@ paths:
                   description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen
                     van het ZAAKTYPE(bevat de zaaktype omschrijving de gegeven waarden
                     (hoofdletterongevoelig))'
+                status__statustype:
+                  type: string
+                  description: '**EXPERIMENTEEL** Filter Zaken waarbij de huidige
+                    status het opgegeven statustype (URL) heeft.'
+                resultaat__resultaattype:
+                  type: string
+                  description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype
+                    (URL).'
                 maximaleVertrouwelijkheidaanduiding:
                   type: string
                   enum:

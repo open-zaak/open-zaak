@@ -155,6 +155,9 @@ Query parameters
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
     * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
 
+* ``/api/v1/zaken`` endpoint. Added new parameters:
+     * ``status__statustype`` – filter Zaken by the current status that has the given statustype. Accepts a statustype URL.
+     * ``resultaat__resultaattype`` – filter Zaken by the result with the specified resultaattype. Accepts a resultaattype URL.
 
 
 Besluiten API
