@@ -1580,9 +1580,16 @@ class ZaakRegistrerenSerializer(serializers.Serializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        zaak = ZaakSerializer(
-            context=self._get_zaak_context(validated_data["zaak"])
-        ).create(validated_data["zaak"])
+        # Zaak is validated twice,
+        # could be fixed by adding a ZaakSubSerializer with validation disabled,
+        # or by moving everything to the viewset and using this serializer only for the request & response signature
+
+        zaak_serializer = ZaakSerializer(
+            data=self.initial_data["zaak"],
+            context=self._get_zaak_context(validated_data["zaak"]) | self.context,
+        )
+        zaak_serializer.is_valid(raise_exception=True)
+        zaak = zaak_serializer.save()
 
         zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
 

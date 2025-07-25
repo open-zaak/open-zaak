@@ -1969,7 +1969,7 @@ class ZaakNotitieViewSet(
     ),
 )
 class ZaakRegistrerenViewset(
-    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
+    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, GeoMixin
 ):
     serializer_class = ZaakRegistrerenSerializer
     permission_classes = (ZaaKRegistrerenAuthRequired,)

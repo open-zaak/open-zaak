@@ -91,46 +91,42 @@ class ObjectTypeOverigeDefinitieSerializer(serializers.Serializer):
     )
 
 
-# TODO fix in cgac
-mapping = {
-    ZaakobjectTypes.adres: ObjectAdresSerializer(),
-    ZaakobjectTypes.besluit: None,
-    ZaakobjectTypes.buurt: ObjectBuurtSerializer(),
-    ZaakobjectTypes.enkelvoudig_document: None,
-    ZaakobjectTypes.gemeente: ObjectGemeenteSerializer(),
-    ZaakobjectTypes.gemeentelijke_openbare_ruimte: ObjectGemeentelijkeOpenbareRuimteSerializer(),
-    ZaakobjectTypes.huishouden: ObjectHuishoudenSerializer(),
-    ZaakobjectTypes.inrichtingselement: ObjectInrichtingselementSerializer(),
-    ZaakobjectTypes.kadastrale_onroerende_zaak: ObjectKadastraleOnroerendeZaakSerializer(),
-    ZaakobjectTypes.kunstwerkdeel: ObjectKunstwerkdeelSerializer(),
-    ZaakobjectTypes.maatschappelijke_activiteit: ObjectMaatschappelijkeActiviteitSerializer(),
-    ZaakobjectTypes.medewerker: MedewerkerIdentificatieSerializer(),
-    ZaakobjectTypes.natuurlijk_persoon: NatuurlijkPersoonIdentificatieSerializer(),
-    ZaakobjectTypes.niet_natuurlijk_persoon: NietNatuurlijkPersoonIdentificatieSerializer(),
-    ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
-    ZaakobjectTypes.organisatorische_eenheid: OrganisatorischeEenheidIdentificatieSerializer(),
-    ZaakobjectTypes.pand: ObjectPandSerializer(),
-    ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),
-    ZaakobjectTypes.status: None,
-    ZaakobjectTypes.terreindeel: ObjectTerreindeelSerializer(),
-    ZaakobjectTypes.terrein_gebouwd_object: ObjectTerreinGebouwdObjectSerializer(),
-    ZaakobjectTypes.vestiging: VestigingIdentificatieSerializer(),
-    ZaakobjectTypes.waterdeel: ObjectWaterdeelSerializer(),
-    ZaakobjectTypes.wegdeel: ObjectWegdeelSerializer(),
-    ZaakobjectTypes.wijk: ObjectWijkSerializer(),
-    ZaakobjectTypes.woonplaats: ObjectWoonplaatsSerializer(),
-    ZaakobjectTypes.woz_deelobject: ObjectWozDeelobjectSerializer(),
-    ZaakobjectTypes.woz_object: ObjectWozObjectSerializer(),
-    ZaakobjectTypes.woz_waarde: ObjectWozWaardeSerializer(),
-    ZaakobjectTypes.zakelijk_recht: ObjectZakelijkRechtSerializer(),
-    ZaakobjectTypes.overige: ObjectOverigeSerializer(),
-}
-
-
 class ZaakObjectSerializer(PolymorphicSerializer):
     discriminator = Discriminator(
         discriminator_field="object_type",
-        mapping=mapping.copy(),
+        mapping={
+            ZaakobjectTypes.adres: ObjectAdresSerializer(),
+            ZaakobjectTypes.besluit: None,
+            ZaakobjectTypes.buurt: ObjectBuurtSerializer(),
+            ZaakobjectTypes.enkelvoudig_document: None,
+            ZaakobjectTypes.gemeente: ObjectGemeenteSerializer(),
+            ZaakobjectTypes.gemeentelijke_openbare_ruimte: ObjectGemeentelijkeOpenbareRuimteSerializer(),
+            ZaakobjectTypes.huishouden: ObjectHuishoudenSerializer(),
+            ZaakobjectTypes.inrichtingselement: ObjectInrichtingselementSerializer(),
+            ZaakobjectTypes.kadastrale_onroerende_zaak: ObjectKadastraleOnroerendeZaakSerializer(),
+            ZaakobjectTypes.kunstwerkdeel: ObjectKunstwerkdeelSerializer(),
+            ZaakobjectTypes.maatschappelijke_activiteit: ObjectMaatschappelijkeActiviteitSerializer(),
+            ZaakobjectTypes.medewerker: MedewerkerIdentificatieSerializer(),
+            ZaakobjectTypes.natuurlijk_persoon: NatuurlijkPersoonIdentificatieSerializer(),
+            ZaakobjectTypes.niet_natuurlijk_persoon: NietNatuurlijkPersoonIdentificatieSerializer(),
+            ZaakobjectTypes.openbare_ruimte: ObjectOpenbareRuimteSerializer(),
+            ZaakobjectTypes.organisatorische_eenheid: OrganisatorischeEenheidIdentificatieSerializer(),
+            ZaakobjectTypes.pand: ObjectPandSerializer(),
+            ZaakobjectTypes.spoorbaandeel: ObjectSpoorbaandeelSerializer(),
+            ZaakobjectTypes.status: None,
+            ZaakobjectTypes.terreindeel: ObjectTerreindeelSerializer(),
+            ZaakobjectTypes.terrein_gebouwd_object: ObjectTerreinGebouwdObjectSerializer(),
+            ZaakobjectTypes.vestiging: VestigingIdentificatieSerializer(),
+            ZaakobjectTypes.waterdeel: ObjectWaterdeelSerializer(),
+            ZaakobjectTypes.wegdeel: ObjectWegdeelSerializer(),
+            ZaakobjectTypes.wijk: ObjectWijkSerializer(),
+            ZaakobjectTypes.woonplaats: ObjectWoonplaatsSerializer(),
+            ZaakobjectTypes.woz_deelobject: ObjectWozDeelobjectSerializer(),
+            ZaakobjectTypes.woz_object: ObjectWozObjectSerializer(),
+            ZaakobjectTypes.woz_waarde: ObjectWozWaardeSerializer(),
+            ZaakobjectTypes.zakelijk_recht: ObjectZakelijkRechtSerializer(),
+            ZaakobjectTypes.overige: ObjectOverigeSerializer(),
+        },
         group_field="object_identificatie",
         same_model=False,
     )
@@ -289,10 +285,13 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
 
 class ZaakObjectSubSerializer(ZaakObjectSerializer):
+    # TODO
+    # PolymorphicSerializerMetaclass uses discriminator.group_field to alter the discriminator.mapping fields, (it prefixes each field with the group_field)
+    # When ZaakObjectSubSerializer is initialized, this happens again which causes the fields to become object_informatie__object_informatie__...
+    # The current fix is to not set group_field here.
     discriminator = Discriminator(
         discriminator_field="object_type",
-        mapping=mapping.copy(),
-        group_field="object_identificatie",
+        mapping=ZaakObjectSerializer.discriminator.mapping,
         same_model=False,
     )
 

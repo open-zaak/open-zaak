@@ -168,7 +168,6 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(url, data)
 
-        print(response.data)
         self.assertEqual(response.status_code, 201)
 
         self.assertEqual(AuditTrail.objects.count(), 8)
