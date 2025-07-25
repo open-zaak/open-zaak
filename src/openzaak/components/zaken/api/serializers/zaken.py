@@ -106,6 +106,7 @@ from ..validators import (
     ZaakArchiveIOsArchivedValidator,
     ZaakEigenschapValueValidator,
 )
+from . import ZaakObjectSerializer, ZaakObjectSubSerializer
 from .betrokkenen import (
     RolMedewerkerSerializer,
     RolNatuurlijkPersoonSerializer,
@@ -923,6 +924,16 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 )
 
 
+class StatusSubSerializer(StatusSerializer):
+    class Meta(StatusSerializer.Meta):
+        # StatusSerializer validates with zaak which this serializer won't have.
+        validators = []
+        read_only_fields = ("zaak",)
+
+    def validate(self, attrs):
+        return attrs
+
+
 class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SubStatus
@@ -1097,6 +1108,13 @@ class ZaakInformatieObjectSubSerializer(ZaakInformatieObjectSerializer):
     class Meta(ZaakInformatieObjectSerializer.Meta):
         # ZaakInformatieObjectSerializer validates with informatieobject which this serializer won't have.
         validators = []
+
+
+class ZaakInformatieObjectSubZaakSerializer(ZaakInformatieObjectSerializer):
+    class Meta(ZaakInformatieObjectSerializer.Meta):
+        # ZaakInformatieObjectSerializer validates with zaak which this serializer won't have.
+        validators = []
+        read_only_fields = ("zaak",)
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
@@ -1340,6 +1358,18 @@ class RolSerializer(PolymorphicSerializer):
         return rol
 
 
+class RolSubSerializer(RolSerializer):
+    discriminator = RolSerializer.discriminator
+
+    class Meta(RolSerializer.Meta):
+        # RolSerializer validates with zaak which this serializer won't have.
+        validators = []
+        read_only_fields = ("zaak",)
+
+    def validate(self, attrs):
+        return attrs
+
+
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Resultaat
@@ -1498,3 +1528,74 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
             zaakverzoek.save()
 
         return zaakverzoek
+
+
+class ZaakRegistrerenSerializer(serializers.Serializer):
+    zaak = ZaakSerializer()
+    rollen = RolSubSerializer(many=True)
+    zaakinformatieobjecten = ZaakInformatieObjectSubZaakSerializer(
+        many=True, required=False
+    )
+    zaakobjecten = ZaakObjectSubSerializer(many=True, required=False)
+    status = StatusSubSerializer()
+
+    def _get_zaak_context(self, data):
+        context = {"generated_identificatie": None}
+
+        if data.get("identificatie") and data.get("bronorganisatie"):
+            serializer = GenerateZaakIdentificatieSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            context["generated_identificatie"] = serializer.save()
+
+        return context
+
+    @transaction.atomic
+    def create(self, validated_data):
+        # Zaak is validated twice,
+        # could be fixed by adding a ZaakSubSerializer with validation disabled,
+        # or by moving everything to the viewset and using this serializer only for the request & response signature
+
+        zaak_serializer = ZaakSerializer(
+            data=self.initial_data["zaak"],
+            context=self._get_zaak_context(validated_data["zaak"]) | self.context,
+        )
+        zaak_serializer.is_valid(raise_exception=True)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid(raise_exception=True)
+        status = status_serializer.save()
+
+        rollen = []
+        for rol in self.initial_data.get("rollen") or []:
+            rol_serializer = RolSerializer(data=rol | zaak_data, context=self.context)
+            rol_serializer.is_valid(raise_exception=True)
+            rollen.append(rol_serializer.save())
+
+        zios = []
+        for zio in self.initial_data.get("zaakinformatieobjecten") or []:
+            zio_serializer = ZaakInformatieObjectSerializer(
+                data=zio | zaak_data, context=self.context
+            )
+            zio_serializer.is_valid(raise_exception=True)
+            zios.append(zio_serializer.save())
+
+        zaakobjecten = []
+        for zaakobject in self.initial_data.get("zaakobjecten") or []:
+            zaakobject_serializer = ZaakObjectSerializer(
+                data=zaakobject | zaak_data, context=self.context
+            )
+            zaakobject_serializer.is_valid(raise_exception=True)
+            zaakobjecten.append(zaakobject_serializer.save())
+
+        return {
+            "zaak": zaak,
+            "rollen": rollen,
+            "zaakinformatieobjecten": zios,
+            "zaakobjecten": zaakobjecten,
+            "status": status,
+        }

@@ -282,3 +282,23 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             serializer.create(group_data)
 
         return zaakobject
+
+
+class ZaakObjectSubSerializer(ZaakObjectSerializer):
+    # TODO
+    # PolymorphicSerializerMetaclass uses discriminator.group_field to alter the discriminator.mapping fields, (it prefixes each field with the group_field)
+    # When ZaakObjectSubSerializer is initialized, this happens again which causes the fields to become object_informatie__object_informatie__...
+    # The current fix is to not set group_field here.
+    discriminator = Discriminator(
+        discriminator_field="object_type",
+        mapping=ZaakObjectSerializer.discriminator.mapping,
+        same_model=False,
+    )
+
+    class Meta(ZaakObjectSerializer.Meta):
+        # ZaakObjectSerializer validates with zaak which this serializer won't have.
+        validators = []
+        read_only_fields = ("zaak",)
+
+    def validate(self, attrs):
+        return attrs

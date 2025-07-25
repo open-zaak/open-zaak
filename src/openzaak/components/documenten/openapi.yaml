@@ -280,7 +280,7 @@ paths:
           description: Internal server error
   /document_registreren:
     post:
-      operationId: registereddocument_create
+      operationId: registreerdocument_create
       description: '**EXPERIMENTEEL** Maak een EnkelvoudigInformatieObject en een
         ZaakInformatieObject aan om het document direct aan een zaak te linken.'
       summary: Registreer een document
