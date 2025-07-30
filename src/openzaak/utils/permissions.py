@@ -204,7 +204,10 @@ class MultipleObjectsAuthRequired(AuthRequired):
             if hasattr(request.jwt_auth, "_autorisaties"):
                 del request.jwt_auth._autorisaties
 
-            fieldset_view = self.get_field_viewset(viewset, view.action)
+            fieldset_view = self.get_field_viewset(
+                viewset,
+                view.action if not hasattr(view, "actions") else view.actions[field],
+            )
 
             scopes_required = get_required_scopes(request, fieldset_view)
 
@@ -212,7 +215,7 @@ class MultipleObjectsAuthRequired(AuthRequired):
                 scopes_required &= view.extra_scopes.get(field)
 
             component = self.get_component(fieldset_view)
-            fields = []
+            fields = {}
 
             if self.permission_fields and view.action == "create":
                 fields = self.validate_create(

@@ -1962,6 +1962,7 @@ class ZaakNotitieViewSet(
         "destroy": SCOPE_ZAKEN_BIJWERKEN,
     }
 
+
 @extend_schema(
     summary="Registreer een zaak",
     description=mark_experimental(
@@ -1983,8 +1984,6 @@ class ZaakRegistrerenViewset(
     }
 
     extra_scopes = {"zaak": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN}
-
-    permission_main_object = "zaak"
 
     notification_fields = {
         "zaak": {
@@ -2048,7 +2047,7 @@ class ZaakRegistrerenViewset(
                     unique_representation=instances[i].unique_representation(),
                     audit=AUDIT_ZRC,
                     basename=basename,
-                    main_object=data["url"],
+                    main_object=serializer.data["zaak"]["url"],
                 )
 
     def perform_create(self, serializer):

@@ -297,6 +297,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             },
         )
 
+    @tag("convenience-endpoints")
     def test_send_notif_register_zaak(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
 

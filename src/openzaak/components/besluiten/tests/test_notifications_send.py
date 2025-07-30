@@ -77,6 +77,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             },
         )
 
+    @tag("convenience-endpoints")
     def test_send_notif_verwerk_besluit(self, mock_notif):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)

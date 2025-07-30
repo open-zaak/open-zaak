@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from datetime import date
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -32,6 +32,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
@@ -181,6 +182,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
@@ -316,7 +318,9 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(len(response.data["invalid_params"]), 1)
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(
+            response, "besluitinformatieobjecten.0.nonFieldErrors"
+        )
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
@@ -337,7 +341,9 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(len(response.data["invalid_params"]), 1)
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(
+            response, "besluitinformatieobjecten.1.nonFieldErrors"
+        )
         self.assertEqual(error["code"], "unique")
 
     def test_invalid_informatieobject(self):

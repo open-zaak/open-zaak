@@ -22,6 +22,6 @@ def get_lib_doc_excludes():
     """
     Exclude ConvertNoneMixin docstring from api spec generation
     """
-    from .serializers import ConvertNoneMixin
+    from .serializers import ConvertNoneMixin, SubSerializerMixin
 
-    return default_get_lib_doc_excludes() + [ConvertNoneMixin]
+    return default_get_lib_doc_excludes() + [ConvertNoneMixin, SubSerializerMixin]
