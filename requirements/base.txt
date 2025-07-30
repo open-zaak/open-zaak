@@ -297,7 +297,7 @@ jsonschema==4.7.2
     # via
     #   -r requirements/base.in
     #   drf-spectacular
-kombu==5.4.0
+kombu==5.5.4
     # via celery
 markdown==3.3.6
     # via -r requirements/base.in
@@ -318,7 +318,9 @@ orderedmultidict==1.0.1
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0
-    # via redis
+    # via
+    #   kombu
+    #   redis
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 platformdirs==4.3.8
@@ -443,10 +445,11 @@ typing-extensions==4.12.2
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
-tzdata==2024.1
+tzdata==2025.2
     # via
     #   celery
     #   django-celery-beat
+    #   kombu
 uritemplate==4.1.1
     # via
     #   coreapi
