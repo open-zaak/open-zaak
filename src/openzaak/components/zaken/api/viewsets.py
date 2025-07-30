@@ -103,6 +103,7 @@ from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
     ZaakAuthRequired,
     ZaakNestedAuthRequired,
+    ZaakOpSchortenAuthRequired,
     ZaaKRegistrerenAuthRequired,
 )
 from .scopes import (
@@ -128,6 +129,7 @@ from .serializers import (
     ZaakInformatieObjectSerializer,
     ZaakNotitieSerializer,
     ZaakObjectSerializer,
+    ZaakOpschortenSerializer,
     ZaakRegistrerenSerializer,
     ZaakSerializer,
     ZaakVerzoekSerializer,
@@ -2064,4 +2066,111 @@ class ZaakRegistrerenViewset(
             zaakobjecten_urls=[
                 zaakobject["url"] for zaakobject in serializer.data["zaakobjecten"]
             ],
+        )
+
+
+@extend_schema(
+    summary="Registreer een zaak",
+    description=mark_experimental(
+        ""  # TODO
+    ),
+)
+class ZaakOpschortenViewset(
+    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
+):
+    serializer_class = ZaakOpschortenSerializer
+    permission_classes = (ZaakOpSchortenAuthRequired,)
+    required_scopes = {
+        "update": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
+        & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
+    }
+
+    viewset_classes = {
+        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+
+    extra_scopes = {
+        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
+    }
+
+    actions = {"zaak": "update"}
+
+    notification_fields = {
+        "zaak": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Zaak,
+        },
+        "status": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Status,
+        },
+        "rollen": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Rol,
+        },
+        "zaakinformatieobjecten": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": ZaakInformatieObject,
+        },
+        "zaakobjecten": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": ZaakObject,
+        },
+    }
+
+    def get_object(self, uuid):
+        # TODO add object permission check
+        return Zaak.objects.get(uuid=uuid)
+
+    @transaction.atomic
+    def post(self, request, uuid=None, *args, **kwargs):
+        instance = self.get_object(uuid)
+
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}, instance=instance
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_post(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # TODO
+        # self._create_audit_logs(response, serializer)
+        # self.notify(response.status_code, response.data)
+        return response
+
+    def _create_audit_logs(self, response, serializer):
+        # self.create_audittrail( # TODO
+        #     response.status_code,
+        #     CommonResourceAction.update,
+        #     version_before_edit=None,
+        #     version_after_edit=serializer.data["zaak"],
+        #     unique_representation=serializer.instance[
+        #         "zaak"
+        #     ].unique_representation(),
+        #     audit=AUDIT_ZRC,
+        #     basename="zaak",
+        #     main_object=serializer.data["zaak"],
+        # )
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["status"],
+            unique_representation=serializer.instance["status"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="status",
+            main_object=serializer.data["zaak"],
+        )
+
+    def perform_post(self, serializer):
+        serializer.save()
+
+        logger.info(
+            "zaak_opgeschort",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
         )
