@@ -2,7 +2,9 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from typing import Any
 
-from rest_framework import fields as drf_fields
+from rest_framework import fields as drf_fields, serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.fields import empty
 from rest_framework.serializers import Serializer
 
 
@@ -48,3 +50,26 @@ def get_from_serializer_data_or_instance(
         return None
 
     return serializer_field.get_attribute(instance)
+
+
+class SubSerializerMixin:
+    """
+    Sub serializers should only validate if they themselves have a value if required, further sub serializer field validation is done later.
+    """
+
+    def run_validation(self, data=empty):
+        (is_empty_value, data) = self.validate_empty_values(data)
+        return data
+
+
+class ConvenienceSerializer(serializers.Serializer):
+    def _handle_errors(self, index=None, **errors):
+        found_errors = {}
+        for prefix, error_list in errors.items():
+            found_errors |= {
+                f"{prefix}.{k}" if index is None else f"{prefix}.{index}.{k}": v
+                for k, v in error_list.items()
+            }
+
+        if found_errors:
+            raise ValidationError(found_errors)

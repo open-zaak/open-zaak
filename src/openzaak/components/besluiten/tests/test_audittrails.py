@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from copy import deepcopy
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -136,6 +136,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(bio_create_audittrail.oud, None)
         self.assertEqual(bio_create_audittrail.nieuw, besluitinformatieobject_response)
 
+    @tag("convenience-endpoints")
     def test_verwerk_besluit_audittrails(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)

@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from copy import deepcopy
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -74,6 +74,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_create_audittrail.oud, None)
         self.assertEqual(zaak_create_audittrail.nieuw, zaak_response)
 
+    @tag("convenience-endpoints")
     def test_register_zaak_audittrails(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
 
@@ -187,7 +188,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_audittrail.resource, "status")
         self.assertEqual(status_audittrail.oud, None)
         self.assertEqual(status_audittrail.nieuw, response.data["status"])
-        self.assertEqual(status_audittrail.hoofd_object, response.data["status"]["url"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
         for trail in AuditTrail.objects.filter(resource="rol"):
             self.assertEqual(trail.bron, "ZRC")

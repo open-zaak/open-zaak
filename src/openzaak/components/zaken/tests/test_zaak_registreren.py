@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -44,6 +44,7 @@ from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(
     OPENZAAK_DOMAIN="testserver", LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"
@@ -207,10 +208,11 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "status.nonFieldErrors")
         self.assertEqual(error["code"], "resultaat-does-not-exist")
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
@@ -534,7 +536,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "status.nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
     def test_zaaktype_roltype_relation(self):
@@ -552,7 +554,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "rollen.0.nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
     def test_no_zaaktypeinformatieobjecttype(self):
@@ -576,7 +578,9 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(
+            response, "zaakinformatieobjecten.0.nonFieldErrors"
+        )
         self.assertEqual(
             error["code"], "missing-zaaktype-informatieobjecttype-relation"
         )
@@ -614,7 +618,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "zaakobjecten.0.nonFieldErrors")
         self.assertEqual(error["code"], "missing-object-type-overige")
 
     def test_register_zaak_with_rol_without_betrokkene(self):
@@ -634,7 +638,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "rollen.0.nonFieldErrors")
         self.assertEqual(error["code"], "invalid-betrokkene")
 
     def test_with_other_rol_and_zaakobject_poly_type(self):

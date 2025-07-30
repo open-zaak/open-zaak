@@ -12,6 +12,7 @@ from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
+from openzaak.utils.serializers import SubSerializerMixin
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -284,7 +285,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
         return zaakobject
 
 
-class ZaakObjectSubSerializer(ZaakObjectSerializer):
+class ZaakObjectSubSerializer(SubSerializerMixin, ZaakObjectSerializer):
     # TODO
     # PolymorphicSerializerMetaclass uses discriminator.group_field to alter the discriminator.mapping fields, (it prefixes each field with the group_field)
     # When ZaakObjectSubSerializer is initialized, this happens again which causes the fields to become object_informatie__object_informatie__...
@@ -296,9 +297,4 @@ class ZaakObjectSubSerializer(ZaakObjectSerializer):
     )
 
     class Meta(ZaakObjectSerializer.Meta):
-        # ZaakObjectSerializer validates with zaak which this serializer won't have.
-        validators = []
         read_only_fields = ("zaak",)
-
-    def validate(self, attrs):
-        return attrs

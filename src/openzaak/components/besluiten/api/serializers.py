@@ -21,7 +21,11 @@ from openzaak.components.zaken.api.utils import (
     delete_remote_zaakbesluit,
 )
 from openzaak.utils.api import create_remote_oio
-from openzaak.utils.serializers import ConvertNoneMixin
+from openzaak.utils.serializers import (
+    ConvenienceSerializer,
+    ConvertNoneMixin,
+    SubSerializerMixin,
+)
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -243,32 +247,40 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         return super().run_validators(value)
 
 
-class BesluitInformatieObjectSubSerializer(BesluitInformatieObjectSerializer):
+class BesluitInformatieObjectSubSerializer(
+    SubSerializerMixin, BesluitInformatieObjectSerializer
+):
     class Meta(BesluitInformatieObjectSerializer.Meta):
-        # BesluitInformatieObjectSerializer validates with besluit which this serializer won't have.
-        validators = []
         read_only_fields = ("besluit",)
 
 
-class BesluitVerwerkenSerializer(serializers.Serializer):
+class BesluitVerwerkenSerializer(ConvenienceSerializer):
     besluit = BesluitSerializer()
     besluitinformatieobjecten = BesluitInformatieObjectSubSerializer(many=True)
 
     @transaction.atomic
     def create(self, validated_data):
-        besluit = BesluitSerializer().create(validated_data["besluit"])
+        besluit_serializer = BesluitSerializer(
+            data=self.initial_data["besluit"], context=self.context
+        )
+        besluit_serializer.is_valid()
+        self._handle_errors(besluit=besluit_serializer.errors)
+        besluit = besluit_serializer.save()
 
         besluit_data = {
             "besluit": besluit.get_absolute_api_url(request=self.context["request"])
         }
 
         bios = []
-        for bio in self.initial_data["besluitinformatieobjecten"]:
+        for i, bio in enumerate(self.initial_data["besluitinformatieobjecten"]):
             bio_serializer = BesluitInformatieObjectSerializer(
                 data=bio | besluit_data,
                 context=self.context,
             )
-            bio_serializer.is_valid(raise_exception=True)
+            bio_serializer.is_valid()
+            self._handle_errors(
+                index=i, besluitinformatieobjecten=bio_serializer.errors
+            )
             bios.append(bio_serializer.save())
 
         return {"besluit": besluit, "besluitinformatieobjecten": bios}
