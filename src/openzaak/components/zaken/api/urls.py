@@ -21,6 +21,7 @@ from .viewsets import (
     ZaakInformatieObjectViewSet,
     ZaakNotitieViewSet,
     ZaakObjectViewSet,
+    ZaakOpschortenViewset,
     ZaakRegistrerenViewset,
     ZaakVerzoekViewSet,
     ZaakViewSet,
@@ -55,6 +56,8 @@ router.register(
     basename="zaakidentificatie_alias",
 )
 router.register("zaak_registreren", ZaakRegistrerenViewset, basename="registreerzaak")
+zaakopschorten_view = ZaakOpschortenViewset.as_view({"post": "post"})
+
 
 urlpatterns = [
     re_path(
@@ -80,6 +83,11 @@ urlpatterns = [
                 # actual API
                 path("", include(router.urls)),
                 path("", router.APIRootView.as_view(), name="api-root-zaken"),
+                path(
+                    "zaak_opschorten/<uuid:uuid>",
+                    zaakopschorten_view,
+                    name="schortzaakop",
+                ),
                 path("", include("vng_api_common.notifications.api.urls")),
             ]
         ),

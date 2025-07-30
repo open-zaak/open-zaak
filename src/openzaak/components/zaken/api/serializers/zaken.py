@@ -1631,3 +1631,43 @@ class ZaakRegistrerenSerializer(ConvenienceSerializer):
             "zaakobjecten": zaakobjecten,
             "status": status,
         }
+
+
+class ZaakOpschortenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer(partial=True)  # for drf spectacular
+    status = StatusSubSerializer()
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
+        zaak_serializer = ZaakSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak"),
+            partial=True,
+            context=self.context,
+        )
+        zaak_serializer.is_valid()
+
+        zaak_data = {
+            "zaak": instance.get_absolute_api_url(request=self.context["request"])
+        }
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid()
+
+        self._handle_errors(
+            zaak=zaak_serializer.errors, status=status_serializer.errors
+        )
+
+        status = status_serializer.save()
+        zaak = zaak_serializer.save()
+
+        return {
+            "zaak": zaak,
+            "status": status,
+        }
