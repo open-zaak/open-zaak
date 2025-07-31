@@ -20,6 +20,7 @@ from .viewsets import (
     ZaakEigenschapViewSet,
     ZaakInformatieObjectViewSet,
     ZaakObjectViewSet,
+    ZaakRegistrerenViewset,
     ZaakVerzoekViewSet,
     ZaakViewSet,
 )
@@ -50,6 +51,7 @@ router.register(
     DeprecatedReserveerZaakNummerViewSet,
     basename="zaakidentificatie_alias",
 )
+router.register("zaak_registreren", ZaakRegistrerenViewset, basename="registreerzaak")
 
 urlpatterns = [
     re_path(

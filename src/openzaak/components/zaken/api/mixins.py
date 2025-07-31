@@ -15,17 +15,19 @@ from .serializers import ZaakSerializer
 
 
 class ClosedZaakMixin:
-    def _has_override(self, zaak: Zaak) -> bool:
+    def _has_override(self, zaak: Zaak, component=None) -> bool:
         jwt_auth = self.request.jwt_auth
         zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
         return jwt_auth.has_auth(
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=self.queryset.model._meta.app_label,
+            init_component=component
+            if component
+            else self.queryset.model._meta.app_label,
         )
 
-    def _check_zaak_closed(self, zaak: Optional[Zaak] = None) -> None:
+    def _check_zaak_closed(self, zaak: Optional[Zaak] = None, component=None) -> None:
         """
         Raise ZaakClosed if an attempt is made to modify a closed zaak.
 
@@ -41,7 +43,7 @@ class ClosedZaakMixin:
             return
 
         # zaak is closed - do we have the special i-can-do-anything permission?
-        if self._has_override(zaak):
+        if self._has_override(zaak, component):
             return
 
         raise ZaakClosed()

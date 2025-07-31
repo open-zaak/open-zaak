@@ -37,7 +37,10 @@ from openzaak.utils.serializer_fields import (
     FKOrServiceUrlField,
     LengthHyperlinkedRelatedField,
 )
-from openzaak.utils.serializers import get_from_serializer_data_or_instance
+from openzaak.utils.serializers import (
+    ConvenienceSerializer,
+    get_from_serializer_data_or_instance,
+)
 from openzaak.utils.validators import (
     IsImmutableValidator,
     LooseFkResourceValidator,
@@ -1170,26 +1173,31 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
         }
 
 
-class DocumentRegistrerenSerializer(serializers.Serializer):
+class DocumentRegistrerenSerializer(ConvenienceSerializer):
     enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
     zaakinformatieobject = ZaakInformatieObjectSubSerializer()
 
     @transaction.atomic
     def create(self, validated_data):
-        eio = EnkelvoudigInformatieObjectCreateLockSerializer().create(
-            validated_data["enkelvoudiginformatieobject"]
+        eio_serializer = EnkelvoudigInformatieObjectCreateLockSerializer(
+            data=self.initial_data["enkelvoudiginformatieobject"], context=self.context
         )
+        eio_serializer.is_valid()
+        self._handle_errors(enkelvoudiginformatieobject=eio_serializer.errors)
+        eio = eio_serializer.save()
+
+        eio_data = {
+            "informatieobject": eio.get_absolute_api_url(
+                request=self.context["request"]
+            )
+        }
 
         zio_serializer = ZaakInformatieObjectSerializer(
-            data=self.initial_data["zaakinformatieobject"]
-            | {
-                "informatieobject": eio.get_absolute_api_url(
-                    request=self.context["request"]
-                )
-            },
+            data=self.initial_data["zaakinformatieobject"] | eio_data,
             context=self.context,
         )
-        zio_serializer.is_valid(raise_exception=True)
+        zio_serializer.is_valid()
+        self._handle_errors(zaakinformatieobject=zio_serializer.errors)
         zio = zio_serializer.save()
 
         return {
