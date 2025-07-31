@@ -40,9 +40,6 @@ from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
 
-from ...zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
-from ...zaken.api.serializers import ZaakSerializer
-from ...zaken.models import Zaak
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
@@ -441,22 +438,10 @@ class BesluitVerwerkenViewSet(
         self.notify(response.status_code, response.data)
         return response
 
-    def _has_override(self, zaak: Zaak) -> bool:
-        """Override of ClosedZaakMixin._has_override to hardcode init_component since this does not have a queryset"""
-        jwt_auth = self.request.jwt_auth
-        zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
-        return jwt_auth.has_auth(
-            scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
-            zaaktype=zaak_data["zaaktype"],
-            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component="besluiten",
-        )
-
     def perform_create(self, serializer):
-        zaak = serializer.validated_data.get("besluit").get("zaak")
-        self._check_zaak_closed(zaak)
-
-        serializer.save()
+        data = serializer.save()
+        zaak = data.get("besluit").zaak
+        self._check_zaak_closed(zaak, "besluiten")
 
         logger.info(
             "besluit_verwerkt",

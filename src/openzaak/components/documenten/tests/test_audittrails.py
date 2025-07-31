@@ -5,7 +5,7 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
-from django.test import override_settings
+from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -30,7 +30,6 @@ from ..models import (
     ObjectInformatieObject,
 )
 from .factories import EnkelvoudigInformatieObjectFactory
-from .utils import get_operation_url
 
 
 @freeze_time("2019-01-01")
@@ -313,6 +312,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         # the unique representation as defined in the Zaak model
         self.assertIn(audittrail.resource_weergave, eio_unique_representation)
 
+    @tag("convenience-endpoints")
     def test_register_document_audittrails(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
@@ -327,7 +327,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         _status = StatusFactory.create(zaak=zaak)
         status_url = reverse(_status)
 
-        url = get_operation_url("registereddocument_create")
+        url = reverse("registreerdocument-list")
 
         data = {
             "enkelvoudiginformatieobject": {
