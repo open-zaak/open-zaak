@@ -30,6 +30,9 @@ app.conf.ONCE = {
     },
 }
 
+app.conf.update(
+    result_expires=settings.CELERY_RESULT_EXPIRES,
+)
 app.autodiscover_tasks()
 
 
