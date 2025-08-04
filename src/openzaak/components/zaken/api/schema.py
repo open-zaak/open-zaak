@@ -53,6 +53,7 @@ custom_settings = {
         {"name": "zaakinformatieobjecten"},
         {"name": "zaakobjecten"},
         {"name": "zaakverzoeken"},
+        {"name": "zaaknotities"},
         {"name": "klantcontacten"},
     ],
 }

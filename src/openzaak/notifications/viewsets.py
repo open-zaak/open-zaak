@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from django.db import transaction
 
 from notifications_api_common.tasks import send_notification
