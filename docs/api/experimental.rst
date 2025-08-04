@@ -18,9 +18,9 @@ Zaken API
 Notities
 -------------
 
-The ``notities`` endpoint has been added to the ``zaken`` API and supports GET, POST, PUT, PATCH and DELETE operations.
+The ``zaaknotities`` endpoint has been added to the Zaken API and supports GET, POST, PUT, PATCH and DELETE operations.
 
-* ``/api/v1/notities``
+* ``/api/v1/zaaknotities``
 
 Notifications
 -------------
