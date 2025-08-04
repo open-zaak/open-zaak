@@ -1,0 +1,62 @@
+name: bin-check.yml
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dump_data:
+    name: Test dump_data.sh
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.5
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up backend environment
+        uses: maykinmedia/setup-django-backend@v1.3
+        with:
+          apt-packages: "libgdal-dev gdal-bin postgresql-client"
+          python-version: "3.12"
+          optimize-postgres: "no"
+          setup-node: "no"
+
+      - name: Run setup db & dump data
+        run: |
+          createdb -h localhost -U postgres openzaak
+          python src/manage.py migrate
+          echo "yes" | src/manage.py generate_data --zaken=1 --zaaktypen=1 --without-zaakgeometrie
+          SCRIPTPATH=bin DUMP_FILE=dump.sql bin/dump_data.sh --combined
+        env:
+          DB_PASSWORD: ""
+          DB_USER: postgres
+          DB_NAME: openzaak
+          DB_HOST: localhost
+          SECRET_KEY: secret
+          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
+          ALLOWED_HOSTS: localhost,127.0.0.1
+
+      - name: validate dump
+        run: |
+          grep "COPY public.besluiten_besluit" dump.sql
+          grep "COPY public.catalogi_resultaattype" dump.sql
+          grep "COPY public.documenten_gebruiksrechten" dump.sql
+          grep "COPY public.zaken_rol" dump.sql
+          ! grep "COPY public.auth_group" dump.sql
+
+      - name: load into other db
+        run: |
+          createdb -h localhost -U postgres test
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d test -f dump.sql
