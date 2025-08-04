@@ -762,7 +762,7 @@ python-ipware==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-ipware
-pytz==2025.2
+pytz==2022.6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

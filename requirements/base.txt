@@ -398,7 +398,7 @@ python-dotenv==1.0.1
     #   pydantic-settings
 python-ipware==3.0.0
     # via django-ipware
-pytz==2025.2
+pytz==2022.6
     # via flower
 pyyaml==6.0.2
     # via
