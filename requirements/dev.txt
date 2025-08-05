@@ -61,7 +61,7 @@ beautifulsoup4==4.10.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webtest
-billiard==4.2.0
+billiard==4.2.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -94,7 +94,7 @@ cbor2==5.6.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webauthn
-celery==5.4.0
+celery==5.5.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -638,7 +638,7 @@ jsonschema==4.7.2
     #   -r requirements/ci.txt
     #   drf-spectacular
     #   kubernetes-validate
-kombu==5.4.0
+kombu==5.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -717,6 +717,7 @@ packaging==24.0
     #   -r requirements/ci.txt
     #   ansible-core
     #   build
+    #   kombu
     #   pytest
     #   redis
     #   sphinx
@@ -1131,12 +1132,12 @@ typing-extensions==4.12.2
     #   rich-click
     #   zgw-consumers
     #   zgw-consumers-oas
-tzdata==2024.1
+tzdata==2025.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   celery
     #   django-celery-beat
+    #   kombu
 uritemplate==4.1.1
     # via
     #   -c requirements/ci.txt

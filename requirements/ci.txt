@@ -44,7 +44,7 @@ babel==2.16.0
     # via sphinx
 beautifulsoup4==4.10.0
     # via webtest
-billiard==4.2.0
+billiard==4.2.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -69,7 +69,7 @@ cbor2==5.6.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   webauthn
-celery==5.4.0
+celery==5.5.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -550,7 +550,7 @@ jsonschema==4.7.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   drf-spectacular
-kombu==5.4.0
+kombu==5.5.4
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -607,6 +607,7 @@ packaging==24.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   kombu
     #   pytest
     #   redis
     #   sphinx
@@ -904,12 +905,12 @@ typing-extensions==4.12.2
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
-tzdata==2024.1
+tzdata==2025.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   celery
     #   django-celery-beat
+    #   kombu
 uritemplate==4.1.1
     # via
     #   -c requirements/base.txt
