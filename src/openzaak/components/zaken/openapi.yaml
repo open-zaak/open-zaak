@@ -5945,7 +5945,7 @@ paths:
       description: |-
         **EXPERIMENTEEL** Werk een ZAAKNOTITIE in zijn geheel bij.
 
-         **WARNING**: Notitie can only be modified when status is **CONCEPT**
+         **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE in zijn geheel bij.
       parameters:
       - in: header
@@ -6112,7 +6112,7 @@ paths:
       description: |-
         **EXPERIMENTEEL** Werk een ZAAKNOTITIE deels bij.
 
-         **WARNING**: Notitie can only be modified when status is **CONCEPT**
+         **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE deels bij.
       parameters:
       - in: header
