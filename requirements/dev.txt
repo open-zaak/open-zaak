@@ -625,7 +625,6 @@ jsonschema==4.7.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
-    #   kubernetes-validate
 kombu==5.5.4
     # via
     #   -c requirements/ci.txt
