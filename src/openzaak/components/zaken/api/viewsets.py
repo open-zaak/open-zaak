@@ -1966,7 +1966,7 @@ class ZaakNotitieViewSet(
 @extend_schema(
     summary="Registreer een zaak",
     description=mark_experimental(
-        "Maak een Zaak samen met een status, rollen, zaakinformatieobjecten en zaakobjecten aan om alles direct aan een zaak te linken."
+        "Maak een Zaak samen met een status, rollen, zaakinformatieobjecten en zaakobjecten aan om alles direct aan de zaak te linken."
     ),
 )
 class ZaakRegistrerenViewset(

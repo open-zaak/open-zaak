@@ -44,7 +44,6 @@ class US169TestCase(JWTAuthMixin, APITestCase):
             "omschrijving": "Dagontheffing - Station Haarlem",
             "toelichting": "Het betreft een clown met grote trom, mondharmonica en cymbalen.",
             "startdatum": "2018-08-15",
-            "kenmerken": [{"kenmerk": "test", "bron": "test"}],  # TODO remove
         }
 
         # aanmaken zaak

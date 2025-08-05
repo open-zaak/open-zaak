@@ -1361,6 +1361,8 @@ class RolSerializer(PolymorphicSerializer):
 
 
 class RolSubSerializer(SubSerializerMixin, RolSerializer):
+    # TODO https://github.com/maykinmedia/commonground-api-common/issues/119
+    # See ZaakObjectSubSerializer
     discriminator = RolSerializer.discriminator
 
     class Meta(RolSerializer.Meta):

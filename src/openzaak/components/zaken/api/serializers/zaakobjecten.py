@@ -286,7 +286,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
 
 
 class ZaakObjectSubSerializer(SubSerializerMixin, ZaakObjectSerializer):
-    # TODO
+    # TODO https://github.com/maykinmedia/commonground-api-common/issues/119
     # PolymorphicSerializerMetaclass uses discriminator.group_field to alter the discriminator.mapping fields, (it prefixes each field with the group_field)
     # When ZaakObjectSubSerializer is initialized, this happens again which causes the fields to become object_informatie__object_informatie__...
     # The current fix is to not set group_field here.

@@ -3780,7 +3780,7 @@ paths:
     post:
       operationId: registreerzaak_create
       description: '**EXPERIMENTEEL** Maak een Zaak samen met een status, rollen,
-        zaakinformatieobjecten en zaakobjecten aan om alles direct aan een zaak te
+        zaakinformatieobjecten en zaakobjecten aan om alles direct aan de zaak te
         linken.'
       summary: Registreer een zaak
       parameters:
