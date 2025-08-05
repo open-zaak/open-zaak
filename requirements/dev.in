@@ -13,7 +13,3 @@ django-extensions
 django-silk
 whitenoise
 pyinstrument
-
-# Deployment
-
--r ../deployment/requirements.in
