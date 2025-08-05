@@ -165,7 +165,9 @@ class ZaakFilter(FilterSetWithGroups):
 
     resultaat__resultaattype = filters.CharFilter(
         method="filter_resultaattype_url",
-        help_text=mark_experimental("Filter Zaken with this resultaattype (URL)."),
+        help_text=mark_experimental(
+            "Filter Zaken waarbij het resultaat het opgegeven resultaattype (URL) heeft."
+        ),
         validators=[URLValidator()],
     )
 
