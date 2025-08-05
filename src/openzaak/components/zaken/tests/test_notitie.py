@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 
 
+from django.utils.translation import gettext as _
+
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -132,7 +134,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid")
         self.assertEqual(
             error["reason"],
-            "Notitie can only be modified when status is 'CONCEPT'",
+            _("Notitie can only be modified when status is `concept`."),
         )
 
     def test_delete(self):

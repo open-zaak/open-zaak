@@ -1524,7 +1524,7 @@ class ZaakNotitieSerializer(
     def update(self, instance, validated_data):
         if instance.status != NotitieStatus.CONCEPT:
             raise serializers.ValidationError(
-                {"status": _("Notitie can only be modified when status is 'CONCEPT'")},
+                {"status": _("Notitie can only be modified when status is `concept`.")},
                 code="invalid",
             )
         return super().update(instance, validated_data)

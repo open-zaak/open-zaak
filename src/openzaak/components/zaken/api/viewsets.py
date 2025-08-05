@@ -1921,12 +1921,12 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
     update=extend_schema(
         summary="Werk een ZAAKNOTITIE in zijn geheel bij.",
         description=mark_experimental("Werk een ZAAKNOTITIE in zijn geheel bij.")
-        + "\n\n **WARNING**: Notitie can only be modified when status is **CONCEPT**",
+        + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     partial_update=extend_schema(
         summary="Werk een ZAAKNOTITIE deels bij.",
         description=mark_experimental("Werk een ZAAKNOTITIE deels bij.")
-        + "\n\n **WARNING**: Notitie can only be modified when status is **CONCEPT**",
+        + "\n\n **WARNING**: Notitie can only be modified when status is `concept`",
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKNOTITIE.",
