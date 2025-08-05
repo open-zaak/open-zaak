@@ -22,7 +22,7 @@ are set in the virtual host:
     include it
 
 ``Content-Security-Policy``
-    opt-in, configure the deployment playbook accordingly
+    opt-in
 
 ``Feature-Policy: "autoplay 'none'; camera 'none'" always;``
     there's no need for these :-)

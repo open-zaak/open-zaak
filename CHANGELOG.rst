@@ -1524,7 +1524,7 @@ A regular bugfix release.
   besluittype (#838)
 
 .. _Helm: https://helm.sh/
-.. _charts: https://github.com/open-zaak/charts
+.. _charts: https://github.com/maykinmedia/charts
 .. _Haven: https://haven.commonground.nl/
 
 1.3.3 (2020-12-17)

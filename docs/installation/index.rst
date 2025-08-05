@@ -8,11 +8,9 @@ expertise.
 
 1. Deploy on :ref:`Kubernetes <installation_kubernetes>` for public testing and
    production purposes
-2. Deploy on a :ref:`VM, VPS or dedicated server <installation_ansible>` with Docker
-   Engine (or Podman) for public testing and production purposes
-3. Run with :ref:`docker compose <installation_docker_compose>` on your computer for
+2. Run with :ref:`docker compose <installation_docker_compose>` on your computer for
    private testing purposes
-4. Run from :ref:`Python code <development_getting_started>` on your computer for
+3. Run from :ref:`Python code <development_getting_started>` on your computer for
    development purposes
 
 Before you begin
@@ -51,7 +49,6 @@ Guides
    prerequisites
    docker_compose
    kubernetes
-   single_server
    provision_superuser
    config/index
    self_signed
