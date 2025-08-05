@@ -85,9 +85,12 @@ Query parameters
     * ``rol__betrokkeneIdentificatie__vestiging__kvkNummer`` **(scheduled for deprecation in Open Zaak version 3.0)**
     * ``rol__machtiging``
     * ``rol__machtiging__loa``
+
+* ``/api/v1/zaken`` endpoint. Other new parameters:
     * ``kenmerk__bron``
     * ``kenmerk`` A bron-kenmerk combination of a zaak. (format: ``<bron>:<kenmerk>``)
-
+    * ``status__statustype`` – filter Zaken by the current status that has the given statustype. Accepts a statustype URL.
+    * ``resultaat__resultaattype`` – filter Zaken by the resultaat with the specified resultaattype. Accepts a resultaattype URL.
 
 Documenten API
 ==============
@@ -161,11 +164,6 @@ Query parameters
 
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
     * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
-
-* ``/api/v1/zaken`` endpoint. Added new parameters:
-     * ``status__statustype`` – filter Zaken by the current status that has the given statustype. Accepts a statustype URL.
-     * ``resultaat__resultaattype`` – filter Zaken by the result with the specified resultaattype. Accepts a resultaattype URL.
-
 
 Besluiten API
 =============
