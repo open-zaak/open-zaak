@@ -1061,13 +1061,13 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # the ZIO creation.
         try:
             response = create_remote_oio(io_url, zaak_url)
-        except Exception as exception:
+        except Exception:
             zio.delete()
             raise serializers.ValidationError(
                 {
                     "informatieobject": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
+                        "Could not create remote relation due to an unexpected error"
+                    )
                 },
                 code="pending-relations",
             )
