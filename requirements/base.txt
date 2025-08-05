@@ -23,7 +23,7 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
-billiard==4.2.0
+billiard==4.2.1
     # via celery
 bleach==6.1.0
     # via open-api-framework
@@ -35,7 +35,7 @@ cattrs==23.1.2
     # via requests-cache
 cbor2==5.6.3
     # via webauthn
-celery==5.4.0
+celery==5.5.3
     # via
     #   django-celery-beat
     #   django-structlog
@@ -297,7 +297,7 @@ jsonschema==4.7.2
     # via
     #   -r requirements/base.in
     #   drf-spectacular
-kombu==5.4.0
+kombu==5.5.4
     # via celery
 markdown==3.3.6
     # via -r requirements/base.in
@@ -318,7 +318,9 @@ orderedmultidict==1.0.1
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0
-    # via redis
+    # via
+    #   kombu
+    #   redis
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 platformdirs==4.3.8
@@ -443,10 +445,10 @@ typing-extensions==4.12.2
     #   qrcode
     #   zgw-consumers
     #   zgw-consumers-oas
-tzdata==2024.1
+tzdata==2025.2
     # via
-    #   celery
     #   django-celery-beat
+    #   kombu
 uritemplate==4.1.1
     # via
     #   coreapi
