@@ -1,6 +1,55 @@
 Changelog
 =========
 
+1.23.0 (2025-08-05)
+-------------------
+
+**New features**
+
+* [:open-zaak:`2132`] Expose ``CELERY_RESULT_EXPIRES`` environment variable (see :ref:`installation_env_config` > Celery for more information)
+* [:open-api-framework:`157`] Add ``dump_data`` command for management information (see :ref:`scripts`)
+* [:open-zaak:`2058`] Add logging events for write operations on all API endpoints
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`2071`] Add ``/zaaknotities`` endpoint to Zaken API
+* [:open-zaak:`1946`] Add ``status__statustype`` and ``resultaat__resultaattype`` filters to ``/zaken`` endpoint
+
+* Add convenience endpoints that combine multiple API calls into one:
+
+  * [:open-zaak:`2067`] add ``/besluit_verwerken`` endpoint to Besluiten API
+  * [:open-zaak:`2064`] add ``/document_registreren`` endpoint to Documenten API
+
+**Bugfixes/QOL**
+
+* [:open-zaak:`2098`] Fix 500 error when deelzaak changes status without resultaat
+* [:open-zaak:`2102`] Fix 500 error when not specifying optional ``ResultaatType.brondatumArchiefprocedure`` attributes
+* [:open-zaak:`2088`] Fix issue that caused Elastic APM to not show time spent on queries when connection pooling is enabled
+* [:open-zaak:`2085`] Make sure read_only fields are marked as required in API schemas
+
+**Maintenance**
+
+* Upgrade python dependencies
+  * ``celery`` to 5.5.3 (to fix Redis reconnection issues)
+  * ``kombu`` to 5.5.4 (to fix Redis reconnection issues)
+  * ``billiard`` to 4.2.1
+  * ``tzdata`` to 2025.2
+  * ``django-privates`` to 3.1.1
+  * ``django-privates`` to 3.1.1
+  * ``django-privates`` to 3.1.1
+  * ``commonground-api-common`` to 2.8.0
+  * ``notifications-api-common`` to 0.8.1
+
+* Move database connection pooling envvars to ``open-api-framework``
+* Generate autorisaties for all APIs via ``generate_data`` command
+
+**Documentation**
+
+* [:open-zaak:`2105`] Add description how versions are defined for zaaktypen, informatieobjecttypen and besluittypen
+* [:open-zaak:`2036`] Add latest Open Zaak API specifications to docs
+* Fix incorrect default in docs for ``DB_CONN_MAX_AGE``
+* [:open-api-framework:`118`] Remove deployment tooling/docs
+
 1.22.0 (2025-07-22)
 -------------------
 
