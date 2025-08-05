@@ -81,6 +81,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.21.2 (fuzzy on)      Regular   200
 1.22.0 (fuzzy on)      Superuser 160
 1.22.0 (fuzzy on)      Regular   200
+1.23.0 (fuzzy on)      Superuser 150
+1.23.0 (fuzzy on)      Regular   190
 ====================== ========= ======================
 
 16 users
@@ -113,6 +115,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.21.1 (fuzzy on)      Regular   540
 1.22.0 (fuzzy on)      Superuser 520
 1.22.0 (fuzzy on)      Regular   660
+1.23.0 (fuzzy on)      Superuser 500
+1.23.0 (fuzzy on)      Regular   670
 ====================== ========= ======================
 
 

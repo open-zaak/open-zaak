@@ -15,10 +15,6 @@ annotated-types==0.7.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pydantic
-ansible==9.12.0
-    # via -r requirements/../deployment/requirements.in
-ansible-core==2.16.14
-    # via ansible
 anyio==4.9.0
     # via httpx
 ape-pie==0.2.0
@@ -82,8 +78,6 @@ build==1.2.1
     # via pip-tools
 bump-my-version==1.1.2
     # via -r requirements/dev.in
-cachetools==4.1.1
-    # via google-auth
 cattrs==23.1.2
     # via
     #   -c requirements/ci.txt
@@ -108,7 +102,6 @@ certifi==2024.7.4
     #   elastic-apm
     #   httpcore
     #   httpx
-    #   kubernetes
     #   requests
     #   self-certifi
     #   sentry-sdk
@@ -193,7 +186,6 @@ cryptography==44.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   ansible-core
     #   django-simple-certmanager
     #   josepy
     #   mozilla-django-oidc
@@ -554,8 +546,6 @@ glom==23.5.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
-google-auth==1.21.2
-    # via kubernetes
 gprof2dot==2019.11.30
     # via django-silk
 h11==0.16.0
@@ -619,9 +609,7 @@ jinja2==3.1.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   ansible-core
     #   coreschema
-    #   openshift
     #   sphinx
 josepy==1.14.0
     # via
@@ -637,16 +625,11 @@ jsonschema==4.7.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   drf-spectacular
-    #   kubernetes-validate
 kombu==5.5.4
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   celery
-kubernetes==11.0.0
-    # via openshift
-kubernetes-validate==1.18.0
-    # via -r requirements/../deployment/requirements.in
 lxml==5.3.0
     # via
     #   -c requirements/ci.txt
@@ -693,14 +676,10 @@ notifications-api-common==0.8.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
-oauthlib==3.1.0
-    # via requests-oauthlib
 open-api-framework==0.12.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-openshift==0.11.2
-    # via -r requirements/../deployment/requirements.in
 orderedmultidict==1.0.1
     # via
     #   -c requirements/ci.txt
@@ -715,14 +694,11 @@ packaging==24.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   ansible-core
     #   build
     #   kombu
     #   pytest
     #   redis
     #   sphinx
-passlib==1.7.2
-    # via -r requirements/../deployment/requirements.in
 phonenumberslite==8.13.35
     # via
     #   -c requirements/ci.txt
@@ -780,12 +756,6 @@ py-cpuinfo==9.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pytest-benchmark
-pyasn1==0.4.8
-    # via
-    #   pyasn1-modules
-    #   rsa
-pyasn1-modules==0.2.8
-    # via google-auth
 pycodestyle==2.12.1
     # via autopep8
 pycparser==2.21
@@ -880,7 +850,6 @@ python-dateutil==2.8.2
     #   django-relativedelta
     #   faker
     #   freezegun
-    #   kubernetes
     #   python-crontab
 python-decouple==3.8
     # via
@@ -899,8 +868,6 @@ python-ipware==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-ipware
-python-string-utils==1.0.0
-    # via openshift
 pytz==2022.6
     # via
     #   -c requirements/ci.txt
@@ -909,12 +876,8 @@ pytz==2022.6
 pyyaml==6.0.2
     # via
     #   -c requirements/ci.txt
-    #   -r requirements/../deployment/requirements.in
     #   -r requirements/ci.txt
-    #   ansible-core
     #   drf-spectacular
-    #   kubernetes
-    #   kubernetes-validate
     #   oyaml
     #   pre-commit
     #   pydantic-settings
@@ -946,12 +909,10 @@ requests==2.32.4
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
-    #   kubernetes
     #   mozilla-django-oidc
     #   open-api-framework
     #   requests-cache
     #   requests-mock
-    #   requests-oauthlib
     #   sphinx
     #   zgw-consumers
 requests-cache==1.2.1
@@ -962,24 +923,17 @@ requests-mock==1.12.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-requests-oauthlib==1.3.0
-    # via kubernetes
-resolvelib==0.5.4
-    # via ansible-core
 rich==14.0.0
     # via
     #   bump-my-version
     #   rich-click
 rich-click==1.8.8
     # via bump-my-version
-rsa==4.7.2
-    # via google-auth
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-setup-configuration
-    #   openshift
 ruamel-yaml-clib==0.2.12
     # via
     #   -c requirements/ci.txt
@@ -1004,10 +958,7 @@ sentry-sdk==2.13.0
     #   -r requirements/ci.txt
     #   open-api-framework
 setuptools==78.1.1
-    # via
-    #   google-auth
-    #   kubernetes
-    #   pip-tools
+    # via pip-tools
 six==1.16.0
     # via
     #   -c requirements/ci.txt
@@ -1017,13 +968,9 @@ six==1.16.0
     #   cmislib-maykin
     #   django-db-logger
     #   furl
-    #   google-auth
-    #   kubernetes
-    #   openshift
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
-    #   websocket-client
 smmap==3.0.4
     # via gitdb
 sniffio==1.3.1
@@ -1154,7 +1101,6 @@ urllib3==2.5.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   elastic-apm
-    #   kubernetes
     #   requests
     #   requests-cache
     #   sentry-sdk
@@ -1203,8 +1149,6 @@ webob==1.8.8
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   webtest
-websocket-client==0.57.0
-    # via kubernetes
 webtest==3.0.0
     # via
     #   -c requirements/ci.txt

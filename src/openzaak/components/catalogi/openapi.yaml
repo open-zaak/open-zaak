@@ -172,14 +172,13 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
-          Object versions are based on `omschrijving` field, which means that objects with the same
-          `omschrijving` can be published (and have `definitief` status) only if they have
-          non-overlapping validity (geldigheids) dates.
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
       - in: query
@@ -1851,7 +1850,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -2863,14 +2862,13 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
-          Object versions are based on `omschrijving` field, which means that objects with the same
-          `omschrijving` can be published (and have `definitief` status) only if they have
-          non-overlapping validity (geldigheids) dates.
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
       - in: query
@@ -4011,7 +4009,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -5033,7 +5031,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -6029,7 +6027,7 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -8052,7 +8050,7 @@ paths:
         schema:
           type: string
         description: |
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
@@ -9067,14 +9065,13 @@ paths:
           - concept
           - definitief
         description: |+
-          filter objects depending on their concept status:
+          filter objecten op basis van de publicatiestatus:
           * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
           * `concept`: Toon objecten waarvan het attribuut `concept` true is.
           * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
 
-          Object versions are based on `identificatie` field, which means that objects with the same
-          `identificatie` can be published (and have `definitief` status) only if they have
-          non-overlapping validity (geldigheids) dates.
+          Object versies zijn gebaseerd op het veld `identificatie`, dit betekent dat objecten met hetzelfde
+          `identificatie` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
 
 
       - in: query

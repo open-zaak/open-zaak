@@ -1061,13 +1061,13 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # the ZIO creation.
         try:
             response = create_remote_oio(io_url, zaak_url)
-        except Exception as exception:
+        except Exception:
             zio.delete()
             raise serializers.ValidationError(
                 {
                     "informatieobject": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
+                        "Could not create remote relation due to an unexpected error"
+                    )
                 },
                 code="pending-relations",
             )
@@ -1524,7 +1524,7 @@ class ZaakNotitieSerializer(
     def update(self, instance, validated_data):
         if instance.status != NotitieStatus.CONCEPT:
             raise serializers.ValidationError(
-                {"status": _("Notitie can only be modified when status is 'CONCEPT'")},
+                {"status": _("Notitie can only be modified when status is `concept`.")},
                 code="invalid",
             )
         return super().update(instance, validated_data)

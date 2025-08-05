@@ -5945,7 +5945,7 @@ paths:
       description: |-
         **EXPERIMENTEEL** Werk een ZAAKNOTITIE in zijn geheel bij.
 
-         **WARNING**: Notitie can only be modified when status is **CONCEPT**
+         **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE in zijn geheel bij.
       parameters:
       - in: header
@@ -6112,7 +6112,7 @@ paths:
       description: |-
         **EXPERIMENTEEL** Werk een ZAAKNOTITIE deels bij.
 
-         **WARNING**: Notitie can only be modified when status is **CONCEPT**
+         **WARNING**: Notitie can only be modified when status is `concept`
       summary: Werk een ZAAKNOTITIE deels bij.
       parameters:
       - in: header
@@ -8453,7 +8453,8 @@ paths:
         name: resultaat__resultaattype
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype (URL).'
+        description: '**EXPERIMENTEEL** Filter Zaken waarbij het resultaat het opgegeven
+          resultaattype (URL) heeft.'
       - in: query
         name: rol__betrokkene
         schema:
@@ -12180,7 +12181,8 @@ paths:
         name: resultaat__resultaattype
         schema:
           type: string
-        description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype (URL).'
+        description: '**EXPERIMENTEEL** Filter Zaken waarbij het resultaat het opgegeven
+          resultaattype (URL) heeft.'
       - in: query
         name: rol__betrokkene
         schema:
@@ -12625,8 +12627,8 @@ paths:
                     status het opgegeven statustype (URL) heeft.'
                 resultaat__resultaattype:
                   type: string
-                  description: '**EXPERIMENTEEL** Filter Zaken with this resultaattype
-                    (URL).'
+                  description: '**EXPERIMENTEEL** Filter Zaken waarbij het resultaat
+                    het opgegeven resultaattype (URL) heeft.'
                 maximaleVertrouwelijkheidaanduiding:
                   type: string
                   enum:

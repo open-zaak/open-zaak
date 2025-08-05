@@ -6,7 +6,7 @@ requires-python = "== 3.12"
 [tool.bumpversion]
 commit = false
 tag = false
-current_version = "1.22.0"
+current_version = "1.23.0"
 pre_commit_hooks = [
     "npm i",  # ensure that package-lock.json is updated
 ]
@@ -35,16 +35,6 @@ serialize = [
 
 search = '"version": "{current_version}"'
 replace = '"version": "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "deployment/kubernetes/apps.yml"
-search = "openzaak_version: '{current_version}'"
-replace = "openzaak_version: '{new_version}'"
-
-[[tool.bumpversion.files]]
-filename = "deployment/single-server/open-zaak.yml"
-search = "openzaak_version: '{current_version}'"
-replace = "openzaak_version: '{new_version}'"
 
 [[tool.bumpversion.files]]
 filename = "src/openzaak/__init__.py"
