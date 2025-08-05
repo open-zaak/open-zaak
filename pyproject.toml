@@ -6,7 +6,7 @@ requires-python = "== 3.12"
 [tool.bumpversion]
 commit = false
 tag = false
-current_version = "1.22.0"
+current_version = "1.23.0"
 pre_commit_hooks = [
     "npm i",  # ensure that package-lock.json is updated
 ]
