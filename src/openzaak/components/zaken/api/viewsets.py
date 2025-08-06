@@ -2070,10 +2070,8 @@ class ZaakRegistrerenViewset(
 
 
 @extend_schema(
-    summary="Registreer een zaak",
-    description=mark_experimental(
-        ""  # TODO
-    ),
+    summary="Short een zaak op",
+    description=mark_experimental("Werk een zaak deels bij en maak een status aan."),
 )
 class ZaakOpschortenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
@@ -2093,38 +2091,37 @@ class ZaakOpschortenViewset(
         "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
     }
 
-    actions = {"zaak": "update"}
+    # Used to define the action used for each field in viewset_classes.
+    actions = {"zaak": "partial_update"}
 
     notification_fields = {
         "zaak": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Zaak,
+            "action": "partial_update",
         },
         "status": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Status,
-        },
-        "rollen": {
-            "notifications_kanaal": KANAAL_ZAKEN,
-            "model": Rol,
-        },
-        "zaakinformatieobjecten": {
-            "notifications_kanaal": KANAAL_ZAKEN,
-            "model": ZaakInformatieObject,
-        },
-        "zaakobjecten": {
-            "notifications_kanaal": KANAAL_ZAKEN,
-            "model": ZaakObject,
+            "action": "create",
         },
     }
 
     def get_object(self, uuid):
-        # TODO add object permission check
-        return Zaak.objects.get(uuid=uuid)
+        queryset = Zaak.objects
+        obj = get_object_or_404(queryset, uuid=uuid)
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
     @transaction.atomic
     def post(self, request, uuid=None, *args, **kwargs):
         instance = self.get_object(uuid)
+
+        zaak_version_before_edit = ZaakSerializer(
+            context={"request": request}, instance=instance
+        ).data
 
         serializer = self.serializer_class(
             data=request.data, context={"request": request}, instance=instance
@@ -2134,26 +2131,23 @@ class ZaakOpschortenViewset(
 
         self.perform_post(serializer)
 
-        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        response = Response(serializer.data, status=status.HTTP_200_OK)
 
-        # TODO
-        # self._create_audit_logs(response, serializer)
-        # self.notify(response.status_code, response.data)
+        self._create_audit_logs(response, serializer, zaak_version_before_edit)
+        self.notify(response.status_code, response.data)
         return response
 
-    def _create_audit_logs(self, response, serializer):
-        # self.create_audittrail( # TODO
-        #     response.status_code,
-        #     CommonResourceAction.update,
-        #     version_before_edit=None,
-        #     version_after_edit=serializer.data["zaak"],
-        #     unique_representation=serializer.instance[
-        #         "zaak"
-        #     ].unique_representation(),
-        #     audit=AUDIT_ZRC,
-        #     basename="zaak",
-        #     main_object=serializer.data["zaak"],
-        # )
+    def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.partial_update,
+            version_before_edit=zaak_version_before_edit,
+            version_after_edit=serializer.data["zaak"],
+            unique_representation=serializer.instance["zaak"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="zaak",
+            main_object=serializer.data["zaak"]["url"],
+        )
 
         self.create_audittrail(
             response.status_code,
@@ -2163,7 +2157,7 @@ class ZaakOpschortenViewset(
             unique_representation=serializer.instance["status"].unique_representation(),
             audit=AUDIT_ZRC,
             basename="status",
-            main_object=serializer.data["zaak"],
+            main_object=serializer.data["zaak"]["url"],
         )
 
     def perform_post(self, serializer):
