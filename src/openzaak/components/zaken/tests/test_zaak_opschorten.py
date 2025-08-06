@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2025 Dimpact
+import datetime
+
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
@@ -5,6 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
@@ -24,8 +29,13 @@ from openzaak.components.zaken.api.scopes import (
 from openzaak.components.zaken.models import (
     Status,
     Zaak,
+    ZaakKenmerk,
 )
-from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.components.zaken.tests.factories import (
+    ResultaatFactory,
+    ZaakFactory,
+    ZaakKenmerkFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin
 
 
@@ -180,9 +190,10 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         self.zaaktype_url = reverse(self.zaaktype)
 
         self.statustype_1 = StatusTypeFactory.create(zaaktype=self.zaaktype)
-        self.statustype_url = reverse(self.statustype_1)
+        self.statustype_url_1 = reverse(self.statustype_1)
 
         self.statustype_2 = StatusTypeFactory.create(zaaktype=self.zaaktype)
+        self.statustype_url_2 = reverse(self.statustype_2)
 
         self.zaak = ZaakFactory.create(
             zaaktype=self.zaaktype,
@@ -191,7 +202,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         self.status = {
-            "statustype": f"http://testserver{self.statustype_url}",
+            "statustype": f"http://testserver{self.statustype_url_1}",
             "datumStatusGezet": "2023-01-01T00:00:00",
         }
 
@@ -287,7 +298,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
                 "gezetdoor": None,
                 "indicatieLaatstGezetteStatus": True,
                 "statustoelichting": "",
-                "statustype": f"http://testserver{self.statustype_url}",
+                "statustype": f"http://testserver{self.statustype_url_1}",
                 "url": f"http://testserver{expected_status_url}",
                 "uuid": str(_status.uuid),
                 "zaak": f"http://testserver{expected_zaak_url}",
@@ -297,6 +308,13 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
         response_data = response.json()
         self.assertEqual(response_data, expected_response)
+
+    def test_with_empty_zaak(self):
+        content = {"zaak": {}, "status": self.status}
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_with_empty_status(self):
         content = {
@@ -327,6 +345,15 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
+    def test_with_no_zaak(self):
+        content = {"status": self.status}
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
     def test_zaaktype_statustype_relation(self):
         content = {
             "zaak": {},
@@ -341,3 +368,73 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "status.nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    def test_register_with_zaak_relations(self):
+        content = {
+            "zaak": {
+                "kenmerken": [{"kenmerk": "test", "bron": "test"}],
+            },
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_with_eind_status(self):
+        ResultaatFactory(
+            zaak=self.zaak,
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+
+        content = {
+            "zaak": {},
+            "status": self.status
+            | {"statustype": f"http://testserver{self.statustype_url_2}"},
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(response.data["zaak"]["einddatum"], "2023-01-01")
+
+        self.zaak.refresh_from_db()
+        self.assertEqual(self.zaak.einddatum, datetime.date(2023, 1, 1))
+
+    def test_zaak_kenmerken_are_overwritten(self):
+        ZaakKenmerkFactory(zaak=self.zaak, kenmerk="initial")
+
+        content = {
+            "zaak": {
+                "kenmerken": [{"kenmerk": "blabla", "bron": "blabla"}],
+            },
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(ZaakKenmerk.objects.count(), 1)
+
+        self.assertEqual(response.data["zaak"]["kenmerken"][0]["kenmerk"], "blabla")
+
+        self.assertEqual(ZaakKenmerk.objects.get().kenmerk, "blabla")
+        self.assertEqual(ZaakKenmerk.objects.get().zaak, self.zaak)
+
+    def test_zaak_kenmerken_are_kept(self):
+        ZaakKenmerkFactory(zaak=self.zaak, kenmerk="initial")
+
+        content = {"zaak": {}, "status": self.status}
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(ZaakKenmerk.objects.count(), 1)
+
+        self.assertEqual(response.data["zaak"]["kenmerken"][0]["kenmerk"], "initial")
+
+        self.assertEqual(ZaakKenmerk.objects.get().kenmerk, "initial")
+        self.assertEqual(ZaakKenmerk.objects.get().zaak, self.zaak)
