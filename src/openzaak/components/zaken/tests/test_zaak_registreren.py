@@ -705,3 +705,33 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response_data["zaakobjecten"][0]["objectIdentificatie"],
             object_identificatie,
         )
+
+    def test_register_zaak_with_identificatie(self):
+        content = {
+            "zaak": self.zaak | {"identificatie": "ZAAK-4298374092837"},
+            "rollen": [self.rol],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(response.data["zaak"]["identificatie"], "ZAAK-4298374092837")
+
+    def test_register_zaak_without_bronorganisatie(self):
+        zaak = self.zaak.copy()
+        zaak.pop("bronorganisatie")
+        content = {
+            "zaak": zaak,
+            "rollen": [self.rol],
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "zaak.bronorganisatie")
+        self.assertEqual(error["code"], "required")

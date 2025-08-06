@@ -1572,10 +1572,11 @@ class ZaakRegistrerenSerializer(ConvenienceSerializer):
     def _get_zaak_context(self, data):
         context = {"generated_identificatie": None}
 
-        if data.get("identificatie") and data.get("bronorganisatie"):
-            serializer = GenerateZaakIdentificatieSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            context["generated_identificatie"] = serializer.save()
+        if not data.get("identificatie") and data.get("bronorganisatie"):
+            with transaction.atomic():
+                serializer = GenerateZaakIdentificatieSerializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                context["generated_identificatie"] = serializer.save()
 
         return context
 
