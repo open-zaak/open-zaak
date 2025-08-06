@@ -1664,8 +1664,8 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
             zaak=zaak_serializer.errors, status=status_serializer.errors
         )
 
-        status = status_serializer.save()
         zaak = zaak_serializer.save()
+        status = status_serializer.save()
 
         return {
             "zaak": zaak,

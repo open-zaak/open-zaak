@@ -21,6 +21,7 @@ class MultipleNotificationMixin(NotificationMixin):
                     instance=instance,
                     kanaal=config["notifications_kanaal"],
                     model=config["model"],
+                    action=config.get("action"),
                 )
 
                 transaction.on_commit(lambda msg=message: send_notification.delay(msg))
