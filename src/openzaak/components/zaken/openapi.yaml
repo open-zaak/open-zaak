@@ -3779,8 +3779,8 @@ paths:
   /zaak_opschorten/{uuid}:
     post:
       operationId: None_post
-      description: '**EXPERIMENTEEL** '
-      summary: Registreer een zaak
+      description: '**EXPERIMENTEEL** Werk een zaak deels bij en maak een status aan.'
+      summary: Short een zaak op
       parameters:
       - in: header
         name: Content-Type
