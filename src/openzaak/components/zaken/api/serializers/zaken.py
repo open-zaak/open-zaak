@@ -1668,7 +1668,7 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
         status = status_serializer.save()
 
         # statusSerializer changes zaak fields when a zaak is closed.
-        if status.statustype.is_eindstatus:
+        if status.statustype.is_eindstatus():
             zaak.refresh_from_db()
 
         return {
