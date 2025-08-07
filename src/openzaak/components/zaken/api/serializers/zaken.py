@@ -635,6 +635,32 @@ class ZaakSubSerializer(SubSerializerMixin, ZaakSerializer):
     pass
 
 
+class ZaakOpschortingSerializer(ZaakSerializer):
+    opschorting = OpschortingSerializer(
+        required=True,
+        allow_null=True,
+        help_text=_(
+            "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
+        ),
+    )
+
+    def get_fields(self):
+        fields = super().get_fields()
+        writable_fields = {"opschorting"}
+
+        for name, field in fields.items():
+            if name not in writable_fields:
+                field.read_only = True
+                if hasattr(field, "queryset"):
+                    field.queryset = None
+
+        return fields
+
+
+class ZaakOpschortingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer):
+    pass
+
+
 class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
@@ -1629,5 +1655,48 @@ class ZaakRegistrerenSerializer(ConvenienceSerializer):
             "rollen": rollen,
             "zaakinformatieobjecten": zios,
             "zaakobjecten": zaakobjecten,
+            "status": status,
+        }
+
+
+class ZaakOpschortenSerializer(ConvenienceSerializer):
+    zaak = ZaakOpschortingSubSerializer()
+    status = StatusSubSerializer()
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
+        zaak_serializer = ZaakOpschortingSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak"),
+            context=self.context,
+        )
+        zaak_serializer.is_valid()
+
+        zaak_data = {
+            "zaak": instance.get_absolute_api_url(request=self.context["request"])
+        }
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid()
+
+        self._handle_errors(
+            zaak=zaak_serializer.errors, status=status_serializer.errors
+        )
+
+        zaak = zaak_serializer.save()
+        status = status_serializer.save()
+
+        # statusSerializer changes zaak fields when a zaak is closed.
+        if status.statustype.is_eindstatus():
+            zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
             "status": status,
         }

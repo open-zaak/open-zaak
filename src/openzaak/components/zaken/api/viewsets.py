@@ -103,6 +103,7 @@ from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
     ZaakAuthRequired,
     ZaakNestedAuthRequired,
+    ZaakOpSchortenAuthRequired,
     ZaaKRegistrerenAuthRequired,
 )
 from .scopes import (
@@ -128,6 +129,7 @@ from .serializers import (
     ZaakInformatieObjectSerializer,
     ZaakNotitieSerializer,
     ZaakObjectSerializer,
+    ZaakOpschortenSerializer,
     ZaakRegistrerenSerializer,
     ZaakSerializer,
     ZaakVerzoekSerializer,
@@ -2064,4 +2066,105 @@ class ZaakRegistrerenViewset(
             zaakobjecten_urls=[
                 zaakobject["url"] for zaakobject in serializer.data["zaakobjecten"]
             ],
+        )
+
+
+@extend_schema(
+    summary="Short een zaak op",
+    description=mark_experimental("Schort een zaak op en maak een status aan."),
+)
+class ZaakOpschortenViewset(
+    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
+):
+    serializer_class = ZaakOpschortenSerializer
+    permission_classes = (ZaakOpSchortenAuthRequired,)
+    required_scopes = {
+        "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
+        & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
+    }
+
+    viewset_classes = {
+        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+
+    extra_scopes = {
+        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
+    }
+
+    # Used to define the action used for each field in viewset_classes.
+    actions = {"zaak": "partial_update"}
+
+    notification_fields = {
+        "zaak": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Zaak,
+            "action": "partial_update",
+        },
+        "status": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Status,
+            "action": "create",
+        },
+    }
+
+    def get_object(self, uuid):
+        queryset = Zaak.objects
+        obj = get_object_or_404(queryset, uuid=uuid)
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    @transaction.atomic
+    def post(self, request, uuid=None, *args, **kwargs):
+        instance = self.get_object(uuid)
+
+        zaak_version_before_edit = ZaakSerializer(
+            context={"request": request}, instance=instance
+        ).data
+
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}, instance=instance
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_post(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_200_OK)
+
+        self._create_audit_logs(response, serializer, zaak_version_before_edit)
+        self.notify(response.status_code, response.data)
+        return response
+
+    def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.partial_update,
+            version_before_edit=zaak_version_before_edit,
+            version_after_edit=serializer.data["zaak"],
+            unique_representation=serializer.instance["zaak"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="zaak",
+            main_object=serializer.data["zaak"]["url"],
+        )
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["status"],
+            unique_representation=serializer.instance["status"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="status",
+            main_object=serializer.data["zaak"]["url"],
+        )
+
+    def perform_post(self, serializer):
+        serializer.save()
+
+        logger.info(
+            "zaak_opgeschort",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
         )

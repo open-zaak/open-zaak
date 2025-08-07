@@ -2624,11 +2624,185 @@ components:
       - datum
       - ingangsdatum
       - verantwoordelijkeOrganisatie
+    BesluitSub:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        identificatie:
+          type: string
+          description: Identificatie van het besluit binnen de organisatie die het
+            besluit heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die
+            gegenereerd.
+          maxLength: 50
+        verantwoordelijkeOrganisatie:
+          type: string
+          description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
+            die het besluit heeft vastgesteld.
+          maxLength: 9
+        besluittype:
+          type: string
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+          format: uri
+          minLength: 1
+          maxLength: 200
+        zaak:
+          type: string
+          description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
+            uitkomst is.
+          format: uri
+          maxLength: 200
+        datum:
+          type: string
+          format: date
+          description: De beslisdatum (AWB) van het besluit.
+        toelichting:
+          type: string
+          description: Toelichting bij het besluit.
+        bestuursorgaan:
+          type: string
+          description: Een orgaan van een rechtspersoon krachtens publiekrecht ingesteld
+            of een persoon of college, met enig openbaar gezag bekleed onder wiens
+            verantwoordelijkheid het besluit vastgesteld is.
+          maxLength: 50
+        ingangsdatum:
+          type: string
+          format: date
+          description: Ingangsdatum van de werkingsperiode van het besluit.
+        vervaldatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop de werkingsperiode van het besluit eindigt.
+        vervalreden:
+          description: |-
+            De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
+
+            Uitleg bij mogelijke waarden:
+
+            * `tijdelijk` - Besluit met tijdelijke werking
+            * `ingetrokken_overheid` - Besluit ingetrokken door overheid
+            * `ingetrokken_belanghebbende` - Besluit ingetrokken o.v.v. belanghebbende
+          oneOf:
+          - $ref: '#/components/schemas/VervalredenEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        vervalredenWeergave:
+          type: string
+          readOnly: true
+        publicatiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop het besluit gepubliceerd wordt.
+        verzenddatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop het besluit verzonden is.
+        uiterlijkeReactiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: De datum tot wanneer verweer tegen het besluit mogelijk is.
+      required:
+      - besluittype
+      - datum
+      - ingangsdatum
+      - url
+      - verantwoordelijkeOrganisatie
+      - vervalredenWeergave
+    BesluitSubRequest:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: Identificatie van het besluit binnen de organisatie die het
+            besluit heeft vastgesteld. Indien deze niet opgegeven is, dan wordt die
+            gegenereerd.
+          maxLength: 50
+        verantwoordelijkeOrganisatie:
+          type: string
+          minLength: 1
+          description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
+            die het besluit heeft vastgesteld.
+          maxLength: 9
+        besluittype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 200
+        zaak:
+          type: string
+          description: URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit
+            uitkomst is.
+          format: uri
+          maxLength: 200
+        datum:
+          type: string
+          format: date
+          description: De beslisdatum (AWB) van het besluit.
+        toelichting:
+          type: string
+          description: Toelichting bij het besluit.
+        bestuursorgaan:
+          type: string
+          description: Een orgaan van een rechtspersoon krachtens publiekrecht ingesteld
+            of een persoon of college, met enig openbaar gezag bekleed onder wiens
+            verantwoordelijkheid het besluit vastgesteld is.
+          maxLength: 50
+        ingangsdatum:
+          type: string
+          format: date
+          description: Ingangsdatum van de werkingsperiode van het besluit.
+        vervaldatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop de werkingsperiode van het besluit eindigt.
+        vervalreden:
+          description: |-
+            De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
+
+            Uitleg bij mogelijke waarden:
+
+            * `tijdelijk` - Besluit met tijdelijke werking
+            * `ingetrokken_overheid` - Besluit ingetrokken door overheid
+            * `ingetrokken_belanghebbende` - Besluit ingetrokken o.v.v. belanghebbende
+          oneOf:
+          - $ref: '#/components/schemas/VervalredenEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        publicatiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop het besluit gepubliceerd wordt.
+        verzenddatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop het besluit verzonden is.
+        uiterlijkeReactiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: De datum tot wanneer verweer tegen het besluit mogelijk is.
+      required:
+      - besluittype
+      - datum
+      - ingangsdatum
+      - verantwoordelijkeOrganisatie
     BesluitVerwerken:
       type: object
       properties:
         besluit:
-          $ref: '#/components/schemas/Besluit'
+          $ref: '#/components/schemas/BesluitSub'
         besluitinformatieobjecten:
           type: array
           items:
@@ -2640,7 +2814,7 @@ components:
       type: object
       properties:
         besluit:
-          $ref: '#/components/schemas/BesluitRequest'
+          $ref: '#/components/schemas/BesluitSubRequest'
         besluitinformatieobjecten:
           type: array
           items:
