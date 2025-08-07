@@ -29,12 +29,10 @@ from openzaak.components.zaken.api.scopes import (
 from openzaak.components.zaken.models import (
     Status,
     Zaak,
-    ZaakKenmerk,
 )
 from openzaak.components.zaken.tests.factories import (
     ResultaatFactory,
     ZaakFactory,
-    ZaakKenmerkFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -110,7 +108,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
 
         self.content = {
             "zaak": {
-                "toelichting": "toelichting",
+                "opschorting": {"indicatie": True, "reden": "test"},
             },
             "status": {
                 "statustype": self.statustype_url,
@@ -197,6 +195,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
         self.zaak = ZaakFactory.create(
             zaaktype=self.zaaktype,
+            bronorganisatie=517439943,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             verantwoordelijke_organisatie=517439943,
         )
@@ -204,6 +203,10 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         self.status = {
             "statustype": f"http://testserver{self.statustype_url_1}",
             "datumStatusGezet": "2023-01-01T00:00:00",
+        }
+
+        self.opschorting = {
+            "opschorting": {"indicatie": True, "reden": "test"},
         }
 
         self.url = reverse(
@@ -215,7 +218,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
     def test_schort_zaak_op(self):
         content = {
-            "zaak": {"bronorganisatie": 517439943},
+            "zaak": self.opschorting,
             "status": self.status,
         }
 
@@ -260,9 +263,9 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
                 "omschrijving": "",
                 "opdrachtgevendeOrganisatie": "",
                 "opschorting": {
-                    "eerdereOpschorting": False,
-                    "indicatie": False,
-                    "reden": "",
+                    "eerdereOpschorting": True,
+                    "indicatie": True,
+                    "reden": "test",
                 },
                 "processobject": {
                     "datumkenmerk": "",
@@ -314,7 +317,12 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, content)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "zaak.opschorting")
+        self.assertEqual(error["code"], "required")
 
     def test_with_empty_status(self):
         content = {
@@ -369,18 +377,6 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "status.nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
 
-    def test_register_with_zaak_relations(self):
-        content = {
-            "zaak": {
-                "kenmerken": [{"kenmerk": "test", "bron": "test"}],
-            },
-            "status": self.status,
-        }
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
     def test_with_eind_status(self):
         ResultaatFactory(
             zaak=self.zaak,
@@ -388,7 +384,7 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": {},
+            "zaak": self.opschorting,
             "status": self.status
             | {"statustype": f"http://testserver{self.statustype_url_2}"},
         }
@@ -401,40 +397,3 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
         self.zaak.refresh_from_db()
         self.assertEqual(self.zaak.einddatum, datetime.date(2023, 1, 1))
-
-    def test_zaak_kenmerken_are_overwritten(self):
-        ZaakKenmerkFactory(zaak=self.zaak, kenmerk="initial")
-
-        content = {
-            "zaak": {
-                "kenmerken": [{"kenmerk": "blabla", "bron": "blabla"}],
-            },
-            "status": self.status,
-        }
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        self.assertEqual(ZaakKenmerk.objects.count(), 1)
-
-        self.assertEqual(response.data["zaak"]["kenmerken"][0]["kenmerk"], "blabla")
-
-        self.assertEqual(ZaakKenmerk.objects.get().kenmerk, "blabla")
-        self.assertEqual(ZaakKenmerk.objects.get().zaak, self.zaak)
-
-    def test_zaak_kenmerken_are_kept(self):
-        ZaakKenmerkFactory(zaak=self.zaak, kenmerk="initial")
-
-        content = {"zaak": {}, "status": self.status}
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        self.assertEqual(ZaakKenmerk.objects.count(), 1)
-
-        self.assertEqual(response.data["zaak"]["kenmerken"][0]["kenmerk"], "initial")
-
-        self.assertEqual(ZaakKenmerk.objects.get().kenmerk, "initial")
-        self.assertEqual(ZaakKenmerk.objects.get().zaak, self.zaak)

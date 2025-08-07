@@ -635,6 +635,32 @@ class ZaakSubSerializer(SubSerializerMixin, ZaakSerializer):
     pass
 
 
+class ZaakOpschortingSerializer(ZaakSerializer):
+    opschorting = OpschortingSerializer(
+        required=True,
+        allow_null=True,
+        help_text=_(
+            "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
+        ),
+    )
+
+    def get_fields(self):
+        fields = super().get_fields()
+        writable_fields = {"opschorting"}
+
+        for name, field in fields.items():
+            if name not in writable_fields:
+                field.read_only = True
+                if hasattr(field, "queryset"):
+                    field.queryset = None
+
+        return fields
+
+
+class ZaakOpschortingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer):
+    pass
+
+
 class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
@@ -1634,7 +1660,7 @@ class ZaakRegistrerenSerializer(ConvenienceSerializer):
 
 
 class ZaakOpschortenSerializer(ConvenienceSerializer):
-    zaak = ZaakSubSerializer(partial=True)  # for drf spectacular
+    zaak = ZaakOpschortingSubSerializer()
     status = StatusSubSerializer()
 
     @transaction.atomic
@@ -1643,10 +1669,9 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
         instance is zaak only
         """
 
-        zaak_serializer = ZaakSerializer(
+        zaak_serializer = ZaakOpschortingSerializer(
             instance=instance,
             data=self.initial_data.get("zaak"),
-            partial=True,
             context=self.context,
         )
         zaak_serializer.is_valid()

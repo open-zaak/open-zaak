@@ -510,7 +510,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         data = {
             "zaak": {
-                "toelichting": "test",
+                "opschorting": {"indicatie": True, "reden": "test"},
             },
             "status": {
                 "statustype": statustype_url,
