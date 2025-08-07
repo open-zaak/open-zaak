@@ -36,7 +36,7 @@ New endpoints are added:
 * POST ``/api/v1/zaaknummer_reserveren`` – reserve a zaaknummer (identificatie) in combination with a bronorganisatie.
   The optional ``amount`` attribute can be specified to reserve identifications in bulk
 * POST ``/api/v1/zaak_registreren`` – create a zaak in combination with a status, rollen, zaakinformatieobjecten & zaakobjecten to immediately link it to this zaak.
-* POST ``/api/v1/zaak_opschorten`` - parially update a zaak and create a status.
+* POST ``/api/v1/zaak_opschorten`` - suspend a zaak in combination with a status.
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``
 
