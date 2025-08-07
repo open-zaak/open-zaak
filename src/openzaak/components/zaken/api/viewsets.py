@@ -2071,7 +2071,7 @@ class ZaakRegistrerenViewset(
 
 @extend_schema(
     summary="Short een zaak op",
-    description=mark_experimental("Werk een zaak deels bij en maak een status aan."),
+    description=mark_experimental("Schort een zaak op en maak een status aan."),
 )
 class ZaakOpschortenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
