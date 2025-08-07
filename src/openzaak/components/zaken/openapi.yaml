@@ -3779,7 +3779,7 @@ paths:
   /zaak_opschorten/{uuid}:
     post:
       operationId: None_post
-      description: '**EXPERIMENTEEL** Werk een zaak deels bij en maak een status aan.'
+      description: '**EXPERIMENTEEL** Schort een zaak op en maak een status aan.'
       summary: Short een zaak op
       parameters:
       - in: header
@@ -3804,6 +3804,10 @@ paths:
             schema:
               $ref: '#/components/schemas/ZaakOpschortenRequest'
         required: true
+      security:
+      - JWT-Claims:
+        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
+          | zaken.heropenen))
       responses:
         '200':
           headers:
