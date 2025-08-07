@@ -567,6 +567,116 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             any_order=True,
         )
 
+    @tag("convenience-endpoints")
+    def test_send_notif_update_zaak(self, mock_notif):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        roltype = RolTypeFactory(zaaktype=zaaktype)
+        roltype_url = self.check_for_instance(roltype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak = ZaakFactory.create(
+            zaaktype=zaaktype,
+            bronorganisatie=517439943,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            verantwoordelijke_organisatie=517439943,
+        )
+
+        url = reverse(
+            "updatezaak",
+            kwargs={
+                "uuid": zaak.uuid,
+            },
+        )
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                }
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = response.json()
+
+        zaak = Zaak.objects.get()
+
+        self.assertEqual(mock_notif.call_count, 3)
+
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "zaak",
+                        "resourceUrl": data["zaak"]["url"],
+                        "actie": "partial_update",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "status",
+                        "resourceUrl": data["status"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "rol",
+                        "resourceUrl": data["rollen"][0]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
+        )
+
     def test_send_notif_delete_resultaat(self, mock_notif):
         """
         Check if notifications will be send when resultaat is deleted
