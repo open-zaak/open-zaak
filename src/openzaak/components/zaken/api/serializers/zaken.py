@@ -25,6 +25,7 @@ import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
+from rest_framework.fields import empty
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching.etags import track_object_serializer
@@ -62,6 +63,7 @@ from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
+from openzaak.utils.serializers import ConvenienceSerializer, SubSerializerMixin
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -109,6 +111,7 @@ from ..validators import (
     ZaakArchiveIOsArchivedValidator,
     ZaakEigenschapValueValidator,
 )
+from . import ZaakObjectSerializer, ZaakObjectSubSerializer
 from .betrokkenen import (
     RolMedewerkerSerializer,
     RolNatuurlijkPersoonSerializer,
@@ -628,6 +631,10 @@ class ZaakSerializer(
         return obj
 
 
+class ZaakSubSerializer(SubSerializerMixin, ZaakSerializer):
+    pass
+
+
 class GeoWithinSerializer(serializers.Serializer):
     within = GeometryField(required=False)
 
@@ -926,6 +933,11 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 )
 
 
+class StatusSubSerializer(SubSerializerMixin, StatusSerializer):
+    class Meta(StatusSerializer.Meta):
+        read_only_fields = ("zaak",)
+
+
 class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SubStatus
@@ -1088,7 +1100,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         return super().run_validators(value)
 
 
-class ZaakInformatieObjectSubSerializer(ZaakInformatieObjectSerializer):
+class ZaakInformatieObjectSubSerializer(
+    SubSerializerMixin, ZaakInformatieObjectSerializer
+):
     informatieobject = EnkelvoudigInformatieObjectField(
         max_length=1000,
         min_length=1,
@@ -1097,9 +1111,12 @@ class ZaakInformatieObjectSubSerializer(ZaakInformatieObjectSerializer):
         read_only=True,
     )
 
+
+class ZaakInformatieObjectSubZaakSerializer(
+    SubSerializerMixin, ZaakInformatieObjectSerializer
+):
     class Meta(ZaakInformatieObjectSerializer.Meta):
-        # ZaakInformatieObjectSerializer validates with informatieobject which this serializer won't have.
-        validators = []
+        read_only_fields = ("zaak",)
 
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
@@ -1343,6 +1360,19 @@ class RolSerializer(PolymorphicSerializer):
         return rol
 
 
+class RolSubSerializer(SubSerializerMixin, RolSerializer):
+    # TODO https://github.com/maykinmedia/commonground-api-common/issues/119
+    # See ZaakObjectSubSerializer
+    discriminator = RolSerializer.discriminator
+
+    class Meta(RolSerializer.Meta):
+        read_only_fields = ("zaak",)
+
+    def run_validation(self, data=empty):
+        (is_empty_value, data) = self.validate_empty_values(data)
+        return data
+
+
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Resultaat
@@ -1528,3 +1558,76 @@ class ZaakNotitieSerializer(
                 code="invalid",
             )
         return super().update(instance, validated_data)
+
+
+class ZaakRegistrerenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer()
+    rollen = RolSubSerializer(many=True)
+    zaakinformatieobjecten = ZaakInformatieObjectSubZaakSerializer(
+        many=True, required=False
+    )
+    zaakobjecten = ZaakObjectSubSerializer(many=True, required=False)
+    status = StatusSubSerializer()
+
+    def _get_zaak_context(self, data):
+        context = {"generated_identificatie": None}
+
+        if not data.get("identificatie") and data.get("bronorganisatie"):
+            with transaction.atomic():
+                serializer = GenerateZaakIdentificatieSerializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                context["generated_identificatie"] = serializer.save()
+
+        return context
+
+    @transaction.atomic
+    def create(self, validated_data):
+        zaak_serializer = ZaakSerializer(
+            data=self.initial_data["zaak"],
+            context=self._get_zaak_context(validated_data["zaak"]) | self.context,
+        )
+        zaak_serializer.is_valid()
+        self._handle_errors(zaak=zaak_serializer.errors)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid()
+        self._handle_errors(status=status_serializer.errors)
+        status = status_serializer.save()
+
+        rollen = []
+        for i, rol in enumerate(self.initial_data.get("rollen") or []):
+            rol_serializer = RolSerializer(data=rol | zaak_data, context=self.context)
+            rol_serializer.is_valid()
+            self._handle_errors(index=i, rollen=rol_serializer.errors)
+            rollen.append(rol_serializer.save())
+
+        zios = []
+        for i, zio in enumerate(self.initial_data.get("zaakinformatieobjecten") or []):
+            zio_serializer = ZaakInformatieObjectSerializer(
+                data=zio | zaak_data, context=self.context
+            )
+            zio_serializer.is_valid()
+            self._handle_errors(index=i, zaakinformatieobjecten=zio_serializer.errors)
+            zios.append(zio_serializer.save())
+
+        zaakobjecten = []
+        for i, zaakobject in enumerate(self.initial_data.get("zaakobjecten") or []):
+            zaakobject_serializer = ZaakObjectSerializer(
+                data=zaakobject | zaak_data, context=self.context
+            )
+            zaakobject_serializer.is_valid()
+            self._handle_errors(index=i, zaakobjecten=zaakobject_serializer.errors)
+            zaakobjecten.append(zaakobject_serializer.save())
+
+        return {
+            "zaak": zaak,
+            "rollen": rollen,
+            "zaakinformatieobjecten": zios,
+            "zaakobjecten": zaakobjecten,
+            "status": status,
+        }

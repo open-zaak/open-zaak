@@ -35,7 +35,7 @@ router.register("bestandsdelen", BestandsDeelViewSet)
 router.register("verzendingen", VerzendingViewSet)
 router.register("documentnummer_reserveren", ReservedDocumentViewSet)
 router.register(
-    "document_registreren", DocumentRegistrerenViewSet, basename="registereddocument"
+    "document_registreren", DocumentRegistrerenViewSet, basename="registreerdocument"
 )
 
 import_patterns = [

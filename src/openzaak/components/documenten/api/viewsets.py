@@ -75,8 +75,7 @@ from ...zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
-from ...zaken.api.serializers import ZaakSerializer
-from ...zaken.models import Zaak, ZaakInformatieObject
+from ...zaken.models import ZaakInformatieObject
 from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
@@ -1281,22 +1280,10 @@ class DocumentRegistrerenViewSet(
         self.notify(response.status_code, response.data)
         return response
 
-    def _has_override(self, zaak: Zaak) -> bool:
-        """Override of ClosedZaakMixin._has_override to hardcode init_component since this does not have a queryset"""
-        jwt_auth = self.request.jwt_auth
-        zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
-        return jwt_auth.has_auth(
-            scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
-            zaaktype=zaak_data["zaaktype"],
-            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component="zaken",
-        )
-
     def perform_create(self, serializer):
-        zaak = serializer.validated_data.get("zaakinformatieobject").get("zaak")
-        self._check_zaak_closed(zaak)
-
-        serializer.save()
+        data = serializer.save()
+        zaak = data.get("zaakinformatieobject").zaak
+        self._check_zaak_closed(zaak, "zaken")
 
         logger.info(
             "document_geregistreerd",

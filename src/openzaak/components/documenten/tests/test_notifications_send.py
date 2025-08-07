@@ -81,6 +81,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             },
         )
 
+    @tag("convenience-endpoints")
     def test_send_notif_register_document(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
@@ -95,7 +96,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         _status = StatusFactory.create(zaak=zaak)
         status_url = reverse(_status)
 
-        url = reverse("registereddocument-list")
+        url = get_operation_url("registreerdocument_create")
 
         data = {
             "enkelvoudiginformatieobject": {

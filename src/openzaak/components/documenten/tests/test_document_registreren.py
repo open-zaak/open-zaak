@@ -4,7 +4,7 @@ import uuid
 from base64 import b64encode
 from datetime import date
 
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from freezegun import freeze_time
@@ -40,10 +40,11 @@ from openzaak.components.zaken.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registereddocument-list")
+    url = reverse_lazy("registreerdocument-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -419,10 +420,11 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
+@tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registereddocument-list")
+    url = reverse_lazy("registreerdocument-list")
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -592,7 +594,7 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        error = get_validation_errors(response, "nonFieldErrors")
+        error = get_validation_errors(response, "zaakinformatieobject.nonFieldErrors")
         self.assertEqual(
             error["code"], "missing-zaaktype-informatieobjecttype-relation"
         )

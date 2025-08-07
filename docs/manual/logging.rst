@@ -98,6 +98,7 @@ The events below are emitted when API operations are performed.
 * ``verzending_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``verzending_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
 * ``zaak_created`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``.
+* ``zaak_geregistreerd`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``rollen_urls``, ``zaakinformatieobjecten_urls``, ``zaakobjecten_urls``.
 * ``zaak_deleted`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``.
 * ``zaak_updated`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``, ``partial``.
 * ``zaakbesluit_created_external`` (INFO). Additional context: ``besluit_url``, ``zaak_uuid``, ``client_id``.
