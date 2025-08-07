@@ -254,9 +254,7 @@ django-db-logger==0.1.12
     #   -c requirements/base.txt
     #   -r requirements/base.txt
 django-extensions==4.1
-    # via
-    #   -c requirements/base.txt
-    #   -r requirements/base.txt
+    # via -r requirements/test-tools.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/base.txt
@@ -614,7 +612,7 @@ oyaml==1.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
-packaging==25.0
+packaging==24.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

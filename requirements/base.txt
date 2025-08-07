@@ -98,7 +98,6 @@ django==5.2.3
     #   django-cors-headers
     #   django-csp
     #   django-db-logger
-    #   django-extensions
     #   django-extra-views
     #   django-filter
     #   django-formtools
@@ -154,8 +153,6 @@ django-csp==3.8
     #   -r requirements/base.in
     #   open-api-framework
 django-db-logger==0.1.12
-    # via -r requirements/base.in
-django-extensions==4.1
     # via -r requirements/base.in
 django-extra-views==0.14.0
     # via -r requirements/base.in
@@ -332,9 +329,7 @@ orderedmultidict==1.0.1
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0
-    # via
-    #   kombu
-    #   redis
+    # via kombu
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 platformdirs==4.3.8

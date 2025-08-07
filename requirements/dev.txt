@@ -297,7 +297,6 @@ django-extensions==4.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   -r requirements/dev.in
 django-extra-views==0.14.0
     # via
     #   -c requirements/ci.txt
@@ -699,7 +698,7 @@ oyaml==1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
-packaging==25.0
+packaging==24.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -991,6 +990,11 @@ six==1.16.0
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
+smartypants==2.0.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-markup
 smmap==3.0.4
     # via gitdb
 sniffio==1.3.1
