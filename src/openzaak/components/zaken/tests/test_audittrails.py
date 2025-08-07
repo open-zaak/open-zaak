@@ -350,6 +350,82 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_audittrail.nieuw, response.data["status"])
         self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
+    @tag("convenience-endpoints")
+    def test_zaak_updaten_audittrails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        roltype = RolTypeFactory(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.adviseur
+        )
+        roltype_url = self.check_for_instance(roltype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak_data = self._create_zaak(zaaktype)
+
+        url = reverse(
+            "updatezaak",
+            kwargs={
+                "uuid": zaak_data["uuid"],
+            },
+        )
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                },
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "test",
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(AuditTrail.objects.count(), 5)  # zaak create as well
+
+        zaak_audittrail = AuditTrail.objects.get(
+            resource="zaak", actie="partial_update"
+        )
+
+        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.oud, zaak_data)
+        self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
+        self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+
+        status_audittrail = AuditTrail.objects.get(resource="status")
+
+        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.resource, "status")
+        self.assertEqual(status_audittrail.oud, None)
+        self.assertEqual(status_audittrail.nieuw, response.data["status"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
+
+        for trail in AuditTrail.objects.filter(resource="rol"):
+            self.assertEqual(trail.bron, "ZRC")
+            self.assertEqual(trail.actie, "create")
+            self.assertEqual(trail.oud, None)
+
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
         zaak = Zaak.objects.get()
