@@ -1701,3 +1701,51 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
             "zaak": zaak,
             "status": status,
         }
+
+
+class ZaakUpdatenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer(required=False, partial=True)
+    rollen = RolSubSerializer(many=True, required=False)
+    status = StatusSubSerializer()
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
+        zaak_serializer = ZaakSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak"),
+            partial=True,
+            context=self.context,
+        )
+        zaak_serializer.is_valid()
+        self._handle_errors(zaak=zaak_serializer.errors)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.is_valid()
+        self._handle_errors(status=status_serializer.errors)
+        status = status_serializer.save()
+
+        rollen = []
+        for i, rol in enumerate(self.initial_data.get("rollen") or []):
+            rol_serializer = RolSerializer(data=rol | zaak_data, context=self.context)
+            rol_serializer.is_valid()
+            self._handle_errors(index=i, rollen=rol_serializer.errors)
+            rollen.append(rol_serializer.save())
+
+        # statusSerializer changes zaak fields when a zaak is closed.
+        if status.statustype.is_eindstatus():
+            zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
+            "rollen": rollen,
+            "status": status,
+        }
