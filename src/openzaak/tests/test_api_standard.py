@@ -8,7 +8,7 @@ from django.test import SimpleTestCase, override_settings
 
 import requests_mock
 from vng_api_common.oas import fetcher
-from zgw_consumers.test import mock_service_oas_get, read_schema
+from zgw_consumers_oas.mocks import mock_service_oas_get, read_schema
 
 from openzaak.api_standards import SPECIFICATIONS, APIStandard
 
