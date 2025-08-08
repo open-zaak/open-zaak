@@ -2178,7 +2178,11 @@ class ZaakOpschortenViewset(
     ),
 )
 class ZaakUpdatenViewset(
-    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, GeoMixin
+    viewsets.ViewSet,
+    MultipleNotificationMixin,
+    AuditTrailMixin,
+    GeoMixin,
+    ClosedZaakMixin,
 ):
     serializer_class = ZaakUpdatenSerializer
     permission_classes = (ZaaKRegistrerenAuthRequired,)
@@ -2191,7 +2195,9 @@ class ZaakUpdatenViewset(
         "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
     }
 
-    extra_scopes = {"zaak": SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN}
+    extra_scopes = {
+        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
+    }
 
     actions = {"zaak": "partial_update"}
 
@@ -2281,7 +2287,11 @@ class ZaakUpdatenViewset(
             )
 
     def perform_post(self, serializer):
-        serializer.save()
+        data = serializer.save()
+
+        if data["rollen"]:
+            zaak = data.get("zaak")
+            self._check_zaak_closed(zaak, "zaken")
 
         logger.info(
             "zaak_geupdate",
