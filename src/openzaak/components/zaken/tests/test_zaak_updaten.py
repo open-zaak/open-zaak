@@ -12,6 +12,7 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
+    RolOmschrijving,
     RolTypes,
     VertrouwelijkheidsAanduiding,
 )
@@ -234,7 +235,9 @@ class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
         self.zaaktype = ZaakTypeFactory.create(concept=False)
         self.zaaktype_url = reverse(self.zaaktype)
 
-        self.roltype = RolTypeFactory(zaaktype=self.zaaktype)
+        self.roltype = RolTypeFactory(
+            zaaktype=self.zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
+        )
         self.roltype_url = reverse(self.roltype)
 
         self.statustype_1 = StatusTypeFactory.create(zaaktype=self.zaaktype)
@@ -506,8 +509,16 @@ class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(self.zaak.einddatum, datetime.date(2023, 1, 1))
 
     def test_rollen_are_added_and_existing_ones_are_kept(self):
-        rol_1 = RolFactory(zaak=self.zaak, roltoelichting="1")
-        rol_2 = RolFactory(zaak=self.zaak, roltoelichting="2")
+        rol_1 = RolFactory(
+            zaak=self.zaak,
+            roltoelichting="1",
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+        rol_2 = RolFactory(
+            zaak=self.zaak,
+            roltoelichting="2",
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
 
         content = {
             "zaak": self.opschorting,
