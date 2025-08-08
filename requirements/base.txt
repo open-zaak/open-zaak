@@ -160,7 +160,6 @@ django-filter==24.2
     # via
     #   commonground-api-common
     #   django-loose-fk
-    #   djangorestframework-gis
     #   open-api-framework
 django-formtools==2.5.1
     # via django-two-factor-auth
@@ -356,8 +355,6 @@ pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.0
     # via django-setup-configuration
-pygments==2.19.2
-    # via django-markup
 pyjwt==2.10.1
     # via
     #   commonground-api-common
@@ -372,8 +369,6 @@ pypng==0.20220715.0
     # via qrcode
 pyrsistent==0.18.1
     # via jsonschema
-python-creole==1.4.10
-    # via django-markup
 python-crontab==3.2.0
     # via django-celery-beat
 python-dateutil==2.8.2
@@ -494,7 +489,7 @@ webencodings==0.5.1
     # via bleach
 wrapt==1.16.0
     # via elastic-apm
-zgw-consumers==0.37.0
+zgw-consumers==1.0.0
     # via
     #   commonground-api-common
     #   notifications-api-common
