@@ -177,6 +177,7 @@ class AuthRequired(permissions.BasePermission):
 class MultipleObjectsAuthRequired(AuthRequired):
     permission_fields: dict[str, Sequence[str]]
     main_resources: dict
+    actions: dict[str, str]
 
     def get_field_viewset(self, viewset, action):
         field_viewset = import_string(viewset)()
@@ -217,12 +218,14 @@ class MultipleObjectsAuthRequired(AuthRequired):
             component = self.get_component(fieldset_view)
             fields = {}
 
-            if self.permission_fields and view.action == "create":
+            permission_fields = self.permission_fields.get(field)
+
+            if permission_fields and view.action == "create":
                 fields = self.validate_create(
                     request,
                     fieldset_view,
                     request.data.get(field, {}),
-                    self.permission_fields.get(field),
+                    permission_fields,
                     self.get_main_resource(self.main_resources.get(field)),
                     fieldset_view.get_serializer_class(),
                 )
@@ -233,4 +236,41 @@ class MultipleObjectsAuthRequired(AuthRequired):
         return True  # all field viewsets where valid
 
     def has_object_permission(self, request: Request, view, obj) -> bool:
-        raise NotImplementedError()
+        if bypass_permissions(request):
+            return True
+
+        if not getattr(view, "viewset_classes", None):
+            return False
+
+        for field, viewset in view.viewset_classes.items():
+            fieldset_view = self.get_field_viewset(
+                viewset,
+                view.action if not hasattr(view, "actions") else view.actions[field],
+            )
+
+            scopes_required = get_required_scopes(request, fieldset_view)
+
+            if hasattr(view, "extra_scopes") and view.extra_scopes.get(field):
+                scopes_required &= view.extra_scopes.get(field)
+
+            component = self.get_component(fieldset_view)
+            fields = {}
+
+            permission_fields = self.permission_fields.get(field)
+
+            main_resource = self.get_main_resource(self.main_resources.get(field))
+
+            if permission_fields:
+                if fieldset_view.__class__ is main_resource:
+                    main_object = obj
+                else:
+                    # currently unused by convenience endpoints that use MultipleObjectsAuthRequired
+                    main_object = obj.get(view.permission_main_object)
+
+                main_object_data = self.format_data(main_object, request, main_resource)
+                fields = self.get_fields(main_object_data, permission_fields)
+
+            if not request.jwt_auth.has_auth(scopes_required, component, **fields):
+                return False
+
+        return True
