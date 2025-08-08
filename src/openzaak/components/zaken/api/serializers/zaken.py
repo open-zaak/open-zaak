@@ -1716,7 +1716,7 @@ class ZaakUpdatenSerializer(ConvenienceSerializer):
 
         zaak_serializer = ZaakSerializer(
             instance=instance,
-            data=self.initial_data.get("zaak"),
+            data=self.initial_data.get("zaak", {}),
             partial=True,
             context=self.context,
         )
