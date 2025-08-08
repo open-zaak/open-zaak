@@ -494,7 +494,7 @@ webencodings==0.5.1
     # via bleach
 wrapt==1.16.0
     # via elastic-apm
-zgw-consumers==0.37.0
+zgw-consumers==1.0.0
     # via
     #   commonground-api-common
     #   notifications-api-common

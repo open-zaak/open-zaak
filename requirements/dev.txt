@@ -1198,7 +1198,7 @@ yarl==1.17.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   vcrpy
-zgw-consumers==0.37.0
+zgw-consumers==1.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
