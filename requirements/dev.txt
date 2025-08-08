@@ -62,10 +62,11 @@ billiard==4.2.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   celery
-bleach==6.1.0
+bleach==6.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-markup
 boltons==24.0.0
     # via
     #   -c requirements/ci.txt
@@ -196,11 +197,6 @@ cssselect==1.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   pyquery
-deprecated==1.2.14
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   redis
 dictdiffer==0.9.0
     # via
     #   -c requirements/ci.txt
@@ -246,6 +242,7 @@ django==5.2.3
     #   django-two-factor-auth
     #   django-upgrade-check
     #   djangorestframework
+    #   djangorestframework-gis
     #   djangorestframework-inclusions
     #   drc-cmis
     #   drf-extra-fields
@@ -282,7 +279,7 @@ django-celery-beat==2.8.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-cors-headers==4.4.0
+django-cors-headers==4.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -296,8 +293,10 @@ django-db-logger==0.1.12
     #   -r requirements/ci.txt
 django-debug-toolbar==5.0.1
     # via -r requirements/dev.in
-django-extensions==3.1.5
-    # via -r requirements/dev.in
+django-extensions==4.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 django-extra-views==0.14.0
     # via
     #   -c requirements/ci.txt
@@ -308,6 +307,7 @@ django-filter==24.2
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   django-loose-fk
+    #   djangorestframework-gis
     #   open-api-framework
 django-formtools==2.5.1
     # via
@@ -334,7 +334,7 @@ django-loose-fk==1.1.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-django-markup==1.8.1
+django-markup==1.9.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -358,7 +358,7 @@ django-privates==3.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-simple-certmanager
-django-redis==5.4.0
+django-redis==6.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -450,7 +450,7 @@ djangorestframework-camel-case==1.4.2
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   notifications-api-common
-djangorestframework-gis==1.0
+djangorestframework-gis==1.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -462,7 +462,9 @@ docutils==0.21.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-markup
     #   django-setup-configuration
+    #   python-creole
     #   recommonmark
     #   sphinx
     #   sphinx-rtd-theme
@@ -639,6 +641,7 @@ markdown==3.3.6
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-markup
     #   sphinx-markdown-tables
 markdown-it-py==3.0.0
     # via rich
@@ -669,6 +672,11 @@ multidict==6.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
+nh3==0.3.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   textile
 nodeenv==1.9.1
     # via pre-commit
 notifications-api-common==0.8.1
@@ -697,7 +705,6 @@ packaging==24.0
     #   build
     #   kombu
     #   pytest
-    #   redis
     #   sphinx
 phonenumberslite==8.13.35
     # via
@@ -721,7 +728,7 @@ pluggy==1.5.0
     #   pytest
 pre-commit==4.2.0
     # via -r requirements/dev.in
-prometheus-client==0.15.0
+prometheus-client==0.22.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -781,13 +788,16 @@ pydantic-settings==2.7.0
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
-pygments==2.18.0
+pygments==2.19.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-markup
     #   rich
     #   sphinx
     #   sphinx-tabs
+pygraphviz==1.14
+    # via -r requirements/dev.in
 pyinstrument==5.0.1
     # via -r requirements/dev.in
 pyjwt==2.10.1
@@ -837,6 +847,11 @@ pytest-benchmark==5.1.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
+python-creole==1.4.10
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-markup
 python-crontab==3.2.0
     # via
     #   -c requirements/ci.txt
@@ -894,11 +909,16 @@ recommonmark==0.7.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-redis==4.1.4
+redis==6.2.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-redis
+regex==2024.11.6
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   textile
 requests==2.32.4
     # via
     #   -c requirements/ci.txt
@@ -963,7 +983,6 @@ six==1.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   bleach
     #   click-repl
     #   cmislib-maykin
     #   django-db-logger
@@ -971,6 +990,11 @@ six==1.16.0
     #   orderedmultidict
     #   python-dateutil
     #   url-normalize
+smartypants==2.0.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-markup
 smmap==3.0.4
     # via gitdb
 sniffio==1.3.1
@@ -1056,9 +1080,14 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+textile==4.0.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   django-markup
 tomlkit==0.13.2
     # via bump-my-version
-tornado==6.5
+tornado==6.5.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1105,7 +1134,7 @@ urllib3==2.5.0
     #   requests-cache
     #   sentry-sdk
     #   vcrpy
-uwsgi==2.0.26
+uwsgi==2.0.30
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1162,7 +1191,6 @@ wrapt==1.16.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   deprecated
     #   elastic-apm
     #   vcrpy
 yarl==1.17.1

@@ -9,7 +9,9 @@ pre-commit
 
 # Debug tooling
 django-debug-toolbar
-django-extensions
 django-silk
 whitenoise
 pyinstrument
+
+# docs
+pygraphviz

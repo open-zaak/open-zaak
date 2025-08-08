@@ -11,8 +11,11 @@ import sys
 import django
 from django.utils.translation import activate
 
-sys.path.insert(0, os.path.abspath("../src"))
+sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(1, os.path.abspath("../src"))
 os.environ["LOG_REQUESTS"] = "false"
+
+from model_graph import generate_model_graphs
 
 import openzaak  # noqa isort:skip
 from openzaak.setup import setup_env  # noqa isort:skip
@@ -52,13 +55,16 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.graphviz",
     "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
     "sphinx.ext.autodoc",
     "django_setup_configuration.documentation.setup_config_example",
     "django_setup_configuration.documentation.setup_config_usage",
+    "uml_directive.uml",
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -92,7 +98,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ["_static"]
 
 todo_include_todos = True
 
@@ -131,3 +137,13 @@ intersphinx_mapping = {
         None,
     ),
 }
+
+
+#
+#   Datamodel image creation
+#
+graphviz_output_format = "png"
+
+
+def setup(app):
+    app.connect("builder-inited", generate_model_graphs)
