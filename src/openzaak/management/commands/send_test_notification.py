@@ -48,7 +48,7 @@ class Command(BaseCommand):
         }
 
         try:
-            nrc_client.request(url="notificaties", method="POST", data=data)
+            nrc_client.request(url="notificaties", method="POST", json=data)
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Notification successfully sent to {nrc_client.base_url}"
