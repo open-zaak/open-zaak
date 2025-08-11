@@ -320,7 +320,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 nh3==0.3.0
     # via textile
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@f0049421b7e06d99ef426c854fd4f7a845e39527
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@13e2943f2547e4060442faf0f3460bec76047cc6
     # via
     #   -r requirements/base.in
     #   commonground-api-common

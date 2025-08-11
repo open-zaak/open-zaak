@@ -593,7 +593,7 @@ nh3==0.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   textile
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@f0049421b7e06d99ef426c854fd4f7a845e39527
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@13e2943f2547e4060442faf0f3460bec76047cc6
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

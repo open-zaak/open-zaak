@@ -100,7 +100,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
         )
 
         self.url = reverse(
-            "schortzaakop",
+            "zaakopschorten",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -116,31 +116,31 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
             },
         }
 
-    def test_schort_zaak_op_without_auth(self):
+    def test_zaak_opschorten_without_auth(self):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_schort_zaak_op_with_only_zaken_create_scope(self):
+    def test_zaak_opschorten_with_only_zaken_create_scope(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_schort_zaak_op_with_only_zaken_update_scope(self):
+    def test_zaak_opschorten_with_only_zaken_update_scope(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_schort_zaak_op_with_zaken_scopes(self):
+    def test_zaak_opschorten_with_zaken_scopes(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_schort_zaak_op_with_statussen_toevoegen_scope(self):
+    def test_zaak_opschorten_with_statussen_toevoegen_scope(self):
         self._add_zaken_auth(scopes=[SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_schort_zaak_op_no_zaaktype_in_auth(self):
+    def test_zaak_opschorten_no_zaaktype_in_auth(self):
         self._add_zaken_auth(
             zaaktype="", scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE]
         )
@@ -148,7 +148,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_schort_zaak_op_with_catalogus_auth(self):
+    def test_zaak_opschorten_with_catalogus_auth(self):
         self._add_catalogi_auth(
             ComponentTypes.zrc,
             self.zaaktype.catalogus,
@@ -157,22 +157,6 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def test_schort_zaak_op_with_end_status(self):
-        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
-
-        content = self.content.copy()
-
-        content["status"]["statustype"] = self.check_for_instance(self.end_statustype)
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "status.nonFieldErrors")
-        self.assertEqual(error["code"], "resultaat-does-not-exist")
 
 
 @tag("convenience-endpoints")
@@ -210,13 +194,13 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
         }
 
         self.url = reverse(
-            "schortzaakop",
+            "zaakopschorten",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
         )
 
-    def test_schort_zaak_op(self):
+    def test_zaak_opschorten(self):
         content = {
             "zaak": self.opschorting,
             "status": self.status,
@@ -391,9 +375,25 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, content)
 
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "status.nonFieldErrors")
+        self.assertEqual(error["code"], "eindstatus-not-allowed")
+
+    def test_reopen_zaak(self):
+        self.zaak.einddatum = datetime.date(2025, 1, 1)
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(response.data["zaak"]["einddatum"], "2023-01-01")
-
-        self.zaak.refresh_from_db()
-        self.assertEqual(self.zaak.einddatum, datetime.date(2023, 1, 1))
+        self.assertEqual(response.data["zaak"]["einddatum"], None)

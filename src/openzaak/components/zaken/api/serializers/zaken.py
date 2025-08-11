@@ -98,6 +98,7 @@ from ..validators import (
     EndStatusDeelZakenValidator,
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
+    EndStatusNotAllowedOnEndpointValidator,
     HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
@@ -1683,6 +1684,7 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
         status_serializer = StatusSerializer(
             data=self.initial_data.get("status") | zaak_data, context=self.context
         )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
         status_serializer.is_valid()
 
         self._handle_errors(
@@ -1692,9 +1694,8 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
         zaak = zaak_serializer.save()
         status = status_serializer.save()
 
-        # statusSerializer changes zaak fields when a zaak is closed.
-        if status.statustype.is_eindstatus():
-            zaak.refresh_from_db()
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
 
         return {
             "zaak": zaak,

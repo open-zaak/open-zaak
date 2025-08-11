@@ -296,7 +296,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_update_audittrail.nieuw, zaak_response)
 
     @tag("convenience-endpoints")
-    def test_schort_zaak_op_audittrails(self):
+    def test_zaak_opschorten_audittrails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
@@ -307,7 +307,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "schortzaakop",
+            "zaakopschorten",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },
@@ -337,6 +337,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+        self.assertEqual(
+            zaak_audittrail.nieuw["status"], response.data["status"]["url"]
+        )
 
         status_audittrail = AuditTrail.objects.get(resource="status")
 

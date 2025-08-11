@@ -86,7 +86,7 @@ urlpatterns = [
                 path(
                     "zaak_opschorten/<uuid:uuid>",
                     zaakopschorten_view,
-                    name="schortzaakop",
+                    name="zaakopschorten",
                 ),
                 path("", include("vng_api_common.notifications.api.urls")),
             ]

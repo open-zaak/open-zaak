@@ -485,7 +485,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @tag("convenience-endpoints")
-    def test_send_notif_schort_zaak_op(self, mock_notif):
+    def test_zaak_opschorten_notifs(self, mock_notif):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = self.check_for_instance(zaaktype)
 
@@ -502,7 +502,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "schortzaakop",
+            "zaakopschorten",
             kwargs={
                 "uuid": zaak.uuid,
             },
