@@ -464,6 +464,11 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         auto_now_add=True,
     )
 
+    _json = models.JSONField(
+        blank=True,
+        null=True,
+    )
+
     objects = ZaakQuerySet.as_manager()
 
     _current_status_uuid: Optional[UUID]
