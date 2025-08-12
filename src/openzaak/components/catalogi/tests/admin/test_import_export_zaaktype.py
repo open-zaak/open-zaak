@@ -1918,6 +1918,87 @@ class ZaakTypeAdminImportExportTests(MockSelectielijst, WebTest):
             ).exists()
         )
 
+    @tag("gh-1797")
+    @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+    @patch_resource_validator
+    def test_export_import_zaaktype_with_besluittype_and_related_informatieobjecttype(
+        self, *mocks
+    ):
+        """
+        Regression test for #1797, if a Zaaktype is exported with a related Besluittype
+        that is in turn related to an Informatieobjecttype (which is not directly linked to
+        the Zaaktype), that informatieobjecttype should also be part of the export
+        """
+        zaaktype = ZaakTypeFactory.create(
+            uuid="d4ce5c1c-0e0a-4f01-87c5-5e504422383c",
+            catalogus=self.catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            zaaktype_omschrijving="bla",
+            selectielijst_procestype=f"{self.base}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d",
+        )
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            uuid="b753a2d0-0973-4e94-a6a1-74ecc688a0b5", zaaktypen=[]
+        )
+        besluittype = BesluitTypeFactory.create(
+            uuid="021cc30c-6af1-4e27-8961-172bf73b7f08",
+            zaaktypen=[zaaktype],
+            informatieobjecttypen=[informatieobjecttype],
+        )
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zaaktype.pk,))
+
+        response = self.app.get(url)
+
+        form = response.forms["zaaktype_form"]
+        response = form.submit("_export")
+        data = response.content
+
+        zaaktype.delete()
+        informatieobjecttype.delete()
+        besluittype.delete()
+        url = reverse(
+            "admin:catalogi_catalogus_import_zaaktype", args=(self.catalogus.pk,)
+        )
+
+        response = self.app.get(url)
+
+        form = response.form
+        f = io.BytesIO(data)
+        f.name = "test.zip"
+        f.seek(0)
+        form["file"] = (
+            "test.zip",
+            f.read(),
+        )
+        form["generate_new_uuids"] = False
+
+        response = form.submit("_import_zaaktype").follow()
+        response = response.form.submit("_select")
+
+        self.assertEqual(response.status_code, 302)
+
+        besluittype = BesluitType.objects.get(uuid=besluittype.uuid)
+        informatieobjecttype = InformatieObjectType.objects.get(
+            uuid=informatieobjecttype.uuid
+        )
+        zaaktype = ZaakType.objects.get(uuid=zaaktype.uuid)
+
+        self.assertEqual(besluittype.catalogus, self.catalogus)
+        self.assertTrue(besluittype.concept)
+        self.assertEqual(list(besluittype.zaaktypen.all()), [zaaktype])
+        self.assertEqual(
+            list(besluittype.informatieobjecttypen.all()), [informatieobjecttype]
+        )
+
+        self.assertEqual(informatieobjecttype.catalogus, self.catalogus)
+        self.assertTrue(informatieobjecttype.concept)
+
+        self.assertEqual(zaaktype.catalogus, self.catalogus)
+        self.assertEqual(zaaktype.selectielijst_procestype_jaar, 2017)
+        self.assertTrue(zaaktype.concept)
+        # Informatieobjecttype is not directly related to zaaktype
+        self.assertEqual(zaaktype.zaaktypeinformatieobjecttype_set.count(), 0)
+
 
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")
