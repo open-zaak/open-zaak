@@ -13,8 +13,8 @@ from freezegun import freeze_time
 from rest_framework import status
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers_oas.mocks import mock_service_oas_get
 from zgw_consumers.test.factories import ServiceFactory
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import APICMISTestCase, JWTAuthMixin, require_cmis

@@ -15,8 +15,8 @@ from vng_api_common.tests import (
     reverse_lazy,
 )
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers_oas.mocks import mock_service_oas_get
 from zgw_consumers.test.factories import ServiceFactory
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
