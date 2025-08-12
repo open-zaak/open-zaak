@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
-from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,

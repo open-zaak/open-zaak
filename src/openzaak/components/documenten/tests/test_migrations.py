@@ -111,8 +111,12 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             Service.objects.filter(api_root="https://andere.zaken.nl/api/v1/").exists()
         )
 
-        ztc_new = Service.objects.get(api_root="https://andere.catalogus.nl/api/v1/")
-        zrc_new = Service.objects.get(api_root="https://andere.zaken.nl/api/v1/")
+        ztc_new = Service.objects.defer("oas", "oas_file").get(
+            api_root="https://andere.catalogus.nl/api/v1/"
+        )
+        zrc_new = Service.objects.defer("oas", "oas_file").get(
+            api_root="https://andere.zaken.nl/api/v1/"
+        )
         for service in [ztc_new, zrc_new]:
             self.assertEqual(service.label, "FIXME")
             self.assertEqual(service.api_type, APITypes.orc)

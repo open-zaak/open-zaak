@@ -19,7 +19,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
-from zgw_consumers.test import mock_service_oas_get
+from zgw_consumers_oas.mocks import mock_service_oas_get
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
