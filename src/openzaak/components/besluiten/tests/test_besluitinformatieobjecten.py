@@ -214,7 +214,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             api_root=cls.base,
             label="external documents",
             auth_type=AuthTypes.no_auth,
-            oas=f"{cls.base}schema/openapi.yaml?v3",
         )
 
     def test_create_bio_external_document(self):
@@ -238,7 +237,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         with self.subTest(section="bio-create"):
             with requests_mock.Mocker() as m:
                 mock_drc_oas_get(m)
-                mock_drc_oas_get(m, oas_url=self.drc_service.oas)
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",

@@ -20,7 +20,7 @@ from ..forms import get_nlx_choices
 
 CURRENT_DIR = Path(__file__).parent
 
-DEMO_DIRECTORY = "https://directory.demo.nlx.io/"
+DEMO_DIRECTORY = "https://demo-directory-api.commonground.acc.utrecht.nl/"
 
 
 @disable_admin_mfa()
