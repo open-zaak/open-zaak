@@ -34,7 +34,7 @@ class InternalServicesFormTests(AdminTestMixin, WebTest):
 
         get_response = self.app.get(add_url)
 
-        form = get_response.form
+        form = get_response.forms[1]
         # make sure that autorisaties service is in form-0 of formset
         assert int(form["form-0-id"].value) == autorisaties.id
 
