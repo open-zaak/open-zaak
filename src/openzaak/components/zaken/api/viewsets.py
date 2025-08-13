@@ -133,6 +133,7 @@ from .serializers import (
     ZaakOpschortenSerializer,
     ZaakRegistrerenSerializer,
     ZaakSerializer,
+    ZaakVerlengenSerializer,
     ZaakVerzoekSerializer,
     ZaakZoekSerializer,
 )
@@ -2070,14 +2071,9 @@ class ZaakRegistrerenViewset(
         )
 
 
-@extend_schema(
-    summary="Short een zaak op",
-    description=mark_experimental("Schort een zaak op en maak een status aan."),
-)
-class ZaakOpschortenViewset(
+class ZaakUpdateActionViewSet(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
 ):
-    serializer_class = ZaakOpschortenSerializer
     permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
@@ -2160,7 +2156,18 @@ class ZaakOpschortenViewset(
         )
 
     def perform_post(self, serializer):
-        serializer.save()
+        return serializer.save()
+
+
+@extend_schema(
+    summary="Short een zaak op",
+    description=mark_experimental("Schort een zaak op en maak een status aan."),
+)
+class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
+    serializer_class = ZaakOpschortenSerializer
+
+    def perform_post(self, serializer):
+        super().perform_post(serializer)
 
         logger.info(
             "zaak_opgeschort",
@@ -2409,3 +2416,20 @@ class ZaakBijwerkenViewset(
         # Created rollen
         for uuid in new_uuids - old_uuids:
             send_rol_notification(new_rollen[uuid], "create")
+
+
+@extend_schema(
+    summary="Verleng een zaak",
+    description=mark_experimental("Verleng een zaak en maak een status aan."),
+)
+class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
+    serializer_class = ZaakVerlengenSerializer
+
+    def perform_post(self, serializer):
+        serializer.save()
+
+        logger.info(
+            "zaak_verlengd",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
+        )

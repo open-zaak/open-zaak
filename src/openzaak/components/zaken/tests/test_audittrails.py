@@ -541,6 +541,58 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(created_rol_trail.oud)
         self.assertIsNotNone(created_rol_trail.nieuw)
 
+    @tag("convenience-endpoints")
+    def test_zaak_verlengen_audittrails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak_data = self._create_zaak(zaaktype)
+
+        url = reverse(
+            "verlengzaak",
+            kwargs={
+                "uuid": zaak_data["uuid"],
+            },
+        )
+
+        data = {
+            "zaak": {
+                "verlenging": {"duur": "P5D", "reden": "reden"},
+            },
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(AuditTrail.objects.count(), 3)  # zaak create as well
+
+        zaak_audittrail = AuditTrail.objects.get(
+            resource="zaak", actie="partial_update"
+        )
+
+        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.oud, zaak_data)
+        self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
+        self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+
+        status_audittrail = AuditTrail.objects.get(resource="status")
+
+        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.resource, "status")
+        self.assertEqual(status_audittrail.oud, None)
+        self.assertEqual(status_audittrail.nieuw, response.data["status"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
+
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
         zaak = Zaak.objects.get()
