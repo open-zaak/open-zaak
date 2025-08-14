@@ -47,7 +47,7 @@ from openzaak.tests.utils import JWTAuthMixin
 @override_settings(
     OPENZAAK_DOMAIN="testserver", LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"
 )
-class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
+class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -108,7 +108,7 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
         )
 
         self.url = reverse(
-            "updatezaak",
+            "zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -132,26 +132,26 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
             ],
         }
 
-    def test_update_zaak_without_auth(self):
+    def test_zaak_bijwerken_without_auth(self):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_update_zaak_with_only_zaken_update_scope(self):
+    def test_zaak_bijwerken_with_only_zaken_update_scope(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-    def test_update_zaak_with_valid_scopes(self):
+    def test_zaak_bijwerken_with_valid_scopes(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_BIJWERKEN, SCOPE_ZAKEN_CREATE])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_update_zaak_with_statussen_toevoegen_scope(self):
+    def test_zaak_bijwerken_with_statussen_toevoegen_scope(self):
         self._add_zaken_auth(scopes=[SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_BIJWERKEN])
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_update_zaak_with_catalogus_auth(self):
+    def test_zaak_bijwerken_with_catalogus_auth(self):
         self._add_catalogi_auth(
             ComponentTypes.zrc,
             self.zaaktype.catalogus,
@@ -161,7 +161,7 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_update_zaak_with_closed_zaak(self):
+    def test_zaak_bijwerken_with_closed_zaak(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
 
         self.zaak.einddatum = timezone.now()
@@ -177,7 +177,7 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
             "Je mag geen gegevens aanpassen van een gesloten zaak.",
         )
 
-    def test_update_zaak_with_closed_zaak_with_force_scope(self):
+    def test_zaak_bijwerken_with_closed_zaak_with_force_scope(self):
         self._add_zaken_auth(
             scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
         )
@@ -191,7 +191,7 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_update_zaak_with_closed_zaak_without_rollen(self):
+    def test_zaak_bijwerken_with_closed_zaak_without_rollen(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
 
         self.zaak.einddatum = timezone.now()
@@ -210,7 +210,7 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
-class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
+class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -254,13 +254,13 @@ class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
         }
 
         self.url = reverse(
-            "updatezaak",
+            "zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
         )
 
-    def test_update_zaak(self):
+    def test_zaak_bijwerken(self):
         content = {
             "zaak": self.opschorting,
             "status": self.status,
@@ -393,7 +393,7 @@ class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
         response_data = response.json()
         self.assertEqual(response_data, expected_response)
 
-    def test_update_zaak_minimal(self):
+    def test_zaak_bijwerken_minimal(self):
         content = {
             "status": self.status,
         }

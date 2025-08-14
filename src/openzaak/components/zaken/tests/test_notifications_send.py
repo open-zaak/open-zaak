@@ -588,7 +588,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "updatezaak",
+            "zaakbijwerken",
             kwargs={
                 "uuid": zaak.uuid,
             },

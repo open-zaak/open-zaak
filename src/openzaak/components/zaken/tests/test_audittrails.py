@@ -351,7 +351,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
     @tag("convenience-endpoints")
-    def test_zaak_updaten_audittrails(self):
+    def test_zaak_bijwerken_audittrails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
         roltype = RolTypeFactory(
@@ -367,7 +367,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "updatezaak",
+            "zaakbijwerken",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },

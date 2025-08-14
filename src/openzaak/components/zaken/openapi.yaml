@@ -3776,9 +3776,83 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
-  /zaak_opschorten/{uuid}:
+  /zaak_bijwerken/{uuid}:
     post:
       operationId: None_post
+      description: '**EXPERIMENTEEL** Werk een Zaak deels bij samen met een status
+        & rollen om alles direct aan de zaak te linken.'
+      summary: Update een zaak
+      parameters:
+      - in: header
+        name: Accept-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+          data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
+          the same as WGS84).'
+      - in: header
+        name: Content-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+          According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
+          as WGS84).'
+        required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - zaak_bijwerken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakBijwerkenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
+          | zaken.heropenen))
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Content-Crs:
+              schema:
+                type: string
+                enum:
+                - EPSG:4326
+              description: 'The ''Coordinate Reference System'' (CRS) of the request
+                data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
+                is the same as WGS84).'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakBijwerken'
+          description: OK
+  /zaak_opschorten/{uuid}:
+    post:
+      operationId: None_post_2
       description: '**EXPERIMENTEEL** Schort een zaak op en maak een status aan.'
       summary: Short een zaak op
       parameters:
@@ -4014,80 +4088,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
-  /zaak_updaten/{uuid}:
-    post:
-      operationId: None_post_2
-      description: '**EXPERIMENTEEL** Werk een Zaak deels bij samen met een status
-        & rollen om alles direct aan de zaak te linken.'
-      summary: Update een zaak
-      parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
-          data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
-          the same as WGS84).'
-      - in: header
-        name: Content-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
-          According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
-          as WGS84).'
-        required: true
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - zaak_updaten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ZaakUpdatenRequest'
-        required: true
-      security:
-      - JWT-Claims:
-        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
-          | zaken.heropenen))
-      responses:
-        '200':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-            Content-Crs:
-              schema:
-                type: string
-                enum:
-                - EPSG:4326
-              description: 'The ''Coordinate Reference System'' (CRS) of the request
-                data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
-                is the same as WGS84).'
-              required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ZaakUpdaten'
-          description: OK
   /zaakcontactmomenten:
     get:
       operationId: zaakcontactmoment_list
@@ -18440,6 +18440,32 @@ components:
           maxLength: 1000
       required:
       - besluit
+    ZaakBijwerken:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakSub'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolSub'
+        status:
+          $ref: '#/components/schemas/StatusSub'
+      required:
+      - status
+    ZaakBijwerkenRequest:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/PatchedZaakSubRequest'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolSubRequest'
+        status:
+          $ref: '#/components/schemas/StatusSubRequest'
+      required:
+      - status
     ZaakContactMoment:
       type: object
       properties:
@@ -20352,32 +20378,6 @@ components:
       - startdatum
       - verantwoordelijkeOrganisatie
       - zaaktype
-    ZaakUpdaten:
-      type: object
-      properties:
-        zaak:
-          $ref: '#/components/schemas/ZaakSub'
-        rollen:
-          type: array
-          items:
-            $ref: '#/components/schemas/RolSub'
-        status:
-          $ref: '#/components/schemas/StatusSub'
-      required:
-      - status
-    ZaakUpdatenRequest:
-      type: object
-      properties:
-        zaak:
-          $ref: '#/components/schemas/PatchedZaakSubRequest'
-        rollen:
-          type: array
-          items:
-            $ref: '#/components/schemas/RolSubRequest'
-        status:
-          $ref: '#/components/schemas/StatusSubRequest'
-      required:
-      - status
     ZaakVerzoek:
       type: object
       properties:

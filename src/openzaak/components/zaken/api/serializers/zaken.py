@@ -1703,7 +1703,7 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
         }
 
 
-class ZaakUpdatenSerializer(ConvenienceSerializer):
+class ZaakBijwerkenSerializer(ConvenienceSerializer):
     zaak = ZaakSubSerializer(required=False, partial=True)
     rollen = RolSubSerializer(many=True, required=False)
     status = StatusSubSerializer()

@@ -101,10 +101,9 @@ from .filters import (
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
+    ZaakActionAuthRequired,
     ZaakAuthRequired,
     ZaakNestedAuthRequired,
-    ZaakOpSchortenAuthRequired,
-    ZaaKRegistrerenAuthRequired,
 )
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -124,6 +123,7 @@ from .serializers import (
     StatusSerializer,
     SubStatusSerializer,
     ZaakBesluitSerializer,
+    ZaakBijwerkenSerializer,
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
@@ -132,7 +132,6 @@ from .serializers import (
     ZaakOpschortenSerializer,
     ZaakRegistrerenSerializer,
     ZaakSerializer,
-    ZaakUpdatenSerializer,
     ZaakVerzoekSerializer,
     ZaakZoekSerializer,
 )
@@ -1976,7 +1975,7 @@ class ZaakRegistrerenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, GeoMixin
 ):
     serializer_class = ZaakRegistrerenSerializer
-    permission_classes = (ZaaKRegistrerenAuthRequired,)
+    permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "create": SCOPE_ZAKEN_CREATE
         & (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
@@ -2078,7 +2077,7 @@ class ZaakOpschortenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
 ):
     serializer_class = ZaakOpschortenSerializer
-    permission_classes = (ZaakOpSchortenAuthRequired,)
+    permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
         & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
@@ -2088,9 +2087,7 @@ class ZaakOpschortenViewset(
         "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
     }
 
-    extra_scopes = {
-        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
-    }
+    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
 
     # Used to define the action used for each field in viewset_classes.
     actions = {"zaak": "partial_update"}
@@ -2177,15 +2174,15 @@ class ZaakOpschortenViewset(
         "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
     ),
 )
-class ZaakUpdatenViewset(
+class ZaakBijwerkenViewset(
     viewsets.ViewSet,
     MultipleNotificationMixin,
     AuditTrailMixin,
     GeoMixin,
     ClosedZaakMixin,
 ):
-    serializer_class = ZaakUpdatenSerializer
-    permission_classes = (ZaaKRegistrerenAuthRequired,)
+    serializer_class = ZaakBijwerkenSerializer
+    permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
         & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
@@ -2195,9 +2192,7 @@ class ZaakUpdatenViewset(
         "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
     }
 
-    extra_scopes = {
-        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
-    }
+    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
 
     actions = {"zaak": "partial_update"}
 
@@ -2293,7 +2288,7 @@ class ZaakUpdatenViewset(
         serializer.save()
 
         logger.info(
-            "zaak_geupdate",
+            "zaak_bijgewerkt",
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
