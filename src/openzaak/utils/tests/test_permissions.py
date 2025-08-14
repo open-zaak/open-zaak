@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
 from openzaak.components.zaken.api.viewsets import ZaakViewSet
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.utils.permissions import AuthRequired, MultipleObjectsAuthRequired
 
 
@@ -38,6 +39,7 @@ class AuthRequiredTests(TestCase):
 class MultipleObjectsAuthRequiredTests(TestCase):
     def setUp(self):
         self.auth = MultipleObjectsAuthRequired()
+        self.object = ZaakFactory.create()
 
     @override_settings(DEBUG=True)
     @patch("openzaak.utils.permissions.AuthRequired.has_handler", return_value=None)
@@ -48,9 +50,12 @@ class MultipleObjectsAuthRequiredTests(TestCase):
         drf_request = Request(django_request)
         drf_request.accepted_renderer = BrowsableAPIRenderer()
         view = ZaakViewSet()
-        result = self.auth.has_permission(drf_request, view)
 
+        result = self.auth.has_permission(drf_request, view)
         self.assertTrue(result)
+
+        obj_result = self.auth.has_object_permission(drf_request, view, self.object)
+        self.assertTrue(obj_result)
 
     @patch("openzaak.utils.permissions.AuthRequired.has_handler", return_value=None)
     def test_viewset_classes_missing(self, mock_has_handler):
@@ -61,9 +66,12 @@ class MultipleObjectsAuthRequiredTests(TestCase):
         view = ZaakViewSet()
         view.action = "list"
         view.viewset_classes = None
-        result = self.auth.has_permission(drf_request, view)
 
+        result = self.auth.has_permission(drf_request, view)
         self.assertFalse(result)
+
+        obj_result = self.auth.has_object_permission(drf_request, view, self.object)
+        self.assertFalse(obj_result)
 
     @patch("openzaak.utils.permissions.AuthRequired.has_handler", return_value=None)
     def test_view_ismixin_and_action_none(self, mock_has_handler):

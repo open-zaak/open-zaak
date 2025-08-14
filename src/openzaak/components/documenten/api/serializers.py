@@ -39,6 +39,7 @@ from openzaak.utils.serializer_fields import (
 )
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
+    SubSerializerMixin,
     get_from_serializer_data_or_instance,
 )
 from openzaak.utils.validators import (
@@ -771,6 +772,12 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
         return eio
 
 
+class EnkelvoudigInformatieObjectCreateLockSubSerializer(
+    SubSerializerMixin, EnkelvoudigInformatieObjectCreateLockSerializer
+):
+    pass
+
+
 class LockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
     """
     Serializer for the lock action of EnkelvoudigInformatieObjectCanonical
@@ -1174,7 +1181,7 @@ class ReservedDocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentRegistrerenSerializer(ConvenienceSerializer):
-    enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSerializer()
+    enkelvoudiginformatieobject = EnkelvoudigInformatieObjectCreateLockSubSerializer()
     zaakinformatieobject = ZaakInformatieObjectSubSerializer()
 
     @transaction.atomic

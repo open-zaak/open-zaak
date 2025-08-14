@@ -281,6 +281,15 @@ class EndStatusIOsUnlockedValidator:
                 raise serializers.ValidationError(self.message, code=self.code)
 
 
+class EndStatusNotAllowedOnEndpointValidator:
+    code = "eindstatus-not-allowed"
+    message = _("Het is niet toegestaan om een zaak te sluiten via deze endpoint")
+
+    def __call__(self, attrs: dict):
+        if attrs.get("__is_eindstatus"):
+            raise serializers.ValidationError(self.message, code=self.code)
+
+
 class DeelzaakReopenValidator:
     """
     Validate that the hoofdzaak is not closed  when a deelzaak is reopened.

@@ -7145,7 +7145,7 @@ components:
       type: object
       properties:
         enkelvoudiginformatieobject:
-          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLock'
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockSub'
         zaakinformatieobject:
           $ref: '#/components/schemas/ZaakInformatieObjectSub'
       required:
@@ -7155,7 +7155,7 @@ components:
       type: object
       properties:
         enkelvoudiginformatieobject:
-          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockRequest'
+          $ref: '#/components/schemas/EnkelvoudigInformatieObjectCreateLockSubRequest'
         zaakinformatieobject:
           $ref: '#/components/schemas/ZaakInformatieObjectSubRequest'
       required:
@@ -7353,11 +7353,171 @@ components:
       - titel
       - url
       - versie
-    EnkelvoudigInformatieObjectCreateLock:
+    EnkelvoudigInformatieObjectCreateLockRequest:
       type: object
       description: |-
         This serializer class is used by EnkelvoudigInformatieObjectViewSet for
         create operation for large files
+      properties:
+        identificatie:
+          type: string
+          description: Een binnen een gegeven context ondubbelzinnige referentie naar
+            het INFORMATIEOBJECT.
+          maxLength: 40
+        bronorganisatie:
+          type: string
+          minLength: 1
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
+            in een samenwerkingsketen heeft vastgelegd.
+          maxLength: 9
+        creatiedatum:
+          type: string
+          format: date
+          description: Een datum of een gebeurtenis in de levenscyclus van het INFORMATIEOBJECT.
+        titel:
+          type: string
+          minLength: 1
+          description: De naam waaronder het INFORMATIEOBJECT formeel bekend is.
+          maxLength: 200
+        vertrouwelijkheidaanduiding:
+          description: |-
+            Aanduiding van de mate waarin het INFORMATIEOBJECT voor de openbaarheid bestemd is.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+          oneOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        auteur:
+          type: string
+          minLength: 1
+          description: De persoon of organisatie die in de eerste plaats verantwoordelijk
+            is voor het creëren van de inhoud van het INFORMATIEOBJECT.
+          maxLength: 200
+        status:
+          description: |-
+            Aanduiding van de stand van zaken van een INFORMATIEOBJECT. De waarden 'in bewerking' en 'ter vaststelling' komen niet voor als het attribuut `ontvangstdatum` van een waarde is voorzien. Wijziging van de Status in 'gearchiveerd' impliceert dat het informatieobject een duurzaam, niet-wijzigbaar Formaat dient te hebben.
+
+            Uitleg bij mogelijke waarden:
+
+            * `in_bewerking` - (In bewerking) Aan het informatieobject wordt nog gewerkt.
+            * `ter_vaststelling` - (Ter vaststelling) Informatieobject gereed maar moet nog vastgesteld worden.
+            * `definitief` - (Definitief) Informatieobject door bevoegd iets of iemand vastgesteld dan wel ontvangen.
+            * `gearchiveerd` - (Gearchiveerd) Informatieobject duurzaam bewaarbaar gemaakt; een gearchiveerd informatie-element.
+          oneOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        formaat:
+          type: string
+          description: 'Het "Media Type" (voorheen "MIME type") voor de wijze waaropde
+            inhoud van het INFORMATIEOBJECT is vastgelegd in een computerbestand.
+            Voorbeeld: `application/msword`. Zie: https://www.iana.org/assignments/media-types/media-types.xhtml'
+          maxLength: 255
+        taal:
+          type: string
+          minLength: 3
+          description: 'Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT
+            is vastgelegd. Voorbeeld: `dut`. Zie: https://www.iso.org/standard/4767.html'
+          maxLength: 3
+        bestandsnaam:
+          type: string
+          description: De naam van het fysieke bestand waarin de inhoud van het informatieobject
+            is vastgelegd, inclusief extensie.
+          maxLength: 255
+        inhoud:
+          type: string
+          format: byte
+          description: Minimal accepted size of uploaded file = 4294967296 bytes (or
+            4.0 GiB)
+          nullable: true
+        bestandsomvang:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt.
+        link:
+          type: string
+          format: uri
+          description: De URL waarmee de inhoud van het INFORMATIEOBJECT op te vragen
+            is.
+          maxLength: 200
+        beschrijving:
+          type: string
+          description: Een generieke beschrijving van de inhoud van het INFORMATIEOBJECT.
+          maxLength: 1000
+        ontvangstdatum:
+          type: string
+          format: date
+          nullable: true
+          description: |-
+            **DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+             De datum waarop het INFORMATIEOBJECT ontvangen is. Verplicht te registreren voor INFORMATIEOBJECTen die van buiten de zaakbehandelende organisatie(s) ontvangen zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.
+        verzenddatum:
+          type: string
+          format: date
+          nullable: true
+          description: |-
+            **DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.
+
+            De datum waarop het INFORMATIEOBJECT verzonden is, zoals deze op het INFORMATIEOBJECT vermeld is. Dit geldt voor zowel inkomende als uitgaande INFORMATIEOBJECTen. Eenzelfde informatieobject kan niet tegelijk inkomend en uitgaand zijn. Ontvangst en verzending is voorbehouden aan documenten die van of naar andere personen ontvangen of verzonden zijn waarbij die personen niet deel uit maken van de behandeling van de zaak waarin het document een rol speelt.
+        indicatieGebruiksrecht:
+          type: boolean
+          nullable: true
+          description: Indicatie of er beperkingen gelden aangaande het gebruik van
+            het informatieobject anders dan raadpleging. Dit veld mag `null` zijn
+            om aan te geven dat de indicatie nog niet bekend is. Als de indicatie
+            gezet is, dan kan je de gebruiksrechten die van toepassing zijn raadplegen
+            via de GEBRUIKSRECHTen resource.
+        verschijningsvorm:
+          type: string
+          description: De essentiële opmaakaspecten van een INFORMATIEOBJECT.
+        ondertekening:
+          allOf:
+          - $ref: '#/components/schemas/OndertekeningRequest'
+          nullable: true
+          description: Aanduiding van de rechtskracht van een informatieobject. Mag
+            niet van een waarde zijn voorzien als de `status` de waarde 'in bewerking'
+            of 'ter vaststelling' heeft.
+        integriteit:
+          allOf:
+          - $ref: '#/components/schemas/IntegriteitRequest'
+          nullable: true
+          description: Uitdrukking van mate van volledigheid en onbeschadigd zijn
+            van digitaal bestand.
+        informatieobjecttype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi
+            API).
+          format: uri
+          maxLength: 200
+        trefwoorden:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            title: Trefwoord
+            maxLength: 100
+          description: Een lijst van trefwoorden gescheiden door comma's.
+      required:
+      - auteur
+      - bronorganisatie
+      - creatiedatum
+      - informatieobjecttype
+      - taal
+      - titel
+    EnkelvoudigInformatieObjectCreateLockSub:
+      type: object
       properties:
         url:
           type: string
@@ -7554,11 +7714,8 @@ components:
       - titel
       - url
       - versie
-    EnkelvoudigInformatieObjectCreateLockRequest:
+    EnkelvoudigInformatieObjectCreateLockSubRequest:
       type: object
-      description: |-
-        This serializer class is used by EnkelvoudigInformatieObjectViewSet for
-        create operation for large files
       properties:
         identificatie:
           type: string

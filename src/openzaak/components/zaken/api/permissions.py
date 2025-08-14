@@ -44,3 +44,7 @@ class ZaaKRegistrerenAuthRequired(MultipleObjectsAuthRequired):
     main_resources = {
         "zaak": ZaakAuthRequired.main_resource,
     }
+
+
+class ZaakOpSchortenAuthRequired(ZaaKRegistrerenAuthRequired):
+    """Uses the same fields & main resources"""

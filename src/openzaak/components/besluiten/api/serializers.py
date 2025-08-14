@@ -173,6 +173,10 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
         return besluit
 
 
+class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
+    pass
+
+
 class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
         validators=[
@@ -255,7 +259,7 @@ class BesluitInformatieObjectSubSerializer(
 
 
 class BesluitVerwerkenSerializer(ConvenienceSerializer):
-    besluit = BesluitSerializer()
+    besluit = BesluitSubSerializer()
     besluitinformatieobjecten = BesluitInformatieObjectSubSerializer(many=True)
 
     @transaction.atomic

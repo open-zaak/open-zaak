@@ -320,7 +320,7 @@ mozilla-django-oidc-db==0.22.0
     # via open-api-framework
 nh3==0.3.0
     # via textile
-notifications-api-common==0.8.1
+notifications-api-common==0.8.2
     # via commonground-api-common
 open-api-framework==0.12.0
     # via -r requirements/base.in

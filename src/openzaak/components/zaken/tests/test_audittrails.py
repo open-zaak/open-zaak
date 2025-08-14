@@ -40,9 +40,9 @@ from .utils import ZAAK_WRITE_KWARGS
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def _create_zaak(self, **headers):
+    def _create_zaak(self, zaaktype=None, **headers):
         url = reverse(Zaak)
-        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype = zaaktype or ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         zaak_data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -294,6 +294,61 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_update_audittrail.resultaat, 200)
         self.assertEqual(zaak_update_audittrail.oud, zaak_data)
         self.assertEqual(zaak_update_audittrail.nieuw, zaak_response)
+
+    @tag("convenience-endpoints")
+    def test_zaak_opschorten_audittrails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak_data = self._create_zaak(zaaktype)
+
+        url = reverse(
+            "zaakopschorten",
+            kwargs={
+                "uuid": zaak_data["uuid"],
+            },
+        )
+
+        data = {
+            "zaak": {
+                "opschorting": {"indicatie": True, "reden": "test"},
+            },
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(AuditTrail.objects.count(), 3)  # zaak create as well
+
+        zaak_audittrail = AuditTrail.objects.get(
+            resource="zaak", actie="partial_update"
+        )
+
+        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.oud, zaak_data)
+        self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
+        self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+        self.assertEqual(
+            zaak_audittrail.nieuw["status"], response.data["status"]["url"]
+        )
+
+        status_audittrail = AuditTrail.objects.get(resource="status")
+
+        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.resource, "status")
+        self.assertEqual(status_audittrail.oud, None)
+        self.assertEqual(status_audittrail.nieuw, response.data["status"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
