@@ -161,22 +161,6 @@ class ZaakUpdatenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_update_zaak_with_end_status(self):
-        self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
-
-        content = self.content.copy()
-
-        content["status"]["statustype"] = self.check_for_instance(self.end_statustype)
-
-        response = self.client.post(self.url, content)
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "status.nonFieldErrors")
-        self.assertEqual(error["code"], "resultaat-does-not-exist")
-
     def test_update_zaak_with_closed_zaak(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
 
@@ -501,12 +485,28 @@ class ZaakUpdatenValidationTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, content)
 
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "status.nonFieldErrors")
+        self.assertEqual(error["code"], "eindstatus-not-allowed")
+
+    def test_reopen_zaak(self):
+        self.zaak.einddatum = datetime.date(2025, 1, 1)
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(response.data["zaak"]["einddatum"], "2023-01-01")
-
-        self.zaak.refresh_from_db()
-        self.assertEqual(self.zaak.einddatum, datetime.date(2023, 1, 1))
+        self.assertEqual(response.data["zaak"]["einddatum"], None)
 
     def test_rollen_are_added_and_existing_ones_are_kept(self):
         rol_1 = RolFactory(

@@ -1729,6 +1729,7 @@ class ZaakUpdatenSerializer(ConvenienceSerializer):
         status_serializer = StatusSerializer(
             data=self.initial_data.get("status") | zaak_data, context=self.context
         )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
         status_serializer.is_valid()
         self._handle_errors(status=status_serializer.errors)
         status = status_serializer.save()
@@ -1740,9 +1741,8 @@ class ZaakUpdatenSerializer(ConvenienceSerializer):
             self._handle_errors(index=i, rollen=rol_serializer.errors)
             rollen.append(rol_serializer.save())
 
-        # statusSerializer changes zaak fields when a zaak is closed.
-        if status.statustype.is_eindstatus():
-            zaak.refresh_from_db()
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
 
         return {
             "zaak": zaak,

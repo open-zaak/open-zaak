@@ -2231,6 +2231,9 @@ class ZaakUpdatenViewset(
     def post(self, request, uuid=None, *args, **kwargs):
         instance = self.get_object(uuid)
 
+        if request.data.get("rollen"):
+            self._check_zaak_closed(instance, "zaken")
+
         zaak_version_before_edit = ZaakSerializer(
             context={"request": request}, instance=instance
         ).data
@@ -2287,11 +2290,7 @@ class ZaakUpdatenViewset(
             )
 
     def perform_post(self, serializer):
-        data = serializer.save()
-
-        if data["rollen"]:
-            zaak = data.get("zaak")
-            self._check_zaak_closed(zaak, "zaken")
+        serializer.save()
 
         logger.info(
             "zaak_geupdate",
