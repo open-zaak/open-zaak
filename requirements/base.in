@@ -32,5 +32,3 @@ drc-cmis
 commonground-api-common[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]
-
-git+https://github.com/maykinmedia/notifications-api-common.git@feature/make-notification-action-changeable #TODO
