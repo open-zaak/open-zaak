@@ -97,6 +97,7 @@ django==5.2.3
     #   django-celery-beat
     #   django-cors-headers
     #   django-csp
+    #   django-db-geventpool
     #   django-db-logger
     #   django-extra-views
     #   django-filter
@@ -152,6 +153,8 @@ django-csp==3.8
     # via
     #   -r requirements/base.in
     #   open-api-framework
+django-db-geventpool==4.0.8
+    # via -r requirements/base.in
 django-db-logger==0.1.12
     # via -r requirements/base.in
 django-extra-views==0.14.0
@@ -274,8 +277,12 @@ furl==2.1.3
     # via
     #   ape-pie
     #   drc-cmis
+gevent==25.5.1
+    # via -r requirements/base.in
 glom==23.5.0
     # via mozilla-django-oidc-db
+greenlet==3.2.4
+    # via gevent
 httplib2==0.20.4
     # via cmislib-maykin
 humanize==4.0.0
@@ -432,6 +439,10 @@ semantic-version==2.10.0
     # via django-upgrade-check
 sentry-sdk==2.13.0
     # via open-api-framework
+setuptools==80.9.0
+    # via
+    #   zope-event
+    #   zope-interface
 six==1.16.0
     # via
     #   click-repl
@@ -502,3 +513,7 @@ zgw-consumers-oas==1.1.0
     # via
     #   -r requirements/base.in
     #   commonground-api-common
+zope-event==5.1.1
+    # via gevent
+zope-interface==7.2
+    # via gevent

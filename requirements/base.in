@@ -1,6 +1,8 @@
 open-api-framework[celery,cors,markup,geo,csp,commonground,inclusions,sanitization,server,redis]
 django-csp==3.8.0
+
 # Core python libraries
+gevent
 jq
 jsonschema
 dictdiffer # Used to show diffs for audittrails in admin
@@ -12,6 +14,7 @@ zgw-consumers-oas
 
 # Framework libraries
 django-db-logger
+django-db-geventpool
 django-extra-views
 django-loose-fk
 django-privates
