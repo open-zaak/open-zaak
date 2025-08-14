@@ -48,7 +48,8 @@ exec uwsgi \
     --static-map /static=/app/static \
     --static-map /media=/app/media  \
     --chdir src \
-    --enable-threads \
-    --processes $uwsgi_processes \
-    --threads $uwsgi_threads \
+    --processes 1 \
+    --threads 1 \
+    --gevent 200 \
+    --master \
     --buffer-size=65535

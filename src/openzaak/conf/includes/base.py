@@ -47,7 +47,13 @@ DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = config(
 )
 
 # Define this variable here to ensure it shows up in the envvar documentation
-DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
+DATABASES["default"]["ENGINE"] = "django_db_geventpool.backends.postgis"
+DATABASES["default"]["OPTIONS"] = {
+    "MAX_CONNS": 20,
+    "REUSE_CONNS": 10,
+    "CONN_DEBUG": True,
+    "pool": False
+}
 
 # Geospatial libraries
 GEOS_LIBRARY_PATH = config(
@@ -123,7 +129,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "openzaak.components.autorisaties.middleware.AuthMiddleware",
-    "mozilla_django_oidc_db.middleware.SessionRefresh",
+    # TODO fix this
+    # "mozilla_django_oidc_db.middleware.SessionRefresh",
     "maykin_2fa.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
