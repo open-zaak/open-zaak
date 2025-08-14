@@ -247,10 +247,18 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             ).exists()
         )
 
-        ztc_new = Service.objects.get(api_root="https://andere.catalogus.nl/api/v1/")
-        zrc_new = Service.objects.get(api_root="https://andere.zaken.nl/api/v1/")
-        drc_new = Service.objects.get(api_root="https://andere.documenten.nl/api/v1/")
-        brc_new = Service.objects.get(api_root="https://andere.besluiten.nl/api/v1/")
+        ztc_new = Service.objects.only("id", "label", "api_type").get(
+            api_root="https://andere.catalogus.nl/api/v1/"
+        )
+        zrc_new = Service.objects.only("id", "label", "api_type").get(
+            api_root="https://andere.zaken.nl/api/v1/"
+        )
+        drc_new = Service.objects.only("id", "label", "api_type").get(
+            api_root="https://andere.documenten.nl/api/v1/"
+        )
+        brc_new = Service.objects.only("id", "label", "api_type").get(
+            api_root="https://andere.besluiten.nl/api/v1/"
+        )
         for service in [ztc_new, zrc_new, drc_new, brc_new]:
             self.assertEqual(service.label, "FIXME")
             self.assertEqual(service.api_type, APITypes.orc)

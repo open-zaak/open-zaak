@@ -4,7 +4,7 @@ $color-row-background: #f9f9f9 !default;
 
 .external-form {
   &#{&}--odd {
-    background: $color-row-background;
+    background: var(--darkened-bg);
   }
 
   &__field {

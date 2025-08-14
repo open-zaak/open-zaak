@@ -77,7 +77,6 @@
                         <th scope="col">{% trans "API Type" %}</th>
                         <th scope="col">{% trans "URL" %}</th>
                         <th scope="col">{% trans "NLX outway URL" %}</th>
-                        <th scope="col">{% trans "OAS URL" %}</th>
                         <th scope="col">{% trans "Authorization" %}</th>
                     </tr>
                 </thead>
@@ -88,10 +87,6 @@
                         <td>{{ service.api_type|show_api_type }}</td>
                         <td>{{ service.api_root|urlize }}</td>
                         <td>{{ service.nlx|urlize }}</td>
-                        <td>
-                            <a href="{{ service.oas }}" target="_blank" rel="noreferrer noopener">
-                            {% trans "Externe link" %}</a>
-                        </td>
                         <td>
                             <strong>{{ service.get_auth_type_display}}</strong>
                             {% if service.auth_type == 'zgw' %}

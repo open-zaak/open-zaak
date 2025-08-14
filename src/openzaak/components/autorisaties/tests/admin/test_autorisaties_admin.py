@@ -18,7 +18,7 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse as _reverse
-from zgw_consumers.test import generate_oas_component
+from zgw_consumers_oas import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN

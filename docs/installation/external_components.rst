@@ -21,8 +21,6 @@ example, this guide describes the necessary configuration steps in Open Zaak.
       - **Type**: Select the option: ``DRC (Informetieobjecten)``
       - **API root url**: the full URL to the external API root, e.g.
         ``https://documenten.gemeente.external/api/v1/``
-      - **OAS url**: URL that points to the OpenAPI specification, e.g.
-        ``https://documenten.gemeente.external/api/v1/schema/openapi.yaml``
       - **Authorization type**: Select the authorization used in the external API.
         For ZGW APIs it's ``ZGW client_id + secret``
       - **Client ID**: client ID for the external service. Should be provided
@@ -47,8 +45,6 @@ example, this guide describes the necessary configuration steps in Open Zaak.
       - **Type**: Select the option: ``ZTC (Zaaktypen)``
       - **API root url**: the full URL to the local Catalogi API root, e.g.
         ``https://open-zaak.gemeente.external/catalog/api/v1/``
-      - **OAS url**: URL that points to the Catalogi API OpenAPI specification, e.g.
-        ``https://open-zaak.gemeente.external/catalogi/api/v1/schema/openapi.yaml``
       - **Authorization type**: Select option ``ZGW client_id + secret``
       - **Client ID**: any client ID which was created in **API Autorisaties > Applicaties**
       - **Secret**: secret related to the client ID above

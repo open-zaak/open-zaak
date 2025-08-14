@@ -60,17 +60,6 @@ function ExternalForm(props) {
                 <Nlx index={index} data={data} />
             </td>
 
-            {/*OAS*/}
-            <td className='external-form__field'>
-                <TextInput
-                    id={id_prefix('oas')}
-                    name={name_prefix('oas')}
-                    initial={values.oas}
-                    errors={errors.oas}
-                    classes="external-form__field--wide"
-                />
-            </td>
-
             {/*auth_type*/}
             <td className='external-form__field'>
                 <AuthType index={index} data={data} />

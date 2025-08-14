@@ -55,9 +55,6 @@ The configuration steps below need to be performed in Open Zaak itself.
         one and configure the same value in Open Notificaties - *For example:* ``open-zaak``
       - **Secret**: *Some random string. You will need this later on!*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
-      - **OAS url**: URL that points to the OpenAPI specification. This is typically
-        ``<API-ROOT>/schema/openapi.yaml``, *for example:*
-        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Zaak``
 
@@ -157,9 +154,6 @@ Open Notificaties
         For example:* ``open-notificaties``
       - **Secret**: *The same Secret as given in Open Zaak step 3c*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
-      - **OAS url**: URL that points to the OpenAPI specification. This is typically
-        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
-        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
 
@@ -228,9 +222,6 @@ which required configuring related credentials.
         all required permissions to consume notifications. *For example:* ``open-notificaties``
       - **Secret**: *The same Secret as given in step 3c*
       - **Authorization type**: Select the option: ``ZGW client_id + secret``
-      - **OAS url**: URL that points to the OpenAPI specification. This is typically
-        ``$api_root`` + ``schema/openapi.yaml``, *for example:*
-        ``https://notificaties.gemeente.local/api/v1/schema/openapi.yaml``
       - **User ID**: *Same as the Client ID*
       - **User representation**: *For example:* ``Open Notificaties``
 

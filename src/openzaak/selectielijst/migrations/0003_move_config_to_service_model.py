@@ -22,7 +22,6 @@ def move_config_to_service(apps, _):
         label="VNG Selectielijst",
         api_type=APITypes.orc,
         api_root=config.api_root,
-        oas=f"{config.api_root}schema/openapi.yaml",
         auth_type=AuthTypes.no_auth,
     )
 

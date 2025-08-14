@@ -13,6 +13,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import NLXDirectories
 from zgw_consumers.models import NLXConfig
+from zgw_consumers.settings import NLX_DIRECTORY_URLS
 
 from openzaak.tests.utils import AdminTestMixin
 
@@ -20,7 +21,7 @@ from ..forms import get_nlx_choices
 
 CURRENT_DIR = Path(__file__).parent
 
-DEMO_DIRECTORY = "https://directory.demo.nlx.io/"
+DEMO_DIRECTORY = NLX_DIRECTORY_URLS[NLXDirectories.demo]
 
 
 @disable_admin_mfa()
@@ -29,7 +30,7 @@ class NLXConfigTests(AdminTestMixin, WebTest):
 
     def test_outway_invalid_address(self):
         config_page = self.app.get(self.url, user=self.user)
-        form = config_page.form
+        form = config_page.forms[1]
 
         form["outway"] = "https://invalid-host.local:1337"
         response = form.submit()

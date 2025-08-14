@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.contrib.admin import site
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, UpdateView
 
@@ -34,6 +35,9 @@ class ConfigDetailView(AdminRequiredMixin, TemplateView):
 
         external_services = Service.objects.order_by("api_type", "api_root").all()
         context["external_services"] = external_services
+
+        context.update(site.each_context(self.request))
+
         return context
 
 
@@ -54,6 +58,7 @@ class WizardMixin:
         context = super().get_context_data(**kwargs)
         context.update(
             {
+                **site.each_context(self.request),
                 "next_url": self.next_url,
                 "previous_url": self.previous_url,
                 "submit_url": self.submit_url,
@@ -101,6 +106,7 @@ class ExternalConfigView(WizardMixin, AdminRequiredMixin, ModelFormSetView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
+                **site.each_context(self.request),
                 "formdata": [get_form_data(form) for form in formset],
                 "nlx_choices": get_nlx_choices(),
                 "nlx_outway": NLXConfig.get_solo().outway,
