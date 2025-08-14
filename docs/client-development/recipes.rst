@@ -188,16 +188,17 @@ The solution is to use some form of threading/concurrency offered by your langua
             from zgw_consumers.constants import APITypes
             from zgw_consumers.models import Service
             from zgw_consumers.concurrent import parallel
+            from zgw_consumers.client import build_client
 
-            zrc_client = Service.objects.filter(api_type=APITypes.zrc).get().build_client()
-            drc_client = Service.objects.filter(api_type=APITypes.drc).get().build_client()
+            zrc_client = build_client(Service.objects.get(api_type=APITypes.zrc))
+            drc_client = build_client(Service.objects.get(api_type=APITypes.drc))
 
-            zaak_url = "https://test.openzaak.nl/zaken/api/v1/zaken/b604ea56-f01c-432e-8d61-fd4ab02893dc"
-            zios: List[dict] = zrc_client.list("zaakinformatieobject", {"zaak": zaak_url})
+            zio_response: Response = zrc_client.get("zaakinformatieobjecten")
+            zios = zio_response.json()
             document_urls = [zio["informatieobject"] for zio in zios]
             with parallel() as executor:
                 _documents = executor.map(
-                    lambda url: drc_client.retrieve("enkelvoudiginformatieobject", url=url),
+                    lambda url: drc_client.get(url).json(),
                     document_urls
                 )
             documents: List[dict] = list(_documents)
