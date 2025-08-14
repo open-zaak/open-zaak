@@ -8,8 +8,8 @@ export PGHOST=${DB_HOST:-db}
 export PGPORT=${DB_PORT:-5432}
 
 uwsgi_port=${UWSGI_PORT:-8000}
-uwsgi_processes=${UWSGI_PROCESSES:-2}
-uwsgi_threads=${UWSGI_THREADS:-2}
+gunicorn_workers=${GUNICORN_WORKERS:-4}
+gunicorn_worker_conns=${GUNICORN_WORKER_CONNS:-200}
 
 mountpoint=${SUBPATH:-/}
 
@@ -39,17 +39,10 @@ fi
 
 # Start server
 >&2 echo "Starting server"
-exec uwsgi \
-    --ini "${SCRIPTPATH}/uwsgi.ini" \
-    --http :$uwsgi_port \
-    --http-keepalive \
-    --manage-script-name \
-    --mount $mountpoint=openzaak.wsgi:application \
-    --static-map /static=/app/static \
-    --static-map /media=/app/media  \
+exec python -m gunicorn openzaak.wsgi:application \
+    -w $gunicorn_workers \
+    -k gevent \
+    --worker-connections $gunicorn_worker_conns \
     --chdir src \
-    --processes 1 \
-    --threads 1 \
-    --gevent 200 \
-    --master \
-    --buffer-size=65535
+    --bind 0.0.0.0:8000 \
+    --log-level info

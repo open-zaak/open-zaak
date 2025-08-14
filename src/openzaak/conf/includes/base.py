@@ -51,8 +51,8 @@ DATABASES["default"]["ENGINE"] = "django_db_geventpool.backends.postgis"
 DATABASES["default"]["OPTIONS"] = {
     "MAX_CONNS": 20,
     "REUSE_CONNS": 10,
-    "CONN_DEBUG": True,
-    "pool": False
+    # "CONN_DEBUG": True,
+    "pool": False,
 }
 
 # Geospatial libraries

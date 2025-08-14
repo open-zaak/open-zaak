@@ -564,6 +564,10 @@ greenlet==3.2.4
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   gevent
+gunicorn==23.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 h11==0.16.0
     # via httpcore
 httpcore==1.0.9
@@ -717,6 +721,7 @@ packaging==24.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   build
+    #   gunicorn
     #   kombu
     #   pytest
     #   sphinx

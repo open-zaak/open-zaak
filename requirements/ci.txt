@@ -506,6 +506,10 @@ greenlet==3.2.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   gevent
+gunicorn==23.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 httplib2==0.20.4
     # via
     #   -c requirements/base.txt
@@ -630,6 +634,7 @@ packaging==24.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   gunicorn
     #   kombu
     #   pytest
     #   sphinx

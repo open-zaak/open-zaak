@@ -283,6 +283,8 @@ glom==23.5.0
     # via mozilla-django-oidc-db
 greenlet==3.2.4
     # via gevent
+gunicorn==23.0.0
+    # via -r requirements/base.in
 httplib2==0.20.4
     # via cmislib-maykin
 humanize==4.0.0
@@ -336,7 +338,9 @@ orderedmultidict==1.0.1
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0
-    # via kombu
+    # via
+    #   gunicorn
+    #   kombu
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 platformdirs==4.3.8

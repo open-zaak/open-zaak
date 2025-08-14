@@ -3,6 +3,7 @@ django-csp==3.8.0
 
 # Core python libraries
 gevent
+gunicorn
 jq
 jsonschema
 dictdiffer # Used to show diffs for audittrails in admin
