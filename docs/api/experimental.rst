@@ -41,6 +41,7 @@ New endpoints are added:
 * POST ``/api/v1/zaak_bijwerken/{uuid}`` - update a zaak in combination with a status & rollen to immediately link them to this zaak.
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``
+* POST ``/api/v1/zaak_afsluiten/{uuid}`` - close a zaak and set a new status and resultaat for the zaak
 
 Attributes
 ----------

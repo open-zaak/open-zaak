@@ -20,6 +20,7 @@ from django.db.models.functions import Cast
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -104,6 +105,7 @@ from ..validators import (
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
     EndStatusNotAllowedOnEndpointValidator,
+    EndStatusRequiredValidator,
     HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
@@ -1443,6 +1445,11 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class ResultaatSubSerializer(SubSerializerMixin, ResultaatSerializer):
+    class Meta(ResultaatSerializer.Meta):
+        read_only_fields = ("zaak",)
+
+
 class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     """
     Serializer the reverse relation between Besluit-Zaak.
@@ -1716,6 +1723,52 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
 
         return {
             "zaak": zaak,
+            "status": status,
+        }
+
+
+class ZaakAfsluitenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer(required=True, partial=True)
+    resultaat = ResultaatSubSerializer(required=True)
+    status = StatusSubSerializer(required=True)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        zaak_serializer = ZaakSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak", {}),
+            partial=True,
+            context=self.context,
+        )
+        zaak_serializer.is_valid(raise_exception=True)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        resultaat_serializer = ResultaatSerializer(
+            data={**self.initial_data.get("resultaat", {}), **zaak_data},
+            context=self.context,
+        )
+        resultaat_serializer.is_valid(raise_exception=True)
+        resultaat = resultaat_serializer.save()
+
+        if not zaak.einddatum:
+            zaak.einddatum = now().date()
+            zaak.save(update_fields=["einddatum"])
+
+        status_serializer = StatusSerializer(
+            data={**self.initial_data.get("status", {}), **zaak_data},
+            context=self.context,
+        )
+        status_serializer.validators.append(EndStatusRequiredValidator())
+        status_serializer.is_valid(raise_exception=True)
+        status = status_serializer.save()
+
+        zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
+            "resultaat": resultaat,
             "status": status,
         }
 

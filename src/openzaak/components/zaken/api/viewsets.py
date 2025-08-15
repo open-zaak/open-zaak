@@ -123,6 +123,7 @@ from .serializers import (
     RolSerializer,
     StatusSerializer,
     SubStatusSerializer,
+    ZaakAfsluitenSerializer,
     ZaakBesluitSerializer,
     ZaakBijwerkenSerializer,
     ZaakContactMomentSerializer,
@@ -2368,4 +2369,52 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
             "zaak_verlengd",
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
+        )
+
+
+class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet, ClosedZaakMixin):
+    serializer_class = ZaakAfsluitenSerializer
+    queryset = Zaak.objects.all()
+
+    notification_fields = {
+        **ZaakUpdateActionViewSet.notification_fields,
+        "resultaat": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Resultaat,
+            "action": "create",
+        },
+    }
+
+    @transaction.atomic
+    def post(self, request, uuid=None, *args, **kwargs):
+        instance = self.get_object(uuid)
+
+        self._check_zaak_closed(instance)
+
+        return super().post(request, uuid=uuid, *args, **kwargs)
+
+    def perform_post(self, serializer):
+        super().perform_post(serializer)
+
+        logger.info(
+            "zaak_afgesloten",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
+            resultaat_url=serializer.data["resultaat"]["url"],
+        )
+
+    def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
+        super()._create_audit_logs(response, serializer, zaak_version_before_edit)
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["resultaat"],
+            unique_representation=serializer.instance[
+                "resultaat"
+            ].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="resultaat",
+            main_object=serializer.data["zaak"]["url"],
         )
