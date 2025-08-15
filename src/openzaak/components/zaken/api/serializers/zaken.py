@@ -1701,3 +1701,45 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
             "zaak": zaak,
             "status": status,
         }
+
+
+class ZaakAfsluitenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer(required=True, partial=True)
+    resultaat = ResultaatSerializer(required=True)
+    status = StatusSubSerializer(required=True)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        zaak_serializer = ZaakSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak", {}),
+            partial=True,
+            context=self.context,
+        )
+        zaak_serializer.is_valid(raise_exception=True)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        resultaat_serializer = ResultaatSerializer(
+            data={**self.initial_data.get("resultaat", {}), **zaak_data},
+            context=self.context,
+        )
+        resultaat_serializer.is_valid(raise_exception=True)
+        resultaat = resultaat_serializer.save()
+
+        status_serializer = StatusSerializer(
+            data={**self.initial_data.get("status", {}), **zaak_data},
+            context=self.context,
+        )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
+        status_serializer.is_valid(raise_exception=True)
+        status = status_serializer.save()
+
+        zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
+            "resultaat": resultaat,
+            "status": status,
+        }

@@ -123,6 +123,7 @@ from .serializers import (
     RolSerializer,
     StatusSerializer,
     SubStatusSerializer,
+    ZaakAfsluitenSerializer,
     ZaakBesluitSerializer,
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
@@ -2168,3 +2169,37 @@ class ZaakOpschortenViewset(
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
         )
+
+
+class ZaakAfsluitenViewSet(
+    viewsets.ViewSet,
+    ClosedZaakMixin,
+):
+    serializer_class = ZaakAfsluitenSerializer
+    # permission_classes = (ZaaKRegistrerenAuthRequired,)
+    required_scopes = {
+        "post": (
+            SCOPE_ZAKEN_BIJWERKEN
+            | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
+            | SCOPE_ZAKEN_CREATE
+            | SCOPE_STATUSSEN_TOEVOEGEN
+        )
+    }
+
+    def get_object(self, uuid):
+        queryset = Zaak.objects
+        obj = get_object_or_404(queryset, uuid=uuid)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    @transaction.atomic
+    def post(self, request, uuid=None, *args, **kwargs):
+        instance = self.get_object(uuid)
+
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}, instance=instance
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
