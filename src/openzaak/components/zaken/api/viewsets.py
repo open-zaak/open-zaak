@@ -2240,6 +2240,12 @@ class ZaakBijwerkenViewset(
             context={"request": request}, instance=instance
         ).data
 
+        rollen_version_before_edit = RolSerializer(
+            instance.rol_set, context={"request": request}, many=True
+        ).data
+
+        rollen_instances_before_edit = list(instance.rol_set.all())
+
         serializer = self.serializer_class(
             data=request.data, context={"request": request}, instance=instance
         )
@@ -2251,6 +2257,12 @@ class ZaakBijwerkenViewset(
         response = Response(serializer.data, status=status.HTTP_200_OK)
 
         self._create_audit_logs(response, serializer, zaak_version_before_edit)
+        self._create_rol_audittrails(
+            response,
+            serializer,
+            rollen_version_before_edit,
+            rollen_instances_before_edit,
+        )
         self.notify(response.status_code, response.data)
         return response
 
@@ -2277,19 +2289,57 @@ class ZaakBijwerkenViewset(
             main_object=serializer.data["zaak"]["url"],
         )
 
-        for i in range(len(serializer.data["rollen"])):
+    def _create_rol_audittrails(
+        self,
+        response,
+        serializer,
+        rollen_version_before_edit,
+        rollen_instances_before_edit,
+    ):
+        def create_audittrail(before, after, action, uuid):
+            instance = rol_by_uuid(uuid)
             self.create_audittrail(
                 response.status_code,
-                CommonResourceAction.create,
-                version_before_edit=None,
-                version_after_edit=serializer.data["rollen"][i],
-                unique_representation=serializer.instance["rollen"][
-                    i
-                ].unique_representation(),
+                action,
+                version_before_edit=before,
+                version_after_edit=after,
+                unique_representation=instance.unique_representation(),
                 audit=AUDIT_ZRC,
                 basename="rol",
                 main_object=serializer.data["zaak"]["url"],
             )
+
+        def rol_by_uuid(uuid):
+            # Search in updated instances first, else fallback to pre-edit list
+            for rol in serializer.instance["rollen"]:
+                if str(rol.uuid) == uuid:
+                    return rol
+            for rol in rollen_instances_before_edit:
+                if str(rol.uuid) == uuid:
+                    return rol
+            return None
+
+        old_rollen = {rol["uuid"]: rol for rol in rollen_version_before_edit}
+        new_rollen = {rol["uuid"]: rol for rol in serializer.data["rollen"]}
+
+        old_uuids = set(old_rollen.keys())
+        new_uuids = set(new_rollen.keys())
+
+        # Deleted rollen
+        for uuid in old_uuids - new_uuids:
+            create_audittrail(
+                old_rollen[uuid], None, CommonResourceAction.destroy, uuid
+            )
+
+        # Updated rollen
+        for uuid in old_uuids & new_uuids:
+            create_audittrail(
+                old_rollen[uuid], new_rollen[uuid], CommonResourceAction.update, uuid
+            )
+
+        # Created rollen
+        for uuid in new_uuids - old_uuids:
+            create_audittrail(None, new_rollen[uuid], CommonResourceAction.create, uuid)
 
     def perform_post(self, serializer):
         serializer.save()

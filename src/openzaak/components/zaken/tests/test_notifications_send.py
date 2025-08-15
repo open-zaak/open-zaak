@@ -568,7 +568,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @tag("convenience-endpoints")
-    def test_send_notif_update_zaak(self, mock_notif):
+    def test_send_notif_zaak_bijwerken(self, mock_notif):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = self.check_for_instance(zaaktype)
 

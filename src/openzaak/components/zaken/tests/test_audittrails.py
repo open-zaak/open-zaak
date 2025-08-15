@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import (
+    CommonResourceAction,
     RolOmschrijving,
     RolTypes,
     VertrouwelijkheidsAanduiding,
@@ -31,7 +32,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..models import Resultaat, Zaak, ZaakInformatieObject, ZaakObject
+from ..models import Resultaat, Rol, Zaak, ZaakInformatieObject, ZaakObject
 from .factories import RolFactory, ZaakFactory, ZaakObjectFactory
 from .test_rol import BETROKKENE
 from .utils import ZAAK_WRITE_KWARGS
@@ -425,6 +426,119 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             self.assertEqual(trail.bron, "ZRC")
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
+
+    def test_zaak_bijwerken_rollen_audittrails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        roltype = RolTypeFactory(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
+        )
+        roltype_url = self.check_for_instance(roltype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak_data = self._create_zaak(zaaktype)
+
+        zaak = Zaak.objects.get(uuid=zaak_data["uuid"])
+
+        existing_rol = RolFactory.create(
+            zaak=zaak,
+            roltoelichting="OLD",
+            betrokkene="http://www.betrokkene.org/updating",
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype=roltype,
+        )
+        to_be_deleted_rol = RolFactory.create(
+            zaak=zaak,
+            roltoelichting="BEFORE UPDATE",
+            betrokkene="http://www.betrokkene.org/deleting",
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype=roltype,
+        )
+
+        url = reverse(
+            "zaakbijwerken",
+            kwargs={
+                "uuid": zaak_data["uuid"],
+            },
+        )
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": "http://www.betrokkene.org/creating",
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "NEW",
+                },
+                {
+                    "uuid": existing_rol.uuid,
+                    "betrokkene": "http://www.betrokkene.org/updating",
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "UPDATED",
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(AuditTrail.objects.count(), 6)  # zaak create as well
+
+        zaak_audittrail = AuditTrail.objects.get(
+            resource="zaak", actie="partial_update"
+        )
+
+        self.assertCountEqual(
+            zaak_audittrail.oud["rollen"],
+            [
+                self.check_for_instance(existing_rol),
+                self.check_for_instance(to_be_deleted_rol),
+            ],
+        )
+
+        self.assertCountEqual(
+            zaak_audittrail.nieuw["rollen"],
+            [
+                self.check_for_instance(existing_rol),
+                self.check_for_instance(Rol.objects.get(roltoelichting="NEW")),
+            ],
+        )
+
+        self.assertEqual(AuditTrail.objects.filter(resource="rol").count(), 3)
+
+        deleted_rol_trail = AuditTrail.objects.get(
+            resource_weergave__contains="deleting"
+        )
+        self.assertEqual(deleted_rol_trail.actie, CommonResourceAction.destroy)
+        self.assertIsNotNone(deleted_rol_trail.oud)
+        self.assertIsNone(deleted_rol_trail.nieuw)
+
+        updated_rol_trail = AuditTrail.objects.get(
+            resource_weergave__contains="updating"
+        )
+        self.assertEqual(updated_rol_trail.actie, CommonResourceAction.update)
+        self.assertIsNotNone(updated_rol_trail.oud)
+        self.assertIsNotNone(updated_rol_trail.nieuw)
+
+        created_rol_trail = AuditTrail.objects.get(
+            resource_weergave__contains="creating"
+        )
+        self.assertEqual(created_rol_trail.actie, CommonResourceAction.create)
+        self.assertIsNone(created_rol_trail.oud)
+        self.assertIsNotNone(created_rol_trail.nieuw)
 
     def test_create_zaakinformatieobject_audittrail(self):
         zaak_data = self._create_zaak()
