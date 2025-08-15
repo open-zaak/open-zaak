@@ -37,6 +37,7 @@ if [ -n "${OPENZAAK_SUPERUSER_USERNAME}" ]; then
     unset OPENZAAK_SUPERUSER_USERNAME OPENZAAK_SUPERUSER_EMAIL DJANGO_SUPERUSER_PASSWORD
 fi
 
+# TODO run on socket?
 # Start server
 >&2 echo "Starting server"
 exec python -m gunicorn openzaak.wsgi:application \
@@ -45,4 +46,5 @@ exec python -m gunicorn openzaak.wsgi:application \
     --worker-connections $gunicorn_worker_conns \
     --chdir src \
     --bind 0.0.0.0:8000 \
+    --keep-alive 5 \
     --log-level info

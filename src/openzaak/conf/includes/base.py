@@ -49,8 +49,8 @@ DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = config(
 # Define this variable here to ensure it shows up in the envvar documentation
 DATABASES["default"]["ENGINE"] = "django_db_geventpool.backends.postgis"
 DATABASES["default"]["OPTIONS"] = {
-    "MAX_CONNS": 20,
-    "REUSE_CONNS": 10,
+    "MAX_CONNS": int(os.getenv("MAX_CONNS", default=20)),
+    "REUSE_CONNS": int(os.getenv("REUSE_CONNS", default=10)),
     # "CONN_DEBUG": True,
     "pool": False,
 }
