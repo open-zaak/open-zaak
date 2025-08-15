@@ -37,14 +37,10 @@ class ZaakNestedAuthRequired(ZaakAuthRequired):
         return True
 
 
-class ZaaKRegistrerenAuthRequired(MultipleObjectsAuthRequired):
+class ZaakActionAuthRequired(MultipleObjectsAuthRequired):
     permission_fields = {
         "zaak": ZaakAuthRequired.permission_fields,
     }
     main_resources = {
         "zaak": ZaakAuthRequired.main_resource,
     }
-
-
-class ZaakOpSchortenAuthRequired(ZaaKRegistrerenAuthRequired):
-    """Uses the same fields & main resources"""
