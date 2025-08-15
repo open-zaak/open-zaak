@@ -3779,8 +3779,12 @@ paths:
   /zaak_bijwerken/{uuid}:
     post:
       operationId: None_post
-      description: '**EXPERIMENTEEL** Werk een Zaak deels bij samen met een status
-        & rollen om alles direct aan de zaak te linken.'
+      description: |-
+        **EXPERIMENTEEL** Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken.
+
+        Via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden.
+
+        Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol.
       summary: Update een zaak
       parameters:
       - in: header
@@ -13805,6 +13809,219 @@ components:
       required:
       - betrokkeneType
       - roltype
+    Base_RolUpdateSubSerializer:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          readOnly: true
+          description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
+        omschrijvingGeneriek:
+          type: string
+          readOnly: true
+          description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
+            \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
+            \ (Adviseur) Kennis in dienst stellen van de behandeling van (een deel\
+            \ van) een zaak.\n* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling\
+            \ doen van (een deel van) een zaak.\n* `belanghebbende` - (Belanghebbende)\
+            \ Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de\
+            \ behandeling en/of de uitkomst van een zaak.\n* `beslisser` - (Beslisser)\
+            \ Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.\n\
+            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak\
+            \ ..\n* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn\
+            \ voor vragen van burgers en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator)\
+            \ Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd\
+            \ wordt conform de daarover gemaakte afspraken.\n* `mede_initiator` -\
+            \ (Mede-initiator) "
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        registratiedatum:
+          type: string
+          format: date-time
+          readOnly: true
+          description: De datum waarop dit object is geregistreerd.
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRol'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        statussen:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - omschrijving
+      - omschrijvingGeneriek
+      - registratiedatum
+      - roltype
+      - statussen
+      - url
+      - zaak
+    Base_RolUpdateSubSerializerRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          maxLength: 1000
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRolRequest'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - roltype
     Base_ZaakObjectSerializer:
       type: object
       properties:
@@ -17354,6 +17571,36 @@ components:
           vestiging: '#/components/schemas/vestiging_RolSubSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSubSerializerRequest'
           medewerker: '#/components/schemas/medewerker_RolSubSerializerRequest'
+    RolUpdateSub:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/vestiging_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/medewerker_RolUpdateSubSerializer'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializer'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializer'
+          vestiging: '#/components/schemas/vestiging_RolUpdateSubSerializer'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializer'
+          medewerker: '#/components/schemas/medewerker_RolUpdateSubSerializer'
+    RolUpdateSubRequest:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_RolUpdateSubSerializerRequest'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_RolUpdateSubSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_RolUpdateSubSerializerRequest'
     RolVestiging:
       type: object
       properties:
@@ -18448,7 +18695,7 @@ components:
         rollen:
           type: array
           items:
-            $ref: '#/components/schemas/RolSub'
+            $ref: '#/components/schemas/RolUpdateSub'
         status:
           $ref: '#/components/schemas/StatusSub'
       required:
@@ -18461,7 +18708,7 @@ components:
         rollen:
           type: array
           items:
-            $ref: '#/components/schemas/RolSubRequest'
+            $ref: '#/components/schemas/RolUpdateSubRequest'
         status:
           $ref: '#/components/schemas/StatusSubRequest'
       required:
@@ -20827,6 +21074,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolMedewerkerRequest'
+    medewerker_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolMedewerker'
+    medewerker_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolMedewerkerRequest'
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -20859,6 +21114,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
+    natuurlijk_persoon_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoon'
+    natuurlijk_persoon_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -20890,6 +21153,14 @@ components:
     niet_natuurlijk_persoon_RolSubSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
+    niet_natuurlijk_persoon_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
+    niet_natuurlijk_persoon_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
       - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
@@ -21219,6 +21490,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
+    organisatorische_eenheid_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheid'
+    organisatorische_eenheid_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -21342,6 +21621,14 @@ components:
     vestiging_RolSubSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolVestigingRequest'
+    vestiging_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolVestiging'
+    vestiging_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
       - $ref: '#/components/schemas/RolVestigingRequest'
     vestiging_ZaakObjectSerializer:
       allOf:

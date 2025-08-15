@@ -2172,6 +2172,13 @@ class ZaakOpschortenViewset(
     summary="Update een zaak",
     description=mark_experimental(
         "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
+        "\n\n"
+        "Via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
+        "Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. "
+        "Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden."
+        "\n\n"
+        "Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. "
+        "Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol."
     ),
 )
 class ZaakBijwerkenViewset(

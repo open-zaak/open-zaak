@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 import datetime
+import uuid
 
 from django.test import override_settings, tag
 from django.utils import timezone
@@ -508,13 +509,13 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.data["zaak"]["einddatum"], None)
 
-    def test_rollen_are_added_and_existing_ones_are_kept(self):
-        rol_1 = RolFactory(
+    def test_rollen_are_added_and_existing_ones_are_removed(self):
+        RolFactory.create(
             zaak=self.zaak,
             roltoelichting="1",
             roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
         )
-        rol_2 = RolFactory(
+        RolFactory.create(
             zaak=self.zaak,
             roltoelichting="2",
             roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
@@ -534,15 +535,9 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         self.assertEqual(len(response.data["rollen"]), 2)
-        self.assertEqual(len(response.data["zaak"]["rollen"]), 4)
+        self.assertEqual(len(response.data["zaak"]["rollen"]), 2)
 
-        self.assertEqual(Rol.objects.count(), 4)
-
-        self.assertEqual(rol_1.zaak, self.zaak)
-        rol_1_url = reverse(rol_1)
-
-        self.assertEqual(rol_2.zaak, self.zaak)
-        rol_2_url = reverse(rol_2)
+        self.assertEqual(Rol.objects.count(), 2)
 
         rol_3 = Rol.objects.get(roltoelichting=3)
         self.assertEqual(rol_3.zaak, self.zaak)
@@ -616,9 +611,306 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response_data["zaak"]["rollen"],
             [
-                f"http://testserver{rol_1_url}",
-                f"http://testserver{rol_2_url}",
                 f"http://testserver{rol_3_url}",
                 f"http://testserver{rol_4_url}",
             ],
         )
+
+    def test_rollen_with_empty_list_will_delete_existing_rollen(self):
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="1",
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="2",
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(len(response.data["rollen"]), 0)
+        self.assertEqual(len(response.data["zaak"]["rollen"]), 0)
+
+    def test_without_rollen_will_keep_existing_rollen(self):
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="2",
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(len(response.data["rollen"]), 0)
+        self.assertEqual(len(response.data["zaak"]["rollen"]), 2)
+
+    def test_included_rol_uuids_are_kept_and_updated(self):
+        rol_1 = RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="2",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(len(response.data["rollen"]), 1)
+        self.assertEqual(len(response.data["zaak"]["rollen"]), 1)
+
+        self.assertEqual(Rol.objects.count(), 1)
+        self.assertEqual(Rol.objects.get().roltoelichting, "1-updated")
+
+    def test_rollen_update_create_delete(self):
+        rol_1 = RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+        RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="2",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated",
+                },
+                {
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "3",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(len(response.data["rollen"]), 2)
+        self.assertEqual(len(response.data["zaak"]["rollen"]), 2)
+
+        self.assertEqual(Rol.objects.count(), 2)
+        self.assertEqual(Rol.objects.get(uuid=rol_1.uuid).roltoelichting, "1-updated")
+        self.assertEqual(Rol.objects.exclude(uuid=rol_1.uuid).get().roltoelichting, "3")
+
+    def test_update_rol_linked_to_other_zaak(self):
+        rol_1 = RolFactory.create(
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "rollen.0.uuid")
+        self.assertEqual(error["code"], "invalid")
+
+    def test_duplicate_uuids_in_rollen(self):
+        rol_1 = RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated",
+                },
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated-2",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "rollen.1.uuid")
+        self.assertEqual(error["code"], "invalid")
+
+    def test_unknown_uuid_in_rollen(self):
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": uuid.uuid4(),
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(self.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "1-updated",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        error = get_validation_errors(response, "rollen.0.uuid")
+        self.assertEqual(error["code"], "invalid")
+
+    def test_rollen_multiple_uuid_errors(self):
+        rol_1 = RolFactory.create(
+            roltoelichting="1",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+        )
+
+        rol_2 = RolFactory.create(
+            zaak=self.zaak,
+            roltoelichting="2",
+            betrokkene=BETROKKENE,
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype__omschrijving_generiek=RolOmschrijving.belanghebbende,
+            roltype__zaaktype=self.zaaktype,
+        )
+
+        content = {
+            "zaak": self.opschorting,
+            "status": self.status,
+            "rollen": [
+                {
+                    "uuid": rol_1.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "other zaak",
+                },
+                {
+                    "uuid": uuid.uuid4(),
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(self.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "unknown uuid",
+                },
+                {
+                    "uuid": rol_2.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "duplicate",
+                },
+                {
+                    "uuid": rol_2.uuid,
+                    "betrokkeneType": RolTypes.natuurlijk_persoon,
+                    "roltype": self.check_for_instance(rol_1.roltype),
+                    "betrokkene": BETROKKENE,
+                    "roltoelichting": "duplicate",
+                },
+            ],
+        }
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(len(response.data["invalid_params"]), 3)
+        error = get_validation_errors(response, "rollen.0.uuid")
+        self.assertEqual(error["code"], "invalid")
+        error = get_validation_errors(response, "rollen.1.uuid")
+        self.assertEqual(error["code"], "invalid")
+        error = get_validation_errors(response, "rollen.3.uuid")
+        self.assertEqual(error["code"], "invalid")
