@@ -2176,11 +2176,11 @@ class ZaakAfsluitenViewSet(
     ClosedZaakMixin,
 ):
     serializer_class = ZaakAfsluitenSerializer
-    # permission_classes = (ZaaKRegistrerenAuthRequired,)
+    permission_classes = (ZaaKRegistrerenAuthRequired,)
     required_scopes = {
         "post": (
             (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
-            | (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
+            & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
         )
     }
 

@@ -9,6 +9,9 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
+)
 from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
@@ -18,6 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.components.zaken.tests.factories import RolFactory, ZaakFactory
+from openzaak.tests.utils import JWTAuthMixin
 
 User = get_user_model()
 
@@ -28,33 +32,39 @@ def get_full_url(obj):
 
 @tag("convenience-endpoints")
 @override_settings(OPENZAAK_DOMAIN="testserver")
-class ZaakAfsluitenTests(APITestCase):
+class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.catalogus = CatalogusFactory.create()
         cls.zaaktype = ZaakTypeFactory.create(concept=False, catalogus=cls.catalogus)
-        cls.resultaattype = ResultaatTypeFactory(zaaktype=cls.zaaktype)
+        cls.resultaattype = ResultaatTypeFactory(
+            zaaktype=cls.zaaktype,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
         cls.statustype = StatusTypeFactory(
             zaaktype=cls.zaaktype,
         )
 
     def setUp(self):
-        self.user = User.objects.create_user(username="tester", password="test")
-        self.client.force_login(self.user)
+        super().setUp()
 
         self.zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         self.url = reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
 
-        rol = RolFactory.create(zaak=self.zaak, roltype__zaaktype=self.zaak.zaaktype)
+        self.rol = RolFactory.create(
+            zaak=self.zaak, roltype__zaaktype=self.zaak.zaaktype
+        )
 
         self.payload = {
-            "zaak": {"einddatum": "2025-08-06"},
+            "zaak": {},
             "status": {
                 "statustype": get_full_url(self.statustype),
-                "datum_status_gezet": "2025-08-01T12:00:00Z",
+                "datum_status_gezet": "2025-08-10T12:00:00Z",
                 "statustoelichting": "Afgesloten via endpoint",
-                "gezetdoor": f"http://testserver{reverse(rol)}",
+                "gezetdoor": f"http://testserver{reverse(self.rol)}",
             },
             "resultaat": {
                 "zaak": get_full_url(self.zaak),
@@ -64,13 +74,49 @@ class ZaakAfsluitenTests(APITestCase):
         }
 
     def test_zaak_afsluiten_success(self):
-        response = self.client.post(self.url, self.payload, format="json")
+        response = self.client.post(self.url, self.payload)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.zaak.refresh_from_db()
-        self.assertEqual(str(self.zaak.einddatum), "2025-08-01")
+        self.assertEqual(str(self.zaak.einddatum), "2025-08-10")
 
-    def test_zaak_afsluiten_invalid_resultaat(self):
+        status_obj = self.zaak.status_set.get()
+        self.assertEqual(status_obj.statustype, self.statustype)
+        self.assertEqual(
+            status_obj.statustoelichting, self.payload["status"]["statustoelichting"]
+        )
+
+        resultaat_obj = self.zaak.resultaat
+        self.assertIsNotNone(resultaat_obj)
+        self.assertEqual(resultaat_obj.resultaattype, self.resultaattype)
+        self.assertEqual(
+            resultaat_obj.toelichting, self.payload["resultaat"]["toelichting"]
+        )
+
+    def test_zaak_afsluiten_empty_resultaat(self):
         payload = self.payload.copy()
         payload["resultaat"] = {}
-        response = self.client.post(self.url, payload, format="json")
+        response = self.client.post(self.url, payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_zaak_afsluiten_empty_status(self):
+        payload = self.payload.copy()
+        payload["status"] = {}
+        response = self.client.post(self.url, payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_zaak_afsluiten_no_zaak(self):
+        payload = {
+            "status": {
+                "statustype": get_full_url(self.statustype),
+                "datum_status_gezet": "2025-08-10T12:00:00Z",
+                "statustoelichting": "Afgesloten via endpoint",
+                "gezetdoor": f"http://testserver{reverse(self.rol)}",
+            },
+            "resultaat": {
+                "zaak": get_full_url(self.zaak),
+                "resultaattype": get_full_url(self.resultaattype),
+                "toelichting": "Behandeld",
+            },
+        }
+        response = self.client.post(self.url, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
