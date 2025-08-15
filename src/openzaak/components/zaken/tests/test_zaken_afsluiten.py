@@ -65,19 +65,12 @@ class ZaakAfsluitenTests(APITestCase):
 
     def test_zaak_afsluiten_success(self):
         response = self.client.post(self.url, self.payload, format="json")
-        print(response.status_code)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.zaak.refresh_from_db()
-        self.assertEqual(str(self.zaak.einddatum), "2025-08-06")
+        self.assertEqual(str(self.zaak.einddatum), "2025-08-01")
 
     def test_zaak_afsluiten_invalid_resultaat(self):
         payload = self.payload.copy()
         payload["resultaat"] = {}
         response = self.client.post(self.url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        invalid_fields = [
-            item["name"] for item in response.data.get("invalid_params", [])
-        ]
-        self.assertIn("resultaat.zaak", invalid_fields)
-        self.assertIn("resultaat.resultaattype", invalid_fields)

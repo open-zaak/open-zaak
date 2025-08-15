@@ -2179,12 +2179,17 @@ class ZaakAfsluitenViewSet(
     # permission_classes = (ZaaKRegistrerenAuthRequired,)
     required_scopes = {
         "post": (
-            SCOPE_ZAKEN_BIJWERKEN
-            | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
-            | SCOPE_ZAKEN_CREATE
-            | SCOPE_STATUSSEN_TOEVOEGEN
+            (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
+            | (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
         )
     }
+
+    viewset_classes = {
+        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
+
+    actions = {"zaak": "partial_update"}
 
     def get_object(self, uuid):
         queryset = Zaak.objects

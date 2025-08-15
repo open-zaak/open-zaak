@@ -99,6 +99,7 @@ from ..validators import (
     EndStatusIOsIndicatieGebruiksrechtValidator,
     EndStatusIOsUnlockedValidator,
     EndStatusNotAllowedOnEndpointValidator,
+    EndStatusRequiredValidator,
     HoofdZaaktypeRelationValidator,
     HoofdzaakValidator,
     NotSelfValidator,
@@ -1426,6 +1427,11 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
+class ResultaatSubSerializer(SubSerializerMixin, ResultaatSerializer):
+    class Meta(ResultaatSerializer.Meta):
+        read_only_fields = ("zaak",)
+
+
 class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
     """
     Serializer the reverse relation between Besluit-Zaak.
@@ -1705,7 +1711,7 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
 
 class ZaakAfsluitenSerializer(ConvenienceSerializer):
     zaak = ZaakSubSerializer(required=True, partial=True)
-    resultaat = ResultaatSerializer(required=True)
+    resultaat = ResultaatSubSerializer(required=True)
     status = StatusSubSerializer(required=True)
 
     @transaction.atomic
@@ -1732,7 +1738,7 @@ class ZaakAfsluitenSerializer(ConvenienceSerializer):
             data={**self.initial_data.get("status", {}), **zaak_data},
             context=self.context,
         )
-        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
+        status_serializer.validators.append(EndStatusRequiredValidator())
         status_serializer.is_valid(raise_exception=True)
         status = status_serializer.save()
 
