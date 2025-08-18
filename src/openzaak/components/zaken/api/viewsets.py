@@ -46,6 +46,7 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.catalogi.models.zaaktype import ZaakType
 from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
@@ -273,26 +274,58 @@ class ZaakViewSet(
         Zaak.objects.prefetch_related(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
-            "deelzaken",
+            models.Prefetch(
+                "_zaaktype",
+                queryset=ZaakType.objects.only("uuid", "pk"),
+            ),
+            models.Prefetch(
+                "deelzaken", queryset=Zaak.objects.only("uuid", "pk", "hoofdzaak_id")
+            ),
             models.Prefetch(
                 "relevante_andere_zaken",
-                queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+                queryset=RelevanteZaakRelatie.objects.select_related(
+                    "_relevant_zaak"
+                ).only(
+                    "zaak_id",
+                    "aard_relatie",
+                    "overige_relatie",
+                    "toelichting",
+                    "_relevant_zaak__uuid",
+                    "_relevant_zaak_relative_url",
+                    "_relevant_zaak_base_url_id",
+                ),
             ),
             "zaakkenmerk_set",
-            "resultaat",
-            "zaakeigenschap_set",
+            models.Prefetch(
+                "resultaat",
+                queryset=Resultaat.objects.only("uuid", "pk", "zaak_id"),
+            ),
+            models.Prefetch(
+                "zaakeigenschap_set",
+                queryset=ZaakEigenschap.objects.only("uuid", "pk", "zaak_id"),
+            ),
             models.Prefetch(
                 "status_set",
-                queryset=Status.objects.order_by("-datum_status_gezet"),
+                queryset=Status.objects.only("uuid", "pk", "zaak_id").order_by(
+                    "-datum_status_gezet"
+                ),
                 # explicitly store result on this attribute, that way we can retrieve
                 # the first status by simple list indexing, which is faster than calling
                 # `.first()`, because the latter instantiates a new queryset
                 to_attr="prefetched_statuses",
             ),
-            "rol_set",
-            "zaakinformatieobject_set",
-            "zaakobject_set",
+            models.Prefetch(
+                "rol_set",
+                queryset=Rol.objects.only("uuid", "pk", "zaak_id"),
+            ),
+            models.Prefetch(
+                "zaakinformatieobject_set",
+                queryset=ZaakInformatieObject.objects.only("uuid", "pk", "zaak_id"),
+            ),
+            models.Prefetch(
+                "zaakobject_set",
+                queryset=ZaakObject.objects.only("uuid", "pk", "zaak_id"),
+            ),
         )
         .order_by("-pk")
         .distinct()
