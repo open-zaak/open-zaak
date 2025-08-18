@@ -786,7 +786,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
         error = get_validation_errors(response, "rollen.0.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "missing-relation")
 
     def test_duplicate_uuids_in_rollen(self):
         rol_1 = RolFactory.create(
@@ -825,7 +825,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
         error = get_validation_errors(response, "rollen.1.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "duplicate")
 
     def test_unknown_uuid_in_rollen(self):
         content = {
@@ -848,7 +848,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
         error = get_validation_errors(response, "rollen.0.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "does-not-exist")
 
     def test_rollen_multiple_uuid_errors(self):
         rol_1 = RolFactory.create(
@@ -909,8 +909,8 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(len(response.data["invalid_params"]), 3)
         error = get_validation_errors(response, "rollen.0.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "missing-relation")
         error = get_validation_errors(response, "rollen.1.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "does-not-exist")
         error = get_validation_errors(response, "rollen.3.uuid")
-        self.assertEqual(error["code"], "invalid")
+        self.assertEqual(error["code"], "duplicate")

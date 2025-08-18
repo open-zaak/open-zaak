@@ -19,6 +19,7 @@ from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
+    RolOmschrijving,
     RolTypes,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
@@ -664,6 +665,174 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                         "resource": "rol",
                         "resourceUrl": data["rollen"][0]["url"],
                         "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
+        )
+
+    @tag("convenience-endpoints")
+    def test_send_notif_zaak_bijwerken_rollen(self, mock_notif):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        roltype = RolTypeFactory(
+            zaaktype=zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
+        )
+        roltype_url = self.check_for_instance(roltype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        zaak = ZaakFactory.create(
+            zaaktype=zaaktype,
+            bronorganisatie=517439943,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            verantwoordelijke_organisatie=517439943,
+        )
+
+        existing_rol = RolFactory.create(
+            zaak=zaak,
+            roltoelichting="OLD",
+            betrokkene="http://www.betrokkene.org/updating",
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype=roltype,
+        )
+        to_be_deleted_rol = RolFactory.create(
+            zaak=zaak,
+            roltoelichting="BEFORE UPDATE",
+            betrokkene="http://www.betrokkene.org/deleting",
+            betrokkene_type=RolTypes.natuurlijk_persoon,
+            roltype=roltype,
+        )
+
+        url = reverse(
+            "zaakbijwerken",
+            kwargs={
+                "uuid": zaak.uuid,
+            },
+        )
+
+        self.maxDiff = None  # TODO remove
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": "http://www.betrokkene.org/creating",
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "NEW",
+                },
+                {
+                    "uuid": existing_rol.uuid,
+                    "betrokkene": "http://www.betrokkene.org/updating",
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "UPDATED",
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = response.json()
+
+        zaak = Zaak.objects.get()
+
+        self.assertEqual(mock_notif.call_count, 5)
+
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "zaak",
+                        "resourceUrl": data["zaak"]["url"],
+                        "actie": "partial_update",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "status",
+                        "resourceUrl": data["status"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "rol",
+                        "resourceUrl": data["rollen"][0]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "rol",
+                        "resourceUrl": self.check_for_instance(existing_rol),
+                        "actie": "update",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "rol",
+                        "resourceUrl": self.check_for_instance(to_be_deleted_rol),
+                        "actie": "destroy",
                         "aanmaakdatum": "2012-01-14T00:00:00Z",
                         "kenmerken": {
                             "bronorganisatie": zaak.bronorganisatie,

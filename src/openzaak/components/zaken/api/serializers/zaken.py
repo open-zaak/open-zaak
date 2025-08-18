@@ -26,6 +26,7 @@ import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
+from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching.etags import track_object_serializer
@@ -1729,19 +1730,20 @@ class ZaakBijwerkenSerializer(ConvenienceSerializer):
 
             if uuid in existing_uuids:
                 if uuid in seen_uuids:
-                    errors[f"{i}.uuid"] = serializers.ValidationError(
-                        _("Dubbel uuid: {}.").format(uuid)
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("Dubbel uuid: {}.").format(uuid), code="duplicate"
                     )
                 seen_uuids.add(uuid)
             else:
                 try:
                     Rol.objects.get(uuid=uuid)
-                    errors[f"{i}.uuid"] = serializers.ValidationError(
-                        _("uuid {} is niet onderdeel van de zaak.").format(uuid)
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("uuid {} is niet onderdeel van de zaak.").format(uuid),
+                        code="missing-relation",
                     )
                 except Rol.DoesNotExist:
-                    errors[f"{i}.uuid"] = serializers.ValidationError(
-                        _("uuid {} bestaat niet.").format(uuid)
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("uuid {} bestaat niet.").format(uuid), code="does-not-exist"
                     )
         if errors:
             raise serializers.ValidationError(errors)

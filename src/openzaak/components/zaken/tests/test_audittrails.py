@@ -427,6 +427,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.oud, None)
 
+    @tag("convenience-endpoints")
     def test_zaak_bijwerken_rollen_audittrails(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 

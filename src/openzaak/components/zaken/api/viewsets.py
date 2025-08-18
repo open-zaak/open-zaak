@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from typing import Optional
+from typing import Dict, List, Optional, Union
 
 from django.db import models, transaction
 from django.db.models import Q
@@ -18,6 +18,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationViewSetMixin,
@@ -2173,7 +2174,7 @@ class ZaakOpschortenViewset(
     description=mark_experimental(
         "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
         "\n\n"
-        "Via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
+        "**LET OP**: via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
         "Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. "
         "Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden."
         "\n\n"
@@ -2256,17 +2257,28 @@ class ZaakBijwerkenViewset(
 
         response = Response(serializer.data, status=status.HTTP_200_OK)
 
-        self._create_audit_logs(response, serializer, zaak_version_before_edit)
-        self._create_rol_audittrails(
+        self._create_audit_logs(
             response,
             serializer,
+            zaak_version_before_edit,
             rollen_version_before_edit,
             rollen_instances_before_edit,
         )
-        self.notify(response.status_code, response.data)
+        self.notify(
+            response.status_code,
+            response.data,
+            rollen_version_before_edit=rollen_version_before_edit,
+        )
         return response
 
-    def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
+    def _create_audit_logs(
+        self,
+        response,
+        serializer,
+        zaak_version_before_edit,
+        rollen_version_before_edit,
+        rollen_instances_before_edit,
+    ):
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.partial_update,
@@ -2287,6 +2299,13 @@ class ZaakBijwerkenViewset(
             audit=AUDIT_ZRC,
             basename="status",
             main_object=serializer.data["zaak"]["url"],
+        )
+
+        self._create_rol_audittrails(
+            response,
+            serializer,
+            rollen_version_before_edit,
+            rollen_instances_before_edit,
         )
 
     def _create_rol_audittrails(
@@ -2350,3 +2369,43 @@ class ZaakBijwerkenViewset(
             status_url=serializer.data["status"]["url"],
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
         )
+
+    def notify(
+        self,
+        status_code: int,
+        data: Union[List, Dict],
+        instance: models.Model = None,
+        rollen_version_before_edit=None,
+    ) -> None:
+        super().notify(status_code, data | {"rollen": []}, instance=instance)
+        self._message_rollen(data["rollen"], rollen_version_before_edit)
+
+    def _message_rollen(self, rollen, rollen_version_before_edit):
+        def send_rol_notification(rol, action):
+            message = self.construct_message(
+                rol,
+                kanaal=config["notifications_kanaal"],
+                model=config["model"],
+                action=action,
+            )
+            transaction.on_commit(lambda msg=message: send_notification.delay(msg))
+
+        config = self.notification_fields["rollen"]
+
+        old_rollen = {rol["uuid"]: rol for rol in rollen_version_before_edit}
+        new_rollen = {rol["uuid"]: rol for rol in rollen}
+
+        old_uuids = set(old_rollen.keys())
+        new_uuids = set(new_rollen.keys())
+
+        # Deleted rollen
+        for uuid in old_uuids - new_uuids:
+            send_rol_notification(old_rollen[uuid], "destroy")
+
+        # Updated rollen
+        for uuid in old_uuids & new_uuids:
+            send_rol_notification(new_rollen[uuid], "update")
+
+        # Created rollen
+        for uuid in new_uuids - old_uuids:
+            send_rol_notification(new_rollen[uuid], "create")
