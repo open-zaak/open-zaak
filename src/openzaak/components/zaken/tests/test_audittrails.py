@@ -553,7 +553,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "verlengzaak",
+            "zaakverlengen",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },

@@ -2110,13 +2110,18 @@ class ZaakUpdateActionViewSet(
 
         return obj
 
+    def _pre_post(self, request, instance):
+        zaak_version_before_edit = ZaakSerializer(
+            context={"request": request}, instance=instance
+        ).data
+
+        return {"zaak_version_before_edit": zaak_version_before_edit}
+
     @transaction.atomic
     def post(self, request, uuid=None, *args, **kwargs):
         instance = self.get_object(uuid)
 
-        zaak_version_before_edit = ZaakSerializer(
-            context={"request": request}, instance=instance
-        ).data
+        context = self._pre_post(request, instance)
 
         serializer = self.serializer_class(
             data=request.data, context={"request": request}, instance=instance
@@ -2128,8 +2133,8 @@ class ZaakUpdateActionViewSet(
 
         response = Response(serializer.data, status=status.HTTP_200_OK)
 
-        self._create_audit_logs(response, serializer, zaak_version_before_edit)
-        self.notify(response.status_code, response.data)
+        self._create_audit_logs(response, serializer, **context)
+        self.notify(response.status_code, response.data, **context)
         return response
 
     def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
@@ -2190,38 +2195,14 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
     ),
 )
 class ZaakBijwerkenViewset(
-    viewsets.ViewSet,
-    MultipleNotificationMixin,
-    AuditTrailMixin,
+    ZaakUpdateActionViewSet,
     GeoMixin,
     ClosedZaakMixin,
 ):
     serializer_class = ZaakBijwerkenSerializer
-    permission_classes = (ZaakActionAuthRequired,)
-    required_scopes = {
-        "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
-        & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
-    }
-
-    viewset_classes = {
-        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
-    }
-
-    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
-
-    actions = {"zaak": "partial_update"}
 
     notification_fields = {
-        "zaak": {
-            "notifications_kanaal": KANAAL_ZAKEN,
-            "model": Zaak,
-            "action": "partial_update",
-        },
-        "status": {
-            "notifications_kanaal": KANAAL_ZAKEN,
-            "model": Status,
-            "action": "create",
-        },
+        **ZaakUpdateActionViewSet.notification_fields,
         "rollen": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Rol,
@@ -2229,84 +2210,29 @@ class ZaakBijwerkenViewset(
         },
     }
 
-    def get_object(self, uuid):
-        queryset = Zaak.objects
-        obj = get_object_or_404(queryset, uuid=uuid)
-
-        self.check_object_permissions(self.request, obj)
-
-        return obj
-
-    @transaction.atomic
-    def post(self, request, uuid=None, *args, **kwargs):
-        instance = self.get_object(uuid)
+    def _pre_post(self, request, instance):
+        context = super()._pre_post(request, instance)
 
         if request.data.get("rollen"):
             self._check_zaak_closed(instance, "zaken")
 
-        zaak_version_before_edit = ZaakSerializer(
-            context={"request": request}, instance=instance
-        ).data
-
-        rollen_version_before_edit = RolSerializer(
+        context["rollen_version_before_edit"] = RolSerializer(
             instance.rol_set, context={"request": request}, many=True
         ).data
 
-        rollen_instances_before_edit = list(instance.rol_set.all())
+        context["rollen_instances_before_edit"] = list(instance.rol_set.all())
 
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}, instance=instance
-        )
-
-        serializer.is_valid(raise_exception=True)
-
-        self.perform_post(serializer)
-
-        response = Response(serializer.data, status=status.HTTP_200_OK)
-
-        self._create_audit_logs(
-            response,
-            serializer,
-            zaak_version_before_edit,
-            rollen_version_before_edit,
-            rollen_instances_before_edit,
-        )
-        self.notify(
-            response.status_code,
-            response.data,
-            rollen_version_before_edit=rollen_version_before_edit,
-        )
-        return response
+        return context
 
     def _create_audit_logs(
         self,
         response,
         serializer,
         zaak_version_before_edit,
-        rollen_version_before_edit,
-        rollen_instances_before_edit,
+        rollen_version_before_edit=None,
+        rollen_instances_before_edit=None,
     ):
-        self.create_audittrail(
-            response.status_code,
-            CommonResourceAction.partial_update,
-            version_before_edit=zaak_version_before_edit,
-            version_after_edit=serializer.data["zaak"],
-            unique_representation=serializer.instance["zaak"].unique_representation(),
-            audit=AUDIT_ZRC,
-            basename="zaak",
-            main_object=serializer.data["zaak"]["url"],
-        )
-
-        self.create_audittrail(
-            response.status_code,
-            CommonResourceAction.create,
-            version_before_edit=None,
-            version_after_edit=serializer.data["status"],
-            unique_representation=serializer.instance["status"].unique_representation(),
-            audit=AUDIT_ZRC,
-            basename="status",
-            main_object=serializer.data["zaak"]["url"],
-        )
+        super()._create_audit_logs(response, serializer, zaak_version_before_edit)
 
         self._create_rol_audittrails(
             response,
@@ -2368,7 +2294,7 @@ class ZaakBijwerkenViewset(
             create_audittrail(None, new_rollen[uuid], CommonResourceAction.create, uuid)
 
     def perform_post(self, serializer):
-        serializer.save()
+        super().perform_post(serializer)
 
         logger.info(
             "zaak_bijgewerkt",
@@ -2383,6 +2309,7 @@ class ZaakBijwerkenViewset(
         data: Union[List, Dict],
         instance: models.Model = None,
         rollen_version_before_edit=None,
+        **kwargs,
     ) -> None:
         super().notify(status_code, data | {"rollen": []}, instance=instance)
         self._message_rollen(data["rollen"], rollen_version_before_edit)
@@ -2426,7 +2353,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
     serializer_class = ZaakVerlengenSerializer
 
     def perform_post(self, serializer):
-        serializer.save()
+        super().perform_post(serializer)
 
         logger.info(
             "zaak_verlengd",

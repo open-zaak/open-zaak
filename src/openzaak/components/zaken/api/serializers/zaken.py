@@ -668,7 +668,7 @@ class ZaakVerlengingSerializer(ZaakSerializer):
         ),
     )
 
-    def get_fields(self):
+    def get_fields(self):  # TODO mixin
         fields = super().get_fields()
         writable_fields = {"verlenging"}
 
@@ -1859,6 +1859,7 @@ class ZaakVerlengenSerializer(ConvenienceSerializer):
         status_serializer = StatusSerializer(
             data=self.initial_data.get("status") | zaak_data, context=self.context
         )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
         status_serializer.is_valid()
 
         self._handle_errors(
@@ -1868,9 +1869,8 @@ class ZaakVerlengenSerializer(ConvenienceSerializer):
         zaak = zaak_serializer.save()
         status = status_serializer.save()
 
-        # statusSerializer changes zaak fields when a zaak is closed.
-        if status.statustype.is_eindstatus():
-            zaak.refresh_from_db()
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
 
         return {
             "zaak": zaak,

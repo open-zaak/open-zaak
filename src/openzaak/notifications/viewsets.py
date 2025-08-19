@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.db import transaction
+from typing import Dict, List, Union
+
+from django.db import models, transaction
 
 from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import NotificationMixin
@@ -8,6 +10,15 @@ from notifications_api_common.viewsets import NotificationMixin
 
 class MultipleNotificationMixin(NotificationMixin):
     notification_fields: dict[str, dict[str, str]]
+
+    def notify(
+        self,
+        status_code: int,
+        data: Union[List, Dict],
+        instance: models.Model = None,
+        **kwargs,
+    ) -> None:
+        super().notify(status_code, data, instance)
 
     def _message(self, data, instance=None):
         for field, config in self.notification_fields.items():

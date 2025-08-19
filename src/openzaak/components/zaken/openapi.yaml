@@ -3814,6 +3814,16 @@ paths:
           - application/json
         description: Content type van de verzoekinhoud.
         required: true
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
       - in: path
         name: uuid
         schema:
@@ -3868,6 +3878,16 @@ paths:
           - application/json
         description: Content type van de verzoekinhoud.
         required: true
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
       - in: path
         name: uuid
         schema:
@@ -4092,6 +4112,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+  /zaak_verlengen/{uuid}:
+    post:
+      operationId: None_post_3
+      description: '**EXPERIMENTEEL** Verleng een zaak en maak een status aan.'
+      summary: Verleng een zaak
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - zaak_verlengen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakVerlengenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
+          | zaken.heropenen))
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakVerlengen'
+          description: OK
   /zaakcontactmomenten:
     get:
       operationId: zaakcontactmoment_list
@@ -20625,6 +20700,397 @@ components:
       - startdatum
       - verantwoordelijkeOrganisatie
       - zaaktype
+    ZaakVerlengen:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakVerlengingSub'
+        status:
+          $ref: '#/components/schemas/StatusSub'
+      required:
+      - status
+      - zaak
+    ZaakVerlengenRequest:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakVerlengingSubRequest'
+        status:
+          $ref: '#/components/schemas/StatusSubRequest'
+      required:
+      - status
+      - zaak
+    ZaakVerlengingSub:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        identificatie:
+          type: string
+          readOnly: true
+          description: De unieke identificatie van de ZAAK binnen de organisatie die
+            verantwoordelijk is voor de behandeling van de ZAAK.
+          maxLength: 40
+        bronorganisatie:
+          type: string
+          readOnly: true
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
+            en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+          maxLength: 9
+        omschrijving:
+          type: string
+          readOnly: true
+          description: Een korte omschrijving van de zaak.
+          maxLength: 80
+        toelichting:
+          type: string
+          readOnly: true
+          description: Een toelichting op de zaak.
+          maxLength: 1000
+        zaaktype:
+          type: string
+          readOnly: true
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        registratiedatum:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+        verantwoordelijkeOrganisatie:
+          type: string
+          readOnly: true
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
+            een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+          maxLength: 9
+        startdatum:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop met de uitvoering van de zaak is gestart
+        einddatum:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: De datum waarop de uitvoering van de zaak afgerond is.
+        einddatumGepland:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+        uiterlijkeEinddatumAfdoening:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+        publicatiedatum:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        communicatiekanaal:
+          type: string
+          format: uri
+          readOnly: true
+          description: Het medium waarlangs de aanleiding om een zaak te starten is
+            ontvangen. URL naar een communicatiekanaal in de VNG-Referentielijst van
+            communicatiekanalen.
+          maxLength: 1000
+        communicatiekanaalNaam:
+          type: string
+          readOnly: true
+          description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
+            om een zaak te starten is ontvangen.'
+          maxLength: 250
+        productenOfDiensten:
+          type: array
+          items:
+            type: string
+            format: uri
+            title: URL naar product/dienst
+            maxLength: 1000
+          readOnly: true
+          description: De producten en/of diensten die door de zaak worden voortgebracht.
+            Dit zijn URLs naar de resources zoals die door de producten- en dienstencatalogus-API
+            wordt ontsloten. De producten/diensten moeten bij het zaaktype vermeld
+            zijn.
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          readOnly: true
+          title: Vertrouwlijkheidaanduiding
+          description: Aanduiding van de mate waarin het zaakdossier van de ZAAK voor
+            de openbaarheid bestemd is. Optioneel - indien geen waarde gekozen wordt,
+            dan wordt de waarde van het ZAAKTYPE overgenomen. Dit betekent dat de
+            API _altijd_ een waarde teruggeeft.
+        betalingsindicatie:
+          readOnly: true
+          description: |-
+            Indicatie of de, met behandeling van de zaak gemoeide, kosten betaald zijn door de desbetreffende betrokkene.
+
+            Uitleg bij mogelijke waarden:
+
+            * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
+            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+          oneOf:
+          - $ref: '#/components/schemas/BetalingsindicatieEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        betalingsindicatieWeergave:
+          type: string
+          description: Uitleg bij `betalingsindicatie`.
+          readOnly: true
+        laatsteBetaaldatum:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: De datum waarop de meest recente betaling is verwerkt van kosten
+            die gemoeid zijn met behandeling van de zaak.
+        zaakgeometrie:
+          allOf:
+          - $ref: '#/components/schemas/GeoJSONGeometry'
+          readOnly: true
+          nullable: true
+          description: Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON.
+            (long, lat volgorde)
+        verlenging:
+          allOf:
+          - $ref: '#/components/schemas/Verlenging'
+          readOnly: true
+          nullable: true
+          description: Gegevens omtrent het verlengen van de doorlooptijd van de behandeling
+            van de ZAAK
+        opschorting:
+          allOf:
+          - $ref: '#/components/schemas/Opschorting'
+          nullable: true
+          description: Gegevens omtrent het tijdelijk opschorten van de behandeling
+            van de ZAAK
+        selectielijstklasse:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de categorie in de gehanteerde 'Selectielijst
+            Archiefbescheiden' die, gezien het zaaktype en het resultaattype van de
+            zaak, bepalend is voor het archiefregime van de zaak.
+          maxLength: 1000
+        hoofdzaak:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          title: Is deelzaak van
+          description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
+            daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
+            onderhavige ZAAK er één is.
+          minLength: 1
+          maxLength: 1000
+        deelzaken:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar deel ZAAKen.
+        relevanteAndereZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelevanteZaak'
+          readOnly: true
+          description: Een lijst van relevante andere zaken.
+        eigenschappen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar ZAAK-EIGENSCHAPPen.
+        rollen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar ROLLen.
+        status:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          description: Indien geen status bekend is, dan is de waarde 'null'
+        zaakinformatieobjecten:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar ZAAKINFORMATIEOBJECTen.
+        zaakobjecten:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: URL-referenties naar ZAAKOBJECTen.
+        kenmerken:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakKenmerk'
+          readOnly: true
+          description: Lijst van kenmerken. Merk op dat refereren naar gerelateerde
+            objecten beter kan via `ZaakObject`.
+        archiefnominatie:
+          readOnly: true
+          nullable: true
+          description: |-
+            Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
+
+            Uitleg bij mogelijke waarden:
+
+            * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
+            * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
+          oneOf:
+          - $ref: '#/components/schemas/ArchiefnominatieEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        archiefstatus:
+          allOf:
+          - $ref: '#/components/schemas/ArchiefstatusEnum'
+          readOnly: true
+          description: |-
+            Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
+
+            Uitleg bij mogelijke waarden:
+
+            * `nog_te_archiveren` - De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd.
+            * `gearchiveerd` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt.
+            * `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum kan nog niet bepaald worden.
+            * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats.
+        archiefactiedatum:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+            worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
+            Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT
+            aan deze ZAAK indien nog leeg.
+        resultaat:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          description: URL-referentie naar het RESULTAAT. Indien geen resultaat bekend
+            is, dan is de waarde 'null'
+        opdrachtgevendeOrganisatie:
+          type: string
+          readOnly: true
+          description: De krachtens publiekrecht ingestelde rechtspersoon dan wel
+            ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat
+            opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
+            geeft.
+          maxLength: 9
+        processobjectaard:
+          type: string
+          readOnly: true
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, de zaak betrekking heeft.
+          maxLength: 200
+        startdatumBewaartermijn:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          description: De datum die de start markeert van de termijn waarop het zaakdossier
+            vernietigd moet worden.
+        processobject:
+          allOf:
+          - $ref: '#/components/schemas/Processobject'
+          readOnly: true
+          nullable: true
+          description: Specificatie van de attribuutsoort van het object, subject
+            of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
+            heeft en dat bepalend is voor de start van de archiefactietermijn.
+      required:
+      - archiefactiedatum
+      - archiefnominatie
+      - archiefstatus
+      - betalingsindicatie
+      - betalingsindicatieWeergave
+      - bronorganisatie
+      - communicatiekanaal
+      - communicatiekanaalNaam
+      - deelzaken
+      - eigenschappen
+      - einddatum
+      - einddatumGepland
+      - hoofdzaak
+      - identificatie
+      - kenmerken
+      - laatsteBetaaldatum
+      - omschrijving
+      - opdrachtgevendeOrganisatie
+      - opschorting
+      - processobject
+      - processobjectaard
+      - productenOfDiensten
+      - publicatiedatum
+      - registratiedatum
+      - relevanteAndereZaken
+      - resultaat
+      - rollen
+      - selectielijstklasse
+      - startdatum
+      - startdatumBewaartermijn
+      - status
+      - toelichting
+      - uiterlijkeEinddatumAfdoening
+      - url
+      - uuid
+      - verantwoordelijkeOrganisatie
+      - verlenging
+      - vertrouwelijkheidaanduiding
+      - zaakgeometrie
+      - zaakinformatieobjecten
+      - zaakobjecten
+      - zaaktype
+    ZaakVerlengingSubRequest:
+      type: object
+      properties:
+        opschorting:
+          allOf:
+          - $ref: '#/components/schemas/OpschortingRequest'
+          nullable: true
+          description: Gegevens omtrent het tijdelijk opschorten van de behandeling
+            van de ZAAK
+      required:
+      - opschorting
     ZaakVerzoek:
       type: object
       properties:

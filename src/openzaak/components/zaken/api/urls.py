@@ -100,7 +100,7 @@ urlpatterns = [
                 path(
                     "zaak_verlengen/<uuid:uuid>",
                     zaakverlengen_view,
-                    name="verlengzaak",
+                    name="zaakverlengen",
                 ),
                 path("", include("vng_api_common.notifications.api.urls")),
             ]
