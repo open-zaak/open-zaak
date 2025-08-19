@@ -64,7 +64,11 @@ from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
-from openzaak.utils.serializers import ConvenienceSerializer, SubSerializerMixin
+from openzaak.utils.serializers import (
+    ConvenienceSerializer,
+    ReadOnlyMixin,
+    SubSerializerMixin,
+)
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -637,7 +641,7 @@ class ZaakSubSerializer(SubSerializerMixin, ZaakSerializer):
     pass
 
 
-class ZaakOpschortingSerializer(ZaakSerializer):
+class ZaakOpschortingSerializer(ReadOnlyMixin, ZaakSerializer):
     opschorting = OpschortingSerializer(
         required=True,
         allow_null=True,
@@ -646,20 +650,10 @@ class ZaakOpschortingSerializer(ZaakSerializer):
         ),
     )
 
-    def get_fields(self):
-        fields = super().get_fields()
-        writable_fields = {"opschorting"}
-
-        for name, field in fields.items():
-            if name not in writable_fields:
-                field.read_only = True
-                if hasattr(field, "queryset"):
-                    field.queryset = None
-
-        return fields
+    writable_fields = {"opschorting"}
 
 
-class ZaakVerlengingSerializer(ZaakSerializer):
+class ZaakVerlengingSerializer(ReadOnlyMixin, ZaakSerializer):
     verlenging = VerlengingSerializer(
         required=True,
         allow_null=True,
@@ -668,17 +662,7 @@ class ZaakVerlengingSerializer(ZaakSerializer):
         ),
     )
 
-    def get_fields(self):  # TODO mixin
-        fields = super().get_fields()
-        writable_fields = {"verlenging"}
-
-        for name, field in fields.items():
-            if name not in writable_fields:
-                field.read_only = True
-                if hasattr(field, "queryset"):
-                    field.queryset = None
-
-        return fields
+    writable_fields = {"verlenging"}
 
 
 class ZaakOpschortingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer):
