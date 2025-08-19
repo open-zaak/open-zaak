@@ -3778,7 +3778,7 @@ paths:
           description: Internal server error
   /zaak_bijwerken/{uuid}:
     post:
-      operationId: None_post
+      operationId: zaakbijwerken
       description: |-
         **EXPERIMENTEEL** Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken.
 
@@ -3866,9 +3866,9 @@ paths:
           description: OK
   /zaak_opschorten/{uuid}:
     post:
-      operationId: None_post_2
+      operationId: zaakopschorten
       description: '**EXPERIMENTEEL** Schort een zaak op en maak een status aan.'
-      summary: Short een zaak op
+      summary: Schort een zaak op
       parameters:
       - in: header
         name: Content-Type
@@ -4114,7 +4114,7 @@ paths:
           description: Internal server error
   /zaak_verlengen/{uuid}:
     post:
-      operationId: None_post_3
+      operationId: zaakverlengen
       description: '**EXPERIMENTEEL** Verleng een zaak en maak een status aan.'
       summary: Verleng een zaak
       parameters:
@@ -20881,13 +20881,13 @@ components:
         verlenging:
           allOf:
           - $ref: '#/components/schemas/Verlenging'
-          readOnly: true
           nullable: true
           description: Gegevens omtrent het verlengen van de doorlooptijd van de behandeling
             van de ZAAK
         opschorting:
           allOf:
           - $ref: '#/components/schemas/Opschorting'
+          readOnly: true
           nullable: true
           description: Gegevens omtrent het tijdelijk opschorten van de behandeling
             van de ZAAK
@@ -21083,14 +21083,14 @@ components:
     ZaakVerlengingSubRequest:
       type: object
       properties:
-        opschorting:
+        verlenging:
           allOf:
-          - $ref: '#/components/schemas/OpschortingRequest'
+          - $ref: '#/components/schemas/VerlengingRequest'
           nullable: true
-          description: Gegevens omtrent het tijdelijk opschorten van de behandeling
+          description: Gegevens omtrent het verlengen van de doorlooptijd van de behandeling
             van de ZAAK
       required:
-      - opschorting
+      - verlenging
     ZaakVerzoek:
       type: object
       properties:

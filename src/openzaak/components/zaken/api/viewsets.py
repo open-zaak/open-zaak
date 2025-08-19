@@ -2164,9 +2164,12 @@ class ZaakUpdateActionViewSet(
         return serializer.save()
 
 
-@extend_schema(
-    summary="Short een zaak op",
-    description=mark_experimental("Schort een zaak op en maak een status aan."),
+@extend_schema_view(
+    post=extend_schema(
+        "zaakopschorten",
+        summary="Schort een zaak op",
+        description=mark_experimental("Schort een zaak op en maak een status aan."),
+    )
 )
 class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
     serializer_class = ZaakOpschortenSerializer
@@ -2181,18 +2184,21 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
         )
 
 
-@extend_schema(
-    summary="Update een zaak",
-    description=mark_experimental(
-        "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
-        "\n\n"
-        "**LET OP**: via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
-        "Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. "
-        "Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden."
-        "\n\n"
-        "Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. "
-        "Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol."
-    ),
+@extend_schema_view(
+    post=extend_schema(
+        "zaakbijwerken",
+        summary="Update een zaak",
+        description=mark_experimental(
+            "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
+            "\n\n"
+            "**LET OP**: via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
+            "Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. "
+            "Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden."
+            "\n\n"
+            "Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. "
+            "Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol."
+        ),
+    )
 )
 class ZaakBijwerkenViewset(
     ZaakUpdateActionViewSet,
@@ -2345,9 +2351,12 @@ class ZaakBijwerkenViewset(
             send_rol_notification(new_rollen[uuid], "create")
 
 
-@extend_schema(
-    summary="Verleng een zaak",
-    description=mark_experimental("Verleng een zaak en maak een status aan."),
+@extend_schema_view(
+    post=extend_schema(
+        "zaakverlengen",
+        summary="Verleng een zaak",
+        description=mark_experimental("Verleng een zaak en maak een status aan."),
+    )
 )
 class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
     serializer_class = ZaakVerlengenSerializer

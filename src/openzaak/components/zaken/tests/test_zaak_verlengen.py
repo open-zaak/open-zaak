@@ -25,6 +25,7 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
+    SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
 from openzaak.components.zaken.models import (
     Status,
@@ -157,6 +158,28 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_eind_status_with_force_scope(self):
+        self._add_zaken_auth(
+            scopes=[SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
+        )
+
+        ResultaatFactory(
+            zaak=self.zaak,
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+
+        content = self.content
+        content["status"]["statustype"] = self.check_for_instance(self.end_statustype)
+
+        response = self.client.post(self.url, content)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+
+        error = get_validation_errors(response, "status.nonFieldErrors")
+        self.assertEqual(error["code"], "eindstatus-not-allowed")
 
 
 @tag("convenience-endpoints")

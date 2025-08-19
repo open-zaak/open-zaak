@@ -37,7 +37,7 @@ New endpoints are added:
   The optional ``amount`` attribute can be specified to reserve identifications in bulk
 * POST ``/api/v1/zaak_registreren`` – create a zaak in combination with a status, rollen, zaakinformatieobjecten & zaakobjecten to immediately link them to this zaak.
 * POST ``/api/v1/zaak_opschorten/{uuid}`` - suspend a zaak and set a new status for the zaak
-* POST ``/api/v1/zaak_verlengen`` - extend a zaak and set a new status for the zaak
+* POST ``/api/v1/zaak_verlengen/{uuid}`` - extend a zaak and set a new status for the zaak
 * POST ``/api/v1/zaak_bijwerken/{uuid}`` - update a zaak in combination with a status & rollen to immediately link them to this zaak.
 * GET ``/api/v1/substatussen``
 * POST ``/api/v1/substatussen``

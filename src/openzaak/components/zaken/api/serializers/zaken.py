@@ -669,7 +669,7 @@ class ZaakOpschortingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer
     pass
 
 
-class ZaakVerlengingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer):
+class ZaakVerlengingSubSerializer(SubSerializerMixin, ZaakVerlengingSerializer):
     pass
 
 
