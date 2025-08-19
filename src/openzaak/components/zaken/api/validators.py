@@ -323,7 +323,7 @@ class EndStatusDeelZakenValidator:
 
     code = "deelzaken-not-closed"
     message = _(
-        "Er zijn gerelateerde deelzaken die nog niet zijn afgesloten zijn."
+        "Er zijn gerelateerde deelzaken die nog niet afgesloten zijn. "
         "Deze deelzaken moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
     )
 
