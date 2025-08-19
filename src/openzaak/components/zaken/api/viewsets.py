@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from typing import Optional
+from typing import Dict, List, Optional, Union
 
 from django.db import models, transaction
 from django.db.models import Q
@@ -18,6 +18,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationViewSetMixin,
@@ -101,10 +102,9 @@ from .filters import (
 from .kanalen import KANAAL_ZAKEN
 from .mixins import ClosedZaakMixin, UpdateOnlyModelMixin
 from .permissions import (
+    ZaakActionAuthRequired,
     ZaakAuthRequired,
     ZaakNestedAuthRequired,
-    ZaakOpSchortenAuthRequired,
-    ZaaKRegistrerenAuthRequired,
 )
 from .scopes import (
     SCOPE_STATUSSEN_TOEVOEGEN,
@@ -124,6 +124,7 @@ from .serializers import (
     StatusSerializer,
     SubStatusSerializer,
     ZaakBesluitSerializer,
+    ZaakBijwerkenSerializer,
     ZaakContactMomentSerializer,
     ZaakEigenschapSerializer,
     ZaakInformatieObjectSerializer,
@@ -1975,7 +1976,7 @@ class ZaakRegistrerenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, GeoMixin
 ):
     serializer_class = ZaakRegistrerenSerializer
-    permission_classes = (ZaaKRegistrerenAuthRequired,)
+    permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "create": SCOPE_ZAKEN_CREATE
         & (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
@@ -2077,7 +2078,7 @@ class ZaakOpschortenViewset(
     viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
 ):
     serializer_class = ZaakOpschortenSerializer
-    permission_classes = (ZaakOpSchortenAuthRequired,)
+    permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
         "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
         & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
@@ -2087,9 +2088,7 @@ class ZaakOpschortenViewset(
         "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
     }
 
-    extra_scopes = {
-        "zaak": SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN
-    }
+    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
 
     # Used to define the action used for each field in viewset_classes.
     actions = {"zaak": "partial_update"}
@@ -2168,3 +2167,245 @@ class ZaakOpschortenViewset(
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
         )
+
+
+@extend_schema(
+    summary="Update een zaak",
+    description=mark_experimental(
+        "Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken."
+        "\n\n"
+        "**LET OP**: via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. "
+        "Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. "
+        "Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden."
+        "\n\n"
+        "Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. "
+        "Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol."
+    ),
+)
+class ZaakBijwerkenViewset(
+    viewsets.ViewSet,
+    MultipleNotificationMixin,
+    AuditTrailMixin,
+    GeoMixin,
+    ClosedZaakMixin,
+):
+    serializer_class = ZaakBijwerkenSerializer
+    permission_classes = (ZaakActionAuthRequired,)
+    required_scopes = {
+        "post": (SCOPE_ZAKEN_BIJWERKEN | SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN)
+        & (SCOPE_ZAKEN_CREATE | SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN)
+    }
+
+    viewset_classes = {
+        "zaak": "openzaak.components.zaken.api.viewsets.ZaakViewSet",
+    }
+
+    extra_scopes = {"zaak": StatusViewSet.required_scopes["create"]}
+
+    actions = {"zaak": "partial_update"}
+
+    notification_fields = {
+        "zaak": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Zaak,
+            "action": "partial_update",
+        },
+        "status": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Status,
+            "action": "create",
+        },
+        "rollen": {
+            "notifications_kanaal": KANAAL_ZAKEN,
+            "model": Rol,
+            "action": "create",
+        },
+    }
+
+    def get_object(self, uuid):
+        queryset = Zaak.objects
+        obj = get_object_or_404(queryset, uuid=uuid)
+
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    @transaction.atomic
+    def post(self, request, uuid=None, *args, **kwargs):
+        instance = self.get_object(uuid)
+
+        if request.data.get("rollen"):
+            self._check_zaak_closed(instance, "zaken")
+
+        zaak_version_before_edit = ZaakSerializer(
+            context={"request": request}, instance=instance
+        ).data
+
+        rollen_version_before_edit = RolSerializer(
+            instance.rol_set, context={"request": request}, many=True
+        ).data
+
+        rollen_instances_before_edit = list(instance.rol_set.all())
+
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}, instance=instance
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_post(serializer)
+
+        response = Response(serializer.data, status=status.HTTP_200_OK)
+
+        self._create_audit_logs(
+            response,
+            serializer,
+            zaak_version_before_edit,
+            rollen_version_before_edit,
+            rollen_instances_before_edit,
+        )
+        self.notify(
+            response.status_code,
+            response.data,
+            rollen_version_before_edit=rollen_version_before_edit,
+        )
+        return response
+
+    def _create_audit_logs(
+        self,
+        response,
+        serializer,
+        zaak_version_before_edit,
+        rollen_version_before_edit,
+        rollen_instances_before_edit,
+    ):
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.partial_update,
+            version_before_edit=zaak_version_before_edit,
+            version_after_edit=serializer.data["zaak"],
+            unique_representation=serializer.instance["zaak"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="zaak",
+            main_object=serializer.data["zaak"]["url"],
+        )
+
+        self.create_audittrail(
+            response.status_code,
+            CommonResourceAction.create,
+            version_before_edit=None,
+            version_after_edit=serializer.data["status"],
+            unique_representation=serializer.instance["status"].unique_representation(),
+            audit=AUDIT_ZRC,
+            basename="status",
+            main_object=serializer.data["zaak"]["url"],
+        )
+
+        self._create_rol_audittrails(
+            response,
+            serializer,
+            rollen_version_before_edit,
+            rollen_instances_before_edit,
+        )
+
+    def _create_rol_audittrails(
+        self,
+        response,
+        serializer,
+        rollen_version_before_edit,
+        rollen_instances_before_edit,
+    ):
+        def create_audittrail(before, after, action, uuid):
+            instance = rol_by_uuid(uuid)
+            self.create_audittrail(
+                response.status_code,
+                action,
+                version_before_edit=before,
+                version_after_edit=after,
+                unique_representation=instance.unique_representation(),
+                audit=AUDIT_ZRC,
+                basename="rol",
+                main_object=serializer.data["zaak"]["url"],
+            )
+
+        def rol_by_uuid(uuid):
+            # Search in updated instances first, else fallback to pre-edit list
+            for rol in serializer.instance["rollen"]:
+                if str(rol.uuid) == uuid:
+                    return rol
+            for rol in rollen_instances_before_edit:
+                if str(rol.uuid) == uuid:
+                    return rol
+            return None
+
+        old_rollen = {rol["uuid"]: rol for rol in rollen_version_before_edit}
+        new_rollen = {rol["uuid"]: rol for rol in serializer.data["rollen"]}
+
+        old_uuids = set(old_rollen.keys())
+        new_uuids = set(new_rollen.keys())
+
+        # Deleted rollen
+        for uuid in old_uuids - new_uuids:
+            create_audittrail(
+                old_rollen[uuid], None, CommonResourceAction.destroy, uuid
+            )
+
+        # Updated rollen
+        for uuid in old_uuids & new_uuids:
+            create_audittrail(
+                old_rollen[uuid], new_rollen[uuid], CommonResourceAction.update, uuid
+            )
+
+        # Created rollen
+        for uuid in new_uuids - old_uuids:
+            create_audittrail(None, new_rollen[uuid], CommonResourceAction.create, uuid)
+
+    def perform_post(self, serializer):
+        serializer.save()
+
+        logger.info(
+            "zaak_bijgewerkt",
+            zaak_url=serializer.data["zaak"]["url"],
+            status_url=serializer.data["status"]["url"],
+            rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
+        )
+
+    def notify(
+        self,
+        status_code: int,
+        data: Union[List, Dict],
+        instance: models.Model = None,
+        rollen_version_before_edit=None,
+    ) -> None:
+        super().notify(status_code, data | {"rollen": []}, instance=instance)
+        self._message_rollen(data["rollen"], rollen_version_before_edit)
+
+    def _message_rollen(self, rollen, rollen_version_before_edit):
+        def send_rol_notification(rol, action):
+            message = self.construct_message(
+                rol,
+                kanaal=config["notifications_kanaal"],
+                model=config["model"],
+                action=action,
+            )
+            transaction.on_commit(lambda msg=message: send_notification.delay(msg))
+
+        config = self.notification_fields["rollen"]
+
+        old_rollen = {rol["uuid"]: rol for rol in rollen_version_before_edit}
+        new_rollen = {rol["uuid"]: rol for rol in rollen}
+
+        old_uuids = set(old_rollen.keys())
+        new_uuids = set(new_rollen.keys())
+
+        # Deleted rollen
+        for uuid in old_uuids - new_uuids:
+            send_rol_notification(old_rollen[uuid], "destroy")
+
+        # Updated rollen
+        for uuid in old_uuids & new_uuids:
+            send_rol_notification(new_rollen[uuid], "update")
+
+        # Created rollen
+        for uuid in new_uuids - old_uuids:
+            send_rol_notification(new_rollen[uuid], "create")

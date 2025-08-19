@@ -45,7 +45,6 @@ The events below are emitted when API operations are performed.
 * ``besluit_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``besluit_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``besluit_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
-* ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``besluitinformatieobject_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``besluitinformatieobject_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``besluitinformatieobject_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
@@ -77,7 +76,6 @@ The events below are emitted when API operations are performed.
 * ``objectinformatieobject_deleted`` (INFO). Additional context: ``client_id``, ``uuid``, ``object``.
 * ``reserved_document_created_bulk`` (INFO). Additional context: ``client_id``, ``bronorganisatie``, ``aantal``, ``identificaties``.
 * ``reserved_document_created`` (INFO). Additional context: ``client_id``, ``bronorganisatie``, ``identificatie``, ``aantal``.
-* ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 * ``resultaat_created`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``.
 * ``resultaat_deleted`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``.
 * ``resultaat_updated`` (INFO). Additional context: ``uuid``, ``zaak_uuid``, ``client_id``, ``partial``.
@@ -98,8 +96,6 @@ The events below are emitted when API operations are performed.
 * ``verzending_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``verzending_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
 * ``zaak_created`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``.
-* ``zaak_geregistreerd`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``rollen_urls``, ``zaakinformatieobjecten_urls``, ``zaakobjecten_urls``.
-* ``zaak_opgeschort`` (INFO). Additional context: ``zaak_url``, ``status_url``.
 * ``zaak_deleted`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``.
 * ``zaak_updated`` (INFO). Additional context: ``uuid``, ``identificatie``, ``vertrouwelijkheidaanduiding``, ``zaaktype``, ``partial``.
 * ``zaakbesluit_created_external`` (INFO). Additional context: ``besluit_url``, ``zaak_uuid``, ``client_id``.
@@ -131,6 +127,15 @@ The events below are emitted when API operations are performed.
 * ``zaaktype_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
 * ``zaakverzoek_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``zaakverzoek_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
+
+Convenience endpoints
+^^^^^^^^^^^^^^^^^^^^^
+
+* ``zaak_geregistreerd`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``rollen_urls``, ``zaakinformatieobjecten_urls``, ``zaakobjecten_urls``.
+* ``zaak_opgeschort`` (INFO). Additional context: ``zaak_url``, ``status_url``.
+* ``zaak_bijgewerkt`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``rollen_urls``.
+* ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
+* ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 
 Third party library events
 --------------------------

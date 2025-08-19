@@ -3776,9 +3776,87 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
-  /zaak_opschorten/{uuid}:
+  /zaak_bijwerken/{uuid}:
     post:
       operationId: None_post
+      description: |-
+        **EXPERIMENTEEL** Werk een Zaak deels bij samen met een status & rollen om alles direct aan de zaak te linken.
+
+        **LET OP**: via ``rollen`` kunnen nieuwe rollen worden toegevoegd, bestaande aangepast of verwijderd. Alle bestaande rollen van de zaak worden overschreven met wat er via ``rollen`` wordt meegegeven. Nieuwe rollen worden aangemaakt als gewoonlijk maar door een ``uuid`` mee te geven aan een rol kan een huidige rol worden aangepast/behouden.
+
+        Door de ``rollen`` key niet mee te geven zullen huidige rollen blijven bestaan. Om een huidige rol te behouden en een nieuwe toe te voegen zullen dus twee rollen in de request zijn toegevoegd 1 zonder uuid en 1 met de uuid van de te behouden rol.
+      summary: Update een zaak
+      parameters:
+      - in: header
+        name: Accept-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+          data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
+          the same as WGS84).'
+      - in: header
+        name: Content-Crs
+        schema:
+          type: string
+          enum:
+          - EPSG:4326
+        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+          According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
+          as WGS84).'
+        required: true
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - zaak_bijwerken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakBijwerkenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
+          | zaken.heropenen))
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Content-Crs:
+              schema:
+                type: string
+                enum:
+                - EPSG:4326
+              description: 'The ''Coordinate Reference System'' (CRS) of the request
+                data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
+                is the same as WGS84).'
+              required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakBijwerken'
+          description: OK
+  /zaak_opschorten/{uuid}:
+    post:
+      operationId: None_post_2
       description: '**EXPERIMENTEEL** Schort een zaak op en maak een status aan.'
       summary: Short een zaak op
       parameters:
@@ -13731,6 +13809,219 @@ components:
       required:
       - betrokkeneType
       - roltype
+    Base_RolUpdateSubSerializer:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          readOnly: true
+          description: Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
+        omschrijvingGeneriek:
+          type: string
+          readOnly: true
+          description: "Algemeen gehanteerde benaming van de aard van de ROL, afgeleid\
+            \ uit het ROLTYPE.\n\nUitleg bij mogelijke waarden:\n\n* `adviseur` -\
+            \ (Adviseur) Kennis in dienst stellen van de behandeling van (een deel\
+            \ van) een zaak.\n* `behandelaar` - (Behandelaar) De vakinhoudelijke behandeling\
+            \ doen van (een deel van) een zaak.\n* `belanghebbende` - (Belanghebbende)\
+            \ Vanuit eigen en objectief belang rechtstreeks betrokken zijn bij de\
+            \ behandeling en/of de uitkomst van een zaak.\n* `beslisser` - (Beslisser)\
+            \ Nemen van besluiten die voor de uitkomst van een zaak noodzakelijk zijn.\n\
+            * `initiator` - (Initiator) Aanleiding geven tot de start van een zaak\
+            \ ..\n* `klantcontacter` - (Klantcontacter) Het eerste aanspreekpunt zijn\
+            \ voor vragen van burgers en bedrijven ..\n* `zaakcoordinator` - (Zaakcoördinator)\
+            \ Er voor zorg dragen dat de behandeling van de zaak in samenhang uitgevoerd\
+            \ wordt conform de daarover gemaakte afspraken.\n* `mede_initiator` -\
+            \ (Mede-initiator) "
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        registratiedatum:
+          type: string
+          format: date-time
+          readOnly: true
+          description: De datum waarop dit object is geregistreerd.
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRol'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        statussen:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd
+            dat STATUSsen in die ZAAK bereikt zijn.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - omschrijving
+      - omschrijvingGeneriek
+      - registratiedatum
+      - roltype
+      - statussen
+      - url
+      - zaak
+    Base_RolUpdateSubSerializerRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        betrokkene:
+          type: string
+          format: uri
+          description: URL-referentie naar een betrokkene gerelateerd aan de ZAAK.
+          maxLength: 1000
+        betrokkeneType:
+          allOf:
+          - $ref: '#/components/schemas/BetrokkeneTypeEnum'
+          description: |-
+            Betrokkene type `vestiging` is **DEPRECATED**.
+
+            Uitleg bij mogelijke waarden:
+
+            * `natuurlijk_persoon` - Natuurlijk persoon
+            * `niet_natuurlijk_persoon` - Niet-natuurlijk persoon
+            * `vestiging` - Vestiging
+            * `organisatorische_eenheid` - Organisatorische eenheid
+            * `medewerker` - Medewerker
+        afwijkendeNaamBetrokkene:
+          type: string
+          description: De naam van de betrokkene waaronder deze in relatie tot de
+            zaak aangesproken wil worden.
+          maxLength: 625
+        roltype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar een roltype binnen het ZAAKTYPE van de
+            ZAAK.
+          format: uri
+          maxLength: 1000
+        roltoelichting:
+          type: string
+          description: '**EXPERIMENTEEL** Toelichting bij de rol (dit veld wijkt af
+            van de standaard, omdat het veld niet verplicht is).'
+          maxLength: 1000
+        indicatieMachtiging:
+          description: |-
+            Indicatie machtiging
+
+            Uitleg bij mogelijke waarden:
+
+            * `gemachtigde` - De betrokkene in de rol bij de zaak is door een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+            * `machtiginggever` - De betrokkene in de rol bij de zaak heeft een andere betrokkene bij dezelfde zaak gemachtigd om namens hem of haar te handelen
+          oneOf:
+          - $ref: '#/components/schemas/IndicatieMachtigingEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        contactpersoonRol:
+          allOf:
+          - $ref: '#/components/schemas/ContactPersoonRolRequest'
+          nullable: true
+          description: De gegevens van de persoon die anderen desgevraagd in contact
+            brengt met medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON
+            of VESTIGING zijnde, of met BETROKKENE zelf, een NATUURLIJK PERSOON zijnde
+            , vanuit het belang van BETROKKENE in haar ROL bij een ZAAK.
+        beginGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Begindatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL begint binnen de ZAAK.'
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          title: Einddatum geldigheid
+          description: '**EXPERIMENTEEL** De datum waarop de geldigheidsperiode van
+            de ROL eindigt binnen de ZAAK.'
+      required:
+      - betrokkeneType
+      - roltype
     Base_ZaakObjectSerializer:
       type: object
       properties:
@@ -16672,6 +16963,225 @@ components:
           description: Specificatie van de attribuutsoort van het object, subject
             of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
             heeft en dat bepalend is voor de start van de archiefactietermijn.
+    PatchedZaakSubRequest:
+      type: object
+      properties:
+        identificatie:
+          type: string
+          description: De unieke identificatie van de ZAAK binnen de organisatie die
+            verantwoordelijk is voor de behandeling van de ZAAK.
+          maxLength: 40
+        bronorganisatie:
+          type: string
+          minLength: 1
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
+            en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+          maxLength: 9
+        omschrijving:
+          type: string
+          description: Een korte omschrijving van de zaak.
+          maxLength: 80
+        toelichting:
+          type: string
+          description: Een toelichting op de zaak.
+          maxLength: 1000
+        zaaktype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        registratiedatum:
+          type: string
+          format: date
+          description: De datum waarop de zaakbehandelende organisatie de ZAAK heeft
+            geregistreerd. Indien deze niet opgegeven wordt, wordt de datum van vandaag
+            gebruikt.
+        verantwoordelijkeOrganisatie:
+          type: string
+          minLength: 1
+          description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
+            die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
+            een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
+          maxLength: 9
+        startdatum:
+          type: string
+          format: date
+          description: De datum waarop met de uitvoering van de zaak is gestart
+        einddatumGepland:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop volgens de planning verwacht wordt dat de zaak
+            afgerond wordt.
+        uiterlijkeEinddatumAfdoening:
+          type: string
+          format: date
+          nullable: true
+          description: De laatste datum waarop volgens wet- en regelgeving de zaak
+            afgerond dient te zijn.
+        publicatiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        communicatiekanaal:
+          type: string
+          format: uri
+          description: Het medium waarlangs de aanleiding om een zaak te starten is
+            ontvangen. URL naar een communicatiekanaal in de VNG-Referentielijst van
+            communicatiekanalen.
+          maxLength: 1000
+        communicatiekanaalNaam:
+          type: string
+          description: '**EXPERIMENTEEL** De naam van het medium waarlangs de aanleiding
+            om een zaak te starten is ontvangen.'
+          maxLength: 250
+        productenOfDiensten:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            title: URL naar product/dienst
+            maxLength: 1000
+          description: De producten en/of diensten die door de zaak worden voortgebracht.
+            Dit zijn URLs naar de resources zoals die door de producten- en dienstencatalogus-API
+            wordt ontsloten. De producten/diensten moeten bij het zaaktype vermeld
+            zijn.
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          title: Vertrouwlijkheidaanduiding
+          description: Aanduiding van de mate waarin het zaakdossier van de ZAAK voor
+            de openbaarheid bestemd is. Optioneel - indien geen waarde gekozen wordt,
+            dan wordt de waarde van het ZAAKTYPE overgenomen. Dit betekent dat de
+            API _altijd_ een waarde teruggeeft.
+        betalingsindicatie:
+          description: |-
+            Indicatie of de, met behandeling van de zaak gemoeide, kosten betaald zijn door de desbetreffende betrokkene.
+
+            Uitleg bij mogelijke waarden:
+
+            * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
+            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+          oneOf:
+          - $ref: '#/components/schemas/BetalingsindicatieEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        laatsteBetaaldatum:
+          type: string
+          format: date-time
+          nullable: true
+          description: De datum waarop de meest recente betaling is verwerkt van kosten
+            die gemoeid zijn met behandeling van de zaak.
+        zaakgeometrie:
+          allOf:
+          - $ref: '#/components/schemas/GeoJSONGeometry'
+          nullable: true
+          description: Punt, lijn of (multi-)vlak geometrie-informatie, in GeoJSON.
+            (long, lat volgorde)
+        verlenging:
+          allOf:
+          - $ref: '#/components/schemas/VerlengingRequest'
+          nullable: true
+          description: Gegevens omtrent het verlengen van de doorlooptijd van de behandeling
+            van de ZAAK
+        opschorting:
+          allOf:
+          - $ref: '#/components/schemas/OpschortingRequest'
+          nullable: true
+          description: Gegevens omtrent het tijdelijk opschorten van de behandeling
+            van de ZAAK
+        selectielijstklasse:
+          type: string
+          format: uri
+          description: URL-referentie naar de categorie in de gehanteerde 'Selectielijst
+            Archiefbescheiden' die, gezien het zaaktype en het resultaattype van de
+            zaak, bepalend is voor het archiefregime van de zaak.
+          maxLength: 1000
+        hoofdzaak:
+          type: string
+          format: uri
+          nullable: true
+          title: Is deelzaak van
+          description: URL-referentie naar de ZAAK, waarom verzocht is door de initiator
+            daarvan, die behandeld wordt in twee of meer separate ZAAKen waarvan de
+            onderhavige ZAAK er één is.
+          minLength: 1
+          maxLength: 1000
+        relevanteAndereZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelevanteZaakRequest'
+          description: Een lijst van relevante andere zaken.
+        kenmerken:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZaakKenmerkRequest'
+          description: Lijst van kenmerken. Merk op dat refereren naar gerelateerde
+            objecten beter kan via `ZaakObject`.
+        archiefnominatie:
+          nullable: true
+          description: |-
+            Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
+
+            Uitleg bij mogelijke waarden:
+
+            * `blijvend_bewaren` - Het zaakdossier moet bewaard blijven en op de Archiefactiedatum overgedragen worden naar een archiefbewaarplaats.
+            * `vernietigen` - Het zaakdossier moet op of na de Archiefactiedatum vernietigd worden.
+          oneOf:
+          - $ref: '#/components/schemas/ArchiefnominatieEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        archiefstatus:
+          allOf:
+          - $ref: '#/components/schemas/ArchiefstatusEnum'
+          description: |-
+            Aanduiding of het zaakdossier blijvend bewaard of na een bepaalde termijn vernietigd moet worden.
+
+            Uitleg bij mogelijke waarden:
+
+            * `nog_te_archiveren` - De zaak cq. het zaakdossier is nog niet als geheel gearchiveerd.
+            * `gearchiveerd` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt.
+            * `gearchiveerd_procestermijn_onbekend` - De zaak cq. het zaakdossier is als geheel niet-wijzigbaar bewaarbaar gemaakt maar de vernietigingsdatum kan nog niet bepaald worden.
+            * `overgedragen` - De zaak cq. het zaakdossier is overgebracht naar een archiefbewaarplaats.
+        archiefactiedatum:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het gearchiveerde zaakdossier vernietigd moet
+            worden dan wel overgebracht moet worden naar een archiefbewaarplaats.
+            Wordt automatisch berekend bij het aanmaken of wijzigen van een RESULTAAT
+            aan deze ZAAK indien nog leeg.
+        opdrachtgevendeOrganisatie:
+          type: string
+          description: De krachtens publiekrecht ingestelde rechtspersoon dan wel
+            ander niet-natuurlijk persoon waarbinnen het (bestuurs)orgaan zetelt dat
+            opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
+            geeft.
+          maxLength: 9
+        processobjectaard:
+          type: string
+          title: Procesobjectaard
+          description: Omschrijving van het object, subject of gebeurtenis waarop,
+            vanuit archiveringsoptiek, de zaak betrekking heeft.
+          maxLength: 200
+        startdatumBewaartermijn:
+          type: string
+          format: date
+          nullable: true
+          description: De datum die de start markeert van de termijn waarop het zaakdossier
+            vernietigd moet worden.
+        processobject:
+          allOf:
+          - $ref: '#/components/schemas/ProcessobjectRequest'
+          nullable: true
+          description: Specificatie van de attribuutsoort van het object, subject
+            of gebeurtenis  waarop, vanuit archiveringsoptiek, de zaak betrekking
+            heeft en dat bepalend is voor de start van de archiefactietermijn.
     Point:
       type: object
       description: GeoJSON point geometry
@@ -17061,6 +17571,36 @@ components:
           vestiging: '#/components/schemas/vestiging_RolSubSerializerRequest'
           organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolSubSerializerRequest'
           medewerker: '#/components/schemas/medewerker_RolSubSerializerRequest'
+    RolUpdateSub:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/vestiging_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/medewerker_RolUpdateSubSerializer'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializer'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializer'
+          vestiging: '#/components/schemas/vestiging_RolUpdateSubSerializer'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializer'
+          medewerker: '#/components/schemas/medewerker_RolUpdateSubSerializer'
+    RolUpdateSubRequest:
+      oneOf:
+      - $ref: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/vestiging_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/medewerker_RolUpdateSubSerializerRequest'
+      discriminator:
+        propertyName: betrokkeneType
+        mapping:
+          natuurlijk_persoon: '#/components/schemas/natuurlijk_persoon_RolUpdateSubSerializerRequest'
+          niet_natuurlijk_persoon: '#/components/schemas/niet_natuurlijk_persoon_RolUpdateSubSerializerRequest'
+          vestiging: '#/components/schemas/vestiging_RolUpdateSubSerializerRequest'
+          organisatorische_eenheid: '#/components/schemas/organisatorische_eenheid_RolUpdateSubSerializerRequest'
+          medewerker: '#/components/schemas/medewerker_RolUpdateSubSerializerRequest'
     RolVestiging:
       type: object
       properties:
@@ -18147,6 +18687,32 @@ components:
           maxLength: 1000
       required:
       - besluit
+    ZaakBijwerken:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakSub'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolUpdateSub'
+        status:
+          $ref: '#/components/schemas/StatusSub'
+      required:
+      - status
+    ZaakBijwerkenRequest:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/PatchedZaakSubRequest'
+        rollen:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolUpdateSubRequest'
+        status:
+          $ref: '#/components/schemas/StatusSubRequest'
+      required:
+      - status
     ZaakContactMoment:
       type: object
       properties:
@@ -20508,6 +21074,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolMedewerkerRequest'
+    medewerker_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolMedewerker'
+    medewerker_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolMedewerkerRequest'
     medewerker_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -20540,6 +21114,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
+    natuurlijk_persoon_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoon'
+    natuurlijk_persoon_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNatuurlijkPersoonRequest'
     natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -20571,6 +21153,14 @@ components:
     niet_natuurlijk_persoon_RolSubSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
+    niet_natuurlijk_persoon_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolNietNatuurlijkPersoon'
+    niet_natuurlijk_persoon_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
       - $ref: '#/components/schemas/RolNietNatuurlijkPersoonRequest'
     niet_natuurlijk_persoon_ZaakObjectSerializer:
       allOf:
@@ -20900,6 +21490,14 @@ components:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
       - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
+    organisatorische_eenheid_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheid'
+    organisatorische_eenheid_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
+      - $ref: '#/components/schemas/RolOrganisatorischeEenheidRequest'
     organisatorische_eenheid_ZaakObjectSerializer:
       allOf:
       - $ref: '#/components/schemas/Base_ZaakObjectSerializer'
@@ -21023,6 +21621,14 @@ components:
     vestiging_RolSubSerializerRequest:
       allOf:
       - $ref: '#/components/schemas/Base_RolSubSerializerRequest'
+      - $ref: '#/components/schemas/RolVestigingRequest'
+    vestiging_RolUpdateSubSerializer:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializer'
+      - $ref: '#/components/schemas/RolVestiging'
+    vestiging_RolUpdateSubSerializerRequest:
+      allOf:
+      - $ref: '#/components/schemas/Base_RolUpdateSubSerializerRequest'
       - $ref: '#/components/schemas/RolVestigingRequest'
     vestiging_ZaakObjectSerializer:
       allOf:

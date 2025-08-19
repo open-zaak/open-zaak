@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from datetime import date
 from typing import Optional
+from uuid import UUID
 
 from django.conf import settings
 from django.db import transaction
@@ -25,7 +26,7 @@ import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
 from rest_framework import serializers
-from rest_framework.fields import empty
+from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from vng_api_common.caching.etags import track_object_serializer
@@ -1395,9 +1396,15 @@ class RolSubSerializer(SubSerializerMixin, RolSerializer):
     class Meta(RolSerializer.Meta):
         read_only_fields = ("zaak",)
 
-    def run_validation(self, data=empty):
-        (is_empty_value, data) = self.validate_empty_values(data)
-        return data
+
+class RolUpdateSubSerializer(RolSubSerializer):
+    discriminator = RolSerializer.discriminator
+
+    class Meta(RolSubSerializer.Meta):
+        extra_kwargs = {
+            **RolSubSerializer.Meta.extra_kwargs,
+            "uuid": {"required": False},
+        }
 
 
 class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
@@ -1699,5 +1706,104 @@ class ZaakOpschortenSerializer(ConvenienceSerializer):
 
         return {
             "zaak": zaak,
+            "status": status,
+        }
+
+
+class ZaakBijwerkenSerializer(ConvenienceSerializer):
+    zaak = ZaakSubSerializer(required=False, partial=True)
+    rollen = RolUpdateSubSerializer(many=True, required=False)
+    status = StatusSubSerializer()
+
+    def validate_rollen(self, rollen):
+        errors = {}
+        existing_uuids = set(self.instance.rol_set.values_list("uuid", flat=True))
+        seen_uuids = set()
+
+        for i, rol in enumerate(rollen):
+            uuid = rol.get("uuid")
+
+            if uuid is None:
+                continue
+            else:
+                uuid = UUID(hex=uuid)
+
+            if uuid in existing_uuids:
+                if uuid in seen_uuids:
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("Dubbel uuid: {}.").format(uuid), code="duplicate"
+                    )
+                seen_uuids.add(uuid)
+            else:
+                try:
+                    Rol.objects.get(uuid=uuid)
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("uuid {} is niet onderdeel van de zaak.").format(uuid),
+                        code="missing-relation",
+                    )
+                except Rol.DoesNotExist:
+                    errors[f"{i}.uuid"] = ErrorDetail(
+                        _("uuid {} bestaat niet.").format(uuid), code="does-not-exist"
+                    )
+        if errors:
+            raise serializers.ValidationError(errors)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
+        zaak_serializer = ZaakSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak", {}),
+            partial=True,
+            context=self.context,
+        )
+        zaak_serializer.is_valid()
+        self._handle_errors(zaak=zaak_serializer.errors)
+        zaak = zaak_serializer.save()
+
+        zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
+        status_serializer.is_valid()
+        self._handle_errors(status=status_serializer.errors)
+        status = status_serializer.save()
+
+        rollen = []
+        if self.initial_data.get("rollen") is not None:
+            existing_rol_uuids = set(zaak.rol_set.values_list("uuid", flat=True))
+            for i, rol in enumerate(self.initial_data.get("rollen")):
+                rol_uuid = rol.pop("uuid", None)
+
+                if rol_uuid is None:
+                    rol_serializer = RolSerializer(
+                        data=rol | zaak_data, context=self.context
+                    )
+                else:
+                    existing_rol = Rol.objects.get(uuid=rol_uuid)
+                    rol_serializer = RolSerializer(
+                        data=rol | zaak_data,
+                        context=self.context,
+                        instance=existing_rol,
+                    )
+                    existing_rol_uuids.remove(existing_rol.uuid)
+
+                rol_serializer.is_valid()
+                self._handle_errors(index=i, rollen=rol_serializer.errors)
+                rollen.append(rol_serializer.save())
+
+            zaak.rol_set.filter(uuid__in=existing_rol_uuids).delete()
+
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
+            "rollen": rollen,
             "status": status,
         }
