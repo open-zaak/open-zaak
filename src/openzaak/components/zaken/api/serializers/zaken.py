@@ -64,7 +64,11 @@ from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.serializer_fields import FKOrServiceUrlField
-from openzaak.utils.serializers import ConvenienceSerializer, SubSerializerMixin
+from openzaak.utils.serializers import (
+    ConvenienceSerializer,
+    ReadOnlyMixin,
+    SubSerializerMixin,
+)
 from openzaak.utils.validators import (
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
@@ -637,7 +641,7 @@ class ZaakSubSerializer(SubSerializerMixin, ZaakSerializer):
     pass
 
 
-class ZaakOpschortingSerializer(ZaakSerializer):
+class ZaakOpschortingSerializer(ReadOnlyMixin, ZaakSerializer):
     opschorting = OpschortingSerializer(
         required=True,
         allow_null=True,
@@ -646,20 +650,26 @@ class ZaakOpschortingSerializer(ZaakSerializer):
         ),
     )
 
-    def get_fields(self):
-        fields = super().get_fields()
-        writable_fields = {"opschorting"}
+    writable_fields = {"opschorting"}
 
-        for name, field in fields.items():
-            if name not in writable_fields:
-                field.read_only = True
-                if hasattr(field, "queryset"):
-                    field.queryset = None
 
-        return fields
+class ZaakVerlengingSerializer(ReadOnlyMixin, ZaakSerializer):
+    verlenging = VerlengingSerializer(
+        required=True,
+        allow_null=True,
+        help_text=_(
+            "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de ZAAK"
+        ),
+    )
+
+    writable_fields = {"verlenging"}
 
 
 class ZaakOpschortingSubSerializer(SubSerializerMixin, ZaakOpschortingSerializer):
+    pass
+
+
+class ZaakVerlengingSubSerializer(SubSerializerMixin, ZaakVerlengingSerializer):
     pass
 
 
@@ -1805,5 +1815,48 @@ class ZaakBijwerkenSerializer(ConvenienceSerializer):
         return {
             "zaak": zaak,
             "rollen": rollen,
+            "status": status,
+        }
+
+
+class ZaakVerlengenSerializer(ConvenienceSerializer):
+    zaak = ZaakVerlengingSubSerializer()
+    status = StatusSubSerializer()
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
+        zaak_serializer = ZaakVerlengingSerializer(
+            instance=instance,
+            data=self.initial_data.get("zaak"),
+            context=self.context,
+        )
+        zaak_serializer.is_valid()
+
+        zaak_data = {
+            "zaak": instance.get_absolute_api_url(request=self.context["request"])
+        }
+
+        status_serializer = StatusSerializer(
+            data=self.initial_data.get("status") | zaak_data, context=self.context
+        )
+        status_serializer.validators.append(EndStatusNotAllowedOnEndpointValidator())
+        status_serializer.is_valid()
+
+        self._handle_errors(
+            zaak=zaak_serializer.errors, status=status_serializer.errors
+        )
+
+        zaak = zaak_serializer.save()
+        status = status_serializer.save()
+
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
+
+        return {
+            "zaak": zaak,
             "status": status,
         }

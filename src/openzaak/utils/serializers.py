@@ -62,6 +62,25 @@ class SubSerializerMixin:
         return data
 
 
+class ReadOnlyMixin:
+    """
+    All fields not in `writable_fields` will be set to read only.
+    """
+
+    writable_fields: set
+
+    def get_fields(self):
+        fields = super().get_fields()
+
+        for name, field in fields.items():
+            if name not in self.writable_fields:
+                field.read_only = True
+                if hasattr(field, "queryset"):
+                    field.queryset = None
+
+        return fields
+
+
 class ConvenienceSerializer(serializers.Serializer):
     def _handle_errors(self, index=None, **errors):
         found_errors = {}
