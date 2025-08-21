@@ -20,6 +20,7 @@ src/openzaak/static/css/admin/
 src/openzaak/static/js/
 src/openzaak/static/bundles/
 docs/_build
+/docs/_static/uml/*.png
 
 /docker/volumes/
 !/docker/volumes/.gitkeep
@@ -46,3 +47,4 @@ src/openzaak/conf/includes/local.py
 .env
 /private-media/
 /import-data/
+

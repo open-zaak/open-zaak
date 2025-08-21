@@ -11,11 +11,9 @@ import sys
 import django
 from django.utils.translation import activate
 
-sys.path.insert(0, os.path.abspath("."))
-sys.path.insert(1, os.path.abspath("../src"))
+sys.path.insert(0, os.path.abspath("../src"))
 os.environ["LOG_REQUESTS"] = "false"
 
-from model_graph import generate_model_graphs
 
 import openzaak  # noqa isort:skip
 from openzaak.setup import setup_env  # noqa isort:skip
@@ -62,7 +60,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "django_setup_configuration.documentation.setup_config_example",
     "django_setup_configuration.documentation.setup_config_usage",
-    "uml_directive.uml",
+    "vng_api_common.diagrams.uml_images",
 ]
 
 
@@ -86,6 +84,10 @@ activate("en")
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 source_suffix = [".rst", ".md"]
+
+
+# Datamodel image settings
+graphviz_output_format = "png"
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -137,13 +139,3 @@ intersphinx_mapping = {
         None,
     ),
 }
-
-
-#
-#   Datamodel image creation
-#
-graphviz_output_format = "png"
-
-
-def setup(app):
-    app.connect("builder-inited", generate_model_graphs)
