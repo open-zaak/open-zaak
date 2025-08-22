@@ -160,7 +160,8 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
         data = response.json()
         self.assertEqual(
-            data["detail"], "Reopening a closed case with current scope is forbidden"
+            data["detail"],
+            "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen",
         )
 
 

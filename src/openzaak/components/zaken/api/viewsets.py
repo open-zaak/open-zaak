@@ -602,7 +602,9 @@ class StatusViewSet(
             init_component=component,
         ):
             if zaak.status_set.exists():
-                msg = f"Met de '{SCOPE_ZAKEN_CREATE}' scope mag je slechts 1 status zetten"
+                msg = _("Met de '{}' scope mag je slechts 1 status zetten").format(
+                    SCOPE_ZAKEN_CREATE
+                )
                 raise PermissionDenied(detail=msg)
 
         if not self.request.jwt_auth.has_auth(
@@ -612,7 +614,9 @@ class StatusViewSet(
             init_component=component,
         ):
             if zaak.is_closed:
-                msg = "Reopening a closed case with current scope is forbidden"
+                msg = _(
+                    "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
+                ).format(SCOPEN_ZAKEN_HEROPENEN)
                 raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)
