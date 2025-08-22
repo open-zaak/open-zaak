@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
     CommonResourceAction,
     RolOmschrijving,
     RolTypes,
@@ -540,6 +541,75 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(created_rol_trail.actie, CommonResourceAction.create)
         self.assertIsNone(created_rol_trail.oud)
         self.assertIsNotNone(created_rol_trail.nieuw)
+
+    @tag("convenience-endpoints")
+    def test_zaak_afsluiten_audittrails(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype=zaaktype,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+        resultaattype_url = self.check_for_instance(resultaattype)
+
+        zaak_data = self._create_zaak(zaaktype)
+
+        url = reverse(
+            "zaakafsluiten",
+            kwargs={"uuid": zaak_data["uuid"]},
+        )
+
+        data = {
+            "zaak": {},
+            "resultaat": {
+                "resultaattype": resultaattype_url,
+                "toelichting": "Zaak succesvol afgerond",
+            },
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2020-01-01T00:00:00Z",
+            },
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(AuditTrail.objects.count(), 4)  # zaak create as well
+
+        zaak_audittrail = AuditTrail.objects.get(
+            resource="zaak", actie="partial_update"
+        )
+        self.assertEqual(zaak_audittrail.bron, "ZRC")
+        self.assertEqual(zaak_audittrail.oud, zaak_data)
+        self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
+        self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+        self.assertEqual(
+            zaak_audittrail.nieuw["status"], response.data["status"]["url"]
+        )
+
+        self.assertEqual(
+            zaak_audittrail.nieuw["resultaat"], response.data["resultaat"]["url"]
+        )
+
+        resultaat_audittrail = AuditTrail.objects.get(resource="resultaat")
+        self.assertEqual(resultaat_audittrail.bron, "ZRC")
+        self.assertEqual(resultaat_audittrail.actie, "create")
+        self.assertEqual(resultaat_audittrail.oud, None)
+        self.assertEqual(resultaat_audittrail.nieuw, response.data["resultaat"])
+        self.assertEqual(
+            resultaat_audittrail.hoofd_object, response.data["zaak"]["url"]
+        )
+
+        status_audittrail = AuditTrail.objects.get(resource="status")
+        self.assertEqual(status_audittrail.bron, "ZRC")
+        self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.oud, None)
+        self.assertEqual(status_audittrail.nieuw, response.data["status"])
+        self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 
     @tag("convenience-endpoints")
     def test_zaak_verlengen_audittrails(self):

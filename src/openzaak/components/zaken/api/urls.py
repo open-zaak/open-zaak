@@ -14,6 +14,7 @@ from .viewsets import (
     RolViewSet,
     StatusViewSet,
     SubStatusViewSet,
+    ZaakAfsluitenViewSet,
     ZaakAuditTrailViewSet,
     ZaakBesluitViewSet,
     ZaakBijwerkenViewset,
@@ -59,6 +60,7 @@ router.register(
 )
 router.register("zaak_registreren", ZaakRegistrerenViewset, basename="registreerzaak")
 zaakopschorten_view = ZaakOpschortenViewset.as_view({"post": "post"})
+zaakafsluiten_view = ZaakAfsluitenViewSet.as_view({"post": "post"})
 zaakbijwerken_view = ZaakBijwerkenViewset.as_view({"post": "post"})
 zaakverlengen_view = ZaakVerlengenViewset.as_view({"post": "post"})
 
@@ -91,6 +93,11 @@ urlpatterns = [
                     "zaak_opschorten/<uuid:uuid>",
                     zaakopschorten_view,
                     name="zaakopschorten",
+                ),
+                path(
+                    "zaak_afsluiten/<uuid:uuid>",
+                    zaakafsluiten_view,
+                    name="zaakafsluiten",
                 ),
                 path(
                     "zaak_bijwerken/<uuid:uuid>",

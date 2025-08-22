@@ -3776,6 +3776,62 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+  /zaak_afsluiten/{uuid}:
+    post:
+      operationId: zaakafsluiten
+      description: '**EXPERIMENTEEL** Sluit een zaak door een resultaat en een status
+        aan te maken.'
+      summary: Sluit een zaak
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: header
+        name: X-Audit-Toelichting
+        schema:
+          type: string
+        description: Toelichting waarom een bepaald verzoek wordt gedaan
+      - in: header
+        name: X-NLX-Logrecord-ID
+        schema:
+          type: string
+        description: Identifier of the request, traceable throughout the network
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - zaak_afsluiten
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZaakAfsluitenRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - ((zaken.bijwerken | zaken.geforceerd-bijwerken) & (zaken.aanmaken | zaken.statussen.toevoegen
+          | zaken.heropenen))
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZaakAfsluiten'
+          description: OK
   /zaak_bijwerken/{uuid}:
     post:
       operationId: zaakbijwerken
@@ -17510,6 +17566,59 @@ components:
       required:
       - resultaattype
       - zaak
+    ResultaatSub:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unieke resource identifier (UUID4)
+        zaak:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL-referentie naar de ZAAK.
+          minLength: 1
+          maxLength: 1000
+        resultaattype:
+          type: string
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          format: uri
+          minLength: 1
+          maxLength: 1000
+        toelichting:
+          type: string
+          description: Een toelichting op wat het resultaat van de zaak inhoudt.
+          maxLength: 1000
+      required:
+      - resultaattype
+      - url
+      - uuid
+      - zaak
+    ResultaatSubRequest:
+      type: object
+      properties:
+        resultaattype:
+          type: string
+          minLength: 1
+          description: URL-referentie naar het RESULTAATTYPE (in de Catalogi API).
+          format: uri
+          maxLength: 1000
+        toelichting:
+          type: string
+          description: Een toelichting op wat het resultaat van de zaak inhoudt.
+          maxLength: 1000
+      required:
+      - resultaattype
     Rol:
       oneOf:
       - $ref: '#/components/schemas/natuurlijk_persoon_RolSerializer'
@@ -18727,6 +18836,32 @@ components:
       - zaakinformatieobjecten
       - zaakobjecten
       - zaaktype
+    ZaakAfsluiten:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/ZaakSub'
+        resultaat:
+          $ref: '#/components/schemas/ResultaatSub'
+        status:
+          $ref: '#/components/schemas/StatusSub'
+      required:
+      - resultaat
+      - status
+      - zaak
+    ZaakAfsluitenRequest:
+      type: object
+      properties:
+        zaak:
+          $ref: '#/components/schemas/PatchedZaakSubRequest'
+        resultaat:
+          $ref: '#/components/schemas/ResultaatSubRequest'
+        status:
+          $ref: '#/components/schemas/StatusSubRequest'
+      required:
+      - resultaat
+      - status
+      - zaak
     ZaakBesluit:
       type: object
       description: Serializer the reverse relation between Besluit-Zaak.

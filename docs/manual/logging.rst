@@ -135,6 +135,7 @@ Convenience endpoints
 * ``zaak_opgeschort`` (INFO). Additional context: ``zaak_url``, ``status_url``.
 * ``zaak_verlengd`` (INFO). Additional context: ``zaak_url``, ``status_url``.
 * ``zaak_bijgewerkt`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``rollen_urls``.
+* ``zaak_afgesloten`` (INFO). Additional context: ``zaak_url``, ``status_url``, ``resultaat_url``.
 * ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 

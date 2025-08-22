@@ -18,6 +18,7 @@ from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
+    BrondatumArchiefprocedureAfleidingswijze,
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     RolOmschrijving,
     RolTypes,
@@ -569,6 +570,106 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
     @tag("convenience-endpoints")
+    def test_zaak_afsluiten_notifs(self, mock_notif):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        resultaattype = ResultaatTypeFactory(
+            zaaktype=zaaktype,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+        resultaattype_url = self.check_for_instance(resultaattype)
+
+        zaak = ZaakFactory.create(
+            zaaktype=zaaktype,
+            bronorganisatie=517439943,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            verantwoordelijke_organisatie=517439943,
+        )
+
+        url = reverse("zaakafsluiten", kwargs={"uuid": zaak.uuid})
+
+        data = {
+            "zaak": {"toelichting": "toelichting"},
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+                "statustoelichting": "Afgesloten via test",
+            },
+            "resultaat": {
+                "resultaattype": resultaattype_url,
+                "toelichting": "Test resultaat",
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        data = response.json()
+
+        zaak = Zaak.objects.get()
+
+        self.assertEqual(mock_notif.call_count, 3)
+
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "zaak",
+                        "resourceUrl": data["zaak"]["url"],
+                        "actie": "partial_update",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "status",
+                        "resourceUrl": data["status"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": data["zaak"]["url"],
+                        "resource": "resultaat",
+                        "resourceUrl": data["resultaat"]["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2012-01-14T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": "517439943",
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
+        )
+
+    @tag("convenience-endpoints")
     def test_send_notif_zaak_bijwerken(self, mock_notif):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = self.check_for_instance(zaaktype)
@@ -721,8 +822,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "uuid": zaak.uuid,
             },
         )
-
-        self.maxDiff = None  # TODO remove
 
         data = {
             "zaak": {
