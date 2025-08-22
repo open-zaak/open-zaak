@@ -17,8 +17,8 @@ projects: ["maykinmedia/15"]
   - [ ] Regenerate API spec
   - [ ] Update READMEs with release dates + links
 - [ ] Bump version number with `bin/bump-my-version.sh bump <major|minor|patch>`
-- [ ] Run performance tests
+- [ ] Run performance tests (see https://bitbucket.org/maykinmedia/open-zaak-performance-test/src/master/README.rst > Kubernetes)
   - [ ] Create and push tag for performance tests (e.g. `<version>-perftest`)
-  - [ ] Deploy the new version
+  - [ ] Deploy the new version on Kubernetes
   - [ ] Run performance tests and add the results to the docs
 - [ ] Update changelog
