@@ -2073,7 +2073,7 @@ class ZaakRegistrerenViewset(
 
 
 class ZaakUpdateActionViewSet(
-    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin
+    MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
 ):
     permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
@@ -2116,25 +2116,33 @@ class ZaakUpdateActionViewSet(
 
         zaak_data = ZaakSerializer(instance, context={"request": self.request}).data
 
-        if not self.request.jwt_auth.has_auth(
-            scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
-            zaaktype=zaak_data["zaaktype"],
-            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component="zaken",
+        if (
+            not self.request.jwt_auth.has_auth(
+                scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
+                zaaktype=zaak_data["zaaktype"],
+                vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+                init_component="zaken",
+            )
+            and instance.status_set.exists()
         ):
-            if instance.status_set.exists():
-                msg = f"Met de '{SCOPE_ZAKEN_CREATE}' scope mag je slechts 1 status zetten"
-                raise PermissionDenied(detail=msg)
+            msg = _("Met de '{}' scope mag je slechts 1 status zetten").format(
+                SCOPE_ZAKEN_CREATE
+            )
+            raise PermissionDenied(detail=msg)
 
-        if not self.request.jwt_auth.has_auth(
-            scopes=SCOPEN_ZAKEN_HEROPENEN,
-            zaaktype=zaak_data["zaaktype"],
-            vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component="zaken",
+        if (
+            not self.request.jwt_auth.has_auth(
+                scopes=SCOPEN_ZAKEN_HEROPENEN,
+                zaaktype=zaak_data["zaaktype"],
+                vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+                init_component="zaken",
+            )
+            and instance.is_closed
         ):
-            if instance.is_closed:
-                msg = "Reopening a closed case with current scope is forbidden"
-                raise PermissionDenied(detail=msg)
+            msg = _(
+                "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
+            ).format(SCOPEN_ZAKEN_HEROPENEN)
+            raise PermissionDenied(detail=msg)
 
         zaak_version_before_edit = ZaakSerializer(
             context={"request": self.request}, instance=instance
@@ -2401,7 +2409,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
         ),
     )
 )
-class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet, ClosedZaakMixin):
+class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
     serializer_class = ZaakAfsluitenSerializer
 
     notification_fields = {

@@ -192,6 +192,11 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            "Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten",
+        )
 
     def test_reopen_zaak(self):
         self._add_zaken_auth(
@@ -218,6 +223,11 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            "Je mag geen gegevens aanpassen van een gesloten zaak.",
+        )
 
     def test_reopen_zaak_without_zaken_heropenen_scope(self):
         self._add_zaken_auth(
@@ -232,6 +242,11 @@ class ZaakVerlengenAuthTests(JWTAuthMixin, APITestCase):
         response = self.client.post(self.url, self.content)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen",
+        )
 
 
 @tag("convenience-endpoints")
