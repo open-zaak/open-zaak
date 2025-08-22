@@ -3778,7 +3778,10 @@ paths:
           description: Internal server error
   /zaak_afsluiten/{uuid}:
     post:
-      operationId: None_post
+      operationId: zaakafsluiten
+      description: '**EXPERIMENTEEL** Sluit een zaak door een resultaat en een status
+        aan te maken.'
+      summary: Sluit een zaak
       parameters:
       - in: header
         name: Content-Type

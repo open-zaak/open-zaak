@@ -2372,9 +2372,17 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
         )
 
 
+@extend_schema_view(
+    post=extend_schema(
+        "zaakafsluiten",
+        summary="Sluit een zaak",
+        description=mark_experimental(
+            "Sluit een zaak door een resultaat en een status aan te maken."
+        ),
+    )
+)
 class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet, ClosedZaakMixin):
     serializer_class = ZaakAfsluitenSerializer
-    queryset = Zaak.objects.all()
 
     notification_fields = {
         **ZaakUpdateActionViewSet.notification_fields,
@@ -2384,14 +2392,6 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet, ClosedZaakMixin):
             "action": "create",
         },
     }
-
-    @transaction.atomic
-    def post(self, request, uuid=None, *args, **kwargs):
-        instance = self.get_object(uuid)
-
-        self._check_zaak_closed(instance)
-
-        return super().post(request, uuid=uuid, *args, **kwargs)
 
     def perform_post(self, serializer):
         super().perform_post(serializer)

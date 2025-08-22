@@ -571,22 +571,18 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
     @tag("convenience-endpoints")
     def test_zaak_afsluiten_notifs(self, mock_notif):
-        # Create a ZaakType
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = self.check_for_instance(zaaktype)
 
-        # Create StatusType for afsluiten
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype_url = self.check_for_instance(statustype)
 
-        # Create ResultaatType
         resultaattype = ResultaatTypeFactory(
             zaaktype=zaaktype,
             brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
         )
         resultaattype_url = self.check_for_instance(resultaattype)
 
-        # Create a Zaak
         zaak = ZaakFactory.create(
             zaaktype=zaaktype,
             bronorganisatie=517439943,
@@ -597,7 +593,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         url = reverse("zaakafsluiten", kwargs={"uuid": zaak.uuid})
 
         data = {
-            "zaak": {"einddatum": "2025-01-01"},
+            "zaak": {"toelichting": "toelichting"},
             "status": {
                 "statustype": statustype_url,
                 "datumStatusGezet": "2011-01-01T00:00:00",
@@ -609,15 +605,14 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             },
         }
 
-        # Trigger notifications via commit callbacks
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        zaak.refresh_from_db()
         data = response.json()
 
-        # Ensure all 3 notifications were sent: zaak, status, resultaat
+        zaak = Zaak.objects.get()
+
         self.assertEqual(mock_notif.call_count, 3)
 
         mock_notif.assert_has_calls(
@@ -827,8 +822,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 "uuid": zaak.uuid,
             },
         )
-
-        self.maxDiff = None  # TODO remove
 
         data = {
             "zaak": {

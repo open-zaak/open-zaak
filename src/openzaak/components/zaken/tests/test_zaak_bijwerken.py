@@ -243,8 +243,8 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2023-01-01T00:00:00",
         }
 
-        self.opschorting = {
-            "opschorting": {"indicatie": True, "reden": "test"},
+        self.data = {
+            "toelichting": "toelichting",
         }
 
         self.rol = {
@@ -263,7 +263,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
 
     def test_zaak_bijwerken(self):
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [self.rol],
         }
@@ -316,9 +316,9 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
                 "omschrijving": "",
                 "opdrachtgevendeOrganisatie": "",
                 "opschorting": {
-                    "eerdereOpschorting": True,
-                    "indicatie": True,
-                    "reden": "test",
+                    "eerdereOpschorting": False,
+                    "indicatie": False,
+                    "reden": "",
                 },
                 "processobject": {
                     "datumkenmerk": "",
@@ -339,7 +339,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
                 "startdatum": "2025-01-01",
                 "startdatumBewaartermijn": None,
                 "status": f"http://testserver{expected_status_url}",
-                "toelichting": "",
+                "toelichting": "toelichting",
                 "uiterlijkeEinddatumAfdoening": None,
                 "url": f"http://testserver{expected_zaak_url}",
                 "uuid": str(zaak.uuid),
@@ -479,7 +479,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status
             | {"statustype": f"http://testserver{self.statustype_url_2}"},
         }
@@ -499,7 +499,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         self.assertTrue(self.zaak.is_closed)
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
         }
 
@@ -522,7 +522,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 self.rol | {"roltoelichting": "3"},
@@ -629,7 +629,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [],
         }
@@ -656,7 +656,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
         }
 
@@ -686,7 +686,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {
@@ -728,7 +728,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {
@@ -767,7 +767,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {
@@ -799,7 +799,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {
@@ -829,7 +829,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
 
     def test_unknown_uuid_in_rollen(self):
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {
@@ -868,7 +868,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         )
 
         content = {
-            "zaak": self.opschorting,
+            "zaak": self.data,
             "status": self.status,
             "rollen": [
                 {

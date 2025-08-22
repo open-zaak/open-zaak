@@ -21,7 +21,6 @@ from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
-    CatalogusFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     RolTypeFactory,
@@ -545,8 +544,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     @tag("convenience-endpoints")
     def test_zaak_afsluiten_audittrails(self):
-        catalogus = CatalogusFactory.create()
-        zaaktype = ZaakTypeFactory.create(concept=False, catalogus=catalogus)
+        zaaktype = ZaakTypeFactory.create(concept=False)
 
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype_url = self.check_for_instance(statustype)
@@ -580,7 +578,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(AuditTrail.objects.count(), 4)
+        self.assertEqual(AuditTrail.objects.count(), 4)  # zaak create as well
 
         zaak_audittrail = AuditTrail.objects.get(
             resource="zaak", actie="partial_update"
@@ -589,10 +587,18 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_audittrail.oud, zaak_data)
         self.assertEqual(zaak_audittrail.nieuw, response.data["zaak"])
         self.assertEqual(zaak_audittrail.hoofd_object, response.data["zaak"]["url"])
+        self.assertEqual(
+            zaak_audittrail.nieuw["status"], response.data["status"]["url"]
+        )
+
+        self.assertEqual(
+            zaak_audittrail.nieuw["resultaat"], response.data["resultaat"]["url"]
+        )
 
         resultaat_audittrail = AuditTrail.objects.get(resource="resultaat")
         self.assertEqual(resultaat_audittrail.bron, "ZRC")
         self.assertEqual(resultaat_audittrail.actie, "create")
+        self.assertEqual(resultaat_audittrail.oud, None)
         self.assertEqual(resultaat_audittrail.nieuw, response.data["resultaat"])
         self.assertEqual(
             resultaat_audittrail.hoofd_object, response.data["zaak"]["url"]
@@ -601,6 +607,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         status_audittrail = AuditTrail.objects.get(resource="status")
         self.assertEqual(status_audittrail.bron, "ZRC")
         self.assertEqual(status_audittrail.actie, "create")
+        self.assertEqual(status_audittrail.oud, None)
         self.assertEqual(status_audittrail.nieuw, response.data["status"])
         self.assertEqual(status_audittrail.hoofd_object, response.data["zaak"]["url"])
 

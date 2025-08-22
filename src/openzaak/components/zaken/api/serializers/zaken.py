@@ -20,7 +20,6 @@ from django.db.models.functions import Cast
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -1734,36 +1733,38 @@ class ZaakAfsluitenSerializer(ConvenienceSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
+        """
+        instance is zaak only
+        """
+
         zaak_serializer = ZaakSerializer(
             instance=instance,
             data=self.initial_data.get("zaak", {}),
             partial=True,
             context=self.context,
         )
-        zaak_serializer.is_valid(raise_exception=True)
+        zaak_serializer.is_valid()
+        self._handle_errors(zaak=zaak_serializer.errors)
         zaak = zaak_serializer.save()
 
         zaak_data = {"zaak": zaak.get_absolute_api_url(request=self.context["request"])}
 
         resultaat_serializer = ResultaatSerializer(
-            data={**self.initial_data.get("resultaat", {}), **zaak_data},
-            context=self.context,
+            data=self.initial_data.get("resultaat") | zaak_data, context=self.context
         )
-        resultaat_serializer.is_valid(raise_exception=True)
+        resultaat_serializer.is_valid()
+        self._handle_errors(resultaat=resultaat_serializer.errors)
         resultaat = resultaat_serializer.save()
 
-        if not zaak.einddatum:
-            zaak.einddatum = now().date()
-            zaak.save(update_fields=["einddatum"])
-
         status_serializer = StatusSerializer(
-            data={**self.initial_data.get("status", {}), **zaak_data},
-            context=self.context,
+            data=self.initial_data.get("status") | zaak_data, context=self.context
         )
         status_serializer.validators.append(EndStatusRequiredValidator())
-        status_serializer.is_valid(raise_exception=True)
+        status_serializer.is_valid()
+        self._handle_errors(status=status_serializer.errors)
         status = status_serializer.save()
 
+        # statusSerializer changes zaak fields when closing or reopening
         zaak.refresh_from_db()
 
         return {
