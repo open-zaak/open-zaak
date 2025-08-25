@@ -5,6 +5,7 @@ import uuid
 
 from django.test import override_settings, tag
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -31,11 +32,13 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_BIJWERKEN,
     SCOPE_ZAKEN_CREATE,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+    SCOPEN_ZAKEN_HEROPENEN,
 )
 from openzaak.components.zaken.models import Rol, Status, Zaak, ZaakKenmerk
 from openzaak.components.zaken.tests.factories import (
     ResultaatFactory,
     RolFactory,
+    StatusFactory,
     ZaakFactory,
     ZaakKenmerkFactory,
 )
@@ -175,37 +178,74 @@ class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         self.assertEqual(
             response.data["detail"],
-            "Je mag geen gegevens aanpassen van een gesloten zaak.",
+            _("Je mag geen gegevens aanpassen van een gesloten zaak."),
         )
 
-    def test_zaak_bijwerken_with_closed_zaak_with_force_scope(self):
-        self._add_zaken_auth(
-            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
-        )
-
-        self.zaak.einddatum = timezone.now()
-        self.zaak.save()
-
-        self.assertTrue(self.zaak.is_closed)
-
-        response = self.client.post(self.url, self.content)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def test_zaak_bijwerken_with_closed_zaak_without_rollen(self):
+    def test_scope_zaken_create_cannot_change_status(self):
         self._add_zaken_auth(scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_BIJWERKEN])
 
+        StatusFactory(zaak=self.zaak)
+
+        response = self.client.post(self.url, self.content)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            _("Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten"),
+        )
+
+    def test_reopen_zaak(self):
+        self._add_zaken_auth(
+            scopes=[SCOPEN_ZAKEN_HEROPENEN, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
+        )
+
         self.zaak.einddatum = timezone.now()
         self.zaak.save()
 
         self.assertTrue(self.zaak.is_closed)
 
-        content = self.content
-        content.pop("rollen")
-
         response = self.client.post(self.url, self.content)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_reopen_zaak_without_force_scope(self):
+        self._add_zaken_auth(scopes=[SCOPEN_ZAKEN_HEROPENEN, SCOPE_ZAKEN_BIJWERKEN])
+
+        self.zaak.einddatum = timezone.now()
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        response = self.client.post(self.url, self.content)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            _("Je mag geen gegevens aanpassen van een gesloten zaak."),
+        )
+
+    def test_reopen_zaak_without_zaken_heropenen_scope(self):
+        self._add_zaken_auth(
+            scopes=[SCOPE_STATUSSEN_TOEVOEGEN, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
+        )
+
+        self.zaak.einddatum = timezone.now()
+        self.zaak.save()
+
+        self.assertTrue(self.zaak.is_closed)
+
+        response = self.client.post(self.url, self.content)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.data["code"], "permission_denied")
+        self.assertEqual(
+            response.data["detail"],
+            _(
+                "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen"
+            ),
+        )
 
 
 @tag("convenience-endpoints")

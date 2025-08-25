@@ -602,7 +602,9 @@ class StatusViewSet(
             init_component=component,
         ):
             if zaak.status_set.exists():
-                msg = f"Met de '{SCOPE_ZAKEN_CREATE}' scope mag je slechts 1 status zetten"
+                msg = _("Met de '{}' scope mag je slechts 1 status zetten").format(
+                    SCOPE_ZAKEN_CREATE
+                )
                 raise PermissionDenied(detail=msg)
 
         if not self.request.jwt_auth.has_auth(
@@ -612,7 +614,9 @@ class StatusViewSet(
             init_component=component,
         ):
             if zaak.is_closed:
-                msg = "Reopening a closed case with current scope is forbidden"
+                msg = _(
+                    "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
+                ).format(SCOPEN_ZAKEN_HEROPENEN)
                 raise PermissionDenied(detail=msg)
 
         super().perform_create(serializer)
@@ -2073,7 +2077,7 @@ class ZaakRegistrerenViewset(
 
 
 class ZaakUpdateActionViewSet(
-    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin
+    MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
 ):
     permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
@@ -2111,9 +2115,41 @@ class ZaakUpdateActionViewSet(
 
         return obj
 
-    def _pre_post(self, request, instance):
+    def _pre_post(self, instance):
+        self._check_zaak_closed(instance, "zaken")
+
+        zaak_data = ZaakSerializer(instance, context={"request": self.request}).data
+
+        if (
+            not self.request.jwt_auth.has_auth(
+                scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
+                zaaktype=zaak_data["zaaktype"],
+                vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+                init_component="zaken",
+            )
+            and instance.status_set.exists()
+        ):
+            msg = _("Met de '{}' scope mag je slechts 1 status zetten").format(
+                SCOPE_ZAKEN_CREATE
+            )
+            raise PermissionDenied(detail=msg)
+
+        if (
+            not self.request.jwt_auth.has_auth(
+                scopes=SCOPEN_ZAKEN_HEROPENEN,
+                zaaktype=zaak_data["zaaktype"],
+                vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
+                init_component="zaken",
+            )
+            and instance.is_closed
+        ):
+            msg = _(
+                "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
+            ).format(SCOPEN_ZAKEN_HEROPENEN)
+            raise PermissionDenied(detail=msg)
+
         zaak_version_before_edit = ZaakSerializer(
-            context={"request": request}, instance=instance
+            context={"request": self.request}, instance=instance
         ).data
 
         return {"zaak_version_before_edit": zaak_version_before_edit}
@@ -2122,7 +2158,7 @@ class ZaakUpdateActionViewSet(
     def post(self, request, uuid=None, *args, **kwargs):
         instance = self.get_object(uuid)
 
-        context = self._pre_post(request, instance)
+        context = self._pre_post(instance)
 
         serializer = self.serializer_class(
             data=request.data, context={"request": request}, instance=instance
@@ -2204,7 +2240,6 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
 class ZaakBijwerkenViewset(
     ZaakUpdateActionViewSet,
     GeoMixin,
-    ClosedZaakMixin,
 ):
     serializer_class = ZaakBijwerkenSerializer
 
@@ -2217,14 +2252,11 @@ class ZaakBijwerkenViewset(
         },
     }
 
-    def _pre_post(self, request, instance):
-        context = super()._pre_post(request, instance)
-
-        if request.data.get("rollen"):
-            self._check_zaak_closed(instance, "zaken")
+    def _pre_post(self, instance):
+        context = super()._pre_post(instance)
 
         context["rollen_version_before_edit"] = RolSerializer(
-            instance.rol_set, context={"request": request}, many=True
+            instance.rol_set, context={"request": self.request}, many=True
         ).data
 
         context["rollen_instances_before_edit"] = list(instance.rol_set.all())
@@ -2381,7 +2413,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
         ),
     )
 )
-class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet, ClosedZaakMixin):
+class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
     serializer_class = ZaakAfsluitenSerializer
 
     notification_fields = {
