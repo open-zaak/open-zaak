@@ -6,6 +6,7 @@ from datetime import date
 
 from django.test import override_settings, tag
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -403,7 +404,7 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         self.assertEqual(
             response.data["detail"],
-            "Je mag geen gegevens aanpassen van een gesloten zaak.",
+            _("Je mag geen gegevens aanpassen van een gesloten zaak."),
         )
 
     def test_register_with_closed_zaak_with_force_scope(self):

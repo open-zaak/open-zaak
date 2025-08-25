@@ -4,6 +4,7 @@ import os
 from unittest import skipIf
 
 from django.test import override_settings
+from django.utils.translation import gettext as _
 
 from drc_cmis.models import UrlMapping
 from freezegun import freeze_time
@@ -59,7 +60,7 @@ class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_delete_no_url_mapping(self):
@@ -80,5 +81,5 @@ class URLMappingBIOAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )

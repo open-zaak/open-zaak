@@ -4,6 +4,7 @@ import datetime
 
 from django.test import override_settings, tag
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from freezegun import freeze_time
 from rest_framework import status
@@ -173,7 +174,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "permission_denied")
         self.assertEqual(
             response.data["detail"],
-            "Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten",
+            _("Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten"),
         )
 
     def test_reopen_zaak(self):
@@ -204,7 +205,7 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "permission_denied")
         self.assertEqual(
             response.data["detail"],
-            "Je mag geen gegevens aanpassen van een gesloten zaak.",
+            _("Je mag geen gegevens aanpassen van een gesloten zaak."),
         )
 
     def test_reopen_zaak_without_zaken_heropenen_scope(self):
@@ -223,7 +224,9 @@ class ZaakOpschortenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data["code"], "permission_denied")
         self.assertEqual(
             response.data["detail"],
-            "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen",
+            _(
+                "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen"
+            ),
         )
 
 

@@ -7,6 +7,7 @@ from base64 import b64encode
 from unittest import skipIf
 
 from django.test import override_settings
+from django.utils.translation import gettext as _
 
 from drc_cmis.models import CMISConfig, UrlMapping
 from freezegun import freeze_time
@@ -66,7 +67,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_list_documents_no_url_mapping(self):
@@ -83,7 +84,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_retrieve_document_no_url_mapping(self):
@@ -179,7 +180,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_list_gebruiksrechten_no_url_mapping(self):
@@ -200,7 +201,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_retrieve_gebruiksrechten_no_url_mapping(self):
@@ -278,7 +279,7 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
 
     def test_retrieve_oio_no_url_mapping(self):
@@ -330,5 +331,5 @@ class URLMappingAPITests(JWTAuthMixin, APICMISTestCase):
         )
         self.assertEqual(
             response.data["detail"],
-            "CMIS-adapter could not shrink one of the URL fields.",
+            _("CMIS-adapter could not shrink one of the URL fields."),
         )
