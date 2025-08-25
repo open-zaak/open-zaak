@@ -12,10 +12,12 @@ class CRUDAssertions:
                 response.status_code, status.HTTP_403_FORBIDDEN, response.data
             )
 
-    def assertUpdateBlocked(self, url: str):
+    def assertUpdateBlocked(self, url: str, data: dict | None = None):
         with self.subTest(action="update"):
             detail = self.client.get(url).data
 
+            if data:
+                detail = data
             response = self.client.put(url, detail)
 
             self.assertEqual(
@@ -46,9 +48,11 @@ class CRUDAssertions:
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
 
-    def assertUpdateAllowed(self, url: str):
+    def assertUpdateAllowed(self, url: str, data: dict | None = None):
         with self.subTest(action="update"):
             detail = self.client.get(url).data
+            if data:
+                detail = data
 
             response = self.client.put(url, detail)
 
