@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
 import datetime
 from unittest import skip
 
@@ -10,7 +11,11 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.constants import Archiefnominatie, ComponentTypes, RolOmschrijving
+from vng_api_common.constants import (
+    Archiefnominatie,
+    ComponentTypes,
+    RolOmschrijving,
+)
 from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.api.scopes import (
@@ -56,6 +61,7 @@ from .factories import (
     ZaakEigenschapFactory,
     ZaakFactory,
     ZaakInformatieObjectFactory,
+    ZaakObjectFactory,
 )
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url
 
@@ -212,6 +218,14 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
         self.assertDestroyBlocked(zio_url)
 
     def test_zaakobjecten(self):
+        zaakobject = ZaakObjectFactory.create(
+            zaak=self.zaak,
+            object="https://example.com",
+            zaakobjecttype="https://externe.catalogus.nl/api/v1/",
+            relatieomschrijving="old",
+        )
+        zaakobject_url = reverse(zaakobject)
+
         self.assertCreateBlocked(
             reverse(ZaakObject),
             {
@@ -221,19 +235,32 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
                 "objectTypeOverige": "website",
             },
         )
+        self.assertPartialUpdateBlocked(zaakobject_url)
+        self.assertUpdateBlocked(
+            zaakobject_url,
+            data={"zaak": reverse(self.zaak), "objectTypeOverige": "website"},
+        )
+        self.assertDestroyBlocked(zaakobject_url)
 
     def test_zaakeigenschappen(self):
         zaak_eigenschap = ZaakEigenschapFactory.create(zaak=self.zaak)
         eigenschap_url = reverse(zaak_eigenschap.eigenschap)
 
+        data = {
+            "zaak": reverse(self.zaak),
+            "eigenschap": f"http://testserver{eigenschap_url}",
+            "waarde": "123",
+        }
         self.assertCreateBlocked(
-            reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid}),
-            {
-                "zaak": reverse(self.zaak),
-                "eigenschap": f"http://testserver{eigenschap_url}",
-                "waarde": "123",
-            },
+            reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid}), data
         )
+        zaakeigenschap_url = reverse(
+            zaak_eigenschap, kwargs={"zaak_uuid": self.zaak.uuid}
+        )
+
+        self.assertUpdateBlocked(zaakeigenschap_url, data=data)
+        self.assertPartialUpdateBlocked(zaakeigenschap_url)
+        self.assertDestroyBlocked(zaakeigenschap_url)
 
     def test_klantcontacten(self):
         url = reverse(KlantContact)
@@ -262,9 +289,11 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
             "betrokkeneType": "vestiging",
             "betrokkene": "https://example.com",
             "roltoelichting": "foo",
+            "contactpersoon_rol_naam": "new",
         }
 
         self.assertCreateBlocked(create_url, data)
+        self.assertUpdateBlocked(rol_url, data=data)
         self.assertDestroyBlocked(rol_url)
 
     def test_resultaten(self):
@@ -313,7 +342,10 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
         )
 
         besluit = BesluitFactory.create(zaak=self.zaak, besluittype=besluittype)
-        self.assertDestroyBlocked(reverse(besluit))
+        besluit_url = reverse(besluit)
+        self.assertPartialUpdateBlocked(besluit_url)
+        self.assertUpdateBlocked(besluit_url)
+        self.assertDestroyBlocked(besluit_url)
 
     def test_statussen(self):
         statustype = StatusTypeFactory.create(zaaktype=self.zaaktype)
@@ -379,6 +411,13 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
         self.assertDestroyAllowed(zio_url)
 
     def test_zaakobjecten(self):
+        zaakobject = ZaakObjectFactory.create(
+            zaak=self.zaak,
+            object="https://example.com",
+            zaakobjecttype="https://externe.catalogus.nl/api/v1/",
+            relatieomschrijving="old",
+        )
+        zaakobject_url = reverse(zaakobject)
         self.assertCreateAllowed(
             reverse(ZaakObject),
             {
@@ -388,19 +427,32 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
                 "objectTypeOverige": "website",
             },
         )
+        self.assertPartialUpdateAllowed(zaakobject_url)
+        self.assertUpdateAllowed(
+            zaakobject_url,
+            data={"zaak": reverse(self.zaak), "objectTypeOverige": "website"},
+        )
+        self.assertDestroyAllowed(zaakobject_url)
 
     def test_zaakeigenschappen(self):
         zaak_eigenschap = ZaakEigenschapFactory.create(zaak=self.zaak)
         eigenschap_url = reverse(zaak_eigenschap.eigenschap)
-
+        data = {
+            "zaak": reverse(self.zaak),
+            "eigenschap": f"http://testserver{eigenschap_url}",
+            "waarde": "123",
+        }
         self.assertCreateAllowed(
-            reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid}),
-            {
-                "zaak": reverse(self.zaak),
-                "eigenschap": f"http://testserver{eigenschap_url}",
-                "waarde": "123",
-            },
+            reverse(ZaakEigenschap, kwargs={"zaak_uuid": self.zaak.uuid}), data
         )
+
+        zaakeigenschap_url = reverse(
+            zaak_eigenschap, kwargs={"zaak_uuid": self.zaak.uuid}
+        )
+
+        self.assertUpdateAllowed(zaakeigenschap_url, data=data)
+        self.assertPartialUpdateAllowed(zaakeigenschap_url)
+        self.assertDestroyAllowed(zaakeigenschap_url)
 
     def test_klantcontacten(self):
         url = reverse(KlantContact)
@@ -425,9 +477,10 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
             "betrokkeneType": "vestiging",
             "betrokkene": "https://example.com",
             "roltoelichting": "foo",
+            "contactpersoon_rol_naam": "new",
         }
-
         self.assertCreateAllowed(create_url, data)
+        self.assertUpdateAllowed(rol_url, data=data)
         self.assertDestroyAllowed(rol_url)
 
     def test_resultaten(self):
@@ -477,4 +530,7 @@ class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCas
         )
 
         besluit = BesluitFactory.create(zaak=self.zaak, besluittype=besluittype)
-        self.assertDestroyAllowed(reverse(besluit))
+        besluit_url = reverse(besluit)
+        self.assertPartialUpdateAllowed(besluit_url)
+        self.assertUpdateAllowed(besluit_url)
+        self.assertDestroyAllowed(besluit_url)
