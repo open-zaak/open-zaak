@@ -16,11 +16,15 @@ import os
 import re
 import tempfile
 
+from django.conf import settings
+
 import structlog
 from dotenv import load_dotenv
 from self_certifi import load_self_signed_certs as _load_self_signed_certs
 
 EXTRA_CERTS_ENVVAR = "EXTRA_VERIFY_CERTS"
+
+logger = structlog.stdlib.get_logger(__name__)
 
 
 def setup_env():
@@ -35,6 +39,8 @@ def setup_env():
     load_self_signed_certs()
 
     monkeypatch_drf_camel_case()
+
+    monkeypatch_requests()
 
 
 def load_self_signed_certs() -> None:
@@ -84,3 +90,29 @@ def monkeypatch_drf_camel_case() -> None:
         return match.group()[0] + match.group()[2].upper()
 
     util.underscore_to_camel = old_underscore_to_camel
+
+
+def monkeypatch_requests():
+    """
+    Add a default timeout for any requests calls.
+
+    """
+    try:
+        from requests import Session
+    except ModuleNotFoundError:
+        logger.debug("Attempt to patch requests, but the library is not installed")
+        return
+
+    if hasattr(Session, "_original_request"):
+        logger.debug(
+            "Session is already patched OR has an ``_original_request`` attribute."
+        )
+        return
+
+    Session._original_request = Session.request
+
+    def new_request(self, *args, **kwargs):
+        kwargs.setdefault("timeout", settings.REQUESTS_DEFAULT_TIMEOUT)
+        return self._original_request(*args, **kwargs)
+
+    Session.request = new_request
