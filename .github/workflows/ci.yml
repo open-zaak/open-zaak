@@ -294,15 +294,47 @@ jobs:
           ALLOWED_HOSTS: localhost,127.0.0.1
           FUZZY_PAGINATION: true
           DB_CONN_MAX_AGE: 60
-      - name: Run tests
+
+      - name: Install dependencies
         run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://bencher.dev/download/install-cli.sh | sh
           pip install uv
           pkgs=$(cat requirements/performance-tests.in)
           grep -E "^($(echo $pkgs | sed 's/ /|/g'))([=<>]|$)" requirements/ci.txt | xargs uv pip install --system
-          echo '### 📊 Pytest Benchmark Results' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          pytest performance_test/ --benchmark-json output.json | tee /dev/tty | tee -a $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run tests for main branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          bencher run --adapter python_pytest \
+                      --project open-zaak-ed2ce35-z71n5gf8t4f40 \
+                      --token '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --branch main \
+                      --testbed ubuntu-latest \
+                      --average median \
+                      --start-point-reset \
+                      --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --file output.json \
+                      "pytest performance_test/ --benchmark-json output.json"
+
+      - name: Run tests for other branches
+        if: github.ref != 'refs/heads/main'
+        run: |
+          bencher run --adapter python_pytest \
+                      --project open-zaak-ed2ce35-z71n5gf8t4f40 \
+                      --token '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --branch "$GITHUB_HEAD_REF" \
+                      --start-point "$GITHUB_BASE_REF" \
+                      --start-point-reset \
+                      --start-point-max-versions 1 \
+                      --average median \
+                      --threshold-measure latency \
+                      --threshold-test percentage \
+                      --threshold-upper-boundary 0.02 \
+                      --thresholds-reset \
+                      --testbed ubuntu-latest \
+                      --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+                      --file output.json \
+                      "pytest performance_test/ --benchmark-json output.json"
 
   publish_codecov:
     name: Publish coverage results
