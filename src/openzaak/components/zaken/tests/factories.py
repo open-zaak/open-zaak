@@ -132,6 +132,13 @@ class RolFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
         )
 
 
+class NatuurlijkPersoonFactory(factory.django.DjangoModelFactory):
+    rol = factory.SubFactory(RolFactory)
+
+    class Meta:
+        model = "zaken.NatuurlijkPersoon"
+
+
 class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     statustype = factory.SubFactory(StatusTypeFactory)
