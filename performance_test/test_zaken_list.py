@@ -8,6 +8,10 @@ from furl import furl
 BASE_URL = furl("http://localhost:8000/zaken/api/v1/")
 
 
+BSN_100_ZAKEN = "000000000"
+BSN_1000_ZAKEN = "111222333"
+
+
 def generate_token(client_id: str, secret: str) -> str:
     payload = {
         "iss": "openzaak",
@@ -39,8 +43,8 @@ HEADERS_NON_SUPERUSER_MANY_TYPES = {
 }
 
 
-@pytest.mark.benchmark(max_time=60, min_rounds=5)
-def test_zaken_list(benchmark, benchmark_assertions):
+@pytest.mark.benchmark(max_time=30, min_rounds=5)
+def test_superuser(benchmark, benchmark_assertions):
     params = {"pageSize": 100, "page": 34}
 
     def make_request():
@@ -56,9 +60,13 @@ def test_zaken_list(benchmark, benchmark_assertions):
     benchmark_assertions(mean=1, median=1)
 
 
-@pytest.mark.benchmark(max_time=60, min_rounds=5)
-def test_zaken_list_non_superuser_few_authorized_types(benchmark, benchmark_assertions):
-    params = {"pageSize": 100, "page": 5}
+@pytest.mark.benchmark(max_time=30, min_rounds=5)
+def test_non_superuser_few_authorized_types_1000_zaken(benchmark, benchmark_assertions):
+    params = {
+        "pageSize": 100,
+        "page": 5,
+        "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": BSN_1000_ZAKEN,
+    }
 
     def make_request():
         return requests.get(
@@ -75,11 +83,61 @@ def test_zaken_list_non_superuser_few_authorized_types(benchmark, benchmark_asse
     benchmark_assertions(mean=1, median=1)
 
 
-@pytest.mark.benchmark(max_time=60, min_rounds=5)
-def test_zaken_list_non_superuser_many_authorized_types(
+@pytest.mark.benchmark(max_time=30, min_rounds=5)
+def test_non_superuser_many_authorized_types_1000_zaken(
     benchmark, benchmark_assertions
 ):
-    params = {"pageSize": 100, "page": 29}
+    params = {
+        "pageSize": 100,
+        "page": 5,
+        "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": BSN_1000_ZAKEN,
+    }
+
+    def make_request():
+        return requests.get(
+            (BASE_URL / "zaken").set(params), headers=HEADERS_NON_SUPERUSER_MANY_TYPES
+        )
+
+    result = benchmark(make_request)
+
+    assert result.status_code == 200
+    data = result.json()
+    assert data["count"] == 3300
+    assert len(data["results"]) == 100
+
+    benchmark_assertions(mean=1, median=1)
+
+
+@pytest.mark.benchmark(max_time=30, min_rounds=5)
+def test_non_superuser_few_authorized_types_100_zaken(benchmark, benchmark_assertions):
+    params = {
+        "pageSize": 100,
+        "page": 5,
+        "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": BSN_100_ZAKEN,
+    }
+
+    def make_request():
+        return requests.get(
+            (BASE_URL / "zaken").set(params), headers=HEADERS_NON_SUPERUSER
+        )
+
+    result = benchmark(make_request)
+
+    assert result.status_code == 200
+    data = result.json()
+    assert data["count"] == 525
+    assert len(data["results"]) == 100
+
+    benchmark_assertions(mean=1, median=1)
+
+
+@pytest.mark.benchmark(max_time=30, min_rounds=5)
+def test_non_superuser_many_authorized_types_100_zaken(benchmark, benchmark_assertions):
+    params = {
+        "pageSize": 100,
+        "page": 5,
+        "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": BSN_100_ZAKEN,
+    }
 
     def make_request():
         return requests.get(
