@@ -325,11 +325,11 @@ jobs:
                       --branch "$GITHUB_HEAD_REF" \
                       --start-point "$GITHUB_BASE_REF" \
                       --start-point-reset \
-                      --start-point-max-versions 1 \
                       --average median \
                       --threshold-measure latency \
                       --threshold-test percentage \
-                      --threshold-upper-boundary 0.02 \
+                      --threshold-upper-boundary 0.0 \
+                      --threshold-max-sample-size 2 \
                       --thresholds-reset \
                       --testbed ubuntu-latest \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
