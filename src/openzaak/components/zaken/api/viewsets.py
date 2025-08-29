@@ -323,6 +323,8 @@ class ZaakViewSet(
     _generated_identificatie: Optional[ZaakIdentificatie] = None
 
     def get_queryset(self):
+        import time
+        time.sleep(0.1)
         qs = super().get_queryset()
         # codepath via the the `get_viewset_for_path` utilities in various libraries
         # does not always initialize a request, which causes self.action to not be set.
