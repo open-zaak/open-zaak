@@ -84,7 +84,7 @@ Changelog
 
   The connection pooling settings apply to each uWSGI process and each replica, this means
   that when running with 2 replicas and 4 processes for example, there will effectively be 8
-  connection pools with the above settings.
+  connection pools with the above settings. See :ref:`database_connections` for more information.
 
 **Experimental features** (see :ref:`api_experimental`)
 
