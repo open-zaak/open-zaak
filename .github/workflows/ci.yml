@@ -317,7 +317,7 @@ jobs:
                       "pytest performance_test/ --benchmark-json output.json"
 
       - name: Run tests for other branches
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
         run: |
           bencher run --adapter python_pytest \
                       --project open-zaak-ed2ce35-z71n5gf8t4f40 \
