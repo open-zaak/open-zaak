@@ -6,7 +6,7 @@ Performance
 Configuration
 -------------
 
-Each minor Open Zaak version should be deployed on the dedicated server for the performance testing.
+Each minor Open Zaak version should be deployed on the dedicated instance on Kubernetes for the performance testing.
 The performance testing should be run both for at least ``GET /zaken/api/v1/zaken`` endpoint with
 following configurations:
 
@@ -25,11 +25,11 @@ Each run should last at least 5 minutes.
 Hardware
 --------
 
-The dedicated service where all the tests are run has the following configuration:
+The following resources are used:
 
-* Processor: 4 CPUs at 3.2 GHz
-* RAM: 16 GB
-* Storage: 4 TB SATA
+* Number of replicas: 10
+* CPU per pod: 1000m (1 CPU)
+* Memory per pod: 1Gi
 
 Open Zaak data
 --------------
@@ -43,6 +43,49 @@ There should be enough data in the database for the performance testing:
 
 Performance test results
 ------------------------
+
+1 user
+^^^^^^
+
+====================== ========= ======================
+OZ version             Role      Median time (in ms, average over all endpoints)
+====================== ========= ======================
+1.20.0 (fuzzy on)      Superuser 480
+1.20.0 (fuzzy on)      Regular   590
+1.21.0 (fuzzy on)      Superuser 150
+1.21.0 (fuzzy on)      Regular   200
+1.21.1 (fuzzy on)      Superuser 160
+1.21.1 (fuzzy on)      Regular   210
+1.21.2 (fuzzy on)      Superuser 160
+1.21.2 (fuzzy on)      Regular   210
+1.22.0 (fuzzy on)      Superuser 170
+1.22.0 (fuzzy on)      Regular   230
+1.23.0 (fuzzy on)      Superuser 170
+1.23.0 (fuzzy on)      Regular   230
+====================== ========= ======================
+
+16 users
+^^^^^^^^
+
+====================== ========= ======================
+OZ version             Role      Median time (in ms, average over all endpoints)
+====================== ========= ======================
+1.20.0 (fuzzy on)      Superuser 720
+1.20.0 (fuzzy on)      Regular   970
+1.21.0 (fuzzy on)      Superuser 240
+1.21.0 (fuzzy on)      Regular   320
+1.21.1 (fuzzy on)      Superuser 260
+1.21.1 (fuzzy on)      Regular   340
+1.21.2 (fuzzy on)      Superuser 260
+1.21.2 (fuzzy on)      Regular   340
+1.22.0 (fuzzy on)      Superuser 290
+1.22.0 (fuzzy on)      Regular   370
+1.23.0 (fuzzy on)      Superuser 280
+1.23.0 (fuzzy on)      Regular   370
+====================== ========= ======================
+
+Historical results for instance running in Docker
+-------------------------------------------------
 
 .. warning::
 
