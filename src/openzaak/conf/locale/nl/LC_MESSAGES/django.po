@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-05 10:45+0000\n"
+"POT-Creation-Date: 2025-08-29 07:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -360,20 +360,18 @@ msgstr ""
 msgid "This field is required."
 msgstr "Dit veld is verplicht."
 
-#: openzaak/components/besluiten/api/serializers.py:125
-#: openzaak/components/besluiten/api/serializers.py:160
+#: openzaak/components/besluiten/api/serializers.py:129
+#: openzaak/components/besluiten/api/serializers.py:164
 msgid "Could not create remote relation: {}"
 msgstr "Kon externe relatie niet aanmaken: {}"
 
-#: openzaak/components/besluiten/api/serializers.py:147
-#: openzaak/components/besluiten/api/viewsets.py:210
-#: openzaak/components/besluiten/api/viewsets.py:342
+#: openzaak/components/besluiten/api/serializers.py:151
+#: openzaak/components/besluiten/api/viewsets.py:207
+#: openzaak/components/besluiten/api/viewsets.py:339
 msgid "Could not delete remote relation: {}"
 msgstr "Kon externe relatie niet verwijderen: {}"
 
-#: openzaak/components/besluiten/api/serializers.py:225
-#: openzaak/components/zaken/api/serializers/zaken.py:1445
-#: openzaak/components/zaken/api/serializers/zaken.py:1494
+#: openzaak/components/besluiten/api/serializers.py:233
 #, python-brace-format
 msgid "Could not create remote relation: {exception}"
 msgstr "Kon externe relatie niet aanmaken: {exception}"
@@ -442,6 +440,30 @@ msgstr ""
 #: openzaak/components/besluiten/models.py:292
 msgid "URL of related ObjectInformatieObject object in the other API"
 msgstr "URL van het gerelateerde ObjectInformatieObject in de externe API"
+
+#: openzaak/components/besluiten/tests/test_besluit_verwerken.py:161
+#: openzaak/components/documenten/tests/test_document_registreren.py:407
+#: openzaak/components/zaken/tests/test_zaak_afsluiten.py:213
+#: openzaak/components/zaken/tests/test_zaak_bijwerken.py:181
+#: openzaak/components/zaken/tests/test_zaak_bijwerken.py:226
+#: openzaak/components/zaken/tests/test_zaak_opschorten.py:208
+#: openzaak/components/zaken/tests/test_zaak_verlengen.py:230
+msgid "Je mag geen gegevens aanpassen van een gesloten zaak."
+msgstr ""
+
+#: openzaak/components/besluiten/tests/test_cmis_url_mapping.py:63
+#: openzaak/components/besluiten/tests/test_cmis_url_mapping.py:84
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:70
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:87
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:183
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:204
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:282
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:334
+#: openzaak/components/zaken/tests/test_cmis_url_mapping.py:73
+#: openzaak/components/zaken/tests/test_cmis_url_mapping.py:94
+#: openzaak/utils/decorators.py:56
+msgid "CMIS-adapter could not shrink one of the URL fields."
+msgstr ""
 
 #: openzaak/components/catalogi/admin/admin_views.py:88
 #: openzaak/components/catalogi/admin/admin_views.py:224
@@ -2722,7 +2744,7 @@ msgid "versies"
 msgstr ""
 
 #: openzaak/components/documenten/admin.py:355
-#: openzaak/components/zaken/api/serializers/zaken.py:477
+#: openzaak/components/zaken/api/serializers/zaken.py:487
 msgid "Identificatie"
 msgstr ""
 
@@ -2747,7 +2769,7 @@ msgid "Integriteit"
 msgstr ""
 
 #: openzaak/components/documenten/admin.py:436
-#: openzaak/components/documenten/api/serializers.py:322
+#: openzaak/components/documenten/api/serializers.py:326
 msgid "locked"
 msgstr "geblokkeerd"
 
@@ -2757,79 +2779,79 @@ msgid "Een lijst van trefwoorden gescheiden door comma's."
 msgstr ""
 
 #: openzaak/components/documenten/api/filters.py:231
-#: openzaak/components/documenten/api/serializers.py:969
+#: openzaak/components/documenten/api/serializers.py:979
 msgid ""
 "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:105
+#: openzaak/components/documenten/api/serializers.py:109
 msgid "The provided base64 data has incorrect padding"
 msgstr "De aangeleverde base64-data heeft een ongeldige padding"
 
-#: openzaak/components/documenten/api/serializers.py:235
+#: openzaak/components/documenten/api/serializers.py:239
 msgid ""
 "Indicatie of dit bestandsdeel volledig is geupload. Dat wil zeggen: het "
 "aantal bytes dat staat genoemd bij grootte is daadwerkelijk ontvangen."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:253
+#: openzaak/components/documenten/api/serializers.py:257
 #, python-brace-format
 msgid ""
 "Het aangeleverde bestand heeft een afwijkende bestandsgrootte (volgens het "
 "`omvang`-veld).Verwachting: {expected}b, ontvangen: {received}b"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:262
-#: openzaak/components/documenten/api/serializers.py:721
-#: openzaak/components/documenten/api/serializers.py:820
+#: openzaak/components/documenten/api/serializers.py:266
+#: openzaak/components/documenten/api/serializers.py:725
+#: openzaak/components/documenten/api/serializers.py:830
 msgid "Lock id is not correct"
 msgstr "Het lock ID is niet geldig"
 
-#: openzaak/components/documenten/api/serializers.py:279
+#: openzaak/components/documenten/api/serializers.py:283
 #, python-brace-format
 msgid ""
 "Minimal accepted size of uploaded file = {settings.MIN_UPLOAD_SIZE} bytes "
 msgstr ""
 "Minimale toegestane grootte van uploads = {settings.MIN_UPLOAD_SIZE} bytes "
 
-#: openzaak/components/documenten/api/serializers.py:289
+#: openzaak/components/documenten/api/serializers.py:293
 #: openzaak/components/documenten/models.py:365
 msgid "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:292
+#: openzaak/components/documenten/api/serializers.py:296
 msgid "integriteit"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:296
+#: openzaak/components/documenten/api/serializers.py:300
 msgid ""
 "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal "
 "bestand."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:304
+#: openzaak/components/documenten/api/serializers.py:308
 #: openzaak/components/documenten/models.py:209
 msgid "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:313
+#: openzaak/components/documenten/api/serializers.py:317
 msgid "ondertekening"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:317
+#: openzaak/components/documenten/api/serializers.py:321
 msgid ""
 "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een "
 "waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter "
 "vaststelling' heeft."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:326
+#: openzaak/components/documenten/api/serializers.py:330
 msgid ""
 "Geeft aan of het document gelocked is. Alleen als een document gelocked is, "
 "mogen er aanpassingen gemaakt worden."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:387
+#: openzaak/components/documenten/api/serializers.py:391
 msgid ""
 "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n"
 "\n"
@@ -2842,7 +2864,7 @@ msgid ""
 "rol speelt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:399
+#: openzaak/components/documenten/api/serializers.py:403
 msgid ""
 "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n"
 "\n"
@@ -2854,39 +2876,39 @@ msgid ""
 "rol speelt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:433
+#: openzaak/components/documenten/api/serializers.py:437
 msgid ""
 "De indicatie kan niet weggehaald worden of ongespecifieerd zijn als er "
 "Gebruiksrechten gedefinieerd zijn."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:444
+#: openzaak/components/documenten/api/serializers.py:448
 msgid ""
 "De indicatie moet op 'ja' gezet worden door `gebruiksrechten` aan te maken, "
 "dit kan niet direct op deze resource."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:463
+#: openzaak/components/documenten/api/serializers.py:467
 msgid "The size of upload file should match the 'bestandsomvang' field"
 msgstr ""
 "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
 "veld"
 
-#: openzaak/components/documenten/api/serializers.py:481
+#: openzaak/components/documenten/api/serializers.py:485
 msgid "The size of upload file should match bestandsomvang field"
 msgstr ""
 "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
 "veld"
 
-#: openzaak/components/documenten/api/serializers.py:709
+#: openzaak/components/documenten/api/serializers.py:713
 msgid "Unlocked document can't be modified"
 msgstr "Een geblokkeerd document kan niet gewijzigd worden"
 
-#: openzaak/components/documenten/api/serializers.py:716
+#: openzaak/components/documenten/api/serializers.py:720
 msgid "Lock id must be provided"
 msgstr "Je moet het lock ID meegeven"
 
-#: openzaak/components/documenten/api/serializers.py:739
+#: openzaak/components/documenten/api/serializers.py:743
 msgid ""
 "Lock id generated if the large file is created and should be used while "
 "updating the document. Documents with base64 encoded files are created "
@@ -2896,24 +2918,24 @@ msgstr ""
 "bij document updates. Documenten met base64-encoded bestandsdata worden "
 "zonder lock aangemaakt."
 
-#: openzaak/components/documenten/api/serializers.py:786
+#: openzaak/components/documenten/api/serializers.py:796
 msgid "The document is already locked"
 msgstr "Het document is al geblokkeerd"
 
-#: openzaak/components/documenten/api/serializers.py:835
+#: openzaak/components/documenten/api/serializers.py:845
 msgid "Upload of part files is not complete"
 msgstr "Nog niet alle bestandsdelen zijn volledig geüpload"
 
-#: openzaak/components/documenten/api/serializers.py:840
+#: openzaak/components/documenten/api/serializers.py:850
 msgid "Either file should be upload or the file size = 0"
 msgstr "Je moet een bestand uploaden of de bestandsomvang op 0 zetten"
 
-#: openzaak/components/documenten/api/serializers.py:903
-#: openzaak/components/zaken/api/serializers/zaken.py:640
+#: openzaak/components/documenten/api/serializers.py:913
+#: openzaak/components/zaken/api/serializers/zaken.py:686
 msgid "Array of unieke resource identifiers (UUID4)"
 msgstr "Lijst van unieke resource identifiers (UUID4)"
 
-#: openzaak/components/documenten/api/serializers.py:1081
+#: openzaak/components/documenten/api/serializers.py:1091
 msgid ""
 "Het correspondentieadres, betreffende een adresseerbaar object, van de "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -2921,7 +2943,7 @@ msgid ""
 "binnenlandse correspondentieadres van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1094
+#: openzaak/components/documenten/api/serializers.py:1104
 msgid ""
 "De gegevens van het adres in het buitenland van BETROKKENE, zijnde afzender "
 "of geadresseerde, zoals vermeld in het ontvangen of verzonden "
@@ -2929,7 +2951,7 @@ msgid ""
 "BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1106
+#: openzaak/components/documenten/api/serializers.py:1116
 msgid ""
 "De gegevens die tezamen een postbusadres of antwoordnummeradres vormen van "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -2937,8 +2959,8 @@ msgid ""
 "correspondentiegegevens van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1151
-#: openzaak/components/zaken/api/serializers/zaken.py:210
+#: openzaak/components/documenten/api/serializers.py:1161
+#: openzaak/components/zaken/api/serializers/zaken.py:220
 msgid "Het aantal identificaties om te reserveren."
 msgstr ""
 
@@ -2972,7 +2994,7 @@ msgstr ""
 msgid "Verzending must contain precisely one correspondentieadress"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:296
+#: openzaak/components/documenten/api/viewsets.py:295
 msgid ""
 "All relations to the document must be destroyed before destroying the "
 "document"
@@ -2980,44 +3002,44 @@ msgstr ""
 "Alle relaties met dit document moeten verbroken worden voor je het document "
 "zelf mag verwijderen."
 
-#: openzaak/components/documenten/api/viewsets.py:306
+#: openzaak/components/documenten/api/viewsets.py:305
 msgid "Locked objects cannot be destroyed"
 msgstr "Gelockte objecten mogen niet worden verwijderd"
 
-#: openzaak/components/documenten/api/viewsets.py:460
-#: openzaak/components/zaken/api/viewsets.py:356
+#: openzaak/components/documenten/api/viewsets.py:459
+#: openzaak/components/zaken/api/viewsets.py:372
 msgid "Search parameters must be specified"
 msgstr "Je moet zoekparameters opgeven"
 
-#: openzaak/components/documenten/api/viewsets.py:501
+#: openzaak/components/documenten/api/viewsets.py:500
 msgid "Een IMPORT creeren"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:530
+#: openzaak/components/documenten/api/viewsets.py:529
 msgid "Een IMPORT bestand uploaden"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:551
+#: openzaak/components/documenten/api/viewsets.py:550
 msgid "No response body"
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:588
+#: openzaak/components/documenten/api/viewsets.py:587
 msgid "De status van een IMPORT opvragen."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:615
+#: openzaak/components/documenten/api/viewsets.py:614
 msgid "Het reportage bestand van een IMPORT downloaden."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:627
+#: openzaak/components/documenten/api/viewsets.py:626
 msgid "Het reportage bestand van de IMPORT."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:655
+#: openzaak/components/documenten/api/viewsets.py:654
 msgid "Een IMPORT verwijderen."
 msgstr ""
 
-#: openzaak/components/documenten/api/viewsets.py:938
+#: openzaak/components/documenten/api/viewsets.py:937
 msgid "The relation between object and informatieobject doesn't exist"
 msgstr "De relatie tussen object en informatieobject bestaat niet"
 
@@ -3699,7 +3721,7 @@ msgid "Het veld waarop de resultaten geordend worden."
 msgstr ""
 
 #: openzaak/components/zaken/api/filters.py:467
-#: openzaak/components/zaken/api/serializers/zaken.py:700
+#: openzaak/components/zaken/api/serializers/zaken.py:746
 msgid ""
 "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status "
 "gezet van van alle statussen bij de desbetreffende zaak."
@@ -3958,102 +3980,104 @@ msgid ""
 "Use `null` if unknown or when creating a role other than the `initiator`."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaakobjecten.py:134
+#: openzaak/components/zaken/api/serializers/zaakobjecten.py:135
 #: openzaak/components/zaken/models/zaken.py:1228
 msgid "definitie object type overige"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaakobjecten.py:196
+#: openzaak/components/zaken/api/serializers/zaakobjecten.py:197
 msgid "object or objectIdentificatie must be provided"
 msgstr "Je moet een object-url of objectIdentificatie opgeven"
 
-#: openzaak/components/zaken/api/serializers/zaakobjecten.py:231
+#: openzaak/components/zaken/api/serializers/zaakobjecten.py:232
 msgid ""
 "Als `objectType` de waarde \"overige\" heeft, moet `objectTypeOverige` of "
 "`objectTypeOverigeDefinitie` van een waarde voorzien zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaakobjecten.py:241
+#: openzaak/components/zaken/api/serializers/zaakobjecten.py:242
 msgid ""
 "Als `objectType` niet de waarde \"overige\" heeft, mag `objectTypeOverige` "
 "niet van een waarde voorzien zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:134
-#: openzaak/components/zaken/api/serializers/zaken.py:153
+#: openzaak/components/zaken/api/serializers/zaken.py:144
+#: openzaak/components/zaken/api/serializers/zaken.py:163
 msgid "Reden"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:134
+#: openzaak/components/zaken/api/serializers/zaken.py:144
 msgid "Duur"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:148
+#: openzaak/components/zaken/api/serializers/zaken.py:158
 msgid "Indicatie"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:150
+#: openzaak/components/zaken/api/serializers/zaken.py:160
 msgid "Eerdere opschorting"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:272
+#: openzaak/components/zaken/api/serializers/zaken.py:282
 msgid "URL-referenties naar ZAAK-EIGENSCHAPPen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:280
+#: openzaak/components/zaken/api/serializers/zaken.py:290
 msgid "URL-referenties naar ROLLen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:288
+#: openzaak/components/zaken/api/serializers/zaken.py:298
 msgid "Indien geen status bekend is, dan is de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:296
-#: openzaak/components/zaken/api/serializers/zaken.py:709
+#: openzaak/components/zaken/api/serializers/zaken.py:306
+#: openzaak/components/zaken/api/serializers/zaken.py:755
 msgid "URL-referenties naar ZAAKINFORMATIEOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:304
+#: openzaak/components/zaken/api/serializers/zaken.py:314
 msgid "URL-referenties naar ZAAKOBJECTen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:318
+#: openzaak/components/zaken/api/serializers/zaken.py:328
 msgid "Uitleg bij `betalingsindicatie`."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:325
+#: openzaak/components/zaken/api/serializers/zaken.py:335
+#: openzaak/components/zaken/api/serializers/zaken.py:662
 msgid ""
 "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de "
 "ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:333
+#: openzaak/components/zaken/api/serializers/zaken.py:343
+#: openzaak/components/zaken/api/serializers/zaken.py:650
 msgid ""
 "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:343
+#: openzaak/components/zaken/api/serializers/zaken.py:353
 msgid "URL-referenties naar deel ZAAKen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:353
+#: openzaak/components/zaken/api/serializers/zaken.py:363
 msgid ""
 "URL-referentie naar het RESULTAAT. Indien geen resultaat bekend is, dan is "
 "de waarde 'null'"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:358
+#: openzaak/components/zaken/api/serializers/zaken.py:368
 msgid "Een lijst van relevante andere zaken."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:365
+#: openzaak/components/zaken/api/serializers/zaken.py:375
 msgid ""
 "Specificatie van de attribuutsoort van het object, subject of gebeurtenis  "
 "waarop, vanuit archiveringsoptiek, de zaak betrekking heeft en dat bepalend "
 "is voor de start van de archiefactietermijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:491
+#: openzaak/components/zaken/api/serializers/zaken.py:501
 msgid ""
 "Aanduiding van de mate waarin het zaakdossier van de ZAAK voor de "
 "openbaarheid bestemd is. Optioneel - indien geen waarde gekozen wordt, dan "
@@ -4061,29 +4085,29 @@ msgid ""
 "_altijd_ een waarde teruggeeft."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:561
+#: openzaak/components/zaken/api/serializers/zaken.py:571
 msgid ""
 "Laatste betaaldatum kan niet gezet worden als de betalingsindicatie \"nvt\" "
 "is"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:580
+#: openzaak/components/zaken/api/serializers/zaken.py:590
 msgid ""
 "Niet alle producten/diensten komen voor in de producten/diensten op het "
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:645
+#: openzaak/components/zaken/api/serializers/zaken.py:691
 msgid "Array van zaaktypen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1069
-#, fuzzy
-#| msgid "Could not create remote relation: {exception}"
+#: openzaak/components/zaken/api/serializers/zaken.py:1123
+#: openzaak/components/zaken/api/serializers/zaken.py:1531
+#: openzaak/components/zaken/api/serializers/zaken.py:1583
 msgid "Could not create remote relation due to an unexpected error"
-msgstr "Kon externe relatie niet aanmaken: {exception}"
+msgstr "Kon externe relatie niet aanmaken door een onverwachte error"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1192
+#: openzaak/components/zaken/api/serializers/zaken.py:1251
 msgid ""
 "De gegevens van de persoon die anderen desgevraagd in contact brengt met "
 "medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING "
@@ -4091,30 +4115,42 @@ msgid ""
 "belang van BETROKKENE in haar ROL bij een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1245
+#: openzaak/components/zaken/api/serializers/zaken.py:1304
 #: openzaak/components/zaken/models/zaken.py:685
 msgid ""
 "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat "
 "STATUSsen in die ZAAK bereikt zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1275
+#: openzaak/components/zaken/api/serializers/zaken.py:1334
 msgid "betrokkene or betrokkeneIdentificatie must be provided"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1286
+#: openzaak/components/zaken/api/serializers/zaken.py:1345
 msgid "`eindeGeldigheid` date cannot be before `beginGeldigheid` date"
 msgstr ""
 "`eindeGeldigheid` datum kan niet eerder zijn dan `beginGeldigheid` datum"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1513
+#: openzaak/components/zaken/api/serializers/zaken.py:1602
 msgid "URL-referentie naar een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1527
+#: openzaak/components/zaken/api/serializers/zaken.py:1616
 #: openzaak/components/zaken/tests/test_notitie.py:137
 msgid "Notitie can only be modified when status is `concept`."
 msgstr "Een Notitie kan alleen aangepast worden als de status `concept` is."
+
+#: openzaak/components/zaken/api/serializers/zaken.py:1807
+msgid "Dubbel uuid: {}."
+msgstr ""
+
+#: openzaak/components/zaken/api/serializers/zaken.py:1814
+msgid "uuid {} is niet onderdeel van de zaak."
+msgstr ""
+
+#: openzaak/components/zaken/api/serializers/zaken.py:1819
+msgid "uuid {} bestaat niet."
+msgstr ""
 
 #: openzaak/components/zaken/api/validators.py:48
 #, python-brace-format
@@ -4151,81 +4187,88 @@ msgid ""
 "anders dan "
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:291
+#: openzaak/components/zaken/api/validators.py:286
+msgid "Het is niet toegestaan om een zaak te sluiten via deze endpoint"
+msgstr ""
+
+#: openzaak/components/zaken/api/validators.py:295
+msgid "De status moet een eindstatus zijn voor deze actie."
+msgstr ""
+
+#: openzaak/components/zaken/api/validators.py:309
 msgid ""
 "Een deelzaak kan alleen worden heropend als de hoofzaak niet afgesloten is."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:317
+#: openzaak/components/zaken/api/validators.py:335
 msgid ""
-"Er zijn gerelateerde deelzaken die nog niet zijn afgesloten zijn.Deze "
-"deelzaken moeten eerst afgesloten worden voordat de zaak afgesloten kan "
-"worden."
+"Er zijn gerelateerde deelzaken die nog niet afgesloten zijn. Deze deelzaken "
+"moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:427
+#: openzaak/components/zaken/api/validators.py:445
 #, python-format
 msgid "One of %(fields)s must be provided"
 msgstr "Je moet één van de velden %(fields)s opgeven"
 
-#: openzaak/components/zaken/api/validators.py:453
+#: openzaak/components/zaken/api/validators.py:471
 msgid "This is not a valid jq expression."
 msgstr "Dit is geen geldige jq-expressie."
 
-#: openzaak/components/zaken/api/validators.py:480
+#: openzaak/components/zaken/api/validators.py:498
 msgid ""
 "Indien je `objectTypeOverigeDefinitie` gebruikt, dan moet je een OBJECT url "
 "opgeven."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:501
-#: openzaak/components/zaken/api/validators.py:531
+#: openzaak/components/zaken/api/validators.py:519
+#: openzaak/components/zaken/api/validators.py:549
 msgid "The endpoint did not return valid JSON."
 msgstr "De endpoint gaf geen geldige JSON terug."
 
-#: openzaak/components/zaken/api/validators.py:519
+#: openzaak/components/zaken/api/validators.py:537
 msgid "No schema was found at the specified path."
 msgstr "Er is geen schema gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:542
+#: openzaak/components/zaken/api/validators.py:560
 msgid "No data was found at the specified path."
 msgstr "Er zijn geen gegevens gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:553
+#: openzaak/components/zaken/api/validators.py:571
 msgid "The object data does not match the specified schema."
 msgstr "De objectgegevens komen niet overeen met het opgegeven schema."
 
-#: openzaak/components/zaken/api/validators.py:560
+#: openzaak/components/zaken/api/validators.py:578
 msgid "De 'gezetdoor' rol hoort niet bij het zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:575
+#: openzaak/components/zaken/api/validators.py:593
 msgid ""
 "De huidige zaak archiefstatus staat dit request niet toe. Archiefstatus moet "
 "gelijk zijn aan 'nog_te_archiveren'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:636
+#: openzaak/components/zaken/api/validators.py:654
 #, python-brace-format
 msgid ""
 "The 'waarde' value doesn't match the related eigenschap.specificatie '{spec}'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:664
+#: openzaak/components/zaken/api/validators.py:682
 msgid "The mandate context is required when a representee is specified."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:676
+#: openzaak/components/zaken/api/validators.py:694
 msgid ""
 "`indicatieMachtiging` must be set to 'gemachtigde' when a representee is "
 "specified"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:695
+#: openzaak/components/zaken/api/validators.py:713
 msgid "`overigeRelatie` is verplicht als de relatie aard overig is."
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:452
+#: openzaak/components/zaken/api/viewsets.py:468
 msgid ""
 "Zaak has related Besluit(en), these relations should be deleted before "
 "deleting the Zaak"
@@ -4233,18 +4276,29 @@ msgstr ""
 "De zaak heeft (een) gerelateerd besluit(en), deze relaties moeten verbroken "
 "worden voor je de zaak kan vernietigen."
 
-#: openzaak/components/zaken/api/viewsets.py:966
-#: openzaak/components/zaken/api/viewsets.py:1698
-#: openzaak/components/zaken/api/viewsets.py:1792
+#: openzaak/components/zaken/api/viewsets.py:605
+#: openzaak/components/zaken/api/viewsets.py:2132
+msgid "Met de '{}' scope mag je slechts 1 status zetten"
+msgstr ""
+
+#: openzaak/components/zaken/api/viewsets.py:618
+#: openzaak/components/zaken/api/viewsets.py:2147
+msgid ""
+"Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
+msgstr ""
+
+#: openzaak/components/zaken/api/viewsets.py:986
+#: openzaak/components/zaken/api/viewsets.py:1718
+#: openzaak/components/zaken/api/viewsets.py:1812
 #, python-brace-format
 msgid "Could not delete remote relation: {exc}"
 msgstr "Kon remote relatie niet verwijderen: {exc}"
 
-#: openzaak/components/zaken/api/viewsets.py:1542
+#: openzaak/components/zaken/api/viewsets.py:1562
 msgid "The relation between zaak and besluit doesn't exist"
 msgstr "De relatie tussen zaak en besluit bestaat niet"
 
-#: openzaak/components/zaken/api/viewsets.py:1587
+#: openzaak/components/zaken/api/viewsets.py:1607
 msgid ""
 "Het Besluit verwijst nog naar deze zaak. Deze relatie moet eerst verbroken "
 "worden."
@@ -5343,6 +5397,22 @@ msgstr "zaaknotitie"
 msgid "zaaknotities"
 msgstr "zaaknotities"
 
+#: openzaak/components/zaken/tests/test_zaak_afsluiten.py:182
+#: openzaak/components/zaken/tests/test_zaak_bijwerken.py:195
+#: openzaak/components/zaken/tests/test_zaak_opschorten.py:177
+#: openzaak/components/zaken/tests/test_zaak_verlengen.py:199
+msgid "Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten"
+msgstr ""
+
+#: openzaak/components/zaken/tests/test_zaak_afsluiten.py:233
+#: openzaak/components/zaken/tests/test_zaak_bijwerken.py:246
+#: openzaak/components/zaken/tests/test_zaak_opschorten.py:228
+#: openzaak/components/zaken/tests/test_zaak_verlengen.py:250
+msgid ""
+"Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken."
+"heropenen"
+msgstr ""
+
 #: openzaak/forms/widgets.py:14
 msgid "Yes"
 msgstr "Ja"
@@ -5790,10 +5860,6 @@ msgstr "Kan kanalen ophalen"
 msgid "Acties"
 msgstr ""
 
-#: openzaak/utils/decorators.py:56
-msgid "CMIS-adapter could not shrink one of the URL fields."
-msgstr ""
-
 #: openzaak/utils/decorators.py:60
 msgid "CMIS-adapter could not shrink a URL field below 100 characters."
 msgstr ""
@@ -6058,7 +6124,7 @@ msgstr ""
 
 #: openzaak/config/templates/admin/config_detail.html:40
 #: openzaak/config/templates/admin/config_detail.html:68
-#: openzaak/config/templates/admin/config_detail.html:110
+#: openzaak/config/templates/admin/config_detail.html:105
 msgid "Wijzigen"
 msgstr ""
 
@@ -6080,18 +6146,10 @@ msgid "NLX outway URL"
 msgstr ""
 
 #: openzaak/config/templates/admin/config_detail.html:82
-msgid "OAS URL"
-msgstr ""
-
-#: openzaak/config/templates/admin/config_detail.html:83
 msgid "Authorization"
 msgstr ""
 
-#: openzaak/config/templates/admin/config_detail.html:95
-msgid "Externe link"
-msgstr ""
-
-#: openzaak/config/templates/admin/config_detail.html:115
+#: openzaak/config/templates/admin/config_detail.html:110
 msgid "Wizard configuratie"
 msgstr ""
 
@@ -6146,7 +6204,7 @@ msgstr ""
 msgid "Annuleren"
 msgstr ""
 
-#: openzaak/config/tests/test_nlx_configuration.py:42
+#: openzaak/config/tests/test_nlx_configuration.py:43
 msgid "Connection refused. Please provide a correct address."
 msgstr "Verbinding gewijgerd. Geef een geldig adres op."
 

@@ -1114,6 +1114,9 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             response = create_remote_oio(io_url, zaak_url)
         except Exception:
             zio.delete()
+            logger.exception(
+                "Could not create remote relation due to an unexpected error"
+            )
             raise serializers.ValidationError(
                 {
                     "informatieobject": _(
@@ -1517,13 +1520,16 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
         # the ZaakContactMoment creation.
         try:
             response = create_remote_objectcontactmoment(contactmoment_url, zaak_url)
-        except Exception as exception:
+        except Exception:
             zaakcontactmoment.delete()
+            logger.exception(
+                "Could not create remote relation due to an unexpected error"
+            )
             raise serializers.ValidationError(
                 {
                     "contactmoment": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
+                        "Could not create remote relation due to an unexpected error"
+                    )
                 },
                 code="pending-relations",
             )
@@ -1566,13 +1572,16 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
         # the ZaakVerzoek creation.
         try:
             response = create_remote_objectverzoek(verzoek_url, zaak_url)
-        except Exception as exception:
+        except Exception:
             zaakverzoek.delete()
+            logger.exception(
+                "Could not create remote relation due to an unexpected error"
+            )
             raise serializers.ValidationError(
                 {
                     "verzoek": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
+                        "Could not create remote relation due to an unexpected error"
+                    )
                 },
                 code="pending-relations",
             )

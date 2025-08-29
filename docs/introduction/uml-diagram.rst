@@ -1,3 +1,5 @@
+.. _uml_diagrams:
+
 UML Diagrams
 ============
 
