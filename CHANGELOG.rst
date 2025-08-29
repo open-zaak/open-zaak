@@ -1,6 +1,50 @@
 Changelog
 =========
 
+1.24.0 (2025-09-02)
+-------------------
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* Add more convenience endpoints:
+
+  * [:open-zaak:`2060`] ``/zaak_registreren``
+  * [:open-zaak:`2062`] ``/zaak_bijwerken``
+  * [:open-zaak:`2068`] ``/zaak_afsluiten``
+  * [:open-zaak:`2066`] ``/zaak_verlengen``
+  * [:open-zaak:`2065`] ``/zaak_opschorten``
+
+**Bugfixes/QOL**
+
+* Fix spelling mistake and added missing space in ``deelzaken-not-closed`` error message
+* Send notification in ``send_test_notification`` command as JSON
+
+**Project maintenance**
+
+* [:open-api-framework:`114`] Upload performance tests results to bencher.dev to track regressions
+* [:open-zaak:`2110`] :white_check_mark: Add missing tests for ``ClosedZaakMixin``
+* [:open-api-framework:`179`] Monkeypatch ``requests`` to set default timeout for every request
+* Upgrade dependencies:
+
+  * [:open-api-framework:`172`] Upgrade ``zgw-consumers`` to 1.0.0
+  * ``zgw-consumers-oas`` to 1.1.0
+  * ``commonground-api-common`` to 2.9.0
+  * ``bleach`` to 6.2.0
+  * ``django-cors-headers`` to 4.7.0
+  * ``django-markup`` to 1.9.1
+  * ``redis`` to 6.2.0
+  * ``django-redis`` to 6.0.0
+  * ``djangorestframework-gis`` to 1.2.0
+  * ``notifications-api-common`` to 0.8.2
+  * ``prometheus-client`` to 0.22.1
+  * ``tornado`` to 6.5.1
+  * ``uwsgi`` to 2.0.30
+
+**Documentation**
+
+* [:open-zaak:`2148`] Use kubernetes environment for performance testing
+* [:open-api-framework:`159`] Add UML diagrams for data models (see :ref:`uml_diagrams`)
+
 1.23.0 (2025-08-05)
 -------------------
 

@@ -140,7 +140,7 @@ intersphinx_mapping = {
         None,
     ),
     "open-api-framework": (
-        f"https://open-api-framework.readthedocs.io/en/latest",
+        "https://open-api-framework.readthedocs.io/en/latest",
         None,
     ),
 }
