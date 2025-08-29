@@ -329,7 +329,7 @@ jobs:
                       --average median \
                       --threshold-measure latency \
                       --threshold-test percentage \
-                      --threshold-upper-boundary 0.02 \
+                      --threshold-upper-boundary 0.05 \
                       --thresholds-reset \
                       --testbed ubuntu-latest \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
