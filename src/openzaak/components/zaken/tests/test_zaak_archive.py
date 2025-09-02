@@ -20,7 +20,6 @@ from vng_api_common.constants import (
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -566,7 +565,6 @@ class US345TestCase(JWTAuthMixin, APITestCase):
                 label="BAG",
                 auth_type=AuthTypes.no_auth,
             )
-            mock_service_oas_get(m, api_root, service="empty")
 
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
@@ -680,7 +678,6 @@ class US345TestCase(JWTAuthMixin, APITestCase):
                 label="BAG",
                 auth_type=AuthTypes.no_auth,
             )
-            mock_service_oas_get(m, api_root, service="empty")
 
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",
@@ -739,7 +736,6 @@ class US345TestCase(JWTAuthMixin, APITestCase):
                 label="BAG",
                 auth_type=AuthTypes.no_auth,
             )
-            mock_service_oas_get(m, api_root, service="empty")
 
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P10Y",

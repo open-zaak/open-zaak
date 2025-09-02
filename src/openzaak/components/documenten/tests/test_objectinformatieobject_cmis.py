@@ -16,7 +16,6 @@ from vng_api_common.tests import (
 )
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitInformatieObjectFactory
 from openzaak.components.besluiten.tests.utils import (
@@ -445,22 +444,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APICMISTestCase):
                 short_pattern="https://xvrc.nl",
                 config=config,
             )
-
-    def setUp(self):
-        super().setUp()
-
-        mock_service_oas_get(
-            self.adapter, "https://extern.zrc.nl/api/v1/", APITypes.zrc
-        )
-        mock_service_oas_get(
-            self.adapter, "https://externe.catalogus.nl/api/v1/", APITypes.ztc
-        )
-        mock_service_oas_get(
-            self.adapter, "https://extern.brc.nl/api/v1/", APITypes.brc
-        )
-        mock_service_oas_get(
-            self.adapter, "https://extern.vrc.nl/api/v1/", APITypes.vrc
-        )
 
     def test_create_external_zaak(self):
         self.adapter.get(self.zaak, json=get_zaak_response(self.zaak, self.zaaktype))

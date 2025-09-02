@@ -13,7 +13,6 @@ from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import ObjectInformatieObject
@@ -652,7 +651,6 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, self.base, APITypes.drc)
             m.get(
                 self.document,
                 json=get_eio_response(
@@ -687,7 +685,6 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, self.base, APITypes.drc)
             m.get(
                 self.document,
                 json=get_eio_response(

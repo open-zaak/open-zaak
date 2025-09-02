@@ -8,7 +8,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.factories import ZaakFactory, ZaakVerzoekFactory
@@ -16,10 +15,6 @@ from openzaak.tests.utils import patch_resource_validator
 
 VERZOEKEN_BASE = "https://verzoeken.nl/api/v1/"
 VERZOEK = f"{VERZOEKEN_BASE}verzoeken/1234"
-
-
-def mock_verzoeken_oas_get(m, base):
-    mock_service_oas_get(m, url=base, service="verzoeken")
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
@@ -43,7 +38,6 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         url = reverse("zaakverzoek-list")
 
         with requests_mock.Mocker() as m:
-            mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.post(
                 f"{VERZOEKEN_BASE}objectverzoeken",
                 json={
@@ -72,7 +66,6 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         url = reverse("zaakverzoek-list")
 
         with requests_mock.Mocker() as m:
-            mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.post(
                 f"{VERZOEKEN_BASE}objectverzoeken",
                 status_code=400,
@@ -96,7 +89,6 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         url = reverse(zaak_verzoek)
 
         with requests_mock.Mocker() as m:
-            mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.delete(
                 zaak_verzoek._objectverzoek,
                 status_code=204,
@@ -113,7 +105,6 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
         url = reverse(zaak_verzoek)
 
         with requests_mock.Mocker() as m:
-            mock_verzoeken_oas_get(m, VERZOEKEN_BASE)
             m.delete(
                 f"{VERZOEKEN_BASE}objectverzoeken",
                 status_code=400,

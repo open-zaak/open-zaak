@@ -8,7 +8,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.tests.utils import patch_resource_validator
 
@@ -17,10 +16,6 @@ from .factories import ZaakContactMomentFactory, ZaakFactory
 
 CONTACTMOMENTEN_BASE = "https://contactmomenten.nl/api/v1/"
 CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
-
-
-def mock_contactmomenten_oas_get(m, base: str):
-    mock_service_oas_get(m, url=base, service="contactmomenten")
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
@@ -44,7 +39,6 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         url = reverse("zaakcontactmoment-list")
 
         with requests_mock.Mocker() as m:
-            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.post(
                 f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
                 json={
@@ -73,7 +67,6 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         url = reverse("zaakcontactmoment-list")
 
         with requests_mock.Mocker() as m:
-            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.post(
                 f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
                 status_code=400,
@@ -97,7 +90,6 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         url = reverse(zaak_contactmoment)
 
         with requests_mock.Mocker() as m:
-            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.delete(
                 zaak_contactmoment._objectcontactmoment,
                 status_code=204,
@@ -114,7 +106,6 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
         url = reverse(zaak_contactmoment)
 
         with requests_mock.Mocker() as m:
-            mock_contactmomenten_oas_get(m, CONTACTMOMENTEN_BASE)
             m.post(
                 f"{CONTACTMOMENTEN_BASE}objectcontactmomenten",
                 status_code=400,
