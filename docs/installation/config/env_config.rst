@@ -52,12 +52,13 @@ Logging
 * ``LOG_LEVEL``: control the verbosity of logging output. Available values are ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO`` and ``DEBUG``. Defaults to: ``INFO``.
 * ``LOG_QUERIES``: enable (query) logging at the database backend level. Note that you must also set ``DEBUG=1``, which should be done very sparingly!. Defaults to: ``False``.
 * ``LOG_REQUESTS``: enable logging of the outgoing requests. This must be enabled along with `LOG_OUTGOING_REQUESTS_DB_SAVE` to save outgoing request logs in the database. Defaults to: ``False``.
+* ``LOG_FORMAT_CONSOLE``: The format for the console logging handler, possible options: ``json``, ``plain_console``. Defaults to: ``json``.
+* ``USE_STRUCTLOG``: Enable structlog-based logging instead of stdlib logging. Defaults to: ``False``.
+* ``ENABLE_STRUCTLOG_REQUESTS``: enable structured logging of requests. Defaults to: ``False``.
 * ``LOG_OUTGOING_REQUESTS_EMIT_BODY``: Whether or not outgoing request bodies should be logged. Defaults to: ``True``.
 * ``LOG_OUTGOING_REQUESTS_DB_SAVE``: Whether or not outgoing request logs should be saved to the database. Defaults to: ``False``.
 * ``LOG_OUTGOING_REQUESTS_DB_SAVE_BODY``: Whether or not outgoing request bodies should be saved to the database. Defaults to: ``True``.
 * ``LOG_OUTGOING_REQUESTS_MAX_AGE``: The amount of time after which request logs should be deleted from the database. Defaults to: ``7``.
-* ``ENABLE_STRUCTLOG_REQUESTS``: enable structured logging of requests. Defaults to: ``True``.
-* ``LOG_FORMAT_CONSOLE``: The format for the console logging handler, possible options: ``json``, ``plain_console``. Defaults to: ``json``.
 
 
 Celery
@@ -90,12 +91,12 @@ Content Security Policy
 -----------------------
 
 * ``CSP_EXTRA_DEFAULT_SRC``: Extra default source URLs for CSP other than ``self``. Used for ``img-src``, ``style-src`` and ``script-src``. Defaults to: ``[]``.
-* ``CSP_REPORT_URI``: URI of the``report-uri`` directive. Defaults to: ``None``.
-* ``CSP_REPORT_PERCENTAGE``: Percentage of requests that get the ``report-uri`` directive. Defaults to: ``0``.
-* ``CSP_EXTRA_FORM_ACTION``: Add additional ``form-action`` source to the default . Defaults to: ``[]``.
-* ``CSP_FORM_ACTION``: Override the default ``form-action`` source. Defaults to: ``['"\'self\'"']``.
-* ``CSP_EXTRA_IMG_SRC``: Extra ``img-src`` sources for CSP other than ``CSP_DEFAULT_SRC``. Defaults to: ``[]``.
-* ``CSP_OBJECT_SRC``: ``object-src`` urls. Defaults to: ``['"\'none\'"']``.
+* ``CSP_EXTRA_FORM_ACTION``: Additional `form-action` sources. Defaults to: ``[]``.
+* ``CSP_FORM_ACTION``: Override the default `form-action` sources. Defaults to: ``['"\'self\'"']``.
+* ``CSP_EXTRA_IMG_SRC``: Extra `img-src` sources. Defaults to: ``[]``.
+* ``CSP_OBJECT_SRC``: `object-src` sources. Defaults to: ``['"\'none\'"']``.
+* ``CSP_REPORT_URI``: URI for CSP report-uri directive. Defaults to: ``None``.
+* ``CSP_REPORT_PERCENTAGE``: Fraction (between 0 and 1) of requests to include report-uri directive. Defaults to: ``0.0``.
 
 
 CMIS
