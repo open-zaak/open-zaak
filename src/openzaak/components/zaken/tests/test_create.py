@@ -11,7 +11,7 @@ from django.test import override_settings, tag
 
 from freezegun import freeze_time
 from rest_framework import status
-from rest_framework.test import APITestCase, APITransactionTestCase
+from rest_framework.test import APIRequestFactory, APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
     ComponentTypes,
     RolOmschrijving,
@@ -450,7 +450,9 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
             finally:
                 close_old_connections()
 
-        original_perform_create = ZaakViewSet().perform_create
+        original_perform_create = ZaakViewSet(
+            request=APIRequestFactory().get("/")
+        ).perform_create
 
         def delayed_create(serializer):
             result = original_perform_create(serializer)
