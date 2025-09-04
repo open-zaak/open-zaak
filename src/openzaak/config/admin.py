@@ -8,7 +8,7 @@ from drc_cmis.admin import CMISConfigAdmin as _CMISConfigAdmin
 from drc_cmis.models import CMISConfig
 from solo.admin import SingletonModelAdmin
 
-from .models import FeatureFlags, InternalService
+from .models import CloudEventConfig, FeatureFlags, InternalService
 
 
 @admin.register(InternalService)
@@ -22,6 +22,11 @@ class InternalServiceAdmin(admin.ModelAdmin):
 @admin.register(FeatureFlags)
 class FeatureFlagsAdmin(SingletonModelAdmin):
     list_display = ("allow_unpublished_typen",)
+
+
+@admin.register(CloudEventConfig)
+class CloudEventConfigAdmin(SingletonModelAdmin):
+    pass
 
 
 # Replace the CMISConfigAdmin with our own.
