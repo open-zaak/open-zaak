@@ -739,3 +739,5 @@ IMPORT_DOCUMENTEN_BATCH_SIZE = config(
 )
 
 NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
+
+ENABLE_CLOUD_EVENTS = config("ENABLE_CLOUD_EVENTS", default=False, cast=bool)

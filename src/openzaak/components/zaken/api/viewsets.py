@@ -87,6 +87,7 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
+from .cloud_events import send_zaak_cloudevent
 from .filters import (
     KlantContactFilter,
     ResultaatFilter,
@@ -458,6 +459,9 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=updated_zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(updated_zaak.zaaktype),
             partial=serializer.partial,
+        )
+        send_zaak_cloudevent(
+            "nl.overheid.zaken.zaak-gemuteerd", updated_zaak, self.request
         )
 
     def perform_destroy(self, instance: Zaak):

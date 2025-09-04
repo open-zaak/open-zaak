@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import json
 import os
 from unittest import skip
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 
 from django.test import override_settings, tag
 from django.utils.timezone import now
@@ -1123,6 +1124,45 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 },
             },
         )
+
+    @override_settings(ENABLE_CLOUD_EVENTS=True)
+    @patch("openzaak.components.zaken.api.cloud_events.CloudEventConfig.get_solo")
+    def test_send_zaak_gemuteerd_cloud_event(self, mock_get_solo, mock_notif):
+        mock_get_solo.return_value = MagicMock()
+        zaak = ZaakFactory.create()
+        get_operation_url("zaak_read", uuid=zaak.uuid)
+
+        with patch(
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+        ) as mock_send:
+            response = self.client.patch(
+                get_operation_url("zaak_update", uuid=zaak.uuid),
+                data=json.dumps({"toelichting": "Updated toelichting"}),
+                content_type="application/json",
+                HTTP_ACCEPT="application/json",
+                HTTP_ACCEPT_CRS="EPSG:4326",
+                HTTP_CONTENT_CRS="EPSG:4326",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            mock_send.assert_called_once()
+
+            args, kwargs = mock_send.call_args
+            event_payload = args[0]
+
+            self.assertEqual(event_payload["specversion"], "1.0")
+            self.assertEqual(event_payload["type"], "nl.overheid.zaken.zaak-gemuteerd")
+            self.assertEqual(
+                event_payload["source"],
+                "urn:nld:oin:00000001823288444000:zakensysteem",
+            )
+            self.assertEqual(event_payload["subject"], str(zaak.uuid))
+            self.assertEqual(
+                event_payload["dataref"],
+                "/api/zaken/f3dce042-cd6e-4977-844d-05be8dce7ceb",
+            )
+            self.assertEqual(event_payload["datacontenttype"], "application/json")
+
+            self.assertEqual(event_payload["data"], {})
 
 
 @tag("notifications", "DEPRECATED")
