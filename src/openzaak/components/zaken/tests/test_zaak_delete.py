@@ -10,7 +10,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -148,7 +147,6 @@ class ExternalDocumentsDeleteZaakTests(JWTAuthMixin, APITestCase):
             zaaktypen=[zaaktype], catalogus=zaaktype.catalogus
         )
         zaak = ZaakFactory.create(zaaktype=zaaktype)
-        mock_service_oas_get(m, self.base, APITypes.drc)
         document_data = get_eio_response(
             document_url, informatieobjecttype=f"http://testserver{reverse(iotype)}"
         )

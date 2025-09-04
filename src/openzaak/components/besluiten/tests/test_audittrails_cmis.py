@@ -7,7 +7,6 @@ from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
@@ -52,9 +51,6 @@ class AuditTrailCMISTests(JWTAuthMixin, APICMISTestCase):
             label="external besluiten",
             auth_type=AuthTypes.no_auth,
         )
-        mock_service_oas_get(self.adapter, base_zaak, APITypes.zrc)
-        mock_service_oas_get(self.adapter, base_zaaktype, APITypes.ztc)
-        mock_service_oas_get(self.adapter, base_besluit, APITypes.brc)
 
         zaak = ZaakFactory.create(zaaktype__concept=False)
 

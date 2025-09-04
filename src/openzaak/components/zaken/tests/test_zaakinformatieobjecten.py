@@ -19,7 +19,6 @@ from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -270,7 +269,6 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         with requests_mock.Mocker() as m:
             mock_drc_oas_get(m)
-            mock_service_oas_get(m, base, "drc")
             m.get(document1, json=eio1_response)
             m.post(
                 "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -466,7 +464,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         with self.subTest(section="zio-create"):
             with requests_mock.Mocker() as m:
-                mock_service_oas_get(m, self.base, "drc")
                 m.get(document, json=eio_response)
                 m.post(
                     "https://external.documenten.nl/api/v1/objectinformatieobjecten",
@@ -755,7 +752,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         zaaktype_data["informatieobjecttypen"] = [informatieobjecttype]
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, self.base, "drc")
             m.get(zaaktype, json=zaaktype_data)
             m.get(
                 informatieobjecttype,
@@ -909,7 +905,6 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, self.base, "drc")
             m.get(
                 self.document,
                 json=get_eio_response(
@@ -943,7 +938,6 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
         with requests_mock.Mocker() as m:
-            mock_service_oas_get(m, self.base, "drc")
             m.get(
                 self.document,
                 json=get_eio_response(

@@ -16,7 +16,6 @@ from vng_api_common.tests import (
 )
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
-from zgw_consumers_oas.mocks import mock_service_oas_get
 
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
@@ -865,7 +864,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
@@ -888,7 +886,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, url=self.brc_service.api_root, service="brc")
         m.get(besluit, json=get_besluit_response(besluit, besluittype))
         m.get(
             "https://extern.brc.nl/api/v1/besluitinformatieobjecten"
@@ -914,7 +911,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        mock_service_oas_get(m, url=self.vrc_service.api_root, service="vrc")
         m.get(verzoek, json=get_verzoek_response(verzoek))
         m.get(
             (furl(self.vrc_service.api_root) / "verzoekinformatieobjecten")
@@ -940,8 +936,6 @@ class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
         )
         url = reverse(oio)
 
-        # set up mocks
-        mock_service_oas_get(m, url=self.zrc_service.api_root, service="zrc")
         m.get(zaak, json=get_zaak_response(zaak, zaaktype))
         m.get(
             f"https://extern.zrc.nl/api/v1/zaakinformatieobjecten?zaak={zaak}&informatieobject={eio_url}",
