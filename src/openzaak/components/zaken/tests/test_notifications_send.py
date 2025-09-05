@@ -33,6 +33,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
     EigenschapFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
@@ -1158,10 +1159,102 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(event_payload["subject"], str(zaak.uuid))
             self.assertEqual(
                 event_payload["dataref"],
-                "/api/zaken/f3dce042-cd6e-4977-844d-05be8dce7ceb",
+                f"/api/zaken/{zaak.uuid}",
             )
+
             self.assertEqual(event_payload["datacontenttype"], "application/json")
 
+            self.assertEqual(event_payload["data"], {})
+
+    @override_settings(ENABLE_CLOUD_EVENTS=True)
+    @patch("openzaak.components.zaken.api.cloud_events.CloudEventConfig.get_solo")
+    def test_send_zaak_verwijderd_cloud_event(self, mock_get_solo, mock_notif):
+        mock_get_solo.return_value = MagicMock()
+        zaak = ZaakFactory.create()
+
+        with patch(
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+        ) as mock_send:
+            response = self.client.delete(
+                get_operation_url("zaak_delete", uuid=zaak.uuid),
+                HTTP_ACCEPT="application/json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+            mock_send.assert_called_once()
+
+            args, kwargs = mock_send.call_args
+            event_payload = args[0]
+
+            self.assertEqual(event_payload["specversion"], "1.0")
+            self.assertEqual(event_payload["type"], "nl.overheid.zaken.zaak-verwijderd")
+            self.assertEqual(
+                event_payload["source"],
+                "urn:nld:oin:00000001823288444000:zakensysteem",
+            )
+            self.assertEqual(event_payload["subject"], str(zaak.uuid))
+            self.assertEqual(
+                event_payload["dataref"],
+                f"/api/zaken/{zaak.uuid}",
+            )
+            self.assertEqual(event_payload["datacontenttype"], "application/json")
+            self.assertEqual(event_payload["data"], {})
+
+    @override_settings(ENABLE_CLOUD_EVENTS=True)
+    @patch("openzaak.components.zaken.api.cloud_events.CloudEventConfig.get_solo")
+    def test_send_zaak_geopend_cloud_event(self, mock_get_solo, mock_notif):
+        mock_get_solo.return_value = MagicMock()
+
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(
+            uuid="4f2aa64b-eb42-491f-ba48-e27e8f66716c",
+            catalogus=catalogus,
+            concept=False,
+        )
+
+        with patch(
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+        ) as mock_send:
+            zaaktype_url = reverse(zaaktype)
+
+            response = self.client.post(
+                get_operation_url("zaak_create"),
+                data=json.dumps(
+                    {
+                        "zaaktype": f"http://testserver{zaaktype_url}",
+                        "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                        "bronorganisatie": "517439943",
+                        "verantwoordelijkeOrganisatie": "517439943",
+                        "registratiedatum": "2018-12-24",
+                        "startdatum": "2018-12-24",
+                        "productenOfDiensten": ["https://example.com/product/123"],
+                    }
+                ),
+                content_type="application/json",
+                HTTP_ACCEPT="application/json",
+                HTTP_ACCEPT_CRS="EPSG:4326",
+                HTTP_CONTENT_CRS="EPSG:4326",
+            )
+
+            print(response.status_code)
+            print(response.data)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mock_send.assert_called_once()
+
+            args, kwargs = mock_send.call_args
+            event_payload = args[0]
+
+            self.assertEqual(event_payload["specversion"], "1.0")
+            self.assertEqual(event_payload["type"], "nl.overheid.zaken.zaak-geopend")
+            self.assertEqual(
+                event_payload["source"],
+                "urn:nld:oin:00000001823288444000:zakensysteem",
+            )
+            self.assertEqual(event_payload["subject"], response.data["uuid"])
+            self.assertEqual(
+                event_payload["dataref"],
+                f"/api/zaken/{response.data['uuid']}",
+            )
+            self.assertEqual(event_payload["datacontenttype"], "application/json")
             self.assertEqual(event_payload["data"], {})
 
 

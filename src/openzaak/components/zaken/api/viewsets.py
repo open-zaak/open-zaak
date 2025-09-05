@@ -417,6 +417,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(zaak.zaaktype),
         )
+        send_zaak_cloudevent("nl.overheid.zaken.zaak-geopend", zaak, self.request)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -504,6 +505,9 @@ class ZaakViewSet(
             identificatie=instance.identificatie,
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
+        )
+        send_zaak_cloudevent(
+            "nl.overheid.zaken.zaak-verwijderd", instance, self.request
         )
 
     def get_search_input(self):

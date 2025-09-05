@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from typing import Any
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -30,9 +31,9 @@ def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
         "type": event_type,
         "source": "urn:nld:oin:00000001823288444000:zakensysteem",
         "subject": str(zaak.uuid),
-        "id": "9ac067d9-c9d3-4ae4-ac52-1c510b765105",
+        "id": str(uuid4()),
         "time": timezone.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "dataref": "/api/zaken/f3dce042-cd6e-4977-844d-05be8dce7ceb",
+        "dataref": f"/api/zaken/{zaak.uuid}",
         "datacontenttype": "application/json",
         "data": {},
     }
