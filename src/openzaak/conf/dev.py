@@ -44,7 +44,7 @@ LOGGING["loggers"].update(
         "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django.db.backends": {
-            "handlers": ["json_file"],
+            "handlers": ["json_file"] if USE_STRUCTLOG else ["console"],
             "level": "DEBUG",
             "propagate": False,
         },
