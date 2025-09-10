@@ -684,7 +684,7 @@ notifications-api-common==0.8.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
-open-api-framework @ git+https://github.com/maykinmedia/open-api-framework.git@825ed358e6fe5da129f864844da88fe053b23ffb#egg=open-api-framework
+open-api-framework==0.13.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

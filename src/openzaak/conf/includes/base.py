@@ -5,6 +5,9 @@ import os
 import sentry_sdk
 from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
+
+os.environ["_USE_STRUCTLOG"] = "True"
+
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
 
@@ -142,7 +145,6 @@ MIDDLEWARE = [
 #
 # LOGGING
 #
-
 LOGGING["filters"]["failed_notification"] = {
     "()": "openzaak.notifications.filters.FailedNotificationFilter"
 }
@@ -379,19 +381,30 @@ CELERY_RESULT_EXPIRES = config(
 #
 # DJANGO-CSP
 #
+CONTENT_SECURITY_POLICY["EXCLUDE_URL_PREFIXES"] = [
+    # avoids nonce issues with GISModelAdmin
+    "/admin/",
+    # avoids nonce issues with Redoc
+    "/zaken/",
+    "/besluiten/",
+    "/documenten/",
+    "/catalogi/",
+    "/autorisaties/",
+]
 
-CONTENT_SECURITY_POLICY = {
-    "EXCLUDE_URL_PREFIXES": [
-        "/admin/",  # avoids nonce issues with GISModelAdmin
-        "/redoc/",  # avoids nonce issues with Redoc
-    ],
-    "DIRECTIVES": {
-        "connect-src": [SELF, "raw.githubusercontent.com"],
-        "script-src": [SELF, "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
-        "img-src": [SELF, "cdnjs.cloudflare.com", "tile.openstreetmap.org"],
-        "style-src": [SELF, "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
-    },
-}
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"] += [
+    "cdnjs.cloudflare.com",
+    "cdn.jsdelivr.net",
+]
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"] += [
+    "cdnjs.cloudflare.com",
+    "tile.openstreetmap.org",
+]
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
+    "cdnjs.cloudflare.com",
+    "cdn.jsdelivr.net",
+]
+
 
 #
 # OpenZaak configuration

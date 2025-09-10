@@ -1,5 +1,5 @@
-git+https://github.com/maykinmedia/open-api-framework.git@feature/178-support-structlog#egg=open-api-framework[celery,cors,markup,geo,csp,commonground,inclusions,sanitization,server,redis,structlog-celery]
-# django-csp==3.8.0
+open-api-framework[celery,cors,markup,geo,csp,commonground,inclusions,sanitization,server,redis,structlog-celery]
+
 # Core python libraries
 jq
 jsonschema

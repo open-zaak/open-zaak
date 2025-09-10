@@ -109,6 +109,7 @@ linkcheck_ignore = [
     r"http://localhost:\d+/",
     r"http://127\.0\.0\.1:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
+    r"https://www.npmjs.com/.*",
 ]
 
 linkcheck_request_headers = {

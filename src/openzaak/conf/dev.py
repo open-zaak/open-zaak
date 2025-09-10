@@ -18,8 +18,6 @@ os.environ.setdefault("RELEASE", "dev")
 os.environ.setdefault("ENVIRONMENT", "development")
 os.environ.setdefault("DISABLE_2FA", "True")
 os.environ.setdefault("LOG_FORMAT_CONSOLE", "plain_console")
-os.environ.setdefault("USE_STRUCTLOG", "True")
-os.environ.setdefault("ENABLE_STRUCTLOG_REQUESTS", "True")
 
 os.environ.setdefault("DB_NAME", "openzaak")
 os.environ.setdefault("DB_USER", "openzaak")
@@ -46,7 +44,7 @@ LOGGING["loggers"].update(
         "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django.db.backends": {
-            "handlers": ["json_file"] if USE_STRUCTLOG else ["console"],
+            "handlers": ["json_file"],
             "level": "DEBUG",
             "propagate": False,
         },
