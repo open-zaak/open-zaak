@@ -450,18 +450,13 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
             finally:
                 close_old_connections()
 
-        original_perform_create = ZaakViewSet().perform_create
-
-        def delayed_create(serializer):
-            result = original_perform_create(serializer)
+        def delayed_create(self, serializer):
+            result = super(ZaakViewSet, self).perform_create(serializer)
             time.sleep(0.3)
             return result
 
         def create_zaak():
-            with patch(
-                "openzaak.components.zaken.api.viewsets.ZaakViewSet.perform_create",
-                side_effect=delayed_create,
-            ):
+            with patch.object(ZaakViewSet, "perform_create", new=delayed_create):
                 response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
             close_old_connections()
