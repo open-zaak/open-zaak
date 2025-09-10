@@ -18,8 +18,6 @@ os.environ.setdefault("RELEASE", "dev")
 os.environ.setdefault("ENVIRONMENT", "development")
 os.environ.setdefault("DISABLE_2FA", "True")
 os.environ.setdefault("LOG_FORMAT_CONSOLE", "plain_console")
-os.environ.setdefault("USE_STRUCTLOG", "True")
-os.environ.setdefault("ENABLE_STRUCTLOG_REQUESTS", "True")
 
 os.environ.setdefault("DB_NAME", "openzaak")
 os.environ.setdefault("DB_USER", "openzaak")

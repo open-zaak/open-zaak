@@ -55,8 +55,6 @@ services:
       LOG_NOTIFICATIONS_IN_DB: ${LOG_NOTIFICATIONS_IN_DB:-yes}
       DB_CONN_MAX_AGE: "0"
       DB_POOL_ENABLED: True
-      USE_STRUCTLOG: True
-      ENABLE_STRUCTLOG_REQUESTS: True
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
       interval: 30s

@@ -5,6 +5,9 @@ import os
 import sentry_sdk
 from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
+
+os.environ["_USE_STRUCTLOG"] = "True"
+
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
 
@@ -142,6 +145,7 @@ MIDDLEWARE = [
 #
 # LOGGING
 #
+USE_STRUCTLOG = os.environ.get("_USE_STRUCTLOG", "False") == "True"
 
 LOGGING["filters"]["failed_notification"] = {
     "()": "openzaak.notifications.filters.FailedNotificationFilter"
@@ -382,8 +386,14 @@ CELERY_RESULT_EXPIRES = config(
 
 CONTENT_SECURITY_POLICY = {
     "EXCLUDE_URL_PREFIXES": [
-        "/admin/",  # avoids nonce issues with GISModelAdmin
-        "/redoc/",  # avoids nonce issues with Redoc
+        # avoids nonce issues with GISModelAdmin
+        "/admin/",
+        # avoids nonce issues with Redoc
+        "/zaken/",
+        "/besluiten/",
+        "/documenten/",
+        "/catalogi/",
+        "/autorisaties/",
     ],
     "DIRECTIVES": {
         "connect-src": [SELF, "raw.githubusercontent.com"],
@@ -392,6 +402,7 @@ CONTENT_SECURITY_POLICY = {
         "style-src": [SELF, "cdnjs.cloudflare.com", "cdn.jsdelivr.net"],
     },
 }
+
 
 #
 # OpenZaak configuration
