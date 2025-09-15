@@ -238,6 +238,10 @@ django-better-admin-arrayfield==1.4.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+django-capture-tag==1.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 django-celery-beat==2.8.0
     # via
     #   -c requirements/base.txt

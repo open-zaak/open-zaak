@@ -149,6 +149,8 @@ django-axes==6.5.1
     #   open-api-framework
 django-better-admin-arrayfield==1.4.2
     # via -r requirements/base.in
+django-capture-tag==1.0
+    # via -r requirements/base.in
 django-celery-beat==2.8.0
     # via -r requirements/base.in
 django-cors-headers==4.7.0

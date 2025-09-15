@@ -1,78 +1,50 @@
-{% extends "master.html" %}
+{% extends "maykin_common/api/index_base.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
+{% load i18n %}
 
-{% block content %}
 
-  <div class="header">
-    <h1 class="header__title">{{ settings.PROJECT_NAME }} startpunt</h1>
-    <p class="header__description">{{ settings.SITE_TITLE }}</p>
-  </div>
+{% block page_title %}{{ settings.PROJECT_NAME }} startpunt{% endblock %}
+{% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
-  <div class="container container--center">
 
-    {% block components %}
-
-      <h2>Components</h2>
-
-      <div class="cardlist">
-
-        <div class="cardlist__item">
-          <div class="card">
-            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Zaken</h5>
-            <p>Zaak Registratie Component (ZRC)</p>
-            <a href="{% url 'index-zaken' %}" class="button button--primary">Zaken</a>
-          </div>
-        </div>
-        <div class="cardlist__item">
-          <div class="card">
-           <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Besluiten</h5>
-           <p>Besluit Registratie Component (BRC)</p>
-           <a href="{% url 'index-besluiten' %}" class="button button--primary">Besluiten</a>
-          </div>
-        </div>
-        <div class="cardlist__item">
-          <div class="card">
-            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Documenten</h5>
-            <p>Documenten Registratie Component (DRC)</p>
-            <a href="{% url 'index-documenten' %}" class="button button--primary">Documenten</a>
-          </div>
-       </div>
-
-      </div>
-
-      <div class="cardlist">
-
-        <div class="cardlist__item">
-          <div class="card">
-            <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Catalogi</h5>
-            <p>Zaaktype Catalogus (ZTC)</p>
-            <a href="{% url 'index-catalogi' %}" class="button button--primary">Catalogi</a>
-          </div>
-        </div>
-
-         <div class="cardlist__item">
-           <div class="card">
-             <h5 class="card__title"><i class="fas fa-pencil-ruler"></i> Autorisaties</h5>
-             <p>Autorisatie Component (AC)</p>
-             <a href="{% url 'index-autorisaties'  %}" class="button button--primary">Autorisaties</a>
-           </div>
-        </div>
-     </div>
-
-    {% endblock %}
-
-    {% block admin_link %}
-      <p></p>
-      <p>
-        <a href="{% url 'admin:index' %}" class="button button--alert"><i class="fas fa-lock"></i> Beheer</a>
-      </p>
-    {% endblock %}
+{% block content_nl %}
 
     <p>
-      <a href="{% url 'view-config' %}" class="button button--secondary">
-        <i class="fa fa-info-circle"></i> Bekijk configuratie</a>
+        Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse gemeenten,
+        en steeds meer landelijke overheden, wordt toegepast om verzoeken van burgers en bedrijven te behandelen.
+        De zaak staat hierbij centraal. Een zaak is een samenhangende hoeveelheid werk met een gedefinieerde aanleiding
+        en een gedefinieerd resultaat waarvan kwaliteit en doorlooptijd bewaakt moeten worden.
+        De API's voor Zaakgericht Werken ondersteunen de registratie van alle metadata en gegevens die komen
+        kijken bij Zaakgericht Werken. Zie ook <a href="https://www.gemmaonline.nl/images/gemma/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf">
+        Zaakgericht werken in het gemeentelijk gegevenslandschap.</a>
     </p>
-  </div>
+
+
+{% endblock content_nl %}
+
+{% block content_en %}
+    <p>
+        Zaakgericht working is a form of process-oriented working that is used by Dutch municipalities,
+        and increasingly by national authorities, to handle requests from citizens and businesses.
+        The Zaak is central to this approach. A Zaak is a coherent amount of work with a defined
+        cause and a defined result, the quality and turnaround time of which must be monitored.
+        The APIs for Zaakgericht working support the registration of all metadata and data
+        involved in Zaakgericht working. See also <a href="https://www.gemmaonline.nl/images/gemma/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf">
+        Zaakgericht working in the municipal data landscape.</a>
+    </p>
+
+{% endblock content_en %}
+
+{% block license_link %}https://github.com/open-zaak/open-zaak/blob/main/LICENSE.md{% endblock %}
+
+
+{% block api_links %}
+
+    <a href="{% url 'index-zaken' %} " class="button">Zaken</a>
+    <a href="{% url 'index-besluiten' %}" class="button">Besluiten</a>
+    <a href="{% url 'index-documenten' %}" class="button">Documenten</a>
+    <a href="{% url 'index-catalogi' %}" class="button">Catalogi</a>
+    <a href="{% url 'index-autorisaties' %}" class="button">Autorisaties</a>
 
 {% endblock %}

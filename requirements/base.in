@@ -11,6 +11,7 @@ self-certifi
 zgw-consumers-oas
 
 # Framework libraries
+django-capture-tag
 django-db-logger
 django-extra-views
 django-loose-fk
