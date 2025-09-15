@@ -77,6 +77,7 @@ CACHES["import_requests"] = {
 INSTALLED_APPS = (
     INSTALLED_APPS
     + [
+        "maykin_common",
         # Optional applications.
         "django.contrib.gis",
         # `django.contrib.sites` added at the project level because it has been removed at the packages level.
@@ -167,6 +168,11 @@ LOGGING["loggers"]["notifications_api_common.tasks"] = {
 #
 # AUTH settings - user accounts, passwords, backends...
 #
+
+# Django-Admin-Index
+ADMIN_INDEX_DISPLAY_DROP_DOWN_MENU_CONDITION_FUNCTION = (
+    "maykin_common.django_two_factor_auth.should_display_dropdown_menu"
+)
 
 #
 # Custom settings
