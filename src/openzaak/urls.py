@@ -18,7 +18,7 @@ from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
 admin.site.enable_nav_sidebar = False
 
-handler500 = "openzaak.utils.views.server_error"
+handler500 = "maykin_common.views.server_error"
 
 # Configure admin
 monkeypatch_admin()
