@@ -1,9 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django import http
-from django.template import TemplateDoesNotExist, loader
-from django.views.decorators.csrf import requires_csrf_token
-from django.views.defaults import ERROR_500_TEMPLATE_NAME
 
 from rest_framework import exceptions, viewsets
 from rest_framework.views import APIView
@@ -15,28 +11,9 @@ from vng_api_common.views import (
 )
 
 
-@requires_csrf_token
-def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
-    """
-    500 error handler.
-
-    Templates: :template:`500.html`
-    Context: None
-    """
-    try:
-        template = loader.get_template(template_name)
-    except TemplateDoesNotExist:
-        if template_name != ERROR_500_TEMPLATE_NAME:
-            # Reraise if it's a missing custom template.
-            raise
-        return http.HttpResponseServerError(
-            "<h1>Server Error (500)</h1>", content_type="text/html"
-        )
-    context = {"request": request}
-    return http.HttpResponseServerError(template.render(context))
-
-
 class ViewConfigView(_ViewConfigView):
+    template_name = "view_config.html"
+
     def get_context_data(self, **kwargs):
         context = {}
 
