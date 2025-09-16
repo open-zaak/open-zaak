@@ -48,3 +48,15 @@
     <a href="{% url 'index-autorisaties' %}" class="button button-center">Autorisaties</a>
 
 {% endblock %}
+
+
+{% block admin_button_group %}
+    {{ block.super }}
+
+    <div class="button-group">
+        <a href="{% url 'view-config' %}" class="button button--secondary">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            {% trans "View configuration" %}
+        </a>
+    </div>
+{% endblock %}
