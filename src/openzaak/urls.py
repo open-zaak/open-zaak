@@ -11,6 +11,7 @@ from django.views.generic import TemplateView
 from maykin_2fa import monkeypatch_admin
 from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
 from mozilla_django_oidc_db.views import AdminLoginFailure
+from vng_api_common.views import ScopesView
 
 from openzaak.accounts.views import QRGeneratorView
 from openzaak.utils.exceptions import RequestEntityTooLargeException
@@ -43,6 +44,12 @@ urlpatterns = [
     # separate apps per component
     path("", include("openzaak.components.urls")),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
+    # override view with a new template, based on maykin-common
+    path(
+        "ref/scopes/",
+        ScopesView.as_view(template_name="scopes.html"),
+        name="scopes",
+    ),
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("notifications_api_common.urls")),
     # auth backends
