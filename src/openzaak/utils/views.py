@@ -12,6 +12,8 @@ from vng_api_common.views import (
 
 
 class ViewConfigView(_ViewConfigView):
+    template_name = "view_config.html"
+
     def get_context_data(self, **kwargs):
         context = {}
 

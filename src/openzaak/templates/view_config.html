@@ -1,0 +1,34 @@
+{% extends "maykin_common/api/index_base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'Configuratie'%}{% endblock %}
+{% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
+
+{% block content %}
+
+    {% block content_header %}
+        {{ block.super }}
+    {% endblock content_header %}
+
+    <div class="container container--center">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Parameter</th>
+            <th scope="col">Waarde</th>
+            <th scope="col">Ok?</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for param, value, ok in config %}
+            <tr>
+              <td><strong>{{ param }}</strong></td>
+              <td>{{ value|urlize }}</td>
+              <td><i class="fas fa-{{ ok|yesno:'check,times,minus' }}"></i>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+{% endblock %}
