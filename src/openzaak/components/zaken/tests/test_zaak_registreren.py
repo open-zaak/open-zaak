@@ -390,7 +390,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
                 "startdatumBewaartermijn": None,
                 "status": f"http://testserver{expected_status_url}",
                 "toelichting": "toelichting",
-                "uiterlijkeEinddatumAfdoening": None,
+                "uiterlijkeEinddatumAfdoening": "2018-07-11",
                 "url": f"http://testserver{expected_zaak_url}",
                 "uuid": str(zaak.uuid),
                 "verantwoordelijkeOrganisatie": "517439943",

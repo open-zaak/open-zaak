@@ -943,6 +943,94 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             zaak6["betalingsindicatieWeergave"], BetalingsIndicatie.nvt.label
         )
 
+    def test_zaak_autofill_einddatums(self):
+        url = reverse("zaak-list")
+        startdatum = date(2020, 1, 1)
+        self.zaaktype.servicenorm_behandeling = relativedelta(days=20)
+        self.zaaktype.save()
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": str(startdatum),
+                "startdatum": str(startdatum),
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+        self.assertEqual(
+            zaak.einddatum_gepland,
+            startdatum + relativedelta(days=20),
+        )
+        self.assertEqual(
+            zaak.uiterlijke_einddatum_afdoening,
+            startdatum + relativedelta(days=30),
+        )
+
+    def test_zaak_met_eindatums(self):
+        url = reverse("zaak-list")
+        startdatum = date(2020, 1, 1)
+        einddatum_gepland = startdatum + relativedelta(days=10)
+        uiterlijke = startdatum + relativedelta(months=2)
+
+        self.zaaktype.servicenorm_behandeling = relativedelta(days=15)
+        self.zaaktype.save()
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": str(startdatum),
+                "startdatum": str(startdatum),
+                "einddatumGepland": str(einddatum_gepland),
+                "uiterlijkeEinddatumAfdoening": str(uiterlijke),
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+        self.assertEqual(zaak.einddatum_gepland, einddatum_gepland)
+        self.assertEqual(zaak.uiterlijke_einddatum_afdoening, uiterlijke)
+
+    def test_zaak_zonder_servicenorm(self):
+        self.zaaktype.servicenorm_behandeling = None
+        self.zaaktype.save()
+
+        startdatum = date(2020, 1, 1)
+        url = reverse("zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver{self.zaaktype_url}",
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": str(startdatum),
+                "startdatum": str(startdatum),
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+        self.assertIsNone(zaak.einddatum_gepland)
+
+        self.assertEqual(
+            zaak.uiterlijke_einddatum_afdoening,
+            startdatum + relativedelta(days=30),
+        )
+
 
 class ZakenFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

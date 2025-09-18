@@ -17,7 +17,6 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Cast
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -615,7 +614,7 @@ class ZaakSerializer(
             )
 
         zaaktype = validated_data["zaaktype"]
-        startdatum = validated_data.get("startdatum") or timezone.now().date()
+        startdatum = validated_data["startdatum"]
 
         if (
             not validated_data.get("einddatum_gepland")
