@@ -17,6 +17,7 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Cast
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -611,6 +612,25 @@ class ZaakSerializer(
                     "identificatie_ptr": generated_identificatie,
                     "identificatie": generated_identificatie.identificatie,
                 }
+            )
+
+        zaaktype = validated_data["zaaktype"]
+        startdatum = validated_data.get("startdatum") or timezone.now().date()
+
+        if (
+            not validated_data.get("einddatum_gepland")
+            and zaaktype.servicenorm_behandeling
+        ):
+            validated_data["einddatum_gepland"] = (
+                startdatum + zaaktype.servicenorm_behandeling
+            )
+
+        if (
+            not validated_data.get("uiterlijke_einddatum_afdoening")
+            and zaaktype.doorlooptijd_behandeling
+        ):
+            validated_data["uiterlijke_einddatum_afdoening"] = (
+                startdatum + zaaktype.doorlooptijd_behandeling
             )
 
         obj = super().create(validated_data)

@@ -41,6 +41,7 @@ class ZaakTypeFactory(factory.django.DjangoModelFactory):
         ["behandelen", "uitvoeren", "vaststellen", "onderhouden"]
     )
     doorlooptijd_behandeling = timedelta(days=30)
+    servicenorm_behandeling = timedelta(days=30)
     opschorting_en_aanhouding_mogelijk = factory.Faker("pybool")
     verlenging_mogelijk = factory.Faker("pybool")
     publicatie_indicatie = factory.Faker("pybool")
