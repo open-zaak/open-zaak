@@ -29,6 +29,6 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils, oas]
+git+https://github.com/maykinmedia/commonground-api-common.git@feature/fix-exception-handling[setup-configuration, testutils, oas]
 
 psycopg[pool, binary]
