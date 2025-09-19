@@ -36,11 +36,9 @@ openzaak_selectielijst_config_enable: true
 openzaak_selectielijst_config:
   selectielijst_api_service_identifier: selectielijst-api
   allowed_years:
-    - 2025
-    - 2026
-    - 2027
-    - 2028
-  default_year: 2025
+    - 2017
+    - 2020
+  default_year: 2020
 
 vng_api_common_credentials_config_enable: true
 vng_api_common_credentials:
