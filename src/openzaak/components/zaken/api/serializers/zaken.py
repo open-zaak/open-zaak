@@ -613,6 +613,25 @@ class ZaakSerializer(
                 }
             )
 
+        zaaktype = validated_data["zaaktype"]
+        startdatum = validated_data["startdatum"]
+
+        if (
+            not validated_data.get("einddatum_gepland")
+            and zaaktype.servicenorm_behandeling
+        ):
+            validated_data["einddatum_gepland"] = (
+                startdatum + zaaktype.servicenorm_behandeling
+            )
+
+        if (
+            not validated_data.get("uiterlijke_einddatum_afdoening")
+            and zaaktype.doorlooptijd_behandeling
+        ):
+            validated_data["uiterlijke_einddatum_afdoening"] = (
+                startdatum + zaaktype.doorlooptijd_behandeling
+            )
+
         obj = super().create(validated_data)
         track_object_serializer(obj, self)
 
