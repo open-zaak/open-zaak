@@ -306,7 +306,7 @@ LOGGING = {
         "vng_api_common": {
             "handlers": ["console"],
             "level": LOG_LEVEL,
-            "propagate": True,
+            "propagate": False,
         },
         "django.db.backends": {
             "handlers": ["console_db"] if LOG_QUERIES else [],
