@@ -198,7 +198,7 @@ django-sendfile2==0.7.2
     # via django-privates
 django-sessionprofile==3.0.0
     # via open-api-framework
-django-setup-configuration==0.7.2
+django-setup-configuration==0.9.0
     # via
     #   commonground-api-common
     #   open-api-framework
