@@ -128,6 +128,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
+    "csp.middleware.CSPMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.DeprecationMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
@@ -382,14 +383,12 @@ CELERY_RESULT_EXPIRES = config(
 # DJANGO-CSP
 #
 CONTENT_SECURITY_POLICY["EXCLUDE_URL_PREFIXES"] = [
-    # avoids nonce issues with GISModelAdmin
-    "/admin/",
     # avoids nonce issues with Redoc
-    "/zaken/",
-    "/besluiten/",
-    "/documenten/",
-    "/catalogi/",
-    "/autorisaties/",
+    "/zaken/api/v1/schema",
+    "/besluiten/api/v1/schema",
+    "/documenten/api/v1/schema",
+    "/catalogi/api/v1/schema",
+    "/autorisaties/api/v1/schema",
 ]
 
 CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"] += [
