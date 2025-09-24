@@ -153,7 +153,7 @@ codecov==2.1.13
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-commonground-api-common==2.9.0
+commonground-api-common==2.10.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
