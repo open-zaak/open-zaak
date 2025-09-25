@@ -42,7 +42,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-autorisaties", title=custom_settings["TITLE"]
+                        url_name="schema-autorisaties-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-autorisaties",
                 ),
