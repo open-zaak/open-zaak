@@ -2,8 +2,13 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import include, path, re_path
 
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
+from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
+
+from openzaak.utils.oas_extensions.views import (
+    SpectacularJSONAPIView,
+    SpectacularYAMLAPIView,
+)
 
 from ..api.schema import custom_settings
 from .viewsets import (
@@ -39,17 +44,25 @@ urlpatterns = [
             [
                 # API documentation
                 path(
-                    "schema/openapi.yaml",
-                    SpectacularAPIView.as_view(
+                    "openapi.yaml",
+                    SpectacularYAMLAPIView.as_view(
                         urlconf="openzaak.components.catalogi.api.urls",
                         custom_settings=custom_settings,
                     ),
-                    name="schema-catalogi",
+                    name="schema-catalogi-yaml",
+                ),
+                path(
+                    "openapi.json",
+                    SpectacularJSONAPIView.as_view(
+                        urlconf="openzaak.components.catalogi.api.urls",
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-catalogi-json",
                 ),
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-catalogi", title=custom_settings["TITLE"]
+                        url_name="schema-catalogi-yaml", title=custom_settings["TITLE"]
                     ),
                     name="schema-redoc-catalogi",
                 ),

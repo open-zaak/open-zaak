@@ -23,13 +23,18 @@ REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
 SECURITY_DEFINITION_NAME = "JWT-Claims"
 OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
 OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
+OPENZAAK_API_CONTACT_NAME = "Maykin Media"
 
 SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "SIDECAR",
     # info object
     "TITLE": "Open Zaak API",
     "LICENSE": {"name": "EUPL 1.2", "url": "https://opensource.org/licenses/EUPL-1.2"},
-    "CONTACT": {"email": OPENZAAK_API_CONTACT_EMAIL, "url": OPENZAAK_API_CONTACT_URL},
+    "CONTACT": {
+        "email": OPENZAAK_API_CONTACT_EMAIL,
+        "url": OPENZAAK_API_CONTACT_URL,
+        "name": OPENZAAK_API_CONTACT_NAME,
+    },
     "SERVE_INCLUDE_SCHEMA": False,
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
