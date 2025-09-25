@@ -225,6 +225,8 @@ class PyInstrumentMiddleware:  # pragma:no cover
             return self._serve_profile()
 
         # Local import to avoid having to install this in production environments
+        from django.db import connection
+
         from pyinstrument import Profiler
 
         profiler = Profiler()
@@ -237,6 +239,9 @@ class PyInstrumentMiddleware:  # pragma:no cover
         # Save the profile to an HTML file
         with open(self.profiler_output_path, "w") as f:
             f.write(profiler.output_html())
+
+        for q in connection.queries:
+            print(q["sql"])
 
         return response
 
