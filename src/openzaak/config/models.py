@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from solo.models import SingletonModel
 from vng_api_common.constants import ComponentTypes
+from zgw_consumers.models import Service
 
 from openzaak.utils.constants import COMPONENT_MAPPING
 
@@ -60,3 +61,39 @@ class FeatureFlags(SingletonModel):
 
     def __str__(self):
         return force_str(self._meta.verbose_name)
+
+
+class CloudEventConfig(SingletonModel):
+    """
+    Configure values required for sending cloud events
+    """
+
+    enabled = models.BooleanField(
+        help_text=_(
+            "Whether or not cloud events should be sent for operations on Zaak"
+        ),
+        default=False,
+    )
+    webhook_service = models.ForeignKey(
+        Service,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text=_("The service to which cloudevents will be sent on Zaak create"),
+    )
+    webhook_path = models.CharField(
+        _("Webhook path"),
+        help_text=_(
+            "Relative path on the webhook service where cloud events will be sent. "
+        ),
+        max_length=255,
+        default="/event/zaak",
+    )
+    source = models.CharField(
+        _("Cloud event source"),
+        help_text=_("The value of the source field of the cloud events."),
+        max_length=100,
+    )
+
+    class Meta:
+        verbose_name = _("CloudEvents configuration")
+        verbose_name_plural = _("CloudEvents configurations")
