@@ -173,17 +173,18 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             self.assertIn("id", event_payload)
 
     def test_send_cloud_event_function_posts_expected_payload(self, mock_get_solo):
-        service = ServiceFactory()
+        service = ServiceFactory(api_root="http://testserver")
+
+        mock_client = mock.Mock()
+        mock_client.post.return_value.status_code = 200
+        service.build_client = mock.Mock(return_value=mock_client)
 
         mock_config = mock.Mock()
         mock_config.enabled = True
         mock_config.source = "urn:nld:oin:00000001823288444000:zakensysteem"
         mock_config.webhook_service = service
-        mock_config.webhook_path = "http://testserver/events"
+        mock_config.webhook_path = "/events"
         mock_get_solo.return_value = mock_config
-
-        mock_client = mock.Mock()
-        service.build_client = mock.Mock(return_value=mock_client)
 
         event_id = str(uuid.uuid4())
         payload = {
@@ -201,7 +202,7 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         cloud_events.send_cloud_event.run(payload)
 
         mock_client.post.assert_called_once_with(
-            mock_config.webhook_path,
+            "/events",
             json=payload,
             headers={"content-type": "application/cloudevents+json"},
         )
