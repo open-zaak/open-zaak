@@ -148,10 +148,8 @@ django-celery-beat==2.8.0
     # via -r requirements/base.in
 django-cors-headers==4.7.0
     # via open-api-framework
-django-csp==3.8
-    # via
-    #   -r requirements/base.in
-    #   open-api-framework
+django-csp==4.0
+    # via open-api-framework
 django-db-logger==0.1.12
     # via -r requirements/base.in
 django-extra-views==0.14.0
@@ -215,7 +213,7 @@ django-solo==2.0.0
     #   notifications-api-common
     #   zgw-consumers
 django-structlog==9.1.1
-    # via -r requirements/base.in
+    # via open-api-framework
 django-timezone-field==7.0
     # via django-celery-beat
 django-two-factor-auth==1.17.0
@@ -322,14 +320,16 @@ nh3==0.3.0
     # via textile
 notifications-api-common==0.8.2
     # via commonground-api-common
-open-api-framework==0.12.0
+open-api-framework==0.13.0
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
 oyaml==1.0
     # via commonground-api-common
 packaging==24.0
-    # via kombu
+    # via
+    #   django-csp
+    #   kombu
 phonenumberslite==8.13.35
     # via django-two-factor-auth
 platformdirs==4.3.8
@@ -446,7 +446,9 @@ smartypants==2.0.2
 sqlparse==0.5.0
     # via django
 structlog==25.4.0
-    # via django-structlog
+    # via
+    #   django-structlog
+    #   open-api-framework
 textile==4.0.3
     # via django-markup
 tornado==6.5.1

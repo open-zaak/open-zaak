@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import os
-from pathlib import Path
 
 import sentry_sdk
-import structlog
 from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
+
+os.environ["_USE_STRUCTLOG"] = "True"
+
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
 
@@ -94,7 +95,6 @@ INSTALLED_APPS = (
         "django_loose_fk",
         "drc_cmis",
         "django_celery_beat",
-        "django_structlog",
         # Project applications.
         "openzaak.accounts",
         "openzaak.import_data",
@@ -128,6 +128,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
+    "csp.middleware.CSPMiddleware",
     "openzaak.utils.middleware.APIVersionHeaderMiddleware",
     "openzaak.utils.middleware.DeprecationMiddleware",
     "openzaak.utils.middleware.EnabledMiddleware",
@@ -162,215 +163,6 @@ LOGGING["loggers"]["notifications_api_common.tasks"] = {
     "propagate": True,
 }
 
-
-# XXX: this should be renamed to `LOG_REQUESTS` in the next major release
-_log_requests_via_middleware = config(
-    "ENABLE_STRUCTLOG_REQUESTS",
-    default=True,
-    help_text=("enable structured logging of requests"),
-    group="Logging",
-)
-if _log_requests_via_middleware:
-    MIDDLEWARE.insert(
-        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
-        "django_structlog.middlewares.RequestMiddleware",
-    )
-
-# TODO move this back to OAF
-# Override LOGGING, because OAF does not yet apply structlog for all components
-logging_root_handlers = ["console"] if LOG_STDOUT else ["json_file"]
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        # structlog - foreign_pre_chain handles logs coming from stdlib logging module,
-        # while the `structlog.configure` call handles everything coming from structlog.
-        # They are mutually exclusive.
-        "json": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.processors.JSONRenderer(),
-            "foreign_pre_chain": [
-                structlog.contextvars.merge_contextvars,
-                structlog.processors.TimeStamper(fmt="iso"),
-                structlog.stdlib.add_logger_name,
-                structlog.stdlib.add_log_level,
-                structlog.stdlib.PositionalArgumentsFormatter(),
-            ],
-        },
-        "plain_console": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.dev.ConsoleRenderer(),
-            "foreign_pre_chain": [
-                structlog.contextvars.merge_contextvars,
-                structlog.processors.TimeStamper(fmt="iso"),
-                structlog.stdlib.add_logger_name,
-                structlog.stdlib.add_log_level,
-                structlog.stdlib.PositionalArgumentsFormatter(),
-            ],
-        },
-        "verbose": {
-            "format": "%(asctime)s %(levelname)s %(name)s %(module)s %(process)d %(thread)d  %(message)s"
-        },
-        "timestamped": {"format": "%(asctime)s %(levelname)s %(name)s  %(message)s"},
-        "simple": {"format": "%(levelname)s  %(message)s"},
-        "performance": {"format": "%(asctime)s %(process)d | %(thread)d | %(message)s"},
-        "db": {"format": "%(asctime)s | %(message)s"},
-        "outgoing_requests": {"()": HttpFormatter},
-    },
-    # TODO can be removed?
-    "filters": {
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
-    },
-    "handlers": {
-        # TODO can be removed?
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
-        },
-        "null": {"level": "DEBUG", "class": "logging.NullHandler"},
-        "console": {
-            "level": LOG_LEVEL,
-            "class": "logging.StreamHandler",
-            "formatter": config(
-                "LOG_FORMAT_CONSOLE",
-                default="json",
-                help_text=(
-                    "The format for the console logging handler, possible options: ``json``, ``plain_console``."
-                ),
-                group="Logging",
-            ),
-        },
-        "console_db": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "db",
-        },
-        # replaces the "django" and "project" handlers - in containerized applications
-        # the best practices is to log to stdout (use the console handler).
-        "json_file": {
-            "level": LOG_LEVEL,  # always debug might be better?
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "application.jsonl",
-            "formatter": "json",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "performance": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "performance.log",
-            "formatter": "performance",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "requests": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGGING_DIR) / "requests.log",
-            "formatter": "timestamped",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 10,
-        },
-        "log_outgoing_requests": {
-            "level": "DEBUG",
-            "formatter": "outgoing_requests",
-            "class": "logging.StreamHandler",  # to write to stdout
-        },
-        "save_outgoing_requests": {
-            "level": "DEBUG",
-            # enabling saving to database
-            "class": "log_outgoing_requests.handlers.DatabaseOutgoingRequestsHandler",
-        },
-    },
-    "loggers": {
-        "": {
-            "handlers": logging_root_handlers,
-            "level": "ERROR",
-            "propagate": False,
-        },
-        PROJECT_DIRNAME: {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-            "propagate": False,
-        },
-        "mozilla_django_oidc": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-        },
-        f"{PROJECT_DIRNAME}.utils.middleware": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-            "propagate": False,
-        },
-        "vng_api_common": {
-            "handlers": ["console"],
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-        "django.db.backends": {
-            "handlers": ["console_db"] if LOG_QUERIES else [],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": logging_root_handlers,
-            "level": LOG_LEVEL,
-            "propagate": False,
-        },
-        # suppress django.server request logs because those are already emitted by
-        # django-structlog middleware
-        "django.server": {
-            "handlers": ["console"],
-            "level": "WARNING" if _log_requests_via_middleware else "INFO",
-            "propagate": False,
-        },
-        "django.template": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "log_outgoing_requests": {
-            "handlers": (
-                ["log_outgoing_requests", "save_outgoing_requests"]
-                if LOG_REQUESTS
-                else []
-            ),
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "django_structlog": {
-            "handlers": logging_root_handlers,
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-}
-
-structlog.configure(
-    processors=[
-        structlog.contextvars.merge_contextvars,
-        structlog.stdlib.filter_by_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        # structlog.processors.ExceptionPrettyPrinter(),
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ],
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
-
-
-#
-# DJANGO-STRUCTLOG
-#
-DJANGO_STRUCTLOG_IP_LOGGING_ENABLED = False
-DJANGO_STRUCTLOG_CELERY_ENABLED = True
 
 #
 # AUTH settings - user accounts, passwords, backends...
@@ -590,14 +382,29 @@ CELERY_RESULT_EXPIRES = config(
 #
 # DJANGO-CSP
 #
-CSP_CONNECT_SRC = CSP_DEFAULT_SRC + ["raw.githubusercontent.com"]
-CSP_SCRIPT_SRC = CSP_SCRIPT_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
-CSP_IMG_SRC = CSP_IMG_SRC + ["cdnjs.cloudflare.com", "tile.openstreetmap.org"]
-CSP_STYLE_SRC = CSP_STYLE_SRC + ["cdnjs.cloudflare.com", "cdn.jsdelivr.net"]
+CONTENT_SECURITY_POLICY["EXCLUDE_URL_PREFIXES"] = [
+    # avoids nonce issues with Redoc
+    "/zaken/api/v1/schema",
+    "/besluiten/api/v1/schema",
+    "/documenten/api/v1/schema",
+    "/catalogi/api/v1/schema",
+    "/autorisaties/api/v1/schema",
+]
 
-# TODO is there a better way to fix this?
-CSP_INCLUDE_NONCE_IN.remove("script-src")  # error with GISModelAdmin.
-CSP_INCLUDE_NONCE_IN.remove("style-src")  # error with redoc.
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["script-src"] += [
+    "cdnjs.cloudflare.com",
+    "cdn.jsdelivr.net",
+]
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["img-src"] += [
+    "cdnjs.cloudflare.com",
+    "tile.openstreetmap.org",
+]
+CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
+    "cdnjs.cloudflare.com",
+    "cdn.jsdelivr.net",
+]
+
+
 #
 # OpenZaak configuration
 #
