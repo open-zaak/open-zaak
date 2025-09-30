@@ -989,11 +989,7 @@ class ZaakInformatieObjectViewSet(
                 # bring back the instance
                 instance.save()
                 raise ValidationError(
-                    {
-                        "informatieobject": _(
-                            "Could not delete remote relation: {exc}"
-                        ).format(exc=exception)
-                    },
+                    {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -1721,11 +1717,7 @@ class ZaakContactMomentViewSet(
                 # bring back the instance
                 instance.save()
                 raise ValidationError(
-                    {
-                        "contactmoment": _(
-                            "Could not delete remote relation: {exc}"
-                        ).format(exc=exception)
-                    },
+                    {"contactmoment": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -1816,11 +1808,7 @@ class ZaakVerzoekViewSet(
             except Exception as exception:
                 instance.save()  # revert deletion
                 raise ValidationError(
-                    {
-                        "verzoek": _("Could not delete remote relation: {exc}").format(
-                            exc=exception
-                        )
-                    },
+                    {"verzoek": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 

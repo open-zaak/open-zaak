@@ -126,7 +126,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
         except Exception as exception:
             besluit.delete()
             raise serializers.ValidationError(
-                {"zaak": _("Could not create remote relation: {}".format(exception))},
+                {"zaak": _("Could not create remote relation")},
                 code="pending-relations",
             )
         else:
@@ -146,11 +146,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
                 delete_remote_zaakbesluit(besluit._zaakbesluit_url)
             except Exception as exception:
                 raise serializers.ValidationError(
-                    {
-                        "zaak": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
-                    },
+                    {"zaak": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -159,11 +155,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
                 response = self.create_zaakbesluit(besluit)
             except Exception as exception:
                 raise serializers.ValidationError(
-                    {
-                        "zaak": _(
-                            "Could not create remote relation: {}".format(exception)
-                        )
-                    },
+                    {"zaak": _("Could not create remote relation")},
                     code="pending-relations",
                 )
             else:
@@ -228,11 +220,7 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         except Exception as exception:
             bio.delete()
             raise serializers.ValidationError(
-                {
-                    "informatieobject": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
-                },
+                {"informatieobject": _("Could not create remote relation")},
                 code="pending-relations",
             )
         else:

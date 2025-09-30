@@ -202,11 +202,7 @@ class BesluitViewSet(
                     zaakbesluit_url=instance._zaakbesluit_url,
                 )
                 raise ValidationError(
-                    {
-                        "zaak": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
-                    },
+                    {"zaak": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -334,11 +330,7 @@ class BesluitInformatieObjectViewSet(
                 )
                 instance.save()
                 raise ValidationError(
-                    {
-                        "informatieobject": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
-                    },
+                    {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
