@@ -123,10 +123,10 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
         # the Besluit creation.
         try:
             response = self.create_zaakbesluit(besluit)
-        except Exception as exception:
+        except Exception:
             besluit.delete()
             raise serializers.ValidationError(
-                {"zaak": _("Could not create remote relation: {}".format(exception))},
+                {"zaak": _("Could not create remote relation")},
                 code="pending-relations",
             )
         else:
@@ -144,26 +144,18 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
         if isinstance(besluit.previous_zaak, ProxyMixin) and besluit._zaakbesluit_url:
             try:
                 delete_remote_zaakbesluit(besluit._zaakbesluit_url)
-            except Exception as exception:
+            except Exception:
                 raise serializers.ValidationError(
-                    {
-                        "zaak": _(
-                            "Could not delete remote relation: {}".format(exception)
-                        )
-                    },
+                    {"zaak": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
         if isinstance(besluit.zaak, ProxyMixin):
             try:
                 response = self.create_zaakbesluit(besluit)
-            except Exception as exception:
+            except Exception:
                 raise serializers.ValidationError(
-                    {
-                        "zaak": _(
-                            "Could not create remote relation: {}".format(exception)
-                        )
-                    },
+                    {"zaak": _("Could not create remote relation")},
                     code="pending-relations",
                 )
             else:
@@ -225,14 +217,10 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         # the BIO creation.
         try:
             response = create_remote_oio(io_url, besluit_url, "besluit")
-        except Exception as exception:
+        except Exception:
             bio.delete()
             raise serializers.ValidationError(
-                {
-                    "informatieobject": _(
-                        "Could not create remote relation: {exception}"
-                    ).format(exception=exception)
-                },
+                {"informatieobject": _("Could not create remote relation")},
                 code="pending-relations",
             )
         else:
