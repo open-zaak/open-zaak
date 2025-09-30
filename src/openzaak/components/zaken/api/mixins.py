@@ -6,9 +6,7 @@ from django.db import models
 
 from rest_framework import serializers
 from rest_framework.response import Response
-from vng_api_common.constants import (
-    ComponentTypes,
-)
+from vng_api_common.constants import ComponentTypes
 
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.models import Zaak
@@ -21,18 +19,11 @@ class ClosedZaakMixin:
     def _has_override(self, zaak: Zaak, component=None) -> bool:
         jwt_auth = self.request.jwt_auth
         zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
-
-        if not component:
-            component = self.queryset.model._meta.app_label
-
-        if SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN:
-            component = ComponentTypes.zrc
-
         return jwt_auth.has_auth(
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=component,
+            init_component=ComponentTypes.zrc,
         )
 
     def _check_zaak_closed(self, zaak: Optional[Zaak] = None, component=None) -> None:

@@ -71,10 +71,17 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.autorisatie = Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
-            scopes=[SCOPE_BESLUITEN_AANMAKEN] + scopes,
+            scopes=[SCOPE_BESLUITEN_AANMAKEN],
             zaaktype=zaaktype if zaaktype else "",
             informatieobjecttype="",
             besluittype=self.besluittype_url if besluittype is None else besluittype,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=scopes,
+            zaaktype=zaaktype if zaaktype else "",
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
