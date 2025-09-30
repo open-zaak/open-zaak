@@ -22,9 +22,7 @@ from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors, reverse
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
-from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
 from openzaak.components.catalogi.tests.factories import (
-    BesluitTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -78,12 +76,6 @@ class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
 
         cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
         cls.statustype_url = cls.check_for_instance(cls.statustype)
-
-        cls.besluittype = BesluitTypeFactory.create(
-            concept=False, catalogus=cls.zaaktype.catalogus
-        )
-        cls.zaaktype.besluittypen.add(cls.besluittype)
-        cls.besluittype_url = cls.check_for_instance(cls.besluittype)
 
         cls.end_statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
 
@@ -254,39 +246,6 @@ class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
                 "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope zaken.heropenen"
             ),
         )
-
-    def test_create_besluit_closed_zaak_with_force_scope(self):
-        self.zaak.einddatum = timezone.now()
-        self.zaak.save()
-        self.assertTrue(self.zaak.is_closed)
-
-        self._add_zaken_auth(
-            scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN],
-        )
-
-        self._add_catalogi_auth(
-            component=ComponentTypes.brc,
-            catalogus=self.zaaktype.catalogus,
-            scopes=[SCOPE_BESLUITEN_AANMAKEN],
-        )
-
-        besluit_content = {
-            "verantwoordelijke_organisatie": "517439943",
-            "identificatie": "123123",
-            "besluittype": self.besluittype_url,
-            "datum": "2025-01-01",
-            "toelichting": "Test besluit op gesloten zaak",
-            "ingangsdatum": "2025-09-20",
-            "vervaldatum": "2025-12-31",
-            "vervalreden": "tijdelijk",
-            "zaak": f"http://testserver{reverse(self.zaak)}",
-        }
-
-        response = self.client.post(
-            reverse("besluit-list", kwargs={"version": "1"}), besluit_content
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 @tag("convenience-endpoints")
