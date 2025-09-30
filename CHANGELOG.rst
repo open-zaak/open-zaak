@@ -1,6 +1,39 @@
 Changelog
 =========
 
+1.25.0 (2025-10-02)
+-------------------
+
+.. warning::
+
+     The default number of ``UWSGI_THREADS`` has been changed to 4.
+
+**New features**
+
+* [#1805] add enddate logic
+* [:open-api-framework:`175`] Changes to logging of handled and unhandled exceptions (see :ref:`manual_logging`)
+
+  * Log events for handled API exceptions (e.g. HTTP 400) now include ``invalid_params``
+  * Log events for unhandled API exceptions (e.g. HTTP 500) now include the traceback via ``exception``
+  * TODO outside API?
+
+* [:open-api-framework:`184`] TODO can now interpolate stuff
+
+**Project maintenance**
+
+* Upgrade dependencies
+
+  * ``django`` to 5.2.6
+  * ``pip`` to 25.2
+  * [:open-api-framework:`175`] ``commonground-api-common`` to 2.10.0
+  * [:open-api-framework:`184`] ``django-setup-configuration`` to 0.9.0
+
+* [:open-api-framework:`172`] Clean up unnecessary ``mock_service_oas_get`` calls
+
+**Documentation**
+
+
+
 1.24.0 (2025-09-02)
 -------------------
 

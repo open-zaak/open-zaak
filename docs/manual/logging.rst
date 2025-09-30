@@ -139,6 +139,47 @@ Convenience endpoints
 * ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 
+Logging of errors/exceptions
+----------------------------
+
+Handled exceptions that occur during API operations are logged as ``api.handled_exception`` events
+
+.. code-block:: json
+
+    {
+        "title": "'Je hebt geen toestemming om deze actie uit te voeren.'",
+        "code": "invalid-jwt-signature",
+        "status": 403,
+        "invalid_params": [
+            {
+                "name": "",
+                "code": "invalid-jwt-signature",
+                "reason": "Client credentials zijn niet geldig"
+            }
+        ],
+        "event": "api.handled_exception",
+        "exception_id": "18972c5f-476f-4a02-b249-956e113cfd1c",
+        "timestamp": "2025-09-30T14:34:02.032852Z",
+        "logger": "vng_api_common.exception_handling",
+        "level": "error"
+    }
+
+Uncaught exceptions that occur via the API are logged as ``api.uncaught_exception`` events
+
+.. code-block:: json
+
+    {
+        "message": "division by zero",
+        "event": "api.uncaught_exception",
+        "source": "app",
+        "timestamp": "2025-09-30T14:40:06.276604Z",
+        "logger": "vng_api_common.views",
+        "level": "error",
+        "exception": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 497, in dispatch\n    self.initial(request, *args, **kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/vng_api_common/geo.py\", line 30, in initial\n    super().initial(request, *args, **kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 415, in initial\n    self.check_permissions(request)\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 332, in check_permissions\n    if not permission.has_permission(request, self):\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/src/openzaak/utils/decorators.py\", line 53, in convert_exceptions\n    response = function(*args, **kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/src/openzaak/utils/permissions.py\", line 122, in has_permission\n    1/ 0\n    ~^~~\nZeroDivisionError: division by zero"
+    }
+
+.. TODO exceptions outside API
+
 Third party library events
 --------------------------
 
