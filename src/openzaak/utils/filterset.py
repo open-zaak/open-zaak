@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Subquery
 
 import structlog
 from django_filters import OrderingFilter as _OrderingFilter, constants
@@ -15,7 +15,9 @@ class OrderingFilter(_OrderingFilter):
             return qs
 
         ordering = [self.get_ordering_value(param) for param in value]
-        return qs.order_by(*ordering).distinct()
+        return qs.model.objects.filter(pk__in=Subquery(qs.values("pk"))).order_by(
+            *ordering
+        )
 
 
 class FilterGroup:
