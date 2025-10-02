@@ -10,14 +10,16 @@ from django.utils import timezone
 from celery import shared_task
 from rest_framework.reverse import reverse
 from structlog.stdlib import get_logger
+from zgw_consumers.client import build_client
 
 from openzaak.components.zaken.models import Zaak
 from openzaak.config.models import CloudEventConfig
 
 logger = get_logger(__name__)
+
 ZAAK_GEOPEND = "nl.overheid.zaken.zaak-geopend"
 ZAAK_GEMUTEERD = "nl.overheid.zaken.zaak-gemuteerd"
-ZAAK_VERWIJDERN = "nl.overheid.zaken.zaak-verwijderd"
+ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
 
 
 def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
@@ -49,7 +51,7 @@ def send_cloud_event(self, cloud_event: dict[str, Any]) -> None:
     if not config.enabled or not config.webhook_service:
         return
 
-    client = config.webhook_service.build_client()
+    client = build_client(config.webhook_service)
     response = client.post(
         config.webhook_path,
         json=cloud_event,

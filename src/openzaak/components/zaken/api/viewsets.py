@@ -89,8 +89,7 @@ from ..models import (
 from .audits import AUDIT_ZRC
 from .cloud_events import (
     ZAAK_GEMUTEERD,
-    ZAAK_GEOPEND,
-    ZAAK_VERWIJDERN,
+    ZAAK_VERWIJDEREN,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -422,7 +421,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(zaak.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_GEOPEND, zaak, self.request)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -509,7 +508,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_VERWIJDERN, instance, self.request)
+        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance, self.request)
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(

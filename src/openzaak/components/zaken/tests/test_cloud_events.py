@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
-from unittest import mock
 from unittest.mock import patch
 
 from django.test import override_settings
 
+import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,6 +13,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.tests import reverse
+from zgw_consumers.constants import AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import (
@@ -27,7 +28,7 @@ from ..api import cloud_events
 from ..api.cloud_events import (
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
-    ZAAK_VERWIJDERN,
+    ZAAK_VERWIJDEREN,
 )
 from ..models import Zaak
 from .factories import (
@@ -54,18 +55,22 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
 
         with patch(
-            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay",
+            autospec=True,
         ) as mock_send:
             response = self.client.patch(
                 reverse(zaak),
-                json={"toelichting": "Updated toelichting"},
-                content_type="application/json",
+                {"toelichting": "Updated toelichting"},
                 **ZAAK_WRITE_KWARGS,
             )
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             mock_send.assert_called_once()
 
             args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
             event_payload = args[0]
 
             self.assertIn("id", event_payload)
@@ -91,7 +96,8 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
 
         with patch(
-            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay",
+            autospec=True,
         ) as mock_send:
             response = self.client.delete(
                 reverse(zaak),
@@ -100,6 +106,10 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             mock_send.assert_called_once()
 
             args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
             event_payload = args[0]
 
             event_payload_copy = dict(event_payload)
@@ -107,7 +117,7 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
             expected_payload = {
                 "specversion": "1.0",
-                "type": ZAAK_VERWIJDERN,
+                "type": ZAAK_VERWIJDEREN,
                 "source": "urn:nld:oin:00000001823288444000:zakensysteem",
                 "subject": str(zaak.uuid),
                 "dataref": reverse(zaak),
@@ -128,7 +138,8 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         with patch(
-            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay"
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay",
+            autospec=True,
         ) as mock_send:
             zaaktype_url = reverse(zaaktype)
 
@@ -151,6 +162,10 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             mock_send.assert_called_once()
 
             args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
             event_payload = args[0]
 
             zaak = Zaak.objects.get(uuid=response.data["uuid"])
@@ -160,7 +175,7 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
             expected_payload = {
                 "specversion": "1.0",
-                "type": ZAAK_GEOPEND,
+                "type": ZAAK_GEMUTEERD,
                 "source": "urn:nld:oin:00000001823288444000:zakensysteem",
                 "subject": str(zaak.uuid),
                 "dataref": reverse(zaak),
@@ -172,37 +187,49 @@ class CloudEventTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(event_payload_copy, expected_payload)
             self.assertIn("id", event_payload)
 
-    def test_send_cloud_event_function_posts_expected_payload(self, mock_get_solo):
-        service = ServiceFactory(api_root="http://testserver")
+    def test_send_cloud_event_task_posts_expected_payload(self, mock_get_solo):
+        service = ServiceFactory.create(
+            api_root="http://webhook.local",
+            auth_type=AuthTypes.api_key,
+            header_key="Authorization",
+            header_value="Token foo",
+        )
 
-        mock_client = mock.Mock()
-        mock_client.post.return_value.status_code = 200
-        service.build_client = mock.Mock(return_value=mock_client)
+        zaak = ZaakFactory.create()
 
-        mock_config = mock.Mock()
-        mock_config.enabled = True
-        mock_config.source = "urn:nld:oin:00000001823288444000:zakensysteem"
-        mock_config.webhook_service = service
-        mock_config.webhook_path = "/events"
+        mock_config = CloudEventConfig(
+            enabled=True,
+            source="urn:nld:oin:00000001823288444000:zakensysteem",
+            webhook_service=service,
+            webhook_path="/events",
+        )
         mock_get_solo.return_value = mock_config
 
         event_id = str(uuid.uuid4())
         payload = {
             "specversion": "1.0",
-            "type": "zaak.test",
-            "source": mock_config.source,
-            "subject": str(uuid.uuid4()),
-            "dataref": "http://testserver/api/v1/zaken/123",
+            "type": ZAAK_GEOPEND,
+            "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+            "subject": str(zaak.uuid),
+            "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {"foo": "bar"},
-            "id": event_id,
+            "data": {},
             "time": "2025-09-23T12:00:00Z",
+            "id": event_id,
         }
 
-        cloud_events.send_cloud_event.run(payload)
+        with requests_mock.Mocker() as m:
+            m.post("http://webhook.local/events")
 
-        mock_client.post.assert_called_once_with(
-            "/events",
-            json=payload,
-            headers={"content-type": "application/cloudevents+json"},
+            cloud_events.send_cloud_event(payload)
+
+        self.assertEqual(len(m.request_history), 1)
+
+        request = m.request_history[0]
+
+        self.assertEqual(request.url, "http://webhook.local/events")
+        self.assertEqual(request.json(), payload)
+        self.assertEqual(
+            request.headers["content-type"], "application/cloudevents+json"
         )
+        self.assertEqual(request.headers["Authorization"], "Token foo")
