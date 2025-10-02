@@ -128,6 +128,15 @@ class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInli
     fields = ZaakTypeInformatieObjectTypeAdmin.list_display
 
 
+class BesluitTypeInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakType.besluittypen.through
+    fk_name = "zaaktype"
+    fields = ("besluittype",)
+    raw_id_fields = ("besluittype",)
+    verbose_name = _("Besluittype")
+    verbose_name_plural = _("Besluittypen")
+
+
 @admin.register(ZaakType)
 class ZaakTypeAdmin(
     ReadOnlyPublishedMixin,
@@ -269,6 +278,7 @@ class ZaakTypeAdmin(
     raw_id_fields = ("catalogus", "deelzaaktypen")
     readonly_fields = ("versiedatum",)
     inlines = (
+        BesluitTypeInline,
         ZaakTypenRelatieInline,
         StatusTypeInline,
         RolTypeInline,
@@ -460,5 +470,14 @@ class ZaakTypeAdmin(
             "_export",
         ]:
             if operation in request.POST:
+                filtered = [
+                    (fs, inline)
+                    for fs, inline in zip(formsets, inline_instances)
+                    if isinstance(inline, BesluitTypeInline)
+                ]
+                # unzip filtered
+                if filtered:
+                    filtered_formsets, filtered_inlines = zip(*filtered)
+                    return list(filtered_formsets), list(filtered_inlines)
                 return [], []
         return formsets, inline_instances
