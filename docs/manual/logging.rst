@@ -139,6 +139,57 @@ Convenience endpoints
 * ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 
+.. _manual_logging_exceptions:
+
+Exceptions
+----------
+
+Handled exceptions follow a standardized JSON format to ensure consistency and improve error tracking.
+Most fields are standard and include:
+``title``, ``code``, ``status``, ``event``, ``source``, ``user_id``, ``request_id``, ``exception_id``, ``timestamp``, ``logger`` and ``level``.
+
+A new field ``invalid_params`` has been added to provide detailed information about which input parameters caused the error in API calls.
+
+    - ``name``: name of the invalid parameter
+    - ``code``: specific error code
+    - ``reason``: explanation/message of the error
+
+.. code-block:: json
+
+    {
+        "title": "'Je hebt geen toestemming om deze actie uit te voeren.'",
+        "code": "invalid-client-identifier",
+        "status": 403,
+        "invalid_params": [
+            {
+                "name": "",
+                "code": "invalid-client-identifier",
+                "reason": "Client identifier bestaat niet"
+            }
+        ],
+        "event": "api.handled_exception",
+        "exception_id": "96af71a2-5b1d-40db-b177-f595cbf0f847",
+        "source": "app",
+        "timestamp": "2025-10-03T09:55:43.796277Z",
+        "logger": "vng_api_common.exception_handling",
+        "level": "error"
+    }
+
+Uncaught exceptions that occur via the API are logged as ``api.uncaught_exception`` events
+and contain the traceback of the exception.
+
+.. code-block:: json
+
+    {
+        "message": "division by zero",
+        "event": "api.uncaught_exception",
+        "source": "app",
+        "timestamp": "2025-09-30T14:40:06.276604Z",
+        "logger": "vng_api_common.views",
+        "level": "error",
+        "exception": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 497, in dispatch\n    self.initial(request, *args, **kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/vng_api_common/geo.py\", line 30, in initial\n    super().initial(request, *args, **kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 415, in initial\n    self.check_permissions(request)\n  File \"/usr/local/lib/python3.12/site-packages/rest_framework/views.py\", line 332, in check_permissions\n    if not permission.has_permission(request, self):\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/src/openzaak/utils/decorators.py\", line 53, in convert_exceptions\n    response = function(*args, **kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/src/openzaak/utils/permissions.py\", line 122, in has_permission\n    1 / 0\n    ~^~~\nZeroDivisionError: division by zero"
+    }
+
 Third party library events
 --------------------------
 

@@ -110,6 +110,7 @@ linkcheck_ignore = [
     r"http://127\.0\.0\.1:\d+/",
     r"https://.*sentry\.openzaak\.nl.*",
     r"https://www.npmjs.com/.*",
+    "https://github.com/maykinmedia/django-setup-configuration/blob/main/README.rst#environment-variable-substitution",
 ]
 
 linkcheck_request_headers = {

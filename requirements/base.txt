@@ -68,7 +68,7 @@ click-repl==0.2.0
     # via celery
 cmislib-maykin==0.7.4
     # via drc-cmis
-commonground-api-common==2.10.0
+commonground-api-common==2.10.1
     # via
     #   -r requirements/base.in
     #   drc-cmis
@@ -88,7 +88,7 @@ cryptography==44.0.1
     #   webauthn
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==5.2.3
+django==5.2.7
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -320,7 +320,7 @@ nh3==0.3.0
     # via textile
 notifications-api-common==0.8.2
     # via commonground-api-common
-open-api-framework==0.13.0
+open-api-framework==0.13.1
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl

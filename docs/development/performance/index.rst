@@ -64,6 +64,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.23.0 (fuzzy on)      Regular   230
 1.24.0 (fuzzy on)      Superuser 150
 1.24.0 (fuzzy on)      Regular   230
+1.25.0 (fuzzy on)      Superuser 160
+1.25.0 (fuzzy on)      Regular   240
 ====================== ========= ======================
 
 16 users
@@ -86,6 +88,8 @@ OZ version             Role      Median time (in ms, average over all endpoints)
 1.23.0 (fuzzy on)      Regular   370
 1.24.0 (fuzzy on)      Superuser 310
 1.24.0 (fuzzy on)      Regular   370
+1.25.0 (fuzzy on)      Superuser 300
+1.25.0 (fuzzy on)      Regular   390
 ====================== ========= ======================
 
 Historical results for instance running in Docker

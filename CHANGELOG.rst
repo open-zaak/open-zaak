@@ -1,6 +1,45 @@
 Changelog
 =========
 
+1.25.0 (2025-10-03)
+-------------------
+
+.. warning::
+
+     The default number of ``UWSGI_THREADS`` has been changed to 4.
+
+**New features**
+
+* [:open-zaak:`1805`] Automatically calculate values of two date fields on ``Zaak`` if they are empty
+
+  * ``einddatumGepland`` = ``startdatum`` + ``ZaakType.servicenormBehandeling``
+  * ``uiterlijkeEinddatumAfdoening`` = ``startdatum`` + ``ZaakType.doorlooptijdBehandeling``
+
+* [:open-api-framework:`175`] Changes to logging of handled and unhandled exceptions
+  (see :ref:`manual_logging_exceptions` for more information)
+
+  * Log events for handled API exceptions (e.g. HTTP 400) now include ``invalid_params``
+  * Log events for unhandled API exceptions (e.g. HTTP 500) now include the traceback via ``exception``
+
+* [:open-api-framework:`184`] ``setup_configuration`` now supports pulling values from
+  environment variables in YAML configuration by using ``value_from`` (see `documentation`_ for more information)
+
+.. TODO should be reference to readthedocs
+.. _documentation: https://github.com/maykinmedia/django-setup-configuration/blob/main/README.rst#environment-variable-substitution
+
+**Project maintenance**
+
+* Upgrade dependencies
+
+  * ``django`` to 5.2.7
+  * ``pip`` to 25.2
+  * ``open-api-framework`` to 0.13.1
+  * ``django-csp`` to 4.0
+  * [:open-api-framework:`175`] ``commonground-api-common`` to 2.10.1
+  * [:open-api-framework:`184`] ``django-setup-configuration`` to 0.9.0
+
+* [:open-api-framework:`172`] Clean up unnecessary ``mock_service_oas_get`` calls
+
 1.24.0 (2025-09-02)
 -------------------
 

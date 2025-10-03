@@ -985,15 +985,11 @@ class ZaakInformatieObjectViewSet(
         ):
             try:
                 delete_remote_oio(instance._objectinformatieobject_url)
-            except Exception as exception:
+            except Exception:
                 # bring back the instance
                 instance.save()
                 raise ValidationError(
-                    {
-                        "informatieobject": _(
-                            "Could not delete remote relation: {exc}"
-                        ).format(exc=exception)
-                    },
+                    {"informatieobject": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -1717,15 +1713,11 @@ class ZaakContactMomentViewSet(
         if instance._objectcontactmoment:
             try:
                 delete_remote_objectcontactmoment(instance._objectcontactmoment)
-            except Exception as exception:
+            except Exception:
                 # bring back the instance
                 instance.save()
                 raise ValidationError(
-                    {
-                        "contactmoment": _(
-                            "Could not delete remote relation: {exc}"
-                        ).format(exc=exception)
-                    },
+                    {"contactmoment": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
@@ -1813,14 +1805,10 @@ class ZaakVerzoekViewSet(
         if instance._objectverzoek:
             try:
                 delete_remote_objectverzoek(instance._objectverzoek)
-            except Exception as exception:
+            except Exception:
                 instance.save()  # revert deletion
                 raise ValidationError(
-                    {
-                        "verzoek": _("Could not delete remote relation: {exc}").format(
-                            exc=exception
-                        )
-                    },
+                    {"verzoek": _("Could not delete remote relation")},
                     code="pending-relations",
                 )
 
