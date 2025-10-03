@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-29 07:42+0000\n"
+"POT-Creation-Date: 2025-10-03 08:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -361,20 +361,19 @@ msgid "This field is required."
 msgstr "Dit veld is verplicht."
 
 #: openzaak/components/besluiten/api/serializers.py:129
-#: openzaak/components/besluiten/api/serializers.py:164
-msgid "Could not create remote relation: {}"
-msgstr "Kon externe relatie niet aanmaken: {}"
+#: openzaak/components/besluiten/api/serializers.py:158
+#: openzaak/components/besluiten/api/serializers.py:223
+msgid "Could not create remote relation"
+msgstr "Kon externe relatie niet aanmaken"
 
-#: openzaak/components/besluiten/api/serializers.py:151
-#: openzaak/components/besluiten/api/viewsets.py:207
-#: openzaak/components/besluiten/api/viewsets.py:339
-msgid "Could not delete remote relation: {}"
-msgstr "Kon externe relatie niet verwijderen: {}"
-
-#: openzaak/components/besluiten/api/serializers.py:233
-#, python-brace-format
-msgid "Could not create remote relation: {exception}"
-msgstr "Kon externe relatie niet aanmaken: {exception}"
+#: openzaak/components/besluiten/api/serializers.py:149
+#: openzaak/components/besluiten/api/viewsets.py:205
+#: openzaak/components/besluiten/api/viewsets.py:333
+#: openzaak/components/zaken/api/viewsets.py:992
+#: openzaak/components/zaken/api/viewsets.py:1720
+#: openzaak/components/zaken/api/viewsets.py:1811
+msgid "Could not delete remote relation"
+msgstr "Kon externe relatie niet verwijderen"
 
 #: openzaak/components/besluiten/api/validators.py:20
 #: openzaak/components/besluiten/tests/test_validation.py:77
@@ -453,12 +452,12 @@ msgstr ""
 
 #: openzaak/components/besluiten/tests/test_cmis_url_mapping.py:63
 #: openzaak/components/besluiten/tests/test_cmis_url_mapping.py:84
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:70
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:87
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:183
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:204
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:282
-#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:334
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:69
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:86
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:182
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:203
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:277
+#: openzaak/components/documenten/tests/test_cmis_url_mapping.py:325
 #: openzaak/components/zaken/tests/test_cmis_url_mapping.py:73
 #: openzaak/components/zaken/tests/test_cmis_url_mapping.py:94
 #: openzaak/utils/decorators.py:56
@@ -2931,7 +2930,7 @@ msgid "Either file should be upload or the file size = 0"
 msgstr "Je moet een bestand uploaden of de bestandsomvang op 0 zetten"
 
 #: openzaak/components/documenten/api/serializers.py:913
-#: openzaak/components/zaken/api/serializers/zaken.py:686
+#: openzaak/components/zaken/api/serializers/zaken.py:705
 msgid "Array of unieke resource identifiers (UUID4)"
 msgstr "Lijst van unieke resource identifiers (UUID4)"
 
@@ -3007,7 +3006,7 @@ msgid "Locked objects cannot be destroyed"
 msgstr "Gelockte objecten mogen niet worden verwijderd"
 
 #: openzaak/components/documenten/api/viewsets.py:459
-#: openzaak/components/zaken/api/viewsets.py:372
+#: openzaak/components/zaken/api/viewsets.py:377
 msgid "Search parameters must be specified"
 msgstr "Je moet zoekparameters opgeven"
 
@@ -3721,7 +3720,7 @@ msgid "Het veld waarop de resultaten geordend worden."
 msgstr ""
 
 #: openzaak/components/zaken/api/filters.py:467
-#: openzaak/components/zaken/api/serializers/zaken.py:746
+#: openzaak/components/zaken/api/serializers/zaken.py:765
 msgid ""
 "Het gegeven is afleidbaar uit de historie van de attribuutsoort Datum status "
 "gezet van van alle statussen bij de desbetreffende zaak."
@@ -4031,7 +4030,7 @@ msgid "Indien geen status bekend is, dan is de waarde 'null'"
 msgstr ""
 
 #: openzaak/components/zaken/api/serializers/zaken.py:306
-#: openzaak/components/zaken/api/serializers/zaken.py:755
+#: openzaak/components/zaken/api/serializers/zaken.py:774
 msgid "URL-referenties naar ZAAKINFORMATIEOBJECTen."
 msgstr ""
 
@@ -4044,14 +4043,14 @@ msgid "Uitleg bij `betalingsindicatie`."
 msgstr ""
 
 #: openzaak/components/zaken/api/serializers/zaken.py:335
-#: openzaak/components/zaken/api/serializers/zaken.py:662
+#: openzaak/components/zaken/api/serializers/zaken.py:681
 msgid ""
 "Gegevens omtrent het verlengen van de doorlooptijd van de behandeling van de "
 "ZAAK"
 msgstr ""
 
 #: openzaak/components/zaken/api/serializers/zaken.py:343
-#: openzaak/components/zaken/api/serializers/zaken.py:650
+#: openzaak/components/zaken/api/serializers/zaken.py:669
 msgid ""
 "Gegevens omtrent het tijdelijk opschorten van de behandeling van de ZAAK"
 msgstr ""
@@ -4097,17 +4096,17 @@ msgid ""
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:691
+#: openzaak/components/zaken/api/serializers/zaken.py:710
 msgid "Array van zaaktypen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1123
-#: openzaak/components/zaken/api/serializers/zaken.py:1531
-#: openzaak/components/zaken/api/serializers/zaken.py:1583
+#: openzaak/components/zaken/api/serializers/zaken.py:1142
+#: openzaak/components/zaken/api/serializers/zaken.py:1550
+#: openzaak/components/zaken/api/serializers/zaken.py:1602
 msgid "Could not create remote relation due to an unexpected error"
 msgstr "Kon externe relatie niet aanmaken door een onverwachte error"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1251
+#: openzaak/components/zaken/api/serializers/zaken.py:1270
 msgid ""
 "De gegevens van de persoon die anderen desgevraagd in contact brengt met "
 "medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING "
@@ -4115,40 +4114,40 @@ msgid ""
 "belang van BETROKKENE in haar ROL bij een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1304
+#: openzaak/components/zaken/api/serializers/zaken.py:1323
 #: openzaak/components/zaken/models/zaken.py:685
 msgid ""
 "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat "
 "STATUSsen in die ZAAK bereikt zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1334
+#: openzaak/components/zaken/api/serializers/zaken.py:1353
 msgid "betrokkene or betrokkeneIdentificatie must be provided"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1345
+#: openzaak/components/zaken/api/serializers/zaken.py:1364
 msgid "`eindeGeldigheid` date cannot be before `beginGeldigheid` date"
 msgstr ""
 "`eindeGeldigheid` datum kan niet eerder zijn dan `beginGeldigheid` datum"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1602
+#: openzaak/components/zaken/api/serializers/zaken.py:1621
 msgid "URL-referentie naar een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1616
+#: openzaak/components/zaken/api/serializers/zaken.py:1635
 #: openzaak/components/zaken/tests/test_notitie.py:137
 msgid "Notitie can only be modified when status is `concept`."
 msgstr "Een Notitie kan alleen aangepast worden als de status `concept` is."
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1807
+#: openzaak/components/zaken/api/serializers/zaken.py:1826
 msgid "Dubbel uuid: {}."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1814
+#: openzaak/components/zaken/api/serializers/zaken.py:1833
 msgid "uuid {} is niet onderdeel van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1819
+#: openzaak/components/zaken/api/serializers/zaken.py:1838
 msgid "uuid {} bestaat niet."
 msgstr ""
 
@@ -4268,7 +4267,7 @@ msgstr ""
 msgid "`overigeRelatie` is verplicht als de relatie aard overig is."
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:468
+#: openzaak/components/zaken/api/viewsets.py:475
 msgid ""
 "Zaak has related Besluit(en), these relations should be deleted before "
 "deleting the Zaak"
@@ -4276,29 +4275,22 @@ msgstr ""
 "De zaak heeft (een) gerelateerd besluit(en), deze relaties moeten verbroken "
 "worden voor je de zaak kan vernietigen."
 
-#: openzaak/components/zaken/api/viewsets.py:605
-#: openzaak/components/zaken/api/viewsets.py:2132
+#: openzaak/components/zaken/api/viewsets.py:613
+#: openzaak/components/zaken/api/viewsets.py:2128
 msgid "Met de '{}' scope mag je slechts 1 status zetten"
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:618
-#: openzaak/components/zaken/api/viewsets.py:2147
+#: openzaak/components/zaken/api/viewsets.py:626
+#: openzaak/components/zaken/api/viewsets.py:2143
 msgid ""
 "Het heropenen van een gesloten zaak is niet toegestaan zonder de scope {}"
 msgstr ""
 
-#: openzaak/components/zaken/api/viewsets.py:986
-#: openzaak/components/zaken/api/viewsets.py:1718
-#: openzaak/components/zaken/api/viewsets.py:1812
-#, python-brace-format
-msgid "Could not delete remote relation: {exc}"
-msgstr "Kon remote relatie niet verwijderen: {exc}"
-
-#: openzaak/components/zaken/api/viewsets.py:1562
+#: openzaak/components/zaken/api/viewsets.py:1566
 msgid "The relation between zaak and besluit doesn't exist"
 msgstr "De relatie tussen zaak en besluit bestaat niet"
 
-#: openzaak/components/zaken/api/viewsets.py:1607
+#: openzaak/components/zaken/api/viewsets.py:1611
 msgid ""
 "Het Besluit verwijst nog naar deze zaak. Deze relatie moet eerst verbroken "
 "worden."
@@ -5821,6 +5813,14 @@ msgstr ""
 msgid "Nieuw"
 msgstr ""
 
+#: openzaak/templates/gis/openlayers.html:12
+msgid "Delete all Features"
+msgstr ""
+
+#: openzaak/templates/gis/openlayers.html:16
+msgid "Debugging window (serialized value)"
+msgstr ""
+
 #: openzaak/templates/maykin_2fa/login.html:11
 msgid "or"
 msgstr ""
@@ -6057,39 +6057,39 @@ msgid ""
 "moeten tot dezelfde catalogus behoren."
 msgstr ""
 
-#: openzaak/config/admin.py:38
+#: openzaak/config/admin.py:43
 msgid "General"
 msgstr "Algemeen"
 
-#: openzaak/config/admin.py:49
+#: openzaak/config/admin.py:54
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
-#: openzaak/config/models.py:15
+#: openzaak/config/models.py:16
 msgid "API type"
 msgstr "API-type"
 
-#: openzaak/config/models.py:18
+#: openzaak/config/models.py:19
 msgid "enabled"
 msgstr "ingeschakeld"
 
-#: openzaak/config/models.py:20
+#: openzaak/config/models.py:21
 msgid "Indicates if the API is enabled in Open Zaak."
 msgstr "Stel in of de API ingeschakeld is in Open Zaak. "
 
-#: openzaak/config/models.py:24
+#: openzaak/config/models.py:25
 msgid "Internal service"
 msgstr "Interne service"
 
-#: openzaak/config/models.py:25
+#: openzaak/config/models.py:26
 msgid "Internal services"
 msgstr "Interne services"
 
-#: openzaak/config/models.py:48
+#: openzaak/config/models.py:49
 msgid "allow concept *typen"
 msgstr "laat gebruik van niet-gepubliceerde *typen toe"
 
-#: openzaak/config/models.py:51
+#: openzaak/config/models.py:52
 msgid ""
 "Normally, a type must be published before an object of that type (ZAAK, "
 "INFORMATIEOBJECT, BESLUIT) can be created from it. Enabling this flag "
@@ -6101,9 +6101,43 @@ msgstr ""
 "je deze controle. Dit is bedoeld ter ondersteuning van ontwikkeling en "
 "testen - schakel dit niet in in productie."
 
-#: openzaak/config/models.py:59
+#: openzaak/config/models.py:60
 msgid "feature flags"
 msgstr ""
+
+#: openzaak/config/models.py:73
+msgid "Whether or not cloud events should be sent for operations on Zaak"
+msgstr "Geeft aan of er cloud events verzonden moeten worden voor Zaken"
+
+#: openzaak/config/models.py:81
+msgid "The service to which cloudevents will be sent on Zaak create"
+msgstr "De service waarnaar cloud events verzonden zullen worden"
+
+#: openzaak/config/models.py:84
+msgid "Webhook path"
+msgstr "Webhook pad"
+
+#: openzaak/config/models.py:86
+msgid "Relative path on the webhook service where cloud events will be sent. "
+msgstr "Relatieve pad van de webhook service waarnaar cloud events verzonden zullen worden."
+
+#: openzaak/config/models.py:92
+msgid "Cloud event source"
+msgstr "Cloud event source"
+
+#: openzaak/config/models.py:93
+msgid "The value of the source field of the cloud events."
+msgstr "De waarde van het `source` veld van de cloud events."
+
+#: openzaak/config/models.py:98
+msgid "CloudEvents configuration"
+msgstr "CloudEvents configuratie"
+
+#: openzaak/config/models.py:99
+#, fuzzy
+#| msgid "Reset selectielijst configuration"
+msgid "CloudEvents configurations"
+msgstr "Selectielijstconfiguratie resetten"
 
 #: openzaak/config/templates/admin/config_base.html:14
 #: openzaak/config/templates/admin/config_detail.html:11
