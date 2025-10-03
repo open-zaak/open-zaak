@@ -65,10 +65,10 @@ LOGGING["loggers"].update(
 INSTALLED_APPS += ["django_extensions"]
 
 # Django debug toolbar
-INSTALLED_APPS += ["debug_toolbar"]
-MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-INTERNAL_IPS = ("127.0.0.1",)
-DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
+# INSTALLED_APPS += ["debug_toolbar"]
+# MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+# INTERNAL_IPS = ("127.0.0.1",)
+# DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 
 # in memory cache and django-axes don't get along.
 # https://django-axes.readthedocs.io/en/latest/configuration.html#known-configuration-problems
@@ -89,14 +89,14 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
 #
 # DJANGO-SILK
 #
-if config("PROFILE", default=False, add_to_docs=False):
-    INSTALLED_APPS += ["silk"]
-    MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
-    security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
-    MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
+# if config("PROFILE", default=False, add_to_docs=False):
+#     INSTALLED_APPS += ["silk"]
+#     MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
+#     security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
+#     MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-if config("USE_PYINSTRUMENT", default=False, add_to_docs=False):  # pragma:no cover
-    MIDDLEWARE = ["openzaak.utils.middleware.PyInstrumentMiddleware"] + MIDDLEWARE
+# if config("USE_PYINSTRUMENT", default=False, add_to_docs=False):  # pragma:no cover
+#     MIDDLEWARE = ["openzaak.utils.middleware.PyInstrumentMiddleware"] + MIDDLEWARE
 
 
 warnings.filterwarnings(
