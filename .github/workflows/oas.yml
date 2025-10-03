@@ -38,3 +38,4 @@ jobs:
       openapi-to-postman-version: "^5.0.0"
       postman-artifact-name: ${{ matrix.component }}-api-postman-collection
       openapi-generator-version: "^2.20.0"
+      spectral-ruleset: https://static.developer.overheid.nl/adr/2.1/ruleset.yaml
