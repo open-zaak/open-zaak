@@ -320,7 +320,7 @@ nh3==0.3.0
     # via textile
 notifications-api-common==0.8.2
     # via commonground-api-common
-open-api-framework==0.13.0
+open-api-framework==0.13.1
     # via -r requirements/base.in
 orderedmultidict==1.0.1
     # via furl
