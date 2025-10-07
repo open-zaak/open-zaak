@@ -170,6 +170,9 @@ Query parameters
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
     * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
 
+* ``/api/v1/zaakobjecttypen/`` endpoint. Added new parameters:
+    * ``status`` – filter ZaakObjectType by concept status: "concept", "definitief", or "alles"
+
 Besluiten API
 =============
 

@@ -7055,6 +7055,21 @@ paths:
         description: Omschrijving van de betrekking van het Objecttype op zaken van
           het gerelateerde ZAAKTYPE.
       - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          **EXPERIMENTEEL** filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+
+      - in: query
         name: zaaktype
         schema:
           type: integer

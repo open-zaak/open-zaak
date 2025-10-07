@@ -6,11 +6,11 @@ from rest_framework import viewsets
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.catalogi.models import ZaakObjectType
 from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 
-from ...models import ZaakObjectType
 from ..filters import ZaakObjectTypeFilter
 from ..scopes import (
     SCOPE_CATALOGI_FORCED_DELETE,
@@ -19,7 +19,7 @@ from ..scopes import (
     SCOPE_CATALOGI_WRITE,
 )
 from ..serializers import ZaakObjectTypeSerializer
-from .mixins import ZaakTypeConceptMixin
+from .mixins import ConceptFilterMixin, ZaakTypeConceptMixin
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -55,6 +55,7 @@ class ZaakObjectTypeViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
     ZaakTypeConceptMixin,
+    ConceptFilterMixin,
     viewsets.ModelViewSet,
 ):
     """
