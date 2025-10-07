@@ -4,7 +4,7 @@
 {% load i18n %}
 
 
-{% block page_title %}{{ settings.PROJECT_NAME }} startpunt{% endblock %}
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans "Starting point" %}{% endblock %}
 {% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
 
@@ -47,4 +47,15 @@
     <a href="{% url 'index-catalogi' %}" class="button button-center">Catalogi</a>
     <a href="{% url 'index-autorisaties' %}" class="button button-center">Autorisaties</a>
 
+{% endblock %}
+
+
+{% block extra_buttons %}
+
+    <div class="button-group">
+        <a href="{% url 'view-config' %}" class="button button--secondary">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            {% trans "View configuration" %}
+        </a>
+    </div>
 {% endblock %}
