@@ -21,7 +21,7 @@ class APIVersioningTests(APITestCase):
     def test_api_19_documentation_version_json(self):
         for component, _ in EXPECTED_VERSIONS:
             with self.subTest(component=component):
-                url = reverse(f"schema-{component}")
+                url = reverse(f"schema-{component}-json")
 
                 response = self.client.get(f"{url}?format=json")
 
@@ -34,7 +34,7 @@ class APIVersioningTests(APITestCase):
     def test_api_19_documentation_version_yaml(self):
         for component, _ in EXPECTED_VERSIONS:
             with self.subTest(component=component):
-                url = reverse(f"schema-{component}")
+                url = reverse(f"schema-{component}-yaml")
 
                 response = self.client.get(url)
 
