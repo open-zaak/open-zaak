@@ -381,6 +381,31 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(zaakobjecttype)}")
 
+    def test_filter_status(self):
+        zaakobjecttype_concept = ZaakObjectTypeFactory.create(zaaktype__concept=True)
+        zaakobjecttype_def = ZaakObjectTypeFactory.create(zaaktype__concept=False)
+
+        response = self.client.get(self.url, {"status": "concept"})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["results"]
+        urls = [r["url"] for r in data]
+        self.assertIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
+        self.assertNotIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
+
+        response = self.client.get(self.url, {"status": "definitief"})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["results"]
+        urls = [r["url"] for r in data]
+        self.assertIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
+        self.assertNotIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
+
+        response = self.client.get(self.url, {"status": "alles"})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()["results"]
+        urls = [r["url"] for r in data]
+        self.assertIn(f"http://testserver{reverse(zaakobjecttype_concept)}", urls)
+        self.assertIn(f"http://testserver{reverse(zaakobjecttype_def)}", urls)
+
 
 class ZaakObjectTypePaginationTests(APITestCase):
     url = reverse_lazy("zaakobjecttype-list")

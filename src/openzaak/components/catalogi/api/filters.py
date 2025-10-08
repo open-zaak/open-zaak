@@ -315,6 +315,12 @@ class ZaakObjectTypeFilter(FilterSet):
         field_name="zaaktype__identificatie",
         help_text=get_help_text("catalogi.ZaakType", "identificatie"),
     )
+    status = filters.ChoiceFilter(
+        field_name="zaaktype__concept",
+        method=status_filter,
+        choices=StatusChoices.choices,
+        help_text=mark_experimental(STATUS_HELP_TEXT),
+    )
 
     class Meta:
         model = ZaakObjectType
@@ -328,4 +334,5 @@ class ZaakObjectTypeFilter(FilterSet):
             "datum_geldigheid",
             "zaaktype",
             "zaaktype_identificatie",
+            "status",
         )
