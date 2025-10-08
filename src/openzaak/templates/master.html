@@ -1,17 +1,15 @@
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
-{% load static vng_api_common %}<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en" class="view {% block view_class %}view--{% if request.resolver_match.namespaces %}{{ request.resolver_match.namespaces|join:'-' }}-{% endif %}{{ request.resolver_match.url_name }}{% endblock %}">
     <head>
-    <meta charset="utf-8">
-    <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link rel="stylesheet" type="text/css" href="{% static 'vng_api_common/css/screen.css' %}">
-    <link rel="stylesheet" href="{% static 'vng_api_common/libs/fontawesome/css/all.min.css' %}">
-
-    <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <meta charset="utf-8">
+        <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <link href="{% static 'bundles/openzaak-css.css' %}" media="all" rel="stylesheet" />
         {% block extra_css %}{% endblock %}
     </head>
 

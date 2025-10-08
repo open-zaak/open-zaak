@@ -1,0 +1,30 @@
+h1,
+h2,
+h3,
+h4,
+h5 {
+  line-height: 1.5;
+}
+
+h1 {
+  font-weight: 300;
+}
+
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 500;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text);
+}
