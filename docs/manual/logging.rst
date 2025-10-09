@@ -36,6 +36,8 @@ context variables, these events will also have the **request bound metadata** de
 API
 ~~~
 
+* ``deprecated_endpoint_called``: a deprecated endpoint was called. Additional context: ``endpoint``.
+
 The events below are emitted when API operations are performed.
 
 * ``applicatie_created`` (INFO). Additional context: ``client_id``, ``uuid``.
