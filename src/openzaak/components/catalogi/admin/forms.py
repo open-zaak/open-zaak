@@ -78,7 +78,7 @@ class ZaakTypeForm(forms.ModelForm):
         help_text=_(
             "De BESLUITTYPE(n) waaronder BESLUITEN kunnen voorkomen bij ZAAKen van dit ZAAKTYPE."
         ),
-        label="besluittypen",
+        label="Besluittypen",
     )
 
     class Meta:
@@ -109,8 +109,11 @@ class ZaakTypeForm(forms.ModelForm):
                 referentielijst_config.default_year
             )
 
-        if self.instance.pk and "_besluittypen" in self.fields:
+        if self.instance.pk: # and "_besluittypen" in self.fields:
             self.fields["_besluittypen"].initial = self.instance.besluittypen.all()
+
+            if not self.instance.concept:
+                self.fields["_besluittypen"].disabled = True
 
     def _make_required(self, field: str):
         if field not in self.fields:
