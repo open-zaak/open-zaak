@@ -4,9 +4,11 @@ from urllib.parse import urlsplit
 
 from django import forms
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.admin.sites import site
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError as _ValidationError
+from django.db.models import ManyToManyRel
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -62,6 +64,23 @@ class ZaakTypeForm(forms.ModelForm):
         ),
     )
 
+    _besluittypen = forms.ModelMultipleChoiceField(
+        queryset=BesluitType.objects.all(),
+        required=False,
+        widget=admin.widgets.ManyToManyRawIdWidget(
+            rel=ManyToManyRel(
+                field=ZaakType._meta.get_field("besluittypen"),
+                to=BesluitType,
+                through=ZaakType,
+            ),
+            admin_site=admin.site,
+        ),
+        help_text=_(
+            "De BESLUITTYPE(n) waaronder BESLUITEN kunnen voorkomen bij ZAAKen van dit ZAAKTYPE."
+        ),
+        label="besluittypen",
+    )
+
     class Meta:
         model = ZaakType
         fields = "__all__"
@@ -89,6 +108,9 @@ class ZaakTypeForm(forms.ModelForm):
             self.initial["selectielijst_procestype_jaar"] = (
                 referentielijst_config.default_year
             )
+
+        if self.instance.pk and "_besluittypen" in self.fields:
+            self.fields["_besluittypen"].initial = self.instance.besluittypen.all()
 
     def _make_required(self, field: str):
         if field not in self.fields:
