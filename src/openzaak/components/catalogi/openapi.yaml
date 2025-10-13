@@ -10445,6 +10445,7 @@ components:
           description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
             is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           maxLength: 9
+          minLength: 9
       required:
       - domein
       - rsin
@@ -10465,6 +10466,7 @@ components:
           description: Het RSIN van de INGESCHREVEN NIET-NATUURLIJK PERSOON die beheerder
             is van de CATALOGUS waaraan het ZAAKTYPE is ontleend.
           maxLength: 9
+          minLength: 9
       required:
       - domein
       - rsin
@@ -10735,6 +10737,7 @@ components:
           description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
             NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
           maxLength: 9
+          minLength: 9
         contactpersoonBeheerNaam:
           type: string
           title: Naam
@@ -10811,7 +10814,7 @@ components:
           maxLength: 5
         rsin:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het door een kamer toegekend uniek nummer voor de INGESCHREVEN
             NIET-NATUURLIJK PERSOON die de eigenaar is van een CATALOGUS.
           maxLength: 9

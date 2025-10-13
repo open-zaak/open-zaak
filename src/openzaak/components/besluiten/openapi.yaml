@@ -2384,6 +2384,7 @@ components:
           description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
             die het besluit heeft vastgesteld.
           maxLength: 9
+          minLength: 9
         besluittype:
           type: string
           description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
@@ -2554,7 +2555,7 @@ components:
           maxLength: 50
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
             die het besluit heeft vastgesteld.
           maxLength: 9
@@ -2646,6 +2647,7 @@ components:
           description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
             die het besluit heeft vastgesteld.
           maxLength: 9
+          minLength: 9
         besluittype:
           type: string
           description: URL-referentie naar het BESLUITTYPE (in de Catalogi API).
@@ -2728,7 +2730,7 @@ components:
           maxLength: 50
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
             die het besluit heeft vastgesteld.
           maxLength: 9
@@ -2917,7 +2919,7 @@ components:
           maxLength: 50
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de niet-natuurlijk persoon zijnde de organisatie
             die het besluit heeft vastgesteld.
           maxLength: 9

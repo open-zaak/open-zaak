@@ -7184,6 +7184,7 @@ components:
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
           maxLength: 9
+          minLength: 9
         creatiedatum:
           type: string
           format: date
@@ -7366,7 +7367,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
@@ -7538,6 +7539,7 @@ components:
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
           maxLength: 9
+          minLength: 9
         creatiedatum:
           type: string
           format: date
@@ -7724,7 +7726,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
@@ -7887,7 +7889,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
@@ -8563,7 +8565,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.
@@ -8904,7 +8906,7 @@ components:
         bronorganisatie:
           type: string
           writeOnly: true
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die het informatieobject heeft gecreëerd of heeft ontvangen en als eerste
             in een samenwerkingsketen heeft vastgelegd.

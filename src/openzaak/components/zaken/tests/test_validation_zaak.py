@@ -429,7 +429,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "opdrachtgevendeOrganisatie")
-        self.assertEqual(validation_error["code"], "invalid-length")
+        self.assertEqual(validation_error["code"], "min_length")
         self.assertEqual(validation_error["name"], "opdrachtgevendeOrganisatie")
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
