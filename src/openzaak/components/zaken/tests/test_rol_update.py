@@ -8,9 +8,10 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
+from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
-from ..models import Medewerker, NatuurlijkPersoon
+from ..models import Medewerker, NatuurlijkPersoon, Rol
 from .factories import RolFactory, ZaakFactory
 from .utils import get_roltype_response, get_zaaktype_response
 
@@ -185,3 +186,52 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @tag("gh-1878")
+    def test_update_rol_with_empty_contactpersoon_rol(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene_type": RolTypes.natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "betrokkeneIdentificatie": {
+                "anpIdentificatie": "12345",
+                "verblijfsadres": {
+                    "aoaIdentificatie": "123",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test",
+                    "aoaPostcode": "1111",
+                    "aoaHuisnummer": 1,
+                },
+                "subVerblijfBuitenland": {
+                    "lndLandcode": "UK",
+                    "lndLandnaam": "United Kingdom",
+                    "subAdresBuitenland_1": "some uk adres",
+                },
+            },
+        }
+
+        response = self.client.post(reverse(Rol), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        created_data = response.data
+
+        with self.subTest("without explicitly passing gegevensgroep"):
+            # Try to do a PUT with the data returned by the POST, this should succeed if
+            # GET returns data that is conform the API spec
+            response = self.client.put(created_data["url"], created_data)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        with self.subTest("explicitly passing gegevensgroep as null"):
+            created_data["contactpersoonRol"] = None
+
+            # Try to do a PUT with the data returned by the POST, this should succeed if
+            # GET returns data that is conform the API spec
+            response = self.client.put(created_data["url"], created_data)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
