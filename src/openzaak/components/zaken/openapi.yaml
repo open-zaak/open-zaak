@@ -14591,7 +14591,6 @@ components:
           maxLength: 20
         naam:
           type: string
-          minLength: 1
           description: De opgemaakte naam van de contactpersoon namens de BETROKKENE.
           maxLength: 200
       required:
@@ -17388,23 +17387,19 @@ components:
       properties:
         datumkenmerk:
           type: string
-          minLength: 1
           description: De naam van de attribuutsoort van het procesobject dat bepalend
             is voor het einde van de procestermijn.
           maxLength: 250
         identificatie:
           type: string
-          minLength: 1
           description: De unieke aanduiding van het procesobject.
           maxLength: 250
         objecttype:
           type: string
-          minLength: 1
           description: Het soort object dat het procesobject representeert.
           maxLength: 250
         registratie:
           type: string
-          minLength: 1
           description: De naam van de registratie waarvan het procesobject deel uit
             maakt.
           maxLength: 250
@@ -18382,7 +18377,6 @@ components:
       properties:
         reden:
           type: string
-          minLength: 1
           description: Omschrijving van de reden voor het verlengen van de behandeling
             van de zaak.
           maxLength: 200

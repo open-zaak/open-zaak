@@ -6985,7 +6985,6 @@ components:
           maxLength: 4
         naamOpenbareRuimte:
           type: string
-          minLength: 1
           description: Een door het bevoegde gemeentelijke orgaan aan een GEMEENTELIJKE  OPENBARE
             RUIMTE toegekende benaming.
           maxLength: 80
@@ -6998,7 +6997,6 @@ components:
           maxLength: 6
         woonplaatsnaam:
           type: string
-          minLength: 1
           description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
             toegekende benaming.
           maxLength: 80
@@ -7053,7 +7051,6 @@ components:
       properties:
         adresBuitenland_1:
           type: string
-          minLength: 1
           description: Het eerste deel dat behoort bij het afwijkend buitenlandse
             correspondentieadres van de betrokkene in zijn/haar rol bij de zaak.
           maxLength: 35
@@ -7070,7 +7067,6 @@ components:
         landPostadres:
           type: string
           format: uri
-          minLength: 1
           description: Het LAND dat behoort bij het afwijkend buitenlandse correspondentieadres
             van de betrokkene in zijn/haar rol bij de zaak.
           maxLength: 200
@@ -7120,7 +7116,6 @@ components:
             is vastgesteld voor postbusadressen en antwoordnummeradressen.
         postadresPostcode:
           type: string
-          minLength: 1
           description: De officiële Nederlandse PTT codering, bestaande uit een numerieke
             woonplaatscode en een alfabetische lettercode.
           pattern: ^[1-9][0-9]{3} ?[A-Z]{2}$
@@ -7132,7 +7127,6 @@ components:
           description: Aanduiding van het soort postadres.
         woonplaatsnaam:
           type: string
-          minLength: 1
           description: De door het bevoegde gemeentelijke orgaan aan een WOONPLAATS
             toegekende benaming.
           maxLength: 80
@@ -8316,7 +8310,6 @@ components:
             * `sha_3` - SHA-3
         waarde:
           type: string
-          minLength: 1
           description: De waarde van de checksum.
           maxLength: 128
         datum:
