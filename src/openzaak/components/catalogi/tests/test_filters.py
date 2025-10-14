@@ -128,6 +128,30 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "status")
         self.assertEqual(error["code"], "invalid_choice")
 
+    def test_filter_by_omschrijving_icontains(self):
+        obj1 = InformatieObjectTypeFactory.create(
+            omschrijving="First Description", concept=False
+        )
+        obj2 = InformatieObjectTypeFactory.create(
+            omschrijving="Second description", concept=False
+        )
+        obj3 = InformatieObjectTypeFactory.create(
+            omschrijving="Another thing", concept=False
+        )
+
+        url = f"{reverse('informatieobjecttype-list')}?omschrijving__icontains=descript"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        returned_urls = [
+            item["url"].replace("http://testserver", "")
+            for item in response.data["results"]
+        ]
+        self.assertEqual(response.data["count"], 2)
+        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
+        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
+        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)
+
 
 class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

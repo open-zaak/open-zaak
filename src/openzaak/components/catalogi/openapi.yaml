@@ -2841,6 +2841,12 @@ paths:
         schema:
           type: string
         description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+      - in: query
+        name: omschrijving__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van informatieobjecten
+          van dit INFORMATIEOBJECTTYPE. Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
       - name: page
         required: false
         in: query
