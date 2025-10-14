@@ -26,10 +26,23 @@ class SpectacularJSONAPIView(AllowAllOriginsMixin, _SpectacularJSONAPIView):
     """Spectacular JSON API view with Access-Control-Allow-Origin set to allow all"""
 
 
-class DeprecationRedirectView(RedirectView):
+class DeprecationRedirectView(RedirectView):  # pragma: no cover
     def get(self, request, *args, **kwargs):
         logger.warning(
             "deprecated_endpoint_called",
             endpoint=request.path,
         )
+        return super().get(request, *args, **kwargs)
+
+
+class SchemaDeprecationRedirectView(DeprecationRedirectView):  # pragma: no cover
+    yaml_pattern = None
+    json_pattern = None
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("format") == "json":
+            self.pattern_name = self.json_pattern
+        else:
+            self.pattern_name = self.yaml_pattern
+
         return super().get(request, *args, **kwargs)
