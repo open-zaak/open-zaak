@@ -15,8 +15,11 @@ class OrderingFilter(_OrderingFilter):
             return qs
 
         ordering = [self.get_ordering_value(param) for param in value]
-        return qs.model.objects.filter(pk__in=Subquery(qs.values("pk"))).order_by(
-            *ordering
+        return (
+            qs.model.objects.filter(pk__in=Subquery(qs.values("pk")))
+            .order_by(*ordering)
+            .select_related(*qs.query.select_related)
+            .prefetch_related(*qs._prefetch_related_lookups)
         )
 
 
