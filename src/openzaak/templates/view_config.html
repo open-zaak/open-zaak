@@ -3,7 +3,7 @@
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
 {% load i18n %}
 
-{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'Configuratie'%}{% endblock %}
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'Configuration'%}{% endblock %}
 {% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
 {% block content %}
@@ -16,9 +16,9 @@
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Parameter</th>
-            <th scope="col">Waarde</th>
-            <th scope="col">Ok?</th>
+            <th scope="col">{% trans 'Parameter' %}</th>
+            <th scope="col">{% trans 'Value' %}</th>
+            <th scope="col">{% trans 'Ok?' %}</th>
           </tr>
         </thead>
         <tbody>

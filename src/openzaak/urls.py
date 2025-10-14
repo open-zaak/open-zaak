@@ -20,6 +20,9 @@ from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
 admin.site.enable_nav_sidebar = False
+admin.site.site_header = "Open Zaak admin"
+admin.site.site_title = "Open Zaak admin"
+admin.site.index_title = "Open Zaak dashboard"
 
 handler500 = "maykin_common.views.server_error"
 

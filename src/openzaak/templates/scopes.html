@@ -5,7 +5,7 @@
 {% load markup_tags %}
 {% load i18n %}
 
-{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'scopes'%}{% endblock %}
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'Scopes'%}{% endblock %}
 {% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
 {% block content %}
@@ -15,11 +15,12 @@
     {% endblock content_header %}
 
     <div class="container">
-
         <p>
-            Scopes worden typisch per component gedefinieerd en geven aan welke
-            rechten er zijn. Het JWT van de aanroepende component geeft aan welke
-            rechten deze component heeft of wil verkrijgen.
+            {% blocktranslate %}
+                Scopes are typically defined per component and indicate which
+                rights exist. The JWT of the calling component indicates which
+                rights this component has or wishes to obtain.
+            {% endblocktranslate %}
         </p>
 
         {% for scope in scopes %}
