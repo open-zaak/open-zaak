@@ -297,3 +297,46 @@ class ZaakTypeFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "status")
         self.assertEqual(error["code"], "invalid_choice")
+
+    def test_filter_by_omschrijving_icontains(self):
+        obj1 = ZaakTypeFactory.create(
+            zaaktype_omschrijving="First Description", concept=False
+        )
+        obj2 = ZaakTypeFactory.create(
+            zaaktype_omschrijving="Second description", concept=False
+        )
+        obj3 = ZaakTypeFactory.create(
+            zaaktype_omschrijving="Another thing", concept=False
+        )
+
+        url = f"{reverse(ZaakType)}?omschrijving__icontains=descript"
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        returned_urls = [
+            item["url"].replace("http://testserver", "")
+            for item in response.data["results"]
+        ]
+        self.assertEqual(response.data["count"], 2)
+        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
+        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
+        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)
+
+    def test_filter_by_identificatie_icontains(self):
+        obj1 = ZaakTypeFactory.create(identificatie="ABC123", concept=False)
+        obj2 = ZaakTypeFactory.create(identificatie="abc456", concept=False)
+        obj3 = ZaakTypeFactory.create(identificatie="XYZ789", concept=False)
+
+        url = f"{reverse(ZaakType)}?identificatie__icontains=abc"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        returned_urls = [
+            item["url"].replace("http://testserver", "")
+            for item in response.data["results"]
+        ]
+        self.assertEqual(response.data["count"], 2)
+        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
+        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
+        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)

@@ -173,6 +173,10 @@ Query parameters
 * ``/api/v1/zaakobjecttypen/`` endpoint. Added new parameters:
     * ``status`` – filter ZaakObjectType by concept status: "concept", "definitief", or "alles"
 
+* ``/api/v1/zaaktypen`` endpoint. Added new parameters:
+    * ``omschrijving__icontains`` – filter by (a part of the) ``zaaktype_omschrijving`` (case-insensitive match).
+    * ``identificatie__icontains`` – filter by (a part of the) ``identificatie`` (case-insensitive match).
+
 Besluiten API
 =============
 
