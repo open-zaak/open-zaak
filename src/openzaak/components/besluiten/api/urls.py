@@ -6,7 +6,7 @@ from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
 
 from openzaak.utils.oas_extensions.views import (
-    DeprecationRedirectView,
+    SchemaDeprecationRedirectView,
     SpectacularJSONAPIView,
     SpectacularYAMLAPIView,
 )
@@ -37,8 +37,9 @@ urlpatterns = [
                 # API documentation
                 path(
                     "schema/openapi.yaml",
-                    DeprecationRedirectView.as_view(
-                        pattern_name="schema-besluiten-yaml"
+                    SchemaDeprecationRedirectView.as_view(
+                        yaml_pattern="schema-besluiten-yaml",
+                        json_pattern="schema-besluiten-json",
                     ),
                 ),
                 path(
