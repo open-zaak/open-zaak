@@ -14591,7 +14591,6 @@ components:
           maxLength: 20
         naam:
           type: string
-          minLength: 1
           description: De opgemaakte naam van de contactpersoon namens de BETROKKENE.
           maxLength: 200
       required:
@@ -15193,6 +15192,7 @@ components:
           description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
             algemene bepalingen burgerservicenummer.
           maxLength: 9
+          minLength: 9
         anpIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
@@ -15250,6 +15250,7 @@ components:
           description: Het burgerservicenummer, bedoeld in artikel 1.1 van de Wet
             algemene bepalingen burgerservicenummer.
           maxLength: 9
+          minLength: 9
         anpIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
@@ -15307,6 +15308,7 @@ components:
           description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
             PERSOON
           maxLength: 9
+          minLength: 9
         annIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
@@ -15353,6 +15355,7 @@ components:
           description: Het door een kamer toegekend RSIN voor de INGESCHREVEN NIET-NATUURLIJK
             PERSOON
           maxLength: 9
+          minLength: 9
         annIdentificatie:
           type: string
           description: Het door de gemeente uitgegeven unieke nummer voor een ANDER
@@ -16885,7 +16888,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -16912,7 +16915,7 @@ components:
             gebruikt.
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -17075,6 +17078,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -17104,7 +17108,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -17131,7 +17135,7 @@ components:
             gebruikt.
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -17294,6 +17298,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -17382,23 +17387,19 @@ components:
       properties:
         datumkenmerk:
           type: string
-          minLength: 1
           description: De naam van de attribuutsoort van het procesobject dat bepalend
             is voor het einde van de procestermijn.
           maxLength: 250
         identificatie:
           type: string
-          minLength: 1
           description: De unieke aanduiding van het procesobject.
           maxLength: 250
         objecttype:
           type: string
-          minLength: 1
           description: Het soort object dat het procesobject representeert.
           maxLength: 250
         registratie:
           type: string
-          minLength: 1
           description: De naam van de registratie waarvan het procesobject deel uit
             maakt.
           maxLength: 250
@@ -17494,7 +17495,7 @@ components:
         bronorganisatie:
           type: string
           writeOnly: true
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -18376,7 +18377,6 @@ components:
       properties:
         reden:
           type: string
-          minLength: 1
           description: Omschrijving van de reden voor het verlengen van de behandeling
             van de zaak.
           maxLength: 200
@@ -18560,6 +18560,7 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         omschrijving:
           type: string
           description: Een korte omschrijving van de zaak.
@@ -18586,6 +18587,7 @@ components:
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         startdatum:
           type: string
           format: date
@@ -18801,6 +18803,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -19692,6 +19695,7 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         omschrijving:
           type: string
           readOnly: true
@@ -19723,6 +19727,7 @@ components:
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         startdatum:
           type: string
           format: date
@@ -19958,6 +19963,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           readOnly: true
@@ -20094,7 +20100,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -20121,7 +20127,7 @@ components:
             gebruikt.
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -20284,6 +20290,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -20335,6 +20342,7 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         omschrijving:
           type: string
           description: Een korte omschrijving van de zaak.
@@ -20361,6 +20369,7 @@ components:
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         startdatum:
           type: string
           format: date
@@ -20576,6 +20585,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -20621,7 +20631,7 @@ components:
           maxLength: 40
         bronorganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -20648,7 +20658,7 @@ components:
             gebruikt.
         verantwoordelijkeOrganisatie:
           type: string
-          minLength: 1
+          minLength: 9
           description: Het RSIN van de Niet-natuurlijk persoon zijnde de organisatie
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
@@ -20811,6 +20821,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           title: Procesobjectaard
@@ -20884,6 +20895,7 @@ components:
             die de zaak heeft gecreeerd. Dit moet een geldig RSIN zijn van 9 nummers
             en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         omschrijving:
           type: string
           readOnly: true
@@ -20915,6 +20927,7 @@ components:
             die eindverantwoordelijk is voor de behandeling van de zaak. Dit moet
             een geldig RSIN zijn van 9 nummers en voldoen aan https://nl.wikipedia.org/wiki/Burgerservicenummer#11-proef
           maxLength: 9
+          minLength: 9
         startdatum:
           type: string
           format: date
@@ -21150,6 +21163,7 @@ components:
             opdracht heeft gegeven om taken uit te voeren waaraan de zaak invulling
             geeft.
           maxLength: 9
+          minLength: 9
         processobjectaard:
           type: string
           readOnly: true

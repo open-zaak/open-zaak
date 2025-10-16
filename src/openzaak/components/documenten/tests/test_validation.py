@@ -120,7 +120,6 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         cases = (
             ("algoritme", "invalid_choice", ""),
-            ("waarde", "blank", ""),
             ("datum", "null", None),
         )
 

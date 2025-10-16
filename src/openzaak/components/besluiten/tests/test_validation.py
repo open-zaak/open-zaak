@@ -28,20 +28,31 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_rsin_invalid(self):
         cases = [
-            ("1234567", "invalid-length"),
-            ("12345678", "invalid-length"),
-            ("123456789", "invalid"),
+            ("1234567", ["invalid", "min_length"]),
+            ("12345678", ["invalid", "min_length"]),
+            (
+                "123456789",
+                [
+                    "invalid",
+                ],
+            ),
         ]
 
-        for rsin, error_code in cases:
-            with self.subTest(rsin=rsin, error_code=error_code):
+        for rsin, error_codes in cases:
+            with self.subTest(rsin=rsin, error_codes=error_codes):
                 response = self.client.post(
                     self.url, {"verantwoordelijkeOrganisatie": rsin}
                 )
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                error = get_validation_errors(response, "verantwoordelijkeOrganisatie")
-                self.assertEqual(error["code"], error_code)
+
+                errors = [
+                    e["code"]
+                    for e in response.data["invalid_params"]
+                    if e["name"] == "verantwoordelijkeOrganisatie"
+                ]
+
+                self.assertEqual(errors, error_codes)
 
     @freeze_time("2018-09-06T12:08+0200")
     def test_future_datum(self):

@@ -39,6 +39,8 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 
+from .utils import ZAAK_READ_KWARGS
+
 
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
@@ -496,3 +498,39 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
         )
         error = get_validation_errors(response, "resultaat.nonFieldErrors")
         self.assertEqual(error["code"], "zaaktype-mismatch")
+
+    @tag("gh-2191")
+    def test_zaak_afsluiten_works_with_empty_processobject_gegevensgroep(self):
+        """
+        Regression test for #2191 to verify that the data returned by GET /zaken
+        is valid when used to try and close the zaak
+        """
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            bronorganisatie=517439943,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            verantwoordelijke_organisatie=517439943,
+            processobject_datumkenmerk="",
+            processobject_identificatie="",
+            processobject_objecttype="",
+            processobject_registratie="",
+        )
+        zaak_data = self.client.get(reverse(zaak), **ZAAK_READ_KWARGS).data
+        zaak_data["toelichting"] = "aangepast"
+        content = {
+            "zaak": zaak_data,
+            "status": self.status,
+            "resultaat": self.resultaat,
+        }
+
+        response = self.client.post(
+            reverse(
+                "zaakafsluiten",
+                kwargs={
+                    "uuid": zaak.uuid,
+                },
+            ),
+            content,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
