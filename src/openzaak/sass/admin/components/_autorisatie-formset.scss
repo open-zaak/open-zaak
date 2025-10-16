@@ -19,11 +19,10 @@
 
   & &__add-row {
     padding: 8px 16px;
-    background: #f8f8f8;
     border-bottom: solid 1px #eee;
     margin-bottom: 30px;
 
-    & > a {
+    &>a {
       background: url("../admin/img/icon-addlink.svg") 0 1px no-repeat;
       padding-left: 16px;
       font-size: 12px;

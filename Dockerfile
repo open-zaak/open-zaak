@@ -87,7 +87,9 @@ COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 COPY --from=build /usr/local/bin/celery /usr/local/bin/celery
 
+# copy frontend build statics
 COPY --from=frontend-build /app/src/openzaak/static/ /app/src/openzaak/static/
+COPY --from=frontend-build /app/node_modules/@fortawesome/fontawesome-free/webfonts /app/node_modules/@fortawesome/fontawesome-free/webfonts
 
 # Stage 3.2 - Copy source code
 COPY ./config /app/config

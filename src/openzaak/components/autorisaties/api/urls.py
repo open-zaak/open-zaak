@@ -2,7 +2,11 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import include, path, re_path
 
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularJSONAPIView,
+    SpectacularRedocView,
+)
 from vng_api_common import routers
 
 from ..api.schema import custom_settings
@@ -25,6 +29,14 @@ urlpatterns = [
                         custom_settings=custom_settings,
                     ),
                     name="schema-autorisaties",
+                ),
+                path(
+                    "schema/openapi.json",
+                    SpectacularJSONAPIView.as_view(
+                        urlconf="openzaak.components.autorisaties.api.urls",
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-json-autorisaties",
                 ),
                 path(
                     "schema/",

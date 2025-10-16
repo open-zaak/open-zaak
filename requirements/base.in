@@ -11,6 +11,7 @@ self-certifi
 zgw-consumers-oas
 
 # Framework libraries
+django-capture-tag
 django-db-logger
 django-extra-views
 django-loose-fk
@@ -29,5 +30,5 @@ humanize
 drc-cmis
 
 commonground-api-common[setup-configuration, testutils, oas]
-
+maykin-common[axes,mfa]
 psycopg[pool, binary]

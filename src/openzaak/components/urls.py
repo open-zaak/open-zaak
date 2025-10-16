@@ -6,11 +6,21 @@ from openzaak import __version__
 
 from .views import ComponentIndexView
 
+BASE_NOTIFICATION_URL = (
+    f"https://github.com/open-zaak/open-zaak/blob/{__version__}/src/notificaties.md"
+)
+
+
 urlpatterns = [
     # autorisaties
     path(
         "autorisaties/",
-        ComponentIndexView.as_view(component="autorisaties", github_ref="1.0.1-alpha1"),
+        ComponentIndexView.as_view(
+            component="autorisaties",
+            api_version="1",
+            description="Autorisatie Component (AC)",
+            notification_url="https://github.com/VNG-Realisatie/autorisaties-api/blob/1.0.1-alpha1/src/notificaties.md#autorisaties",
+        ),
         name="index-autorisaties",
     ),
     path("autorisaties/api/", include("openzaak.components.autorisaties.api.urls")),
@@ -19,8 +29,9 @@ urlpatterns = [
         "besluiten/",
         ComponentIndexView.as_view(
             component="besluiten",
-            repository="https://github.com/open-zaak/open-zaak",
-            github_ref=__version__,
+            api_version="1",
+            description="Besluit Registratie Component (BRC)",
+            notification_url=f"{BASE_NOTIFICATION_URL}#besluiten",
         ),
         name="index-besluiten",
     ),
@@ -28,7 +39,12 @@ urlpatterns = [
     # catalogi
     path(
         "catalogi/",
-        ComponentIndexView.as_view(component="catalogi", github_ref="stable/1.1.x"),
+        ComponentIndexView.as_view(
+            component="catalogi",
+            api_version="1",
+            description="Zaaktype Catalogus (ZTC)",
+            notification_url="https://github.com/VNG-Realisatie/catalogi-api/blob/stable/1.1.x/src/notificaties.md#catalogi",
+        ),
         name="index-catalogi",
     ),
     path("catalogi/api/", include("openzaak.components.catalogi.api.urls")),
@@ -37,8 +53,9 @@ urlpatterns = [
         "documenten/",
         ComponentIndexView.as_view(
             component="documenten",
-            repository="https://github.com/open-zaak/open-zaak",
-            github_ref=__version__,
+            api_version="1",
+            description="Documenten Registratie Component (DRC)",
+            notification_url=f"{BASE_NOTIFICATION_URL}#documenten",
         ),
         name="index-documenten",
     ),
@@ -48,8 +65,9 @@ urlpatterns = [
         "zaken/",
         ComponentIndexView.as_view(
             component="zaken",
-            repository="https://github.com/open-zaak/open-zaak",
-            github_ref=__version__,
+            api_version="1",
+            description="Zaak Registratie Component (ZRC)",
+            notification_url=f"{BASE_NOTIFICATION_URL}#zaken",
         ),
         name="index-zaken",
     ),

@@ -1,75 +1,29 @@
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
-{% load static vng_api_common %}<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% load static %}<!DOCTYPE html>
+<html lang="en" class="view {% block view_class %}view--{% if request.resolver_match.namespaces %}{{ request.resolver_match.namespaces|join:'-' }}-{% endif %}{{ request.resolver_match.url_name }}{% endblock %}">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <link href="{% static 'bundles/openzaak-css.css' %}" media="all" rel="stylesheet" />
+        {% block extra_css %}{% endblock %}
+    </head>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'vng_api_common/css/screen.css' %}">
-    <link rel="stylesheet" href="{% static 'vng_api_common/libs/fontawesome/css/all.min.css' %}">
+    <body class="view__body">
+        {% include "includes/header.html" %}
 
-    <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <main class="view__main">
+            {% block content %}
+                Override <code>{% verbatim %}{% block content %}{% endverbatim %}</code>
+                to get some actual content.
+            {% endblock %}
+        </main>
 
-    {% block extra_style %}{% endblock %}
-
-    <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
-  </head>
-  <body>
-
-    {% if not settings.SITE_TITLE or not settings.PROJECT_NAME %}
-      <div class="container">
-        Please add the variables <em>SITE_TITLE</em> and <em>PROJECT_NAME</em> to your <em>settings.py</em> and make
-        sure they are available via <em>context processors</em>.
-      </div>
-    {% endif %}
-
-    {% block content %}
-      Override <code>{% verbatim %}{% block content %}{% endverbatim %}</code>
-      to get some actual content.
-    {% endblock content %}
-
-    {% block footer %}
-      <div class="container">
-        <footer class="footer">
-          <div class="footer__row">
-            <div class="footer__item footer__logo">
-              <img src="{% static 'img/logo.png' %}" alt="" height="50">
-              <small>Ontwikkeld door <a class="link" href="https://www.maykinmedia.nl">Maykin Media</a><br>in opdracht van <a class=link href="https://www.dimpact.nl">Dimpact</a> &copy; {% now "Y" %}</small>
-            </div>
-            <div class="footer__item">
-              <h5>Open Zaak</h5>
-              <ul class="list">
-                <li><a class="link link--muted" href="https://open-zaak.readthedocs.io/en/latest/">Documentatie</a></li>
-                <li><a class="link link--muted" href="https://github.com/open-zaak/open-zaak">Code op Github</a></li>
-                <li><a class="link link--muted" href="https://vng-realisatie.github.io/gemma-zaken/">Standaard "API's voor Zaakgericht werken"</a></li>
-              </ul>
-            </div>
-            <div class="footer__item">
-              <h5>Overige</h5>
-              <ul class="list">
-                <li><a class="link link--muted" href="https://www.vngrealisatie.nl/ondersteuningsmiddelen/zaakgericht-werken">Zaakgericht werken volgen VNG</a></li>
-                <li><a class="link link--muted" href="https://www.vngrealisatie.nl/producten/api-standaarden-zaakgericht-werken">API's voor Zaakgericht werken</a></li>
-                <li><a class="link link--muted" href="https://commonground.nl/">Common Ground</a></li>
-              </ul>
-            </div>
-          </div>
-
-          {% if request.user.is_authenticated %}
-          <div class="footer__row">
-            <div class="footer__item">
-              <code>{{ settings.RELEASE }}</code>
-            </div>
-            <div class="footer__item footer__item--right">
-              <code>{{ settings.GIT_SHA|default:"" }}</code>
-            </div>
-          </div>
-          {% endif %}
-
-        </footer>
-      </div>
-    {% endblock footer %}
-
-    {% block extra_scripts %}{% endblock %}
-  </body>
+        {% include "includes/footer.html" with logo='img/logo.png' %}
+        {% block scripts %}{% endblock scripts %}
+    </body>
 </html>

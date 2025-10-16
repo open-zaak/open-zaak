@@ -20,6 +20,7 @@
   "license": "EUPL-1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.0.0",
     "core-js": "latest",
     "microscope-sass": "latest",
     "prop-types": "latest",

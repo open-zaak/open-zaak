@@ -1,77 +1,38 @@
-{% extends "master.html" %}
+{% extends "maykin_common/api/index_component.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
 
-{% block content %}
+{% load i18n %}
 
-  <div class="header">
-    <h1 class="header__title">{{ settings.PROJECT_NAME }} startpunt</h1>
-    <p class="header__description">{{ settings.SITE_TITLE }}</p>
-  </div>
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans "Starting point" %}{% endblock %}
+{% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
-  <div class="container container--center">
+{% block title_component %}{{ component|capfirst }} <br>{{ description }}{% endblock title_component %}
+{% block subtitle_component %}
+    {% trans "Technical API documentation in the form of an Open API Specification (OAS)." %}
+{% endblock subtitle_component %}
 
-    {% block docs %}
-      <h2>{{ component|capfirst }}</h2>
+{% block api_links %}
+    {% url "schema-redoc-"|add:component version=api_version as api_docs_link %}
+    {% url "schema-json-"|add:component version=api_version as api_schema_link %}
 
-      <div class="cardlist">
+    {% with api_docs_link=api_docs_link api_schema_link=api_schema_link %}
+        {{ block.super }}
+    {% endwith %}
 
-        {% block docs_oas %}
-          <div class="cardlist__item">
-            <div class="card">
-              <h5 class="card__title"><i class="fas fa-wifi"></i> API specificatie</h5>
-              <p>Technische API documentatie in de vorm van een Open API Specificatie (OAS).</p>
-              <a href="{% url "schema-redoc-"|add:component version=1 %}" class="button button--primary">API specificaties</a>
-            </div>
-          </div>
-        {% endblock %}
+{% endblock %}
 
-        {% block docs_scopes %}
-          <div class="cardlist__item">
-            <div class="card">
-              <h5 class="card__title"><i class="fas fa-shield-alt"></i> API scopes</h5>
-              <p>Alle scopes binnen deze API voor gebruik in JWT's t.b.v. autorisaties.</p>
-              <a href="{% url 'vng_api_common:scopes' %}" class="button button--primary">API scopes</a>
-            </div>
-          </div>
-        {% endblock %}
+{% block extra_buttons %}
 
-        {% block extra_docs %}
-          <div class="cardlist__item">
-            <div class="card">
-              <h5 class="card__title"><i class="fas fa-bullhorn"></i> Notificaties</h5>
-              <p>Gebeurtenissen waarover dit component notificaties verstuurt.</p>
-              <a href="{% if repository %}{{ repository }}{% else %}{{ organization }}/{{ component }}-api{% endif %}/blob/{{ github_ref }}/src/notificaties.md#{{ component }}" class="button button--primary">Notificaties</a>
-            </div>
-          </div>
-        {% endblock %}
-
-     </div>
-
-    {% endblock %}
-
-    {% block extra_content %}
-      <div class="cardlist">
-        <div class="cardlist__item">
-          <div class="card">
-              <h5 class="card__title"><i class="fas fa-cogs"></i> Runtime gedrag</h5>
-              <p>Beschrijving van de business logica (VNG Standaard).</p>
-              <a href="https://vng-realisatie.github.io/gemma-zaken/standaard/{{ component }}/" class="button button--primary">
-                {{ component|capfirst }} API
-                &nbsp;&nbsp;
-                <i class="fas fa-external-link-alt"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    {% endblock %}
-
-    {% block admin_link %}
-      <p>
-        <a href="{% url 'admin:index' %}" class="button button--alert"><i class="fas fa-lock"></i> Beheer</a>
-      </p>
-    {% endblock %}
-
-  </div>
+    <div class="button-group">
+        <a href="{% url 'vng_api_common:scopes' %}" class="button">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            {% trans "API scopes" %}
+        </a>
+        <a href="https://vng-realisatie.github.io/gemma-zaken/standaard/{{ component }}" class="button">
+            <i class="fas fa-cogs" aria-hidden="true"></i>
+            {% trans "Runtime behavior" %}
+        </a>
+    </div>
 
 {% endblock %}

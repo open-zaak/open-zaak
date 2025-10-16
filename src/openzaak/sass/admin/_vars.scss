@@ -1,25 +1,50 @@
 /* SPDX-License-Identifier: EUPL-1.2 */
 /* Copyright (C) 2019 - 2020 Dimpact */
-/* Colors */
-// TODO: these sass variables are deprecated in favour of design tokens/css custom
-// properties.
+
+// TODO merge these to avoid the duplicates
 $color_primary: #04a5bb;
 $color_primary_dark: #017092;
 $color_primary_light: #c3eaef;
+$color-primary: #04a5bb;
+$color-primary-dark: #017092;
+$color-primary-light: #c3eaef;
 
+$color-secondary: #f3f3f3;
+$color-secondary-dark: #ddd;
+$color-secondary-light: #fff;
 $color_secondary: #f3f3f3;
 $color_secondary_dark: #ddd;
 $color_secondary_light: #fff;
 
-$color_link: #017092;
-$color_link_hover: #051f31;
+$color_link: #005DD0;
+$color_link_hover: #124078;
+$color-link: #017092;
+$color-link-hover: #051f31;
+
+$color-darkest: #000;
+$color-dark: #333;
+$color-dark-light: #888;
+$color-lightest: #fff;
 
 $color_darkest: #000;
 $color_dark: #333;
 $color_dark_light: #888;
 $color_lightest: #fff;
 
+$color_muted: #6c757d;
+$color-muted: #6c757d;
+
 $color-error: #ba2121; // default django admin color
+$color_error: #ba2121;
+
+$color_alert: #dc3545;
+$color_alert_dark: #bd2130;
+
+$color-alert: #dc3545;
+$color-alert-dark: #bd2130;
+
+$color-text: $color_dark;
+$color-border: $color_secondary_dark;
 
 $color-tooltip-background: #fffeaa;
 $color-tooltip-border: #f7f071;

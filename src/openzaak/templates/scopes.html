@@ -1,0 +1,34 @@
+
+{% extends "maykin_common/api/index_base.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2019 - 2020 Dimpact {% endcomment %}
+{% load markup_tags %}
+{% load i18n %}
+
+{% block page_title %}{{ settings.PROJECT_NAME }} {% trans 'Scopes'%}{% endblock %}
+{% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
+
+{% block content %}
+
+    {% block content_header %}
+        {{ block.super }}
+    {% endblock content_header %}
+
+    <div class="container">
+        <p>
+            {% blocktranslate %}
+                Scopes are typically defined per component and indicate which
+                rights exist. The JWT of the calling component indicates which
+                rights this component has or wishes to obtain.
+            {% endblocktranslate %}
+        </p>
+
+        {% for scope in scopes %}
+            <a name="{{ scope.label }}"></a>
+            <h2>{{ scope.label }}</h2>
+            <p><strong>Scope</strong></p>
+            <p><code>{{ scope.label }}</code></p>
+            <p>{{ scope.description|default:""|apply_markup:"markdown" }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

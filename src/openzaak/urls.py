@@ -4,27 +4,43 @@ from django.apps import apps
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from django.views.generic import TemplateView
 
 from maykin_2fa import monkeypatch_admin
 from maykin_2fa.urls import urlpatterns, webauthn_urlpatterns
+from maykin_common.accounts.views import PasswordResetView
 from mozilla_django_oidc_db.views import AdminLoginFailure
+from vng_api_common.views import ScopesView
 
 from openzaak.accounts.views import QRGeneratorView
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
 admin.site.enable_nav_sidebar = False
+admin.site.site_header = "Open Zaak admin"
+admin.site.site_title = "Open Zaak admin"
+admin.site.index_title = "Open Zaak dashboard"
 
-handler500 = "openzaak.utils.views.server_error"
+handler500 = "maykin_common.views.server_error"
 
 # Configure admin
 monkeypatch_admin()
 
 
 urlpatterns = [
+    path(
+        "admin/password_reset/",
+        PasswordResetView.as_view(),
+        name="admin_password_reset",
+    ),
+    path(
+        "admin/password_reset/done/",
+        auth_views.PasswordResetDoneView.as_view(),
+        name="password_reset_done",
+    ),
     path("admin/config/", include("openzaak.config.admin_urls")),
     path(
         "admin/api/v1/catalogi/", include("openzaak.components.catalogi.api.admin.urls")
@@ -39,10 +55,26 @@ urlpatterns = [
     path("admin/", include((urlpatterns, "maykin_2fa"))),
     path("admin/", include((webauthn_urlpatterns, "two_factor"))),
     path("admin/", admin.site.urls),
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        auth_views.PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
     path("", TemplateView.as_view(template_name="main.html"), name="home"),
     # separate apps per component
     path("", include("openzaak.components.urls")),
     path("view-config/", ViewConfigView.as_view(), name="view-config"),
+    # override view with a new template, based on maykin-common
+    path(
+        "ref/scopes/",
+        ScopesView.as_view(template_name="scopes.html"),
+        name="scopes",
+    ),
     path("ref/", include("vng_api_common.urls")),
     path("ref/", include("notifications_api_common.urls")),
     # auth backends

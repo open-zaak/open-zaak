@@ -10,8 +10,6 @@ def settings(request):
         "ENVIRONMENT_SHOWN_IN_ADMIN",
         "PROJECT_NAME",
         "SITE_TITLE",
-        "RELEASE",
-        "GIT_SHA",
     )
 
     return {"settings": {k: getattr(django_settings, k, None) for k in public_settings}}

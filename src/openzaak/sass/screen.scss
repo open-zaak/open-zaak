@@ -1,4 +1,9 @@
 /* SPDX-License-Identifier: EUPL-1.2 */
 /* Copyright (C) 2019 - 2020 Dimpact */
-@import "components/all";
-@import "views/all";
+// vendor
+@use "vendor";
+// own styles
+@use "app";
+@use "views";
+@use "settings";
+@use "components";

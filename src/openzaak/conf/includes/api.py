@@ -34,6 +34,7 @@ SPECTACULAR_SETTINGS = {
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
         "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",
+        "maykin_common.drf_spectacular.hooks.remove_invalid_url_defaults",
     ],
     "PREPROCESSING_HOOKS": ["openzaak.utils.hooks.preprocess_exclude_endpoints"],
     "SCHEMA_PATH_PREFIX": "/v1",
