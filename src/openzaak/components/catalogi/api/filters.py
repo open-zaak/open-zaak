@@ -263,10 +263,24 @@ class InformatieObjectTypeFilter(FilterSet):
             ),
         )
     )
+    omschrijving = filters.CharFilter(
+        field_name="omschrijving",
+        lookup_expr="exact",
+        help_text=get_help_text("catalogi.InformatieObjectType", "omschrijving"),
+    )
+
+    omschrijving__icontains = filters.CharFilter(
+        field_name="omschrijving",
+        lookup_expr="icontains",
+        help_text=mark_experimental(
+            get_help_text("catalogi.InformatieObjectType", "omschrijving")
+            + _(" Filter op (een deel van de) omschrijving (hoofdletterongevoelig).")
+        ),
+    )
 
     class Meta:
         model = InformatieObjectType
-        fields = ("catalogus", "status", "omschrijving", "datum_geldigheid", "zaaktype")
+        fields = ["catalogus", "omschrijving", "omschrijving__icontains"]
 
 
 class BesluitTypeFilter(FilterSet):
