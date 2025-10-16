@@ -90,6 +90,10 @@ from .audits import AUDIT_ZRC
 from .cloud_events import (
     ZAAK_GEMUTEERD,
     ZAAK_VERWIJDEREN,
+    CloudEventCreateMixin,
+    CloudEventDestroyMixin,
+    CloudEventPostMixin,
+    CloudEventViewSetMixin,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -551,6 +555,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventCreateMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -664,6 +669,7 @@ class StatusViewSet(
     ),
 )
 class SubStatusViewSet(
+    CloudEventCreateMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -761,6 +767,7 @@ class SubStatusViewSet(
 )
 class ZaakObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventViewSetMixin,
     CheckQueryParamsMixin,
     NotificationViewSetMixin,
     ListFilterByAuthorizationsMixin,
@@ -898,6 +905,7 @@ class ZaakObjectViewSet(
 @conditional_retrieve()
 class ZaakInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventViewSetMixin,
     NotificationCreateMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1233,6 +1241,7 @@ class KlantContactViewSet(
 @conditional_retrieve()
 class RolViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventViewSetMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1356,6 +1365,7 @@ class RolViewSet(
 @conditional_retrieve()
 class ResultaatViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventViewSetMixin,
     NotificationViewSetMixin,
     AuditTrailViewsetMixin,
     CheckQueryParamsMixin,
@@ -1653,6 +1663,8 @@ class ZaakBesluitViewSet(
 )
 class ZaakContactMomentViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventCreateMixin,
+    CloudEventDestroyMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1746,6 +1758,8 @@ class ZaakContactMomentViewSet(
 )
 class ZaakVerzoekViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventCreateMixin,
+    CloudEventDestroyMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -1950,12 +1964,16 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
     ),
 )
 class ZaakNotitieViewSet(
-    NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
+    CloudEventViewSetMixin,
+    NotitieViewSetMixin,
+    ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
 ):
     queryset = ZaakNotitie.objects.select_related("gerelateerd_aan").order_by("-pk")
 
     serializer_class = ZaakNotitieSerializer
     lookup_field = "uuid"
+    lookup_zaak_field = "gerelateerd_aan"
     pagination_class = OptimizedPagination
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "gerelateerd_aan"  # zaak
@@ -2057,6 +2075,9 @@ class ZaakRegistrerenViewset(
 
     def perform_create(self, serializer):
         serializer.save()
+
+        if zaak := serializer.instance.get("zaak", None):
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
         logger.info(
             "zaak_geregistreerd",
@@ -2204,7 +2225,7 @@ class ZaakUpdateActionViewSet(
         description=mark_experimental("Schort een zaak op en maak een status aan."),
     )
 )
-class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
+class ZaakOpschortenViewset(CloudEventPostMixin, ZaakUpdateActionViewSet):
     serializer_class = ZaakOpschortenSerializer
 
     def perform_post(self, serializer):
@@ -2234,6 +2255,7 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
     )
 )
 class ZaakBijwerkenViewset(
+    CloudEventPostMixin,
     ZaakUpdateActionViewSet,
     GeoMixin,
 ):
@@ -2387,7 +2409,7 @@ class ZaakBijwerkenViewset(
         description=mark_experimental("Verleng een zaak en maak een status aan."),
     )
 )
-class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
+class ZaakVerlengenViewset(CloudEventPostMixin, ZaakUpdateActionViewSet):
     serializer_class = ZaakVerlengenSerializer
 
     def perform_post(self, serializer):
@@ -2409,7 +2431,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
         ),
     )
 )
-class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
+class ZaakAfsluitenViewSet(CloudEventPostMixin, ZaakUpdateActionViewSet):
     serializer_class = ZaakAfsluitenSerializer
 
     notification_fields = {

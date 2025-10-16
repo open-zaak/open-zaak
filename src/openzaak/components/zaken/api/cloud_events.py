@@ -64,3 +64,50 @@ def send_cloud_event(self, cloud_event: dict[str, Any]) -> None:
         subject=cloud_event["subject"],
         status_code=response.status_code,
     )
+
+
+class CloudEventCreateMixin:
+    def perform_create(self, serializer):
+        # TODO
+        # with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+        super().perform_create(serializer)
+        instance = serializer.instance
+        zaak_field = getattr(self, "lookup_zaak_field", None) or "zaak"
+        zaak = getattr(instance, zaak_field, None)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventUpdateMixin:
+    def perform_update(self, serializer):
+        # with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+        super().perform_update(serializer)
+        instance = serializer.instance
+        zaak_field = getattr(self, "lookup_zaak_field", None) or "zaak"
+        zaak = getattr(instance, zaak_field, None)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventPostMixin:
+    def perform_post(self, serializer):
+        # with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+        super().perform_post(serializer)
+        instance = serializer.instance
+        zaak_field = getattr(self, "lookup_zaak_field", None) or "zaak"
+        zaak = instance.get(zaak_field, None)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventDestroyMixin:
+    def perform_destroy(self, instance):
+        # with conditional_atomic(self.notifications_wrap_in_atomic_block)():
+        # get data via serializer
+        zaak_field = getattr(self, "lookup_zaak_field", None) or "zaak"
+        zaak = getattr(instance, zaak_field, None)
+        super().perform_destroy(instance)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventViewSetMixin(
+    CloudEventCreateMixin, CloudEventUpdateMixin, CloudEventDestroyMixin
+):
+    pass
