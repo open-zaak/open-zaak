@@ -254,7 +254,10 @@ class ZaakTypeAdmin(
                 )
             },
         ),
-        (_("Relaties"), {"fields": ("catalogus", "deelzaaktypen")}),
+        (
+            _("Relaties"),
+            {"fields": ("catalogus", "deelzaaktypen", "_besluittypen")},
+        ),
         (
             _("Geldigheid"),
             {
@@ -462,3 +465,11 @@ class ZaakTypeAdmin(
             if operation in request.POST:
                 return [], []
         return formsets, inline_instances
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+
+        zaaktype = form.instance
+
+        if "_besluittypen" in form.cleaned_data:
+            zaaktype.besluittypen.set(form.cleaned_data["_besluittypen"])
