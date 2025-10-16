@@ -212,6 +212,23 @@ class ZaakTypeFilter(FilterSet):
         method=geldigheid_filter,
         help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
+    omschrijving__icontains = filters.CharFilter(
+        field_name="zaaktype_omschrijving",
+        lookup_expr="icontains",
+        help_text=mark_experimental(
+            get_help_text("catalogi.ZaakType", "zaaktype_omschrijving")
+            + _(" Filter op (een deel van de) omschrijving (hoofdletterongevoelig).")
+        ),
+    )
+
+    identificatie__icontains = filters.CharFilter(
+        field_name="identificatie",
+        lookup_expr="icontains",
+        help_text=mark_experimental(
+            get_help_text("catalogi.ZaakType", "identificatie")
+            + _(" Filter op (een deel van de) identificatie (hoofdletterongevoelig).")
+        ),
+    )
 
     class Meta:
         model = ZaakType

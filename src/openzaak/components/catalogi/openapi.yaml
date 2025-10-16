@@ -9059,6 +9059,19 @@ paths:
           type: string
         description: Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin
           het ZAAKTYPE voorkomt.
+      - in: query
+        name: identificatie__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Unieke identificatie van het ZAAKTYPE binnen
+          de CATALOGUS waarin het ZAAKTYPE voorkomt. Filter op (een deel van de) identificatie
+          (hoofdletterongevoelig).'
+      - in: query
+        name: omschrijving__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van ZAAKen van het
+          ZAAKTYPE. Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
       - name: page
         required: false
         in: query
