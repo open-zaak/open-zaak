@@ -336,6 +336,22 @@ class ZaakType(ETagMixin, APIMixin, ConceptMixin, GeldigheidMixin, models.Model)
         help_text=_("URL-referentie naar de CATALOGUS waartoe dit ZAAKTYPE behoort."),
     )
 
+    broncatalogus = GegevensGroepType(
+        {
+            "url": broncatalogus_url,
+            "domein": broncatalogus_domein,
+            "rsin": broncatalogus_rsin,
+        },
+    )
+
+    bronzaaktype = GegevensGroepType(
+        {
+            "url": bronzaaktype_url,
+            "identificatie": bronzaaktype_identificatie,
+            "omschrijving": bronzaaktype_omschrijving,
+        },
+    )
+
     objects = SyncAutorisatieManager.from_queryset(GeldigheidQuerySet)()
 
     IDENTIFICATIE_PREFIX = "ZAAKTYPE"
