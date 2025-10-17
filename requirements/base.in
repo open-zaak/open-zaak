@@ -29,6 +29,7 @@ drf-writable-nested
 humanize
 drc-cmis
 
-commonground-api-common[setup-configuration, testutils, oas]
+
+git+https://github.com/maykinmedia/commonground-api-common.git@feature/fix-check-query-params[setup-configuration, testutils, oas]
 maykin-common[axes,mfa]
 psycopg[pool, binary]
