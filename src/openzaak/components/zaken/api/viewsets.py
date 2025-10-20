@@ -955,6 +955,13 @@ class ZaakInformatieObjectViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
+
     def perform_create(self, serializer):
         super().perform_create(serializer)
 
@@ -1705,6 +1712,13 @@ class ZaakContactMomentViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
+
     def perform_create(self, serializer):
         super().perform_create(serializer)
 
@@ -1799,6 +1813,13 @@ class ZaakVerzoekViewSet(
         if self.action in ["create", "destroy"]:
             return False
         return super().notifications_wrap_in_atomic_block
+
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
