@@ -10468,6 +10468,7 @@ components:
       required:
       - domein
       - rsin
+      - url
     BronCatalogusRequest:
       type: object
       properties:
@@ -10489,6 +10490,7 @@ components:
       required:
       - domein
       - rsin
+      - url
     BronZaaktype:
       type: object
       properties:
@@ -10509,6 +10511,7 @@ components:
       required:
       - identificatie
       - omschrijving
+      - url
     BronZaaktypeRequest:
       type: object
       properties:
@@ -10529,6 +10532,7 @@ components:
       required:
       - identificatie
       - omschrijving
+      - url
     BrondatumArchiefprocedure:
       type: object
       properties:

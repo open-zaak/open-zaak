@@ -47,6 +47,7 @@ from .factories import (
 from .utils import get_operation_url
 
 
+@override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
     maxDiff = None
     heeft_alle_autorisaties = False
@@ -128,6 +129,8 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "verantwoordelijke": zaaktype.verantwoordelijke,
             "beginObject": "2018-01-01",
             "eindeObject": None,
+            "broncatalogus": {"domein": "", "rsin": "", "url": ""},
+            "bronzaaktype": {"identificatie": "", "omschrijving": "", "url": ""},
         }
         self.assertEqual(response_data, expected)
 
@@ -486,6 +489,9 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(error["code"], "relations-incorrect-catalogus")
 
     def test_create_zaaktype_with_bronzaaktype(self):
+        catalog1 = CatalogusFactory.create(domein="BRON", rsin="517439943")
+        bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
+
         zaaktype_list_url = get_operation_url("zaaktype_list")
         data = {
             "identificatie": "ZAAK1",
@@ -512,10 +518,12 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "gerelateerdeZaaktypen": [],
             "besluittypen": [],
             "broncatalogus": {
+                "url": f"http://example.com/catalogussen/{catalog1.uuid}/",
                 "domein": "BRON",
                 "rsin": "517439943",
             },
             "bronzaaktype": {
+                "url": f"http://example.com/zaaktypen/{bron_zaaktype.uuid}/",
                 "identificatie": "BRONZAAK1",
                 "omschrijving": "bron zaak",
             },
@@ -524,8 +532,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        zaaktype = ZaakType.objects.get()
-
+        zaaktype = ZaakType.objects.get(identificatie="ZAAK1")
         self.assertEqual(zaaktype.broncatalogus_domein, "BRON")
         self.assertEqual(zaaktype.broncatalogus_rsin, "517439943")
         self.assertEqual(zaaktype.bronzaaktype_identificatie, "BRONZAAK1")
@@ -533,6 +540,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
 
     def test_create_zaaktype_with_bronzaaktype_without_broncatalogus_fail(self):
         zaaktype_list_url = get_operation_url("zaaktype_list")
+        bron_zaaktype = ZaakTypeFactory.create()
         data = {
             "identificatie": "ZAAK1",
             "doel": "some test",
@@ -560,6 +568,7 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
             "bronzaaktype": {
                 "identificatie": "BRONZAAK1",
                 "omschrijving": "bron zaak",
+                "url": f"http://example.com/zaaktypen/{bron_zaaktype.uuid}/",
             },
         }
         response = self.client.post(zaaktype_list_url, data)
@@ -1420,6 +1429,154 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         self.assertEqual(response.status_code, 400)
         error = get_validation_errors(response, "nonFieldErrors")
         self.assertEqual(error["code"], "non-concept-object")
+
+    @tag("gh-2140")
+    def test_get_zaaktype_includes_bron_fields(self):
+        catalog1 = CatalogusFactory.create(domein="GDRDF", rsin="123456782")
+        bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
+
+        catalog2 = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(
+            catalogus=catalog2,
+            broncatalogus_domein=catalog1.domein,
+            broncatalogus_rsin=catalog1.rsin,
+            broncatalogus_url=f"http://testserver{reverse(catalog1)}",
+            bronzaaktype_identificatie=bron_zaaktype.identificatie,
+            bronzaaktype_omschrijving=bron_zaaktype.zaaktype_omschrijving,
+            bronzaaktype_url=f"http://testserver{reverse(bron_zaaktype)}",
+        )
+
+        url = reverse(zaaktype)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = response.json()
+
+        expected_broncatalogus = {
+            "url": f"http://testserver{reverse(catalog1)}",
+            "domein": catalog1.domein,
+            "rsin": catalog1.rsin,
+        }
+        self.assertEqual(result["broncatalogus"], expected_broncatalogus)
+
+        expected_bronzaaktype = {
+            "url": f"http://testserver{reverse(bron_zaaktype)}",
+            "identificatie": bron_zaaktype.identificatie,
+            "omschrijving": bron_zaaktype.zaaktype_omschrijving,
+        }
+        self.assertEqual(result["bronzaaktype"], expected_bronzaaktype)
+
+    def test_put_update_zaaktype_with_bron_fields(self):
+        catalog1 = CatalogusFactory.create(domein="ABC", rsin="517439943")
+        bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
+
+        catalog2 = CatalogusFactory.create(domein="XYZ", rsin="004455667")
+        zaaktype = ZaakTypeFactory.create(catalogus=catalog2)
+        zaaktype_url = reverse(zaaktype)
+
+        data = {
+            "identificatie": 0,
+            "doel": "update bron fields test",
+            "aanleiding": "PUT bron test",
+            "indicatieInternOfExtern": InternExtern.extern,
+            "handelingInitiator": "indienen",
+            "onderwerp": "Klacht",
+            "handelingBehandelaar": "uitvoeren",
+            "doorlooptijd": "P30D",
+            "opschortingEnAanhoudingMogelijk": False,
+            "verlengingMogelijk": True,
+            "verlengingstermijn": "P30D",
+            "publicatieIndicatie": True,
+            "verantwoordingsrelatie": [],
+            "productenOfDiensten": ["https://example.com/product/123"],
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "omschrijving": "PUT bron test",
+            "gerelateerdeZaaktypen": [],
+            "referentieproces": {"naam": "ReferentieProces 0", "link": ""},
+            "catalogus": reverse(catalog2),
+            "besluittypen": [],
+            "beginGeldigheid": "2018-01-01",
+            "versiedatum": "2018-01-01",
+            "verantwoordelijke": "063308836",
+            "broncatalogus": {
+                "url": f"http://example.com{reverse(catalog1)}",
+                "domein": catalog1.domein,
+                "rsin": catalog1.rsin,
+            },
+            "bronzaaktype": {
+                "url": f"http://example.com{reverse(bron_zaaktype)}",
+                "identificatie": bron_zaaktype.identificatie,
+                "omschrijving": bron_zaaktype.zaaktype_omschrijving,
+            },
+        }
+
+        response = self.client.put(zaaktype_url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.broncatalogus_domein, catalog1.domein)
+        self.assertEqual(zaaktype.broncatalogus_rsin, catalog1.rsin)
+        self.assertEqual(
+            zaaktype.broncatalogus_url,
+            f"http://example.com{reverse(catalog1)}",
+        )
+
+        self.assertEqual(
+            zaaktype.bronzaaktype_identificatie, bron_zaaktype.identificatie
+        )
+        self.assertEqual(
+            zaaktype.bronzaaktype_omschrijving, bron_zaaktype.zaaktype_omschrijving
+        )
+        self.assertEqual(
+            zaaktype.bronzaaktype_url,
+            f"http://example.com{reverse(bron_zaaktype)}",
+        )
+
+    def test_patch_update_zaaktype_with_bron_fields(self):
+        catalog1 = CatalogusFactory.create(domein="PATCH", rsin="517439943")
+        catalog2 = CatalogusFactory.create(domein="OTHER", rsin="004455667")
+
+        bron_zaaktype = ZaakTypeFactory.create(catalogus=catalog1)
+
+        zaaktype = ZaakTypeFactory.create(catalogus=catalog2)
+        zaaktype_url = reverse(zaaktype)
+
+        patch_data = {
+            "broncatalogus": {
+                "domein": catalog1.domein,
+                "rsin": catalog1.rsin,
+                "url": f"http://example.com{reverse(catalog1)}",
+            },
+            "bronzaaktype": {
+                "identificatie": bron_zaaktype.identificatie,
+                "omschrijving": bron_zaaktype.zaaktype_omschrijving,
+                "url": f"http://example.com{reverse(bron_zaaktype)}",
+            },
+        }
+
+        response = self.client.patch(zaaktype_url, patch_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.broncatalogus_domein, catalog1.domein)
+        self.assertEqual(zaaktype.broncatalogus_rsin, catalog1.rsin)
+        self.assertEqual(
+            zaaktype.broncatalogus_url,
+            f"http://example.com{reverse(catalog1)}",
+        )
+
+        self.assertEqual(
+            zaaktype.bronzaaktype_identificatie, bron_zaaktype.identificatie
+        )
+        self.assertEqual(
+            zaaktype.bronzaaktype_omschrijving, bron_zaaktype.zaaktype_omschrijving
+        )
+        self.assertEqual(
+            zaaktype.bronzaaktype_url,
+            f"http://example.com{reverse(bron_zaaktype)}",
+        )
 
 
 class ZaakTypePublishTests(APITestCase):
