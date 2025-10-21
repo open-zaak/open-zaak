@@ -51,6 +51,16 @@ EMPTY_SELECTIELIJSTKLASSE_CHOICES = (
 )
 
 
+class ReadOnlyWidget(admin.widgets.ManyToManyRawIdWidget):
+    template_name = "admin/widgets/raw_id_read_only.html"
+
+    def format_value(self, value):
+        if not value:
+            return ""
+        models = self.rel.model.objects.filter(pk__in=value)
+        return ", ".join(str(model) for model in models) if value else ""
+
+
 class ZaakTypeForm(forms.ModelForm):
     selectielijst_reset = forms.BooleanField(
         label=_("Reset selectielijst configuration"),
@@ -109,10 +119,18 @@ class ZaakTypeForm(forms.ModelForm):
                 referentielijst_config.default_year
             )
 
-        if self.instance.pk: # and "_besluittypen" in self.fields:
+        if self.instance.pk:
             self.fields["_besluittypen"].initial = self.instance.besluittypen.all()
 
             if not self.instance.concept:
+                self.fields["_besluittypen"].widget = ReadOnlyWidget(
+                    rel=ManyToManyRel(
+                        field=ZaakType._meta.get_field("besluittypen"),
+                        to=BesluitType,
+                        through=ZaakType,
+                    ),
+                    admin_site=admin.site,
+                )
                 self.fields["_besluittypen"].disabled = True
 
     def _make_required(self, field: str):
