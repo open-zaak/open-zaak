@@ -1,8 +1,7 @@
 import pytest
 import requests
+from conftest import HEADERS
 from furl import furl
-
-from .conftest import HEADERS
 
 BASE_URL = furl("http://localhost:8000/documenten/api/v1/")
 
