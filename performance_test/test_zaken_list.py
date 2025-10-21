@@ -1,8 +1,7 @@
 import pytest
 import requests
+from conftest import HEADERS, HEADERS_NON_SUPERUSER, HEADERS_NON_SUPERUSER_MANY_TYPES
 from furl import furl
-
-from .conftest import HEADERS, HEADERS_NON_SUPERUSER, HEADERS_NON_SUPERUSER_MANY_TYPES
 
 BASE_URL = furl("http://localhost:8000/zaken/api/v1/")
 
