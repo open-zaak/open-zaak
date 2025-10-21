@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import Permission
-from django.test import tag
+from django.test import TestCase, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -677,3 +677,66 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
             result
             == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
         )
+
+
+class BrondatumDefaultsTest(TestCase):
+    def setUp(self):
+        self.zaaktype = ZaakTypeFactory.create()
+        self.selectielijstklasse_url = "https://example.com/resultaatklasse"
+
+    @patch("requests.get")
+    def test_brondatum_default_values(self, mock_get):
+        def side_effect(url, *args, **kwargs):
+            mock_response = Mock()
+            if url == "https://example.com/resultaattype":
+                mock_response.json.return_value = {"omschrijving": "dummy omschrijving"}
+            elif url == self.selectielijstklasse_url:
+                mock_response.json.return_value = {
+                    "waardering": "dummy waardering",
+                    "bewaartermijn": "P10D",
+                }
+            else:
+                mock_response.json.return_value = {}
+            return mock_response
+
+        mock_get.side_effect = side_effect
+
+        for afleidingswijze in BrondatumArchiefprocedureAfleidingswijze.values:
+            kwargs = {
+                "zaaktype": self.zaaktype,
+                "omschrijving": "test default",
+                "resultaattypeomschrijving": "https://example.com/resultaattype",
+                "selectielijstklasse": self.selectielijstklasse_url,
+                "brondatum_archiefprocedure_afleidingswijze": (
+                    afleidingswijze if afleidingswijze else "afgehandeld"
+                ),
+                "brondatum_archiefprocedure_datumkenmerk": "",
+                "brondatum_archiefprocedure_einddatum_bekend": False,
+                "brondatum_archiefprocedure_objecttype": "",
+                "brondatum_archiefprocedure_registratie": "",
+                "brondatum_archiefprocedure_procestermijn": None,
+            }
+
+            obj = ResultaatType(**kwargs)
+
+            try:
+                obj.full_clean()
+            except Exception as e:
+                self.fail(
+                    f"Validation failed for afleidingswijze '{afleidingswijze}': {e}"
+                )
+
+            obj.save()
+
+            bd = obj.brondatum_archiefprocedure
+            self.assertEqual(
+                bd["afleidingswijze"],
+                kwargs["brondatum_archiefprocedure_afleidingswijze"],
+            )
+            self.assertEqual(bd["datumkenmerk"], "")
+            self.assertEqual(bd["einddatum_bekend"], False)
+            self.assertEqual(bd["objecttype"], "")
+            self.assertEqual(bd["registratie"], "")
+            self.assertIsNone(bd["procestermijn"])
+
+            obj.delete()

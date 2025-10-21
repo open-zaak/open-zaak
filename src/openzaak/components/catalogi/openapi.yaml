@@ -10541,9 +10541,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
-            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
-            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+          description: "Wijze van bepalen van de brondatum. Indien niet van toepassing,\
+            \ laat leeg of gebruik 'afgehandeld'.\n\nUitleg bij mogelijke waarden:\n\
+            \n* `afgehandeld` - (Afgehandeld) De termijn start op de datum waarop\
+            \ de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
             \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
             \ in een ander datumveld dan de datumvelden waarop de overige waarden\
             \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
@@ -10582,10 +10583,10 @@ components:
           description: Indicatie dat de einddatum van het procesobject gedurende de
             uitvoering van de zaak bekend moet worden. Indien deze nog niet bekend
             is en deze waarde staat op `true`, dan kan de zaak (nog) niet afgesloten
-            worden.
+            worden. Standaard is deze waarde `False`.
         objecttype:
           description: |-
-            Het soort object in de registratie dat het procesobject representeert.
+            Het soort object in de registratie dat het procesobject representeert.Indien niet van toepassing voor de afleidingswijze, laat leeg.
 
             Uitleg bij mogelijke waarden:
 
@@ -10625,8 +10626,8 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
-          description: De naam van de registratie waarvan het procesobject deel uit
-            maakt.
+          description: 'De naam van de registratie waarvan het procesobject deel uit
+            maakt. Indien niet van toepassing voor de afleidingswijze, laat leeg. '
           maxLength: 80
         procestermijn:
           type: string
@@ -10634,7 +10635,7 @@ components:
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
-            is.
+            is. Standaard is leeg (None) indien niet van toepassing.
       required:
       - afleidingswijze
     BrondatumArchiefprocedureRequest:
@@ -10644,9 +10645,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
-            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
-            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+          description: "Wijze van bepalen van de brondatum. Indien niet van toepassing,\
+            \ laat leeg of gebruik 'afgehandeld'.\n\nUitleg bij mogelijke waarden:\n\
+            \n* `afgehandeld` - (Afgehandeld) De termijn start op de datum waarop\
+            \ de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
             \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
             \ in een ander datumveld dan de datumvelden waarop de overige waarden\
             \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
@@ -10685,10 +10687,10 @@ components:
           description: Indicatie dat de einddatum van het procesobject gedurende de
             uitvoering van de zaak bekend moet worden. Indien deze nog niet bekend
             is en deze waarde staat op `true`, dan kan de zaak (nog) niet afgesloten
-            worden.
+            worden. Standaard is deze waarde `False`.
         objecttype:
           description: |-
-            Het soort object in de registratie dat het procesobject representeert.
+            Het soort object in de registratie dat het procesobject representeert.Indien niet van toepassing voor de afleidingswijze, laat leeg.
 
             Uitleg bij mogelijke waarden:
 
@@ -10728,8 +10730,8 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         registratie:
           type: string
-          description: De naam van de registratie waarvan het procesobject deel uit
-            maakt.
+          description: 'De naam van de registratie waarvan het procesobject deel uit
+            maakt. Indien niet van toepassing voor de afleidingswijze, laat leeg. '
           maxLength: 80
         procestermijn:
           type: string
@@ -10737,7 +10739,7 @@ components:
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
-            is.
+            is. Standaard is leeg (None) indien niet van toepassing.
       required:
       - afleidingswijze
     Catalogus:
