@@ -595,7 +595,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(67):
+        with self.assertNumQueries(69):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -615,10 +615,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (2) 43: deelzaak eindstatus filter query
         (3) 44: cursor from exist()
         (4) 66: update the deelzaak
-        (5) 67: cursor from exist()
+        (5) 69: cursor from exist()
 
         """
-        with self.assertNumQueries(72):
+        with self.assertNumQueries(74):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -639,12 +639,12 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (2-3) 46-47: select from zgw_consumers_service
         (8) 75: lookup the deelzaak resultaat
         (9-10)  76-77: select from zgw_consumers_service
-        (11) 78: update the deelzaak
-        (12-16) 79-83 select related zaak data
+        (11) 80: update the deelzaak
+        (12-16) 81-85 select related zaak data
 
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(84):
+        with self.assertNumQueries(86):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -657,7 +657,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
     def test_queries_with_many_deelzaken_with_internal_catalogi(self):
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(72):
+        with self.assertNumQueries(74):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -673,10 +673,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
         A single deelzaak with external catalogi has 12 extra queries over an internal catalogi.
-        72 + (10*12) = 192
+        74 + (10*12) = 192
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(192):
+        with self.assertNumQueries(194):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -693,7 +693,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(192):
+        with self.assertNumQueries(194):
             response = self.client.post(
                 self.status_list_url,
                 {
