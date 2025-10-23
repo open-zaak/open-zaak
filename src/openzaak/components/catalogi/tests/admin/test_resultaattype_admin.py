@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import Permission
-from django.test import tag
+from django.test import TestCase, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -624,48 +624,119 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         )
         assert expected_error in response.text
 
+    @tag("gh-1962")
+    def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
+        user = UserFactory.create(is_staff=True)
+        view_resultaattype = Permission.objects.get(codename="view_resultaattype")
+        user.user_permissions.add(view_resultaattype)
+        self.app.set_user(user)
 
-@tag("gh-1962")
-def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
-    user = UserFactory.create(is_staff=True)
-    view_resultaattype = Permission.objects.get(codename="view_resultaattype")
-    user.user_permissions.add(view_resultaattype)
-    self.app.set_user(user)
+        procestype_url = (
+            f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        invalid_omschrijving_url = "http://invalid-domain.local/omschrijving/5678"
+        valid_resultaat_url = f"{self.service.api_root}resultaten/some-valid-resultaat"
 
-    procestype_url = (
-        f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
-    )
-    invalid_omschrijving_url = "http://invalid-domain.local/omschrijving/5678"
+        mock_selectielijst_oas_get(m)
+        mock_resource_get(m, "procestypen", procestype_url)
+        m.get(invalid_omschrijving_url, json={"omschrijving": "irrelevant"})
+        m.get(
+            valid_resultaat_url,
+            json={
+                "volledigNummer": "R123",
+                "naam": "Valid Resultaat",
+                "waardering": "hoog",
+            },
+        )
 
-    mock_selectielijst_oas_get(m)
-    mock_resource_get(m, "procestypen", procestype_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=valid_resultaat_url,
+            resultaattypeomschrijving=invalid_omschrijving_url,
+        )
 
-    resultaattype = ResultaatTypeFactory.create(
-        zaaktype__selectielijst_procestype=procestype_url,
-        selectielijstklasse=f"{self.service.api_root}resultaten/some-valid-resultaat",
-        resultaattypeomschrijving=invalid_omschrijving_url,
-    )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+        response = self.app.get(url)
 
-    url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
-    response = self.app.get(url)
+        assert response.status_code == 200
+        expected_error = _(
+            "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+        )
+        assert expected_error in response.text
 
-    assert response.status_code == 200
-    expected_error = _(
-        "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
-    )
-    assert expected_error in response.text
+    @tag("gh-1962")
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
+    def test_get_resultaattype_omschrijving_invalid_url(self, m, mock_retrieve):
+        mock_retrieve.side_effect = InvalidURLError()
+
+        url = "http://invalid-url.local"
+
+        result = get_resultaattype_omschrijving_readonly_field(url)
+
+        assert (
+            result
+            == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+        )
 
 
-@tag("gh-1962")
-@patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
-def test_get_resultaattype_omschrijving_invalid_url(mock_retrieve):
-    mock_retrieve.side_effect = InvalidURLError()
+class BrondatumDefaultsTest(TestCase):
+    def setUp(self):
+        self.zaaktype = ZaakTypeFactory.create()
+        self.selectielijstklasse_url = "https://example.com/resultaatklasse"
 
-    url = "http://invalid-url.local"
+    @patch("requests.get")
+    def test_brondatum_default_values(self, mock_get):
+        def side_effect(url, *args, **kwargs):
+            mock_response = Mock()
+            if url == "https://example.com/resultaattype":
+                mock_response.json.return_value = {"omschrijving": "dummy omschrijving"}
+            elif url == self.selectielijstklasse_url:
+                mock_response.json.return_value = {
+                    "waardering": "dummy waardering",
+                    "bewaartermijn": "P10D",
+                }
+            else:
+                mock_response.json.return_value = {}
+            return mock_response
 
-    result = get_resultaattype_omschrijving_readonly_field(url)
+        mock_get.side_effect = side_effect
 
-    assert (
-        result
-        == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
-    )
+        for afleidingswijze in BrondatumArchiefprocedureAfleidingswijze.values:
+            kwargs = {
+                "zaaktype": self.zaaktype,
+                "omschrijving": "test default",
+                "resultaattypeomschrijving": "https://example.com/resultaattype",
+                "selectielijstklasse": self.selectielijstklasse_url,
+                "brondatum_archiefprocedure_afleidingswijze": (
+                    afleidingswijze if afleidingswijze else "afgehandeld"
+                ),
+                "brondatum_archiefprocedure_datumkenmerk": "",
+                "brondatum_archiefprocedure_einddatum_bekend": False,
+                "brondatum_archiefprocedure_objecttype": "",
+                "brondatum_archiefprocedure_registratie": "",
+                "brondatum_archiefprocedure_procestermijn": None,
+            }
+
+            obj = ResultaatType(**kwargs)
+
+            try:
+                obj.full_clean()
+            except Exception as e:
+                self.fail(
+                    f"Validation failed for afleidingswijze '{afleidingswijze}': {e}"
+                )
+
+            obj.save()
+
+            bd = obj.brondatum_archiefprocedure
+            self.assertEqual(
+                bd["afleidingswijze"],
+                kwargs["brondatum_archiefprocedure_afleidingswijze"],
+            )
+            self.assertEqual(bd["datumkenmerk"], "")
+            self.assertEqual(bd["einddatum_bekend"], False)
+            self.assertEqual(bd["objecttype"], "")
+            self.assertEqual(bd["registratie"], "")
+            self.assertIsNone(bd["procestermijn"])
+
+            obj.delete()

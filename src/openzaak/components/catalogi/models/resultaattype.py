@@ -136,7 +136,10 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         _("afleidingswijze brondatum"),
         max_length=20,
         choices=Afleidingswijze.choices,
-        help_text=_("Wijze van bepalen van de brondatum."),
+        help_text=_(
+            "Wijze van bepalen van de brondatum. "
+            "Indien niet van toepassing, laat leeg of gebruik 'afgehandeld'."
+        ),
     )
     # TODO: this could/should be validated against a remote OAS 3.0!
     brondatum_archiefprocedure_datumkenmerk = models.CharField(
@@ -157,7 +160,8 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "Indicatie dat de einddatum van het procesobject gedurende "
             "de uitvoering van de zaak bekend moet worden. Indien deze "
             "nog niet bekend is en deze waarde staat op `true`, dan "
-            "kan de zaak (nog) niet afgesloten worden."
+            "kan de zaak (nog) niet afgesloten worden. "
+            "Standaard is deze waarde `False`."
         ),
     )
     brondatum_archiefprocedure_objecttype = models.CharField(
@@ -167,6 +171,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         choices=ZaakobjectTypes.choices,
         help_text=_(
             "Het soort object in de registratie dat het procesobject representeert."
+            "Indien niet van toepassing voor de afleidingswijze, laat leeg."
         ),
     )
     # TODO: standardize content so that consumers understand this?
@@ -175,7 +180,8 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         max_length=80,
         blank=True,
         help_text=_(
-            "De naam van de registratie waarvan het procesobject deel uit maakt."
+            "De naam van de registratie waarvan het procesobject deel uit maakt. "
+            "Indien niet van toepassing voor de afleidingswijze, laat leeg. "
         ),
     )
     brondatum_archiefprocedure_procestermijn = DurationField(
@@ -186,7 +192,8 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "De periode dat het zaakdossier na afronding van de zaak "
             "actief gebruikt en/of geraadpleegd wordt ter ondersteuning "
             "van de taakuitoefening van de organisatie. Enkel relevant "
-            "indien de afleidingswijze 'termijn' is."
+            "indien de afleidingswijze 'termijn' is. "
+            "Standaard is leeg (None) indien niet van toepassing."
         ),
     )
 
