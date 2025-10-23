@@ -7,6 +7,7 @@ from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.forms.widgets import NoncedOpenLayersWidget
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -664,6 +665,14 @@ class ZaakForm(forms.ModelForm):
         fields = "__all__"
         exclude = ("_id", "_bronorganisatie", "_identificatie")  # legacy fields
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+        if "zaakgeometrie" in self.fields:
+            self.fields["zaakgeometrie"].widget = NoncedOpenLayersWidget(
+                request=self.request
+            )
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -801,3 +810,13 @@ class ZaakAdmin(
                 )
             )
         )
+
+    def get_form(self, request, obj=None, **kwargs):
+        Form = super().get_form(request, obj, **kwargs)
+
+        class RequestForm(Form):
+            def __init__(self2, *args, **kwargs2):
+                kwargs2["request"] = request
+                super().__init__(*args, **kwargs2)
+
+        return RequestForm
