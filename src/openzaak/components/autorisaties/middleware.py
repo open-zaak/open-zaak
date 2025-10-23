@@ -48,17 +48,19 @@ class JWTAuth(_JWTAuth):
     def get_catalogus_autorisaties(self, init_component: str) -> models.QuerySet:
         """
         Retrieve all CatalogusAutorisaties relevant to this component.
+        Cache per component to avoid duplicate queries.
         """
-        # Cache the result on the JWTAuth instance to avoid duplicate queries
-        # when filtering data for the list endpoints
-        if not hasattr(self, "_autorisaties"):
-            if not self.applicaties:
-                self._autorisaties = CatalogusAutorisatie.objects.none()
-                return self._autorisaties
+        if not self.applicaties:
+            return CatalogusAutorisatie.objects.none()
 
+        # initialize cache dict if not present
+        if not hasattr(self, "_catalogus_cache"):
+            self._catalogus_cache = {}
+
+        if init_component not in self._catalogus_cache:
             component = COMPONENT_MAPPING.get(init_component, init_component)
             app_ids = [app.id for app in self.applicaties]
-            self._autorisaties = (
+            qs = (
                 CatalogusAutorisatie.objects.filter(
                     applicatie_id__in=app_ids, component=component
                 )
@@ -69,7 +71,9 @@ class JWTAuth(_JWTAuth):
                     "catalogus__besluittype_set",
                 )
             )
-        return self._autorisaties
+            self._catalogus_cache[init_component] = qs
+
+        return self._catalogus_cache[init_component]
 
     def has_auth(self, scopes: List[str], init_component: str = None, **fields) -> bool:
         if scopes is None:
