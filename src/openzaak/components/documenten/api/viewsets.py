@@ -1283,7 +1283,7 @@ class DocumentRegistrerenViewSet(
     def perform_create(self, serializer):
         data = serializer.save()
         zaak = data.get("zaakinformatieobject").zaak
-        self._check_zaak_closed(zaak, "zaken")
+        self._check_zaak_closed(zaak)
 
         logger.info(
             "document_geregistreerd",
