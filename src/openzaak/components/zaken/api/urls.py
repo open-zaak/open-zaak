@@ -2,12 +2,15 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from django.urls import include, path, re_path
 
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularJSONAPIView,
-    SpectacularRedocView,
-)
+from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
+
+from openzaak.utils.oas_extensions.views import (
+    DeprecationRedirectView,
+    SchemaDeprecationRedirectView,
+    SpectacularJSONAPIView,
+    SpectacularYAMLAPIView,
+)
 
 from ..api.schema import custom_settings
 from .viewsets import (
@@ -77,24 +80,35 @@ urlpatterns = [
                 # API documentation
                 path(
                     "schema/openapi.yaml",
-                    SpectacularAPIView.as_view(
-                        urlconf="openzaak.components.zaken.api.urls",
-                        custom_settings=custom_settings,
+                    SchemaDeprecationRedirectView.as_view(
+                        yaml_pattern="schema-zaken-yaml",
+                        json_pattern="schema-zaken-json",
                     ),
-                    name="schema-zaken",
                 ),
                 path(
                     "schema/openapi.json",
+                    DeprecationRedirectView.as_view(pattern_name="schema-zaken-json"),
+                ),
+                path(
+                    "openapi.yaml",
+                    SpectacularYAMLAPIView.as_view(
+                        urlconf="openzaak.components.zaken.api.urls",
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-zaken-yaml",
+                ),
+                path(
+                    "openapi.json",
                     SpectacularJSONAPIView.as_view(
                         urlconf="openzaak.components.zaken.api.urls",
                         custom_settings=custom_settings,
                     ),
-                    name="schema-json-zaken",
+                    name="schema-zaken-json",
                 ),
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-zaken", title=custom_settings["TITLE"]
+                        url_name="schema-zaken-yaml", title=custom_settings["TITLE"]
                     ),
                     name="schema-redoc-zaken",
                 ),

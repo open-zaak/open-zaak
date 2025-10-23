@@ -2,12 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.urls import include, path, re_path
 
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularJSONAPIView,
-    SpectacularRedocView,
-)
+from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
+
+from openzaak.utils.oas_extensions.views import (
+    DeprecationRedirectView,
+    SchemaDeprecationRedirectView,
+    SpectacularJSONAPIView,
+    SpectacularYAMLAPIView,
+)
 
 from ..api.schema import custom_settings
 from .viewsets import ApplicatieViewSet
@@ -24,24 +27,38 @@ urlpatterns = [
                 # API documentation
                 path(
                     "schema/openapi.yaml",
-                    SpectacularAPIView.as_view(
-                        urlconf="openzaak.components.autorisaties.api.urls",
-                        custom_settings=custom_settings,
+                    SchemaDeprecationRedirectView.as_view(
+                        yaml_pattern="schema-autorisaties-yaml",
+                        json_pattern="schema-autorisaties-json",
                     ),
-                    name="schema-autorisaties",
                 ),
                 path(
                     "schema/openapi.json",
+                    DeprecationRedirectView.as_view(
+                        pattern_name="schema-autorisaties-json"
+                    ),
+                ),
+                path(
+                    "openapi.yaml",
+                    SpectacularYAMLAPIView.as_view(
+                        urlconf="openzaak.components.autorisaties.api.urls",
+                        custom_settings=custom_settings,
+                    ),
+                    name="schema-autorisaties-yaml",
+                ),
+                path(
+                    "openapi.json",
                     SpectacularJSONAPIView.as_view(
                         urlconf="openzaak.components.autorisaties.api.urls",
                         custom_settings=custom_settings,
                     ),
-                    name="schema-json-autorisaties",
+                    name="schema-autorisaties-json",
                 ),
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-autorisaties", title=custom_settings["TITLE"]
+                        url_name="schema-autorisaties-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-autorisaties",
                 ),
