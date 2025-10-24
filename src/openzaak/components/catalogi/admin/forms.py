@@ -57,8 +57,8 @@ class ReadOnlyWidget(admin.widgets.ManyToManyRawIdWidget):
     def format_value(self, value):
         if not value:
             return ""
-        models = self.rel.model.objects.filter(pk__in=value)
-        return ", ".join(str(model) for model in models) if value else ""
+        objects = self.rel.model.objects.filter(pk__in=value)
+        return ", ".join(str(obj) for obj in objects) if value else ""
 
 
 class ZaakTypeForm(forms.ModelForm):
@@ -88,7 +88,7 @@ class ZaakTypeForm(forms.ModelForm):
         help_text=_(
             "De BESLUITTYPE(n) waaronder BESLUITEN kunnen voorkomen bij ZAAKen van dit ZAAKTYPE."
         ),
-        label="Besluittypen",
+        label=_("Besluittypen"),
     )
 
     class Meta:

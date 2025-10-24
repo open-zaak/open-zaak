@@ -756,12 +756,12 @@ class ZaaktypeAdminTests(
             )
 
         with self.subTest("besluittypen existing"):
-            bt = BesluitTypeFactory.create(pk=2)
-            form["_besluittypen"] = [2]
+            bt = BesluitTypeFactory.create(concept=False)
+            form["_besluittypen"] = [bt.pk]
             response = form.submit()
 
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(ZaakType.objects.count(), 2)  # 1 from besluittype
+            self.assertEqual(ZaakType.objects.count(), 2)  # 1 from besluittypefactory
             zaaktype = ZaakType.objects.get(onderwerp="test")
             self.assertEqual(zaaktype.besluittypen.get(), bt)
 
