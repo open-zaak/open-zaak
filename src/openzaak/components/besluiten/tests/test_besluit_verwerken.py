@@ -71,10 +71,22 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.autorisatie = Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
-            scopes=[SCOPE_BESLUITEN_AANMAKEN] + scopes,
+            scopes=[SCOPE_BESLUITEN_AANMAKEN],
             zaaktype=zaaktype if zaaktype else "",
             informatieobjecttype="",
             besluittype=self.besluittype_url if besluittype is None else besluittype,
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+    def _add_zaken_auth(self, zaaktype=None, scopes=None):
+        if scopes is None:
+            scopes = []
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=scopes,
+            zaaktype=zaaktype if zaaktype else "",
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -171,6 +183,11 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.assertTrue(zaak.is_closed)
 
         self._add_besluiten_auth(
+            besluittype=self.besluittype_url,
+            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+        )
+
+        self._add_zaken_auth(
             scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN],
             zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
         )
