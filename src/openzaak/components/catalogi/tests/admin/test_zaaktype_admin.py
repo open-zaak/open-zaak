@@ -722,6 +722,65 @@ class ZaaktypeAdminTests(
             form.errors["catalogus"],
         )
 
+    def test_submit_zaaktype_with_besluittype(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.forms["zaaktype_form"]
+
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
+
+        with self.subTest("besluittypen not existing"):
+            form["_besluittypen"] = [2]
+            response = form.submit()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.context["adminform"].form.errors["_besluittypen"],
+                ["Selecteer een geldige keuze. 2 is geen beschikbare keuze."],
+            )
+
+        with self.subTest("besluittypen existing"):
+            bt = BesluitTypeFactory.create(concept=False)
+            form["_besluittypen"] = [bt.pk]
+            response = form.submit()
+
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(ZaakType.objects.count(), 2)  # 1 from besluittypefactory
+            zaaktype = ZaakType.objects.get(onderwerp="test")
+            self.assertEqual(zaaktype.besluittypen.get(), bt)
+
+    def test_read_zaaktype_with_besluittype(self, m):
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+
+        zt = ZaakTypeFactory.create()
+        bt1 = BesluitTypeFactory.create(zaaktypen=[zt])
+        bt2 = BesluitTypeFactory.create(zaaktypen=[zt])
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zt.pk,))
+
+        response = self.app.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms["zaaktype_form"]
+        self.assertEqual(form.fields["_besluittypen"][0].value, f"{bt1.pk},{bt2.pk}")
+
 
 @disable_admin_mfa()
 class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
@@ -1196,3 +1255,37 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
             with self.subTest(url):
                 response = self.app.get(url)
                 self.assertEqual(response.status_code, 200)
+
+    def test_read_published_zaaktype_with_besluittype(self):
+        zt = ZaakTypeFactory.create(concept=False)
+        bt1 = BesluitTypeFactory.create(zaaktypen=[zt])
+        bt2 = BesluitTypeFactory.create(zaaktypen=[zt])
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zt.pk,))
+
+        response = self.app.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        field_html = response.html.find("label", {"for": "id__besluittypen"}).find_next(
+            "div"
+        )
+        self.assertEqual(
+            str(field_html), f'<div class="readonly">{str(bt1)}, {str(bt2)}</div>'
+        )
+
+    def test_save_published_zaaktype_with_besluittype(self):
+        zt = ZaakTypeFactory.create(concept=False)
+        bt1 = BesluitTypeFactory.create(zaaktypen=[zt])
+        bt2 = BesluitTypeFactory.create(zaaktypen=[zt])
+
+        url = reverse("admin:catalogi_zaaktype_change", args=(zt.pk,))
+
+        response = self.app.get(url)
+
+        form_response = response.forms["zaaktype_form"].submit()
+        self.assertEqual(form_response.status_code, 302)
+
+        zt.refresh_from_db()
+        self.assertEqual(zt.besluittypen.count(), 2)
+        self.assertIn(bt1, zt.besluittypen.all())
+        self.assertIn(bt2, zt.besluittypen.all())
