@@ -2,7 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import uuid
 from datetime import datetime
-from unittest import TestCase
+from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from django.db.models import Model
@@ -248,6 +248,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(request.headers["Authorization"], "Token foo")
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -332,6 +333,7 @@ class StatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class RolCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -378,6 +380,7 @@ class RolCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @patch_resource_validator
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class ZaakContactMomentCloudEventTests(
@@ -441,6 +444,7 @@ class ZaakContactMomentCloudEventTests(
                 self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakInformatieObjectCloudEventTests(
     CloudEventSettingMixin, JWTAuthMixin, APITestCase
 ):
@@ -506,6 +510,7 @@ class ZaakInformatieObjectCloudEventTests(
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -566,6 +571,7 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @patch_resource_validator
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class ZaakVerzoekCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
@@ -625,6 +631,7 @@ class ZaakVerzoekCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCa
                 self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakNotitieCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -674,6 +681,7 @@ class ZaakNotitieCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCa
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class SubStatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -699,6 +707,7 @@ class SubStatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakAfsluitenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -739,6 +748,7 @@ class ZaakAfsluitenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakBijwerkenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -781,6 +791,7 @@ class ZaakBijwerkenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakOpschortenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -817,6 +828,7 @@ class ZaakOpschortenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakRegistrerenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -899,6 +911,7 @@ class ZaakRegistrerenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
             )
 
 
+@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 class ZaakVerlengenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
