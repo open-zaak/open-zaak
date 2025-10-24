@@ -17,7 +17,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
 from rest_framework.viewsets import ViewSetMixin
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
-from vng_api_common.utils import get_resource_for_path
+from vng_api_common.utils import get_resource_for_path, get_viewset_for_path
 
 from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 
@@ -111,6 +111,16 @@ class AuthRequired(permissions.BasePermission):
                     ValidationError({view.permission_main_object: exc})
                 )
                 raise ValidationError(err_dict)
+
+            if not get_viewset_for_path(main_object_path).__class__ == main_resource:
+                raise ValidationError(
+                    {
+                        view.permission_main_object: _(
+                            "Invalid hyperlink - Incorrect URL match."
+                        ),
+                    },
+                    code="incorrect_match",
+                )
 
             main_object_data = self.format_data(main_object, request, main_resource)
             fields = self.get_fields(main_object_data, permission_fields)
