@@ -2112,7 +2112,7 @@ class ZaakUpdateActionViewSet(
         return obj
 
     def _pre_post(self, instance):
-        self._check_zaak_closed(instance, "zaken")
+        self._check_zaak_closed(instance)
 
         zaak_data = ZaakSerializer(instance, context={"request": self.request}).data
 

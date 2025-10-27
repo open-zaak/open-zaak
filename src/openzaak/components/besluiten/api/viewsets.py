@@ -433,7 +433,7 @@ class BesluitVerwerkenViewSet(
     def perform_create(self, serializer):
         data = serializer.save()
         zaak = data.get("besluit").zaak
-        self._check_zaak_closed(zaak, "besluiten")
+        self._check_zaak_closed(zaak)
 
         logger.info(
             "besluit_verwerkt",

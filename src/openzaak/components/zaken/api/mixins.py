@@ -6,6 +6,7 @@ from django.db import models
 
 from rest_framework import serializers
 from rest_framework.response import Response
+from vng_api_common.constants import ComponentTypes
 
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.models import Zaak
@@ -15,19 +16,18 @@ from .serializers import ZaakSerializer
 
 
 class ClosedZaakMixin:
-    def _has_override(self, zaak: Zaak, component=None) -> bool:
+    def _has_override(self, zaak: Zaak) -> bool:
         jwt_auth = self.request.jwt_auth
         zaak_data = ZaakSerializer(zaak, context={"request": self.request}).data
+
         return jwt_auth.has_auth(
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=component
-            if component
-            else self.queryset.model._meta.app_label,
+            init_component=ComponentTypes.zrc,
         )
 
-    def _check_zaak_closed(self, zaak: Optional[Zaak] = None, component=None) -> None:
+    def _check_zaak_closed(self, zaak: Optional[Zaak] = None) -> None:
         """
         Raise ZaakClosed if an attempt is made to modify a closed zaak.
 
@@ -43,7 +43,7 @@ class ClosedZaakMixin:
             return
 
         # zaak is closed - do we have the special i-can-do-anything permission?
-        if self._has_override(zaak, component):
+        if self._has_override(zaak):
             return
 
         raise ZaakClosed()
