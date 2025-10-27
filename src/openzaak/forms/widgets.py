@@ -3,6 +3,8 @@
 from typing import Optional, Union
 
 from django import forms
+from django.contrib.gis.forms.widgets import OSMWidget
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
@@ -143,3 +145,20 @@ class SplitRelativeDeltaWidget(forms.Widget):
             attrs=attrs,
         )
         return widget_context["widget"]
+
+
+class NoncedOpenLayersWidget(OSMWidget):
+    """
+    OpenLayers widget that adds a CSP nonce to inline scripts.
+    """
+
+    def __init__(self, *args, request=None, **kwargs):
+        self.request = request
+        super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        html = super().render(name, value, attrs, renderer)
+        if self.request and hasattr(self.request, "csp_nonce"):
+            nonce = str(self.request.csp_nonce)
+            html = html.replace("<script", f'<script nonce="{nonce}"', 1)
+        return mark_safe(html)
