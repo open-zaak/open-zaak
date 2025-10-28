@@ -10541,10 +10541,9 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: "Wijze van bepalen van de brondatum. Indien niet van toepassing,\
-            \ laat leeg of gebruik 'afgehandeld'.\n\nUitleg bij mogelijke waarden:\n\
-            \n* `afgehandeld` - (Afgehandeld) De termijn start op de datum waarop\
-            \ de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
+            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
+            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
             \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
             \ in een ander datumveld dan de datumvelden waarop de overige waarden\
             \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
@@ -10635,7 +10634,7 @@ components:
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
-            is. Standaard is leeg (None) indien niet van toepassing.
+            is. Standaard is leeg (`null`) indien niet van toepassing.
       required:
       - afleidingswijze
     BrondatumArchiefprocedureRequest:
@@ -10645,10 +10644,9 @@ components:
           allOf:
           - $ref: '#/components/schemas/AfleidingswijzeEnum'
           title: Afleidingswijze brondatum
-          description: "Wijze van bepalen van de brondatum. Indien niet van toepassing,\
-            \ laat leeg of gebruik 'afgehandeld'.\n\nUitleg bij mogelijke waarden:\n\
-            \n* `afgehandeld` - (Afgehandeld) De termijn start op de datum waarop\
-            \ de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
+          description: "Wijze van bepalen van de brondatum.\n\nUitleg bij mogelijke\
+            \ waarden:\n\n* `afgehandeld` - (Afgehandeld) De termijn start op de datum\
+            \ waarop de zaak is afgehandeld (ZAAK.Einddatum in het RGBZ).\n* `ander_datumkenmerk`\
             \ - (Ander datumkenmerk) De termijn start op de datum die is vastgelegd\
             \ in een ander datumveld dan de datumvelden waarop de overige waarden\
             \ (van deze attribuutsoort) betrekking hebben. `Objecttype`, `Registratie`\
@@ -10739,7 +10737,7 @@ components:
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
             van de organisatie. Enkel relevant indien de afleidingswijze 'termijn'
-            is. Standaard is leeg (None) indien niet van toepassing.
+            is. Standaard is leeg (`null`) indien niet van toepassing.
       required:
       - afleidingswijze
     Catalogus:
