@@ -136,10 +136,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         _("afleidingswijze brondatum"),
         max_length=20,
         choices=Afleidingswijze.choices,
-        help_text=_(
-            "Wijze van bepalen van de brondatum. "
-            "Indien niet van toepassing, laat leeg of gebruik 'afgehandeld'."
-        ),
+        help_text=_("Wijze van bepalen van de brondatum."),
     )
     # TODO: this could/should be validated against a remote OAS 3.0!
     brondatum_archiefprocedure_datumkenmerk = models.CharField(
@@ -193,7 +190,7 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
             "actief gebruikt en/of geraadpleegd wordt ter ondersteuning "
             "van de taakuitoefening van de organisatie. Enkel relevant "
             "indien de afleidingswijze 'termijn' is. "
-            "Standaard is leeg (None) indien niet van toepassing."
+            "Standaard is leeg (`null`) indien niet van toepassing."
         ),
     )
 
