@@ -624,48 +624,56 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
         )
         assert expected_error in response.text
 
+    @tag("gh-1962")
+    def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
+        user = UserFactory.create(is_staff=True)
+        view_resultaattype = Permission.objects.get(codename="view_resultaattype")
+        user.user_permissions.add(view_resultaattype)
+        self.app.set_user(user)
 
-@tag("gh-1962")
-def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
-    user = UserFactory.create(is_staff=True)
-    view_resultaattype = Permission.objects.get(codename="view_resultaattype")
-    user.user_permissions.add(view_resultaattype)
-    self.app.set_user(user)
+        procestype_url = (
+            f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
+        )
+        invalid_omschrijving_url = "http://invalid-domain.local/omschrijving/5678"
+        valid_resultaat_url = f"{self.service.api_root}resultaten/some-valid-resultaat"
 
-    procestype_url = (
-        f"{self.service.api_root}procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d"
-    )
-    invalid_omschrijving_url = "http://invalid-domain.local/omschrijving/5678"
+        mock_selectielijst_oas_get(m)
+        mock_resource_get(m, "procestypen", procestype_url)
+        m.get(invalid_omschrijving_url, json={"omschrijving": "irrelevant"})
+        m.get(
+            valid_resultaat_url,
+            json={
+                "volledigNummer": "R123",
+                "naam": "Valid Resultaat",
+                "waardering": "hoog",
+            },
+        )
 
-    mock_selectielijst_oas_get(m)
-    mock_resource_get(m, "procestypen", procestype_url)
+        resultaattype = ResultaatTypeFactory.create(
+            zaaktype__selectielijst_procestype=procestype_url,
+            selectielijstklasse=valid_resultaat_url,
+            resultaattypeomschrijving=invalid_omschrijving_url,
+        )
 
-    resultaattype = ResultaatTypeFactory.create(
-        zaaktype__selectielijst_procestype=procestype_url,
-        selectielijstklasse=f"{self.service.api_root}resultaten/some-valid-resultaat",
-        resultaattypeomschrijving=invalid_omschrijving_url,
-    )
+        url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
+        response = self.app.get(url)
 
-    url = reverse("admin:catalogi_resultaattype_change", args=(resultaattype.pk,))
-    response = self.app.get(url)
+        assert response.status_code == 200
+        expected_error = _(
+            "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+        )
+        assert expected_error in response.text
 
-    assert response.status_code == 200
-    expected_error = _(
-        "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
-    )
-    assert expected_error in response.text
+    @tag("gh-1962")
+    @patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
+    def test_get_resultaattype_omschrijving_invalid_url(self, m, mock_retrieve):
+        mock_retrieve.side_effect = InvalidURLError()
 
+        url = "http://invalid-url.local"
 
-@tag("gh-1962")
-@patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
-def test_get_resultaattype_omschrijving_invalid_url(mock_retrieve):
-    mock_retrieve.side_effect = InvalidURLError()
+        result = get_resultaattype_omschrijving_readonly_field(url)
 
-    url = "http://invalid-url.local"
-
-    result = get_resultaattype_omschrijving_readonly_field(url)
-
-    assert (
-        result
-        == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
-    )
+        assert (
+            result
+            == "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
+        )
