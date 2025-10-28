@@ -4,9 +4,11 @@ from urllib.parse import urlsplit
 
 from django import forms
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.admin.sites import site
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError as _ValidationError
+from django.db.models import ManyToManyRel
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -49,6 +51,16 @@ EMPTY_SELECTIELIJSTKLASSE_CHOICES = (
 )
 
 
+class ReadOnlyWidget(admin.widgets.ManyToManyRawIdWidget):
+    template_name = "admin/widgets/raw_id_read_only.html"
+
+    def format_value(self, value):
+        if not value:
+            return ""
+        objects = self.rel.model.objects.filter(pk__in=value)
+        return ", ".join(str(obj) for obj in objects) if value else ""
+
+
 class ZaakTypeForm(forms.ModelForm):
     selectielijst_reset = forms.BooleanField(
         label=_("Reset selectielijst configuration"),
@@ -60,6 +72,23 @@ class ZaakTypeForm(forms.ModelForm):
             "to check this if you want to change the selectielijstprocestype of a "
             "zaaktype."
         ),
+    )
+
+    _besluittypen = forms.ModelMultipleChoiceField(
+        queryset=BesluitType.objects.all(),
+        required=False,
+        widget=admin.widgets.ManyToManyRawIdWidget(
+            rel=ManyToManyRel(
+                field=ZaakType._meta.get_field("besluittypen"),
+                to=BesluitType,
+                through=ZaakType,
+            ),
+            admin_site=admin.site,
+        ),
+        help_text=_(
+            "De BESLUITTYPE(n) waaronder BESLUITEN kunnen voorkomen bij ZAAKen van dit ZAAKTYPE."
+        ),
+        label=_("Besluittypen"),
     )
 
     class Meta:
@@ -89,6 +118,20 @@ class ZaakTypeForm(forms.ModelForm):
             self.initial["selectielijst_procestype_jaar"] = (
                 referentielijst_config.default_year
             )
+
+        if self.instance.pk:
+            self.fields["_besluittypen"].initial = self.instance.besluittypen.all()
+
+            if not self.instance.concept:
+                self.fields["_besluittypen"].widget = ReadOnlyWidget(
+                    rel=ManyToManyRel(
+                        field=ZaakType._meta.get_field("besluittypen"),
+                        to=BesluitType,
+                        through=ZaakType,
+                    ),
+                    admin_site=admin.site,
+                )
+                self.fields["_besluittypen"].disabled = True
 
     def _make_required(self, field: str):
         if field not in self.fields:
