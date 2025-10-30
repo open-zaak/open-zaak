@@ -3,17 +3,39 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from openzaak.utils.help_text import mark_experimental
+from openzaak.utils.help_text import mark_deprecated, mark_experimental
 
 
 class BetalingsIndicatie(models.TextChoices):
-    nvt = "nvt", _("Er is geen sprake van te betalen, met de zaak gemoeide, kosten.")
-    nog_niet = "nog_niet", _("De met de zaak gemoeide kosten zijn (nog) niet betaald.")
+    nvt = ("nvt", _("Er is geen sprake van te betalen, met de zaak gemoeide, kosten."))
+    gefactureerd = (
+        "gefactureerd",
+        mark_experimental(_("Opdracht tot facturatie verzonden")),
+    )
+    gecrediteerd = (
+        "gecrediteerd",
+        mark_experimental(_("Opdracht tot creditering verzonden")),
+    )
+    betaald = (
+        "betaald",
+        mark_experimental(
+            _(
+                "Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)"
+            )
+        ),
+    )
+    nog_niet = (
+        "nog_niet",
+        mark_deprecated(_("De met de zaak gemoeide kosten zijn (nog) niet betaald.")),
+    )
     gedeeltelijk = (
         "gedeeltelijk",
-        _("De met de zaak gemoeide kosten zijn gedeeltelijk betaald."),
+        mark_deprecated(_("De met de zaak gemoeide kosten zijn gedeeltelijk betaald.")),
     )
-    geheel = "geheel", _("De met de zaak gemoeide kosten zijn geheel betaald.")
+    geheel = (
+        "geheel",
+        mark_deprecated(_("De met de zaak gemoeide kosten zijn geheel betaald.")),
+    )
 
 
 class GeslachtsAanduiding(models.TextChoices):
