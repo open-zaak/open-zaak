@@ -75,7 +75,7 @@ jobs:
           cache-dependency-path: "requirements/*.txt"
       - uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "24"
 
       - name: Install system packages
         run: |

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2019 - 2020 Dimpact
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { jsonScriptToVar } from '../../../utils';
 import { AutorisatieFormSet } from './autorisatie-formset';
@@ -30,13 +30,15 @@ const mount = () => {
         vertrouwelijkheidaanduidingChoices
     };
 
-    ReactDOM.render(
+    
+    const root = createRoot(node);
+    
+    root.render(
         <ConstantsContext.Provider value={constants}>
             <CatalogiContext.Provider value={catalogi}>
                 <AutorisatieFormSet config={formsetConfig} formData={formData} />
             </CatalogiContext.Provider>
         </ConstantsContext.Provider>,
-        node
     );
 }
 
