@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2020 Dimpact
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { jsonScriptToVar } from '../../../utils';
 import {ConstantsContext} from "./context";
@@ -21,11 +21,13 @@ const mount = () => {
 
     const constants = { authTypeChoices, nlxOutway, nlxChoices };
 
-    ReactDOM.render(
+    if (!node._reactRoot) {
+        node._reactRoot = createRoot(node);
+    }
+    node._reactRoot.render(
         <ConstantsContext.Provider value={constants}>
             <ExternalFormSet config={formsetConfig} formData={formData}/>
         </ConstantsContext.Provider>,
-        node
     );
 };
 
