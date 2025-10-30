@@ -48,6 +48,7 @@ from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from ..constants import (
     AardZaakRelatie,
+    BetaalIndicatie,
     BetalingsIndicatie,
     Doelgroep,
     IndicatieMachtiging,
@@ -266,6 +267,15 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         help_text=_(
             "Indicatie of de, met behandeling van de zaak gemoeide, "
             "kosten betaald zijn door de desbetreffende betrokkene."
+        ),
+    )
+    betaalindicatie = models.CharField(
+        _("betaalindicatie"),
+        max_length=20,
+        choices=BetaalIndicatie.choices,
+        blank=True,
+        help_text=_(
+            "Indicatie van de betaling context zoals bekend bij het processysteem. "
         ),
     )
     laatste_betaaldatum = models.DateTimeField(

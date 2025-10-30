@@ -16,6 +16,26 @@ class BetalingsIndicatie(models.TextChoices):
     geheel = "geheel", _("De met de zaak gemoeide kosten zijn geheel betaald.")
 
 
+class BetaalIndicatie(models.TextChoices):
+    nvt = "nvt", mark_experimental(_("Geen sprake van kosten"))
+    gefactureerd = (
+        "gefactureerd",
+        mark_experimental(_("Opdracht tot facturatie verzonden")),
+    )
+    gecrediteerd = (
+        "gecrediteerd",
+        mark_experimental(_("Opdracht tot creditering verzonden")),
+    )
+    betaald = (
+        "betaald",
+        mark_experimental(
+            _(
+                "Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)"
+            )
+        ),
+    )
+
+
 class GeslachtsAanduiding(models.TextChoices):
     man = "m", _("Man")
     vrouw = "v", _("Vrouw")
