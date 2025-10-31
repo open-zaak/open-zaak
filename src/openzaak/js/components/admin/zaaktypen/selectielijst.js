@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2020 Dimpact
-import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import useAsync from 'react-use/esm/useAsync';
 
 const PROCESTYPEN_ENDPOINT = '/admin/api/v1/catalogi/selectielijst/procestypen';
@@ -60,11 +60,14 @@ ProcestypeOptions.propTypes = {
 
 
 const renderProcestypeOptions = (root, initialValue, year) => {
-    ReactDOM.render(
+    if (!root._reactRoot) {
+        root._reactRoot = createRoot(root);
+    }
+    
+    root._reactRoot.render(
         <React.StrictMode>
             <ProcestypeOptions initialValue={initialValue} year={year} />
         </React.StrictMode>,
-        root
     );
 };
 
