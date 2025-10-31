@@ -36,17 +36,17 @@ second). We used the following numbers to make the translation:
 
 1. Average number of requests per functional scenario: **7** (higher means more
    requests per second)
-2. Average waiting time between functional scenario's: **5 minutes** (lower means more
+2. Average waiting time between functional scenario's: **1 minute** (lower means more
    requests per second)
 
 ==================  ============================
 Concurrent users    Expected requests per second
 ------------------  ----------------------------
-  100               3
-  250               6
-  500               12
-1.000               24
-2.000               47
+  100               15
+  250               30
+  500               60
+1.000               120
+2.000               235
 ==================  ============================
 
 The above number for requests per second depends greatly on the the actual usage of the
@@ -77,11 +77,39 @@ Requests per second     CPUs    Memory (GB)
 With these specifications you can run everything on a single machine or divided over
 several instances.
 
-General recommendations
-~~~~~~~~~~~~~~~~~~~~~~~
+Postgresql database minimum requirements
+----------------------------------------
 
-* Use a separate database server with roughly a third of the CPUs and memory as the
-  main server. The database is usually the limiting factor.
+The performance of Open Zaak under load is very much dependant on the performance of the Postgresql database. The number of requests per second, the total number of cases and the number of cases per citizen/employee may affect the duration of the API calls. In order to avoid performance issues in production and aid in resolving performance issues we recommend to optimize the resources available and fine-tune the Postgresql with the help of `pgbench`. This built-in Postgresql tool gives an indication of the performance of the database setup. 
+
+An example run using `pgbench`:
+
+```pgbench (15.14 (Debian 15.14-0+deb12u1))
+scaling factor: 1
+query mode: simple
+number of clients: 16
+number of threads: 4
+maximum number of tries: 1
+duration: 60 s
+number of transactions actually processed: 65995
+number of failed transactions: 0 (0.000%)
+latency average = 14.543 ms
+latency stddev = 10.885 ms
+initial connection time = 23.771 ms
+tps = 1099.724563 (without initial connection time)```
+
+Using the default settings of pgbench, the following minimum `tps` is necessary for production setups:
+
+=================  ====
+Max cases per day  tps
+-----------------  ----
+100                200
+1000               500
+10000              1000
+>10000+            1500
+=================  ====
+
+
 
 Kubernetes recommendations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
