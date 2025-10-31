@@ -57,7 +57,7 @@ class ReadOnlyWidget(admin.widgets.ManyToManyRawIdWidget):
     def format_value(self, value):
         if not value:
             return ""
-        objects = self.rel.model.objects.filter(pk__in=value)
+        objects = self.rel.model.objects.filter(pk__in=value).order_by("pk")
         return ", ".join(str(obj) for obj in objects) if value else ""
 
 
