@@ -139,14 +139,14 @@ Open Notificaties
    a. Navigate to **Configuratie > Autorisatiecomponentconfiguratie**
    b. Fill out the form:
 
-      - **Component**: ``Notificatierouteringscomponent``
+      - **Component**: ``Notificaties API``
       - **Autorisations api service**: click the plus icon to add a service
 
    c. Fill out the form:
 
       - **Label**: *For example:* ``Open Zaak``
       - **Service slug**: *For example:* ``open-zaak``
-      - **Type**: Select the option: ``NRC (Notifications)``
+      - **Type**: Select the option: ``AC (Autorisaties)``
       - **API root url**: *The URL to the Autorisaties API. For example:*
         ``https://open-zaak.gemeente.local/autorisaties/api/v1/``.
 
@@ -159,7 +159,7 @@ Open Notificaties
 
    d. Click **Opslaan**.
 
-7. We need to allow Open Zaak to access Open Notificaties (for
+6. We need to allow Open Zaak to access Open Notificaties (for
    authentication purposes, so we can then check its authorisations):
 
    a. Navigate to **API Autorisaties > Autorisatiegegeven**
@@ -207,7 +207,7 @@ Open Notifications uses Open Zaak Authorization API, therefore it should subscri
 ``autorisaties`` channel. Hence Open Notificaties consumes itself and treats itself as an external service,
 which required configuring related credentials.
 
-8. Configure the credentials for the Open Notificaties API (so Open
+7. Configure the credentials for the Open Notificaties API (so Open
    Notificaties can access itself):
 
    a. Navigate to **Configuratie > Notificatiescomponentconfiguratie**
@@ -227,10 +227,10 @@ which required configuring related credentials.
 
    d. Click **Opslaan**.
 
-9. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
+8. Configure the Open Notificaties Notificatiescomponent API endpoint (so Open Notificaties
    receives changes made in the authorisation component of Open Zaak ):
 
-   a. After the previous step 8d you should be on **Configuratie > Notificatiescomponentconfiguratie** page.
+   a. After the previous step 7d you should be on **Configuratie > Notificatiescomponentconfiguratie** page.
    b. Select the service from the previous step in the **Service voor notificaties-api**
       dropdown, if it's not selected.
    c. Sending notifications support autoretry mechanism, which can be also configured here.
@@ -246,7 +246,7 @@ which required configuring related credentials.
         delay in seconds between task autoretries. Default is ``48`` seconds.
    d. Click **Opslaan**.
 
-10. Create an abonnement for Open Notificaties API. The easiest way to do it in the Admin is by
+9. Create an abonnement for Open Notificaties API. The easiest way to do it in the Admin is by
     creating and registering a webhook.
 
    a. Navigate to  **Configuratie > Webhook-abonnementen**.
