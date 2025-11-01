@@ -90,6 +90,7 @@ from .audits import AUDIT_ZRC
 from .cloud_events import (
     ZAAK_GEMUTEERD,
     ZAAK_VERWIJDEREN,
+    CloudEventCreateMixin,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -551,6 +552,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
+    CloudEventCreateMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -946,6 +948,13 @@ class ZaakInformatieObjectViewSet(
         if self.action in ["create", "destroy"]:
             return False
         return super().notifications_wrap_in_atomic_block
+
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1693,6 +1702,13 @@ class ZaakContactMomentViewSet(
             return False
         return super().notifications_wrap_in_atomic_block
 
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
+
     def perform_create(self, serializer):
         super().perform_create(serializer)
 
@@ -1785,6 +1801,13 @@ class ZaakVerzoekViewSet(
         if self.action in ["create", "destroy"]:
             return False
         return super().notifications_wrap_in_atomic_block
+
+    @property
+    def cloud_events_wrap_in_atomic_block(self):
+        # same as notifications_wrap_in_atomic_block
+        if self.action in ["create", "destroy"]:
+            return False
+        return super().cloud_events_wrap_in_atomic_block
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -1950,12 +1973,15 @@ class DeprecatedReserveerZaakNummerViewSet(ReserveerZaakNummerViewSet):
     ),
 )
 class ZaakNotitieViewSet(
-    NotitieViewSetMixin, ListFilterByAuthorizationsMixin, viewsets.ModelViewSet
+    NotitieViewSetMixin,
+    ListFilterByAuthorizationsMixin,
+    viewsets.ModelViewSet,
 ):
     queryset = ZaakNotitie.objects.select_related("gerelateerd_aan").order_by("-pk")
 
     serializer_class = ZaakNotitieSerializer
     lookup_field = "uuid"
+    lookup_zaak_field = "gerelateerd_aan"
     pagination_class = OptimizedPagination
     permission_classes = (ZaakAuthRequired,)
     permission_main_object = "gerelateerd_aan"  # zaak
@@ -2057,7 +2083,6 @@ class ZaakRegistrerenViewset(
 
     def perform_create(self, serializer):
         serializer.save()
-
         logger.info(
             "zaak_geregistreerd",
             zaak_url=serializer.data["zaak"]["url"],
@@ -2233,10 +2258,7 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
         ),
     )
 )
-class ZaakBijwerkenViewset(
-    ZaakUpdateActionViewSet,
-    GeoMixin,
-):
+class ZaakBijwerkenViewset(ZaakUpdateActionViewSet, GeoMixin):
     serializer_class = ZaakBijwerkenSerializer
 
     notification_fields = {
