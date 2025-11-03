@@ -89,6 +89,7 @@ from ..models import (
 from .audits import AUDIT_ZRC
 from .cloud_events import (
     ZAAK_GEMUTEERD,
+    ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
     CloudEventCreateMixin,
     send_zaak_cloudevent,
@@ -208,7 +209,7 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
             '- `archiefstatus` kan alleen een waarde anders dan "nog_te_archiveren" '
             "hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut "
             '`status` de waarde "gearchiveerd" heeft.'
-            "\n"
+            "\n\n"
             "**Opmerkingen**\n"
             "- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd "
             "bent.\n"
@@ -234,14 +235,17 @@ ZAAK_UUID_PARAMETER = OpenApiParameter(
             '- `archiefstatus` kan alleen een waarde anders dan "nog_te_archiveren" '
             "hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut "
             '`status` de waarde "gearchiveerd" heeft.'
-            "\n"
+            "\n\n"
             "**Opmerkingen**\n"
             "- er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd "
             "bent.\n"
             "- zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.\n"
             "- indien een zaak heropend moet worden, doe dit dan door een nieuwe status "
             "toe te voegen die NIET de eindstatus is. "
-            "Zie de `Status` resource."
+            "Zie de `Status` resource.\n"
+            "- **EXPERIMENTEEL**: indien het versturen van cloud events is ingeschakeld, "
+            "zal er bij het doen van een PATCH met `laatstGeopend` als enige attribuut "
+            f"in de request body een `{ZAAK_GEOPEND}` event verstuurd worden."
         ),
     ),
     destroy=extend_schema(
@@ -466,7 +470,16 @@ class ZaakViewSet(
             zaaktype=str(updated_zaak.zaaktype),
             partial=serializer.partial,
         )
-        send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak, self.request)
+
+        # TODO validate that this is the only correct situation to send this event for
+        if (
+            serializer.partial
+            and "laatst_geopend" in serializer.validated_data
+            and len(serializer.validated_data) == 1
+        ):
+            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
+        else:
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak, self.request)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():

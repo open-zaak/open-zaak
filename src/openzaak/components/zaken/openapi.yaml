@@ -9710,6 +9710,7 @@ paths:
         - `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de waarde "nog_te_archiveren" heeft.
         - `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de waarde "nog_te_archiveren" heeft.
         - `archiefstatus` kan alleen een waarde anders dan "nog_te_archiveren" hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut `status` de waarde "gearchiveerd" heeft.
+
         **Opmerkingen**
         - er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd bent.
         - zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.
@@ -9936,10 +9937,12 @@ paths:
         - `archiefnominatie` moet een waarde hebben indien `archiefstatus` niet de waarde "nog_te_archiveren" heeft.
         - `archiefactiedatum` moet een waarde hebben indien `archiefstatus` niet de waarde "nog_te_archiveren" heeft.
         - `archiefstatus` kan alleen een waarde anders dan "nog_te_archiveren" hebben indien van alle gerelateeerde INFORMATIEOBJECTen het attribuut `status` de waarde "gearchiveerd" heeft.
+
         **Opmerkingen**
         - er worden enkel zaken getoond van de zaaktypes waar u toe geautoriseerd bent.
         - zaaktype zal in de toekomst niet-wijzigbaar gemaakt worden.
         - indien een zaak heropend moet worden, doe dit dan door een nieuwe status toe te voegen die NIET de eindstatus is. Zie de `Status` resource.
+        - **EXPERIMENTEEL**: indien het versturen van cloud events is ingeschakeld, zal er bij het doen van een PATCH met `laatstGeopend` als enige attribuut in de request body een `nl.overheid.zaken.zaak-geopend` event verstuurd worden.
       summary: Werk een ZAAK deels bij.
       parameters:
       - in: header
