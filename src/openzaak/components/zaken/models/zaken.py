@@ -32,6 +32,7 @@ from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
 from vng_api_common.notes.models import NotitieBaseClass
 from zgw_consumers.models import ServiceUrlField
+from vng_api_common.utils import generate_unique_identification
 
 from openzaak.client import fetch_object
 from openzaak.components.documenten.loaders import EIOLoader
@@ -83,7 +84,7 @@ __all__ = [
 ]
 
 
-class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
+class Zaak(ETagMixin, AuditTrailMixin, APIMixin):
     """
     Modelleer de structuur van een ZAAK.
 
@@ -94,24 +95,24 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     # acts as the primary key - the (data) migrations ensure that the references
     # are correct
-    identificatie_ptr = models.OneToOneField(
-        ZaakIdentificatie,
-        on_delete=models.PROTECT,
-        parent_link=True,
-        primary_key=True,
-        verbose_name=_("Zaak identification details"),
-        help_text=_(
-            "Zaak identification details are tracked in a separate table so numbers "
-            "can be generated/reserved before the zaak is actually created."
-        ),
-    )
+    # identificatie_ptr = models.OneToOneField(
+    #     ZaakIdentificatie,
+    #     on_delete=models.PROTECT,
+    #     parent_link=True,
+    #     primary_key=True,
+    #     verbose_name=_("Zaak identification details"),
+    #     help_text=_(
+    #         "Zaak identification details are tracked in a separate table so numbers "
+    #         "can be generated/reserved before the zaak is actually created."
+    #     ),
+    # )
     uuid = models.UUIDField(
         unique=True, default=uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
 
     # old fields, to be dropped in a future patch
-    _id = models.IntegerField(db_column="id", null=True)
-    _identificatie = models.CharField(
+    id = models.AutoField(db_column="id", primary_key=True)
+    identificatie = models.CharField(
         db_column="identificatie",
         max_length=40,
         blank=True,
@@ -119,7 +120,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         "die verantwoordelijk is voor de behandeling van de ZAAK.",
         db_index=True,
     )
-    _bronorganisatie = RSINField(
+    bronorganisatie = RSINField(
         db_column="bronorganisatie",
         help_text="Het RSIN van de Niet-natuurlijk persoon zijnde de "
         "organisatie die de zaak heeft gecreeerd. Dit moet een geldig "
@@ -478,11 +479,10 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     def save(self, *args, **kwargs):
         if not self.identificatie:
             assert not self.identificatie_ptr_id
-            self.identificatie_ptr = ZaakIdentificatie.objects.generate(
-                organisation=self.bronorganisatie,
-                date=self.registratiedatum,
-            )
-            self.identificatie = self.identificatie_ptr.identificatie
+            self.dummy_date = date
+            # with cache.lock("generate_zaak_id"):
+            identification = generate_unique_identification(self, "dummy_date")
+            self.identificatie = identification
         elif not self.identificatie_ptr_id:
             reserved_identificatie = ZaakIdentificatie.objects.filter(
                 identificatie=self.identificatie, bronorganisatie=self.bronorganisatie
