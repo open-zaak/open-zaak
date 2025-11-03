@@ -6,6 +6,7 @@ from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
+from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -156,6 +157,30 @@ class StatusTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(data["count"], 10)
         self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
+
+    @tag("gh-2179")
+    @freeze_time("2025-01-01T12:00:00")
+    def test_create_status_sets_zaak_laatst_gemuteerd(self):
+        url = reverse("status-list")
+        zaak = ZaakFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2023-01-01T00:00:00",
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak = Status.objects.get().zaak
+
+        self.assertEqual(
+            zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 1, 1, 12, 0, 0))
+        )
 
 
 @tag("external-urls")
