@@ -16942,6 +16942,13 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -17162,6 +17169,13 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -18616,6 +18630,20 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGemuteerd:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Laatst gewijzigd op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            een nieuwe STATUS heeft gekregen.'
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -18830,6 +18858,7 @@ components:
       - deelzaken
       - eigenschappen
       - einddatum
+      - laatstGemuteerd
       - resultaat
       - rollen
       - startdatum
@@ -19760,6 +19789,21 @@ components:
           readOnly: true
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGemuteerd:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Laatst gewijzigd op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            een nieuwe STATUS heeft gekregen.'
+        laatstGeopend:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -20003,6 +20047,8 @@ components:
       - hoofdzaak
       - identificatie
       - kenmerken
+      - laatstGemuteerd
+      - laatstGeopend
       - laatsteBetaaldatum
       - omschrijving
       - opdrachtgevendeOrganisatie
@@ -20154,6 +20200,13 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -20398,6 +20451,20 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGemuteerd:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Laatst gewijzigd op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            een nieuwe STATUS heeft gekregen.'
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -20612,6 +20679,7 @@ components:
       - deelzaken
       - eigenschappen
       - einddatum
+      - laatstGemuteerd
       - resultaat
       - rollen
       - startdatum
@@ -20685,6 +20753,13 @@ components:
           format: date
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGeopend:
+          type: string
+          format: date-time
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -20960,6 +21035,21 @@ components:
           readOnly: true
           nullable: true
           description: Datum waarop (het starten van) de zaak gepubliceerd is of wordt.
+        laatstGemuteerd:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Laatst gewijzigd op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            een nieuwe STATUS heeft gekregen.'
+        laatstGeopend:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Laatst geopend op
+          description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
+            geopend is door de eigenaar van de ZAAK.'
         communicatiekanaal:
           type: string
           format: uri
@@ -21203,6 +21293,8 @@ components:
       - hoofdzaak
       - identificatie
       - kenmerken
+      - laatstGemuteerd
+      - laatstGeopend
       - laatsteBetaaldatum
       - omschrijving
       - opdrachtgevendeOrganisatie

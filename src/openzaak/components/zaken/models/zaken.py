@@ -464,6 +464,30 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         auto_now_add=True,
     )
 
+    #
+    # EXPERIMENTAL FIELDS
+    #
+    laatst_gemuteerd = models.DateTimeField(
+        _("laatst gewijzigd op"),
+        help_text=mark_experimental(
+            _(
+                "Tijdstip waarop de ZAAK voor het laatst een nieuwe STATUS heeft gekregen."
+            )
+        ),
+        default=timezone.now,
+        blank=True,
+    )
+    laatst_geopend = models.DateTimeField(
+        _("laatst geopend op"),
+        help_text=mark_experimental(
+            _(
+                "Tijdstip waarop de ZAAK voor het laatst geopend is door de eigenaar van de ZAAK."
+            )
+        ),
+        null=True,
+        blank=True,
+    )
+
     objects = ZaakQuerySet.as_manager()
 
     _current_status_uuid: Optional[UUID]
