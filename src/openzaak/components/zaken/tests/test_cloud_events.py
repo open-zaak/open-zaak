@@ -6,7 +6,8 @@ from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from django.db.models import Model
-from django.test import override_settings
+from django.test import override_settings, tag
+from django.utils import timezone
 
 import requests_mock
 from freezegun import freeze_time
@@ -148,7 +149,7 @@ class CloudEventSettingMixin(TestCase):
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def test_zaak_update_sends_gemuteerd_cloud_event(self):
+    def test_patch_zaak_sends_zaak_gemuteerd_cloud_event(self, mock_get_solo):
         zaak = ZaakFactory.create()
 
         with patch_send_cloud_event() as mock_send:
@@ -160,7 +161,33 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, zaak, mock_send)
 
-    def test_zaak_delete_sends_verwijderd_cloud_event(self):
+            args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
+            event_payload = args[0]
+
+            self.assertIn("id", event_payload)
+
+            event_payload_copy = dict(event_payload)
+            event_payload_copy.pop("id", None)
+
+            expected_payload = {
+                "specversion": "1.0",
+                "type": ZAAK_GEMUTEERD,
+                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+                "subject": str(zaak.uuid),
+                "dataref": reverse(zaak),
+                "datacontenttype": "application/json",
+                "data": {},
+                "time": "2025-09-23T12:00:00Z",
+            }
+
+            self.assertEqual(event_payload_copy, expected_payload)
+            self.assertIn("id", event_payload)
+
+    def test_delete_zaak_sends_zaak_verwijderd_cloud_event(self, mock_get_solo):
         zaak = ZaakFactory.create()
 
         with patch_send_cloud_event() as mock_send:
@@ -169,7 +196,31 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
             self.assert_cloud_event_sent(ZAAK_VERWIJDEREN, zaak, mock_send)
 
-    def test_zaak_create_sends_gemuteerd_cloud_event(self):
+            args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
+            event_payload = args[0]
+
+            event_payload_copy = dict(event_payload)
+            event_payload_copy.pop("id", None)
+
+            expected_payload = {
+                "specversion": "1.0",
+                "type": ZAAK_VERWIJDEREN,
+                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+                "subject": str(zaak.uuid),
+                "dataref": reverse(zaak),
+                "datacontenttype": "application/json",
+                "data": {},
+                "time": "2025-09-23T12:00:00Z",
+            }
+
+            self.assertEqual(event_payload_copy, expected_payload)
+            self.assertIn("id", event_payload)
+
+    def test_create_zaak_sends_zaak_gemuteerd_cloud_event(self, mock_get_solo):
         catalogus = CatalogusFactory.create()
         zaaktype = ZaakTypeFactory.create(
             uuid="4f2aa64b-eb42-491f-ba48-e27e8f66716c",
@@ -200,7 +251,83 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, zaak, mock_send)
 
-    def test_send_cloud_event_task_posts_expected_payload(self):
+            args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
+            event_payload = args[0]
+
+            zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+            event_payload_copy = dict(event_payload)
+            event_payload_copy.pop("id", None)
+
+            expected_payload = {
+                "specversion": "1.0",
+                "type": ZAAK_GEMUTEERD,
+                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+                "subject": str(zaak.uuid),
+                "dataref": reverse(zaak),
+                "datacontenttype": "application/json",
+                "data": {},
+                "time": "2025-09-23T12:00:00Z",
+            }
+
+            self.assertEqual(event_payload_copy, expected_payload)
+            self.assertIn("id", event_payload)
+
+    @tag("gh-2179")
+    def test_patch_zaak_with_only_laatst_geopend_sends_zaak_geopend_event(
+        self, mock_get_solo
+    ):
+        zaak = ZaakFactory.create()
+
+        with patch(
+            "openzaak.components.zaken.api.cloud_events.send_cloud_event.delay",
+            autospec=True,
+        ) as mock_send:
+            response = self.client.patch(
+                reverse(zaak),
+                {"laatst_geopend": "2025-01-01T12:00:00"},
+                **ZAAK_WRITE_KWARGS,
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaak.refresh_from_db()
+        self.assertEqual(
+            zaak.laatst_geopend, timezone.make_aware(datetime(2025, 1, 1, 12, 0, 0))
+        )
+
+        mock_send.assert_called_once()
+
+        args, kwargs = mock_send.call_args
+
+        self.assertEqual(len(args), 1)
+        self.assertEqual(len(kwargs), 0)
+
+        event_payload = args[0]
+
+        zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+        event_payload_copy = dict(event_payload)
+        event_payload_copy.pop("id", None)
+
+        expected_payload = {
+            "specversion": "1.0",
+            "type": ZAAK_GEOPEND,
+            "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+            "subject": str(zaak.uuid),
+            "dataref": reverse(zaak),
+            "datacontenttype": "application/json",
+            "data": {},
+            "time": "2025-09-23T12:00:00Z",
+        }
+
+        self.assertEqual(event_payload_copy, expected_payload)
+        self.assertIn("id", event_payload)
+
+    def test_send_cloud_event_task_posts_expected_payload(self, mock_get_solo):
         service = ServiceFactory.create(
             api_root="http://webhook.local",
             auth_type=AuthTypes.api_key,
