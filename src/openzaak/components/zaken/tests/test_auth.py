@@ -25,6 +25,8 @@ from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import (
     CatalogusFactory,
     EigenschapFactory,
+    ResultaatTypeFactory,
+    StatusTypeFactory,
     ZaakTypeFactory,
     ZaakTypeInformatieObjectTypeFactory,
 )
@@ -40,6 +42,7 @@ from ..api.scopes import (
 )
 from ..models import Zaak, ZaakBesluit, ZaakInformatieObject
 from .factories import (
+    KlantContactFactory,
     ResultaatFactory,
     RolFactory,
     StatusFactory,
@@ -711,8 +714,8 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.data["count"], 1)
 
 
-class StatusReadTests(JWTAuthMixin, APITestCase):
-    scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+class StatusTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
     component = ComponentTypes.zrc
 
@@ -785,6 +788,107 @@ class StatusReadTests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response_data[0]["url"], f"http://testserver{reverse(status1)}"
         )
+
+    def test_create_status_limited_to_authorized_zaken(self):
+        url = reverse("status-list")
+
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(zaak=zaak, roltype__zaaktype=zaak.zaaktype)
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "statustype": f"http://testserver{reverse(statustype)}",
+            "datumStatusGezet": "2023-01-01T00:00:00",
+            "gezetdoor": f"http://testserver{reverse(rol)}",
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        for zaak in [zaak1, zaak2]:
+            with self.subTest(
+                zaaktype=zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            ):
+                statustype = StatusTypeFactory.create(zaaktype=zaak1.zaaktype)
+                rol = RolFactory.create(zaak=zaak, roltype__zaaktype=zaak.zaaktype)
+                data = {
+                    "zaak": f"http://testserver{reverse(zaak)}",
+                    "statustype": f"http://testserver{reverse(statustype)}",
+                    "datumStatusGezet": "2023-01-01T00:00:00",
+                    "gezetdoor": f"http://testserver{reverse(rol)}",
+                }
+                response = self.client.post(url, data)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_write_operations_validate_main_object(self):
+        url = reverse("status-list")
+
+        zaak = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        rol = RolFactory.create(zaak=zaak, roltype__zaaktype=zaak.zaaktype)
+
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                url,
+                {
+                    "zaak": "http://example.com",
+                    "statustype": f"http://testserver{reverse(statustype)}",
+                    "datumStatusGezet": "2023-01-01T00:00:00",
+                    "gezetdoor": f"http://testserver{reverse(rol)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                url,
+                {
+                    "zaak": f"http://testserver{reverse(old_zaak)}",
+                    "statustype": f"http://testserver{reverse(statustype)}",
+                    "datumStatusGezet": "2023-01-01T00:00:00",
+                    "gezetdoor": f"http://testserver{reverse(rol)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                url,
+                {
+                    "zaak": f"http://testserver{reverse(self.zaaktype)}",
+                    "statustype": f"http://testserver{reverse(statustype)}",
+                    "datumStatusGezet": "2023-01-01T00:00:00",
+                    "gezetdoor": f"http://testserver{reverse(rol)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class ZaakNotitieTests(JWTAuthMixin, APITestCase):
@@ -864,6 +968,57 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
                 response = getattr(self.client, method)(url)
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_write_operations_validate_main_object(self):
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                reverse("zaaknotitie-list"),
+                {
+                    "onderwerp": "Test onderwerp",
+                    "tekst": "Test tekst",
+                    "aangemaaktDoor": "Test",
+                    "gerelateerdAan": "http://example.com",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "gerelateerdAan")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                reverse("zaaknotitie-list"),
+                {
+                    "onderwerp": "Test onderwerp",
+                    "tekst": "Test tekst",
+                    "aangemaaktDoor": "Test",
+                    "gerelateerdAan": f"http://testserver{reverse(old_zaak)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "gerelateerdAan")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                reverse("zaaknotitie-list"),
+                {
+                    "onderwerp": "Test onderwerp",
+                    "tekst": "Test tekst",
+                    "aangemaaktDoor": "Test",
+                    "gerelateerdAan": f"http://testserver{reverse(self.zaaktype)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "gerelateerdAan")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class ResultaatTests(JWTAuthMixin, APITestCase):
@@ -955,6 +1110,100 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
                 response = getattr(self.client, method)(url)
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_resultaat_limited_to_authorized_zaken(self):
+        zaak1 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        zaak2 = ZaakFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        zaak3 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        resultaattype = ResultaatTypeFactory.create(zaaktype=self.zaaktype)
+
+        with self.subTest(
+            zaaktype=zaak1.zaaktype,
+            vertrouwelijkheidaanduiding=zaak1.vertrouwelijkheidaanduiding,
+        ):
+            response = self.client.post(
+                reverse("resultaat-list"),
+                {
+                    "zaak": f"http://testserver{reverse(zaak1)}",
+                    "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                },
+            )
+
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, response.data
+            )
+
+        for zaak in (zaak2, zaak3):
+            with self.subTest(
+                zaaktype=zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            ):
+                response = self.client.post(
+                    reverse("resultaat-list"),
+                    {
+                        "zaak": f"http://testserver{reverse(zaak)}",
+                        "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                    },
+                )
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_403_FORBIDDEN, response.data
+                )
+
+    def test_write_operations_validate_main_object(self):
+        resultaattype = ResultaatTypeFactory.create(zaaktype=self.zaaktype)
+
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                reverse("resultaat-list"),
+                {
+                    "zaak": "http://example.com",
+                    "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                reverse("resultaat-list"),
+                {
+                    "zaak": f"http://testserver{reverse(old_zaak)}",
+                    "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                reverse("resultaat-list"),
+                {
+                    "zaak": f"http://testserver{reverse(self.zaaktype)}",
+                    "resultaattype": f"http://testserver{reverse(resultaattype)}",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class ZaakObjectTests(JWTAuthMixin, APITestCase):
@@ -1048,6 +1297,42 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
                 response = self.client.post(url, {"zaak": reverse(zaak)})
 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_write_operations_validate_main_object(self):
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                reverse("zaakobject-list"),
+                {"zaak": "http://example.com"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                reverse("zaakobject-list"),
+                {"zaak": f"http://testserver{reverse(old_zaak)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                reverse("zaakobject-list"),
+                {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
@@ -1155,6 +1440,42 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(response.data["invalid_params"]), 1)
         error = get_validation_errors(response, "zaak")
         self.assertEqual(error["code"], "required")
+
+    def test_write_operations_validate_main_object(self):
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                reverse("zaakinformatieobject-list"),
+                {"zaak": "http://example.com"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                reverse("zaakinformatieobject-list"),
+                {"zaak": f"http://testserver{reverse(old_zaak)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                reverse("zaakinformatieobject-list"),
+                {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
@@ -1506,6 +1827,42 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(
                     response.status_code, status.HTTP_403_FORBIDDEN, response.data
                 )
+
+    def test_write_operations_validate_main_object(self):
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                reverse("substatus-list"),
+                {"zaak": "http://example.com"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                reverse("substatus-list"),
+                {"zaak": f"http://testserver{reverse(old_zaak)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                reverse("substatus-list"),
+                {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
 
 
 class RolReadTests(JWTAuthMixin, APITestCase):
@@ -2131,3 +2488,110 @@ class ReserveerZaaknummerTests(JWTAuthMixin, APITestCase):
         response = self.client.post(url, {"bronorganisatie": "000000000"})
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class KlantContactTests(JWTAuthMixin, APITestCase):
+    scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
+    component = ComponentTypes.zrc
+    url = reverse("klantcontact-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.zaaktype = ZaakTypeFactory.create()
+        super().setUpTestData()
+
+    def test_list_klantcontact_limited_to_authorized_zaken(self):
+        # must show up
+        klantcontact = KlantContactFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # must not show up
+        KlantContactFactory.create(
+            zaak__zaaktype=self.zaaktype,
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        # must not show up
+        KlantContactFactory.create(
+            zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()["results"]
+        self.assertEqual(len(response_data), 1)
+        self.assertEqual(
+            response_data[0]["url"], f"http://testserver{reverse(klantcontact)}"
+        )
+
+    def test_create_klantcontact_limited_to_authorized_zaken(self):
+        zaak1 = ZaakFactory.create()
+        zaak2 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.vertrouwelijk,
+        )
+        for zaak in [zaak1, zaak2]:
+            with self.subTest(
+                zaaktype=zaak.zaaktype,
+                vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
+            ):
+                response = self.client.post(self.url, {"zaak": reverse(zaak)})
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        zaak3 = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        data = {
+            "zaak": reverse(zaak3),
+            "datumtijd": "2019-07-22T12:00:00",
+        }
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_write_operations_validate_main_object(self):
+        with self.subTest("POST invalid main object url"):
+            response = self.client.post(
+                self.url,
+                {
+                    "zaak": "http://example.com",
+                    "datumtijd": "2019-07-22T12:00:00",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object uuid"):
+            old_zaak = ZaakFactory.create()
+            Zaak.objects.filter(uuid=old_zaak.uuid).delete()
+            response = self.client.post(
+                self.url,
+                {
+                    "zaak": f"http://testserver{reverse(old_zaak)}",
+                    "datumtijd": "2019-07-22T12:00:00",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "object-does-not-exist")
+            self.assertEqual(error["reason"], "Dit object bestaat niet in de database")
+
+        with self.subTest("POST invalid main object resource"):
+            response = self.client.post(
+                self.url,
+                {
+                    "zaak": f"http://testserver{reverse(self.zaaktype)}",
+                    "datumtijd": "2019-07-22T12:00:00",
+                },
+            )
+
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            error = get_validation_errors(response, "zaak")
+            self.assertEqual(error["code"], "incorrect_match")
+            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")

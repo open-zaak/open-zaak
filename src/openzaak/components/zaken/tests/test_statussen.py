@@ -13,7 +13,9 @@ from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openzaak.components.catalogi.tests.factories import StatusTypeFactory
+from openzaak.components.catalogi.tests.factories import (
+    StatusTypeFactory,
+)
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..models import Status
