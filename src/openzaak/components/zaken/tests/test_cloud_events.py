@@ -149,7 +149,7 @@ class CloudEventSettingMixin(TestCase):
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def test_patch_zaak_sends_zaak_gemuteerd_cloud_event(self, mock_get_solo):
+    def test_patch_zaak_sends_zaak_gemuteerd_cloud_event(self):
         zaak = ZaakFactory.create()
 
         with patch_send_cloud_event() as mock_send:
@@ -187,7 +187,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(event_payload_copy, expected_payload)
             self.assertIn("id", event_payload)
 
-    def test_delete_zaak_sends_zaak_verwijderd_cloud_event(self, mock_get_solo):
+    def test_delete_zaak_sends_zaak_verwijderd_cloud_event(self):
         zaak = ZaakFactory.create()
 
         with patch_send_cloud_event() as mock_send:
@@ -220,7 +220,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(event_payload_copy, expected_payload)
             self.assertIn("id", event_payload)
 
-    def test_create_zaak_sends_zaak_gemuteerd_cloud_event(self, mock_get_solo):
+    def test_create_zaak_sends_zaak_gemuteerd_cloud_event(self):
         catalogus = CatalogusFactory.create()
         zaaktype = ZaakTypeFactory.create(
             uuid="4f2aa64b-eb42-491f-ba48-e27e8f66716c",
@@ -278,9 +278,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertIn("id", event_payload)
 
     @tag("gh-2179")
-    def test_patch_zaak_with_only_laatst_geopend_sends_zaak_geopend_event(
-        self, mock_get_solo
-    ):
+    def test_patch_zaak_with_only_laatst_geopend_sends_zaak_geopend_event(self):
         zaak = ZaakFactory.create()
 
         with patch(
@@ -327,7 +325,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(event_payload_copy, expected_payload)
         self.assertIn("id", event_payload)
 
-    def test_send_cloud_event_task_posts_expected_payload(self, mock_get_solo):
+    def test_send_cloud_event_task_posts_expected_payload(self):
         service = ServiceFactory.create(
             api_root="http://webhook.local",
             auth_type=AuthTypes.api_key,
