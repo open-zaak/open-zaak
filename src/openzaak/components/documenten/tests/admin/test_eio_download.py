@@ -12,9 +12,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 
 
 @disable_admin_mfa()
-@override_settings(
-    SENDFILE_BACKEND="django_sendfile.backends.simple", CMIS_ENABLED=False
-)
+@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):

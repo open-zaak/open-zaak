@@ -1,10 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.conf import settings
 
 from vng_api_common.client import get_client, to_internal_data
-
-from openzaak.components.documenten.models import ObjectInformatieObject
 
 
 def delete_remote_resource(resource: str, resource_url: str) -> None:
@@ -13,27 +10,15 @@ def delete_remote_resource(resource: str, resource_url: str) -> None:
 
 
 def create_remote_oio(io_url: str, object_url: str, object_type: str = "zaak") -> dict:
-    if settings.CMIS_ENABLED:
-        if object_type == "zaak":
-            oio = ObjectInformatieObject.objects.create(
-                informatieobject=io_url, zaak=object_url, object_type=object_type
-            )
-        elif object_type == "besluit":
-            oio = ObjectInformatieObject.objects.create(
-                informatieobject=io_url, besluit=object_url, object_type=object_type
-            )
+    client = get_client(io_url, raise_exceptions=True)
 
-        response = {"url": oio.get_url()}
-    else:
-        client = get_client(io_url, raise_exceptions=True)
+    body = {
+        "informatieobject": io_url,
+        "object": object_url,
+        "objectType": object_type,
+    }
 
-        body = {
-            "informatieobject": io_url,
-            "object": object_url,
-            "objectType": object_type,
-        }
-
-        response = client.post("objectinformatieobjecten", json=body)
+    response = client.post("objectinformatieobjecten", json=body)
     return to_internal_data(response)
 
 

@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import URLValidator
 from django.db import models
@@ -12,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_filters import filters
 from django_loose_fk.filters import FkOrUrlFieldFilter
-from django_loose_fk.utils import get_resource_for_path, is_local
+from django_loose_fk.utils import get_resource_for_path
 from drf_spectacular.plumbing import build_choice_description_list
 from vng_api_common.utils import get_field_attribute, get_help_text
 
@@ -493,36 +492,8 @@ class ResultaatFilter(FilterSet):
         fields = ("zaak", "resultaattype")
 
 
-class FkOrUrlOrCMISFieldFilter(FkOrUrlFieldFilter):
-    def filter(self, qs, value):
-        if not value:
-            return qs
-
-        parsed = urlparse(value)
-        host = self.parent.request.get_host()
-
-        local = is_local(host, value)
-        if settings.CMIS_ENABLED:
-            local = False
-
-        # introspect field to build filter
-        model_field = self.model._meta.get_field(self.field_name)
-
-        if local:
-            local_object = get_resource_for_path(parsed.path)
-            if self.instance_path:
-                for bit in self.instance_path.split("."):
-                    local_object = getattr(local_object, bit)
-            filters = {f"{model_field.fk_field}__{self.lookup_expr}": local_object}
-        else:
-            filters = {f"{model_field.url_field}__{self.lookup_expr}": value}
-
-        qs = self.get_method(qs)(**filters)
-        return qs.distinct() if self.distinct else qs
-
-
 class ZaakInformatieObjectFilter(FilterSet):
-    informatieobject = FkOrUrlOrCMISFieldFilter(
+    informatieobject = FkOrUrlFieldFilter(
         queryset=ZaakInformatieObject.objects.all(),
         instance_path="canonical",
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),

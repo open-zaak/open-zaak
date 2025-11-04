@@ -31,7 +31,6 @@ src/manage.py dumpdata \
     zgw_consumers.NLXConfig \
     vng_api_common.JWTSecret \
     mozilla_django_oidc_db.OpenIDConnectConfig \
-    drc_cmis.CMISConfig \
     authorizations.Applicatie \
     autorisaties.CatalogusAutorisatie \
     config.FeatureFlags \

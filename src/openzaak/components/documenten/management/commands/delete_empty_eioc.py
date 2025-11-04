@@ -3,7 +3,6 @@
 from collections.abc import Callable
 from typing import List, Type
 
-from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
@@ -63,10 +62,6 @@ class Command(BaseCommand):
     help = "Delete any empty Document identities and delete related Besluit/ZaakInformatieObjecten"
 
     def handle(self, *args, **options):
-        if settings.CMIS_ENABLED:
-            self.stdout.write("This command does not run with CMIS enabled.")
-            return
-
         delete_eioc_and_relations(
             eioc_model=EnkelvoudigInformatieObjectCanonical,
             zio_model=ZaakInformatieObject,

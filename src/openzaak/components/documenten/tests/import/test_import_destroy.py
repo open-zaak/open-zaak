@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
-from django.test import override_settings, tag
-from django.utils.translation import gettext as _
+from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -89,25 +88,3 @@ class ImportDocumentenDestroyTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         error = get_validation_errors(response, "__all__")
 
         self.assertEqual(error["code"], "import-invalid-status")
-
-    @override_settings(CMIS_ENABLED=True)
-    def test_cmis_enabled(self):
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            total=10000,
-        )
-
-        url = reverse(
-            "documenten-import:destroy", kwargs=dict(uuid=import_instance.uuid)
-        )
-
-        response = self.client.delete(url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        self.assertEqual(Import.objects.count(), 1)
-
-        response_data = response.json()
-
-        self.assertEqual(response_data["code"], _("CMIS not supported"))

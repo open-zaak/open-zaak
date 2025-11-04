@@ -184,10 +184,7 @@ class ZaakArchiveIOsArchivedValidator:
             code="documents-not-archived",
         )
 
-        if not settings.CMIS_ENABLED:
-            self.validate_local_eios_archived(
-                attrs, instance, documents_not_archived_error
-            )
+        self.validate_local_eios_archived(attrs, instance, documents_not_archived_error)
         self.validate_remote_eios_archived(
             attrs, instance, documents_not_archived_error
         )
@@ -411,8 +408,7 @@ class EndStatusIOsIndicatieGebruiksrechtValidator:
         if not zaak:
             return
 
-        if not settings.CMIS_ENABLED:
-            self.validate_local_eios_indicatie_set(zaak)
+        self.validate_local_eios_indicatie_set(zaak)
         self.validate_remote_eios_indicatie_set(zaak)
 
     def validate_local_eios_indicatie_set(self, zaak: Zaak):

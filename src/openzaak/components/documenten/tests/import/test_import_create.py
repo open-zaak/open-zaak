@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2024 Dimpact
 from django.conf import settings
 from django.test import override_settings, tag
-from django.utils.translation import gettext as _
 
 from privates.test import temp_private_root
 from rest_framework import status
@@ -126,13 +125,3 @@ class ImportDocumentenCreateTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         response_data = response.json()
 
         self.assertEqual(response_data["code"], "permission_denied")
-
-    @override_settings(CMIS_ENABLED=True)
-    def test_cmis_enabled(self):
-        response = self.client.post(self.url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response_data = response.json()
-
-        self.assertEqual(response_data["code"], _("CMIS not supported"))

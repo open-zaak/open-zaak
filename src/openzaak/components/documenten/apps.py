@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.apps import AppConfig
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
@@ -27,8 +26,6 @@ def validate_eio_headers() -> None:
     """
     Validates that no serializer fields are missing in the `DocumentRow` class
     """
-    if settings.CMIS_ENABLED:
-        return
 
     from .api.serializers import EnkelvoudigInformatieObjectSerializer
     from .import_utils import DocumentRow

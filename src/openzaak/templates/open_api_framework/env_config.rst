@@ -34,7 +34,7 @@ provided as environment variables as well. The following option is one you may n
 
 * ``UWSGI_HTTP_TIMEOUT`` - defaults to 60s. If Open Zaak does not complete the request
   within this timeout, then uWSGI will error out. This has been observed with certain
-  CMIS implementations causing slow requests where 60s is not sufficient.
+  CMIS implementations causing slow requests where 60s is not sufficient. # TODO could be removed completely
 
 Initial configuration
 ---------------------

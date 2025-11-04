@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
@@ -12,7 +11,6 @@ from privates.admin import PrivateMediaMixin
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
-    CMISAdminMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
@@ -47,21 +45,6 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
-
-    def has_delete_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        return super().has_delete_permission(request, obj)
-
-    def has_add_permission(self, request):
-        if settings.CMIS_ENABLED:
-            return False
-        return super().has_add_permission(request)
-
-    def has_change_permission(self, request, obj=None):
-        if settings.CMIS_ENABLED:
-            return False
-        return super().has_change_permission(request, obj)
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):
@@ -106,7 +89,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
 
 @admin.register(ObjectInformatieObject)
 class ObjectInformatieObjectAdmin(
-    AuditTrailAdminMixin, CMISAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
@@ -320,7 +303,6 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
     AuditTrailAdminMixin,
-    CMISAdminMixin,
     ListObjectActionsAdminMixin,
     UUIDAdminMixin,
     PrivateMediaMixin,
@@ -426,11 +408,6 @@ class EnkelvoudigInformatieObjectAdmin(
             },
         ),
     )
-
-    def get_object(self, request, object_id, from_field=None):
-        if from_field is None and settings.CMIS_ENABLED:
-            from_field = "uuid"
-        return super().get_object(request, object_id, from_field=from_field)
 
     @admin.display(
         description=_("locked"),

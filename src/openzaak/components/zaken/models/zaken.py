@@ -5,7 +5,6 @@ from datetime import date
 from typing import Optional
 from uuid import UUID
 
-from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -1556,10 +1555,6 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
         ]
 
     def __str__(self) -> str:
-        # Avoid making a query to the DMS for the representation
-        if settings.CMIS_ENABLED:
-            return f"{self.zaak} - {self._informatieobject_url}"
-
         # In case of an external informatieobject, use the URL as fallback
         try:
             return f"{self.zaak} - {self.informatieobject}"

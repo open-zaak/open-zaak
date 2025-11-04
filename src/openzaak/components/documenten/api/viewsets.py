@@ -5,7 +5,6 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db import transaction
-from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -22,7 +21,6 @@ from drf_spectacular.utils import (
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.serializers import ErrorDetail, ValidationError
@@ -50,12 +48,9 @@ from openzaak.notifications.viewsets import (
     MultipleNotificationMixin,
 )
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
-from openzaak.utils.exceptions import CMISNotSupportedException
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
     CacheQuerysetMixin,
-    CMISConnectionPoolMixin,
-    ConvertCMISAdapterExceptions,
     ExpandMixin,
 )
 from openzaak.utils.pagination import OptimizedPagination
@@ -76,7 +71,6 @@ from ...zaken.api.scopes import (
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
 from ...zaken.models import ZaakInformatieObject
-from ..caching import cmis_conditional_retrieve
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -236,11 +230,8 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
         ),
     ),
 )
-@cmis_conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    CMISConnectionPoolMixin,
-    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     SearchMixin,
     ExpandMixin,
@@ -332,8 +323,6 @@ class EnkelvoudigInformatieObjectViewSet(
 
     @property
     def pagination_class(self):
-        if settings.CMIS_ENABLED:
-            return PageNumberPagination
         return OptimizedPagination
 
     @extend_schema(
@@ -352,15 +341,12 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
-        if settings.CMIS_ENABLED:
-            return FileResponse(eio.inhoud.file, as_attachment=True)
-        else:
-            return sendfile(
-                request,
-                eio.inhoud.path,
-                attachment=True,
-                mimetype="application/octet-stream",
-            )
+        return sendfile(
+            request,
+            eio.inhoud.path,
+            attachment=True,
+            mimetype="application/octet-stream",
+        )
 
     @extend_schema(
         "enkelvoudiginformatieobject_lock",
@@ -460,10 +446,6 @@ class EnkelvoudigInformatieObjectViewSet(
             )
             raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: err})
 
-        expand_param = self.get_requested_inclusions(request)
-        if settings.CMIS_ENABLED and expand_param:
-            raise CMISNotSupportedException()
-
         search_input = self.get_search_input()
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -500,9 +482,7 @@ class EnkelvoudigInformatieObjectViewSet(
         summary=_("Een IMPORT creeren"),
         description=mark_experimental(
             "Creëert een IMPORT. Wanneer er vervolgens een metadata bestand "
-            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Deze "
-            "actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
-            "ingeschakeld. Voor deze actie is een APPLICATIE nodig met "
+            " wordt aangeleverd zal de daadwerkelijke IMPORT van start gaan. Voor deze actie is een APPLICATIE nodig met "
             "`heeft_alle_autorisaties` ingeschakeld."
         ),
         request=OpenApiTypes.NONE,
@@ -512,11 +492,6 @@ class EnkelvoudigInformatieObjectImportView(ImportCreateview):
     import_type = ImportTypeChoices.documents
 
     required_scopes = {}
-
-    def create(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().create(request, *args, **kwargs)
 
 
 def _get_import_headers():
@@ -529,8 +504,7 @@ def _get_import_headers():
         summary=_("Een IMPORT bestand uploaden"),
         description=mark_experimental(
             "Het uploaden van een metadata bestand, ter gebruik voor de IMPORT. "
-            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
-            "ingeschakeld. Deze actie start tevens de IMPORT. Één actieve IMPORT "
+            "Deze actie start tevens de IMPORT. Één actieve IMPORT "
             " tegelijkertijd is mogelijk. De volgende kolommen worden verwacht "
             f"(op volgorde) in het bestand: {_get_import_headers()}. Voor deze "
             "actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
@@ -564,9 +538,6 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         return Path(settings.IMPORT_DOCUMENTEN_BASE_DIR)
 
     def create(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-
         response = super().create(request, *args, **kwargs)
 
         request_headers = {
@@ -586,8 +557,7 @@ class EnkelvoudigInformatieObjectImportUploadView(ImportUploadView):
         operation_id="enkelvoudiginformatieobject_import_status",
         summary=_("De status van een IMPORT opvragen."),
         description=mark_experimental(
-            "Het opvragen van de status van een IMPORT. Deze actie is niet "
-            "beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld. "
+            "Het opvragen van de status van een IMPORT. "
             "Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`"
             " ingeschakeld."
         ),
@@ -597,11 +567,6 @@ class EnkelvoudigInformatieObjectImportStatusView(ImportStatusView):
     import_type = ImportTypeChoices.documents
 
     required_scopes = {}
-
-    def retrieve(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().retrieve(request, *args, **kwargs)
 
 
 def _get_report_headers():
@@ -615,8 +580,7 @@ def _get_report_headers():
         description=mark_experimental(
             "Het reportage bestand downloaden van een IMPORT. Dit bestand is alleen "
             "beschikbaar indien de IMPORT is afgerond (ongeacht het resultaat). "
-            "Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is "
-            "ingeschakeld. De volgende kolommen zijn te vinden in het rapportage "
+            "De volgende kolommen zijn te vinden in het rapportage "
             f"bestand: {_get_report_headers()}. Voor deze actie is een APPLICATIE "
             "nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
@@ -634,11 +598,6 @@ class EnkelvoudigInformatieObjectImportReportView(ImportReportView):
 
     required_scopes = {}
 
-    def retrieve(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().retrieve(request, *args, **kwargs)
-
 
 def _get_deletion_choices():
     return ", ".join(
@@ -655,8 +614,7 @@ def _get_deletion_choices():
         description=mark_experimental(
             "Een IMPORT verwijderen. Het verwijderen van een IMPORT "
             "is alleen mogelijk wanneer deze een van de volgende statussen heeft: "
-            f"{_get_deletion_choices()}. Deze actie is niet beschikbaar wanneer "
-            "de `CMIS_ENABLED` optie is ingeschakeld. Voor deze actie is een "
+            f"{_get_deletion_choices()}. Voor deze actie is een "
             "APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld."
         ),
         responses={
@@ -669,11 +627,6 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
     import_type = ImportTypeChoices.documents
 
     required_scopes = {}
-
-    def destroy(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().destroy(request, *args, **kwargs)
 
 
 @extend_schema_view(
@@ -713,11 +666,8 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
         ),
     ),
 )
-@cmis_conditional_retrieve()
 class GebruiksrechtenViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    CMISConnectionPoolMixin,
-    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     ExpandMixin,
     NotificationViewSetMixin,
@@ -813,9 +763,7 @@ class GebruiksrechtenViewSet(
         ],
     ),
 )
-class EnkelvoudigInformatieObjectAuditTrailViewSet(
-    CMISConnectionPoolMixin, AuditTrailViewSet
-):
+class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
     """Opvragen van de audit trail regels."""
 
     main_resource_lookup_field = "enkelvoudiginformatieobject_uuid"
@@ -855,11 +803,8 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(
         ),
     ),
 )
-@cmis_conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    CMISConnectionPoolMixin,
-    ConvertCMISAdapterExceptions,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
@@ -1010,7 +955,6 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
         summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
     ),
 )
-@cmis_conditional_retrieve()
 class VerzendingViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -1048,36 +992,6 @@ class VerzendingViewSet(
         if self.detail:
             return VerzendingDetailFilter
         return VerzendingFilter
-
-    def create(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().create(request, *args, **kwargs)
-
-    def list(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().retrieve(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().update(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().partial_update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise CMISNotSupportedException()
-        return super().destroy(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

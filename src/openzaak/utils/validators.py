@@ -3,7 +3,6 @@
 import json
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -14,7 +13,7 @@ from rest_framework.validators import (
     UniqueTogetherValidator as _UniqueTogetherValidator,
 )
 from vng_api_common.oas import obj_has_shape
-from vng_api_common.utils import get_resource_for_path, get_uuid_from_path
+from vng_api_common.utils import get_resource_for_path
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
 from openzaak.api_standards import APIStandard
@@ -89,12 +88,8 @@ class LooseFkIsImmutableValidator(FKOrServiceUrlValidator):
         if isinstance(current_value, EnkelvoudigInformatieObject) and isinstance(
             new_value, EnkelvoudigInformatieObject
         ):
-            if settings.CMIS_ENABLED:
-                new_value_url = new_value.get_url()
-                current_value_url = current_value.get_url()
-            else:
-                new_value_url = new_value._initial_data["url"]
-                current_value_url = current_value._initial_data["url"]
+            new_value_url = new_value._initial_data["url"]
+            current_value_url = current_value._initial_data["url"]
 
             if new_value_url != current_value_url:
                 raise serializers.ValidationError(
@@ -177,11 +172,7 @@ class ObjecttypeInformatieobjecttypeRelationValidator:
 
         objecttype = getattr(object, self.objecttype_field)
 
-        if isinstance(informatieobject, ProxyMixin) and settings.CMIS_ENABLED:
-            io_uuid = get_uuid_from_path(informatieobject._initial_data["url"])
-            io = EnkelvoudigInformatieObject.objects.get(uuid=io_uuid)
-            io_type = io.informatieobjecttype
-        elif isinstance(informatieobject, EnkelvoudigInformatieObject):
+        if isinstance(informatieobject, EnkelvoudigInformatieObject):
             io_type = informatieobject.informatieobjecttype
         elif isinstance(informatieobject, str):
             io_path = urlparse(informatieobject).path
@@ -220,9 +211,7 @@ class UniqueTogetherValidator(_UniqueTogetherValidator):
     def __repr__(self):
         """
         The parent representation function iterates through the queryset and
-        generates a representation for every object in the queryset. This is particularly
-        problematic when CMIS is enabled and for each object a query to the DMS
-        has to be done.
+        generates a representation for every object in the queryset.
         """
         return "<{}(fields={})>".format(
             self.__class__.__name__, smart_repr(self.fields)

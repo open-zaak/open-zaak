@@ -498,8 +498,6 @@ class ZaakViewSet(
         assert autocommit is False, "Expected to be in a transaction.atomic block"
         # evaluate the queryset, because the transaction will delete the records with
         # a cascade
-        # In the CMIS case, _informatieobject is None, but the _objectinformatieobject_url is not set
-        # (internal document behaviour)
         oio_urls = instance.zaakinformatieobject_set.filter(
             Q(_informatieobject__isnull=True), ~Q(_objectinformatieobject_url="")
         ).values_list("_objectinformatieobject_url", flat=True)

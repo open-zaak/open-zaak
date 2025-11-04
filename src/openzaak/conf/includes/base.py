@@ -94,7 +94,6 @@ INSTALLED_APPS = (
         "sniplates",  # TODO can this be removed?
         "django_better_admin_arrayfield",  # TODO can this be removed?
         "django_loose_fk",
-        "drc_cmis",
         "django_celery_beat",
         "capture_tag",
         # Project applications.
@@ -466,31 +465,6 @@ TIME_LEEWAY = config(
         "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
         "not make this larger than a couple of minutes."
     ),
-)
-
-
-CMIS_ENABLED = config(
-    "CMIS_ENABLED",
-    default=False,
-    help_text=("whether to enable the CMIS adapter"),
-    group="CMIS",
-)
-CMIS_MAPPER_FILE = config(
-    "CMIS_MAPPER_FILE",
-    default=os.path.join(BASE_DIR, "config", "cmis_mapper.json"),
-    help_text=(
-        "name of the file containing the mapping between the Django and Document Management System names "
-        "for document properties. See the installation section for more details. "
-        "Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``."
-    ),
-    auto_display_default=False,
-    group="CMIS",
-)
-CMIS_URL_MAPPING_ENABLED = config(
-    "CMIS_URL_MAPPING_ENABLED",
-    default=False,
-    help_text="enable the URL shortener when using the CMIS adapter",
-    group="CMIS",
 )
 
 ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
