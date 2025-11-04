@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from contextlib import contextmanager
 from typing import Any
 from uuid import uuid4
 
 from django.conf import settings
+from django.db import transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
@@ -20,6 +22,18 @@ logger = get_logger(__name__)
 ZAAK_GEOPEND = "nl.overheid.zaken.zaak-geopend"
 ZAAK_GEMUTEERD = "nl.overheid.zaken.zaak-gemuteerd"
 ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
+
+
+@contextmanager
+def _fake_atomic():
+    yield
+
+
+def conditional_atomic(wrap: bool = True):
+    """
+    Wrap either a fake or real atomic transaction context manager.
+    """
+    return transaction.atomic if wrap else _fake_atomic
 
 
 def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
@@ -64,3 +78,53 @@ def send_cloud_event(self, cloud_event: dict[str, Any]) -> None:
         subject=cloud_event["subject"],
         status_code=response.status_code,
     )
+
+
+class CloudEventMixin:
+    cloud_events_wrap_in_atomic_block = True
+
+    def _get_zaak_from_instance(self, instance):
+        zaak_field = getattr(self, "lookup_zaak_field", "zaak")
+        return getattr(instance, zaak_field, None)
+
+    def _get_zaak_from_dict(self, data):
+        zaak_field = getattr(self, "lookup_zaak_field", "zaak")
+        return data.get(zaak_field, None)
+
+
+class CloudEventCreateMixin(CloudEventMixin):
+    def perform_create(self, serializer):
+        with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
+            super().perform_create(serializer)
+            zaak = self._get_zaak_from_instance(serializer.instance)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventUpdateMixin(CloudEventMixin):
+    def perform_update(self, serializer):
+        with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
+            super().perform_update(serializer)
+            zaak = self._get_zaak_from_instance(serializer.instance)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventPostMixin(CloudEventMixin):
+    def perform_post(self, serializer):
+        with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
+            super().perform_post(serializer)
+            zaak = self._get_zaak_from_dict(serializer.instance)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventDestroyMixin(CloudEventMixin):
+    def perform_destroy(self, instance):
+        with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
+            zaak = self._get_zaak_from_instance(instance)
+            super().perform_destroy(instance)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+
+
+class CloudEventViewSetMixin(
+    CloudEventCreateMixin, CloudEventUpdateMixin, CloudEventDestroyMixin
+):
+    pass
