@@ -29,6 +29,7 @@ from vng_api_common.audittrails.viewsets import (
     AuditTrailMixin,
     AuditTrailViewsetMixin,
 )
+from vng_api_common.caching import conditional_retrieve
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
 from vng_api_common.search import SearchMixin
@@ -230,6 +231,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
         ),
     ),
 )
+@conditional_retrieve()
 class EnkelvoudigInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -666,6 +668,7 @@ class EnkelvoudigInformatieObjectImportDestroyView(ImportDestroyView):
         ),
     ),
 )
+@conditional_retrieve()
 class GebruiksrechtenViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -803,6 +806,7 @@ class EnkelvoudigInformatieObjectAuditTrailViewSet(AuditTrailViewSet):
         ),
     ),
 )
+@conditional_retrieve()
 class ObjectInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,
@@ -955,6 +959,7 @@ class BestandsDeelViewSet(UpdateWithoutPartialMixin, viewsets.GenericViewSet):
         summary="Verwijder een VERZENDING.", description="Verwijder een VERZENDING."
     ),
 )
+@conditional_retrieve()
 class VerzendingViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     CheckQueryParamsMixin,

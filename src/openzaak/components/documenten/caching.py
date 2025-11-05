@@ -2,7 +2,6 @@
 # Copyright (C) 2022 Dimpact
 from typing import Optional
 
-from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 
@@ -24,18 +23,13 @@ def get_etag(key: str) -> Optional[str]:
     return cache.get(key)
 
 
-# deprecated but needed for migrations
-class CMISETagMixin:
+class DocumentETagMixin:
     """
     Custom ETag management for Document API resources.
 
     To prevent storing ETag values for Documenten API resources in an external DMS,
     we store them in the cache.
     """
-
-    def __hash__(self):
-        assert self.pk is None
-        return hash(self.uuid)
 
     @property
     def _etag(self):

@@ -289,7 +289,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Verzendingen",
             },
             bases=(
-                openzaak.components.documenten.caching.CMISETagMixin,
+                openzaak.components.documenten.caching.DocumentETagMixin,
                 openzaak.utils.mixins.CMISClientMixin,
                 models.Model,
             ),

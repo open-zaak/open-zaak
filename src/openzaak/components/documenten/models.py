@@ -28,6 +28,7 @@ from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
 from .api.utils import generate_document_identificatie
+from .caching import DocumentETagMixin
 from .constants import (
     AfzenderTypes,
     ChecksumAlgoritmes,
@@ -286,7 +287,9 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         self.lock = ""
 
 
-class EnkelvoudigInformatieObject(AuditTrailMixin, APIMixin, InformatieObject):
+class EnkelvoudigInformatieObject(
+    DocumentETagMixin, AuditTrailMixin, APIMixin, InformatieObject
+):
     """
     Stores the content of a specific version of an
     EnkelvoudigInformatieObjectCanonical
@@ -553,7 +556,7 @@ class BestandsDeel(models.Model):
         return self.inhoud.size == self.omvang
 
 
-class Gebruiksrechten(APIMixin, models.Model):
+class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -626,7 +629,7 @@ class Gebruiksrechten(APIMixin, models.Model):
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(models.Model):
+class ObjectInformatieObject(DocumentETagMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -799,7 +802,7 @@ class ObjectInformatieObject(models.Model):
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(APIMixin, models.Model):
+class Verzending(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,
