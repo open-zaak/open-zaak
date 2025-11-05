@@ -1,5 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const argv = require('yargs').argv;
+const argv = require('yargs/yargs')(process.argv.slice(2)).argv;
 const paths = require('./build/paths');
 
 // Set isProduction based on environment or argv.
@@ -28,7 +28,7 @@ module.exports = {
         publicPath: '/static/bundles/',
     },
 
-     // Plugins
+    // Plugins
     plugins: [
         new MiniCssExtractPlugin(),
     ],
@@ -43,7 +43,7 @@ module.exports = {
                 test: /.js?$/
             },
             // .js
-          {
+            {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     // Writes css files.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2020 Dimpact
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import useAsync from 'react-use/esm/useAsync';
 
@@ -73,7 +73,10 @@ SelectielijstklasseOptions.propTypes = {
 
 
 const renderSelectielijstklasseOptions = (root, zaaktypeId) => {
-    ReactDOM.render(<SelectielijstklasseOptions zaaktypeId={zaaktypeId} />, root);
+    if (!root._reactRoot) {
+        root._reactRoot = createRoot(root);
+    }
+    root._reactRoot.render(<SelectielijstklasseOptions zaaktypeId={zaaktypeId} />);
 };
 
 
