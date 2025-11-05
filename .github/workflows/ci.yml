@@ -112,18 +112,15 @@ jobs:
             --parallel 4 \
             --verbosity 2
           coverage combine
-          mv .coverage .coverage-regular
         env:
           DB_POOL_ENABLED: ${{ matrix.use_pooling }}
 
-      - name: Upload Coverage Report
+      - name: Publish coverage report
         # TODO find a better way to upload this only once
         if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
-        uses: actions/upload-artifact@v4
+        uses: codecov/codecov-action@v4
         with:
-          name: coverage-regular-tests
-          path: ${{ github.workspace }}/.coverage-regular
-          include-hidden-files: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   performance-tests:
     name: Run the performance test suite
@@ -211,26 +208,6 @@ jobs:
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
                       "pytest performance_test/ --benchmark-json output.json"
-
-  publish_codecov:
-    name: Publish coverage results
-    runs-on: ubuntu-latest
-    needs:
-      - tests
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Coverage Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-regular-tests
-          path: coverage-data
-
-      - name: Publish coverage report
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
 
   docs:
     name: Documentation check

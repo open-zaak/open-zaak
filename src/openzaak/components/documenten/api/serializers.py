@@ -583,6 +583,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         )
         validated_data["pk"] = None
         validated_data["versie"] += 1
+        # Remove the lock from the data from which a new
+        # EnkelvoudigInformatieObject will be created, because lock is not a
+        # part of that model
         validated_data.pop("lock")
 
         validated_data["_request"] = self.context.get("request")

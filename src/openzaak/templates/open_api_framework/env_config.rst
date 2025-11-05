@@ -25,16 +25,6 @@ variables. The user will only be created if it doesn't exist yet.
   which means the superuser will be created *without* password. Only has an effect
   if ``OPENZAAK_SUPERUSER_USERNAME`` is set.
 
-Advanced application server options
------------------------------------
-
-Open Zaak uses `uWSGI`_ under
-the hood, which can be configured with a myriad of options. Most of these can be
-provided as environment variables as well. The following option is one you may need with Open Zaak.
-
-* ``UWSGI_HTTP_TIMEOUT`` - defaults to 60s. If Open Zaak does not complete the request
-  within this timeout, then uWSGI will error out.
-
 Initial configuration
 ---------------------
 
