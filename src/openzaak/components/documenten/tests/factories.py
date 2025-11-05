@@ -17,7 +17,6 @@ import string
 from pathlib import Path
 
 from django.conf import settings
-from django.test import RequestFactory
 
 import factory
 import factory.fuzzy

@@ -66,7 +66,6 @@ from ..models import (
     ReservedDocument,
     Verzending,
 )
-from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
@@ -113,9 +112,8 @@ class AnyBase64File(Base64FileField):
 
     def to_representation(self, file):
         is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
-        is_cmis_storage = isinstance(file.storage, PrivateMediaStorageWithCMIS) # TODO
 
-        if not (is_private_storage or is_cmis_storage) or self.represent_in_base64:
+        if not is_private_storage or self.represent_in_base64:
             return super().to_representation(file)
 
         # if there is no associated file link is not returned

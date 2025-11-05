@@ -47,7 +47,6 @@ from .query.django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
 )
-from .utils import private_media_storage_cmis
 from .validators import validate_status
 
 __all__ = [
@@ -340,7 +339,7 @@ class EnkelvoudigInformatieObject(
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
     )
     inhoud = PrivateMediaFileField(
-        upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis
+        upload_to="uploads/%Y/%m/",
     )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
