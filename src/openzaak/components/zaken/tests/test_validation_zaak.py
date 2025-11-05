@@ -473,6 +473,24 @@ class ZaakUpdateValidation(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    @freeze_time("2025-01-01T12:00:00Z")
+    @tag("gh-2179")
+    def test_validate_laatst_geopend_can_not_be_in_future(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        response = self.client.patch(
+            zaak_url,
+            {"laatst_geopend": "2026-01-1T12:00:00Z"},
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "laatstGeopend")
+
+        self.assertEqual(error["code"], "date-in-future")
+
     def test_validate_opschorting_indicatie_false(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)

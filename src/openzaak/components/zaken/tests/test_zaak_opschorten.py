@@ -311,6 +311,8 @@ class ZaakOpschortenValidationTests(JWTAuthMixin, APITestCase):
                 "eigenschappen": [],
                 "einddatum": None,
                 "einddatumGepland": None,
+                "laatstGemuteerd": "2025-01-01T12:00:00Z",
+                "laatstGeopend": None,
                 "hoofdzaak": None,
                 "identificatie": "ZAAK-2025-0000000001",
                 "kenmerken": [],

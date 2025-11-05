@@ -17,6 +17,7 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Cast
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -432,6 +433,8 @@ class ZaakSerializer(
             "einddatum_gepland",
             "uiterlijke_einddatum_afdoening",
             "publicatiedatum",
+            "laatst_gemuteerd",
+            "laatst_geopend",
             "communicatiekanaal",
             "communicatiekanaal_naam",
             # TODO: add shape validator once we know the shape
@@ -488,6 +491,11 @@ class ZaakSerializer(
                 "validators": [IsImmutableValidator()],
             },
             "einddatum": {"read_only": True, "allow_null": True},
+            "laatst_gemuteerd": {"read_only": True},
+            "laatst_geopend": {
+                "required": False,
+                "validators": [DateNotInFutureValidator()],
+            },
             "communicatiekanaal": {
                 "validators": [
                     ResourceValidator(
@@ -838,7 +846,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         everything or nothing to succeed and no limbo states.
         """
         zaak = validated_data["zaak"]
-        _zaak_fields_changed = []
+        _zaak_fields_changed = ["laatst_gemuteerd"]
+        # TODO should this be now() or datum_status_gezet?
+        zaak.laatst_gemuteerd = timezone.now()
 
         is_eindstatus = validated_data.pop("__is_eindstatus")
         brondatum_calculator = self.context.pop("brondatum_calculator", None)
@@ -1701,6 +1711,9 @@ class ZaakRegistrerenSerializer(ConvenienceSerializer):
             zaakobject_serializer.is_valid()
             self._handle_errors(index=i, zaakobjecten=zaakobject_serializer.errors)
             zaakobjecten.append(zaakobject_serializer.save())
+
+        # statusSerializer changes zaak fields when closing or reopening
+        zaak.refresh_from_db()
 
         return {
             "zaak": zaak,
