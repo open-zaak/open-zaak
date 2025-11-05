@@ -76,14 +76,6 @@ class EnkelvoudigInformatieObjectFactory(
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
 
-    @classmethod
-    def create(cls, **kwargs):  # TODO ???
-        # for DRC-CMIS, we pass in a request object containing the correct host.
-        # This way, we don't have to set up the sites framework for every test (case).
-        # The result is that informatieobjecttype has the correct URL reference in CMIS.
-        kwargs["_request"] = RequestFactory().get("/")
-        return super().create(**kwargs)
-
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)

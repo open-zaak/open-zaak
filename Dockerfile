@@ -77,7 +77,7 @@ COPY ./bin/dump_auth_config.sh /dump_auth_config.sh
 COPY ./bin/dump_data.sh /dump_data.sh
 COPY ./bin/uwsgi.ini /
 
-RUN mkdir /app/log /app/config /app/media /app/private-media /app/tmp
+RUN mkdir /app/log /app/media /app/private-media /app/tmp
 # prevent writing to the container layer, which would degrade performance.
 # This also serves as a hint for the intended volumes.
 VOLUME ["/app/log", "/app/media", "/app/private-media"]
@@ -92,7 +92,6 @@ COPY --from=frontend-build /app/src/openzaak/static/ /app/src/openzaak/static/
 COPY --from=frontend-build /app/node_modules/@fortawesome/fontawesome-free/webfonts /app/node_modules/@fortawesome/fontawesome-free/webfonts
 
 # Stage 3.2 - Copy source code
-COPY ./config /app/config
 COPY ./src /app/src
 
 RUN groupadd -g 1000 openzaak \
