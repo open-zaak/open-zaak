@@ -61,7 +61,7 @@ Changelog
 **Project maintenance**
 
 * [:open-api-framework:`114`] Upload performance tests results to bencher.dev to track regressions
-* [:open-zaak:`2110`] :white_check_mark: Add missing tests for ``ClosedZaakMixin``
+* [:open-zaak:`2110`] Add missing tests for ``ClosedZaakMixin``
 * [:open-api-framework:`179`] Monkeypatch ``requests`` to set default timeout for every request
 * Upgrade dependencies:
 
