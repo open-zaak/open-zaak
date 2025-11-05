@@ -35,17 +35,6 @@ class AuditTrailMixin:
         return res
 
 
-# deprecated but needed for migrations
-class CMISClientMixin:
-    _cmis_client = None
-
-    @property
-    def cmis_client(self):
-        # if self._cmis_client is None:
-        #     self._cmis_client = client_builder.get_cmis_client()
-        return self._cmis_client
-
-
 class APIMixin(_APIMixin):
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         kwargs["version"] = "1"
