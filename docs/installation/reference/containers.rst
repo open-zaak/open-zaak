@@ -14,7 +14,7 @@ container software should create volumes to avoid writing to the container file 
 layer.
 
 * ``/app/private-media``
-    Any files uploaded through the Documenten API (unless you use the CMIS adapter). In
+    Any files uploaded through the Documenten API. In
     the future, it's possible that other authorization protected files will end up here.
 
 * ``/app/media``
