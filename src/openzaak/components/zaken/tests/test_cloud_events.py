@@ -4,13 +4,18 @@ import uuid
 from datetime import datetime
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
+from uuid import UUID
 
 from django.db.models import Model
 from django.test import override_settings, tag
 from django.utils import timezone
 
 import requests_mock
+from celery.exceptions import Retry
 from freezegun import freeze_time
+from furl import furl
+from notifications_api_common.models import NotificationsConfig
+from requests.exceptions import Timeout
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -38,8 +43,8 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
+from openzaak.components.zaken.tests.utils import get_operation_url
 from openzaak.config.models import CloudEventConfig
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
 
@@ -48,6 +53,7 @@ from ..api.cloud_events import (
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
+    send_cloud_event,
 )
 from ..models import (
     Resultaat,
@@ -59,6 +65,7 @@ from ..models import (
     ZaakInformatieObject,
     ZaakNotitie,
     ZaakObject,
+    ZaakVerzoek,
 )
 from .factories import (
     ResultaatFactory,
@@ -72,6 +79,26 @@ from .factories import (
     ZaakVerzoekFactory,
 )
 from .utils import ZAAK_WRITE_KWARGS
+
+
+def mock_cloud_event_send(m: requests_mock.Mocker, **kwargs) -> None:
+    from openzaak.config.models import CloudEventConfig
+
+    config = CloudEventConfig.get_solo()
+    service = config.webhook_service
+    assert service is not None
+    base_url = (furl(service.api_root) / config.webhook_path).url
+
+    mock_kwargs = (
+        {
+            "status_code": 201,
+            "json": {"dummy": "json"},
+            **kwargs,
+        }
+        if "exc" not in kwargs
+        else kwargs
+    )
+    m.post(base_url, **mock_kwargs)
 
 
 def patch_send_cloud_event():
@@ -98,11 +125,20 @@ class CloudEventSettingMixin(TestCase):
     def setUp(self):
         super().setUp()
 
+        self.service = ServiceFactory.create(
+            api_root="http://webhook.local",
+            auth_type=AuthTypes.api_key,
+            header_key="Authorization",
+            header_value="Token foo",
+        )
+
         self._patcher = patch(
             "openzaak.components.zaken.api.cloud_events.CloudEventConfig.get_solo",
             return_value=CloudEventConfig(
                 enabled=True,
                 source=self.CLOUD_EVENT_SOURCE,
+                webhook_service=self.service,
+                webhook_path="/events",
             ),
         )
         self.mock_get_solo = self._patcher.start()
@@ -144,6 +180,140 @@ class CloudEventSettingMixin(TestCase):
 
         self.assertEqual(event_payload_copy, expected_payload)
         self.assertIn("id", event_payload)
+
+
+@tag("gh-2228")
+@requests_mock.Mocker()
+@freeze_time("2012-01-14")
+@patch(
+    "openzaak.components.zaken.api.cloud_events.uuid4",
+    return_value=UUID("627a7fd2-6b9a-4963-8723-6ce7650f37c0"),
+)
+@patch("openzaak.components.zaken.api.cloud_events.send_cloud_event.delay")
+@patch(
+    "openzaak.components.zaken.api.cloud_events.send_cloud_event.retry",
+    side_effect=Retry,
+)
+class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def test_cloud_event_client_error_retry(self, m, retry_mock, mock_send, mock_uuid):
+        """
+        Verify that a retry is called when the sending of the notification didn't
+        succeed due to an invalid response
+        """
+        config = NotificationsConfig.get_solo()
+        config.notification_delivery_max_retries = 3
+        config.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        request_data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "000000000",
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        # 1. check that notification task is called
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.data
+        zaak = Zaak.objects.get()
+        message = {
+            "id": "627a7fd2-6b9a-4963-8723-6ce7650f37c0",
+            "specversion": "1.0",
+            "type": ZAAK_GEMUTEERD,
+            "source": self.CLOUD_EVENT_SOURCE,
+            "subject": str(zaak.uuid),
+            "dataref": reverse(zaak),
+            "datacontenttype": "application/json",
+            "data": {},
+            "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+        self.assertEqual(str(zaak.uuid), data["uuid"])
+
+        mock_send.assert_called_with(message)
+
+        # 2. check that if task is failed, celery retry is called
+        mock_cloud_event_send(m, status_code=403)
+
+        with self.assertRaises(Retry):
+            send_cloud_event(message)
+
+        retry_mock.assert_called_once()
+
+    def test_cloud_event_timeout_retry(self, m, retry_mock, mock_send, mock_uuid):
+        """
+        Verify that a retry is called when the sending of the notification didn't
+        succeed due to an invalid response
+        """
+        config = NotificationsConfig.get_solo()
+        config.notification_delivery_max_retries = 3
+        config.save()
+
+        url = get_operation_url("zaak_create")
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        request_data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "000000000",
+            "registratiedatum": "2012-01-13",
+            "startdatum": "2012-01-13",
+            "toelichting": "Een stel dronken toeristen speelt versterkte "
+            "muziek af vanuit een gehuurde boot.",
+            "zaakgeometrie": {
+                "type": "Point",
+                "coordinates": [4.910649523925713, 52.37240093589432],
+            },
+        }
+
+        # 1. check that notification task is called
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.data
+        zaak = Zaak.objects.get()
+        message = {
+            "id": "627a7fd2-6b9a-4963-8723-6ce7650f37c0",
+            "specversion": "1.0",
+            "type": ZAAK_GEMUTEERD,
+            "source": self.CLOUD_EVENT_SOURCE,
+            "subject": str(zaak.uuid),
+            "dataref": reverse(zaak),
+            "datacontenttype": "application/json",
+            "data": {},
+            "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+        self.assertEqual(str(zaak.uuid), data["uuid"])
+
+        mock_send.assert_called_with(message)
+
+        # 2. check that if task is failed, celery retry is called
+        mock_cloud_event_send(m, exc=Timeout)
+
+        with self.assertRaises(Retry):
+            send_cloud_event(message)
+
+        retry_mock.assert_called_once()
 
 
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
@@ -326,22 +496,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         self.assertIn("id", event_payload)
 
     def test_send_cloud_event_task_posts_expected_payload(self):
-        service = ServiceFactory.create(
-            api_root="http://webhook.local",
-            auth_type=AuthTypes.api_key,
-            header_key="Authorization",
-            header_value="Token foo",
-        )
-
         zaak = ZaakFactory.create()
-
-        mock_config = CloudEventConfig(
-            enabled=True,
-            source="urn:nld:oin:00000001823288444000:zakensysteem",
-            webhook_service=service,
-            webhook_path="/events",
-        )
-        self.mock_get_solo.return_value = mock_config
 
         event_id = str(uuid.uuid4())
         payload = {
