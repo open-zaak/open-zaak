@@ -46,9 +46,6 @@ const ProcestypeOptions = ({ year, initialValue='' }) => {
                     ))
                 }
             </select>
-            <div className="help">
-                URL-referentie naar een vanuit archiveringsoptiek onderkende groep processen met dezelfde kenmerken (PROCESTYPE in de Selectielijst API).
-            </div>
         </>
     );
 };
