@@ -14520,6 +14520,9 @@ components:
     BetalingsindicatieEnum:
       enum:
       - nvt
+      - gefactureerd
+      - gecrediteerd
+      - betaald
       - nog_niet
       - gedeeltelijk
       - geheel
@@ -16991,9 +16994,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -17218,9 +17224,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -18685,9 +18694,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -19850,9 +19862,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -20249,9 +20264,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -20506,9 +20524,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -20802,9 +20823,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -21096,9 +21120,12 @@ components:
             Uitleg bij mogelijke waarden:
 
             * `nvt` - Er is geen sprake van te betalen, met de zaak gemoeide, kosten.
-            * `nog_niet` - De met de zaak gemoeide kosten zijn (nog) niet betaald.
-            * `gedeeltelijk` - De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
-            * `geheel` - De met de zaak gemoeide kosten zijn geheel betaald.
+            * `gefactureerd` - **EXPERIMENTEEL** Opdracht tot facturatie verzonden
+            * `gecrediteerd` - **EXPERIMENTEEL** Opdracht tot creditering verzonden
+            * `betaald` - **EXPERIMENTEEL** Betaling vastgesteld (bijvoorbeeld via online kassa bij directe aanvraag)
+            * `nog_niet` - **DEPRECATED** De met de zaak gemoeide kosten zijn (nog) niet betaald.
+            * `gedeeltelijk` - **DEPRECATED** De met de zaak gemoeide kosten zijn gedeeltelijk betaald.
+            * `geheel` - **DEPRECATED** De met de zaak gemoeide kosten zijn geheel betaald.
           oneOf:
           - $ref: '#/components/schemas/BetalingsindicatieEnum'
           - $ref: '#/components/schemas/BlankEnum'

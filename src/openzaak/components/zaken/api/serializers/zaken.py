@@ -80,7 +80,11 @@ from openzaak.utils.validators import (
 )
 
 from ...brondatum import BrondatumCalculator
-from ...constants import AardZaakRelatie, BetalingsIndicatie, IndicatieMachtiging
+from ...constants import (
+    AardZaakRelatie,
+    BetalingsIndicatie,
+    IndicatieMachtiging,
+)
 from ...models import (
     KlantContact,
     RelevanteZaakRelatie,
