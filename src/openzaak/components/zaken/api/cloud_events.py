@@ -9,7 +9,9 @@ from django.db import transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
+import requests
 from celery import shared_task
+from notifications_api_common.autoretry import add_autoretry_behaviour
 from rest_framework.reverse import reverse
 from structlog.stdlib import get_logger
 from zgw_consumers.client import build_client
@@ -27,6 +29,10 @@ ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
 @contextmanager
 def _fake_atomic():
     yield
+
+
+class CloudEventException(Exception):
+    pass
 
 
 def conditional_atomic(wrap: bool = True):
@@ -66,18 +72,45 @@ def send_cloud_event(self, cloud_event: dict[str, Any]) -> None:
         return
 
     client = build_client(config.webhook_service)
-    response = client.post(
-        config.webhook_path,
-        json=cloud_event,
-        headers={"content-type": "application/cloudevents+json"},
-    )
 
-    logger.info(
-        "cloud_event_sent",
-        type=cloud_event["type"],
-        subject=cloud_event["subject"],
-        status_code=response.status_code,
-    )
+    try:
+        response = client.post(
+            config.webhook_path,
+            json=cloud_event,
+            headers={"content-type": "application/cloudevents+json"},
+        )
+        response.raise_for_status()
+    # any unexpected errors should show up in error-monitoring, so we only
+    # catch HTTPError exceptions
+    except requests.HTTPError as exc:
+        logger.warning(
+            "cloud_event_error",
+            exc_info=exc,
+            extra={
+                "notification_msg": cloud_event,
+                "current_try": self.request.retries + 1,
+                "final_try": self.request.retries >= self.max_retries,
+                "base_url": client.base_url,
+            },
+        )
+        raise CloudEventException from exc
+    else:
+        logger.info(
+            "cloud_event_sent",
+            type=cloud_event["type"],
+            subject=cloud_event["subject"],
+            status_code=response.status_code,
+        )
+
+
+add_autoretry_behaviour(
+    send_cloud_event,
+    autoretry_for=(
+        CloudEventException,
+        requests.RequestException,
+    ),
+    retry_jitter=False,
+)
 
 
 class CloudEventMixin:
