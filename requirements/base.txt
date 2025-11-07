@@ -492,7 +492,7 @@ urllib3==2.5.0
     #   requests
     #   requests-cache
     #   sentry-sdk
-uwsgi==2.0.30
+uwsgi==2.0.31
     # via open-api-framework
 vine==5.1.0
     # via
