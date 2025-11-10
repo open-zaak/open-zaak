@@ -32,3 +32,4 @@ drc-cmis
 commonground-api-common[setup-configuration, testutils, oas]
 maykin-common[axes,mfa]
 psycopg[pool, binary]
+zgw-consumers[oauth2]

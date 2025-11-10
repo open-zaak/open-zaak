@@ -607,6 +607,11 @@ notifications-api-common==0.8.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
+oauthlib==3.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   requests-oauthlib
 open-api-framework==0.13.1
     # via
     #   -c requirements/base.txt
@@ -815,6 +820,7 @@ requests==2.32.4
     #   open-api-framework
     #   requests-cache
     #   requests-mock
+    #   requests-oauthlib
     #   sphinx
     #   zgw-consumers
 requests-cache==1.2.1
@@ -826,6 +832,10 @@ requests-mock==1.12.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   -r requirements/test-tools.in
+requests-oauthlib==2.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/base.txt
@@ -1013,7 +1023,7 @@ wrapt==1.16.0
     #   vcrpy
 yarl==1.17.1
     # via vcrpy
-zgw-consumers==1.0.0
+zgw-consumers==1.1.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
