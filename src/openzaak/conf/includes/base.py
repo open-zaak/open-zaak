@@ -546,3 +546,5 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 # Note: the LOGIN_URL Django setting is not used because you could have
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
+
+DEFAULT_NOTIFICATIONS_HANDLER = "openzaak.notifications.default.handle"
