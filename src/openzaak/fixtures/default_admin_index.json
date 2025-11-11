@@ -67,10 +67,6 @@
                 "featureflags"
             ],
             [
-                "drc_cmis",
-                "cmisconfig"
-            ],
-            [
                 "mozilla_django_oidc_db",
                 "openidconnectconfig"
             ],

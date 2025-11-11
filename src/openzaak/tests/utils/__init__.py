@@ -3,12 +3,6 @@
 from .admin import AdminTestMixin
 from .auth import JWTAuthMixin
 from .cache import ClearCachesMixin
-from .cmis import (
-    APICMISTestCase,
-    APICMISTransactionTestCase,
-    require_cmis,
-    serialise_eio,
-)
 from .factories import FkOrServiceUrlFactoryMixin
 from .migrations import TestMigrations
 from .mocks import (
@@ -43,11 +37,6 @@ __all__ = [
     "ClearCachesMixin",
     # admin
     "AdminTestMixin",
-    # cmis
-    "APICMISTestCase",
-    "APICMISTransactionTestCase",
-    "serialise_eio",
-    "require_cmis",
     # oas
     "get_spec",
     # factories

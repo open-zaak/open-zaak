@@ -27,7 +27,6 @@ django-better-admin-arrayfield
 drf-extra-fields
 drf-writable-nested
 humanize
-drc-cmis
 
 commonground-api-common[setup-configuration, testutils, oas]
 maykin-common[axes,mfa]

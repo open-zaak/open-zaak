@@ -71,7 +71,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 @tag("notifications")
 @freeze_time("2012-01-14")
-@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -1127,7 +1127,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
 @tag("notifications", "DEPRECATED")
 @requests_mock.Mocker()
-@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 @freeze_time("2019-01-01T12:00:00Z")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
@@ -1800,7 +1800,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
 
 @tag("notifications")
-@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class InvalidNotifConfigTests(
     NotificationsConfigMixin, JWTAuthMixin, APITransactionTestCase

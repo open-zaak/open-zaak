@@ -30,7 +30,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @tag("notifications")
 @requests_mock.Mocker()
 @freeze_time("2012-01-14")
-@override_settings(NOTIFICATIONS_DISABLED=False, CMIS_ENABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 @patch("notifications_api_common.viewsets.send_notification.retry", side_effect=Retry)
 class NotificationCeleryRetryTestCase(

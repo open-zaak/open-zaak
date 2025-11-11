@@ -1131,8 +1131,8 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         #     transaction.get_autocommit()
         # ), "Expected to be in autocommit mode at this point"
 
-        # local FK or CMIS - nothing to do -> our signals create the OIO
-        if settings.CMIS_ENABLED or zio.informatieobject.pk:
+        # local FK - nothing to do -> our signals create the OIO
+        if zio.informatieobject.pk:
             return zio
 
         # we know that we got valid URLs in the initial data
@@ -1163,16 +1163,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             zio.save()
 
         return zio
-
-    def run_validators(self, value):
-        """
-        Add read_only fields with defaults to value before running validators.
-        """
-        # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
-        if value.get("informatieobject") is not None and settings.CMIS_ENABLED:
-            value["informatieobject"] = self.initial_data.get("informatieobject")
-
-        return super().run_validators(value)
 
 
 class ZaakInformatieObjectSubSerializer(

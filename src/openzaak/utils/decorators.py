@@ -3,11 +3,6 @@
 from functools import wraps
 
 from django.core.cache import caches
-from django.utils.translation import gettext_lazy as _
-
-from drc_cmis.webservice.utils import NoURLMappingException, URLTooLongException
-
-from openzaak.utils.exceptions import CMISAdapterException
 
 
 def cache(key: str, alias: str = "default", **set_options):
@@ -42,24 +37,3 @@ def cache_uuid(key, timeout):
         return wrapped
 
     return decorator
-
-
-def convert_cmis_adapter_exceptions(function):
-    """Convert exceptions raised by the CMIS-adapter to avoid 500 responses"""
-
-    @wraps(function)
-    def convert_exceptions(*args, **kwargs):
-        try:
-            response = function(*args, **kwargs)
-        except NoURLMappingException:
-            raise CMISAdapterException(
-                _("CMIS-adapter could not shrink one of the URL fields.")
-            )
-        except URLTooLongException:
-            raise CMISAdapterException(
-                _("CMIS-adapter could not shrink a URL field below 100 characters.")
-            )
-
-        return response
-
-    return convert_exceptions

@@ -4,7 +4,6 @@ from rest_framework.request import Request
 from vng_api_common.permissions import bypass_permissions
 
 from openzaak.import_data.models import ImportTypeChoices
-from openzaak.utils.decorators import convert_cmis_adapter_exceptions
 from openzaak.utils.permissions import AuthRequired
 
 
@@ -13,7 +12,6 @@ class ImportAuthRequired(AuthRequired):
         importer_type = view.import_type
         return ImportTypeChoices.get_component_from_choice(importer_type)
 
-    @convert_cmis_adapter_exceptions
     def has_permission(self, request: Request, view) -> bool:
         has_handler = hasattr(view, request.method.lower())
         if not has_handler:

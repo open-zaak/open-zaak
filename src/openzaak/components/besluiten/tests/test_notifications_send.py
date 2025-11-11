@@ -211,9 +211,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
 @tag("notifications", "DEPRECATED")
 @requests_mock.Mocker()
-@override_settings(
-    NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS, CMIS_ENABLED=False
-)
+@override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):

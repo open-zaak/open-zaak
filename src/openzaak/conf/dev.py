@@ -41,7 +41,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 LOGGING["loggers"].update(
     {
         "openzaak": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
-        "drc_cmis": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
         "django.db.backends": {
             "handlers": ["json_file"],

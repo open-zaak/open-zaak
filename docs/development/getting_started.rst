@@ -166,38 +166,6 @@ environment variables, add them to your ``.env`` file or persist them in
   logger and will send errors/logging to Sentry. If unset, Sentry SDK will be
   disabled.
 
-Testing with CMIS adapter enabled
----------------------------------
-
-The tests for Open Zaak with the CMIS adapter enabled use Alfresco as the Document
-Management System. This is run with docker compose, using the compose file
-``docker-compose.ci.cmis.yml``. In the folder ``extension/``, there are xml files
-defining the custom models used. The file ``docker/alfresco/alfresco-global.properties``
-contains the global properties that are required to run Alfresco.
-
-The containers are launched with:
-
-.. code-block:: bash
-
-    $ docker-compose -f docker-compose.ci.cmis.yml up -d
-
-This creates a ``volumes/`` directory where all the logs and the data are stored.
-
-You can run **only the CMIS tests** with:
-
-.. code-block:: bash
-
-    $ python src/manage.py test src --tag cmis
-
-In order to choose whether to test with the browser binding or the web service binding, the environment variable ``CMIS_BINDING``
-can be set either to ``BROWSER`` or ``WEBSERVICE``.
-
-Or run the test-suite **without CMIS** tests:
-
-.. code-block:: bash
-
-    $ python src/manage.py test src --exclude-tag cmis
-
 Settings
 ========
 

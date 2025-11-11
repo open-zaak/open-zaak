@@ -4056,9 +4056,8 @@ paths:
       operationId: enkelvoudiginformatieobject_import_destroy
       description: '**EXPERIMENTEEL** Een IMPORT verwijderen. Het verwijderen van
         een IMPORT is alleen mogelijk wanneer deze een van de volgende statussen heeft:
-        **error**, **finished**, **pending**. Deze actie is niet beschikbaar wanneer
-        de `CMIS_ENABLED` optie is ingeschakeld. Voor deze actie is een APPLICATIE
-        nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **error**, **finished**, **pending**. Voor deze actie is een APPLICATIE nodig
+        met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT verwijderen.
       parameters:
       - in: path
@@ -4179,8 +4178,7 @@ paths:
       operationId: enkelvoudiginformatieobject_import_report
       description: '**EXPERIMENTEEL** Het reportage bestand downloaden van een IMPORT.
         Dit bestand is alleen beschikbaar indien de IMPORT is afgerond (ongeacht het
-        resultaat). Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie
-        is ingeschakeld. De volgende kolommen zijn te vinden in het rapportage bestand:
+        resultaat). De volgende kolommen zijn te vinden in het rapportage bestand:
         **uuid**, **identificatie**, **bronorganisatie**, **creatiedatum**, **titel**,
         **vertrouwelijkheidaanduiding**, **auteur**, **status**, **formaat**, **taal**,
         **bestandsnaam**, **bestandsomvang**, **bestandspad**, **link**, **beschrijving**,
@@ -4312,9 +4310,8 @@ paths:
   /import/{uuid}/status:
     get:
       operationId: enkelvoudiginformatieobject_import_status
-      description: '**EXPERIMENTEEL** Het opvragen van de status van een IMPORT. Deze
-        actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.
-        Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
+      description: '**EXPERIMENTEEL** Het opvragen van de status van een IMPORT. Voor
+        deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: De status van een IMPORT opvragen.
       parameters:
       - in: path
@@ -4450,8 +4447,7 @@ paths:
     post:
       operationId: enkelvoudiginformatieobject_import_upload
       description: '**EXPERIMENTEEL** Het uploaden van een metadata bestand, ter gebruik
-        voor de IMPORT. Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie
-        is ingeschakeld. Deze actie start tevens de IMPORT. Één actieve IMPORT  tegelijkertijd
+        voor de IMPORT. Deze actie start tevens de IMPORT. Één actieve IMPORT  tegelijkertijd
         is mogelijk. De volgende kolommen worden verwacht (op volgorde) in het bestand:
         **uuid**, **identificatie**, **bronorganisatie**, **creatiedatum**, **titel**,
         **vertrouwelijkheidaanduiding**, **auteur**, **status**, **formaat**, **taal**,
@@ -4607,8 +4603,8 @@ paths:
       operationId: enkelvoudiginformatieobject_import_create
       description: '**EXPERIMENTEEL** Creëert een IMPORT. Wanneer er vervolgens een
         metadata bestand  wordt aangeleverd zal de daadwerkelijke IMPORT van start
-        gaan. Deze actie is niet beschikbaar wanneer de `CMIS_ENABLED` optie is ingeschakeld.
-        Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        gaan. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
+        ingeschakeld.'
       summary: Een IMPORT creeren
       parameters:
       - in: header
@@ -5103,339 +5099,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ObjectInformatieObject'
           description: OK
-        '401':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unauthorized
-        '403':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Forbidden
-        '404':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Not found
-        '406':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Not acceptable
-        '409':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Conflict
-        '410':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Gone
-        '415':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unsupported media type
-        '429':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Too many requests
-        '500':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Internal server error
-    put:
-      operationId: objectinformatieobject_update
-      description: |-
-        Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
-
-        Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
-        ZAAK in de Zaken API, en een INFORMATIEOBJECT.
-      parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
-      tags:
-      - objectinformatieobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ObjectInformatieObjectRequest'
-        required: true
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
-      responses:
-        '200':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectInformatieObject'
-          description: OK
-        '400':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ValidatieFout'
-          description: Bad request
-        '401':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unauthorized
-        '403':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Forbidden
-        '404':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Not found
-        '406':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Not acceptable
-        '409':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Conflict
-        '410':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Gone
-        '415':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Unsupported media type
-        '429':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Too many requests
-        '500':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Fout'
-          description: Internal server error
-    patch:
-      operationId: objectinformatieobject_partial_update
-      description: |-
-        Opvragen en verwijderen van OBJECT-INFORMATIEOBJECT relaties.
-
-        Het betreft een relatie tussen een willekeurig OBJECT, bijvoorbeeld een
-        ZAAK in de Zaken API, en een INFORMATIEOBJECT.
-      parameters:
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type van de verzoekinhoud.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unieke resource identifier (UUID4)
-        required: true
-      tags:
-      - objectinformatieobjecten
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedObjectInformatieObjectRequest'
-      security:
-      - JWT-Claims:
-        - documenten.bijwerken
-      responses:
-        '200':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectInformatieObject'
-          description: OK
-        '400':
-          headers:
-            API-version:
-              schema:
-                type: string
-              description: 'Geeft een specifieke API-versie aan in de context van
-                een specifieke aanroep. Voorbeeld: 1.2.1.'
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ValidatieFout'
-          description: Bad request
         '401':
           headers:
             API-version:
@@ -8733,31 +8396,6 @@ components:
           minLength: 1
           description: Omschrijving van de van toepassing zijnde voorwaarden aan het
             gebruik anders dan raadpleging
-    PatchedObjectInformatieObjectRequest:
-      type: object
-      properties:
-        informatieobject:
-          type: string
-          format: uri
-          description: URL-referentie naar het INFORMATIEOBJECT.
-        object:
-          type: string
-          minLength: 1
-          description: URL-referentie naar het gerelateerde OBJECT (in deze of een
-            andere API).
-          maxLength: 1000
-        objectType:
-          allOf:
-          - $ref: '#/components/schemas/ObjectTypeEnum'
-          title: Objecttype
-          description: |-
-            Het type van het gerelateerde OBJECT.
-
-            Uitleg bij mogelijke waarden:
-
-            * `besluit` - Besluit
-            * `zaak` - Zaak
-            * `verzoek` - Verzoek
     PatchedVerzendingRequest:
       type: object
       description: |-

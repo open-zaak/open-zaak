@@ -3,15 +3,12 @@
 import uuid as _uuid
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
-from django.forms.models import model_to_dict
 from django.utils.translation import gettext_lazy as _
 
-from drc_cmis.utils import exceptions
 from privates.fields import PrivateMediaFileField
 from rest_framework.reverse import reverse
 from vng_api_common.descriptors import GegevensGroepType
@@ -26,12 +23,12 @@ from openzaak.utils.fields import (
     RelativeURLField,
     ServiceFkField,
 )
-from openzaak.utils.mixins import APIMixin, AuditTrailMixin, CMISClientMixin
+from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from ..besluiten.models import BesluitInformatieObject
 from ..zaken.models import ZaakInformatieObject
 from .api.utils import generate_document_identificatie
-from .caching import CMISETagMixin
+from .caching import DocumentETagMixin
 from .constants import (
     AfzenderTypes,
     ChecksumAlgoritmes,
@@ -50,7 +47,6 @@ from .query.django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
 )
-from .utils import private_media_storage_cmis
 from .validators import validate_status
 
 __all__ = [
@@ -261,7 +257,7 @@ class InformatieObject(models.Model):
         return f"{self.bronorganisatie} - {self.identificatie}"
 
 
-class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
+class EnkelvoudigInformatieObjectCanonical(models.Model):
     """
     Indicates the identity of a document
     """
@@ -274,46 +270,24 @@ class EnkelvoudigInformatieObjectCanonical(models.Model, CMISClientMixin):
     )
 
     def __str__(self):
-        if settings.CMIS_ENABLED:
-            return "(virtual canonical instance)"
         return str(self.latest_version)
 
     @property
     def latest_version(self):
-        if settings.CMIS_ENABLED:
-            raise RecursionError(
-                "Using latest_version() with CMIS enabled causes an infinite loop."
-            )
         # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
         versies = self.enkelvoudiginformatieobject_set.all()
         return versies.first()
 
-    def save(self, *args, **kwargs) -> None:
-        if settings.CMIS_ENABLED:
-            return
-        super().save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            return
-        super().delete(*args, **kwargs)
-
     def lock_document(self, doc_uuid: str) -> None:
         lock = _uuid.uuid4().hex
-        if settings.CMIS_ENABLED:
-            self.cmis_client.lock_document(doc_uuid, lock)
         self.lock = lock
 
     def unlock_document(self, doc_uuid, lock, force_unlock=False):
-        if settings.CMIS_ENABLED:
-            self.cmis_client.unlock_document(
-                drc_uuid=doc_uuid, lock=lock, force=force_unlock
-            )
         self.lock = ""
 
 
 class EnkelvoudigInformatieObject(
-    CMISETagMixin, AuditTrailMixin, APIMixin, InformatieObject, CMISClientMixin
+    DocumentETagMixin, AuditTrailMixin, APIMixin, InformatieObject
 ):
     """
     Stores the content of a specific version of an
@@ -365,7 +339,7 @@ class EnkelvoudigInformatieObject(
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
     )
     inhoud = PrivateMediaFileField(
-        upload_to="uploads/%Y/%m/", storage=private_media_storage_cmis
+        upload_to="uploads/%Y/%m/",
     )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
@@ -453,11 +427,7 @@ class EnkelvoudigInformatieObject(
     # Since canonicals are not stored in the database for CMIS, the BestandsDelen must
     # be retrieved by using the UUID
     def get_bestandsdelen(self):
-        if settings.CMIS_ENABLED:
-            bestandsdelen = BestandsDeel.objects.filter(informatieobject_uuid=self.uuid)
-        else:
-            bestandsdelen = self.canonical.bestandsdelen
-        return bestandsdelen
+        return self.canonical.bestandsdelen
 
     @property
     def locked(self) -> bool:
@@ -472,69 +442,17 @@ class EnkelvoudigInformatieObject(
         assert self.canonical is None, "Setter should only be called for remote objects"
         self._locked = value
 
-    def save(self, *args, **kwargs) -> None:
-        if not settings.CMIS_ENABLED:
-            return super().save(*args, **kwargs)
-        else:
-            model_data = model_to_dict(self)
-            # If the document doesn't exist, create it, otherwise update it
-            try:
-                # sanity - check - assert the doc exists in CMIS backend
-                self.cmis_client.get_document(drc_uuid=self.uuid)
-                # update the instance state to the storage backend
-                EnkelvoudigInformatieObject.objects.filter(uuid=self.uuid).update(
-                    **model_data
-                )
-                # Needed or the current django object will contain the version number and the download url
-                # from before the update and this data is sent back in the response
-                modified_document = EnkelvoudigInformatieObject.objects.get(
-                    uuid=self.uuid
-                )
-                self.versie = modified_document.versie
-                self.inhoud = modified_document.inhoud
-            except exceptions.DocumentDoesNotExistError:
-                EnkelvoudigInformatieObject.objects.create(**model_data)
-
-    def delete(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            return super().delete(*args, **kwargs)
-        else:
-            if self.has_gebruiksrechten():
-                eio_instance_url = self.get_url()
-                gebruiksrechten = Gebruiksrechten.objects.filter(
-                    informatieobject=eio_instance_url
-                )
-                for gebruiksrechten_doc in gebruiksrechten:
-                    gebruiksrechten_doc.delete()
-            self.cmis_client.delete_document(self.uuid)
-
     def destroy(self):
-        if settings.CMIS_ENABLED:
-            self.delete()
-        else:
-            self.canonical.delete()
+        self.canonical.delete()
 
     def has_references(self):
-        if settings.CMIS_ENABLED:
-            if (
-                BesluitInformatieObject.objects.filter(
-                    _informatieobject_url=self.get_url()
-                ).exists()
-                or ZaakInformatieObject.objects.filter(
-                    _informatieobject_url=self.get_url()
-                ).exists()
-            ):
-                return True
-            else:
-                return False
+        if (
+            self.canonical.besluitinformatieobject_set.exists()
+            or self.canonical.zaakinformatieobject_set.exists()
+        ):
+            return True
         else:
-            if (
-                self.canonical.besluitinformatieobject_set.exists()
-                or self.canonical.zaakinformatieobject_set.exists()
-            ):
-                return True
-            else:
-                return False
+            return False
 
     def get_url(self):
         eio_path = reverse(
@@ -544,11 +462,7 @@ class EnkelvoudigInformatieObject(
         return build_absolute_url(eio_path)
 
     def has_gebruiksrechten(self):
-        if settings.CMIS_ENABLED:
-            eio_url = self.get_url()
-            return Gebruiksrechten.objects.filter(informatieobject=eio_url).exists()
-        else:
-            return self.canonical.gebruiksrechten_set.exists()
+        return self.canonical.gebruiksrechten_set.exists()
 
 
 class BestandsDeel(models.Model):
@@ -619,18 +533,7 @@ class BestandsDeel(models.Model):
         return f"({informatieobject.unique_representation()}) - {self.volgnummer}"
 
     def get_informatieobject(self, permission_main_object=None):
-        """
-        For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
-        """
-        if settings.CMIS_ENABLED:
-            eio_uuid = self.informatieobject_uuid
-            return (
-                EnkelvoudigInformatieObject.objects.filter(uuid=eio_uuid)
-                .order_by("-versie")
-                .first()
-            )
-        else:
-            return self.informatieobject.latest_version
+        return self.informatieobject.latest_version
 
     def get_current_lock_value(self) -> str:
         informatieobject = self.get_informatieobject()
@@ -652,7 +555,7 @@ class BestandsDeel(models.Model):
         return self.inhoud.size == self.omvang
 
 
-class Gebruiksrechten(APIMixin, CMISETagMixin, models.Model, CMISClientMixin):
+class Gebruiksrechten(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -693,27 +596,10 @@ class Gebruiksrechten(APIMixin, CMISETagMixin, models.Model, CMISClientMixin):
         verbose_name_plural = _("gebruiksrechten informatieobject")
 
     def __str__(self):
-        if settings.CMIS_ENABLED:
-            return "(virtual gebruiksrechten instance)"
         return str(self.informatieobject.latest_version)
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            model_data = model_to_dict(self)
-            # If the gebruiksrechten doesn't exist, create it, otherwise update it
-            try:
-                # Check if the gebruiksrechten exists already in the CMIS backend
-                self.cmis_client.get_content_object(
-                    drc_uuid=self.uuid, object_type="gebruiksrechten"
-                )
-                # Update the instance in the storage backend
-                Gebruiksrechten.objects.filter(uuid=self.uuid).update(**model_data)
-            except exceptions.DocumentDoesNotExistError:
-                Gebruiksrechten.objects.create(**model_data)
-
-            return
-
         informatieobject_versie = self.informatieobject.latest_version
         # ensure the indication is set properly on the IO
         if not informatieobject_versie.indicatie_gebruiksrecht:
@@ -723,66 +609,26 @@ class Gebruiksrechten(APIMixin, CMISETagMixin, models.Model, CMISClientMixin):
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            super().delete(*args, **kwargs)
-            informatieobject = self.informatieobject
-            other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(
-                pk=self.pk
-            )
-            if not other_gebruiksrechten.exists():
-                informatieobject_versie = self.informatieobject.latest_version
-                informatieobject_versie.indicatie_gebruiksrecht = None
-                informatieobject_versie.save()
-        else:
-            # Check if there are other Gebruiksrechten for the EnkelvoudigInformatieObject in alfresco
-            eio_url = self.get_informatieobject_url()
-            if Gebruiksrechten.objects.filter(informatieobject=eio_url).count() <= 1:
-                eio = self.get_informatieobject()
-                eio.indicatie_gebruiksrecht = None
-                eio.save()
-            self.cmis_client.delete_content_object(
-                self.uuid, object_type="gebruiksrechten"
-            )
-
-    def get_informatieobject_url(self):
-        """
-        Retrieves the EnkelvoudigInformatieObject url from Alfresco
-        """
-        cmis_gebruiksrechten = self.cmis_client.get_content_object(
-            self.uuid, object_type="gebruiksrechten"
-        )
-        return cmis_gebruiksrechten.informatieobject
+        super().delete(*args, **kwargs)
+        informatieobject = self.informatieobject
+        other_gebruiksrechten = informatieobject.gebruiksrechten_set.exclude(pk=self.pk)
+        if not other_gebruiksrechten.exists():
+            informatieobject_versie = self.informatieobject.latest_version
+            informatieobject_versie.indicatie_gebruiksrecht = None
+            informatieobject_versie.save()
 
     def get_informatieobject(self, permission_main_object=None):
-        """
-        Retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
-        """
-        if settings.CMIS_ENABLED:
-            # Get the uuid of the object and retrieve it from alfresco
-            cmis_gebruiksrechten = self.cmis_client.get_content_object(
-                self.uuid, object_type="gebruiksrechten"
-            )
-            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
-            eio_uuid = cmis_gebruiksrechten.informatieobject.split("/")[-1]
-            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
-        elif permission_main_object:
+        if permission_main_object:
             return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version
 
     def unique_representation(self):
-        if settings.CMIS_ENABLED:
-            try:
-                informatieobject = self.get_informatieobject()
-            # This happens when the audittrail accesses unique_representation() after deleting the gebruiksrechten
-            except exceptions.DocumentDoesNotExistError:
-                return f"{self.uuid}"
-        else:
-            informatieobject = self.informatieobject.latest_version
+        informatieobject = self.informatieobject.latest_version
         return f"({informatieobject.unique_representation()}) - {self.omschrijving_voorwaarden[:50]}"
 
 
-class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
+class ObjectInformatieObject(DocumentETagMixin, models.Model):
     uuid = models.UUIDField(
         unique=True, default=_uuid.uuid4, help_text="Unieke resource identifier (UUID4)"
     )
@@ -915,10 +761,7 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         return getattr(self, self.object_type)
 
     def unique_representation(self):
-        if settings.CMIS_ENABLED:
-            informatieobject = self.get_informatieobject()
-        else:
-            informatieobject = self.informatieobject.latest_version
+        informatieobject = self.informatieobject.latest_version
         if self.object_type == ObjectInformatieObjectTypes.verzoek:
             # string
             parsed = urlparse(self.object)
@@ -927,10 +770,6 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
             io_id = self.object.identificatie
         return f"({informatieobject.unique_representation()}) - {io_id}"
 
-    def save(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            super().save(*args, **kwargs)
-
     def get_url(self):
         oio_path = reverse(
             "objectinformatieobject-detail",
@@ -938,64 +777,31 @@ class ObjectInformatieObject(CMISETagMixin, models.Model, CMISClientMixin):
         )
         return build_absolute_url(oio_path)
 
-    def delete(self, *args, **kwargs):
-        if not settings.CMIS_ENABLED:
-            super().delete(*args, **kwargs)
-        else:
-            self.cmis_client.delete_content_object(self.uuid, object_type="oio")
-
     def get_informatieobject(self, permission_main_object=None):
-        """
-        For the CMIS case it retrieves the EnkelvoudigInformatieObject from Alfresco and returns it as a django type
-        """
-        if settings.CMIS_ENABLED:
-            eio_url = self.get_informatieobject_url()
-            # From the URL of the informatie object, retrieve the EnkelvoudigInformatieObject
-            eio_uuid = eio_url.split("/")[-1]
-            return EnkelvoudigInformatieObject.objects.get(uuid=eio_uuid)
-        elif permission_main_object:
+        if permission_main_object:
             return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version
-
-    def get_informatieobject_url(self):
-        """
-        Retrieves the EnkelvoudigInformatieObject url from Alfresco
-        """
-        cmis_oio = self.cmis_client.get_content_object(self.uuid, object_type="oio")
-        return cmis_oio.informatieobject
 
     def does_besluitinformatieobject_exist(self):
         """
         Checks if the corresponding BesluitInformatieObject still exists
         """
-        if settings.CMIS_ENABLED:
-            eio_url = self.get_informatieobject_url()
-            return BesluitInformatieObject.objects.filter(
-                informatieobject=eio_url, besluit=self.besluit
-            ).exists()
-        else:
-            return BesluitInformatieObject.objects.filter(
-                informatieobject=self.informatieobject, besluit=self.besluit
-            ).exists()
+        return BesluitInformatieObject.objects.filter(
+            informatieobject=self.informatieobject, besluit=self.besluit
+        ).exists()
 
     def does_zaakinformatieobject_exist(self):
         """
         Checks if the corresponding ZaakInformatieObject still exists
         """
-        if settings.CMIS_ENABLED:
-            eio_url = self.get_informatieobject_url()
-            return ZaakInformatieObject.objects.filter(
-                informatieobject=eio_url, zaak=self.zaak
-            ).exists()
-        else:
-            return ZaakInformatieObject.objects.filter(
-                informatieobject=self.informatieobject, zaak=self.zaak
-            ).exists()
+        return ZaakInformatieObject.objects.filter(
+            informatieobject=self.informatieobject, zaak=self.zaak
+        ).exists()
 
 
 # gebaseerd op https://www.gemmaonline.nl/index.php/Rgbz_2.0/doc/relatieklasse/verzending
-class Verzending(APIMixin, CMISETagMixin, models.Model):
+class Verzending(DocumentETagMixin, APIMixin, models.Model):
     uuid = models.UUIDField(
         unique=True,
         default=_uuid.uuid4,
@@ -1285,17 +1091,8 @@ class Verzending(APIMixin, CMISETagMixin, models.Model):
     def __str__(self):
         return _("Verzending %(uuid)s") % {"uuid": str(self.uuid)}
 
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        if settings.CMIS_ENABLED:
-            raise NotImplementedError("CMIS is not supported for Verzending")
-
-        super().save(*args, **kwargs)
-
     def get_informatieobject(self, permission_main_object=None):
-        if settings.CMIS_ENABLED:
-            raise NotImplementedError("CMIS is not supported for Verzending")
-        elif permission_main_object:
+        if permission_main_object:
             return getattr(self, permission_main_object).latest_version
         else:
             return self.informatieobject.latest_version

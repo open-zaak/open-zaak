@@ -34,9 +34,6 @@ Features and their :ref:`requirements <installation_prerequisites>`:
     - ``postgis``
 
 * Load balancing over multiple replicas is supported using ``Deployment`` resources
-* Fully stateless deployments without volumes are possible *if and only if* you do not
-  use the Documents API backed by the local file system (the default). You can achieve
-  this by using the CMIS-adapter or by using a Documents API from another vendor.
 * If you use the Documents API backed by the local file-system, you need a
   ``ReadWriteMany``-capable persistent volume solution, even with a single replica.
 

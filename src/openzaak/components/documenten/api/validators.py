@@ -124,16 +124,13 @@ class RemoteRelationValidator:
         else:
             object_url = oio.object._loose_fk_data["url"]
 
-        if settings.CMIS_ENABLED:
-            document_url = oio.get_informatieobject_url()
-        else:
-            default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
-            document_url = build_absolute_url(
-                oio.informatieobject.latest_version.get_absolute_api_url(
-                    version=default_version
-                ),
-                request=self.request,
-            )
+        default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+        document_url = build_absolute_url(
+            oio.informatieobject.latest_version.get_absolute_api_url(
+                version=default_version
+            ),
+            request=self.request,
+        )
 
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)
@@ -171,14 +168,11 @@ class CreateRemoteRelationValidator:
     def __call__(self, document, object, object_type):
         object_url = object if isinstance(object, str) else object._loose_fk_data["url"]
 
-        if settings.CMIS_ENABLED:
-            document_url = document
-        else:
-            default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
-            document_url = build_absolute_url(
-                document.latest_version.get_absolute_api_url(version=default_version),
-                request=self.request,
-            )
+        default_version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
+        document_url = build_absolute_url(
+            document.latest_version.get_absolute_api_url(version=default_version),
+            request=self.request,
+        )
 
         # obtain a client for the remote API. this should exist, otherwise loose-fk
         # would not have been able to load this resource :-)

@@ -6,7 +6,6 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.test import override_settings, tag
-from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -401,36 +400,6 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         response = self.client.post(url, file_contents, content_type="text/csv")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        import_instance.refresh_from_db()
-
-        self.assertEqual(import_instance.status, ImportStatusChoices.pending)
-
-        import_document_task_mock.delay.assert_not_called()
-
-    @override_settings(CMIS_ENABLED=True)
-    @patch("openzaak.components.documenten.api.viewsets.import_documents")
-    def test_cmis_enabled(self, import_document_task_mock):
-        import_instance = self.create_import(
-            import_type=ImportTypeChoices.documents,
-            status=ImportStatusChoices.pending,
-            total=0,
-        )
-
-        url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
-        )
-
-        rows = [DocumentRowFactory()]
-        file_contents = get_csv_data(rows, DocumentRow.import_headers)
-
-        response = self.client.post(url, file_contents, content_type="text/csv")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response_data = response.json()
-
-        self.assertEqual(response_data["code"], _("CMIS not supported"))
 
         import_instance.refresh_from_db()
 

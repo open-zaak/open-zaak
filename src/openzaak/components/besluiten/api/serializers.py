@@ -203,8 +203,8 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         with transaction.atomic():
             bio = super().create(validated_data)
 
-        # local FK or CMIS - nothing to do -> our signals create the OIO
-        if bio.informatieobject.pk or settings.CMIS_ENABLED:
+        # local FK - nothing to do -> our signals create the OIO
+        if bio.informatieobject.pk:
             return bio
 
         # we know that we got valid URLs in the initial data
@@ -227,16 +227,6 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             bio._objectinformatieobject_url = response["url"]
             bio.save()
         return bio
-
-    def run_validators(self, value):
-        """
-        Add read_only fields with defaults to value before running validators.
-        """
-        # In the case CMIS is enabled, we need to filter on the URL and not the canonical object
-        if value.get("informatieobject") is not None and settings.CMIS_ENABLED:
-            value["informatieobject"] = self.initial_data.get("informatieobject")
-
-        return super().run_validators(value)
 
 
 class BesluitInformatieObjectSubSerializer(

@@ -98,14 +98,6 @@ Content Security Policy
 * ``CSP_REPORT_PERCENTAGE``: Fraction (between 0 and 1) of requests to include report-uri directive. Defaults to: ``0.0``.
 
 
-CMIS
-----
-
-* ``CMIS_ENABLED``: whether to enable the CMIS adapter. Defaults to: ``False``.
-* ``CMIS_MAPPER_FILE``: name of the file containing the mapping between the Django and Document Management System names for document properties. See the installation section for more details. Defaults to the absolute path of ``open-zaak/config/cmis_mapper.json``.
-* ``CMIS_URL_MAPPING_ENABLED``: enable the URL shortener when using the CMIS adapter. Defaults to: ``False``.
-
-
 Documenten import
 -----------------
 
@@ -186,8 +178,7 @@ the hood, which can be configured with a myriad of options. Most of these can be
 provided as environment variables as well. The following option is one you may need with Open Zaak.
 
 * ``UWSGI_HTTP_TIMEOUT`` - defaults to 60s. If Open Zaak does not complete the request
-  within this timeout, then uWSGI will error out. This has been observed with certain
-  CMIS implementations causing slow requests where 60s is not sufficient.
+  within this timeout, then uWSGI will error out.
 
 Initial configuration
 ---------------------

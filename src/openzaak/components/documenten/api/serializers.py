@@ -32,7 +32,6 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils import build_absolute_url
 from openzaak.utils.serializer_fields import (
     FKOrServiceUrlField,
     LengthHyperlinkedRelatedField,
@@ -67,8 +66,6 @@ from ..models import (
     ReservedDocument,
     Verzending,
 )
-from ..query.cmis import flatten_gegevens_groep
-from ..utils import PrivateMediaStorageWithCMIS
 from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
@@ -115,9 +112,8 @@ class AnyBase64File(Base64FileField):
 
     def to_representation(self, file):
         is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
-        is_cmis_storage = isinstance(file.storage, PrivateMediaStorageWithCMIS)
 
-        if not (is_private_storage or is_cmis_storage) or self.represent_in_base64:
+        if not is_private_storage or self.represent_in_base64:
             return super().to_representation(file)
 
         # if there is no associated file link is not returned
@@ -530,29 +526,18 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         )  # integriteit and ondertekening can also be set to None
         ondertekening = validated_data.pop("ondertekening", {}) or {}
 
-        if settings.CMIS_ENABLED:
-            # The fields integriteit and ondertekening are of "GegevensGroepType", so they need to be
-            # flattened before sending to the DMS
-            flat_integriteit = flatten_gegevens_groep(integriteit, "integriteit")
-            flat_ondertekening = flatten_gegevens_groep(ondertekening, "ondertekening")
-
-            validated_data.update(**flat_integriteit, **flat_ondertekening)
-
         eio = super().create(validated_data)
 
-        if settings.CMIS_ENABLED:
-            create_bestandsdeel_kwargs = {"eio_uuid": eio.uuid}
-        else:
-            # The serialiser .create() method does not support nested data, so these have to be added separately
-            eio.integriteit = integriteit
-            eio.ondertekening = ondertekening
-            eio.save()
+        # The serialiser .create() method does not support nested data, so these have to be added separately
+        eio.integriteit = integriteit
+        eio.ondertekening = ondertekening
+        eio.save()
 
-            create_bestandsdeel_kwargs = {"canonical": canonical}
+        create_bestandsdeel_kwargs = {"canonical": canonical}
 
-            # create empty file if size == 0
-            if eio.bestandsomvang == 0:
-                eio.inhoud.save("empty_file", ContentFile(""))
+        # create empty file if size == 0
+        if eio.bestandsomvang == 0:
+            eio.inhoud.save("empty_file", ContentFile(""))
 
         # large file process
         if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
@@ -568,15 +553,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             self.instance = instance
 
         ret = super().to_representation(instance)
-        # With Alfresco, the URL cannot be retrieved using the
-        # latest_version property of the canonical object
-        if settings.CMIS_ENABLED:
-            path = reverse(
-                "enkelvoudiginformatieobject-detail",
-                kwargs={"version": "1", "uuid": instance.uuid},
-            )
-            # Following what is done in drc_cmis/client/convert.py
-            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
         return ret
 
     def update(self, instance, validated_data):
@@ -607,59 +583,34 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         )
         validated_data["pk"] = None
         validated_data["versie"] += 1
-
-        if settings.CMIS_ENABLED:
-            # The fields integriteit and ondertekening are of "GegevensGroepType", so they need to be
-            # flattened before sending to the DMS
-            flat_integriteit = (
-                flatten_gegevens_groep(integriteit, "integriteit")
-                if integriteit
-                else {}
-            )
-            flat_ondertekening = (
-                flatten_gegevens_groep(ondertekening, "ondertekening")
-                if ondertekening
-                else {}
-            )
-            validated_data.update(**flat_integriteit, **flat_ondertekening)
-        else:
-            # Remove the lock from the data from which a new
-            # EnkelvoudigInformatieObject will be created, because lock is not a
-            # part of that model
-            validated_data.pop("lock")
+        # Remove the lock from the data from which a new
+        # EnkelvoudigInformatieObject will be created, because lock is not a
+        # part of that model
+        validated_data.pop("lock")
 
         validated_data["_request"] = self.context.get("request")
         instance = super().create(validated_data)
 
-        if settings.CMIS_ENABLED:
-            # each update - delete previous part files
-            bestandsdelen = BestandsDeel.objects.filter(
-                informatieobject_uuid=instance.uuid
+        # The serialiser .create() method does not support nested data, so these have to be added separately
+        update_fields = []
+        if integriteit is not None:
+            instance.integriteit = integriteit
+            update_fields.extend(
+                ["integriteit_algoritme", "integriteit_waarde", "integriteit_datum"]
             )
-        else:
-            # The serialiser .create() method does not support nested data, so these have to be added separately
-            update_fields = []
-            if integriteit is not None:
-                instance.integriteit = integriteit
-                update_fields.extend(
-                    ["integriteit_algoritme", "integriteit_waarde", "integriteit_datum"]
-                )
 
-            if ondertekening is not None:
-                instance.ondertekening = ondertekening
-                update_fields.extend(["ondertekening_soort", "ondertekening_datum"])
+        if ondertekening is not None:
+            instance.ondertekening = ondertekening
+            update_fields.extend(["ondertekening_soort", "ondertekening_datum"])
 
-            if update_fields:
-                instance.save(update_fields=update_fields)
+        if update_fields:
+            instance.save(update_fields=update_fields)
 
-            bestandsdelen = instance.canonical.bestandsdelen.all()
+        bestandsdelen = instance.canonical.bestandsdelen.all()
 
         bestandsdelen.wipe()
 
-        if settings.CMIS_ENABLED:
-            create_bestandsdeel_kwargs = {"eio_uuid": instance.uuid}
-        else:
-            create_bestandsdeel_kwargs = {"canonical": instance.canonical}
+        create_bestandsdeel_kwargs = {"canonical": instance.canonical}
 
         # large file process
         if (
@@ -672,11 +623,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             )
 
         # create empty file if size == 0
-        if (
-            not settings.CMIS_ENABLED
-            and instance.bestandsomvang == 0
-            and not instance.inhoud
-        ):
+        if instance.bestandsomvang == 0 and not instance.inhoud:
             instance.inhoud.save("empty_file", ContentFile(""))
 
         return instance
@@ -764,11 +711,8 @@ class EnkelvoudigInformatieObjectCreateLockSerializer(
 
         # lock document if it is a large file upload
         if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
-            if settings.CMIS_ENABLED:
-                eio.canonical.lock_document(eio.uuid)
-            else:
-                eio.canonical.lock = uuid.uuid4().hex
-                eio.canonical.save()
+            eio.canonical.lock = uuid.uuid4().hex
+            eio.canonical.save()
         return eio
 
 
@@ -830,12 +774,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
                 _("Lock id is not correct"), code="incorrect-lock-id"
             )
 
-        if settings.CMIS_ENABLED:
-            all_parts = BestandsDeel.objects.filter(
-                informatieobject_uuid=self.instance.uuid
-            )
-        else:
-            all_parts = self.instance.canonical.bestandsdelen.all()
+        all_parts = self.instance.canonical.bestandsdelen.all()
 
         complete_upload = all_parts.complete_upload
         empty_bestandsdelen = all_parts.empty_bestandsdelen
@@ -855,11 +794,8 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         # merge files and clean bestandsdelen
 
         # Because it is a large file upload, the document is immediately locked after
-        # creation. This means that attempting to save the merged inhoud causes CMIS
-        # exceptions (because the document is already locked and thus checked out)
-        # If we do not force unlocking, CMIS will complain about the bestandsomvang not
-        # being the same as the actual file size
-        force_unlock = True if settings.CMIS_ENABLED else self.context["force_unlock"]
+        # creation.
+        force_unlock = self.context["force_unlock"]
         self.instance.canonical.unlock_document(
             doc_uuid=self.context["uuid"],
             lock=self.context["request"].data.get("lock"),
@@ -867,12 +803,7 @@ class UnlockEnkelvoudigInformatieObjectSerializer(serializers.ModelSerializer):
         )
         self.instance.canonical.save()
 
-        if settings.CMIS_ENABLED:
-            bestandsdelen = BestandsDeel.objects.filter(
-                informatieobject_uuid=self.instance.uuid
-            ).order_by("volgnummer")
-        else:
-            bestandsdelen = self.instance.canonical.bestandsdelen.order_by("volgnummer")
+        bestandsdelen = self.instance.canonical.bestandsdelen.order_by("volgnummer")
 
         complete_upload = bestandsdelen.complete_upload
         empty_bestandsdelen = bestandsdelen.empty_bestandsdelen
@@ -941,27 +872,6 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
 
-    def create(self, validated_data):
-        if settings.CMIS_ENABLED:
-            # The URL of the EnkelvoudigInformatieObject is needed rather than the canonical object
-            if validated_data.get("informatieobject") is not None:
-                validated_data["informatieobject"] = self.initial_data[
-                    "informatieobject"
-                ]
-        return super().create(validated_data)
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        # With Alfresco, the URL of the Gebruiksrechten and EnkelvoudigInformatieObject
-        # cannot be retrieved using the latest_version property of the canonical object
-        if settings.CMIS_ENABLED:
-            path = reverse(
-                "gebruiksrechten-detail", kwargs={"version": 1, "uuid": instance.uuid}
-            )
-            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
-            ret["informatieobject"] = instance.get_informatieobject_url()
-        return ret
-
 
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
@@ -1024,25 +934,12 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
         self.set_object_properties(object_type)
         res = super().to_internal_value(data)
-        if settings.CMIS_ENABLED:
-            # res contains the canonical object instead of the document url, but if only the
-            # canonical object is given, the document cannot be retrieved from Alfresco
-            res["informatieobject"] = data["informatieobject"]
         return res
 
     def to_representation(self, instance):
         object_type = instance.object_type
         self.set_object_properties(object_type)
         ret = super().to_representation(instance)
-        if settings.CMIS_ENABLED:
-            # Objects without a primary key will have 'None' as the URL, so it is added manually
-            path = reverse(
-                "objectinformatieobject-detail",
-                kwargs={"version": 1, "uuid": instance.uuid},
-            )
-            ret["url"] = build_absolute_url(path, request=self.context.get("request"))
-            ret["informatieobject"] = instance.get_informatieobject_url()
-
         return ret
 
     def create(self, validated_data):

@@ -43,10 +43,6 @@ them? Below, you can find the mitigations/reasoning why we decided to depend on 
 anyway, in alphabetical order.
 
 
-* ``cmislib-maykin==0.7.4`` - this package is a fork of a Python 2 library implementing
-  the CMIS bindings. Maykin Media (one of the Open Zaak service providers) ported it to
-  Python 3 and maintains this fork.
-
 * ``coreschema==0.0.4`` is a transitive dependency of ``coreapi`` and ``drf-yasg``,
   which are both well-maintained. It is made by the same author as DRF itself.
 
@@ -75,8 +71,6 @@ anyway, in alphabetical order.
 
 * ``drf-writable-nested==0.6.3`` sees regular maintenance and activity on Github, with
   high popularity.
-
-* ``httplib2==0.20.4`` transitive dependency of the CMIS binding. Still maintained.
 
 * ``inflection==0.5.1`` transitive dependency of drf-yasg, which is quite a popular
   project.

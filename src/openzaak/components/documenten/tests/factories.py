@@ -17,7 +17,6 @@ import string
 from pathlib import Path
 
 from django.conf import settings
-from django.test import RequestFactory
 
 import factory
 import factory.fuzzy
@@ -76,14 +75,6 @@ class EnkelvoudigInformatieObjectFactory(
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
 
-    @classmethod
-    def create(cls, **kwargs):
-        # for DRC-CMIS, we pass in a request object containing the correct host.
-        # This way, we don't have to set up the sites framework for every test (case).
-        # The result is that informatieobjecttype has the correct URL reference in CMIS.
-        kwargs["_request"] = RequestFactory().get("/")
-        return super().create(**kwargs)
-
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
@@ -97,14 +88,6 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
         return datetime.datetime.combine(
             self.informatieobject.latest_version.creatiedatum, datetime.time(0, 0)
         ).replace(tzinfo=datetime.timezone.utc)
-
-
-class GebruiksrechtenCMISFactory(factory.django.DjangoModelFactory):
-    startdatum = datetime.datetime.now(tz=datetime.timezone.utc)
-    omschrijving_voorwaarden = factory.Faker("paragraph")
-
-    class Meta:
-        model = "documenten.Gebruiksrechten"
 
 
 class BestandsDeelFactory(factory.django.DjangoModelFactory):

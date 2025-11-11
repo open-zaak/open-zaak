@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from privates.test import temp_private_root
 
@@ -11,7 +11,6 @@ from ..factories import (
 
 
 @temp_private_root()
-@override_settings(CMIS_ENABLED=False)
 class LastVersionTests(TestCase):
     def test_canonical_last_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory()

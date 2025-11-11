@@ -2,7 +2,6 @@
 # Copyright (C) 2020 Dimpact
 from typing import List
 
-from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
@@ -23,10 +22,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if settings.CMIS_ENABLED:
-            self.stdout.write(_("This command does not run with CMIS enabled."))
-            return
-
         msg = _("Checking {count} records ...").format(
             count=EnkelvoudigInformatieObject.objects.count()
         )

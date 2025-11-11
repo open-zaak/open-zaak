@@ -9,4 +9,3 @@ Configuration
    openzaak_config_cli
    openzaak_config
    env_config
-   cmis

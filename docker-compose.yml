@@ -1,7 +1,5 @@
 # This is a compose file inteded for trying out the project locally and absolutely
 # not suitable for production usage. The configuration here contains non-safe defaults.
-#
-# If you want to try out CMIS with Alfresco, see docker-compose.alfresco.yml
 
 version: '3.4'
 
