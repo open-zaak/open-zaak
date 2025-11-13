@@ -316,6 +316,8 @@ nh3==0.3.0
     # via textile
 notifications-api-common==0.8.2
     # via commonground-api-common
+oauthlib==3.3.1
+    # via requests-oauthlib
 open-api-framework==0.13.1
     # via -r requirements/base.in
 orderedmultidict==1.0.1
@@ -409,11 +411,14 @@ requests==2.32.4
     #   open-api-framework
     #   requests-cache
     #   requests-mock
+    #   requests-oauthlib
     #   zgw-consumers
 requests-cache==1.2.1
     # via -r requirements/base.in
 requests-mock==1.12.1
     # via commonground-api-common
+requests-oauthlib==2.0.0
+    # via zgw-consumers
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
@@ -487,8 +492,9 @@ webencodings==0.5.1
     # via bleach
 wrapt==1.16.0
     # via elastic-apm
-zgw-consumers==1.0.0
+zgw-consumers==1.1.0
     # via
+    #   -r requirements/base.in
     #   commonground-api-common
     #   notifications-api-common
 zgw-consumers-oas==1.1.0
