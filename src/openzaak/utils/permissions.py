@@ -17,7 +17,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
 from rest_framework.viewsets import ViewSetMixin
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
-from vng_api_common.utils import get_resource_for_path
+from vng_api_common.utils import get_resource_for_path, get_viewset_for_path
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -82,10 +82,12 @@ class AuthRequired(permissions.BasePermission):
                 serializer.is_valid(raise_exception=True)
 
         else:
+            resource = None
             try:
                 main_object_url = main_object_data[view.permission_main_object]
                 main_object_path = urlparse(main_object_url).path
                 main_object = get_resource_for_path(main_object_path)
+                resource = get_viewset_for_path(main_object_path).__class__
             except KeyError:
                 raise ValidationError(
                     {
@@ -109,6 +111,16 @@ class AuthRequired(permissions.BasePermission):
                     ValidationError({view.permission_main_object: exc})
                 )
                 raise ValidationError(err_dict)
+
+            if resource != main_resource:
+                raise ValidationError(
+                    {
+                        view.permission_main_object: _(
+                            "Incorrect resource. Expected: {expected}"
+                        ).format(expected=main_resource.queryset.model.__name__)
+                    },
+                    code="incorrect_match",
+                )
 
             main_object_data = self.format_data(main_object, request, main_resource)
             fields = self.get_fields(main_object_data, permission_fields)
