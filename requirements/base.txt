@@ -66,7 +66,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-commonground-api-common==2.10.3
+commonground-api-common==2.10.5
     # via
     #   -r requirements/base.in
     #   open-api-framework
@@ -428,7 +428,9 @@ self-certifi==1.0.0
 semantic-version==2.10.0
     # via django-upgrade-check
 sentry-sdk==2.13.0
-    # via open-api-framework
+    # via
+    #   commonground-api-common
+    #   open-api-framework
 six==1.16.0
     # via
     #   click-repl
