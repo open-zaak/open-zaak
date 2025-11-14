@@ -14,7 +14,7 @@
 # with --csv a csv dump can be created for all tables in the given components. The csv files will be generated in the temporary directory csv_dumps
 # and combined into a single TAR archive csv_dumps.
 
-set -e
+set -euo pipefail
 
 DEFAULT_APPS=(besluiten catalogi documenten zaken)
 
@@ -38,6 +38,7 @@ CSV=false
 SCHEMA=true
 DATA=true
 COMBINED=false
+APPS=()
 
 for arg in "$@"; do
     case "$arg" in
