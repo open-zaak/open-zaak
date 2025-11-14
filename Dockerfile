@@ -20,7 +20,7 @@ RUN uv pip install --system -r requirements/production.txt
 
 
 # Stage 2 - build frontend
-FROM node:24-alpine AS frontend-build
+FROM node:24-trixie-slim AS frontend-build
 
 WORKDIR /app
 
