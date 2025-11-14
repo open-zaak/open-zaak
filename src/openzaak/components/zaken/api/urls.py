@@ -5,6 +5,7 @@ from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
 
+from openzaak.notifications.views import NotificationView
 from openzaak.utils.oas_extensions.views import (
     DeprecationRedirectView,
     SchemaDeprecationRedirectView,
@@ -134,6 +135,11 @@ urlpatterns = [
                     "zaak_verlengen/<uuid:uuid>",
                     zaakverlengen_view,
                     name="zaakverlengen",
+                ),
+                path(
+                    "callback/notifications/",
+                    NotificationView.as_view(),
+                    name="zaak-notifications-callback",
                 ),
                 path("", include("vng_api_common.notifications.api.urls")),
             ]
