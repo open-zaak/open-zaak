@@ -16,4 +16,4 @@ on:
 
 jobs:
   open-api-workflow-code-analysis:
-    uses: maykinmedia/open-api-workflows/.github/workflows/code-analysis.yml@v5
+    uses: maykinmedia/open-api-workflows/.github/workflows/code-analysis.yml@v6

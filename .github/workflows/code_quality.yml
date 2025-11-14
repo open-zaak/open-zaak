@@ -10,7 +10,7 @@ on:
 
 jobs:
   open-api-workflow-code-quality:
-    uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@v5
+    uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@v6
     with:
       apt-packages: "libgdal-dev gdal-bin"
       python-version: "3.12"
