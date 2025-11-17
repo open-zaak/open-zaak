@@ -40,8 +40,6 @@ Generic
 Application specific
 ====================
 
-#TODO: make openzaak specific
-
 Accounts
 --------
 
@@ -57,18 +55,18 @@ Accounts
     .. code-block:: promql
 
         max by (type) (last_over_time(
-          otel_openklant_auth_user_count{scope="global"}
+          otel_openzaak_auth_user_count{scope="global"}
           [1m]
         ))
 
-``openklant.auth.login_failures``
+``openzaak.auth.login_failures``
     A counter incremented every time a user login fails (typically because of invalid
     credentials). Does not include the second factor, if enabled. Additional attributes:
 
     - ``http_target`` - the request path where the login failure occurred, if this
       happened in a request context.
 
-``openklant.auth.user_lockouts``
+``openzaak.auth.user_lockouts``
     A counter incremented every time a user is locked out because they reached the
     maximum number of failed attempts. Additional attributes:
 
@@ -76,14 +74,14 @@ Accounts
       happened in a request context.
     - ``username`` - username of the user trying to log in.
 
-``openklant.auth.logins``
+``openzaak.auth.logins``
     Counter incrementing on every successful login by a user. Additional attributes:
 
     - ``http_target`` - the request path where the login failure occurred, if this
       happened in a request context.
     - ``username`` - username of the user trying to log in.
 
-``openklant.auth.logouts``
+``openzaak.auth.logouts``
     Counter incrementing every time a user logs out. Additional attributes:
 
     - ``username`` - username of the user who logged out.
