@@ -402,7 +402,6 @@ django-solo==2.0.0
     #   -r requirements/ci.txt
     #   commonground-api-common
     #   django-log-outgoing-requests
-    #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
 django-structlog==9.1.1
@@ -647,7 +646,7 @@ mozilla-django-oidc==4.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
-mozilla-django-oidc-db==0.22.0
+mozilla-django-oidc-db==1.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

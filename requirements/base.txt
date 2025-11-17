@@ -211,7 +211,6 @@ django-solo==2.0.0
     # via
     #   commonground-api-common
     #   django-log-outgoing-requests
-    #   mozilla-django-oidc-db
     #   notifications-api-common
     #   zgw-consumers
 django-structlog==9.1.1
@@ -310,7 +309,7 @@ maykin-common==0.11.0
     # via -r requirements/base.in
 mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==0.22.0
+mozilla-django-oidc-db==1.1.0
     # via open-api-framework
 nh3==0.3.0
     # via textile
