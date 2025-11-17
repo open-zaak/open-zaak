@@ -106,4 +106,4 @@ helping to monitor load and the most frequent operations, and allow for various 
 
     .. code-block:: promql
 
-        sum by (otel_scope_name) (otel_openklant_klantcontact_updates_total)
+        sum by (otel_scope_name) (otel_openzaak_zaken_updates_total)
