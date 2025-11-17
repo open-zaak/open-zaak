@@ -514,48 +514,48 @@ class PerformanceTests(
 
         Breakdown of expected queries:
 
-         1 - 4: OpenIDConnectConfig (savepoint, SELECT, INSERT and savepoint release)
-             5: Consult own internal service config (SELECT FROM config_internalservice)
-             6: Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
-           7-8: Lookup zaaktype, done by AuthRequired check of authorization fields
-          9-12: Check feature flag config (PublishValidator) (savepoint, select, insert
-                and savepoint release)
-            13: Lookup zaaktype for permission checks
-         14-17: Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
-            18: Begin transaction (savepoint) (from NotificationsCreateMixin)
-            19: Savepoint for zaakidentificatie generation
-            20: advisory lock for zaakidentificatie generation
-            21: Query highest zaakidentificatie number at the  moment
-            22: insert new zaakidentificatie
-            23: release savepoint
-            24: release savepoint (commit zaakidentificatie transaction)
-            25: savepoint for zaak creation
-         26-27: Lookup zaaktype for validation and cache it in serializer context
-            28: Select feature flag config (PublishValidator)
-            29: Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
-            30: update zaakidentificatie record (from serializer context and earlier
-                generation)
-            31: insert zaken_zaak record
-         32-37: query related objects for etag update that may be affected (should be
-                skipped, it's create of root resource!) vng_api_common.caching.signals
-            38: select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            39: select zaak rollen
-            40: select zaak status
-            41: select zaak zaakinformatieobjecten
-            42: select zaak zaakobjecten
-            43: select zaak kenmerken (nested inline create, can't avoid this)
-            44: insert audit trail
-         45-46: notifications, select created zaak (?), notifs config
-            47: release savepoint (from NotificationsCreateMixin)
-            48: savepoint create transaction.on_commit ETag handler (start new transaction)
-            59: update ETag column of zaak
-            50: release savepoint (commit transaction)
+             1:   Consult own internal service config (SELECT FROM config_internalservice)
+             2:   Look up secret for auth client ID (SELECT FROM vng_api_common_jwtsecret)
+           3-4:   Lookup zaaktype, done by AuthRequired check of authorization fields
+           5-8:   Check feature flag config (PublishValidator) (savepoint, select, insert
+                  and savepoint release)
+             9:   Lookup zaaktype for permission checks
+         10-13:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
+            14:   Begin transaction (savepoint) (from NotificationsCreateMixin)
+            15:   Savepoint for zaakidentificatie generation
+            16:   advisory lock for zaakidentificatie generation
+            17:   Query highest zaakidentificatie number at the moment
+            18:   insert new zaakidentificatie
+            19:   release savepoint
+            20:   release savepoint (commit zaakidentificatie transaction)
+            21:   savepoint for zaak creation
+         22-23:   Lookup zaaktype for validation and cache it in serializer context
+            24:   Select feature flag config (PublishValidator)
+            25:   Lookup zaaktype (again), done by loose_fk.drf.FKOrURLField.run_validation
+            26:   update zaakidentificatie record (from serializer context and earlier
+                  generation)
+            27:   insert zaken_zaak record
+         28-33:   query related objects for etag update that may be affected (should be
+                  skipped, it's create of root resource!) vng_api_common.caching.signals
+            34:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
+            35:   select zaak rollen
+            36:   select zaak status
+            37:   select zaak zaakinformatieobjecten
+            38:   select zaak zaakobjecten
+            39:   select zaak kenmerken (nested inline create, can't avoid this)
+            40:   insert audit trail
+         41-42:   notifications, select created zaak (?), notifs config
+            43:   release savepoint (from NotificationsCreateMixin)
+            44:   savepoint create transaction.on_commit ETag handler (start new transaction)
+            45:   update ETag column of zaak
+            46:   release savepoint (commit transaction)
+
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 50
+        EXPECTED_NUM_QUERIES = 46
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

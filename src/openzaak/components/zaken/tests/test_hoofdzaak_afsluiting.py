@@ -7,7 +7,6 @@ import requests_mock
 from dateutil.relativedelta import relativedelta
 from freezegun.api import freeze_time
 from log_outgoing_requests.models import OutgoingRequestsLogConfig
-from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -141,7 +140,6 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         # Clear singleton model caches to keep query count
         # the same between running whole test class & tests separately.
-        OpenIDConnectConfig.clear_cache()
         OutgoingRequestsLogConfig.clear_cache()
 
     def test_deelzaak(self):
@@ -595,7 +593,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(69):
+        with self.assertNumQueries(65):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -611,15 +609,15 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         """
         An Deelzaak with an external catalogi has 5 extra queries compared to no deelzaken.
 
-        (1) 42: deelzaak reopen filter query
-        (2) 43: deelzaak eindstatus filter query
-        (3) 44: cursor from exist()
-        (4) 56-57: savepoints transaction management
-        (5) 67: update the deelzaak
-        (6) 68: cursor from exist()
-        (7) 69-70: savepoints transaction management
+        (1) 37: deelzaak reopen filter query
+        (2) 38: deelzaak eindstatus filter query
+        (3) 40: cursor from exist()
+        (4) 52-53: savepoints transaction management
+        (5) 63: update the deelzaak
+        (6) 64: cursor from exist()
+        (7) 70: savepoint transaction management
         """
-        with self.assertNumQueries(74):
+        with self.assertNumQueries(70):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -636,18 +634,18 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         """
         An Deelzaak with an external catalogi has 12 extra queries compared to a deelzaak with an internal catalogi.
 
-        (1) 45: Lookup the current status
-        (2-3) 46-47: select from zgw_consumers_service
-        (4) 59-60: savepoints transaction management
-        (8) 75: lookup the deelzaak resultaat
-        (9-10) 76-77: select from zgw_consumers_service
-        (11) 80: update the deelzaak
-        (12) 81-82: savepoints transaction management
-        (13-17) 83-85 select related zaak data
+        (1) 41: Lookup the current status
+        (2-3) 42-43: select from zgw_consumers_service
+        (4) 55-56: savepoints transaction management
+        (8) 71: lookup the deelzaak resultaat
+        (9-10) 72-73: select from zgw_consumers_service
+        (11) 76: update the deelzaak
+        (12) 77-78: savepoints transaction management
+        (13-17) 81-82 select related zaak data
 
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(86):
+        with self.assertNumQueries(82):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -662,16 +660,16 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         """
         An Deelzaak with an external catalogi has 5 extra queries compared to no deelzaken.
 
-        (1) 42: deelzaak reopen filter query
-        (2) 43: deelzaak eindstatus filter query
-        (3) 44: cursor from exist()
-        (4) 56-57: savepoints transaction management
-        (5) 67: update the deelzaak
-        (6) 68: cursor from exist()
-        (7) 69-70: savepoints transaction management
+        (1) 37: deelzaak reopen filter query
+        (2) 38: deelzaak eindstatus filter query
+        (3) 40: cursor from exist()
+        (4) 52-53: savepoints transaction management
+        (5) 63: update the deelzaak
+        (6) 64: cursor from exist()
+        (7) 70: savepoint transaction management
         """
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(74):
+        with self.assertNumQueries(70):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -687,10 +685,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
         A single deelzaak with external catalogi has 12 extra queries over an internal catalogi.
-        74 + (10*12) = 192
+        70 + (10*12) = 190
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(194):
+        with self.assertNumQueries(190):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -707,7 +705,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(194):
+        with self.assertNumQueries(190):
             response = self.client.post(
                 self.status_list_url,
                 {
