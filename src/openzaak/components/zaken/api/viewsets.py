@@ -47,6 +47,11 @@ from vng_api_common.utils import lookup_kwargs_to_filters
 from vng_api_common.viewsets import CheckQueryParamsMixin, NestedViewSetMixin
 
 from openzaak.client import get_client
+from openzaak.components.zaken.metrics import (
+    zaken_create_counter,
+    zaken_delete_counter,
+    zaken_update_counter,
+)
 from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
@@ -419,6 +424,8 @@ class ZaakViewSet(
     def perform_create(self, serializer):
         super().perform_create(serializer)
         zaak = serializer.instance
+
+        zaken_create_counter.add(1)
         logger.info(
             "zaak_created",
             uuid=str(zaak.uuid),
@@ -462,6 +469,7 @@ class ZaakViewSet(
 
         updated_zaak = serializer.instance
 
+        zaken_update_counter.add(1)
         logger.info(
             "zaak_updated",
             uuid=str(updated_zaak.uuid),
@@ -513,6 +521,7 @@ class ZaakViewSet(
 
         super().perform_destroy(instance)
 
+        zaken_delete_counter.add(1)
         logger.info(
             "zaak_deleted",
             uuid=str(instance.uuid),

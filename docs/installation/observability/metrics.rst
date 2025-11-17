@@ -86,20 +86,20 @@ Accounts
 
     - ``username`` - username of the user who logged out.
 
-Klantcontacten
+Zaken
 --------------
 
 
-``openklant.klantcontact.creates``
-    Reports the number of klantcontacten created via the API.
+``openzaak.zaken.creates``
+    Reports the number of zaken created via the API.
 
-``openklant.klantcontact.updates``
-    Reports the number of klantcontacten updated via the API.
+``openzaak.zaken.updates``
+    Reports the number of zaken updated via the API.
 
-``openklant.klantcontact.deletes``
-    Reports the number of klantcontacten deleted via the API.
+``openzaak.zaken.deletes``
+    Reports the number of zaken deleted via the API.
 
-The klantcontacten metrics show how many entities are created, updated, or deleted via the API,
+The zaken metrics show how many entities are created, updated, or deleted via the API,
 helping to monitor load and the most frequent operations, and allow for various aggregations on the data.
 
     Sample PromQL query:

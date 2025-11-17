@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2025 Dimpact
 from typing import Literal
 
 from django.contrib.auth.signals import (
