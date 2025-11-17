@@ -19,9 +19,12 @@ python src/manage.py check
 # wait for required services
 ${SCRIPTPATH}/wait_for_db.sh
 
+# Set defaults for OTEL
+export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-openzaak}"
+
 # Apply database migrations
 >&2 echo "Apply database migrations"
-python src/manage.py migrate
+OTEL_SDK_DISABLED=True python src/manage.py migrate
 
 ${SCRIPTPATH}/load_fixtures.sh
 
