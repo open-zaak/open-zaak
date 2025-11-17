@@ -588,7 +588,7 @@ oauthlib==3.3.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-oauthlib
-open-api-framework==0.13.1
+open-api-framework==0.13.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
