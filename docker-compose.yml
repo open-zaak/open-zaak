@@ -53,6 +53,17 @@ services:
       LOG_NOTIFICATIONS_IN_DB: ${LOG_NOTIFICATIONS_IN_DB:-yes}
       DB_CONN_MAX_AGE: "0"
       DB_POOL_ENABLED: True
+
+      # Enabling Open Telemetry requires the services in docker/docker-compose.observability.yaml
+      # to be up and running.
+      OTEL_SDK_DISABLED: ${OTEL_SDK_DISABLED:-true}
+      OTEL_RESOURCE_ATTRIBUTES: maykin.saas.client=maykin,maykin.saas.target=dev
+      OTEL_METRIC_EXPORT_INTERVAL: ${OTEL_METRIC_EXPORT_INTERVAL:-60000}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}  # gRPC
+      # otel:supersecret, escape spaces and = with percent encoding
+      OTEL_EXPORTER_OTLP_HEADERS: Authorization=Basic b3RlbDpzdXBlcnNlY3JldA==
+      OTEL_EXPORTER_OTLP_METRICS_INSECURE: ${OTEL_EXPORTER_OTLP_METRICS_INSECURE:-true}
+      _OTEL_ENABLE_CONTAINER_RESOURCE_DETECTOR: true
     healthcheck:
       test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
       interval: 30s
