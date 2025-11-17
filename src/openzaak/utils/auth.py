@@ -24,5 +24,6 @@ def get_auth(url: str) -> dict:
         auth = ServiceConfigAdapter(service).get_client_session_kwargs()["auth"]
         return {auth.header: auth.key}
 
-    logger.warning("could_not_authenticate_for_url", url=url)
+    logger.debug("no_auth_configured_for_service", url=url)
+
     return {}
