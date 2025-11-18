@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("accounts", "0005_auto_20200924_1410"),
-        ("mozilla_django_oidc_db", "0006_openidconnectconfig_unique_id_claim"),
+        ("mozilla_django_oidc_db", "0001_initial_to_v023"),
     ]
     operations = []

@@ -1,13 +1,13 @@
 {% extends "admin/login.html" %}
 {% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
 {% comment %} Copyright (C) 2020 Dimpact {% endcomment %}
-{% load solo_tags i18n %}
+{% load mozilla_django_oidc_db i18n %}
 
 
 {% block content %}
 {{ block.super }}
 
-{% get_solo 'mozilla_django_oidc_db.OpenIDConnectConfig' as oidc_config %}
+{% get_oidc_admin_client as oidc_config %}
 {% if oidc_config.enabled %}
 <div class="admin-login-option">
     <a href="{% url 'oidc_authentication_init' %}">{% trans "Login with organization account" %}</a>

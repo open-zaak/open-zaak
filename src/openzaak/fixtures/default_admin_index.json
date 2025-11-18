@@ -68,7 +68,11 @@
             ],
             [
                 "mozilla_django_oidc_db",
-                "openidconnectconfig"
+                "oidcprovider"
+            ],
+            [
+                "mozilla_django_oidc_db",
+                "oidcclient"
             ],
             [
                 "notifications_api_common",

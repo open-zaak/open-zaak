@@ -4,11 +4,8 @@
 Guarantee that the proper authorization machinery is in place.
 """
 
-from unittest.mock import patch
-
 from django.test import override_settings, tag
 
-from mozilla_django_oidc_db.models import OpenIDConnectConfig
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -643,16 +640,6 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
 
         # we're managing those directly in the test itself
         cls.autorisatie.delete()
-        # strip out some queries that we don't normally have to run
-        cls.patcher = patch(
-            "mozilla_django_oidc_db.models.OpenIDConnectConfig.get_solo",
-            return_value=OpenIDConnectConfig(enabled=False),
-        )
-
-    def setUp(self):
-        super().setUp()
-        self.patcher.start()
-        self.addCleanup(self.patcher.stop)
 
     @override_settings(ALLOWED_HOSTS=["example.com", "testserver"])
     def test_zaak_list_performance(self):
