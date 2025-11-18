@@ -3,14 +3,13 @@
 
 from unittest import mock
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from openzaak.components.zaken.models import ZaakObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications import handler_objecten as handlers
 
 
-@override_settings(ZAAK_NOTIFICATIONS_HANDLER="openzaak.notifications.handler_objecten")
 class NotificationHandlerTests(TestCase):
     @mock.patch("openzaak.notifications.handler_objecten.BaseLoader.load_local_object")
     def test_handle_create_adds_zaakobject(self, mock_load):
