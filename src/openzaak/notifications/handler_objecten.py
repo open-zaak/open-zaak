@@ -2,12 +2,15 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from urllib.parse import urlparse
 
+from django.db import transaction
+
 from django_loose_fk.loaders import BaseLoader
 from vng_api_common.constants import CommonResourceAction
 
 from openzaak.components.zaken.models import Zaak, ZaakObject
 
 
+@transaction.atomic
 def handle(message: dict) -> None:
     kanaal = message.get("kanaal")
     if kanaal != "objects":

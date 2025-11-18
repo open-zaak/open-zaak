@@ -45,7 +45,6 @@ class NotificationHandlerTests(TestCase):
             zaak=zaak,
             object=resource_url,
             object_type="overig",
-            object_type_overige="document",
         )
 
         base_url = "https://openzaak.example.com/api/v1/zaken/"
