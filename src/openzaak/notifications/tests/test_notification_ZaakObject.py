@@ -11,8 +11,12 @@ from openzaak.notifications import handler_objecten as handlers
 
 
 class NotificationHandlerTests(TestCase):
+    @mock.patch(
+        "openzaak.notifications.handler_objecten.BaseLoader.is_local_url",
+        return_value=True,
+    )
     @mock.patch("openzaak.notifications.handler_objecten.BaseLoader.load_local_object")
-    def test_handle_create_adds_zaakobject(self, mock_load):
+    def test_handle_create_adds_zaakobject(self, mock_load, mock_is_local):
         zaak = ZaakFactory()
         mock_load.return_value = zaak
 
@@ -34,8 +38,12 @@ class NotificationHandlerTests(TestCase):
         self.assertEqual(obj.zaak, zaak)
         self.assertEqual(obj.object_type_overige, "document")
 
+    @mock.patch(
+        "openzaak.notifications.handler_objecten.BaseLoader.is_local_url",
+        return_value=True,
+    )
     @mock.patch("openzaak.notifications.handler_objecten.BaseLoader.load_local_object")
-    def test_handle_create_existing_relation(self, mock_load):
+    def test_handle_create_existing_relation(self, mock_load, mock_is_local):
         zaak = ZaakFactory()
         mock_load.return_value = zaak
 
@@ -63,8 +71,12 @@ class NotificationHandlerTests(TestCase):
         self.assertEqual(obj.zaak, zaak)
         self.assertEqual(obj.object, resource_url)
 
+    @mock.patch(
+        "openzaak.notifications.handler_objecten.BaseLoader.is_local_url",
+        return_value=True,
+    )
     @mock.patch("openzaak.notifications.handler_objecten.BaseLoader.load_local_object")
-    def test_handle_update_removes_unlinked_zaakobjects(self, mock_load):
+    def test_handle_update_removes_unlinked_zaakobjects(self, mock_load, mock_is_local):
         resource_url = "https://example.com/objecten/1"
         zaak1 = ZaakFactory()
         zaak2 = ZaakFactory()
