@@ -1,13 +1,13 @@
 # Stage 1 - Compile needed python dependencies
-FROM python:3.12-slim-bookworm AS build
+FROM python:3.12-slim-trixie AS build
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
         pkg-config \
         build-essential \
         libpq-dev \
          # required for (log) routing support in uwsgi
-         libpcre3 \
-         libpcre3-dev \
+         libpcre2-8-0 \
+         libpcre2-dev \
         git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -20,7 +20,7 @@ RUN uv pip install --system -r requirements/production.txt
 
 
 # Stage 2 - build frontend
-FROM node:24-alpine AS frontend-build
+FROM node:24-trixie-slim AS frontend-build
 
 WORKDIR /app
 
@@ -39,7 +39,7 @@ RUN npm run build
 
 
 # Stage 3 - Build docker image suitable for execution and deployment
-FROM python:3.12-slim-bookworm AS production
+FROM python:3.12-slim-trixie AS production
 
 # Stage 3.1 - Set up the needed production dependencies
 # install all the dependencies for GeoDjango
@@ -48,12 +48,12 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         procps \
         nano \
         # serve correct Content-Type headers
-        mime-support \
+        media-types \
         # (geo) django dependencies
         postgresql-client \
         gettext \
         binutils \
-        libpcre3 \
+        libpcre2-8-0 \
         libproj-dev \
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*

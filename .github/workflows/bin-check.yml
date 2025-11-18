@@ -39,6 +39,7 @@ jobs:
           python src/manage.py migrate
           echo "yes" | src/manage.py generate_data --zaken=1 --zaaktypen=1 --without-zaakgeometrie
           SCRIPTPATH=bin DUMP_FILE=dump.sql bin/dump_data.sh --combined
+          SCRIPTPATH=bin TAR_FILE=dump.tar bin/dump_data.sh --csv
         env:
           DB_PASSWORD: ""
           DB_USER: postgres
@@ -60,3 +61,10 @@ jobs:
         run: |
           createdb -h localhost -U postgres test
           psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d test -f dump.sql
+
+      - name: validate csv dump
+        run: |
+          tar -xf dump.tar
+          test -f zaken_rol.csv || exit 1
+          ! test -f auth_group.csv || exit 1
+          grep "id,uuid,omschrijving,omschrijving_generiek,zaaktype_id,_etag,datum_begin_geldigheid,datum_einde_geldigheid" catalogi_roltype.csv
