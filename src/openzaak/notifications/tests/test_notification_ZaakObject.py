@@ -30,7 +30,7 @@ class NotificationHandlerTests(TestCase):
             "actie": "create",
             "resourceUrl": "https://objects.local/api/v2/objects/a28ac59d-31bb-43bf-9ded-c50d8e5f2654",
             "kenmerken": {"objecttypeOmschrijving": "document"},
-            "zaken": [f"{base_url}{zaak.pk}/"],
+            "zaken": [f"{base_url}{zaak.uuid}/"],
             "kanaal": "objecten",
         }
 
@@ -63,7 +63,7 @@ class NotificationHandlerTests(TestCase):
             "actie": "create",
             "resourceUrl": resource_url,
             "kenmerken": {"objecttypeOmschrijving": "document"},
-            "zaken": [f"{base_url}{zaak.pk}/"],
+            "zaken": [f"{base_url}{zaak.uuid}/"],
             "kanaal": "objecten",
         }
 
@@ -93,7 +93,7 @@ class NotificationHandlerTests(TestCase):
             "resource": "object",
             "actie": "update",
             "resourceUrl": resource_url,
-            "zaken": [f"{base_url}{zaak2.pk}/"],
+            "zaken": [f"{base_url}{zaak2.uuid}/"],
             "kanaal": "objecten",
         }
 
