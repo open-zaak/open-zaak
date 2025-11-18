@@ -547,4 +547,4 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
 
-DEFAULT_NOTIFICATIONS_HANDLER = "openzaak.notifications.default.handle"
+DEFAULT_NOTIFICATIONS_HANDLER = "openzaak.notifications.handler_default.handle"
