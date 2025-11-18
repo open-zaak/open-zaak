@@ -9,6 +9,10 @@ from openzaak.components.zaken.models import ZaakObject
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications import handler_objecten as handlers
 
+resource_url = (
+    "https://objects.local/api/v2/objects/a28ac59d-31bb-43bf-9ded-c50d8e5f2654"
+)
+
 
 class NotificationHandlerTests(TestCase):
     @mock.patch(
@@ -24,7 +28,7 @@ class NotificationHandlerTests(TestCase):
         message = {
             "resource": "object",
             "actie": "create",
-            "resourceUrl": "https://example.com/objecten/1",
+            "resourceUrl": "https://objects.local/api/v2/objects/a28ac59d-31bb-43bf-9ded-c50d8e5f2654",
             "kenmerken": {"objecttypeOmschrijving": "document"},
             "zaken": [f"{base_url}{zaak.pk}/"],
             "kanaal": "objecten",
@@ -47,7 +51,6 @@ class NotificationHandlerTests(TestCase):
         zaak = ZaakFactory()
         mock_load.return_value = zaak
 
-        resource_url = "https://example.com/objecten/1"
         ZaakObject.objects.create(
             zaak=zaak,
             object=resource_url,
@@ -77,7 +80,6 @@ class NotificationHandlerTests(TestCase):
     )
     @mock.patch("openzaak.notifications.handler_objecten.BaseLoader.load_local_object")
     def test_handle_update_removes_unlinked_zaakobjects(self, mock_load, mock_is_local):
-        resource_url = "https://example.com/objecten/1"
         zaak1 = ZaakFactory()
         zaak2 = ZaakFactory()
         obj1 = ZaakObject.objects.create(
@@ -102,7 +104,6 @@ class NotificationHandlerTests(TestCase):
         self.assertFalse(ZaakObject.objects.filter(pk=obj1.pk).exists())
 
     def test_handle_destroy_deletes_objects(self):
-        resource_url = "https://example.com/objecten/1"
         zaak = ZaakFactory()
         ZaakObject.objects.create(zaak=zaak, object=resource_url, object_type="overig")
 
