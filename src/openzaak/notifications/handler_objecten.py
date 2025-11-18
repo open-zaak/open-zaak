@@ -7,13 +7,15 @@ from django.db import transaction
 from django_loose_fk.loaders import BaseLoader
 from vng_api_common.constants import CommonResourceAction
 
-from openzaak.components.zaken.models import Zaak, ZaakObject
+KANAAL_OBJECTEN = "objecten"
 
 
 @transaction.atomic
 def handle(message: dict) -> None:
+    from openzaak.components.zaken.models import Zaak, ZaakObject
+
     kanaal = message.get("kanaal")
-    if kanaal != "objects":
+    if kanaal != KANAAL_OBJECTEN:
         return
 
     resource = message.get("resource")

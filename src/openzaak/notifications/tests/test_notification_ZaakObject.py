@@ -24,7 +24,7 @@ class NotificationHandlerTests(TestCase):
             "resourceUrl": "https://example.com/objecten/1",
             "kenmerken": {"objecttypeOmschrijving": "document"},
             "zaken": [f"{base_url}{zaak.pk}/"],
-            "kanaal": "objects",
+            "kanaal": "objecten",
         }
 
         handlers.handle(message)
@@ -54,7 +54,7 @@ class NotificationHandlerTests(TestCase):
             "resourceUrl": resource_url,
             "kenmerken": {"objecttypeOmschrijving": "document"},
             "zaken": [f"{base_url}{zaak.pk}/"],
-            "kanaal": "objects",
+            "kanaal": "objecten",
         }
 
         handlers.handle(message)
@@ -81,7 +81,7 @@ class NotificationHandlerTests(TestCase):
             "actie": "update",
             "resourceUrl": resource_url,
             "zaken": [f"{base_url}{zaak2.pk}/"],
-            "kanaal": "objects",
+            "kanaal": "objecten",
         }
 
         handlers.handle(message)
@@ -99,7 +99,7 @@ class NotificationHandlerTests(TestCase):
             "resource": "object",
             "actie": "destroy",
             "resourceUrl": resource_url,
-            "kanaal": "objects",
+            "kanaal": "objecten",
         }
 
         handlers.handle(message)
