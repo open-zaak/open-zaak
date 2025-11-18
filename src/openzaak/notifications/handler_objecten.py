@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from urllib.parse import urlparse
 
 from django.db import transaction
 
@@ -32,16 +31,13 @@ def handle(message: dict) -> None:
     resolved_zaken_ids = []
 
     for url in zaken_urls:
-        # Resolve local zaak URLs
-        for url in zaken_urls:
-            parsed = urlparse(url)
-            if parsed.netloc == "openzaak.example.com":
-                try:
-                    zaak_instance = loader.load_local_object(url, Zaak)
-                    if zaak_instance:
-                        resolved_zaken_ids.append(zaak_instance.pk)
-                except Exception:
-                    continue
+        if loader.is_local_url(url):
+            try:
+                zaak_instance = loader.load_local_object(url, Zaak)
+                if zaak_instance:
+                    resolved_zaken_ids.append(zaak_instance.pk)
+            except Exception:
+                continue
 
     if actie == CommonResourceAction.create:
         existing_ids = set(
@@ -55,6 +51,7 @@ def handle(message: dict) -> None:
                 object=resource_url,
                 object_type="overig",
                 object_type_overige=objecttype_omschrijving,
+                # TODO: Should we use the default empty string here?
                 relatieomschrijving="",
             )
             for zaak_id in resolved_zaken_ids
