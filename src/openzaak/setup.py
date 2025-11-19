@@ -46,8 +46,7 @@ def setup_env():
         )
         os.environ.setdefault("OTEL_SERVICE_NAME", "openzaak")
 
-    if os.getenv("OTEL_SDK_DISABLED") != "true":
-        setup_otel()
+    setup_otel()
 
     load_self_signed_certs()
 
