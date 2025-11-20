@@ -19,9 +19,12 @@ python src/manage.py check
 # wait for required services
 ${SCRIPTPATH}/wait_for_db.sh
 
+# Set defaults for OTEL
+export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-openzaak}"
+
 # Apply database migrations
 >&2 echo "Apply database migrations"
-python src/manage.py migrate
+OTEL_SDK_DISABLED=True python src/manage.py migrate
 
 ${SCRIPTPATH}/load_fixtures.sh
 
@@ -40,6 +43,7 @@ fi
 # Start server
 >&2 echo "Starting server"
 exec uwsgi \
+    --strict \
     --ini "${SCRIPTPATH}/uwsgi.ini" \
     --http :$uwsgi_port \
     --http-keepalive \
@@ -49,6 +53,9 @@ exec uwsgi \
     --static-map /media=/app/media  \
     --chdir src \
     --enable-threads \
+    --single-interpreter \
+    --die-on-term \
+    --need-app \
     --processes $uwsgi_processes \
     --threads $uwsgi_threads \
     --buffer-size=65535

@@ -29,6 +29,9 @@ os.environ.setdefault("ZTC_JWT_SECRET", "open-to-ztc")
 os.environ.setdefault("ZRC_JWT_SECRET", "open-to-zrc")
 os.environ.setdefault("NUM_PROXIES", "0")
 
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+os.environ.setdefault("OTEL_EXPORTER_OTLP_METRICS_INSECURE", "true")
+
 from .includes.base import *  # noqa isort:skip
 
 #

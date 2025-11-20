@@ -47,6 +47,7 @@ def override_request_host(request: HttpRequest) -> None:
         request.META["HTTP_X_ORIGINAL_HOST"] = request._raw_host
         # overwrite with our own host information
         request.META["HTTP_HOST"] = settings.OPENZAAK_DOMAIN
+        request.__dict__.pop("_current_scheme_host", None)
 
 
 class OverrideHostMiddleware:

@@ -69,3 +69,12 @@ Reference
    reference/time
    reference/1-5_upgrade
    reference/import
+
+Observability
+-------------
+
+.. toctree::
+   :maxdepth: 1
+
+   observability/index
+  

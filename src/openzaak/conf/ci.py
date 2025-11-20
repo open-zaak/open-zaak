@@ -15,6 +15,8 @@ os.environ.setdefault("IS_HTTPS", "no")
 os.environ.setdefault("SECRET_KEY", "dummy")
 os.environ.setdefault("ENVIRONMENT", "CI")
 os.environ.setdefault("SENDFILE_BACKEND", "django_sendfile.backends.simple")
+os.environ.setdefault("OTEL_SDK_DISABLED", "true")
+os.environ.setdefault("OTEL_SERVICE_NAME", "openzaak-ci")
 
 from .includes.base import *  # noqa isort:skip
 
