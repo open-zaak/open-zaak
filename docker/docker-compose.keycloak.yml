@@ -9,9 +9,9 @@
 # DO NOT USE THIS IN PRODUCTION.
 #
 # Start a Keycloak instance in your local environment from the parent directory:
-# 
+#
 #     docker compose -f docker-compose.keycloak.yml up -d
-# 
+#
 
 version: '3'
 
@@ -23,7 +23,7 @@ services:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
     volumes:
-      - ./data:/opt/keycloak/data/import
+      - ./keycloak/data:/opt/keycloak/data/import
     ports:
       - 8080:8080
     networks:

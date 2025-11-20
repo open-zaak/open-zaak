@@ -8,7 +8,7 @@ Some of these tests use VCR. When re-recording, making sure to:
 .. code-block:: bash
 
     cd docker
-    docker compose -f keycloak/docker-compose.keycloak.yml up
+    docker compose -f docker-compose.keycloak.yml up
 
 to bring up a Keycloak instance.
 """
