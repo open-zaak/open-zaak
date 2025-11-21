@@ -19,6 +19,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.cloudevents import process_cloudevent
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -1214,4 +1215,10 @@ class DocumentRegistrerenViewSet(
                 "enkelvoudiginformatieobject"
             ]["url"],
             zaak_url=serializer.data["zaakinformatieobject"]["zaak"],
+        )
+
+        process_cloudevent(
+            type="nl.overheid.zaken.document-geregistreerd",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
         )

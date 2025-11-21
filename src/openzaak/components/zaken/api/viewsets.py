@@ -18,6 +18,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.cloudevents import process_cloudevent
 from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
@@ -2110,6 +2111,12 @@ class ZaakRegistrerenViewset(
             ],
         )
 
+        process_cloudevent(
+            type="nl.overheid.zaken.zaak-geregistreerd",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
+        )
+
 
 class ZaakUpdateActionViewSet(
     MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
@@ -2255,6 +2262,12 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
             status_url=serializer.data["status"]["url"],
         )
 
+        process_cloudevent(
+            type="nl.overheid.zaken.zaak-opgeschort",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
+        )
+
 
 @extend_schema_view(
     post=extend_schema(
@@ -2376,6 +2389,11 @@ class ZaakBijwerkenViewset(
             status_url=serializer.data["status"]["url"],
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
         )
+        process_cloudevent(
+            type="nl.overheid.zaken.zaak-bijgewerkt",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
+        )
 
     def notify(
         self,
@@ -2438,6 +2456,12 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
             status_url=serializer.data["status"]["url"],
         )
 
+        process_cloudevent(
+            type="nl.overheid.zaken.zaak-verlengt",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
+        )
+
 
 @extend_schema_view(
     post=extend_schema(
@@ -2468,6 +2492,12 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
             resultaat_url=serializer.data["resultaat"]["url"],
+        )
+
+        process_cloudevent(
+            type="nl.overheid.zaken.zaak-afgesloten",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
         )
 
     def _create_audit_logs(self, response, serializer, zaak_version_before_edit):
