@@ -11,6 +11,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.cloudevents import process_cloudevent
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationDestroyMixin,
@@ -448,4 +449,10 @@ class BesluitVerwerkenViewSet(
             besluitinformatieobjecten_urls=[
                 bio["url"] for bio in serializer.data["besluitinformatieobjecten"]
             ],
+        )
+
+        process_cloudevent(
+            type="nl.overheid.zaken.besluit-verwerkt",
+            subject=serializer.instance.uuid,
+            data={},  # TODO
         )
