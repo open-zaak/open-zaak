@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-27 16:05+0000\n"
+"POT-Creation-Date: 2025-11-27 16:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5856,8 +5856,8 @@ msgid "Code on Github"
 msgstr "Code op Github"
 
 #: openzaak/templates/includes/footer.html:40
-msgid "Zaakgericht werken volgen VNG"
-msgstr ""
+msgid "Zaakgericht werken according to VNG"
+msgstr "Zaakgericht werken volgens VNG"
 
 #: openzaak/templates/includes/footer.html:45
 msgid "API's for zaakgericht werken"
@@ -5870,7 +5870,8 @@ msgstr "Startpunt"
 #: openzaak/templates/index.html:14
 msgid ""
 "Technical API documentation in the form of an Open API Specification (OAS)."
-msgstr "Technische API documentatie in de vorm van een Open API Specificatie (OAS)."
+msgstr ""
+"Technische API documentatie in de vorm van een Open API Specificatie (OAS)."
 
 #: openzaak/templates/index.html:32
 msgid "API scopes"
@@ -5890,7 +5891,8 @@ msgstr "of"
 
 #: openzaak/templates/maykin_2fa/login.html:20
 msgid "Contact support to start the account recovery process"
-msgstr "Neem contact op met support om het proces voor accountherstel te starten"
+msgstr ""
+"Neem contact op met support om het proces voor accountherstel te starten"
 
 #: openzaak/templates/scopes.html:10
 msgid "Scopes"
@@ -5898,14 +5900,13 @@ msgstr "Scopes"
 
 #: openzaak/templates/scopes.html:21
 msgid ""
-"\n"
-"                Scopes are typically defined per component and indicate "
-"which\n"
-"                rights exist. The JWT of the calling component indicates "
-"which\n"
-"                rights this component has or wishes to obtain.\n"
-"            "
+"Scopes are typically defined per component and indicate which rights exist. "
+"The JWT of the calling component indicates which rights this component has "
+"or wishes to obtain."
 msgstr ""
+"Scopes zijn typisch gedefinieerd per component en geven aan welke permissies bestaan. "
+"Het JWT van het aanroepende component geeft aan welke permissies dit component heeft "
+"of wenst te verkrijgen."
 
 #: openzaak/templates/view_config.html:8
 msgid "Configuration"
@@ -6319,22 +6320,17 @@ msgstr ""
 msgid "Connection refused. Please provide a correct address."
 msgstr "Verbinding gewijgerd. Geef een geldig adres op."
 
-#~ msgid ""
-#~ "datum_einde_geldigheid is required if the new version is being created"
-#~ msgstr ""
-#~ "'Datum einde geldigheid' is verplicht als je een nieuwe versie aanmaakt"
+#
+# TODO move these to maykin common
+#
+msgid "Report %(issues_link)s for questions, bugs or wishes"
+msgstr "Rapporteer %(issues_link)s voor vragen, bugs of wensen"
 
-#~ msgid "version %(version)s"
-#~ msgstr "versie %(version)s"
+msgid "Read more on %(cg_link)s"
+msgstr "Lees meer op %(cg_link)s"
 
-#~ msgid "NRC"
-#~ msgstr "Notificaties API"
+msgid "Open API specification"
+msgstr "Open API specificatie"
 
-#~ msgid "Missing"
-#~ msgstr "Ontbreekt"
-
-#~ msgid "Credentials for NRC"
-#~ msgstr "Autorisatiegegevens voor de Notificaties API"
-
-#~ msgid "NRC connection and authorizations"
-#~ msgstr "Notificaties API verbinding en autorisaties"
+msgid "Notifications"
+msgstr "Notificaties"
