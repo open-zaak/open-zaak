@@ -796,7 +796,7 @@ phonenumberslite==8.13.35
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-two-factor-auth
-pip==25.2
+pip==25.3
     # via pip-tools
 pip-tools==7.4.1
     # via -r requirements/dev.in
