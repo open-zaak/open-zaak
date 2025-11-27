@@ -161,7 +161,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==5.2.7
+django==5.2.8
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
