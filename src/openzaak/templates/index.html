@@ -14,7 +14,7 @@
 
 {% block api_links %}
     {% url "schema-redoc-"|add:component version=api_version as api_docs_link %}
-    {% url "schema-json-"|add:component version=api_version as api_schema_link %}
+    {% url "schema-"|add:component|add:"-json" version=api_version as api_schema_link %}
 
     {% with api_docs_link=api_docs_link api_schema_link=api_schema_link %}
         {{ block.super }}
