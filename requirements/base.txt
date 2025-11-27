@@ -325,7 +325,7 @@ notifications-api-common==0.8.2
     # via commonground-api-common
 oauthlib==3.3.1
     # via requests-oauthlib
-open-api-framework==0.13.1
+open-api-framework==0.13.2
     # via -r requirements/base.in
 opentelemetry-api==1.38.0
     # via
