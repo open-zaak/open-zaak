@@ -15,11 +15,13 @@ they are available for Django settings initialization.
 import os
 import re
 import tempfile
+import warnings
 
 from django.conf import settings
 
 import structlog
 from dotenv import load_dotenv
+from maykin_common.otel import setup_otel
 from self_certifi import load_self_signed_certs as _load_self_signed_certs
 
 EXTRA_CERTS_ENVVAR = "EXTRA_VERIFY_CERTS"
@@ -35,6 +37,16 @@ def setup_env():
     structlog.contextvars.bind_contextvars(source="app")
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "openzaak.conf.dev")
+    if "OTEL_SERVICE_NAME" not in os.environ:
+        warnings.warn(
+            "No OTEL_SERVICE_NAME environment variable set, using a default. "
+            "You should set a (distinct) value for each component (web, worker...)",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        os.environ.setdefault("OTEL_SERVICE_NAME", "openzaak")
+
+    setup_otel()
 
     load_self_signed_certs()
 

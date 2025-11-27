@@ -27,7 +27,12 @@ if [[ -v CELERY_WORKER_CONCURRENCY ]]; then
     worker_options+=( "-c${CELERY_WORKER_CONCURRENCY}" )
 fi
 
+# Set defaults for OTEL
+export OTEL_SERVICE_NAME="${OTEL_SERVICE_NAME:-openzaak-worker-"${QUEUE}"}"
+
 echo "Starting celery worker $WORKER_NAME with queue $QUEUE"
+# unset this if NOT using a process pool
+export _OTEL_DEFER_SETUP="true"
 exec celery \
     --app openzaak \
     --workdir src \
