@@ -6,17 +6,17 @@ meter = metrics.get_meter("openzaak.components.zaken")
 
 # zaken
 zaken_create_counter = meter.create_counter(
-    "openzaak.zaken.creates",
+    "openzaak.zaak.creates",
     description="Amount of zaken created (via the API).",
     unit="1",
 )
 zaken_update_counter = meter.create_counter(
-    "openzaak.zaken.updates",
+    "openzaak.zaak.updates",
     description="Amount of zaken updated (via the API).",
     unit="1",
 )
 zaken_delete_counter = meter.create_counter(
-    "openzaak.zaken.deletes",
+    "openzaak.zaak.deletes",
     description="Amount of zaken deleted (via the API).",
     unit="1",
 )

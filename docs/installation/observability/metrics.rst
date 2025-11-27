@@ -90,13 +90,13 @@ Zaken
 --------------
 
 
-``openzaak.zaken.creates``
+``openzaak.zaak.creates``
     Reports the number of zaken created via the API.
 
-``openzaak.zaken.updates``
+``openzaak.zaak.updates``
     Reports the number of zaken updated via the API.
 
-``openzaak.zaken.deletes``
+``openzaak.zaak.deletes``
     Reports the number of zaken deleted via the API.
 
 The zaken metrics show how many entities are created, updated, or deleted via the API,
@@ -106,4 +106,4 @@ helping to monitor load and the most frequent operations, and allow for various 
 
     .. code-block:: promql
 
-        sum by (otel_scope_name) (otel_openzaak_zaken_updates_total)
+        sum by (otel_scope_name) (otel_openzaak_zaak_updates_total)
