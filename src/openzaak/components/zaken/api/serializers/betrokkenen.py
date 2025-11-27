@@ -135,10 +135,15 @@ class NietNatuurlijkPersoonIdentificatieSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        verblijfsadres_data = validated_data.pop("verblijfsadres", None)
         sub_verblijf_buitenland_data = validated_data.pop(
             "sub_verblijf_buitenland", None
         )
         nietnatuurlijkpersoon = super().create(validated_data)
+
+        if verblijfsadres_data:
+            verblijfsadres_data["nietnatuurlijkpersoon"] = nietnatuurlijkpersoon
+            VerblijfsAdresSerializer().create(verblijfsadres_data)
 
         if sub_verblijf_buitenland_data:
             sub_verblijf_buitenland_data["nietnatuurlijkpersoon"] = (

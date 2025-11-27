@@ -25,7 +25,7 @@ from ..models import (
     Vestiging,
 )
 from .factories import RolFactory, StatusFactory, ZaakFactory
-from .utils import get_operation_url, get_roltype_response, get_zaaktype_response
+from .utils import get_roltype_response, get_zaaktype_response
 
 BETROKKENE = (
     "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd"
@@ -35,6 +35,7 @@ BETROKKENE = (
 class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
+    list_url = reverse(Rol)
 
     @freeze_time("2018-01-01")
     def test_read_rol_np(self):
@@ -72,9 +73,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         status_ = StatusFactory.create(
             zaak=zaak, statustype__zaaktype=zaak.zaaktype, gezetdoor=rol
         )
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype_url = reverse(rol.roltype)
-        url = get_operation_url("rol_read", uuid=rol.uuid)
+        url = reverse(rol)
 
         response = self.client.get(url)
 
@@ -166,9 +167,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             lnd_landnaam="United Kingdom",
             sub_adres_buitenland_1="some uk adres",
         )
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype_url = reverse(rol.roltype)
-        url = get_operation_url("rol_read", uuid=rol.uuid)
+        url = reverse(rol)
 
         response = self.client.get(url)
 
@@ -258,9 +259,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             lnd_landnaam="United Kingdom",
             sub_adres_buitenland_1="some uk adres",
         )
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype_url = reverse(rol.roltype)
-        url = get_operation_url("rol_read", uuid=rol.uuid)
+        url = reverse(rol)
 
         response = self.client.get(url)
 
@@ -319,9 +320,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         )
 
     def test_create_rol_with_identificatie(self):
-        url = get_operation_url("rol_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
@@ -346,7 +346,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             },
         }
 
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -367,10 +367,93 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         )
         self.assertEqual(verblijf_buitenland.lnd_landcode, "UK")
 
-    def test_create_rol_without_identificatie(self):
-        url = get_operation_url("rol_create")
+    @tag("gh-2239")
+    def test_create_rol_niet_natuurlijk_persoon_with_identificatie_verblijfsadres(self):
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene_type": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "betrokkeneIdentificatie": {
+                "innNnpId": "111222333",
+                "annIdentificatie": "1234",
+                "verblijfsadres": {
+                    "aoaIdentificatie": "123",
+                    "wplWoonplaatsNaam": "test city",
+                    "gorOpenbareRuimteNaam": "test",
+                    "aoaPostcode": "1111",
+                    "aoaHuisnummer": 1,
+                },
+                "subVerblijfBuitenland": {
+                    "lndLandcode": "UK",
+                    "lndLandnaam": "United Kingdom",
+                    "subAdresBuitenland_1": "some uk adres",
+                },
+            },
+        }
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Rol.objects.count(), 1)
+        self.assertEqual(NietNatuurlijkPersoon.objects.count(), 1)
+
+        rol = Rol.objects.get()
+        niet_natuurlijk_persoon = NietNatuurlijkPersoon.objects.get()
+        adres = Adres.objects.get()
+        verblijf_buitenland = SubVerblijfBuitenland.objects.get()
+
+        self.assertEqual(rol.nietnatuurlijkpersoon, niet_natuurlijk_persoon)
+        self.assertEqual(niet_natuurlijk_persoon.inn_nnp_id, "111222333")
+        self.assertEqual(niet_natuurlijk_persoon.ann_identificatie, "1234")
+        self.assertEqual(niet_natuurlijk_persoon.verblijfsadres, adres)
+        self.assertEqual(adres.identificatie, "123")
+        self.assertEqual(
+            niet_natuurlijk_persoon.sub_verblijf_buitenland, verblijf_buitenland
+        )
+        self.assertEqual(verblijf_buitenland.lnd_landcode, "UK")
+
+    @tag("gh-2239")
+    def test_create_rol_niet_natuurlijk_persoon_without_identificatie_verblijfsadres(
+        self,
+    ):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+        roltype_url = reverse(roltype)
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "betrokkene_type": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{roltype_url}",
+            "roltoelichting": "awerw",
+            "betrokkeneIdentificatie": {
+                "innNnpId": "111222333",
+                "annIdentificatie": "1234",
+            },
+        }
+
+        response = self.client.post(self.list_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Rol.objects.count(), 1)
+        self.assertEqual(NietNatuurlijkPersoon.objects.count(), 1)
+
+        rol = Rol.objects.get()
+        niet_natuurlijk_persoon = NietNatuurlijkPersoon.objects.get()
+
+        self.assertEqual(rol.nietnatuurlijkpersoon, niet_natuurlijk_persoon)
+        self.assertEqual(niet_natuurlijk_persoon.inn_nnp_id, "111222333")
+        self.assertEqual(niet_natuurlijk_persoon.ann_identificatie, "1234")
+        self.assertFalse(Adres.objects.exists())
+        self.assertFalse(SubVerblijfBuitenland.objects.exists())
+
+    def test_create_rol_without_identificatie(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
@@ -381,7 +464,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             "roltoelichting": "awerw",
         }
 
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -392,9 +475,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(rol.betrokkene, BETROKKENE)
 
     def test_create_rol_fail_validation(self):
-        url = get_operation_url("rol_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
@@ -404,7 +486,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             "roltoelichting": "awerw",
         }
 
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -446,10 +528,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         )
         Vestiging.objects.create(rol=rol_3, vestigings_nummer="183068142")
 
-        url = get_operation_url("rol_list", uuid=rol.uuid)
-
         response = self.client.get(
-            url, {"betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "183068142"}
+            self.list_url,
+            {"betrokkeneIdentificatie__natuurlijkPersoon__inpBsn": "183068142"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -460,9 +541,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(data[0]["betrokkeneIdentificatie"]["inpBsn"], "183068142")
 
     def test_create_rol_omschrijving_length_100(self):
-        url = get_operation_url("rol_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype, omschrijving="a" * 100)
         roltype_url = reverse(roltype)
         data = {
@@ -487,7 +567,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             },
         }
 
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -518,11 +598,9 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             rol=rol2, identificatie="pbz", naam="Publiekszaken"
         )
 
-        url = get_operation_url("rol_list")
-
         with self.subTest(case="new parameter"):
             response = self.client.get(
-                url,
+                self.list_url,
                 {
                     "betrokkeneIdentificatie__organisatorischeEenheid__identificatie": "pbz"
                 },
@@ -535,7 +613,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         with self.subTest(case="old parameter"):
             response = self.client.get(
-                url, {"betrokkeneIdentificatie__vestiging__identificatie": "pbz"}
+                self.list_url,
+                {"betrokkeneIdentificatie__vestiging__identificatie": "pbz"},
             )
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -543,9 +622,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             self.assertEqual(err["code"], "unknown-parameters")
 
     def test_create_rol_with_contactpersoon(self):
-        url = get_operation_url("rol_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
@@ -562,7 +640,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             },
         }
 
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Rol.objects.count(), 1)
@@ -576,9 +654,8 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(rol.contactpersoon_rol_telefoonnummer, "061234567890")
 
     def test_create_rol_with_empty_aoaIdentificatie(self):
-        url = get_operation_url("rol_create")
         zaak = ZaakFactory.create()
-        zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)
+        zaak_url = reverse(zaak)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
         roltype_url = reverse(roltype)
         data = {
@@ -603,7 +680,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         }
 
         # field is still required
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         validation_error = get_validation_errors(
             response, "betrokkeneIdentificatie.verblijfsadres.aoaIdentificatie"
@@ -612,7 +689,7 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
         data["betrokkeneIdentificatie"]["verblijfsadres"]["aoaIdentificatie"] = ""
         # allowed to be empty
-        response = self.client.post(url, data)
+        response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         adres = Adres.objects.get()
@@ -620,23 +697,24 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
 
     def test_pagination_pagesize_param(self):
         RolFactory.create_batch(10)
-        url = get_operation_url("rol_list")
 
-        response = self.client.get(url, {"pageSize": 5})
+        response = self.client.get(self.list_url, {"pageSize": 5})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         data = response.json()
 
         self.assertEqual(data["count"], 10)
-        self.assertEqual(data["next"], f"http://testserver{url}?page=2&pageSize=5")
+        self.assertEqual(
+            data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
+        )
 
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = get_operation_url("rol_create")
+    list_url = reverse(Rol)
 
     def test_create_external_roltype(self):
         catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
