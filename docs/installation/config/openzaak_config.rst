@@ -159,10 +159,12 @@ Open Notificaties
 
    d. Click **Opslaan**.
 
+   e. And in the previous window, click **Opslaan**.
+
 6. We need to allow Open Zaak to access Open Notificaties (for
    authentication purposes, so we can then check its authorisations):
 
-   a. Navigate to **API Autorisaties > Autorisatiegegeven**
+   a. Navigate to **API Autorisaties > Autorisatiegegevens**
    b. Click **Autorisatiegegeven toevoegen**.
    c. Fill out the form:
 
@@ -215,6 +217,7 @@ which required configuring related credentials.
    c. Fill out the form **Service toevoegen**:
 
       - **Label**: *For example:* ``Open Notificaties``
+      - **Service slug**: *For example:* ``open-notificaties``
       - **Type**: Select the option: ``NRC (Notifications)``
       - **API root url**: the full URL to the Notificaties API root, e.g.
         ``https://notificaties.gemeente.local/api/v1/``
@@ -254,8 +257,8 @@ which required configuring related credentials.
    c. Fill out the form:
 
       -  **Callback Url**: *The Callback URL to the Notificaties Callback API. For example:*
-         ``https://open-notificaties.gemeente.local/api/v1/callbacks``. *For example:* ``open-notificaties``
-      -  **Client ID**: *The same Client ID as given in step 3c*
+         ``https://open-notificaties.gemeente.local/api/v1/callbacks``.
+      -  **Client ID**: *The same Client ID as given in step 3c* *For example:* ``open-notificaties``
       -  **Client Secret**: *The same Secret as given in step 3c*
       -  **Channels**: ``autorisaties``
 
