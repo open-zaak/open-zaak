@@ -452,7 +452,7 @@ class BesluitVerwerkenViewSet(
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.besluit-verwerkt",
-            subject=serializer.instance.uuid,
+            type="nl.overheid.besluiten.besluit-verwerkt",
+            subject=str(data["besluit"].uuid),
             data={},  # TODO
         )

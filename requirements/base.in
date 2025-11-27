@@ -32,6 +32,3 @@ commonground-api-common[setup-configuration, testutils, oas]
 maykin-common[axes,mfa]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
-
-git+https://github.com/maykinmedia/notifications-api-common.git@feature/61-support-cloudevents#egg=notifications-api-common[setup-configuration] #TODO
-
