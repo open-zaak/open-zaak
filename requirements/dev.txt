@@ -689,7 +689,7 @@ oauthlib==3.3.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-oauthlib
-open-api-framework==0.13.1
+open-api-framework==0.13.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
