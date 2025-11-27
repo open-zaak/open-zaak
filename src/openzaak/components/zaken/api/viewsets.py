@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from typing import Dict, List, Optional, Union
 
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -2404,7 +2405,8 @@ class ZaakBijwerkenViewset(
         **kwargs,
     ) -> None:
         super().notify(status_code, data | {"rollen": []}, instance=instance)
-        self._message_rollen(data["rollen"], rollen_version_before_edit)
+        if not settings.NOTIFICATIONS_DISABLED:
+            self._message_rollen(data["rollen"], rollen_version_before_edit)
 
     def _message_rollen(self, rollen, rollen_version_before_edit):
         def send_rol_notification(rol, action):

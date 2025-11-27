@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2025 Dimpact
 from unittest.mock import patch
 
 from django.conf import settings
@@ -163,13 +165,6 @@ class ZaakConvenienceCloudEventTest(
         )
 
     def test_zaak_opschorten_cloudevent(self, mock_send_cloudevent):
-        # zaak = ZaakFactory.create(
-        #     zaaktype=self.zaaktype,
-        #     bronorganisatie=517439943,
-        #     vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        #     verantwoordelijke_organisatie=517439943,
-        # )
-
         url = reverse(
             "zaakopschorten",
             kwargs={
@@ -211,13 +206,6 @@ class ZaakConvenienceCloudEventTest(
         )
 
     def test_zaak_bijwerken_cloudevent(self, mock_send_cloudevent):
-        # zaak = ZaakFactory.create(
-        #     zaaktype=self.zaaktype,
-        #     bronorganisatie=517439943,
-        #     vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        #     verantwoordelijke_organisatie=517439943,
-        # )
-
         url = reverse(
             "zaakbijwerken",
             kwargs={
@@ -267,13 +255,6 @@ class ZaakConvenienceCloudEventTest(
         )
 
     def test_zaak_verlengen_cloudevent(self, mock_send_cloudevent):
-        # zaak = ZaakFactory.create(
-        #     zaaktype=self.zaaktype,
-        #     bronorganisatie=517439943,
-        #     vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        #     verantwoordelijke_organisatie=517439943,
-        # )
-
         url = reverse(
             "zaakverlengen",
             kwargs={
@@ -315,13 +296,6 @@ class ZaakConvenienceCloudEventTest(
         )
 
     def test_zaak_afsluiten_cloudevent(self, mock_send_cloudevent):
-        # zaak = ZaakFactory.create(
-        #     zaaktype=self.zaaktype,
-        #     bronorganisatie=517439943,
-        #     vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        #     verantwoordelijke_organisatie=517439943,
-        # )
-
         url = reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
 
         data = {
