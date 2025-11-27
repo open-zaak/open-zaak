@@ -1218,7 +1218,7 @@ class DocumentRegistrerenViewSet(
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.document-geregistreerd",
-            subject=serializer.instance.uuid,
+            type="nl.overheid.documenten.document-geregistreerd",
+            subject=str(data["enkelvoudiginformatieobject"].uuid),
             data={},  # TODO
         )

@@ -2113,7 +2113,7 @@ class ZaakRegistrerenViewset(
 
         process_cloudevent(
             type="nl.overheid.zaken.zaak-geregistreerd",
-            subject=serializer.instance.uuid,
+            subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
 
@@ -2264,7 +2264,7 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
 
         process_cloudevent(
             type="nl.overheid.zaken.zaak-opgeschort",
-            subject=serializer.instance.uuid,
+            subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
 
@@ -2391,7 +2391,7 @@ class ZaakBijwerkenViewset(
         )
         process_cloudevent(
             type="nl.overheid.zaken.zaak-bijgewerkt",
-            subject=serializer.instance.uuid,
+            subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
 
@@ -2458,7 +2458,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
 
         process_cloudevent(
             type="nl.overheid.zaken.zaak-verlengt",
-            subject=serializer.instance.uuid,
+            subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
 
@@ -2496,7 +2496,7 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
 
         process_cloudevent(
             type="nl.overheid.zaken.zaak-afgesloten",
-            subject=serializer.instance.uuid,
+            subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
 
