@@ -5,6 +5,7 @@ Guarantee that the proper authorization machinery is in place.
 """
 
 from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -875,7 +876,10 @@ class StatusTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class ZaakNotitieTests(JWTAuthMixin, APITestCase):
@@ -1005,7 +1009,10 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "gerelateerdAan")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class ResultaatTests(JWTAuthMixin, APITestCase):
@@ -1190,7 +1197,10 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class ZaakObjectTests(JWTAuthMixin, APITestCase):
@@ -1319,7 +1329,10 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
@@ -1462,7 +1475,10 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
@@ -1849,7 +1865,10 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
 
 
 class RolReadTests(JWTAuthMixin, APITestCase):
@@ -2581,4 +2600,7 @@ class KlantContactTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             error = get_validation_errors(response, "zaak")
             self.assertEqual(error["code"], "incorrect_match")
-            self.assertEqual(error["reason"], "Incorrect resource. Expected: Zaak")
+            self.assertEqual(
+                error["reason"],
+                _("Incorrect resource. Expected: {expected}").format(expected="Zaak"),
+            )
