@@ -16,7 +16,7 @@ Zaken API
 =========
 
 Notities
--------------
+--------
 
 The ``zaaknotities`` endpoint has been added to the Zaken API and supports GET, POST, PUT, PATCH and DELETE operations.
 
@@ -26,6 +26,38 @@ Notifications
 -------------
 
 For ``zaken`` notification channel a new "kenmerk" ``zaaktype.catalogus`` is added.
+
+.. _cloud_events:
+
+Cloud events
+------------
+
+Sending of cloud events is still under development and **NOT** suited for production use,
+but currently Open Zaak can emit the following cloud events if configured:
+
+* ``zaak-gemuteerd``: when creating a Zaak or setting a new Status for a Zaak
+* ``zaak-verwijderd``: when deleting a Zaak
+* ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
+
+Example of a ``zaak-gemuteerd`` cloud event in its current shape:
+
+.. code-block:: json
+
+        {
+            "specversion": "1.0",
+            "type": "nl.overheid.zaken.zaak-gemuteerd",
+            "source": "urn:nld:oin:01823288444:zakensysteem",
+            "subject": "89b06186-c133-4c74-8492-b43392bc4fdb",
+            "id": "b386ff52-de66-4fde-805f-6c80b4f3cc68",
+            "time": "2025-11-28T09:57:45Z",
+            "dataref": "/zaken/api/v1/zaken/89b06186-c133-4c74-8492-b43392bc4fdb",
+            "datacontenttype": "application/json",
+            "data": {}
+        }
+
+The shape of these cloud events and the actions that trigger these cloud events are still subject to change.
+Currently these events are sent directly to a configured webhook, but in the future it will
+be possible to route these cloud events via Open Notificaties as well.
 
 Endpoints
 ---------
@@ -73,6 +105,14 @@ Attributes
     * ``relevanteAndereZaken.overigeRelatie`` is added
     * ``relevanteAndereZaken.toelichting`` is added
     * ``opschorting.eerdereOpschorting`` is added to indicate whether or not a `Zaak` has been suspended in the past
+    * ``laatstGemuteerd`` is added to indicate when the latest Status change happened for the Zaak
+    * ``laatstGeopend`` is added to indicate when the Zaak was last opened/seen by the end user (citizen)
+    * ``betalingsindicatie`` has new enum values, the original values have been marked as deprecated
+
+        * ``gefactureerd``: Invoice order sent
+        * ``gecrediteerd``: Credit order sent
+        * ``betaald``: Payment established (for example via online checkout with direct application)
+        * ``nvt``: No costs involved
 
 Query parameters
 ----------------
@@ -171,7 +211,7 @@ Query parameters
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
     * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
 
-* ``/api/v1/zaakobjecttypen/`` endpoint. Added new parameters:
+* ``/api/v1/zaakobjecttypen`` endpoint. Added new parameters:
     * ``status`` – filter ZaakObjectType by concept status: "concept", "definitief", or "alles"
 
 * ``/api/v1/zaaktypen`` endpoint. Added new parameters:
