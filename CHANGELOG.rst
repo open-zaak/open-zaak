@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.26.0 (TBD)
-------------
+1.26.0 (2025-12-01)
+-------------------
 
 .. warning::
 
@@ -32,6 +32,103 @@ Changelog
 
     For detailed configuration, see :ref:`Admin OIDC Configuration Step  <ref_step_mozilla_django_oidc_db.setup_configuration.steps.AdminOIDCConfigurationStep>`.
     Make sure to check which fields are marked as ``DEPRECATED`` and replace them with the fields that are mentioned as replacements.
+
+**New features**
+
+* [:open-api-framework:`152`] Add Open Telemetry support
+
+  .. note::
+
+    The OpenTelemetry SDK is **enabled by default**.
+
+    If you do not have an endpoint to send system telemetry to, update your deployment to **disable it** by setting the environment variable:
+
+    .. code-block:: bash
+
+        OTEL_SDK_DISABLED=true
+
+    If this is not done, warnings will be emitted to the container logs. The application will continue to function normally.
+
+    All available metrics and details can be found in the :ref:`Observability documentation <installation_observability_index>`.
+
+* [:open-api-framework:`188`] Add CSV option to ``dump_data.sh`` script (see :ref:`scripts` for more information)
+* [:open-zaak:`2219`] Add support for oauth2 when making requests to external services
+* [:open-zaak:`1621`] Add the ability to add a Zaaktype to an already published Besluittype
+  (by adding a ``besluittypen`` field to the Zaaktype admin)
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`2203`] Add ``omschrijving__icontains`` query parameter on ``/api/v1/informatieobjecttypen``
+* [:open-zaak:`2204`] Add ``omschrijving__icontains`` and ``identificatie__icontains`` query parameters on ``/api/v1/zaaktypen``
+* [:open-zaak:`2178`] Add ``status`` query parameter to ``/api/v1/zaakobjecttypen``
+* [:open-zaak:`2194`] Add simplified ``Zaak.betalingsindicatie`` enum values and deprecate the old values
+
+  * ``gefactureerd``: Invoice order sent
+  * ``gecrediteerd``: Credit order sent
+  * ``betaald``: Payment established (for example via online checkout with direct application)
+  * ``nvt``: No costs involved
+
+* [:open-zaak:`2179`] Add ``laatstGemuteerd`` and ``laatstGeopend`` fields for Zaak
+* [:open-zaak:`2179`] Emit cloud events when creating a Zaak, deleting a Zaak and setting a new Status for a Zaak (see :ref:`cloud_events`)
+
+  * ``zaak-gemuteerd``: when creating a Zaak or setting a new Status for a Zaak
+  * ``zaak-verwijderd``: when deleting a Zaak
+  * ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
+
+.. warning::
+
+  Cloud events are still under active development, hence they are disabled by default and considered not ready for production use!
+
+**Bugfixes/QOL**
+
+* [:open-zaak:`1925`] Make sure ``zaken.geforceerd-bijwerken`` scope enables adding a Besluit to a closed Zaak
+* [:open-zaak:`1878`] Fix OAS for gegevensgroepen (e.g. nested objects like ``Rol.contactpersoonRol``) to be in line with reference OAS
+
+  * Serialize gegevensgroepen as ``null`` if all of the values inside it are empty or ``null``
+  * Make sure fields inside gegevensgroepen that are optional in the reference OAS are also optional in Open Zaak
+
+* [:commonground-api-common:`134`] Ensure API errors are sent to Sentry
+* [:open-zaak:`2239`] Fix bug which made it impossible to create a Rol with ``betrokkeneType=niet_natuurlijk_persoon`` with a ``verblijfsadres``
+* [:open-zaak:`2215`] Raise proper 400 errors when supplying the wrong resource type in API calls
+* [:open-zaak:`2200`] Fix dark mode on application authorisations admin page
+* [:commonground-api-common:`127`] Regenerate API schema for ``innNnpId`` and ``inpBsn`` fields (``min_length`` was changed from 0 to 9)
+* [:open-zaak:`2140`] Make sure GET on zaaktype returns ``broncatalogus`` and ``bronzaaktype`` fields
+
+**Maintenance**
+
+* [:open-api-framework:`191`] Upgrade nodejs to v24
+* Upgrade python dependencies
+
+  * [:open-zaak:`2219`] ``zgw-consumers`` to 1.1.0 and install oauth2 deps
+  * ``pip`` to 25.3
+  * ``django`` to 5.2.8
+  * [:open-zaak:`1878` / :open-zaak:`2191`] ``commonground-api-common`` to 2.10.5
+  * ``open-api-framework`` to 0.13.2
+  * [:open-api-framework:`176`] ``django-setup-configuration`` to 0.11.0
+  * [:open-api-framework:`176`] ``mozilla-django-oidc-db`` to 1.1.0
+  * ``uwsgi`` to 2.0.31
+  * Add OTel dependencies
+
+* Upgrade nodejs dependencies
+
+  * ``js-yaml`` to 4.1.1
+
+* [:open-api-framework:`188`] Update frontend base Docker image to trixie-slim
+* [:open-api-workflows:`32`] upgrade CodeQL action to v4
+* [:open-zaak:`1908`] Remove deprecated CMIS integration & references
+* [:open-api-workflows:`30`] add API design rules spectral ruleset and make changes to conform to rules
+* [:open-api-framework:`163`] Integrate ``maykin-common``
+
+  * New template for the landing page
+  * Remove duplicate classes and functions that are already exists in the library
+
+* Change log level from WARNING to DEBUG for log event when making request to service without configured authentication
+
+
+**Documentation**
+
+* Update configuration steps documentation for Open Notificaties API
+* Revise PG hardware requirements and performance metrics
 
 1.25.0 (2025-10-03)
 -------------------
