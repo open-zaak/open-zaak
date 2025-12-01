@@ -298,6 +298,11 @@ Changelog
   that when running with 2 replicas and 4 processes for example, there will effectively be 8
   connection pools with the above settings. See :ref:`database_connections` for more information.
 
+  **Experimental:** — connection pooling is *not yet recommended for production use*.
+  It may not behave as expected when running uWSGI with multiple processes or threads.
+  Use this feature cautiously and test thoroughly before deployment.
+  See the :ref:`documentation <database_connections>` for details.
+
 **Experimental features** (see :ref:`api_experimental`)
 
 * [:open-zaak:`1148`] Add ``/substatussen`` endpoint for new ``Substatus`` resource
