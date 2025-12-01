@@ -47,6 +47,15 @@ attrs==21.4.0
     #   requests-cache
 autopep8==2.3.2
     # via django-silk
+azure-core==1.36.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   azure-storage-blob
+azure-storage-blob==12.27.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 babel==2.16.0
     # via
     #   -c requirements/ci.txt
@@ -181,6 +190,7 @@ cryptography==44.0.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   azure-storage-blob
     #   django-simple-certmanager
     #   josepy
     #   mozilla-django-oidc
@@ -231,6 +241,7 @@ django==5.2.8
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-storages
     #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
@@ -404,6 +415,10 @@ django-solo==2.0.0
     #   django-log-outgoing-requests
     #   notifications-api-common
     #   zgw-consumers
+django-storages==1.14.6
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 django-structlog==9.1.1
     # via
     #   -c requirements/ci.txt
@@ -598,6 +613,11 @@ iso639-lang==2.6.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   commonground-api-common
+isodate==0.7.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   azure-storage-blob
 itypes==1.2.0
     # via
     #   -c requirements/ci.txt
@@ -1010,6 +1030,7 @@ requests==2.32.4
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
     #   ape-pie
+    #   azure-core
     #   codecov
     #   commonground-api-common
     #   coreapi
@@ -1188,6 +1209,8 @@ typing-extensions==4.12.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   anyio
+    #   azure-core
+    #   azure-storage-blob
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db
