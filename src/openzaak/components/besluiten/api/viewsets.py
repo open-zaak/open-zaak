@@ -33,6 +33,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils.api import delete_remote_oio
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
@@ -42,6 +43,7 @@ from openzaak.utils.views import AuditTrailViewSet
 
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
+from .cloudevents import BESLUIT_VERWERKT
 from .filters import BesluitFilter, BesluitInformatieObjectFilter
 from .kanalen import KANAAL_BESLUITEN
 from .permissions import BesluitAuthRequired, BesluitVerwerkenAuthRequired
@@ -448,4 +450,10 @@ class BesluitVerwerkenViewSet(
             besluitinformatieobjecten_urls=[
                 bio["url"] for bio in serializer.data["besluitinformatieobjecten"]
             ],
+        )
+
+        process_cloudevent(
+            type=BESLUIT_VERWERKT,
+            subject=str(data["besluit"].uuid),
+            data={},  # TODO
         )
