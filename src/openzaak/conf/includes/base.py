@@ -546,3 +546,51 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 # Note: the LOGIN_URL Django setting is not used because you could have
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
+
+#
+# DOCUMENTEN API AZURE BLOB STORAGE INTEGRATION
+#
+DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE = config(
+    "DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE",
+    default=False,
+    cast=bool,
+    help_text=(
+        "Indicates whether or not Azure Blob Storage should be used instead of the "
+        "regular filesystem storage to store the content of "
+        "EnkelvoudigInformatieObjecten in the Documenten API."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+# TODO support all options and document precedence?
+# TODO documenten prefix or not?
+AZURE_CONNECTION_STRING = config(
+    "DOCUMENTEN_AZURE_CONNECTION_STRING",
+    help_text=(
+        "Connection string that is used to authenticate with Azure blob storage."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CONTAINER = config(
+    "DOCUMENTEN_AZURE_CONTAINER",
+    "oz-documenten",
+    help_text=(
+        "Name of the Azure blob storage container where the content of Documenten will be stored."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_LOCATION = config(
+    "DOCUMENTEN_AZURE_LOCATION",
+    "oz-documenten",
+    help_text=("Location where the uploaded Documenten content will be stored."),
+    group="Documenten API Azure Blob Storage",
+)
+
+# TODO might be needed?
+# AZURE_UPLOAD_MAX_CONN
+# AZURE_CONNECTION_TIMEOUT_SECS
+# AZURE_BLOB_MAX_MEMORY_SIZE
+# AZURE_TOKEN_CREDENTIAL = ""
+# AZURE_SAS_TOKEN = ""
+# AZURE_CUSTOM_DOMAIN
+# AZURE_OVERWRITE_FILES
+# AZURE_CLIENT_OPTIONS (needed for api version)

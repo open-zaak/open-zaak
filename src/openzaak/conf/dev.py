@@ -32,6 +32,17 @@ os.environ.setdefault("NUM_PROXIES", "0")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 os.environ.setdefault("OTEL_EXPORTER_OTLP_METRICS_INSECURE", "true")
 
+# Well-known authentication key to connect with Azurite
+os.environ.setdefault(
+    "DOCUMENTEN_AZURE_CONNECTION_STRING",
+    (
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+        "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+        "BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+    ),
+)
+os.environ.setdefault("DOCUMENTEN_AZURE_CONTAINER", "my-container")
+
 from .includes.base import *  # noqa isort:skip
 
 #
