@@ -1,0 +1,130 @@
+interactions:
+- request:
+    body: some data
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:NH9YPeadH4DCyLZVw1y77Z+IVkg4GirLO1PZHEdxvbQ=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9'
+      Content-Type:
+      - application/octet-stream
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
+      x-ms-blob-content-type:
+      - application/octet-stream
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 19c04cc1-cf7e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: PUT
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/some-file.bin?timeout=20
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      content-md5:
+      - HlAhCgICSX+3m8OLat5sNA==
+      date:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      etag:
+      - '"0x22C6C0C7822EBC0"'
+      last-modified:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      x-ms-client-request-id:
+      - 19c04cc1-cf7e-11f0-b763-f4289da6022f
+      x-ms-request-id:
+      - dd3d2e3e-bbea-4d9b-ab7c-82fb76b9244f
+      x-ms-request-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:mmD5zgPgLEHSJKTG4KK7kAallCruhcvCjzHUD3eehfw=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 19c04cc2-cf7e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      x-ms-range:
+      - bytes=0-33554431
+      x-ms-version:
+      - '2025-11-05'
+    method: GET
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/some-file.bin?timeout=20
+  response:
+    body:
+      string: some data
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '9'
+      content-range:
+      - bytes 0-8/9
+      content-type:
+      - application/octet-stream
+      date:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      etag:
+      - '"0x22C6C0C7822EBC0"'
+      last-modified:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      x-ms-blob-content-md5:
+      - HlAhCgICSX+3m8OLat5sNA==
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 19c04cc2-cf7e-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Tue, 02 Dec 2025 12:54:55 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - 1483765f-33c4-4c06-a84c-a682c9ae71c9
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 206
+      message: Partial Content
+version: 1
