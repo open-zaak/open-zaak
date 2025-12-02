@@ -31,6 +31,11 @@ ZAAK_GEMUTEERD = "nl.overheid.zaken.zaak-gemuteerd"
 ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
 ZAAK_GEKOPPELD = "nl.overheid.zaken.zaak-gekoppeld"
 ZAAK_ONTKOPPELD = "nl.overheid.zaken.zaak-ontkoppeld"
+ZAAK_GEREGISTREERD = "nl.overheid.zaken.zaak-geregistreerd"
+ZAAK_OPGESCHORT = "nl.overheid.zaken.zaak-opgeschort"
+ZAAK_BIJGEWERKT = "nl.overheid.zaken.zaak-bijgewerkt"
+ZAAK_VERLENGD = "nl.overheid.zaken.zaak-verlengd"
+ZAAK_AFGESLOTEN = "nl.overheid.zaken.zaak-afgesloten"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:

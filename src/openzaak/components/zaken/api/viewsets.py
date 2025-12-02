@@ -19,7 +19,6 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.cloudevents import process_cloudevent
 from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
@@ -61,6 +60,7 @@ from openzaak.utils.api import (
     delete_remote_objectverzoek,
     delete_remote_oio,
 )
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -95,7 +95,13 @@ from ..models import (
 )
 from .audits import AUDIT_ZRC
 from .cloud_events import (
+    ZAAK_AFGESLOTEN,
+    ZAAK_BIJGEWERKT,
+    ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
+    ZAAK_GEREGISTREERD,
+    ZAAK_OPGESCHORT,
+    ZAAK_VERLENGD,
     ZAAK_VERWIJDEREN,
     CloudEventCreateMixin,
     send_zaak_cloudevent,
@@ -2113,7 +2119,7 @@ class ZaakRegistrerenViewset(
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.zaak-geregistreerd",
+            type=ZAAK_GEREGISTREERD,
             subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
@@ -2264,7 +2270,7 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.zaak-opgeschort",
+            type=ZAAK_OPGESCHORT,
             subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
@@ -2391,7 +2397,7 @@ class ZaakBijwerkenViewset(
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
         )
         process_cloudevent(
-            type="nl.overheid.zaken.zaak-bijgewerkt",
+            type=ZAAK_BIJGEWERKT,
             subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
@@ -2459,7 +2465,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.zaak-verlengt",
+            type=ZAAK_VERLENGD,
             subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )
@@ -2497,7 +2503,7 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
         )
 
         process_cloudevent(
-            type="nl.overheid.zaken.zaak-afgesloten",
+            type=ZAAK_AFGESLOTEN,
             subject=serializer.data["zaak"]["uuid"],
             data={},  # TODO
         )

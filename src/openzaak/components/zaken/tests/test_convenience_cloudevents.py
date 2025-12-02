@@ -30,6 +30,13 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
+from ..api.cloud_events import (
+    ZAAK_AFGESLOTEN,
+    ZAAK_BIJGEWERKT,
+    ZAAK_GEREGISTREERD,
+    ZAAK_OPGESCHORT,
+    ZAAK_VERLENGD,
+)
 from ..models import Zaak
 from .factories import ZaakFactory
 from .test_rol import BETROKKENE
@@ -45,7 +52,7 @@ from .utils import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test")
+@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
 class ZaakConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
@@ -155,7 +162,7 @@ class ZaakConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.zaken.zaak-geregistreerd",
+                "type": ZAAK_GEREGISTREERD,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
@@ -196,7 +203,7 @@ class ZaakConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.zaken.zaak-opgeschort",
+                "type": ZAAK_OPGESCHORT,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
@@ -245,7 +252,7 @@ class ZaakConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.zaken.zaak-bijgewerkt",
+                "type": ZAAK_BIJGEWERKT,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
@@ -286,7 +293,7 @@ class ZaakConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.zaken.zaak-verlengt",
+                "type": ZAAK_VERLENGD,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
@@ -325,7 +332,7 @@ class ZaakConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.zaken.zaak-afgesloten",
+                "type": ZAAK_AFGESLOTEN,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
@@ -333,3 +340,39 @@ class ZaakConvenienceCloudEventTest(
                 "data": {},
             }
         )
+
+    def test_cloudevent_not_send(self, mock_send_cloudevent):
+        url = reverse(
+            "zaakbijwerken",
+            kwargs={
+                "uuid": self.zaak.uuid,
+            },
+        )
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "status": {
+                "statustype": self.statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        with (
+            self.subTest("enable cloudevents false"),
+            override_settings(ENABLE_CLOUD_EVENTS=False),
+        ):
+            response = self.client.post(url, data)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            mock_send_cloudevent.assert_not_called()
+
+        with (
+            self.subTest("no notifcation source"),
+            override_settings(ENABLE_CLOUD_EVENTS=True, NOTIFICATIONS_SOURCE=""),
+        ):
+            data["status"]["datumStatusGezet"] = "2011-01-01T00:00:01"
+
+            response = self.client.post(url, data)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            mock_send_cloudevent.assert_not_called()

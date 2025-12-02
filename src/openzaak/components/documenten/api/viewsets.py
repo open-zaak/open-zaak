@@ -19,7 +19,6 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.cloudevents import process_cloudevent
 from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -51,6 +50,7 @@ from openzaak.import_data.views import (
 from openzaak.notifications.viewsets import (
     MultipleNotificationMixin,
 )
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -84,6 +84,7 @@ from ..models import (
     Verzending,
 )
 from .audits import AUDIT_DRC
+from .cloudevents import DOCUMENT_GEREGISTREERD
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter,
@@ -1218,7 +1219,7 @@ class DocumentRegistrerenViewSet(
         )
 
         process_cloudevent(
-            type="nl.overheid.documenten.document-geregistreerd",
+            type=DOCUMENT_GEREGISTREERD,
             subject=str(data["enkelvoudiginformatieobject"].uuid),
             data={},  # TODO
         )

@@ -537,18 +537,11 @@ ENABLE_CLOUD_EVENTS = config(
     help_text="**EXPERIMENTAL**: indicates whether or not cloud events should be sent to the configured endpoint for specific operations on Zaak (not ready for use in production)",
 )
 
-CLOUDEVENT_SPECVERSION = config(
-    "CLOUDEVENT_SPECVERSION",
-    default="1.0",
-    add_to_docs=False,
-    help_text="**EXPERIMENTAL**: the spec version to use for cloud events",
-)
-
 NOTIFICATIONS_SOURCE = config(
     "NOTIFICATIONS_SOURCE",
     default="",
     add_to_docs=False,
-    help_text="**EXPERIMENTAL**: the identifier of this application to use as the source in notifications",
+    help_text="**EXPERIMENTAL**: the identifier of this application to use as the source in notifications and cloudevents",
 )
 
 #

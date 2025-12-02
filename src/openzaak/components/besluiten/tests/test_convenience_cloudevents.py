@@ -18,6 +18,7 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
+from ..api.cloudevents import BESLUIT_VERWERKT
 from ..constants import VervalRedenen
 from ..models import Besluit
 
@@ -29,7 +30,7 @@ from ..models import Besluit
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test")
+@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
 class BesluitConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
@@ -87,7 +88,7 @@ class BesluitConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.besluiten.besluit-verwerkt",
+                "type": BESLUIT_VERWERKT,
                 "subject": str(besluit.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
