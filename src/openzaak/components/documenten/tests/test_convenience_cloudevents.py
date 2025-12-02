@@ -22,6 +22,7 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
+from ..api.cloudevents import DOCUMENT_GEREGISTREERD
 from ..models import EnkelvoudigInformatieObject
 from .utils import (
     get_operation_url,
@@ -35,7 +36,7 @@ from .utils import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test")
+@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
 class DocumentConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
@@ -93,7 +94,7 @@ class DocumentConvenienceCloudEventTest(
                 "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
                 "source": settings.NOTIFICATIONS_SOURCE,
                 "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": "nl.overheid.documenten.document-geregistreerd",
+                "type": DOCUMENT_GEREGISTREERD,
                 "subject": str(document.uuid),
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
