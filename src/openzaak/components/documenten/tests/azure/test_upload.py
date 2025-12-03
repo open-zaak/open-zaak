@@ -29,11 +29,11 @@ from ...api.scopes import (
 )
 from ...models import EnkelvoudigInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory
-from ..mixins import AzureBlobStorageMixin
 from ..utils import get_operation_url, split_file
+from .mixins import AzureBlobStorageMixin
 
 
-@tag("gh-2217")
+@tag("gh-2217", "azure-storage")
 @override_settings(
     DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE=True,
     # TODO see if there is a cleaner way to make sure cassettes match
@@ -547,7 +547,7 @@ class SmallFileUpload(JWTAuthMixin, VCRMixin, AzureBlobStorageMixin, APITestCase
         self.assertNotEqual(eio.bestandsomvang, eio_new.bestandsomvang)
 
 
-@tag("gh-2217")
+@tag("gh-2217", "azure-storage")
 @override_settings(
     DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE=True,
     # TODO see if there is a cleaner way to make sure cassettes match

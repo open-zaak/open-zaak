@@ -1,6 +1,6 @@
 from django.utils.functional import LazyObject
 
-from ..storage import documenten_storage
+from ...storage import documenten_storage
 
 
 class AzureBlobStorageMixin:

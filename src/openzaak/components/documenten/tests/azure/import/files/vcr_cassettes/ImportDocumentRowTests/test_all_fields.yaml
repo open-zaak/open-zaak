@@ -1,33 +1,33 @@
 interactions:
 - request:
-    body: null
+    body: all fields
     headers:
       Accept:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:nco0trfzZvUwSe2cg0F9F3DlHULwNwEIAM76OS3xM8s=
+      - SharedKey devstoreaccount1:sRCEdbg5F/3IgrF4qKyWHt60C5mfzA21TJAu1sXaq+0=
       Connection:
       - keep-alive
       Content-Length:
-      - '0'
+      - '10'
       Content-Type:
       - application/octet-stream
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
-      - application/octet-stream
+      - text/plain
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - a041b288-d036-11f0-b763-f4289da6022f
+      - 9a33f200-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/empty_file?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/documenten/uploads/2025/12/foobar.txt?timeout=20
   response:
     body:
       string: ''
@@ -41,17 +41,17 @@ interactions:
       Server:
       - Azurite-Blob/3.35.0
       content-md5:
-      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      - 0Z/SbkbbQS/tG4uU0xTrww==
       date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       etag:
-      - '"0x1E856E77EFB61F0"'
+      - '"0x22E87517288D7E0"'
       last-modified:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       x-ms-client-request-id:
-      - a041b288-d036-11f0-b763-f4289da6022f
+      - 9a33f200-d036-11f0-b763-f4289da6022f
       x-ms-request-id:
-      - d0b77ec7-e7bb-4e5b-bd86-04d2360b608b
+      - 753bf3ff-4c54-4396-8168-c92ee9a0b2e5
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -67,48 +67,66 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:a+8KOizh0g+u3g5lO6Sn5pBt9MEC4ytt3YotLSoU7zk=
+      - SharedKey devstoreaccount1:YbGOkTVjG4Q9U6EitC9JxSK/WoqCJ1lFEnsE7W9x6bI=
       Connection:
       - keep-alive
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - a041b289-d036-11f0-b763-f4289da6022f
+      - 9a33f201-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       x-ms-range:
       - bytes=0-33554431
       x-ms-version:
       - '2025-11-05'
     method: GET
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/empty_file?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/documenten/uploads/2025/12/foobar.txt?timeout=20
   response:
     body:
-      string: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Error>\n
-        \ <Code>InvalidRange</Code>\n  <Message>The range specified is invalid for
-        the current size of the resource.\nRequestId:2ab1405c-9d0a-477e-96c2-a9255ee62652\nTime:2025-12-03T10:55:48.663Z</Message>\n</Error>"
+      string: all fields
     headers:
       Connection:
       - keep-alive
-      Content-Range:
-      - bytes */0
-      Date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
       Keep-Alive:
       - timeout=5
       Server:
       - Azurite-Blob/3.35.0
-      Transfer-Encoding:
-      - chunked
+      accept-ranges:
+      - bytes
+      content-length:
+      - '10'
+      content-range:
+      - bytes 0-9/10
       content-type:
-      - application/xml
-      x-ms-error-code:
-      - InvalidRange
+      - text/plain
+      date:
+      - Wed, 03 Dec 2025 10:55:38 GMT
+      etag:
+      - '"0x22E87517288D7E0"'
+      last-modified:
+      - Wed, 03 Dec 2025 10:55:38 GMT
+      x-ms-blob-content-md5:
+      - 0Z/SbkbbQS/tG4uU0xTrww==
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 9a33f201-d036-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Wed, 03 Dec 2025 10:55:38 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
       x-ms-request-id:
-      - 2ab1405c-9d0a-477e-96c2-a9255ee62652
+      - cdb7038d-b396-49ac-85a3-d6863c5dadd2
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
     status:
-      code: 416
-      message: The range specified is invalid for the current size of the resource.
+      code: 206
+      message: Partial Content
 - request:
     body: null
     headers:
@@ -117,19 +135,19 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:xJyub6ByiAHjfxuUO/y4xVwg8uwSGL3sgVWP4nWtGJ4=
+      - SharedKey devstoreaccount1:7VC1RUjEQ2GU4COPE2DhnRR/TxOvYX78N6NuFBEWMSM=
       Connection:
       - keep-alive
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - a041b28a-d036-11f0-b763-f4289da6022f
+      - 9a33f202-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       x-ms-version:
       - '2025-11-05'
-    method: GET
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/empty_file?timeout=20
+    method: HEAD
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/documenten/uploads/2025/12/foobar.txt
   response:
     body:
       string: ''
@@ -143,31 +161,35 @@ interactions:
       accept-ranges:
       - bytes
       content-length:
-      - '0'
+      - '10'
       content-md5:
-      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      - 0Z/SbkbbQS/tG4uU0xTrww==
       content-type:
-      - application/octet-stream
+      - text/plain
       date:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       etag:
-      - '"0x1E856E77EFB61F0"'
+      - '"0x22E87517288D7E0"'
       last-modified:
-      - Wed, 03 Dec 2025 10:55:48 GMT
-      x-ms-blob-content-md5:
-      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      - Wed, 03 Dec 2025 10:55:38 GMT
+      x-ms-access-tier:
+      - Hot
+      x-ms-access-tier-change-time:
+      - Wed, 03 Dec 2025 10:55:38 GMT
+      x-ms-access-tier-inferred:
+      - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - a041b28a-d036-11f0-b763-f4289da6022f
+      - 9a33f202-d036-11f0-b763-f4289da6022f
       x-ms-creation-time:
-      - Wed, 03 Dec 2025 10:55:48 GMT
+      - Wed, 03 Dec 2025 10:55:38 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - 043dd75b-6af0-4312-8c19-7fe0e6c18095
+      - cc7eacf6-3b2e-4df5-88be-1bafa2f763f0
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:

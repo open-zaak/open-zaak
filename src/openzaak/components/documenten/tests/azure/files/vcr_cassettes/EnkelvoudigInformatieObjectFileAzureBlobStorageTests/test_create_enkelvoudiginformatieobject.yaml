@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:DNQG0R2Xlz7SU1H6Qp1fA5f8aGdHoGLCfQ5PmOKoYG4=
+      - SharedKey devstoreaccount1:l85twO7Sa+zvKO2VRp8QWtqngJnasZHoor10LM1NISE=
       Connection:
       - keep-alive
       Content-Length:
@@ -21,13 +21,13 @@ interactions:
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 19c04cbc-cf7e-11f0-b763-f4289da6022f
+      - 9d850f48-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Tue, 02 Dec 2025 12:54:55 GMT
+      - Wed, 03 Dec 2025 10:55:43 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/40959945-eb82-4b44-b48e-4f96fa33f8f7.bin?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/40959945-eb82-4b44-b48e-4f96fa33f8f7.bin?timeout=20
   response:
     body:
       string: ''
@@ -43,15 +43,15 @@ interactions:
       content-md5:
       - iLV68LPBXaud2kmhz5UCDg==
       date:
-      - Tue, 02 Dec 2025 12:54:55 GMT
+      - Wed, 03 Dec 2025 10:55:43 GMT
       etag:
-      - '"0x23F193EF6AA0D00"'
+      - '"0x1D0A0A539AE20C0"'
       last-modified:
-      - Tue, 02 Dec 2025 12:54:55 GMT
+      - Wed, 03 Dec 2025 10:55:43 GMT
       x-ms-client-request-id:
-      - 19c04cbc-cf7e-11f0-b763-f4289da6022f
+      - 9d850f48-d036-11f0-b763-f4289da6022f
       x-ms-request-id:
-      - 5dc603b0-8857-4a57-8a44-919fb9f5ca76
+      - 989187f6-3611-4bb1-a3e5-55e68aafc8ac
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:

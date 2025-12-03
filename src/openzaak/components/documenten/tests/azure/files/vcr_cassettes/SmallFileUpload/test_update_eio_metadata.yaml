@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:2wOOT5UkobMkVFIA7+ir1HVdq0ceo6jWTwfkbouetSQ=
+      - SharedKey devstoreaccount1:XdZmmWCa/FempcezcozDQMcurzNzKpRhnZP4W4dtV80=
       Connection:
       - keep-alive
       Content-Length:
@@ -21,13 +21,13 @@ interactions:
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 1c979647-cf7e-11f0-b763-f4289da6022f
+      - a041b28f-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/filename.bin?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/filename.bin?timeout=20
   response:
     body:
       string: ''
@@ -43,15 +43,15 @@ interactions:
       content-md5:
       - gdyb21LQTcIANtvYMT7QVQ==
       date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       etag:
-      - '"0x230AC37863EE060"'
+      - '"0x1E5BB353EFCF300"'
       last-modified:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-client-request-id:
-      - 1c979647-cf7e-11f0-b763-f4289da6022f
+      - a041b28f-d036-11f0-b763-f4289da6022f
       x-ms-request-id:
-      - 74b56d45-dab8-418a-b377-864ca15d0c0b
+      - f8bad779-7d7b-4d33-b7dd-1ff425b4ba35
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -67,19 +67,19 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:i1jZmrGNGXc1C91GeMjTNrq4AdxlPF9BTidAmepHo7I=
+      - SharedKey devstoreaccount1:oGnfYw4IvkRJvDqpKNiwDbHnth1ExqW2BrsllqeFkC4=
       Connection:
       - keep-alive
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 1c979648-cf7e-11f0-b763-f4289da6022f
+      - a041b290-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-version:
       - '2025-11-05'
     method: HEAD
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/filename.bin?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/filename.bin?timeout=20
   response:
     body:
       string: ''
@@ -99,29 +99,29 @@ interactions:
       content-type:
       - application/octet-stream
       date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       etag:
-      - '"0x230AC37863EE060"'
+      - '"0x1E5BB353EFCF300"'
       last-modified:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 1c979648-cf7e-11f0-b763-f4289da6022f
+      - a041b290-d036-11f0-b763-f4289da6022f
       x-ms-creation-time:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - 21f8ec08-9edb-4cab-9cb7-a8ebfd227c15
+      - 8b25f6a8-3317-4e3f-ac51-f3579414ccc4
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -137,21 +137,21 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:WauWCOhEUnKiUjl79Wok3dFE/pW2BY3nvHW2LotfxrQ=
+      - SharedKey devstoreaccount1:Gtkh1Uj3Z7wofDF2SJH0Em04Nek76EySrmT/EVLYVJM=
       Connection:
       - keep-alive
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 1c979649-cf7e-11f0-b763-f4289da6022f
+      - a041b291-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-range:
       - bytes=0-33554431
       x-ms-version:
       - '2025-11-05'
     method: GET
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/filename.bin?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/filename.bin?timeout=20
   response:
     body:
       string: '1234'
@@ -171,25 +171,25 @@ interactions:
       content-type:
       - application/octet-stream
       date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       etag:
-      - '"0x230AC37863EE060"'
+      - '"0x1E5BB353EFCF300"'
       last-modified:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-blob-content-md5:
       - gdyb21LQTcIANtvYMT7QVQ==
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 1c979649-cf7e-11f0-b763-f4289da6022f
+      - a041b291-d036-11f0-b763-f4289da6022f
       x-ms-creation-time:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - e9e60216-f239-4cc0-9a55-eb7f7e1fa8b2
+      - 2ce60c65-3c83-4dec-a4a2-816280fb3bfd
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -205,21 +205,21 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - SharedKey devstoreaccount1:2YXYGkeaNa5BaVg6aQxrtLKOJ3htqTzPudYMza+L9x0=
+      - SharedKey devstoreaccount1:wwtYdqw5nrxYeZVEgCtdpnLk8M3qMZU6ozCQuxnu6Hk=
       Connection:
       - keep-alive
       User-Agent:
       - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1016-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 1c97964a-cf7e-11f0-b763-f4289da6022f
+      - a041b292-d036-11f0-b763-f4289da6022f
       x-ms-date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-range:
       - bytes=0-33554431
       x-ms-version:
       - '2025-11-05'
     method: GET
-    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/oz-documenten/uploads/2025/12/filename.bin?timeout=20
+    uri: http://127.0.0.1:10000/devstoreaccount1/my-container/documenten/uploads/2025/12/filename.bin?timeout=20
   response:
     body:
       string: '1234'
@@ -239,25 +239,25 @@ interactions:
       content-type:
       - application/octet-stream
       date:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       etag:
-      - '"0x230AC37863EE060"'
+      - '"0x1E5BB353EFCF300"'
       last-modified:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-blob-content-md5:
       - gdyb21LQTcIANtvYMT7QVQ==
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 1c97964a-cf7e-11f0-b763-f4289da6022f
+      - a041b292-d036-11f0-b763-f4289da6022f
       x-ms-creation-time:
-      - Tue, 02 Dec 2025 12:55:01 GMT
+      - Wed, 03 Dec 2025 10:55:49 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - 9464a788-6f93-4054-876c-a9be45f84966
+      - b670ca6e-3340-4334-a6dc-fa00a4c33560
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:

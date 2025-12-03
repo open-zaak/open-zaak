@@ -31,15 +31,15 @@ from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
-from ..mixins import AzureBlobStorageMixin
 from ..utils import get_operation_url
+from .mixins import AzureBlobStorageMixin
 
 
 # TODO test deletes?
 # TODO test updates?
 # TODO test different settings
 # TODO tests for bulk import
-@tag("gh-2217")
+@tag("gh-2217", "azure-storage")
 @override_settings(
     SENDFILE_BACKEND="django_sendfile.backends.simple",
     DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE=True,
