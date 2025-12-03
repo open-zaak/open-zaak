@@ -38,6 +38,24 @@ from openzaak.utils.fields import get_default_path
 logger = structlog.stdlib.get_logger(__name__)
 
 
+def copy_file_to_storage(src: Path, dst: Path) -> None:
+    default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
+    storage = EnkelvoudigInformatieObject.inhoud.field.storage
+
+    # TODO is this needed for Azure too?
+    if not settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE and not default_dir.exists():
+        default_dir.mkdir(parents=True)
+
+    # TODO can't we directly send stuff to azure
+    # TODO or do it in bulk?
+    # TODO How to deal with metadata?
+    if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+        with open(src, "rb") as file:
+            storage.save(str(dst), file)
+    else:
+        shutil.copy2(src, dst)
+
+
 def _import_document_row(
     row: list[str],
     row_index: int,
@@ -231,11 +249,8 @@ def _import_document_row(
     default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
     import_path = default_dir / path.name
 
-    if not default_dir.exists():
-        default_dir.mkdir(parents=True)
-
     try:
-        shutil.copy2(path, import_path)
+        copy_file_to_storage(path, import_path)
     except Exception as e:
         error_message = f"Unable to copy file for row {row_index}: \n {str(e)}"
 

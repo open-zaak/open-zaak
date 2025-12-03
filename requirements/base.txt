@@ -23,6 +23,12 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
+azure-core==1.36.0
+    # via
+    #   azure-storage-blob
+    #   django-storages
+azure-storage-blob==12.27.1
+    # via django-storages
 billiard==4.2.1
     # via celery
 bleach==6.2.0
@@ -78,6 +84,7 @@ cron-descriptor==1.4.3
     # via django-celery-beat
 cryptography==44.0.1
     # via
+    #   azure-storage-blob
     #   django-simple-certmanager
     #   josepy
     #   mozilla-django-oidc
@@ -114,6 +121,7 @@ django==5.2.8
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-storages
     #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
@@ -213,6 +221,8 @@ django-solo==2.0.0
     #   django-log-outgoing-requests
     #   notifications-api-common
     #   zgw-consumers
+django-storages==1.14.6
+    # via -r requirements/base.in
 django-structlog==9.1.1
     # via open-api-framework
 django-timezone-field==7.0
@@ -289,6 +299,8 @@ inflection==0.5.1
     # via drf-spectacular
 iso639-lang==2.6.0
     # via commonground-api-common
+isodate==0.7.2
+    # via azure-storage-blob
 itypes==1.2.0
     # via coreapi
 jinja2==3.1.6
@@ -467,6 +479,7 @@ regex==2024.11.6
 requests==2.32.4
     # via
     #   ape-pie
+    #   azure-core
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
@@ -517,6 +530,8 @@ tornado==6.5.1
     # via flower
 typing-extensions==4.12.2
     # via
+    #   azure-core
+    #   azure-storage-blob
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db

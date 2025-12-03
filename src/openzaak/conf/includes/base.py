@@ -546,3 +546,96 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 # Note: the LOGIN_URL Django setting is not used because you could have
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
+
+#
+# DOCUMENTEN API AZURE BLOB STORAGE INTEGRATION
+#
+DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE = config(
+    "DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE",
+    default=False,
+    cast=bool,
+    help_text=(
+        "Indicates whether or not Azure Blob Storage should be used instead of the "
+        "regular filesystem storage to store the content of "
+        "EnkelvoudigInformatieObjecten in the Documenten API."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+# TODO support all options and document precedence?
+# TODO remove prefixes?
+AZURE_CONNECTION_STRING = config(
+    "DOCUMENTEN_AZURE_CONNECTION_STRING",
+    "",
+    help_text=(
+        "Connection string that is used to authenticate with Azure blob storage. "
+        "See https://learn.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string "
+        "for more information about Azure Storage connection strings."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_ACCOUNT_KEY = config(
+    "DOCUMENTEN_AZURE_ACCOUNT_KEY",
+    "",
+    help_text=(
+        "Private key used (together with `DOCUMENTEN_AZURE_ACCOUNT_NAME`) "
+        "to authenticate with Azure blob storage."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_ACCOUNT_NAME = config(
+    "DOCUMENTEN_AZURE_ACCOUNT_NAME",
+    "",
+    help_text=("Account name used to authenticate with Azure blob storage."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_TOKEN_CREDENTIAL = config(
+    "DOCUMENTEN_AZURE_TOKEN_CREDENTIAL",
+    "",
+    help_text=(
+        "Token credential used (together with `DOCUMENTEN_AZURE_ACCOUNT_NAME`) "
+        "to authenticate with Azure blob storage."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_SAS_TOKEN = config(
+    "DOCUMENTEN_AZURE_SAS_TOKEN",
+    "",
+    help_text=("Shared access signature used to authenticate with Azure blob storage."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CONTAINER = config(
+    "DOCUMENTEN_AZURE_CONTAINER",
+    "openzaak",
+    help_text=(
+        "Name of the Azure blob storage container where the content of Documenten will be stored."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_LOCATION = config(
+    "DOCUMENTEN_AZURE_LOCATION",
+    "documenten",
+    help_text=("Location where the uploaded Documenten content will be stored."),
+    group="Documenten API Azure Blob Storage",
+)
+
+# TODO might be needed?
+# AZURE_UPLOAD_MAX_CONN
+# AZURE_CONNECTION_TIMEOUT_SECS
+# AZURE_BLOB_MAX_MEMORY_SIZE
+
+AZURE_STORAGE_API_VERSION = config(
+    "DOCUMENTEN_AZURE_STORAGE_API_VERSION",
+    "",
+    help_text=(
+        "The Storage API version to use for requests. Default value is the most recent "
+        "service version that is compatible with the current SDK. Setting to an older "
+        "version may result in reduced feature compatibility. "
+        "See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services "
+        "for more information."
+    ),
+    auto_display_default=False,
+    group="Documenten API Azure Blob Storage",
+)
+
+if AZURE_STORAGE_API_VERSION:
+    AZURE_CLIENT_OPTIONS = {"api_version": AZURE_STORAGE_API_VERSION}

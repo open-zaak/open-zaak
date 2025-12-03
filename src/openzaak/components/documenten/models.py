@@ -47,6 +47,7 @@ from .query.django import (
     InformatieobjectQuerySet,
     InformatieobjectRelatedQuerySet,
 )
+from .storage import documenten_storage
 from .validators import validate_status
 
 __all__ = [
@@ -340,6 +341,7 @@ class EnkelvoudigInformatieObject(
     )
     inhoud = PrivateMediaFileField(
         upload_to="uploads/%Y/%m/",
+        storage=documenten_storage,
     )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
