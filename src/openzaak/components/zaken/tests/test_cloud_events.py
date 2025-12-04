@@ -19,6 +19,7 @@ from requests.exceptions import Timeout
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
+    Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
     RolOmschrijving,
     RolTypes,
@@ -32,7 +33,6 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.tests.factories import (
-    CatalogusFactory,
     InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     RolTypeFactory,
@@ -200,7 +200,10 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
     def test_cloud_event_client_error_retry(self, m, retry_mock, mock_send, mock_uuid):
         """
         Verify that a retry is called when the sending of the notification didn't
-        succeed due to an invalid response
+        succeed due to an invalid response.
+
+        This test now triggers cloud events via POST on /statussen,
+        since zaak-gemuteerd is ONLY emitted for new Status creation.
         """
         config = NotificationsConfig.get_solo()
         config.notification_delivery_max_retries = 3
@@ -216,22 +219,44 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "verantwoordelijkeOrganisatie": "000000000",
             "registratiedatum": "2012-01-13",
             "startdatum": "2012-01-13",
-            "toelichting": "Een stel dronken toeristen speelt versterkte "
-            "muziek af vanuit een gehuurde boot.",
+            "toelichting": "Een stel dronken toeristen speelt versterkte muziek af.",
             "zaakgeometrie": {
                 "type": "Point",
                 "coordinates": [4.910649523925713, 52.37240093589432],
             },
         }
 
-        # 1. check that notification task is called
+        response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        zaak = ZaakFactory.create()
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            zaaktype=zaak.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        )
+        statustype_url = f"http://testserver{reverse('statustype-detail', kwargs={'uuid': statustype.uuid})}"
+
+        status_request_data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2020-05-28",
+        }
+
+        status_url = get_operation_url("status_create")
+
         with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+            status_response = self.client.post(
+                status_url, status_request_data, **ZAAK_WRITE_KWARGS
+            )
+        self.assertEqual(status_response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        data = response.data
-        zaak = Zaak.objects.get()
         message = {
             "id": "627a7fd2-6b9a-4963-8723-6ce7650f37c0",
             "specversion": "1.0",
@@ -243,8 +268,6 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "data": {},
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
-
-        self.assertEqual(str(zaak.uuid), data["uuid"])
 
         mock_send.assert_called_with(message)
 
@@ -258,8 +281,10 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
     def test_cloud_event_timeout_retry(self, m, retry_mock, mock_send, mock_uuid):
         """
-        Verify that a retry is called when the sending of the notification didn't
-        succeed due to an invalid response
+        Verify that a retry is called when sending the notification times out.
+
+        This test now triggers cloud events via POST on /statussen,
+        since zaak-gemuteerd is ONLY emitted for new Status creation.
         """
         config = NotificationsConfig.get_solo()
         config.notification_delivery_max_retries = 3
@@ -268,6 +293,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
+
         request_data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -275,22 +301,48 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "verantwoordelijkeOrganisatie": "000000000",
             "registratiedatum": "2012-01-13",
             "startdatum": "2012-01-13",
-            "toelichting": "Een stel dronken toeristen speelt versterkte "
-            "muziek af vanuit een gehuurde boot.",
+            "toelichting": "Een stel dronken toeristen speelt versterkte muziek af.",
             "zaakgeometrie": {
                 "type": "Point",
-                "coordinates": [4.910649523925713, 52.37240093589432],
+                "coordinates": [4.9106495, 52.3724009],
             },
         }
 
-        # 1. check that notification task is called
+        response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        zaak = ZaakFactory.create()
+
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        resultaattype = ResultaatTypeFactory.create(
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+            archiefactietermijn="P10Y",
+            archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            zaaktype=zaak.zaaktype,
+        )
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        status_url = get_operation_url("status_create")
+        zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        )
+        statustype_url = f"http://testserver{reverse('statustype-detail', kwargs={'uuid': statustype.uuid})}"
+
+        status_request_data = {
+            "zaak": zaak_url,
+            "statustype": statustype_url,
+            "datumStatusGezet": "2020-05-28",
+        }
+
         with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
+            status_response = self.client.post(
+                status_url,
+                status_request_data,
+                **ZAAK_WRITE_KWARGS,
+            )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(status_response.status_code, status.HTTP_201_CREATED)
 
-        data = response.data
-        zaak = Zaak.objects.get()
         message = {
             "id": "627a7fd2-6b9a-4963-8723-6ce7650f37c0",
             "specversion": "1.0",
@@ -302,8 +354,6 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "data": {},
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
-
-        self.assertEqual(str(zaak.uuid), data["uuid"])
 
         mock_send.assert_called_with(message)
 
@@ -318,44 +368,6 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-
-    def test_patch_zaak_sends_zaak_gemuteerd_cloud_event(self):
-        zaak = ZaakFactory.create()
-
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.patch(
-                reverse(zaak),
-                {"toelichting": "Updated toelichting"},
-                **ZAAK_WRITE_KWARGS,
-            )
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, zaak, mock_send)
-
-            args, kwargs = mock_send.call_args
-
-            self.assertEqual(len(args), 1)
-            self.assertEqual(len(kwargs), 0)
-
-            event_payload = args[0]
-
-            self.assertIn("id", event_payload)
-
-            event_payload_copy = dict(event_payload)
-            event_payload_copy.pop("id", None)
-
-            expected_payload = {
-                "specversion": "1.0",
-                "type": ZAAK_GEMUTEERD,
-                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
-                "subject": str(zaak.uuid),
-                "dataref": reverse(zaak),
-                "datacontenttype": "application/json",
-                "data": {},
-                "time": "2025-09-23T12:00:00Z",
-            }
-
-            self.assertEqual(event_payload_copy, expected_payload)
-            self.assertIn("id", event_payload)
 
     def test_delete_zaak_sends_zaak_verwijderd_cloud_event(self):
         zaak = ZaakFactory.create()
@@ -379,63 +391,6 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             expected_payload = {
                 "specversion": "1.0",
                 "type": ZAAK_VERWIJDEREN,
-                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
-                "subject": str(zaak.uuid),
-                "dataref": reverse(zaak),
-                "datacontenttype": "application/json",
-                "data": {},
-                "time": "2025-09-23T12:00:00Z",
-            }
-
-            self.assertEqual(event_payload_copy, expected_payload)
-            self.assertIn("id", event_payload)
-
-    def test_create_zaak_sends_zaak_gemuteerd_cloud_event(self):
-        catalogus = CatalogusFactory.create()
-        zaaktype = ZaakTypeFactory.create(
-            uuid="4f2aa64b-eb42-491f-ba48-e27e8f66716c",
-            catalogus=catalogus,
-            concept=False,
-        )
-
-        with patch_send_cloud_event() as mock_send:
-            zaaktype_url = reverse(zaaktype)
-
-            response = self.client.post(
-                reverse("zaak-list"),
-                data={
-                    "zaaktype": f"http://testserver{zaaktype_url}",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "registratiedatum": "2018-12-24",
-                    "startdatum": "2018-12-24",
-                    "productenOfDiensten": ["https://example.com/product/123"],
-                },
-                format="json",
-                **ZAAK_WRITE_KWARGS,
-            )
-
-            zaak = Zaak.objects.get()
-
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, zaak, mock_send)
-
-            args, kwargs = mock_send.call_args
-
-            self.assertEqual(len(args), 1)
-            self.assertEqual(len(kwargs), 0)
-
-            event_payload = args[0]
-
-            zaak = Zaak.objects.get(uuid=response.data["uuid"])
-
-            event_payload_copy = dict(event_payload)
-            event_payload_copy.pop("id", None)
-
-            expected_payload = {
-                "specversion": "1.0",
-                "type": ZAAK_GEMUTEERD,
                 "source": "urn:nld:oin:00000001823288444000:zakensysteem",
                 "subject": str(zaak.uuid),
                 "dataref": reverse(zaak),
