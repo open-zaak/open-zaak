@@ -93,7 +93,6 @@ from ..models import (
 )
 from .audits import AUDIT_ZRC
 from .cloud_events import (
-    ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
     CloudEventCreateMixin,
@@ -433,7 +432,6 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(zaak.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -486,8 +484,6 @@ class ZaakViewSet(
             and len(serializer.validated_data) == 1
         ):
             send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
-        else:
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak, self.request)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():

@@ -35,9 +35,13 @@ Cloud events
 Sending of cloud events is still under development and **NOT** suited for production use,
 but currently Open Zaak can emit the following cloud events if configured:
 
-* ``zaak-gemuteerd``: when creating a Zaak or setting a new Status for a Zaak
+* ``zaak-gemuteerd``: currently only emitted via POST on /statussen when creating a new Status for a Zaak
 * ``zaak-verwijderd``: when deleting a Zaak
 * ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
+
+.. warning::
+
+   In order to make sure that cloud events are only sent when the initial Zaak is "complete" (meaning that it has all the required resources to be considered a valid Zaak, such as a Rol for the `initiator`), the assumption is made that the initial Status will only be set by client applications once the initial Zaak is complete (meaning that the Rollen already exist before adding the Status). No validation exists for this currently, but in the future this will likely be enforced via validation on the API endpoints.
 
 Example of a ``zaak-gemuteerd`` cloud event in its current shape:
 
