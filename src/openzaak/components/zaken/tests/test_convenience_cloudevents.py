@@ -30,7 +30,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..api.cloud_events import (
+from ..api.cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
     ZAAK_GEREGISTREERD,

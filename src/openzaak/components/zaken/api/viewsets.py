@@ -89,7 +89,7 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
-from .cloud_events import (
+from .cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
     ZAAK_GEMUTEERD,
@@ -433,7 +433,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(zaak.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -484,9 +484,9 @@ class ZaakViewSet(
             and "laatst_geopend" in serializer.validated_data
             and len(serializer.validated_data) == 1
         ):
-            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
+            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak)
         else:
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak, self.request)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():
@@ -527,7 +527,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance, self.request)
+        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance)
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(
