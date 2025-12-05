@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from typing import Dict, List, Optional, Union
 
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -59,6 +60,7 @@ from openzaak.utils.api import (
     delete_remote_objectverzoek,
     delete_remote_oio,
 )
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -92,9 +94,14 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
-from .cloud_events import (
+from .cloudevents import (
+    ZAAK_AFGESLOTEN,
+    ZAAK_BIJGEWERKT,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
+    ZAAK_GEREGISTREERD,
+    ZAAK_OPGESCHORT,
+    ZAAK_VERLENGD,
     ZAAK_VERWIJDEREN,
     CloudEventCreateMixin,
     send_zaak_cloudevent,
@@ -433,7 +440,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             zaaktype=str(zaak.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
 
     @transaction.atomic()
     def _generate_zaakidentificatie(self, data: dict):
@@ -485,9 +492,9 @@ class ZaakViewSet(
             and "laatst_geopend" in serializer.validated_data
             and len(serializer.validated_data) == 1
         ):
-            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
+            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak)
         else:
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak, self.request)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, updated_zaak)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():
@@ -529,7 +536,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance, self.request)
+        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance)
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(
@@ -2113,6 +2120,12 @@ class ZaakRegistrerenViewset(
             ],
         )
 
+        process_cloudevent(
+            type=ZAAK_GEREGISTREERD,
+            subject=serializer.data["zaak"]["uuid"],
+            data={},  # TODO
+        )
+
 
 class ZaakUpdateActionViewSet(
     MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
@@ -2258,6 +2271,12 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
             status_url=serializer.data["status"]["url"],
         )
 
+        process_cloudevent(
+            type=ZAAK_OPGESCHORT,
+            subject=serializer.data["zaak"]["uuid"],
+            data={},  # TODO
+        )
+
 
 @extend_schema_view(
     post=extend_schema(
@@ -2379,6 +2398,11 @@ class ZaakBijwerkenViewset(
             status_url=serializer.data["status"]["url"],
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
         )
+        process_cloudevent(
+            type=ZAAK_BIJGEWERKT,
+            subject=serializer.data["zaak"]["uuid"],
+            data={},  # TODO
+        )
 
     def notify(
         self,
@@ -2389,7 +2413,8 @@ class ZaakBijwerkenViewset(
         **kwargs,
     ) -> None:
         super().notify(status_code, data | {"rollen": []}, instance=instance)
-        self._message_rollen(data["rollen"], rollen_version_before_edit)
+        if not settings.NOTIFICATIONS_DISABLED:
+            self._message_rollen(data["rollen"], rollen_version_before_edit)
 
     def _message_rollen(self, rollen, rollen_version_before_edit):
         def send_rol_notification(rol, action):
@@ -2441,6 +2466,12 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
             status_url=serializer.data["status"]["url"],
         )
 
+        process_cloudevent(
+            type=ZAAK_VERLENGD,
+            subject=serializer.data["zaak"]["uuid"],
+            data={},  # TODO
+        )
+
 
 @extend_schema_view(
     post=extend_schema(
@@ -2471,6 +2502,12 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
             resultaat_url=serializer.data["resultaat"]["url"],
+        )
+
+        process_cloudevent(
+            type=ZAAK_AFGESLOTEN,
+            subject=serializer.data["zaak"]["uuid"],
+            data={},  # TODO
         )
 
     def _create_audit_logs(self, response, serializer, zaak_version_before_edit):

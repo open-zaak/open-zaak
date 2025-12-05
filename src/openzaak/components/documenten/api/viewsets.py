@@ -48,6 +48,7 @@ from openzaak.import_data.views import (
 from openzaak.notifications.viewsets import (
     MultipleNotificationMixin,
 )
+from openzaak.utils.cloudevents import process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -81,6 +82,7 @@ from ..models import (
     Verzending,
 )
 from .audits import AUDIT_DRC
+from .cloudevents import DOCUMENT_GEREGISTREERD
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter,
@@ -1210,4 +1212,10 @@ class DocumentRegistrerenViewSet(
                 "enkelvoudiginformatieobject"
             ]["url"],
             zaak_url=serializer.data["zaakinformatieobject"]["zaak"],
+        )
+
+        process_cloudevent(
+            type=DOCUMENT_GEREGISTREERD,
+            subject=str(data["enkelvoudiginformatieobject"].uuid),
+            data={},  # TODO
         )
