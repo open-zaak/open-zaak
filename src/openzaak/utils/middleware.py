@@ -50,6 +50,14 @@ def override_request_host(request: HttpRequest) -> None:
         request.__dict__.pop("_current_scheme_host", None)
 
 
+def init_csp_nonce_middleware(get_response):
+    def middleware(request):
+        str(getattr(request, "csp_nonce", None))
+        return get_response(request)
+
+    return middleware
+
+
 class OverrideHostMiddleware:
     """
     When enabled, override the raw request host information.
