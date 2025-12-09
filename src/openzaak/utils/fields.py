@@ -209,7 +209,7 @@ class NLPostcodeField(models.CharField):
 
 
 def get_default_path(field: models.FileField) -> Path:
-    storage_location = Path(field.storage.base_location)
+    storage_location = Path(field.storage.location)
     path = Path(storage_location / field.upload_to)
 
     now = timezone.now()
