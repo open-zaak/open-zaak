@@ -69,7 +69,10 @@ class ImportTestMixin(TestCase):
 
         upload_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
 
-        if not upload_dir.is_relative_to(settings.PRIVATE_MEDIA_ROOT):
+        if (
+            not settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE
+            and not upload_dir.is_relative_to(settings.PRIVATE_MEDIA_ROOT)
+        ):
             raise ValueError(
                 "Path does not seem to be relative to `PRIVATE_MEDIA_ROOT`. Not "
                 f"removing any files from {upload_dir}"
