@@ -38,6 +38,37 @@ from openzaak.utils.fields import get_default_path
 logger = structlog.stdlib.get_logger(__name__)
 
 
+def copy_file_to_storage(src: Path, dst: Path) -> str:
+    """
+    Util to copy a local file to the configured storage backend.
+    Currently supports filesystem storage and Azure blob storage.
+
+    :param src: path to the source file on disk
+    :type src: Path
+    :param dst: path where the file should be copied to in the storage backend
+    :type dst: Path
+    :return: the actual path on which the file is stored in the backend, this can be
+        different from `dst` because characters can be appended to make the filename unique
+    :rtype: str
+    """
+    default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
+    storage = EnkelvoudigInformatieObject.inhoud.field.storage
+
+    if not settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE and not default_dir.exists():
+        default_dir.mkdir(parents=True)
+
+    if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+        with open(src, "rb") as file:
+            # A file could already exist at `dst` in the storage, so the actual path
+            # to which the file ends up being saved is returned and stored on the
+            # `EnkelvoudigInformatieObject.inhoud`
+            name = storage.save(dst, file)
+        return name
+    else:
+        shutil.copy2(src, dst)
+        return str(dst)
+
+
 def _import_document_row(
     row: list[str],
     row_index: int,
@@ -231,11 +262,8 @@ def _import_document_row(
     default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
     import_path = default_dir / path.name
 
-    if not default_dir.exists():
-        default_dir.mkdir(parents=True)
-
     try:
-        shutil.copy2(path, import_path)
+        actual_import_path = copy_file_to_storage(path, import_path)
     except Exception as e:
         error_message = f"Unable to copy file for row {row_index}: \n {str(e)}"
 
@@ -249,7 +277,7 @@ def _import_document_row(
 
         return document_row
 
-    instance.inhoud.name = str(import_path)
+    instance.inhoud.name = actual_import_path
 
     document_row.instance = instance
     return document_row

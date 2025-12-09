@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db import transaction
+from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -343,6 +344,8 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
+        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+            return FileResponse(eio.inhoud.file, as_attachment=True)
         return sendfile(
             request,
             eio.inhoud.path,

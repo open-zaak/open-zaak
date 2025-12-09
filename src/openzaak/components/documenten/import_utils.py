@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2024 Dimpact
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Optional
 
 from django.utils.functional import classproperty
@@ -129,11 +128,10 @@ class DocumentRow:
         return self._bestandspad
 
     @property
-    def imported_path(self) -> Optional[Path]:
-        if not self.instance or not self.instance.inhoud.path:
+    def imported_path(self) -> Optional[str]:
+        if not self.instance or not self.instance.inhoud.name:
             return
-
-        return Path(self.instance.inhoud.path)
+        return self.instance.inhoud.name
 
     @property
     def bestandsomvang(self) -> Optional[int]:

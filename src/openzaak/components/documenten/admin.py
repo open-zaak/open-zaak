@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django import forms
+from django.conf import settings
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
@@ -27,8 +29,9 @@ from .models import (
     ObjectInformatieObject,
     Verzending,
 )
+from .storage import documenten_storage
 from .views import PrivateMediaView
-from .widgets import PrivateFileWidget
+from .widgets import AzureFileWidget, PrivateFileWidget
 
 
 @admin.register(Gebruiksrechten)
@@ -252,7 +255,12 @@ class EnkelvoudigInformatieObjectInline(
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
-    private_media_file_widget = PrivateFileWidget
+
+    @property
+    def private_media_file_widget(self):
+        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+            return AzureFileWidget
+        return PrivateFileWidget
 
 
 def unlock(modeladmin, request, queryset):
@@ -299,6 +307,19 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
 
         return cleaned_data
 
+    def clean_inhoud(self):
+        inhoud = self.cleaned_data.get("inhoud")
+        if (
+            settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE
+            and not documenten_storage.connection_check()
+        ):
+            raise ValidationError(
+                _(
+                    "Something went wrong while trying to write the file to Azure storage."
+                )
+            )
+        return inhoud
+
 
 @admin.register(EnkelvoudigInformatieObject)
 class EnkelvoudigInformatieObjectAdmin(
@@ -328,7 +349,13 @@ class EnkelvoudigInformatieObjectAdmin(
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
-    private_media_file_widget = PrivateFileWidget
+
+    @property
+    def private_media_file_widget(self):
+        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+            return AzureFileWidget
+        return PrivateFileWidget
+
     form = EnkelvoudigInformatieObjectForm
     list_select_related = ("canonical",)
 

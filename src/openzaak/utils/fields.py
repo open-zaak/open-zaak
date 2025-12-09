@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Callable, List
 
+from django.conf import settings
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core import checks, exceptions, validators
 from django.db import models
@@ -14,6 +15,7 @@ from django_loose_fk.fields import FkOrURLField
 from relativedeltafield import RelativeDeltaField
 from zgw_consumers.models import ServiceUrlField
 
+from openzaak.components.documenten.storage import AzureStorage
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 
 
@@ -209,8 +211,14 @@ class NLPostcodeField(models.CharField):
 
 
 def get_default_path(field: models.FileField) -> Path:
-    storage_location = Path(field.storage.base_location)
+    storage_location = Path(field.storage.location)
     path = Path(storage_location / field.upload_to)
+
+    # TODO cleaner way to do this?
+    if isinstance(field.storage, AzureStorage) and path.is_relative_to(
+        settings.AZURE_LOCATION
+    ):
+        path = path.relative_to(settings.AZURE_LOCATION)
 
     now = timezone.now()
     return Path(now.strftime(str(path)))
