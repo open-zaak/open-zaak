@@ -23,6 +23,15 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
+azure-core==1.36.0
+    # via
+    #   azure-identity
+    #   azure-storage-blob
+    #   django-storages
+azure-identity==1.25.1
+    # via -r requirements/base.in
+azure-storage-blob==12.27.1
+    # via django-storages
 billiard==4.2.1
     # via celery
 bleach==6.2.0
@@ -80,9 +89,13 @@ cron-descriptor==1.4.3
     # via django-celery-beat
 cryptography==44.0.1
     # via
+    #   azure-identity
+    #   azure-storage-blob
     #   django-simple-certmanager
     #   josepy
     #   mozilla-django-oidc
+    #   msal
+    #   pyjwt
     #   pyopenssl
     #   webauthn
 deprecation==2.1.0
@@ -118,6 +131,7 @@ django==5.2.8
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-storages
     #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
@@ -217,6 +231,8 @@ django-solo==2.0.0
     #   django-log-outgoing-requests
     #   notifications-api-common
     #   zgw-consumers
+django-storages==1.14.6
+    # via -r requirements/base.in
 django-structlog==9.1.1
     # via open-api-framework
 django-timezone-field==7.0
@@ -293,6 +309,8 @@ inflection==0.5.1
     # via drf-spectacular
 iso639-lang==2.6.0
     # via commonground-api-common
+isodate==0.7.2
+    # via azure-storage-blob
 itypes==1.2.0
     # via coreapi
 jinja2==3.1.6
@@ -323,6 +341,12 @@ mozilla-django-oidc==4.0.1
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==1.1.0
     # via open-api-framework
+msal==1.34.0
+    # via
+    #   azure-identity
+    #   msal-extensions
+msal-extensions==1.3.1
+    # via azure-identity
 nh3==0.3.0
     # via textile
 notifications-api-common==0.10.0
@@ -427,6 +451,7 @@ pygments==2.19.2
 pyjwt==2.10.1
     # via
     #   commonground-api-common
+    #   msal
     #   zgw-consumers
 pyopenssl==25.0.0
     # via
@@ -472,10 +497,12 @@ regex==2024.11.6
 requests==2.32.4
     # via
     #   ape-pie
+    #   azure-core
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
     #   mozilla-django-oidc
+    #   msal
     #   open-api-framework
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-cache
@@ -522,6 +549,9 @@ tornado==6.5.1
     # via flower
 typing-extensions==4.12.2
     # via
+    #   azure-core
+    #   azure-identity
+    #   azure-storage-blob
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db

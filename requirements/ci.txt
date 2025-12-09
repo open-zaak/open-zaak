@@ -40,6 +40,20 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
+azure-core==1.36.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   azure-identity
+    #   azure-storage-blob
+azure-identity==1.25.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+azure-storage-blob==12.27.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 babel==2.16.0
     # via sphinx
 beautifulsoup4==4.10.0
@@ -154,9 +168,13 @@ cryptography==44.0.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   azure-identity
+    #   azure-storage-blob
     #   django-simple-certmanager
     #   josepy
     #   mozilla-django-oidc
+    #   msal
+    #   pyjwt
     #   pyopenssl
     #   webauthn
 cssselect==1.2.0
@@ -202,6 +220,7 @@ django==5.2.8
     #   django-simple-certmanager
     #   django-sniplates
     #   django-solo
+    #   django-storages
     #   django-structlog
     #   django-timezone-field
     #   django-two-factor-auth
@@ -369,6 +388,10 @@ django-solo==2.0.0
     #   django-log-outgoing-requests
     #   notifications-api-common
     #   zgw-consumers
+django-storages==1.14.6
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 django-structlog==9.1.1
     # via
     #   -c requirements/base.txt
@@ -533,6 +556,11 @@ iso639-lang==2.6.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   commonground-api-common
+isodate==0.7.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   azure-storage-blob
 itypes==1.2.0
     # via
     #   -c requirements/base.txt
@@ -595,6 +623,17 @@ mozilla-django-oidc-db==1.1.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
+msal==1.34.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   azure-identity
+    #   msal-extensions
+msal-extensions==1.3.1
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   azure-identity
 multidict==6.1.0
     # via yarl
 nh3==0.3.0
@@ -794,6 +833,7 @@ pyjwt==2.10.1
     #   -r requirements/base.txt
     #   -r requirements/performance-tests.in
     #   commonground-api-common
+    #   msal
     #   zgw-consumers
 pyopenssl==25.0.0
     # via
@@ -892,11 +932,13 @@ requests==2.32.4
     #   -r requirements/base.txt
     #   -r requirements/performance-tests.in
     #   ape-pie
+    #   azure-core
     #   codecov
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
     #   mozilla-django-oidc
+    #   msal
     #   open-api-framework
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-cache
@@ -1026,6 +1068,9 @@ typing-extensions==4.12.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+    #   azure-core
+    #   azure-identity
+    #   azure-storage-blob
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db
