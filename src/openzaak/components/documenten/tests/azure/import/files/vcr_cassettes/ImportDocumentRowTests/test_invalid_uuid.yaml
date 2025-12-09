@@ -1,0 +1,42 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:3j9Bu+8CXMDqxUz/sX/ZcmjXpHtGe0wH2apOWeHLh84=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 5658495f-dc27-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Thu, 18 Dec 2025 15:36:36 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: HEAD
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/foo5.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Date:
+      - Thu, 18 Dec 2025 15:36:36 GMT
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      x-ms-error-code:
+      - BlobNotFound
+      x-ms-request-id:
+      - d47ce7c9-f858-4bb8-ae22-94854808703a
+    status:
+      code: 404
+      message: The specified blob does not exist.
+version: 1
