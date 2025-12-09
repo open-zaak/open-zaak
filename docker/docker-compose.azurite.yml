@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite
+    ports:
+      - "10000:10000"  # Blob service
+      - "10001:10001"  # Queue service
+      - "10002:10002"  # Table service
+    volumes:
+      - azurite_data:/data
+    command: >
+      azurite
+      --blobHost 0.0.0.0
+      --queueHost 0.0.0.0
+      --tableHost 0.0.0.0
+      --location /data
+      --debug /data/debug.log
+
+  init-storage:
+    image: mcr.microsoft.com/azure-cli
+    depends_on:
+      - azurite
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+          sleep 5
+
+          export AZURE_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
+
+          echo "Using connection string:"
+          echo "$AZURE_STORAGE_CONNECTION_STRING"
+
+          az storage container create \
+            --name openzaak \
+            --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+
+volumes:
+  azurite_data:
