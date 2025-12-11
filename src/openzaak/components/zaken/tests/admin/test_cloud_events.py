@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
 from unittest.mock import Mock
 
 from django.contrib.admin.sites import AdminSite
