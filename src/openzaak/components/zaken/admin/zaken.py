@@ -7,6 +7,12 @@ from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.components.zaken.api.cloud_events import (
+    ZAAK_GEMUTEERD,
+    ZAAK_GEOPEND,
+    ZAAK_VERWIJDEREN,
+    send_zaak_cloudevent,
+)
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -110,6 +116,11 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
     inlines = [SubStatusForStatusInline]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change:
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, obj.zaak, request)
 
 
 @admin.register(SubStatus)
@@ -806,3 +817,21 @@ class ZaakAdmin(
                 )
             )
         )
+
+    def save_model(self, request, obj, form, change):
+        laatst_geopend_changed = False
+        if change:
+            try:
+                obj_before = Zaak.objects.get(pk=obj.pk)
+                laatst_geopend_changed = obj_before.laatst_geopend != obj.laatst_geopend
+            except Zaak.DoesNotExist:
+                pass
+
+        super().save_model(request, obj, form, change)
+
+        if laatst_geopend_changed:
+            send_zaak_cloudevent(ZAAK_GEOPEND, obj, request)
+
+    def delete_model(self, request, obj):
+        super().delete_model(request, obj)
+        send_zaak_cloudevent(ZAAK_VERWIJDEREN, obj, request)
