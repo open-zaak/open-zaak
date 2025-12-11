@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
 from openzaak.components.catalogi.tests.factories import StatusTypeFactory
@@ -17,13 +17,6 @@ from ..test_cloud_events import CloudEventSettingMixin, patch_send_cloud_event
 
 
 class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls._override = override_settings(ENABLE_CLOUD_EVENTS=True)
-        cls._override.enable()
-
     def setUp(self):
         super().setUp()
         self.user = get_user_model().objects.create_superuser(
