@@ -66,6 +66,8 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
+cloudevents==1.12.0
+    # via -r requirements/base.in
 commonground-api-common==2.10.5
     # via
     #   -r requirements/base.in
@@ -83,6 +85,8 @@ cryptography==44.0.1
     #   mozilla-django-oidc
     #   pyopenssl
     #   webauthn
+deprecation==2.1.0
+    # via cloudevents
 dictdiffer==0.9.0
     # via -r requirements/base.in
 django==5.2.8
@@ -384,6 +388,7 @@ oyaml==1.0
     # via commonground-api-common
 packaging==24.0
     # via
+    #   deprecation
     #   django-csp
     #   kombu
     #   opentelemetry-instrumentation
