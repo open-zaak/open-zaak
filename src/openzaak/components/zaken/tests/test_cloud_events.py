@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from django.db.models import Model
 from django.test import override_settings, tag
@@ -12,6 +12,8 @@ from django.utils import timezone
 
 import requests_mock
 from celery.exceptions import Retry
+from cloudevents.conversion import to_dict
+from cloudevents.http import CloudEvent
 from freezegun import freeze_time
 from furl import furl
 from notifications_api_common.models import NotificationsConfig
@@ -46,10 +48,13 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.components.zaken.tests.utils import get_operation_url
 from openzaak.config.models import CloudEventConfig
+from openzaak.notifications.scopes import SCOPE_CLOUDEVENTS_BEZORGEN
+from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
 
 from ..api import cloud_events
 from ..api.cloud_events import (
+    ZAAK_GEKOPPELD,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
@@ -1177,3 +1182,297 @@ class ZaakVerlengenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+
+
+class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    scopes = [SCOPE_CLOUDEVENTS_BEZORGEN]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.zaak = ZaakFactory.create(zaaktype__concept=False)
+
+        cls.zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
+        )
+        cls.deleted_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': uuid4()})}"
+        )
+
+        from django.urls import reverse as dj_reverse
+
+        cls.endpoint = dj_reverse("cloudevent-webhook")
+
+    def test_incoming_example_event(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.zaak_url,
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+        zaak_object = self.zaak.zaakobject_set.first()
+        self.assertEqual(zaak_object.object, "https://example.com")
+        self.assertEqual(zaak_object.object_type, "overige")
+        self.assertEqual(zaak_object.object_type_overige, "example")
+        self.assertEqual(zaak_object.relatieomschrijving, "Een voorbeeld URL")
+
+    def test_incoming_unknown_zaak(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.deleted_url,
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertFalse(ZaakObject.objects.exists())
+
+    def test_incoming_unknown_zaak_urn(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": f"urn:uuid:{uuid4()}",
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertFalse(ZaakObject.objects.exists())
+
+    def test_incoming_unknown_zaak_identifier(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": "ssh://terminal.shop/",
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertFalse(ZaakObject.objects.exists())
+
+    def test_incoming_wijk_event(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.zaak_url,
+                "linkTo": "https://example.com",
+                "linkObjectType": "wijk",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+        zaak_object = self.zaak.zaakobject_set.first()
+        self.assertEqual(zaak_object.object, "https://example.com")
+        self.assertEqual(zaak_object.object_type, "wijk")
+        self.assertEqual(zaak_object.relatieomschrijving, "Een voorbeeld URL")
+
+    def test_incoming_urn_event(self):
+        event = CloudEvent(
+            {
+                "type": ZAAK_GEKOPPELD,
+                "source": "https://klant.example.com/event-producer",
+            },
+            {
+                "zaak": f"urn:uuid:{self.zaak.uuid}",
+                "linkTo": "https://example.com",
+                "linkObjectType": "wijk",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+        zaak_object = self.zaak.zaakobject_set.first()
+        self.assertEqual(zaak_object.object, "https://example.com")
+        self.assertEqual(zaak_object.object_type, "wijk")
+        self.assertEqual(zaak_object.relatieomschrijving, "Een voorbeeld URL")
+
+    def test_unauthenticated_event(self):
+        self.client.credentials()
+        response = self.client.post(
+            self.endpoint,
+            to_dict(CloudEvent({"type": "test", "source": "me"})),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_malformed_event(self):
+        response = self.client.post(
+            self.endpoint, {}, headers={"content-type": "application/cloudevents+json"}
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(
+            response.data["type"], "http://testserver/ref/fouten/ValidationError/"
+        )
+        self.assertNotIn("traceback", response.text.lower())
+        reason = response.json()["invalidParams"][0]["reason"]
+        self.assertEqual(reason, "Failed to find specversion in HTTP request")
+
+    def test_wrong_content_type(self):
+        event = CloudEvent(
+            {
+                "type": ZAAK_GEKOPPELD,
+                "source": "https://klant.example.com/event-producer",
+            },
+            {
+                "zaak": f"urn:uuid:{self.zaak.uuid}",
+                "linkTo": "https://example.com",
+                "linkObjectType": "wijk",
+                "label": "Een voorbeeld URL",
+            },
+        )
+        response = self.client.post(self.endpoint, to_dict(event))
+
+        self.assertEqual(
+            response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, response.data
+        )
+
+    def test_malformed_event_data(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {"zaak": self.zaak_url},
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        # malformed event data is not the fault of the notifier.
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertNotIn("traceback", response.text.lower())
+        self.assertFalse(self.zaak.zaakobject_set.exists())
+
+    def test_no_event_data(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            None,
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertFalse(self.zaak.zaakobject_set.exists())
+
+    def test_unknown_event(self):
+        event = CloudEvent(
+            {"type": "eventueel", "source": "https://example.com/event-producer"}, None
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertFalse(self.zaak.zaakobject_set.exists())
+
+    def test_incoming_event_for_unknown_zaak(self):
+        event = CloudEvent(
+            {"type": ZAAK_GEKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": "https://example.com/otherzaaksysteem/zaak",
+                "linkTo": "https://example.com",
+                "linkObjectType": "example",
+                "label": "Een voorbeeld URL",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED, response.data)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 0)
+
+    def test_runtime_error_in_handler(self):
+        "When something really bad happens, return 500, to trigger a retry"
+
+        @CloudEventWebhook.register_handler
+        def raise_error(event):
+            raise RuntimeError("Something really bad happened")
+
+        self.addCleanup(lambda: CloudEventWebhook.handlers.remove(raise_error))
+
+        event = CloudEvent(
+            {"type": "eventueel", "source": "https://example.com/event-producer"}, None
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR, response.data
+        )
+        self.assertFalse(self.zaak.zaakobject_set.exists())
+        self.assertNotIn("traceback", response.text.lower())
