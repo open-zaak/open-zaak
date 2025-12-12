@@ -1,0 +1,102 @@
+interactions:
+- request:
+    body: some data
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:ZYexIXu8oRW1GVMOlBjk96HAKg/g2ocK4JIg2w09XN0=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '9'
+      Content-Type:
+      - application/octet-stream
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-blob-content-type:
+      - application/octet-stream
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 48f52c84-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:21:51 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: PUT
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/test_existing_uuid.bin?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      content-md5:
+      - HlAhCgICSX+3m8OLat5sNA==
+      date:
+      - Fri, 12 Dec 2025 15:21:51 GMT
+      etag:
+      - '"0x26F6158ECF19480"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:21:51 GMT
+      x-ms-client-request-id:
+      - 48f52c84-d76e-11f0-b763-f4289da6022f
+      x-ms-request-id:
+      - 0ea6b2c8-f781-45b5-9cba-88a9154a56ae
+      x-ms-request-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:ZVn0b6gtciL/v+lq3choBFMWhmSIF34MQwBU+/vro+8=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 48f52c85-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:21:52 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: HEAD
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/documenten/uploads/2025/12/foo6.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Date:
+      - Fri, 12 Dec 2025 15:21:52 GMT
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      x-ms-error-code:
+      - BlobNotFound
+      x-ms-request-id:
+      - 9e42bee8-331a-4e2b-b8a1-02082fdc6a79
+    status:
+      code: 404
+      message: The specified blob does not exist.
+version: 1

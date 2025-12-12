@@ -1,0 +1,178 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:g/ngpR5iyQi16qnAQFP/PPsPChF++y9Zf0JWqIuYIpw=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Content-Type:
+      - application/octet-stream
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-blob-content-type:
+      - application/octet-stream
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 4e803571-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: PUT
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/empty_file?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      content-md5:
+      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      etag:
+      - '"0x1C4DE572D259730"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-client-request-id:
+      - 4e803571-d76e-11f0-b763-f4289da6022f
+      x-ms-request-id:
+      - dd7c9805-1b43-4b9a-ac1c-7b5a012780bb
+      x-ms-request-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:BEwc/PO1p1JEeDW5H1iNo8BZCbQzsMTS9jcTsEwaNs0=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 4e803572-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-range:
+      - bytes=0-33554431
+      x-ms-version:
+      - '2025-11-05'
+    method: GET
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/empty_file?timeout=5
+  response:
+    body:
+      string: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Error>\n
+        \ <Code>InvalidRange</Code>\n  <Message>The range specified is invalid for
+        the current size of the resource.\nRequestId:765a51a6-947d-4863-a90f-892b4797e96e\nTime:2025-12-12T15:22:02.884Z</Message>\n</Error>"
+    headers:
+      Connection:
+      - keep-alive
+      Content-Range:
+      - bytes */0
+      Date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      Transfer-Encoding:
+      - chunked
+      content-type:
+      - application/xml
+      x-ms-error-code:
+      - InvalidRange
+      x-ms-request-id:
+      - 765a51a6-947d-4863-a90f-892b4797e96e
+    status:
+      code: 416
+      message: The range specified is invalid for the current size of the resource.
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:qKtzUB8M1tayElpxw6iAX2HBUn1EO0JelDWQ3TRYKKw=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 4e803573-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: GET
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/empty_file?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '0'
+      content-md5:
+      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      content-type:
+      - application/octet-stream
+      date:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      etag:
+      - '"0x1C4DE572D259730"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-blob-content-md5:
+      - 1B2M2Y8AsgTpgAmY7PhCfg==
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 4e803573-d76e-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Fri, 12 Dec 2025 15:22:02 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - 6ab053b1-d542-4c31-8066-ce933a9cb784
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 200
+      message: OK
+version: 1
