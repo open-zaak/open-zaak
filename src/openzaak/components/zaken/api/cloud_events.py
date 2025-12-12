@@ -5,25 +5,68 @@ from typing import Any
 from uuid import uuid4
 
 from django.conf import settings
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 
 import requests
 from celery import shared_task
+from cloudevents.http import CloudEvent
 from notifications_api_common.autoretry import add_autoretry_behaviour
+from rest_framework.exceptions import ValidationError
 from rest_framework.reverse import reverse
 from structlog.stdlib import get_logger
+from vng_api_common.constants import ZaakobjectTypes
 from zgw_consumers.client import build_client
 
+from openzaak.components.zaken.api.serializers.zaakobjecten import ZaakObjectSerializer
 from openzaak.components.zaken.models import Zaak
 from openzaak.config.models import CloudEventConfig
+from openzaak.notifications.viewsets import CloudEventWebhook
 
 logger = get_logger(__name__)
 
 ZAAK_GEOPEND = "nl.overheid.zaken.zaak-geopend"
 ZAAK_GEMUTEERD = "nl.overheid.zaken.zaak-gemuteerd"
 ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
+ZAAK_GELINKT = "nl.overheid.zaken.zaak-gelinkt"
+
+
+@CloudEventWebhook.register_handler
+def handle_zaak_gelinkt(event: CloudEvent):
+    if event["type"] != ZAAK_GELINKT:
+        return
+
+    event_data = event.get_data()
+    if not event_data:
+        # Don't shoot the messenger, just log
+        logger.warning("incoming_cloud_event_error", extra={"event": event})
+        return
+
+    object_type = (
+        {"object_type": ot}
+        if (ot := event_data.get("linkObjectType")) in ZaakobjectTypes
+        else {"object_type": ZaakobjectTypes.overige, "object_type_overige": ot}
+    )
+
+    data = ZaakObjectSerializer(
+        data={
+            "zaak": event_data.get("zaak"),
+            "object": event_data.get("linkTo"),
+            "relatieomschrijving": event_data.get("label"),
+        }
+        | object_type
+    )
+
+    try:
+        data.is_valid(raise_exception=True)
+        data.save()
+    except (ValidationError, DatabaseError) as e:
+        logger.warning(
+            "incoming_cloud_event_error",
+            extra={"event": event},
+            exc_info=e,
+        )
 
 
 @contextmanager

@@ -32,3 +32,5 @@ commonground-api-common[setup-configuration, testutils, oas]
 maykin-common[axes,mfa,otel]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
+
+cloudevents
