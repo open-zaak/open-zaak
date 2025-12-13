@@ -148,21 +148,26 @@ class ZaakBulkQuerySet(models.QuerySet):
         self._for_write = True
         objs = list(objs)
         model = objs[0]._meta.model
-        parent_model = model._meta.pk.related_model
+        # parent_model = model._meta.pk.related_model
 
-        parent_objs = []
-        for obj in objs:
-            parent_values = {}
-            for field in [f for f in parent_model._meta.fields if hasattr(obj, f.name)]:
-                parent_values[field.name] = getattr(obj, field.name)
-            parent_objs.append(parent_model(**parent_values))
-            # setattr(obj, self.model._meta.pk.attname, obj.id)
-        parent_objs = parent_model.objects.bulk_create(
-            parent_objs, batch_size=batch_size
-        )
+        # parent_objs = []
+        # for obj in objs:
+        #     parent_values = {}
+        #     try:
+        #         for field in [f for f in parent_model._meta.fields if hasattr(obj, f.name)]:
+        #             parent_values[field.name] = getattr(obj, field.name)
+        #     except Exception as e:
 
-        for obj, parent_obj in zip(objs, parent_objs):
-            setattr(obj, model._meta.pk.attname, parent_obj.id)
+        #         import pdb; pdb.set_trace()
+
+        #     parent_objs.append(parent_model(**parent_values))
+        #     # setattr(obj, self.model._meta.pk.attname, obj.id)
+        # parent_objs = parent_model.objects.bulk_create(
+        #     parent_objs, batch_size=batch_size
+        # )
+
+        # for obj, parent_obj in zip(objs, parent_objs):
+        #     setattr(obj, model._meta.pk.attname, parent_obj.id)
 
         local_fields = [f for f in model._meta.local_fields if f.column]
 
@@ -173,7 +178,7 @@ class ZaakBulkQuerySet(models.QuerySet):
 
 
 class ZaakBulk(Zaak):
-    objects_bulk = ZaakBulkQuerySet.as_manager()
+    # objects_bulk = ZaakBulkQuerySet.as_manager()
 
     class Meta:
         proxy = True
@@ -454,7 +459,7 @@ class Command(BaseCommand):
                 ],
             )
 
-            ZaakBulk.objects_bulk.bulk_create(zaken)
+            ZaakBulk.objects.bulk_create(zaken)
 
         self.stdout.write("Adding more metadata to zaken...")
 
