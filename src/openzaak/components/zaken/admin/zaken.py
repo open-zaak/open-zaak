@@ -1,17 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
+from notifications_api_common.cloudevents import (
+    process_cloudevent,
+)
+
 from openzaak.components.zaken.api.cloud_events import (
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
-    send_zaak_cloudevent,
 )
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -119,8 +123,15 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        if not change:
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, obj.zaak, request)
+        if not change and settings.ENABLE_CLOUD_EVENTS:
+            process_cloudevent(
+                type=ZAAK_GEMUTEERD,
+                subject=str(obj.uuid),
+                data={
+                    "zaak": obj.zaak.identificatie,
+                    "statustype": obj.statustype.statustype_omschrijving,
+                },
+            )
 
 
 @admin.register(SubStatus)
@@ -819,19 +830,29 @@ class ZaakAdmin(
         )
 
     def save_model(self, request, obj, form, change):
-        laatst_geopend_changed = False
-        if change:
-            try:
-                obj_before = Zaak.objects.get(pk=obj.pk)
-                laatst_geopend_changed = obj_before.laatst_geopend != obj.laatst_geopend
-            except Zaak.DoesNotExist:
-                pass
-
         super().save_model(request, obj, form, change)
 
-        if laatst_geopend_changed:
-            send_zaak_cloudevent(ZAAK_GEOPEND, obj, request)
+        if (
+            change
+            and form.changed_data == ["laatst_geopend"]
+            and settings.ENABLE_CLOUD_EVENTS
+        ):
+            process_cloudevent(
+                type=ZAAK_GEOPEND,
+                subject=str(obj.uuid),
+                data={
+                    "identificatie": obj.identificatie,
+                    "laatst_geopend": obj.laatst_geopend.isoformat(),
+                },
+            )
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
-        send_zaak_cloudevent(ZAAK_VERWIJDEREN, obj, request)
+        if settings.ENABLE_CLOUD_EVENTS:
+            process_cloudevent(
+                type=ZAAK_VERWIJDEREN,
+                subject=str(obj.uuid),
+                data={
+                    "identificatie": obj.identificatie,
+                },
+            )

@@ -1,27 +1,36 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
+from django.conf import settings
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth import get_user_model
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 
-from openzaak.components.catalogi.tests.factories import StatusTypeFactory
+from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.catalogi.tests.factories import (
+    StatusTypeFactory,
+)
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
 
 from ...api.cloud_events import ZAAK_GEMUTEERD, ZAAK_GEOPEND, ZAAK_VERWIJDEREN
 from ...models import Zaak
 from ..factories import StatusFactory, ZaakFactory
-from ..test_cloud_events import CloudEventSettingMixin, patch_send_cloud_event
+from ..test_cloud_events import (
+    CloudEventSettingMixin,
+)
 
 
+@patch("notifications_api_common.tasks.send_cloudevent.delay")
+@patch(
+    "notifications_api_common.cloudevents.uuid.uuid4",
+    lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+)
+@override_settings(NOTIFICATIONS_SOURCE="oz-test")
 class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.user = get_user_model().objects.create_superuser(
-            username="admin", email="admin@test.com", password="pass"
-        )
+        self.user = SuperUserFactory.create()
 
         self.site = AdminSite()
         self.admin = ZaakAdmin(Zaak, self.site)
@@ -29,24 +38,61 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
 
         self.zaak = ZaakFactory.create()
 
-    def test_admin_delete_zaak_triggers_cloud_event(self):
+    def test_admin_delete_zaak_triggers_cloud_event(self, mock_send_cloudevent):
         request = self.factory.get("/")
         request.user = self.user
-        with patch_send_cloud_event() as mock_send:
-            self.admin.delete_model(request=request, obj=self.zaak)
-            self.assert_cloud_event_sent(ZAAK_VERWIJDEREN, self.zaak, mock_send)
 
-    def test_admin_update_laatst_geopend_triggers_cloud_event(self):
+        self.admin.delete_model(request=request, obj=self.zaak)
+
+        self.assertEqual(mock_send_cloudevent.call_count, 1)
+
+        mock_send_cloudevent.assert_called_once_with(
+            {
+                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                "source": settings.NOTIFICATIONS_SOURCE,
+                "specversion": settings.CLOUDEVENT_SPECVERSION,
+                "type": ZAAK_VERWIJDEREN,
+                "subject": str(self.zaak.uuid),
+                "time": "2025-09-23T12:00:00Z",
+                "dataref": None,
+                "datacontenttype": "application/json",
+                "data": {
+                    "identificatie": "ZAAK-2025-0000000001",
+                },
+            }
+        )
+
+    def test_admin_update_laatst_geopend_triggers_cloud_event(
+        self, mock_send_cloudevent
+    ):
         self.zaak.laatst_geopend = timezone.now()
         request = self.factory.post("/")
         request.user = self.user
-        with patch_send_cloud_event() as mock_send:
-            self.admin.save_model(
-                request=request, obj=self.zaak, form=Mock(), change=True
-            )
-            self.assert_cloud_event_sent(ZAAK_GEOPEND, self.zaak, mock_send)
+        form = Mock()
+        form.changed_data = ["laatst_geopend"]
 
-    def test_admin_add_status_triggers_zaak_gemuteerd(self):
+        self.admin.save_model(request=request, obj=self.zaak, form=form, change=True)
+
+        self.assertEqual(mock_send_cloudevent.call_count, 1)
+
+        mock_send_cloudevent.assert_called_once_with(
+            {
+                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                "source": settings.NOTIFICATIONS_SOURCE,
+                "specversion": settings.CLOUDEVENT_SPECVERSION,
+                "type": ZAAK_GEOPEND,
+                "subject": str(self.zaak.uuid),
+                "time": "2025-09-23T12:00:00Z",
+                "dataref": None,
+                "datacontenttype": "application/json",
+                "data": {
+                    "identificatie": "ZAAK-2025-0000000001",
+                    "laatst_geopend": "2025-09-23T12:00:00+00:00",
+                },
+            }
+        )
+
+    def test_admin_add_status_triggers_zaak_gemuteerd(self, mock_send_cloudevent):
         statustype = StatusTypeFactory.create(zaaktype=self.zaak.zaaktype)
         status = StatusFactory.build(zaak=self.zaak, statustype=statustype)
 
@@ -54,6 +100,30 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
         request.user = self.user
 
         admin = StatusAdmin(status._meta.model, AdminSite())
-        with patch_send_cloud_event() as mock_send:
+        with self.subTest("Status change False"):
             admin.save_model(request=request, obj=status, form=Mock(), change=False)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+
+            self.assertEqual(mock_send_cloudevent.call_count, 1)
+
+            mock_send_cloudevent.assert_called_once_with(
+                {
+                    "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                    "source": settings.NOTIFICATIONS_SOURCE,
+                    "specversion": settings.CLOUDEVENT_SPECVERSION,
+                    "type": ZAAK_GEMUTEERD,
+                    "subject": str(status.uuid),
+                    "time": "2025-09-23T12:00:00Z",
+                    "dataref": None,
+                    "datacontenttype": "application/json",
+                    "data": {
+                        "zaak": str(status.zaak),
+                        "statustype": str(status.statustype),
+                    },
+                }
+            )
+
+        mock_send_cloudevent.reset_mock()
+
+        with self.subTest("Status change True"):
+            admin.save_model(request=request, obj=status, form=Mock(), change=True)
+            self.assertEqual(mock_send_cloudevent.call_count, 0)
