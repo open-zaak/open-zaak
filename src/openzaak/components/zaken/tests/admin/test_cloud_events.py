@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase, override_settings
 
+from vng_api_common.tests import reverse
+
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
@@ -53,7 +55,7 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                 "type": ZAAK_VERWIJDEREN,
                 "subject": str(self.zaak.uuid),
                 "time": "2025-09-23T12:00:00Z",
-                "dataref": self.zaak.get_absolute_api_url(),
+                "dataref": reverse(self.zaak),
                 "datacontenttype": "application/json",
                 "data": {},
             }
@@ -78,9 +80,9 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                     "source": settings.NOTIFICATIONS_SOURCE,
                     "specversion": settings.CLOUDEVENT_SPECVERSION,
                     "type": ZAAK_GEMUTEERD,
-                    "subject": str(status.uuid),
+                    "subject": str(self.zaak.uuid),
                     "time": "2025-09-23T12:00:00Z",
-                    "dataref": status.get_absolute_api_url(),
+                    "dataref": reverse(self.zaak),
                     "datacontenttype": "application/json",
                     "data": {},
                 }

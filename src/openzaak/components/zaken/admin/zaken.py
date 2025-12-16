@@ -121,13 +121,13 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     inlines = [SubStatusForStatusInline]
 
     def save_model(self, request, obj, form, change):
-        dataref = obj.get_absolute_api_url()
+        dataref = obj.zaak.get_absolute_api_url()
 
         super().save_model(request, obj, form, change)
         if not change and settings.ENABLE_CLOUD_EVENTS:
             process_cloudevent(
                 type=ZAAK_GEMUTEERD,
-                subject=str(obj.uuid),
+                subject=str(obj.zaak.uuid),
                 dataref=dataref,
                 data={},
             )
