@@ -55,9 +55,7 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                 "time": "2025-09-23T12:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {
-                    "identificatie": "ZAAK-2025-0000000001",
-                },
+                "data": {},
             }
         )
 
@@ -84,10 +82,7 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                     "time": "2025-09-23T12:00:00Z",
                     "dataref": None,
                     "datacontenttype": "application/json",
-                    "data": {
-                        "zaak": str(status.zaak),
-                        "statustype": str(status.statustype),
-                    },
+                    "data": {},
                 }
             )
 

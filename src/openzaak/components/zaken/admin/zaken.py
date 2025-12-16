@@ -126,10 +126,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
             process_cloudevent(
                 type=ZAAK_GEMUTEERD,
                 subject=str(obj.uuid),
-                data={
-                    "zaak": obj.zaak.identificatie,
-                    "statustype": obj.statustype.statustype_omschrijving,
-                },
+                data={},
             )
 
 
@@ -834,7 +831,5 @@ class ZaakAdmin(
             process_cloudevent(
                 type=ZAAK_VERWIJDEREN,
                 subject=str(obj.uuid),
-                data={
-                    "identificatie": obj.identificatie,
-                },
+                data={},
             )
