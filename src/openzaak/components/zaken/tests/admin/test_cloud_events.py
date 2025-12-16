@@ -53,7 +53,7 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                 "type": ZAAK_VERWIJDEREN,
                 "subject": str(self.zaak.uuid),
                 "time": "2025-09-23T12:00:00Z",
-                "dataref": None,
+                "dataref": self.zaak.get_absolute_api_url(),
                 "datacontenttype": "application/json",
                 "data": {},
             }
@@ -80,7 +80,7 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                     "type": ZAAK_GEMUTEERD,
                     "subject": str(status.uuid),
                     "time": "2025-09-23T12:00:00Z",
-                    "dataref": None,
+                    "dataref": status.get_absolute_api_url(),
                     "datacontenttype": "application/json",
                     "data": {},
                 }

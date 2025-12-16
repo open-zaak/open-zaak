@@ -121,11 +121,14 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     inlines = [SubStatusForStatusInline]
 
     def save_model(self, request, obj, form, change):
+        dataref = obj.get_absolute_api_url()
+
         super().save_model(request, obj, form, change)
         if not change and settings.ENABLE_CLOUD_EVENTS:
             process_cloudevent(
                 type=ZAAK_GEMUTEERD,
                 subject=str(obj.uuid),
+                dataref=dataref,
                 data={},
             )
 
@@ -826,10 +829,13 @@ class ZaakAdmin(
         )
 
     def delete_model(self, request, obj):
+        dataref = obj.get_absolute_api_url()
+
         super().delete_model(request, obj)
         if settings.ENABLE_CLOUD_EVENTS:
             process_cloudevent(
                 type=ZAAK_VERWIJDEREN,
                 subject=str(obj.uuid),
+                dataref=dataref,
                 data={},
             )
