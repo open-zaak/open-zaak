@@ -14,7 +14,6 @@ from notifications_api_common.cloudevents import (
 
 from openzaak.components.zaken.api.cloud_events import (
     ZAAK_GEMUTEERD,
-    ZAAK_GEOPEND,
     ZAAK_VERWIJDEREN,
 )
 from openzaak.utils.admin import (
@@ -828,23 +827,6 @@ class ZaakAdmin(
                 )
             )
         )
-
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-
-        if (
-            change
-            and form.changed_data == ["laatst_geopend"]
-            and settings.ENABLE_CLOUD_EVENTS
-        ):
-            process_cloudevent(
-                type=ZAAK_GEOPEND,
-                subject=str(obj.uuid),
-                data={
-                    "identificatie": obj.identificatie,
-                    "laatst_geopend": obj.laatst_geopend.isoformat(),
-                },
-            )
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
