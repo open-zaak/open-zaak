@@ -1,12 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
+from notifications_api_common.cloudevents import (
+    process_cloudevent,
+)
+
+from openzaak.components.zaken.api.cloud_events import (
+    ZAAK_GEMUTEERD,
+    ZAAK_VERWIJDEREN,
+)
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -110,6 +119,18 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
     inlines = [SubStatusForStatusInline]
+
+    def save_model(self, request, obj, form, change):
+        dataref = obj.zaak.get_absolute_api_url()
+
+        super().save_model(request, obj, form, change)
+        if not change and settings.ENABLE_CLOUD_EVENTS:
+            process_cloudevent(
+                type=ZAAK_GEMUTEERD,
+                subject=str(obj.zaak.uuid),
+                dataref=dataref,
+                data={},
+            )
 
 
 @admin.register(SubStatus)
@@ -806,3 +827,15 @@ class ZaakAdmin(
                 )
             )
         )
+
+    def delete_model(self, request, obj):
+        dataref = obj.get_absolute_api_url()
+
+        super().delete_model(request, obj)
+        if settings.ENABLE_CLOUD_EVENTS:
+            process_cloudevent(
+                type=ZAAK_VERWIJDEREN,
+                subject=str(obj.uuid),
+                dataref=dataref,
+                data={},
+            )
