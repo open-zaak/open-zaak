@@ -9,6 +9,7 @@ from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
+from openzaak.components.zaken.models.betrokkenen import NietNatuurlijkPersoon
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
 from ..models import Medewerker, NatuurlijkPersoon, Rol
@@ -235,3 +236,54 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             response = self.client.put(created_data["url"], created_data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_update_rol_niet_natuurlijk_persoon_with_verblijfsadres(
+        self,
+    ):
+        zaak = ZaakFactory.create()
+        roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        rol = RolFactory.create(
+            zaak=zaak,
+            roltype=roltype,
+            betrokkene="",
+            betrokkene_type=RolTypes.niet_natuurlijk_persoon,
+            roltoelichting="old",
+        )
+        NietNatuurlijkPersoon.objects.create(
+            rol=rol,
+            ann_identificatie="OLD-ANN",
+        )
+
+        data = {
+            "zaak": f"http://testserver{reverse(zaak)}",
+            "betrokkeneType": RolTypes.niet_natuurlijk_persoon,
+            "roltype": f"http://testserver{reverse(roltype)}",
+            "roltoelichting": "new",
+            "indicatieMachtiging": "gemachtigde",
+            "contactpersoonRol": {
+                "emailadres": "user@example.com",
+                "telefoonnummer": "0612345678",
+                "naam": "Test Contactpersoon",
+            },
+            "betrokkeneIdentificatie": {
+                "annIdentificatie": "ANN-123",
+                "kvkNummer": "12345678",
+                "vestigingsNummer": "000012345678",
+                "statutaireNaam": "Test BV",
+                "verblijfsadres": {
+                    "aoaIdentificatie": "ADR-1",
+                    "wplWoonplaatsNaam": "Teststad",
+                    "gorOpenbareRuimteNaam": "Teststraat",
+                    "aoaPostcode": "1234AB",
+                    "aoaHuisnummer": 99999,
+                    "aoaHuisletter": "s",
+                    "aoaHuisnummertoevoeging": "stri",
+                    "inpLocatiebeschrijving": "string",
+                },
+            },
+        }
+
+        response = self.client.put(reverse(rol), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
