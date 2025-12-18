@@ -269,14 +269,16 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         help_text="Hash string, wordt gebruikt als ID voor de lock",
     )
 
+    latest_version = models.OneToOneField(
+        "EnkelvoudigInformatieObject",
+        on_delete=models.DO_NOTHING,
+        related_name="latest_version_of",
+        null=True,
+        editable=False,
+    )
+
     def __str__(self):
         return str(self.latest_version)
-
-    @property
-    def latest_version(self):
-        # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
-        versies = self.enkelvoudiginformatieobject_set.all()
-        return versies.first()
 
     def lock_document(self, doc_uuid: str) -> None:
         lock = _uuid.uuid4().hex
@@ -464,6 +466,16 @@ class EnkelvoudigInformatieObject(
 
     def has_gebruiksrechten(self):
         return self.canonical.gebruiksrechten_set.exists()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.canonical and (
+            self.canonical.latest_version is None
+            or self.canonical.latest_version.versie < self.versie
+        ):
+            self.canonical.latest_version = self
+            self.canonical.save()
 
 
 class BestandsDeel(models.Model):
