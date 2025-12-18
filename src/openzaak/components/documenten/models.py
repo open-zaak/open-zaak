@@ -467,16 +467,6 @@ class EnkelvoudigInformatieObject(
     def has_gebruiksrechten(self):
         return self.canonical.gebruiksrechten_set.exists()
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        if self.canonical and (
-            self.canonical.latest_version is None
-            or self.canonical.latest_version.versie < self.versie
-        ):
-            self.canonical.latest_version = self
-            self.canonical.save()
-
 
 class BestandsDeel(models.Model):
     uuid = models.UUIDField(

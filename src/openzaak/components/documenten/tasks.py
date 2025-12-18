@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 from django.conf import settings
 from django.core.exceptions import DisallowedHost, ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
+from django.db.models.signals import post_save
 from django.http import HttpRequest
 from django.utils import timezone
 
@@ -312,9 +313,11 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         eios = EnkelvoudigInformatieObject.objects.bulk_create(
             [row.instance for row in batch if row.instance is not None]
         )
+
         # set canonical latest_version
         for eio in eios:
-            eio.save()
+            post_save.send(eio.__class__, instance=eio, created=True)
+
     except DatabaseError as e:
         for row in batch:
             row.processed = True
