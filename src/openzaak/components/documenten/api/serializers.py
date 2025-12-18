@@ -572,6 +572,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             k for k, v in self.get_fields().items() if not v.read_only
         ]
         for field in instance._meta.get_fields():
+            # Ignore latest_version_of since it is a reverse relation
+            if field.name == "latest_version_of":
+                continue
             if field.name not in validated_data_field_names and (
                 self.partial or field.name not in updatable_field_names
             ):
