@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
+from django.db.models.signals import post_save
 from django.utils import timezone
 
 import factory.fuzzy
@@ -587,7 +588,10 @@ class Command(BaseCommand):
                     )
 
         documenten_generator = generate_enkelvoudiginformatieobjecten()
-        self.bulk_create(EnkelvoudigInformatieObject, documenten_generator)
+        docs = [doc for doc in documenten_generator]
+        self.bulk_create(EnkelvoudigInformatieObject, docs)
+        for doc in docs:
+            post_save.send(doc.__class__, instance=doc, created=True)
 
         self.stdout.write("Finished creating documenten")
 
