@@ -86,7 +86,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(
             response_update.status_code, status.HTTP_200_OK, response_update.data
         )
-
+        eio.refresh_from_db()
         eio = eio.canonical.latest_version
 
         self.assertEqual(eio.titel, "changed")
