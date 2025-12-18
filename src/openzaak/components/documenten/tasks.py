@@ -312,6 +312,9 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         eios = EnkelvoudigInformatieObject.objects.bulk_create(
             [row.instance for row in batch if row.instance is not None]
         )
+        # set canonical latest_version
+        for eio in eios:
+            eio.save()
     except DatabaseError as e:
         for row in batch:
             row.processed = True
