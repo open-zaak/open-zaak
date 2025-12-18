@@ -59,14 +59,20 @@ def delete_eio_file(sender, instance, **kwargs):
 
 
 @receiver(
-    [pre_delete],
+    [pre_delete, post_save],
     sender=EnkelvoudigInformatieObject,
-    dispatch_uid="documenten.eio_deleted",
+    dispatch_uid="documenten.set_canonical_latest_version",
 )
-def eio_deleted(sender, instance, using, **kwargs):  # TODO post save & post update?
-    instance.canonical.latest_version = (
-        instance.canonical.enkelvoudiginformatieobject_set.exclude(
-            id=instance.id
-        ).first()
-    )
-    instance.canonical.save()
+def set_canonical_latest_version(sender, signal, instance, **kwargs):
+    if signal is pre_delete:
+        instance.canonical.latest_version = (
+            instance.canonical.enkelvoudiginformatieobject_set.exclude(
+                id=instance.id
+            ).first()
+        )
+        instance.canonical.save()
+    elif signal is post_save:
+        instance.canonical.latest_version = instance
+        instance.canonical.save()
+    else:
+        raise NotImplementedError(f"Signal {signal} is not supported")
