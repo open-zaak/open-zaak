@@ -121,6 +121,8 @@ The events below are emitted when API operations are performed.
 * ``gebruiksrechten_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``gebruiksrechten_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``gebruiksrechten_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
+* ``incoming_cloud_event_error`` (WARNING). Additional context ``cloud_event``, ``handler``, ``code``
+* ``incoming_cloud_event_uncaught_exception`` (ERROR). Additional context: ``cloud_event``, ``handler``
 * ``informatieobjecttype_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``informatieobjecttype_delete_failed`` (ERROR). Additional context: ``client_id``, ``uuid``, ``error``.
 * ``informatieobjecttype_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
