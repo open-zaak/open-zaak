@@ -627,6 +627,7 @@ class ResultaattypeAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, Web
 
 @tag("gh-1962")
 def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
+    assert False
     user = UserFactory.create(is_staff=True)
     view_resultaattype = Permission.objects.get(codename="view_resultaattype")
     user.user_permissions.add(view_resultaattype)
@@ -659,6 +660,7 @@ def test_resultaattype_detail_with_invalid_resultaattypeomschrijving(self, m):
 @tag("gh-1962")
 @patch("openzaak.selectielijst.admin_fields.retrieve_resultaattype_omschrijvingen")
 def test_get_resultaattype_omschrijving_invalid_url(mock_retrieve):
+    assert False
     mock_retrieve.side_effect = InvalidURLError()
 
     url = "http://invalid-url.local"
