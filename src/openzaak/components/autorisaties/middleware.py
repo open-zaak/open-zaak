@@ -75,7 +75,13 @@ class JWTAuth(_JWTAuth):
 
         return self._catalogus_cache[init_component]
 
-    def has_auth(self, scopes: List[str], init_component: str = None, **fields) -> bool:
+    def has_auth(
+        self, scopes: List[str], init_component: str | None = None, **fields
+    ) -> bool:
+        # TODO: super's 3rd param is named "component" not "init_component"
+        # What's the difference?
+        # Should init_component be keyword only or renamed?
+
         if scopes is None:
             return False
 

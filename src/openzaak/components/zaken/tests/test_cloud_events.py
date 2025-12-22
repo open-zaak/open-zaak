@@ -23,6 +23,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
+    ComponentTypes,
     RolOmschrijving,
     RolTypes,
     VertrouwelijkheidsAanduiding,
@@ -1185,8 +1186,9 @@ class ZaakVerlengenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase)
 
 
 class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
+    heeft_alle_autorisaties = False
 
+    component = ComponentTypes.nrc
     scopes = [SCOPE_CLOUDEVENTS_BEZORGEN]
 
     @classmethod
@@ -1343,7 +1345,7 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak_object.relatieomschrijving, "Een voorbeeld URL")
 
     def test_unauthenticated_event(self):
-        self.client.credentials()
+        self.autorisatie.delete()
         response = self.client.post(
             self.endpoint,
             to_dict(CloudEvent({"type": "test", "source": "me"})),

@@ -15,7 +15,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from structlog.contextvars import bind_contextvars, bound_contextvars
-from vng_api_common.permissions import AuthScopesRequired
+from vng_api_common.constants import ComponentTypes
+
+from openzaak.utils.permissions import AuthScopesRequired
 
 from .scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 
@@ -59,6 +61,7 @@ class CloudEventWebhook(APIView):
     """Webhook that handles incoming CloudEvents via POST"""
 
     required_scopes = {"post": SCOPE_CLOUDEVENTS_BEZORGEN}
+    component = ComponentTypes.nrc
     permission_classes = [AuthScopesRequired]
 
     handlers: set[CloudEventHandler] = set()
