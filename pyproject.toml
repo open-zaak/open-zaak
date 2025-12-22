@@ -1,5 +1,7 @@
 [project]
-requires-python = "== 3.12"
+requires-python = "~= 3.12.12"
+version = "1.26.0"
+name = "open-zaak"
 
 # Bumpversion configuration
 
@@ -18,6 +20,9 @@ serialize = [
 ]
 
 [tool.bumpversion.parts.dev]
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
 
 [[tool.bumpversion.files]]
 filename = "README.rst"
