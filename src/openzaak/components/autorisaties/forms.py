@@ -125,7 +125,7 @@ COMPONENT_TO_PREFIXES_MAP = {
     ComponentTypes.drc: ("audittrails", "notificaties", "documenten"),
     ComponentTypes.ztc: ("notificaties", "catalogi"),
     ComponentTypes.brc: ("audittrails", "notificaties", "besluiten"),
-    ComponentTypes.nrc: ("notificaties",),
+    ComponentTypes.nrc: ("notificaties", "cloudevents"),
     ComponentTypes.ac: ("notificaties", "autorisaties"),
 }
 
