@@ -16,6 +16,7 @@ from mozilla_django_oidc_db.views import AdminLoginFailure
 from vng_api_common.views import ScopesView
 
 from openzaak.accounts.views import QRGeneratorView
+from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.utils.exceptions import RequestEntityTooLargeException
 from openzaak.utils.views import ErrorDocumentView, ViewConfigView
 
@@ -79,6 +80,7 @@ urlpatterns = [
     path("ref/", include("notifications_api_common.urls")),
     # auth backends
     path("oidc/", include("mozilla_django_oidc.urls")),
+    path("events", CloudEventWebhook.as_view(), name="cloudevent-webhook"),
     # custom error documents for nginx
     path(
         "413.json",
