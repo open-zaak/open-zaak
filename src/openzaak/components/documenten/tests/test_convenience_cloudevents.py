@@ -45,9 +45,11 @@ class DocumentConvenienceCloudEventTest(
     def test_document_registreren_cloudevent(self, mock_send_cloudevent):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
+        catalogus_url = reverse(informatieobjecttype.catalogus)
 
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
+        zaaktype_url = reverse(zaak.zaaktype)
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=zaak.zaaktype, informatieobjecttype=informatieobjecttype
@@ -99,6 +101,12 @@ class DocumentConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",
+                    "informatieobjecttype.catalogus": f"http://testserver{catalogus_url}",
+                    "bronorganisatie": "159351741",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaak.zaaktype": f"http://testserver{zaaktype_url}",
+                },
             }
         )

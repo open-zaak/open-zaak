@@ -325,7 +325,7 @@ mozilla-django-oidc-db==1.1.0
     # via open-api-framework
 nh3==0.3.0
     # via textile
-notifications-api-common==0.10.0
+notifications-api-common==0.10.1
     # via commonground-api-common
 oauthlib==3.3.1
     # via requests-oauthlib

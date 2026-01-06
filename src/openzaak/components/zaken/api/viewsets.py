@@ -94,10 +94,9 @@ from ..models import (
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
-from .cloud_events import (
+from .cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
-    ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_GEREGISTREERD,
     ZAAK_OPGESCHORT,
@@ -2103,7 +2102,7 @@ class ZaakRegistrerenViewset(
                 )
 
     def perform_create(self, serializer):
-        serializer.save()
+        data = serializer.save()
         logger.info(
             "zaak_geregistreerd",
             zaak_url=serializer.data["zaak"]["url"],
@@ -2120,7 +2119,19 @@ class ZaakRegistrerenViewset(
         process_cloudevent(
             type=ZAAK_GEREGISTREERD,
             subject=serializer.data["zaak"]["uuid"],
-            data={},  # TODO
+            data={
+                "bronorganisatie": data["zaak"].bronorganisatie,
+                "verantwoordelijkeOrganisatie": data[
+                    "zaak"
+                ].verantwoordelijke_organisatie,
+                "vertrouwelijkheidaanduiding": data["zaak"].vertrouwelijkheidaanduiding,
+                "zaaktype": serializer.data["zaak"]["zaaktype"],
+                "zaaktype.catalogus": reverse(
+                    "catalogus-detail",
+                    kwargs={"uuid": data["zaak"].zaaktype.catalogus.uuid},
+                    request=self.request,
+                ),
+            },
         )
 
 
@@ -2154,6 +2165,8 @@ class ZaakUpdateActionViewSet(
             "action": "create",
         },
     }
+
+    cloudevent = None
 
     def get_object(self, uuid):
         queryset = Zaak.objects
@@ -2246,7 +2259,26 @@ class ZaakUpdateActionViewSet(
         )
 
     def perform_post(self, serializer):
-        return serializer.save()
+        data = serializer.save()
+
+        process_cloudevent(
+            type=self.cloudevent,
+            subject=serializer.data["zaak"]["uuid"],
+            data={
+                "bronorganisatie": data["zaak"].bronorganisatie,
+                "verantwoordelijkeOrganisatie": data[
+                    "zaak"
+                ].verantwoordelijke_organisatie,
+                "vertrouwelijkheidaanduiding": data["zaak"].vertrouwelijkheidaanduiding,
+                "zaaktype": serializer.data["zaak"]["zaaktype"],
+                "zaaktype.catalogus": reverse(
+                    "catalogus-detail",
+                    kwargs={"uuid": data["zaak"].zaaktype.catalogus.uuid},
+                    request=self.request,
+                ),
+            },
+        )
+        return data
 
 
 @extend_schema_view(
@@ -2258,6 +2290,7 @@ class ZaakUpdateActionViewSet(
 )
 class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
     serializer_class = ZaakOpschortenSerializer
+    cloudevent = ZAAK_OPGESCHORT
 
     def perform_post(self, serializer):
         super().perform_post(serializer)
@@ -2266,12 +2299,6 @@ class ZaakOpschortenViewset(ZaakUpdateActionViewSet):
             "zaak_opgeschort",
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
-        )
-
-        process_cloudevent(
-            type=ZAAK_OPGESCHORT,
-            subject=serializer.data["zaak"]["uuid"],
-            data={},  # TODO
         )
 
 
@@ -2305,6 +2332,7 @@ class ZaakBijwerkenViewset(
             "action": "create",
         },
     }
+    cloudevent = ZAAK_BIJGEWERKT
 
     def _pre_post(self, instance):
         context = super()._pre_post(instance)
@@ -2395,11 +2423,6 @@ class ZaakBijwerkenViewset(
             status_url=serializer.data["status"]["url"],
             rollen_urls=[rol["url"] for rol in serializer.data["rollen"]],
         )
-        process_cloudevent(
-            type=ZAAK_BIJGEWERKT,
-            subject=serializer.data["zaak"]["uuid"],
-            data={},  # TODO
-        )
 
     def notify(
         self,
@@ -2453,6 +2476,7 @@ class ZaakBijwerkenViewset(
 )
 class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
     serializer_class = ZaakVerlengenSerializer
+    cloudevent = ZAAK_VERLENGD
 
     def perform_post(self, serializer):
         super().perform_post(serializer)
@@ -2461,12 +2485,6 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
             "zaak_verlengd",
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
-        )
-
-        process_cloudevent(
-            type=ZAAK_VERLENGD,
-            subject=serializer.data["zaak"]["uuid"],
-            data={},  # TODO
         )
 
 
@@ -2481,6 +2499,7 @@ class ZaakVerlengenViewset(ZaakUpdateActionViewSet):
 )
 class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
     serializer_class = ZaakAfsluitenSerializer
+    cloudevent = ZAAK_AFGESLOTEN
 
     notification_fields = {
         **ZaakUpdateActionViewSet.notification_fields,
@@ -2499,12 +2518,6 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
             zaak_url=serializer.data["zaak"]["url"],
             status_url=serializer.data["status"]["url"],
             resultaat_url=serializer.data["resultaat"]["url"],
-        )
-
-        process_cloudevent(
-            type=ZAAK_AFGESLOTEN,
-            subject=serializer.data["zaak"]["uuid"],
-            data={},  # TODO
         )
 
     def _create_audit_logs(self, response, serializer, zaak_version_before_edit):

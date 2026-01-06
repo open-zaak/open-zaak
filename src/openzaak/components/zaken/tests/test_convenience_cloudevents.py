@@ -30,7 +30,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..api.cloud_events import (
+from ..api.cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
     ZAAK_GEREGISTREERD,
@@ -66,6 +66,7 @@ class ZaakConvenienceCloudEventTest(
             concept=False, catalogus=informatieobjecttype.catalogus
         )
         self.zaaktype_url = self.check_for_instance(self.zaaktype)
+        self.catalogus_url = self.check_for_instance(self.zaaktype.catalogus)
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=self.zaaktype, informatieobjecttype=informatieobjecttype
@@ -167,7 +168,13 @@ class ZaakConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": "111222333",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaaktype": self.zaaktype_url,
+                    "zaaktype.catalogus": self.catalogus_url,
+                },
             }
         )
 
@@ -208,7 +215,13 @@ class ZaakConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaaktype": self.zaaktype_url,
+                    "zaaktype.catalogus": self.catalogus_url,
+                },
             }
         )
 
@@ -257,7 +270,13 @@ class ZaakConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaaktype": self.zaaktype_url,
+                    "zaaktype.catalogus": self.catalogus_url,
+                },
             }
         )
 
@@ -298,7 +317,13 @@ class ZaakConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaaktype": self.zaaktype_url,
+                    "zaaktype.catalogus": self.catalogus_url,
+                },
             }
         )
 
@@ -337,7 +362,13 @@ class ZaakConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": "517439943",
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                    "zaaktype": self.zaaktype_url,
+                    "zaaktype.catalogus": self.catalogus_url,
+                },
             }
         )
 

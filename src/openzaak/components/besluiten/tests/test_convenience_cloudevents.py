@@ -18,6 +18,7 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
+from ...zaken.tests.factories import ZaakFactory
 from ..api.cloudevents import BESLUIT_VERWERKT
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -40,10 +41,19 @@ class BesluitConvenienceCloudEventTest(
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
+        catalogus_url = reverse(besluittype.catalogus)
+
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        zaaktype_url = reverse(zaak.zaaktype)
+
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
         besluittype.informatieobjecttypen.add(informatieobjecttype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
 
         informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=informatieobjecttype
@@ -61,6 +71,7 @@ class BesluitConvenienceCloudEventTest(
             "besluit": {
                 "verantwoordelijkeOrganisatie": "517439943",  # RSIN
                 "besluittype": f"http://testserver{besluittype_url}",
+                "zaak": f"http://testserver{zaak_url}",
                 "identificatie": "123123",
                 "datum": "2018-09-06",
                 "toelichting": "Vergunning verleend.",
@@ -93,6 +104,15 @@ class BesluitConvenienceCloudEventTest(
                 "time": "2025-10-10T00:00:00Z",
                 "dataref": None,
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype.catalogus": f"http://testserver{catalogus_url}",
+                    "zaak.zaaktype": f"http://testserver{zaaktype_url}",
+                    "informatieobjecten.iotype": [  # TODO duplicates?
+                        f"http://testserver{informatieobjecttype_url}",
+                        f"http://testserver{informatieobjecttype_url}",
+                    ],
+                },
             }
         )
