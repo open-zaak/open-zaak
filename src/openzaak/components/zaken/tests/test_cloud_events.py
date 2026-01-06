@@ -53,8 +53,8 @@ from openzaak.notifications.scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
 
-from ..api import cloud_events
-from ..api.cloud_events import (
+from ..api import cloudevents
+from ..api.cloudevents import (
     ZAAK_GEKOPPELD,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
@@ -476,7 +476,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             m.post("http://webhook.local/events")
 
-            cloud_events.send_cloud_event(payload)
+            cloudevents.send_cloud_event(payload)
 
         self.assertEqual(len(m.request_history), 1)
 

@@ -643,7 +643,7 @@ nh3==0.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   textile
-notifications-api-common==0.10.0
+notifications-api-common==0.10.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

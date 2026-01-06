@@ -19,6 +19,7 @@ from notifications_api_common.viewsets import (
 from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from vng_api_common.audittrails.viewsets import (
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
@@ -452,8 +453,40 @@ class BesluitVerwerkenViewSet(
             ],
         )
 
+        iotype_urls = [
+            reverse(
+                "informatieobjecttype-detail",
+                kwargs={
+                    "uuid": bio.informatieobject.latest_version.informatieobjecttype.uuid
+                },
+                request=self.request,
+            )
+            for bio in data["besluitinformatieobjecten"]
+            if bio.informatieobject.latest_version
+        ]
+
         process_cloudevent(
             type=BESLUIT_VERWERKT,
             subject=str(data["besluit"].uuid),
-            data={},  # TODO
+            data={
+                "verantwoordelijkeOrganisatie": data[
+                    "besluit"
+                ].verantwoordelijke_organisatie,
+                "besluittype": serializer.data["besluit"][
+                    "besluittype"
+                ],  # serializer.data contains url
+                "besluittype.catalogus": reverse(
+                    "catalogus-detail",
+                    kwargs={"uuid": data["besluit"].besluittype.catalogus.uuid},
+                    request=self.request,
+                ),
+                "zaak.zaaktype": reverse(
+                    "zaaktype-detail",
+                    kwargs={"uuid": zaak.zaaktype.uuid},
+                    request=self.request,
+                )
+                if zaak
+                else None,
+                "informatieobjecten.iotype": iotype_urls,
+            },
         )

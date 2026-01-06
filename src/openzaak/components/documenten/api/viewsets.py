@@ -24,6 +24,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
@@ -1221,5 +1222,29 @@ class DocumentRegistrerenViewSet(
         process_cloudevent(
             type=DOCUMENT_GEREGISTREERD,
             subject=str(data["enkelvoudiginformatieobject"].uuid),
-            data={},  # TODO
+            data={
+                "informatieobjecttype": serializer.data["enkelvoudiginformatieobject"][
+                    "informatieobjecttype"
+                ],  # serializer.data has url
+                "informatieobjecttype.catalogus": reverse(
+                    "catalogus-detail",
+                    kwargs={
+                        "uuid": data[
+                            "enkelvoudiginformatieobject"
+                        ].informatieobjecttype.catalogus.uuid
+                    },
+                    request=self.request,
+                ),
+                "bronorganisatie": data["enkelvoudiginformatieobject"].bronorganisatie,
+                "vertrouwelijkheidaanduiding": data[
+                    "enkelvoudiginformatieobject"
+                ].vertrouwelijkheidaanduiding,
+                "zaak.zaaktype": reverse(
+                    "zaaktype-detail",
+                    kwargs={"uuid": zaak.zaaktype.uuid},
+                    request=self.request,
+                )
+                if zaak
+                else None,
+            },
         )

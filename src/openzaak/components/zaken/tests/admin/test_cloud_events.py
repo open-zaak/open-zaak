@@ -14,7 +14,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
 
-from ...api.cloud_events import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
+from ...api.cloudevents import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
 from ...models import Zaak
 from ..factories import StatusFactory, ZaakFactory
 from ..test_cloud_events import (
