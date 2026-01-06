@@ -10551,14 +10551,15 @@ components:
             \ termijn start op de datum die is vastgelegd in een ander datumveld dan\
             \ de datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking\
             \ hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg.\n\
-            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
-            \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
-            \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
-            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
-            \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
-            \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
-            \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\
-            \ termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
+            * `gerelateerde_zaak` - (**EXPERIMENTEEL DEPRECATED**: Gerelateerde zaak)\
+            \ De termijn start op de datum waarop de gerelateerde zaak is afgehandeld\
+            \ (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ).\
+            \ `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n* `hoofdzaak`\
+            \ - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde zaak\
+            \ is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van\
+            \ de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype van\
+            \ ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De termijn\
+            \ start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
             \ in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitType\n*\
             \ `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum\
             \ waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).\n* `vervaldatum_besluit`\
@@ -10654,14 +10655,15 @@ components:
             \ termijn start op de datum die is vastgelegd in een ander datumveld dan\
             \ de datumvelden waarop de overige waarden (van deze attribuutsoort) betrekking\
             \ hebben. `Objecttype`, `Registratie` en `Datumkenmerk` zijn niet leeg.\n\
-            * `gerelateerde_zaak` - (Gerelateerde zaak) De termijn start op de datum\
-            \ waarop de gerelateerde zaak is afgehandeld (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum`\
-            \ in het RGBZ). `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n\
-            * `hoofdzaak` - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde\
-            \ zaak is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum`\
-            \ van de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype\
-            \ van ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De\
-            \ termijn start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
+            * `gerelateerde_zaak` - (**EXPERIMENTEEL DEPRECATED**: Gerelateerde zaak)\
+            \ De termijn start op de datum waarop de gerelateerde zaak is afgehandeld\
+            \ (`ZAAK.Einddatum` of `ZAAK.Gerelateerde_zaak.Einddatum` in het RGBZ).\
+            \ `ResultaatType.ZaakType` heeft gerelateerd `ZaakType`\n* `hoofdzaak`\
+            \ - (Hoofdzaak) De termijn start op de datum waarop de gerelateerde zaak\
+            \ is afgehandeld, waarvan de zaak een deelzaak is (`ZAAK.Einddatum` van\
+            \ de hoofdzaak in het RGBZ). ResultaatType.ZaakType is deelzaaktype van\
+            \ ZaakType.\n* `ingangsdatum_besluit` - (Ingangsdatum besluit) De termijn\
+            \ start op de datum waarop het besluit van kracht wordt (`BESLUIT.Ingangsdatum`\
             \ in het RGBZ).\tResultaatType.ZaakType heeft relevant BesluitType\n*\
             \ `termijn` - (Termijn) De termijn start een vast aantal jaren na de datum\
             \ waarop de zaak is afgehandeld (`ZAAK.Einddatum` in het RGBZ).\n* `vervaldatum_besluit`\
