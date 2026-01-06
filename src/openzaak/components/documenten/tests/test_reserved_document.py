@@ -182,6 +182,7 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
         self.assertTrue(any(param.get("name") == "aantal" for param in invalid_params))
 
 
+@freeze_time("2025-01-01T12:00:00")
 @tag("gh-2018")
 class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
