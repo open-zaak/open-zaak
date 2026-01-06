@@ -39,6 +39,8 @@ but currently Open Zaak can emit the following cloud events if configured:
 * ``zaak-verwijderd``: when deleting a Zaak
 * ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
 
+A webhook endpoint ``/events`` has been added where incoming events can be delivered.
+
 .. warning::
 
    In order to make sure that cloud events are only sent when the initial Zaak is "complete" (meaning that it has all the required resources to be considered a valid Zaak, such as a Rol for the `initiator`), the assumption is made that the initial Status will only be set by client applications once the initial Zaak is complete (meaning that the Rollen already exist before adding the Status). No validation exists for this currently, but in the future this will likely be enforced via validation on the API endpoints.
