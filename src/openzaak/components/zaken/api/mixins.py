@@ -24,7 +24,7 @@ class ClosedZaakMixin:
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=ComponentTypes.zrc,
+            component=ComponentTypes.zrc,
         )
 
     def _check_zaak_closed(self, zaak: Optional[Zaak] = None) -> None:

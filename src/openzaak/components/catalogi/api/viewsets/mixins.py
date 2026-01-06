@@ -38,7 +38,7 @@ class ConceptDestroyMixin:
     def perform_destroy(self, instance):
         forced_delete = self.request.jwt_auth.has_auth(
             scopes=SCOPE_CATALOGI_FORCED_DELETE,
-            init_component=self.queryset.model._meta.app_label,
+            component=self.queryset.model._meta.app_label,
         )
 
         if not forced_delete:
@@ -104,7 +104,7 @@ class M2MConceptDestroyMixin:
     def perform_destroy(self, instance):
         forced_delete = self.request.jwt_auth.has_auth(
             scopes=SCOPE_CATALOGI_FORCED_DELETE,
-            init_component=self.queryset.model._meta.app_label,
+            component=self.queryset.model._meta.app_label,
         )
 
         if not forced_delete:

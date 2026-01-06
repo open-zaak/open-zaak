@@ -404,7 +404,7 @@ class EnkelvoudigInformatieObjectViewSet(
             scopes=SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
             informatieobjecttype=eio_data["informatieobjecttype"],
             vertrouwelijkheidaanduiding=eio_data["vertrouwelijkheidaanduiding"],
-            init_component=self.queryset.model._meta.app_label,
+            component=self.queryset.model._meta.app_label,
         ):
             force_unlock = True
 

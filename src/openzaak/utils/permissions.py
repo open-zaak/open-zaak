@@ -282,3 +282,23 @@ class MultipleObjectsAuthRequired(AuthRequired):
                 return False
 
         return True
+
+
+class AuthScopesRequired(permissions.BasePermission):
+    """A DRF Permission class for APIViews/Viewsets that have no Model.
+
+    The view needs these attributes
+      - required_scopes: Mapping[action_or_method_str, Scope]
+      - component: ComponentType
+
+    """
+
+    def has_permission(self, request: Request, view) -> bool:
+        component = getattr(view, "component", None)
+        assert component, f"View {view=} should define a component!"
+
+        if bypass_permissions(request):
+            return True
+
+        scopes_required = get_required_scopes(request, view)
+        return request.jwt_auth.has_auth(scopes_required, component=component)

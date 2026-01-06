@@ -333,7 +333,7 @@ def is_force_write(serializer) -> bool:
 
     return request.jwt_auth.has_auth(
         scopes=SCOPE_CATALOGI_FORCED_WRITE,
-        init_component=serializer.Meta.model._meta.app_label,
+        component=serializer.Meta.model._meta.app_label,
     )
 
 
