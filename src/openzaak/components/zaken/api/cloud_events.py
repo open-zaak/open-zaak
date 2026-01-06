@@ -81,6 +81,7 @@ def handle_zaak_gekoppeld(event: CloudEvent):
     try:
         data.is_valid(raise_exception=True)
         data.save()
+        logger.info("incoming_cloud_event_handled", created=data)
     except (ValidationError, DatabaseError) as e:
         logger.warning("incoming_cloud_event_error", exc_info=e)
 
