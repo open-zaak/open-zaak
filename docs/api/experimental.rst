@@ -198,6 +198,7 @@ Attributes
 * ``ResultaatType``:
 
     * ``brondatumArchiefprocedure.datumkenmerk`` is changed and supports nested path as value
+    * ``brondatumArchiefprocedure.afleidingswijze``: ``gerelateerde_zaak`` has been marked as deprecated
 
 * ``StatusType``:
     * ``eigenschappen`` is made read-only. `The reason <https://github.com/VNG-Realisatie/gemma-zaken/issues/2343>`__
