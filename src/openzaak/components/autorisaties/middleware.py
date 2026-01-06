@@ -76,12 +76,8 @@ class JWTAuth(_JWTAuth):
         return self._catalogus_cache[init_component]
 
     def has_auth(
-        self, scopes: List[str], init_component: str | None = None, **fields
+        self, scopes: List[str], component: str | None = None, **fields
     ) -> bool:
-        # TODO: super's 3rd param is named "component" not "init_component"
-        # What's the difference?
-        # Should init_component be keyword only or renamed?
-
         if scopes is None:
             return False
 
@@ -92,11 +88,11 @@ class JWTAuth(_JWTAuth):
         if self.has_alle_autorisaties:
             return True
 
-        if not init_component:
+        if not component:
             return False
 
-        autorisaties = self.get_autorisaties(init_component)
-        catalogus_autorisaties = self.get_catalogus_autorisaties(init_component)
+        autorisaties = self.get_autorisaties(component)
+        catalogus_autorisaties = self.get_catalogus_autorisaties(component)
         has_catalogus_autorisaties = catalogus_autorisaties.exists()
         scopes_provided = set()
 

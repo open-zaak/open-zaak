@@ -301,4 +301,4 @@ class AuthScopesRequired(permissions.BasePermission):
             return True
 
         scopes_required = get_required_scopes(request, view)
-        return request.jwt_auth.has_auth(scopes_required, init_component=component)
+        return request.jwt_auth.has_auth(scopes_required, component=component)

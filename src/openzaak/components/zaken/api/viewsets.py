@@ -458,7 +458,7 @@ class ZaakViewSet(
             scopes=SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=self.queryset.model._meta.app_label,
+            component=self.queryset.model._meta.app_label,
         ):
             if zaak.is_closed:
                 msg = "Modifying a closed case with current scope is forbidden"
@@ -625,7 +625,7 @@ class StatusViewSet(
             scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=component,
+            component=component,
         ):
             if zaak.status_set.exists():
                 msg = _("Met de '{}' scope mag je slechts 1 status zetten").format(
@@ -637,7 +637,7 @@ class StatusViewSet(
             scopes=SCOPEN_ZAKEN_HEROPENEN,
             zaaktype=zaak_data["zaaktype"],
             vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-            init_component=component,
+            component=component,
         ):
             if zaak.is_closed:
                 msg = _(
@@ -2159,7 +2159,7 @@ class ZaakUpdateActionViewSet(
                 scopes=SCOPE_STATUSSEN_TOEVOEGEN | SCOPEN_ZAKEN_HEROPENEN,
                 zaaktype=zaak_data["zaaktype"],
                 vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-                init_component="zaken",
+                component="zaken",
             )
             and instance.status_set.exists()
         ):
@@ -2173,7 +2173,7 @@ class ZaakUpdateActionViewSet(
                 scopes=SCOPEN_ZAKEN_HEROPENEN,
                 zaaktype=zaak_data["zaaktype"],
                 vertrouwelijkheidaanduiding=zaak_data["vertrouwelijkheidaanduiding"],
-                init_component="zaken",
+                component="zaken",
             )
             and instance.is_closed
         ):

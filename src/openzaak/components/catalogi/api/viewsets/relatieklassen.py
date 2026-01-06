@@ -148,7 +148,7 @@ class ZaakTypeInformatieObjectTypeViewSet(
         uuid = str(instance.uuid)
         forced_delete = self.request.jwt_auth.has_auth(
             scopes=SCOPE_CATALOGI_FORCED_DELETE,
-            init_component=self.queryset.model._meta.app_label,
+            component=self.queryset.model._meta.app_label,
         )
         code = "non-concept-relation"
         if not forced_delete and not self.get_concept(instance):
