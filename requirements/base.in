@@ -28,7 +28,8 @@ drf-extra-fields
 drf-writable-nested
 humanize
 
-commonground-api-common[setup-configuration, testutils, oas]
+# commonground-api-common[setup-configuration, testutils, oas]
+git+https://github.com/maykinmedia/commonground-api-common.git@issue/explicit-ordering-for-models[setup-configuration, testutils, oas]
 maykin-common[axes,mfa,otel]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
