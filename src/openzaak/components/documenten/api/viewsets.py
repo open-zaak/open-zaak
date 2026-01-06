@@ -246,14 +246,9 @@ class EnkelvoudigInformatieObjectViewSet(
     Opvragen en bewerken van (ENKELVOUDIG) INFORMATIEOBJECTen (documenten).
     """
 
-    queryset = (
-        EnkelvoudigInformatieObject.objects.select_related(
-            "canonical", "_informatieobjecttype"
-        )
-        .prefetch_related("canonical__bestandsdelen")
-        .order_by("canonical", "-versie")
-        .distinct("canonical")
-    )
+    queryset = EnkelvoudigInformatieObject.objects.select_related(
+        "canonical", "_informatieobjecttype"
+    ).prefetch_related("canonical__bestandsdelen")
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
     search_input_serializer_class = EIOZoekSerializer
@@ -311,6 +306,12 @@ class EnkelvoudigInformatieObjectViewSet(
         if self.detail:
             return EnkelvoudigInformatieObjectDetailFilter
         return EnkelvoudigInformatieObjectListFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.detail:
+            return queryset.order_by("canonical", "-versie").distinct("canonical")
+        return queryset.filter(latest_version_of__isnull=False)
 
     def get_serializer_class(self):
         """
