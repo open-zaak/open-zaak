@@ -1,0 +1,200 @@
+interactions:
+- request:
+    body: all fields
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:PphbYIe/e9sATKKYO2cCipPk4ywTd2VzFf5MoALTDu0=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '10'
+      Content-Type:
+      - application/octet-stream
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-blob-content-type:
+      - text/plain
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 56584958-dc27-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: PUT
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/foobar.txt?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      content-md5:
+      - 0Z/SbkbbQS/tG4uU0xTrww==
+      date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      etag:
+      - '"0x1D78ADB99A259D0"'
+      last-modified:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-client-request-id:
+      - 56584958-dc27-11f0-b763-f4289da6022f
+      x-ms-request-id:
+      - ad775911-1673-4abf-a525-d88eb630907d
+      x-ms-request-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:WaDqHQblyOdsLHFyOiunLeQM2nraRZC/c0Xsolonuv8=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 56584959-dc27-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-range:
+      - bytes=0-33554431
+      x-ms-version:
+      - '2025-11-05'
+    method: GET
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/foobar.txt?timeout=5
+  response:
+    body:
+      string: all fields
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '10'
+      content-range:
+      - bytes 0-9/10
+      content-type:
+      - text/plain
+      date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      etag:
+      - '"0x1D78ADB99A259D0"'
+      last-modified:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-blob-content-md5:
+      - 0Z/SbkbbQS/tG4uU0xTrww==
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 56584959-dc27-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - 1e8598d0-ef24-43cc-9cef-b9067c9b60cf
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 206
+      message: Partial Content
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:FL5kO9are58v4MwfUQzsYDeu9EQJtLBM4Wd/jBewXMY=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 5658495a-dc27-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: HEAD
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/foobar.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '10'
+      content-md5:
+      - 0Z/SbkbbQS/tG4uU0xTrww==
+      content-type:
+      - text/plain
+      date:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      etag:
+      - '"0x1D78ADB99A259D0"'
+      last-modified:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-access-tier:
+      - Hot
+      x-ms-access-tier-change-time:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-access-tier-inferred:
+      - 'true'
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 5658495a-dc27-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Thu, 18 Dec 2025 15:36:35 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - 8b1d1a43-031c-4e83-8b74-adae9288f1ca
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -9,6 +9,7 @@ python-dateutil
 requests-cache
 self-certifi
 zgw-consumers-oas
+azure-identity  # required for managed identity auth for django-storages[azure]
 
 # Framework libraries
 django-capture-tag
@@ -18,6 +19,7 @@ django-loose-fk
 django-privates
 django-relativedelta
 django-celery-beat
+django-storages[azure]
 
 # Admin and UI libraries
 django-sniplates

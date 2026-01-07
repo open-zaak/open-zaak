@@ -6,8 +6,11 @@ Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/
 
 import base64
 from datetime import date
+from io import BytesIO
+from unittest import expectedFailure
 from urllib.parse import urlparse
 
+from django.core.files import File
 from django.test import override_settings
 
 from privates.test import temp_private_root
@@ -20,6 +23,7 @@ from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFac
 from openzaak.tests.utils import JWTAuthMixin
 
 from ..models import EnkelvoudigInformatieObject
+from ..storage import documenten_storage
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -63,7 +67,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
 
         download_url = urlparse(response.data["inhoud"])
 
-        self.assertTrue(
+        self.assertEqual(
             download_url.path,
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
@@ -95,3 +99,28 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             download_url.path,
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
+
+    # FIXME deleting EIOs via the API currently does not remove the related file from
+    # disk
+    # See: https://github.com/open-zaak/open-zaak/issues/2274
+    @expectedFailure
+    def test_delete_eio_deletes_file(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            inhoud=File(BytesIO(b"some data"), name="some-file2.bin"),
+        )
+        file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+
+        file_path = eio.inhoud.path
+
+        self.assertTrue(documenten_storage.exists(file_path))
+
+        response = self.client.delete(reverse(eio))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(file_url)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(documenten_storage.exists(file_path))

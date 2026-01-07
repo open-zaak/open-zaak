@@ -23,6 +23,7 @@ from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from storages.backends.azure_storage import AzureStorage
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
@@ -112,8 +113,9 @@ class AnyBase64File(Base64FileField):
 
     def to_representation(self, file):
         is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
+        is_azure_storage = isinstance(file.storage, AzureStorage)
 
-        if not is_private_storage or self.represent_in_base64:
+        if not (is_private_storage or is_azure_storage) or self.represent_in_base64:
             return super().to_representation(file)
 
         # if there is no associated file link is not returned
@@ -537,7 +539,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         # create empty file if size == 0
         if eio.bestandsomvang == 0:
-            eio.inhoud.save("empty_file", ContentFile(""))
+            eio.inhoud.save("empty_file", ContentFile(b""))
 
         # large file process
         if not eio.inhoud and eio.bestandsomvang and eio.bestandsomvang > 0:
@@ -624,7 +626,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         # create empty file if size == 0
         if instance.bestandsomvang == 0 and not instance.inhoud:
-            instance.inhoud.save("empty_file", ContentFile(""))
+            instance.inhoud.save("empty_file", ContentFile(b""))
 
         return instance
 
