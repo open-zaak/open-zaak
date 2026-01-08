@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings, tag
 
 from vng_api_common.tests import reverse
 
@@ -22,6 +22,7 @@ from ..test_cloud_events import (
 )
 
 
+@tag("cloudevents")
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
