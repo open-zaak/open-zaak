@@ -20,11 +20,11 @@ from vng_api_common.utils import get_help_text
 from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
 from ...models import ResultaatType
+from ...validators import ProcestermijnAfleidingswijzeValidator
 from ..validators import (
     BrondatumArchiefprocedureValidator,
     M2MConceptCreateValidator,
     M2MConceptUpdateValidator,
-    ProcestermijnAfleidingswijzeValidator,
     ProcesTypeValidator,
     RelationCatalogValidator,
     StartBeforeEndValidator,

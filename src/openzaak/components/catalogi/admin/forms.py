@@ -28,7 +28,6 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils import build_absolute_url
 from openzaak.utils.validators import ResourceValidator
 
-from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..models import (
     BesluitType,
     InformatieObjectType,
@@ -37,7 +36,10 @@ from ..models import (
     ZaakTypeInformatieObjectType,
     ZaakTypenRelatie,
 )
-from ..validators import validate_brondatumarchiefprocedure
+from ..validators import (
+    ProcestermijnAfleidingswijzeValidator,
+    validate_brondatumarchiefprocedure,
+)
 from .widgets import CatalogusFilterFKRawIdWidget, CatalogusFilterM2MRawIdWidget
 
 EMPTY_SELECTIELIJSTKLASSE_CHOICES = (
@@ -335,57 +337,13 @@ class ResultaatTypeForm(forms.ModelForm):
         * if the selectielijst.resultaat.procestermijn is a fixed period,
           afleidingswijze must be 'termijn'
         """
-        MAPPING = {
-            Procestermijn.nihil: Afleidingswijze.afgehandeld,
-            Procestermijn.ingeschatte_bestaansduur_procesobject: Afleidingswijze.termijn,
-        }
-        REVERSE_MAPPING = {value: key for key, value in MAPPING.items()}
-
-        selectielijstklasse = self.cleaned_data.get("selectielijstklasse")
-        afleidingswijze = self.cleaned_data.get(
-            "brondatum_archiefprocedure_afleidingswijze"
-        )
-
-        # nothing to validate, exit early...
-        if not selectielijstklasse or not afleidingswijze:
-            return
-
-        # TODO should this use a proper client?
-        response = requests.get(selectielijstklasse)
-        procestermijn = response.json()["procestermijn"]
-
-        # mapping selectielijst -> ZTC
-        forward_not_ok = (
-            procestermijn in MAPPING and afleidingswijze != MAPPING[procestermijn]
-        )
-        if forward_not_ok:
-            afleidingswijze_labels = dict(
-                zip(Afleidingswijze.names, Afleidingswijze.labels)
-            )
-            value_label = afleidingswijze_labels[MAPPING[procestermijn]]
-            msg = (
-                _(
-                    "Invalide afleidingswijze gekozen, volgens de selectielijst moet dit %s zijn"
-                )
-                % value_label
-            )
-            self.add_error(
-                "brondatum_archiefprocedure_afleidingswijze",
-                forms.ValidationError(msg, code="invalid"),
-            )
-
-        # mapping ZTC -> selectielijst!
-        backward_not_ok = (
-            procestermijn
-            and afleidingswijze in REVERSE_MAPPING
-            and REVERSE_MAPPING[afleidingswijze] != procestermijn
-        )
-        if backward_not_ok:
-            msg = _("Invalide afleidingswijze gekozen volgens de selectielijst")
-            self.add_error(
-                "brondatum_archiefprocedure_afleidingswijze",
-                forms.ValidationError(msg, code="invalid"),
-            )
+        try:
+            ProcestermijnAfleidingswijzeValidator(
+                "selectielijstklasse", "brondatum_archiefprocedure_afleidingswijze"
+            )(self.cleaned_data)
+        except _ValidationError as e:
+            # re-raise to make sure it appears for the specific field
+            raise _ValidationError({"brondatum_archiefprocedure_afleidingswijze": e})
 
     def _clean_brondatum_archiefprocedure(self):
         """
