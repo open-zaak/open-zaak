@@ -213,6 +213,16 @@ Attributes
 
     * ``beginObject`` and ``eindeObject`` are made read-only. `The reason <https://github.com/VNG-Realisatie/gemma-zaken/issues/2332>`__
 
+Validation
+----------
+
+* ``ResultaatType``:
+
+    * ``brondatumArchiefprocedure.afleidingswijze``: ``termijn`` is allowed for all selectielijstklasse procestermijnen except ``nihil``.
+      This differs from the Catalogi API specification, because there ``termijn`` is only
+      allowed for ``procestermijn`` ``ingeschatte_bestaansduur_procesobject``
+      (see `Catalogi API runtime behavior (ztc-003) <https://vng-realisatie.github.io/gemma-zaken/standaard/catalogi/>`_)
+
 Query parameters
 ----------------
 

@@ -40,17 +40,17 @@ De andere afleidingswijzen zijn toegestaan bij de andere procestermijnen
      - afgehandeld
    * - bestaansduur_processobject
      - | ander_datumkenmerk, eigenschap, gerelateerde_zaak (deprecated),
-       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | hoofdzaak, ingangsdatum_besluit, termijn, vervaldatum_besluit,
        | zaakobject
    * - ingeschatte_bestaansduur_procesobject
      - | termijn
    * - vast_te_leggen_datum
      - | ander_datumkenmerk, eigenschap, gerelateerde_zaak (deprecated),
-       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | hoofdzaak, ingangsdatum_besluit, termijn, vervaldatum_besluit,
        | zaakobject
    * - samengevoegd_met_bewaartermijn
      - | ander_datumkenmerk, eigenschap, gerelateerde_zaak (deprecated),
-       | hoofdzaak, ingangsdatum_besluit, vervaldatum_besluit,
+       | hoofdzaak, ingangsdatum_besluit, termijn, vervaldatum_besluit,
        | zaakobject
 
 Daarnaast zijn bij de bepaling van de brondatum archiefprocedure per afleidingswijze een aantal velden verplicht:
