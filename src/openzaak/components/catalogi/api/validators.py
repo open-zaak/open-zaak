@@ -219,9 +219,6 @@ class ProcestermijnAfleidingswijzeValidator:
         elif (
             procestermijn == Procestermijn.ingeschatte_bestaansduur_procesobject
             and afleidingswijze != Afleidingswijze.termijn
-        ) or (
-            procestermijn != Procestermijn.ingeschatte_bestaansduur_procesobject
-            and afleidingswijze == Afleidingswijze.termijn
         ):
             error = True
 
