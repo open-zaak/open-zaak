@@ -251,8 +251,10 @@ class ResultaatTypeForm(forms.ModelForm):
     def clean(self):
         super().clean()
 
+        # TODO we should probably reuse `ProcesTypeValidator` to have consistency with the API
         self._clean_selectielijstklasse()
         self._clean_brondatum_archiefprocedure_afleidingswijze()
+        # TODO we should probably reuse `BrondatumArchiefprocedureValidator` to have consistency with the API
         self._clean_brondatum_archiefprocedure()
 
     def _get_field_label(self, field: str) -> str:
