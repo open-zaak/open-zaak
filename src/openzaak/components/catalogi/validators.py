@@ -2,12 +2,17 @@
 # Copyright (C) 2022 Dimpact
 from typing import List, Tuple, TypedDict
 
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 
+from openzaak.client import fetch_object
+from openzaak.utils.dict import get_by_path
+
+from .constants import SelectielijstKlasseProcestermijn as Procestermijn
 from .models import ZaakType
 
 
@@ -158,3 +163,61 @@ def validate_zaaktype_for_publish(zaaktype: ZaakType) -> List[Tuple[str, str]]:
         )
 
     return errors
+
+
+class ProcestermijnAfleidingswijzeValidator:
+    code = "invalid-afleidingswijze-for-procestermijn"
+    message = _(
+        "afleidingswijze must be {} when selectielijstklasse.procestermijn is {}"
+    )
+    message_invalid_procestermijn = _(
+        "afleidingswijze cannot be {} when selectielijstklasse.procestermijn is {}"
+    )
+
+    def __init__(
+        self,
+        selectielijstklasse_field: str,
+        afleidingswijze_field_path: str = "brondatum_archiefprocedure.afleidingswijze",
+    ):
+        self.selectielijstklasse_field = selectielijstklasse_field
+        self.afleidingswijze_field_path = afleidingswijze_field_path
+
+    def __call__(self, attrs: dict) -> None:
+        selectielijstklasse_url = attrs.get(self.selectielijstklasse_field)
+        afleidingswijze = get_by_path(attrs, self.afleidingswijze_field_path)
+
+        if not selectielijstklasse_url or not afleidingswijze:
+            return
+
+        selectielijstklasse = fetch_object(selectielijstklasse_url)
+        procestermijn = selectielijstklasse["procestermijn"]
+
+        if not procestermijn:
+            return
+
+        if (  # noqa
+            procestermijn == Procestermijn.nihil
+            and afleidingswijze != Afleidingswijze.afgehandeld
+        ):
+            raise ValidationError(
+                self.message.format(Afleidingswijze.afgehandeld, procestermijn),
+                code=self.code,
+            )
+        elif (
+            procestermijn == Procestermijn.ingeschatte_bestaansduur_procesobject
+            and afleidingswijze != Afleidingswijze.termijn
+        ):
+            raise ValidationError(
+                self.message.format(Afleidingswijze.termijn, procestermijn),
+                code=self.code,
+            )
+        elif (
+            procestermijn != Procestermijn.nihil
+            and afleidingswijze == Afleidingswijze.afgehandeld
+        ):
+            raise ValidationError(
+                self.message_invalid_procestermijn.format(
+                    afleidingswijze, procestermijn
+                ),
+                code=self.code,
+            )
