@@ -20,7 +20,7 @@ from vng_api_common.constants import ZaakobjectTypes
 from zgw_consumers.client import build_client
 
 from openzaak.components.zaken.api.serializers.zaakobjecten import ZaakObjectSerializer
-from openzaak.components.zaken.models import Zaak
+from openzaak.components.zaken.models import Zaak, ZaakObject
 from openzaak.config.models import CloudEventConfig
 from openzaak.notifications.viewsets import CloudEventWebhook
 
@@ -30,6 +30,7 @@ ZAAK_GEOPEND = "nl.overheid.zaken.zaak-geopend"
 ZAAK_GEMUTEERD = "nl.overheid.zaken.zaak-gemuteerd"
 ZAAK_VERWIJDEREN = "nl.overheid.zaken.zaak-verwijderd"
 ZAAK_GEKOPPELD = "nl.overheid.zaken.zaak-gekoppeld"
+ZAAK_ONTKOPPELD = "nl.overheid.zaken.zaak-ontkoppeld"
 
 
 def _resolve_zaak_uri(uri: str) -> str | None:
@@ -45,6 +46,18 @@ def _resolve_zaak_uri(uri: str) -> str | None:
             return zaak.get_absolute_api_url()
         case scheme, *_ if scheme in ["https", "http"]:
             return uri
+        case _:
+            return None
+
+
+def _resolve_zaak(uri: str) -> Zaak | None:
+    """Resolve a uri that is supposed to be a zaak and return the Zaak instance."""
+    match uri.split(":"):
+        case "urn", "uuid", uuid:
+            return Zaak.objects.filter(uuid=uuid).first()
+        case scheme, *_ if scheme in ["https", "http"]:
+            uuid = uri.rstrip("/").split("/")[-1]
+            return Zaak.objects.filter(uuid=uuid).first()
         case _:
             return None
 
@@ -83,6 +96,41 @@ def handle_zaak_gekoppeld(event: CloudEvent):
         data.save()
         logger.info("incoming_cloud_event_handled", created=data)
     except (ValidationError, DatabaseError) as e:
+        logger.warning("incoming_cloud_event_error", exc_info=e)
+
+
+@CloudEventWebhook.register_handler
+def handle_zaak_ontkoppeld(event: CloudEvent):
+    if event["type"] != ZAAK_ONTKOPPELD:
+        return
+
+    event_data = event.get_data()
+    if not event_data:
+        logger.warning("incoming_cloud_event_error", code="missing-data")
+        return
+
+    if not (zaak := _resolve_zaak(event_data.get("zaak", ""))):
+        logger.warning("incoming_cloud_event_error", code="unknown-zaak")
+        return
+
+    link_to = event_data.get("linkTo")
+    if not link_to:
+        logger.warning("incoming_cloud_event_error", code="missing-linkTo")
+        return
+
+    try:
+        deleted, _ = ZaakObject.objects.filter(
+            zaak=zaak,
+            object=link_to,
+        ).delete()
+
+        logger.info(
+            "incoming_cloud_event_handled",
+            code="zaak-ontkoppeld",
+            deleted=deleted,
+        )
+
+    except DatabaseError as e:
         logger.warning("incoming_cloud_event_error", exc_info=e)
 
 
