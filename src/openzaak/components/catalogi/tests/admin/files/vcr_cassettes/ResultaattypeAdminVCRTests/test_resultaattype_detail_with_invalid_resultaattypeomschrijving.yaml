@@ -1,0 +1,200 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Open Zaak
+    method: GET
+    uri: http://example.com/omschrijving/5678
+  response:
+    body:
+      string: '<!doctype html><html lang="en"><head><title>Example Domain</title><meta
+        name="viewport" content="width=device-width, initial-scale=1"><style>body{background:#eee;width:60vw;margin:15vh
+        auto;font-family:system-ui,sans-serif}h1{font-size:1.5em}div{opacity:0.8}a:link,a:visited{color:#348}</style><body><div><h1>Example
+        Domain</h1><p>This domain is for use in documentation examples without needing
+        permission. Avoid use in operations.<p><a href="https://iana.org/domains/example">Learn
+        more</a></div></body></html>
+
+        '
+    headers:
+      Age:
+      - '236'
+      CF-Cache-Status:
+      - HIT
+      CF-RAY:
+      - 9bab693118168e2b-AMS
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html
+      Date:
+      - Thu, 08 Jan 2026 11:38:50 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '513'
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Open Zaak
+    method: GET
+    uri: http://example.com/omschrijving/5678
+  response:
+    body:
+      string: '<!doctype html><html lang="en"><head><title>Example Domain</title><meta
+        name="viewport" content="width=device-width, initial-scale=1"><style>body{background:#eee;width:60vw;margin:15vh
+        auto;font-family:system-ui,sans-serif}h1{font-size:1.5em}div{opacity:0.8}a:link,a:visited{color:#348}</style><body><div><h1>Example
+        Domain</h1><p>This domain is for use in documentation examples without needing
+        permission. Avoid use in operations.<p><a href="https://iana.org/domains/example">Learn
+        more</a></div></body></html>
+
+        '
+    headers:
+      Age:
+      - '236'
+      CF-Cache-Status:
+      - HIT
+      CF-RAY:
+      - 9bab69316dff5847-AMS
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/html
+      Date:
+      - Thu, 08 Jan 2026 11:38:50 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '513'
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Open Zaak
+    method: GET
+    uri: https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d
+  response:
+    body:
+      string: '{"url":"https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d","nummer":1,"jaar":2017,"naam":"Instellen
+        en inrichten organisatie","omschrijving":"Instellen en inrichten organisatie","toelichting":"Dit
+        procestype betreft het instellen van een nieuw organisatieonderdeel of een
+        nieuwe orgaan waar het orgaan in deelneemt. Dit procestype betreft eveneens
+        het inrichten van het eigen orgaan. Dit kan kleinschalig plaatsvinden bijvoorbeeld
+        het wijzigen van de uitvoering van een wettelijke taak of grootschalig wanneer
+        er een organisatiewijziging wordt doorgevoerd.","procesobject":"De vastgestelde
+        organisatie inrichting"}'
+    headers:
+      API-version:
+      - 1.0.0
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '654'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 08 Jan 2026 11:38:50 GMT
+      Feature-Policy:
+      - autoplay 'none'; camera 'none'
+      Referrer-Policy:
+      - same-origin
+      Strict-Transport-Security:
+      - max-age=63072000
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Open Zaak
+    method: GET
+    uri: https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829
+  response:
+    body:
+      string: '{"url":"https://selectielijst.openzaak.nl/api/v1/resultaten/cc5ae4e3-a9e6-4386-bcee-46be4986a829","procesType":"https://selectielijst.openzaak.nl/api/v1/procestypen/e1b73b12-b2f6-4c4e-8929-94f84dd2a57d","nummer":1,"volledigNummer":"1.1","generiek":true,"specifiek":false,"naam":"Ingericht","omschrijving":"","herkomst":"Risicoanalyse","waardering":"vernietigen","procestermijn":"nihil","procestermijnWeergave":"Nihil","bewaartermijn":"P10Y","toelichting":"Invoering
+        nieuwe werkwijze","algemeenBestuurEnInrichtingOrganisatie":false,"bedrijfsvoeringEnPersoneel":true,"publiekeInformatieEnRegistratie":false,"burgerzaken":false,"veiligheid":false,"verkeerEnVervoer":false,"economie":false,"onderwijs":false,"sportCultuurEnRecreatie":false,"sociaalDomein":false,"volksgezonheidEnMilieu":false,"vhrosv":false,"heffenBelastingen":false,"alleTaakgebieden":false,"procestermijnOpmerking":""}'
+    headers:
+      API-version:
+      - 1.0.0
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '883'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 08 Jan 2026 11:38:50 GMT
+      Feature-Policy:
+      - autoplay 'none'; camera 'none'
+      Referrer-Policy:
+      - same-origin
+      Strict-Transport-Security:
+      - max-age=63072000
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

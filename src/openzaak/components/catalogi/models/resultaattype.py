@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 import requests
 from relativedeltafield.utils import parse_relativedelta
+from structlog import get_logger
+from structlog.typing import FilteringBoundLogger
 from vng_api_common.caching import ETagMixin
 from vng_api_common.constants import (
     Archiefnominatie,
@@ -19,6 +21,8 @@ from openzaak.utils.fields import DurationField
 
 from .mixins import OptionalGeldigheidMixin
 from .validators import validate_zaaktype_concept
+
+logger: FilteringBoundLogger = get_logger(__name__)
 
 
 class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
@@ -291,8 +295,16 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         """
         if self.resultaattypeomschrijving:
             # TODO should this use a proper client?
-            response = requests.get(self.resultaattypeomschrijving).json()
-            self.omschrijving_generiek = response["omschrijving"]
+            # Yes, perform all selectielijst requests in save in a single http2
+            # session; with proper caching.
+            try:
+                response = requests.get(self.resultaattypeomschrijving).json()
+                self.omschrijving_generiek = response["omschrijving"]
+            except requests.RequestException:
+                logger.exception(
+                    "fetching_resultaattypeomschrijving_failed",
+                    url=str(self.resultaattypeomschrijving),
+                )
 
         # derive the default archiefnominatie
         if not self.archiefnominatie and self.selectielijstklasse:
