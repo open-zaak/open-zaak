@@ -182,6 +182,7 @@ The events below are emitted when API operations are performed.
 * ``zaaktype_updated`` (INFO). Additional context: ``client_id``, ``uuid``, ``partial``.
 * ``zaakverzoek_created`` (INFO). Additional context: ``client_id``, ``uuid``.
 * ``zaakverzoek_deleted`` (INFO). Additional context: ``client_id``, ``uuid``.
+* ``fetching_resultaattypeomschrijving_failed`` (ERROR). Additional context: ``url``.
 
 Convenience endpoints
 ^^^^^^^^^^^^^^^^^^^^^
