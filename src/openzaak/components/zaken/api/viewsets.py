@@ -3,6 +3,7 @@
 from typing import Dict, List, Optional, Union
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -2120,6 +2121,7 @@ class ZaakRegistrerenViewset(
         process_cloudevent(
             type=ZAAK_GEREGISTREERD,
             subject=serializer.data["zaak"]["uuid"],
+            dataref=serializer.data["zaak"]["url"],
             data={
                 "bronorganisatie": data["zaak"].bronorganisatie,
                 "verantwoordelijkeOrganisatie": data[
@@ -2168,6 +2170,12 @@ class ZaakUpdateActionViewSet(
     }
 
     cloudevent = None
+
+    def __init_subclass__(cls, **kwargs):
+        if cls.cloudevent is None:
+            raise ImproperlyConfigured(
+                f"{cls.__name__} does not have 'cloudevent' set'."
+            )
 
     def get_object(self, uuid):
         queryset = Zaak.objects
@@ -2265,6 +2273,7 @@ class ZaakUpdateActionViewSet(
         process_cloudevent(
             type=self.cloudevent,
             subject=serializer.data["zaak"]["uuid"],
+            dataref=serializer.data["zaak"]["url"],
             data={
                 "bronorganisatie": data["zaak"].bronorganisatie,
                 "verantwoordelijkeOrganisatie": data[
