@@ -1828,7 +1828,9 @@ paths:
         name: betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -8959,7 +8961,9 @@ paths:
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -12690,7 +12694,9 @@ paths:
         name: rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie
         schema:
           type: string
-        description: Een korte identificatie van de organisatorische eenheid.
+        description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+          eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+          toegestaan in plaats van 24'
       - in: query
         name: rol__betrokkeneIdentificatie__vestiging__kvkNummer
         schema:
@@ -13137,7 +13143,9 @@ paths:
                     karakters zijn toegestaan in plaats van 24'
                 rol__betrokkeneIdentificatie__organisatorischeEenheid__identificatie:
                   type: string
-                  description: Een korte identificatie van de organisatorische eenheid.
+                  description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+                    eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters
+                    zijn toegestaan in plaats van 24'
                 rol__machtiging:
                   type: string
                   enum:
@@ -16475,29 +16483,41 @@ components:
       properties:
         identificatie:
           type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 24'
+          maxLength: 255
         naam:
           type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
+          description: '**EXPERIMENTEEL** De feitelijke naam van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 50'
+          maxLength: 255
         isGehuisvestIn:
           type: string
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
+            er 255 karakters zijn toegestaan in plaats van 24'
+          maxLength: 255
     OrganisatorischeEenheidIdentificatieRequest:
       type: object
       properties:
         identificatie:
           type: string
-          description: Een korte identificatie van de organisatorische eenheid.
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Een korte identificatie van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 24'
+          maxLength: 255
         naam:
           type: string
-          description: De feitelijke naam van de organisatorische eenheid.
-          maxLength: 50
+          description: '**EXPERIMENTEEL** De feitelijke naam van de organisatorische
+            eenheid. Dit veld wijkt af van de standaard, omdat er 255 karakters zijn
+            toegestaan in plaats van 50'
+          maxLength: 255
         isGehuisvestIn:
           type: string
-          maxLength: 24
+          description: '**EXPERIMENTEEL** Dit veld wijkt af van de standaard, omdat
+            er 255 karakters zijn toegestaan in plaats van 24'
+          maxLength: 255
     PaginatedExpandZaakList:
       type: object
       required:
