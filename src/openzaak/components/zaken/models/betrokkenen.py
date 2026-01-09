@@ -223,17 +223,32 @@ class OrganisatorischeEenheid(AbstractRolZaakobjectRelation):
     """
 
     identificatie = models.CharField(
-        max_length=24,
+        max_length=255,
         blank=True,
-        help_text="Een korte identificatie van de organisatorische eenheid.",
+        help_text=mark_experimental(
+            "Een korte identificatie van de organisatorische eenheid. "
+            "Dit veld wijkt af van de standaard, omdat er 255 "
+            "karakters zijn toegestaan in plaats van 24"
+        ),
         db_index=True,
     )
     naam = models.CharField(
-        max_length=50,
+        max_length=255,
         blank=True,
-        help_text="De feitelijke naam van de organisatorische eenheid.",
+        help_text=mark_experimental(
+            "De feitelijke naam van de organisatorische eenheid. "
+            "Dit veld wijkt af van de standaard, omdat er 255 "
+            "karakters zijn toegestaan in plaats van 50"
+        ),
     )
-    is_gehuisvest_in = models.CharField(max_length=24, blank=True)
+    is_gehuisvest_in = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=mark_experimental(
+            "Dit veld wijkt af van de standaard, omdat er 255 "
+            "karakters zijn toegestaan in plaats van 24"
+        ),
+    )
 
     class Meta:
         verbose_name = _("organisatorische eenheid")

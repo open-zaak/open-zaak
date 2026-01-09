@@ -104,6 +104,11 @@ Attributes
 
             * ``beginGeldigheid``: the date on which the validity period starts
             * ``eindeGeldigheid``: the date on which the validity period ends
+    * For ``betrokkeneType: "organisatorische_eenheid"``
+
+      * ``betrokkeneIdentificatie.identificatie`` max length is changed from 24 to 255
+      * ``betrokkeneIdentificatie.naam`` max length is changed from 50 to 255
+      * ``betrokkeneIdentificatie.isGehuisvestIn`` max length is changed from 24 to 255
 
 * ``Zaak``:
     * ``communicatiekanaalNaam`` is added
