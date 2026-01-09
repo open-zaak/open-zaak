@@ -12,7 +12,7 @@ from notifications_api_common.cloudevents import (
     process_cloudevent,
 )
 
-from openzaak.components.zaken.api.cloud_events import (
+from openzaak.components.zaken.api.cloudevents import (
     ZAAK_GEMUTEERD,
     ZAAK_VERWIJDEREN,
 )
