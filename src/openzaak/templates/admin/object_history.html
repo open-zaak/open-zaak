@@ -36,20 +36,28 @@
                             <td>{{ audit.resource_url }}</td>
                             <td>{{ audit.toelichting }}</td>
                             <td>
-                                <button class="button"
-                                        onclick="toggleTable('detail-{{ forloop.counter }}')">{% trans 'Toon wijzigingen' %}</button>
+                                <button class="button audit-button"
+                                        onclick="toggleTable('{{ forloop.counter }}', this)">{% trans 'Toon wijzigingen' %}</button>
                                 <script>
-                                    function toggleTable(id) {
+                                    function toggleTable(id, selected_button) {
+
                                         const tables = document.getElementsByClassName("audit-table");
                                         for (let table of tables) {
                                             table.style.display = "none";
-                                        };
+                                        }
 
-                                        const selected_table = document.getElementById(id);
-                                        selected_table.style.display = "block"
+                                        const buttons = document.getElementsByClassName("button");
+                                        for (let button of buttons) {
+                                            button.disabled = false;
+                                        }
+
+                                        selected_button.disabled = true;
+
+                                        const selected_table = document.getElementById(`detail-${id}`);
+                                        selected_table.style.display = "block";
 
                                         const title = document.getElementById("audit-table-title");
-                                        title.style.display = "block"
+                                        title.style.display = "block";
                                     }
                                 </script>
                             </td>
@@ -61,34 +69,37 @@
                 <h5 id="audit-table-title" style="display: none">Gewijzigde velden</h5>
 
                 {% for audit, changes in object.audittrail %}
-                    <table id='detail-{{ forloop.counter }}' style="display: none" class="audit-table">
-                        <thead>
-                        <tr>
-                            <th scope="col">{% trans 'veld' %}</th>
-                            <th scope="col">{% trans 'oud' %}</th>
-                            <th scope="col">{% trans 'nieuw' %}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for change in changes %}
-                            {% for field, diff in change.1.items %}
-                                <tr>
-                                    <th scope="row">{{ field }}</th>
-                                    {% if change.0 == 'add' %}
-                                        <td>-</td>
-                                        <td>{{ diff }}</td>
-                                    {% elif change.0 == 'change' %}
-                                        <td>{{ diff.0 }}</td>
-                                        <td>{{ diff.1 }}</td>
-                                    {% elif change.0 == 'remove' %}
-                                        <td>{{ diff }}</td>
-                                        <td>-</td>
-                                    {% endif %}
-                                </tr>
+                    <div id='detail-{{ forloop.counter }}' style="display: none" class="audit-table">
+                        <h5>{{ audit.aanmaakdatum }} - {{ audit.uuid }}</h5>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th scope="col">{% trans 'veld' %}</th>
+                                <th scope="col">{% trans 'oud' %}</th>
+                                <th scope="col">{% trans 'nieuw' %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for change in changes %}
+                                {% for field, diff in change.1.items %}
+                                    <tr>
+                                        <th scope="row">{{ field }}</th>
+                                        {% if change.0 == 'add' %}
+                                            <td>-</td>
+                                            <td>{{ diff }}</td>
+                                        {% elif change.0 == 'change' %}
+                                            <td>{{ diff.0 }}</td>
+                                            <td>{{ diff.1 }}</td>
+                                        {% elif change.0 == 'remove' %}
+                                            <td>{{ diff }}</td>
+                                            <td>-</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 {% endfor %}
 
             </div>
