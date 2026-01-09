@@ -97,6 +97,10 @@ jobs:
           pg-service: "postgres"
           setup-node: "yes"
 
+      - name: install playwright
+        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
+        run: playwright install --with-deps chromium
+
       - name: Run tests
 
         run: |

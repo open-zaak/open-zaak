@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2025 Dimpact
 import os
 import tempfile
 from collections.abc import Callable
