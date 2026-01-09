@@ -556,6 +556,11 @@ googleapis-common-protos==1.72.0
     #   opentelemetry-exporter-otlp-proto-http
 gprof2dot==2019.11.30
     # via django-silk
+greenlet==3.3.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   playwright
 grpcio==1.76.0
     # via
     #   -c requirements/ci.txt
@@ -816,6 +821,11 @@ platformdirs==4.3.8
     #   -r requirements/ci.txt
     #   requests-cache
     #   virtualenv
+playwright==1.57.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
@@ -889,6 +899,11 @@ pydantic-settings==2.7.0
     #   -r requirements/ci.txt
     #   bump-my-version
     #   django-setup-configuration
+pyee==13.0.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   playwright
 pygments==2.19.2
     # via
     #   -c requirements/ci.txt
@@ -937,12 +952,23 @@ pytest==8.3.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
+    #   pytest-base-url
     #   pytest-benchmark
+    #   pytest-playwright
+pytest-base-url==2.1.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
 pytest-benchmark==5.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
+pytest-playwright==0.7.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 python-creole==1.4.10
     # via
     #   -c requirements/ci.txt
@@ -978,6 +1004,11 @@ python-ipware==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-ipware
+python-slugify==8.0.4
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   pytest-playwright
 pytz==2022.6
     # via
     #   -c requirements/ci.txt
@@ -1027,6 +1058,7 @@ requests==2.32.4
     #   mozilla-django-oidc
     #   open-api-framework
     #   opentelemetry-exporter-otlp-proto-http
+    #   pytest-base-url
     #   requests-cache
     #   requests-mock
     #   requests-oauthlib
@@ -1181,6 +1213,11 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+text-unidecode==1.3
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   python-slugify
 textile==4.0.3
     # via
     #   -c requirements/ci.txt
@@ -1210,6 +1247,7 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pyee
     #   pyopenssl
     #   qrcode
     #   rich-click
