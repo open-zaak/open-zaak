@@ -110,7 +110,7 @@ jobs:
           --parallel-mode \
           src/manage.py test src \
             --parallel 4 \
-            --verbosity 2
+            --verbosity 2 \
             --exclude playwright
           coverage combine
         env:
