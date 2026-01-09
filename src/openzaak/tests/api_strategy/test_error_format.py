@@ -39,9 +39,9 @@ class DSOApi50Tests(APITestCase):
             views.ValidationErrorView,
             {
                 "code": "invalid",
-                "title": "Invalid input.",
+                "title": _("Invalid input."),
                 "status": 400,
-                "detail": "Invalid input.",
+                "detail": _("Invalid input."),
                 "invalid_params": [
                     {
                         "name": "foo",
