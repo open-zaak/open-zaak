@@ -85,7 +85,7 @@ class ZaakConvenienceCloudEventTest(
         informatieobject = EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=informatieobjecttype
         )
-        self.informatieobject_url = reverse(informatieobject)
+        self.informatieobject_url = self.check_for_instance(informatieobject)
 
         resultaattype = ResultaatTypeFactory(
             zaaktype=self.zaaktype,
@@ -99,6 +99,7 @@ class ZaakConvenienceCloudEventTest(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             verantwoordelijke_organisatie=517439943,
         )
+        self.zaak_url = self.check_for_instance(self.zaak)
 
     def test_zaak_registreren_cloudevent(self, mock_send_cloudevent):
         url = get_operation_url("registreerzaak_create")
@@ -123,7 +124,7 @@ class ZaakConvenienceCloudEventTest(
             ],
             "zaakinformatieobjecten": [
                 {
-                    "informatieobject": f"http://testserver{self.informatieobject_url}",
+                    "informatieobject": self.informatieobject_url,
                     "titel": "string",
                     "beschrijving": "string",
                     "vernietigingsdatum": "2011-08-24T14:15:22Z",
@@ -157,6 +158,7 @@ class ZaakConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         zaak = Zaak.objects.get(bronorganisatie="111222333")
+        zaak_url = self.check_for_instance(zaak)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -166,7 +168,7 @@ class ZaakConvenienceCloudEventTest(
                 "type": ZAAK_GEREGISTREERD,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": zaak_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "bronorganisatie": "111222333",
@@ -204,6 +206,7 @@ class ZaakConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         zaak = Zaak.objects.get()
+        zaak_url = self.check_for_instance(zaak)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -213,7 +216,7 @@ class ZaakConvenienceCloudEventTest(
                 "type": ZAAK_OPGESCHORT,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": zaak_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "bronorganisatie": "517439943",
@@ -268,7 +271,7 @@ class ZaakConvenienceCloudEventTest(
                 "type": ZAAK_BIJGEWERKT,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": self.zaak_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "bronorganisatie": "517439943",
@@ -315,7 +318,7 @@ class ZaakConvenienceCloudEventTest(
                 "type": ZAAK_VERLENGD,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": self.zaak_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "bronorganisatie": "517439943",
@@ -360,7 +363,7 @@ class ZaakConvenienceCloudEventTest(
                 "type": ZAAK_AFGESLOTEN,
                 "subject": str(zaak.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": self.zaak_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "bronorganisatie": "517439943",

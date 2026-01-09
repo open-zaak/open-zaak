@@ -90,6 +90,7 @@ class DocumentConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         document = EnkelvoudigInformatieObject.objects.get()
+        document_url = reverse(document)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -99,7 +100,7 @@ class DocumentConvenienceCloudEventTest(
                 "type": DOCUMENT_GEREGISTREERD,
                 "subject": str(document.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": f"http://testserver{document_url}",
                 "datacontenttype": "application/json",
                 "data": {
                     "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",

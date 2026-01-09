@@ -41,7 +41,7 @@ but currently Open Zaak can emit the following cloud events if configured:
 * ``zaak-geregistreerd``: emitted when the convenience endpoint 'zaak registreren' is called
 * ``zaak-opgeschort``: emitted when the convenience endpoint 'zaak opschorten' is called
 * ``zaak-bijgewerkt``: emitted when the convenience endpoint 'zaak bijwerken' is called
-* ``zaak-verlengt``: emitted when the convenience endpoint 'zaak verlengen' is called
+* ``zaak-verlengd``: emitted when the convenience endpoint 'zaak verlengen' is called
 * ``zaak-afgesloten`` emitted when the convenience endpoint 'zaak afsluiten' is called
 
 A webhook endpoint ``/events`` has been added where incoming events can be delivered.

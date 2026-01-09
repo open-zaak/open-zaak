@@ -93,6 +93,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
+        besluit_url = reverse(besluit)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -102,7 +103,7 @@ class BesluitConvenienceCloudEventTest(
                 "type": BESLUIT_VERWERKT,
                 "subject": str(besluit.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": None,
+                "dataref": f"http://testserver{besluit_url}",
                 "datacontenttype": "application/json",
                 "data": {
                     "verantwoordelijkeOrganisatie": "517439943",
