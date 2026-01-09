@@ -33,3 +33,8 @@ django-extensions
 
 # SPDX header checks
 click
+
+
+# playwright
+playwright
+pytest-playwright
