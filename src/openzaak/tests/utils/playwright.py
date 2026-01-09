@@ -7,6 +7,7 @@ from collections.abc import Callable
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from furl import furl
 from playwright.sync_api import Browser, Playwright, sync_playwright
@@ -146,7 +147,7 @@ class PlaywrightSyncLiveServerTestCase(StaticLiveServerTestCase):
         page.fill("#id_auth-username", user.username)
         page.fill("#id_auth-password", "secret")
 
-        page.get_by_role("button", name="Aanmelden").click()
+        page.get_by_role("button", name=_("Log in")).click()
         page.wait_for_url(cls.live_reverse("admin:index"))
 
         page.close()

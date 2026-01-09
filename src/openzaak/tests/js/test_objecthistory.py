@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
+from maykin_2fa.test import disable_admin_mfa
 from playwright.sync_api import expect
 
 from openzaak.accounts.tests.factories import SuperUserFactory
@@ -11,6 +13,7 @@ from openzaak.tests.utils.playwright import PlaywrightSyncLiveServerTestCase
 
 @tag("playwright")
 @override_settings(AXES_ENABLED=False)
+@disable_admin_mfa()
 class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
     def setUp(self):
         super().setUp()
@@ -23,6 +26,7 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         context = self.browser.new_context(storage_state=self.login_state)
 
         page = context.new_page()
+
         page.goto(self.live_reverse("admin:zaken_zaak_history", args=(zaak.pk,)))
 
         page.wait_for_url(
@@ -30,7 +34,11 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         )
 
         expect(
-            page.get_by_text("Dit object heeft geen wijzigingsgeschiedenis.")
+            page.get_by_text(
+                _(
+                    "This object doesn’t have a change history. It probably wasn’t added via this admin site."
+                )
+            )
         ).to_be_visible()
 
     def test_object_history_page_with_trails(self):
@@ -42,7 +50,7 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         # create 5 audittrails
         for i in range(5):
             page.fill("#id_toelichting", f"test {i}")
-            page.get_by_role("button", name="Opslaan en opnieuw bewerken").click()
+            page.get_by_role("button", name=_("Save and continue editing")).click()
             page.wait_for_url(
                 self.live_reverse("admin:zaken_zaak_change", args=(zaak.pk,))
             )
@@ -50,13 +58,14 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         page.goto(self.live_reverse("admin:zaken_zaak_history", args=(zaak.pk,)))
 
         # 5 audittrail rows are shown
-        self.assertEqual(page.locator("text=Toon wijzigingen").count(), 5)
+        buttons = page.locator(f"text={_('Toon wijzigingen')}")
+        self.assertEqual(buttons.count(), 5)
 
         # on page load no changed fields are shown
-        expect(page.get_by_text("Gewijzigde velden")).to_be_hidden()
+        expect(page.get_by_text(_("Gewijzigde velden"))).to_be_hidden()
 
         # toon wijzigingen
-        page.locator("text=Toon wijzigingen").first.click()
+        buttons.first.click()
         expect(page.get_by_text("Gewijzigde velden")).to_be_visible()
 
         # expect table text
@@ -64,7 +73,17 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         expect(table_div).to_be_visible()
         text = [t.strip() for t in table_div.text_content().split() if t.strip()]
         self.assertEqual(
-            text, ["veld", "oud", "nieuw", "toelichting", "test", "3", "test", "4"]
+            text,
+            [
+                _("veld"),
+                _("oud"),
+                _("nieuw"),
+                "toelichting",
+                "test",
+                "3",
+                "test",
+                "4",
+            ],
         )
 
         # expect other tables to be hidden
@@ -78,7 +97,7 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         self.assertEqual(disabled_buttons.count(), 1)
 
         # select different one
-        page.locator("text=Toon wijzigingen").nth(1).click()
+        buttons.nth(1).click()
         expect(page.get_by_text("Gewijzigde velden")).to_be_visible()
 
         # expect table text

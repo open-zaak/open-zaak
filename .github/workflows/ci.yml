@@ -110,7 +110,7 @@ jobs:
           --parallel-mode \
           src/manage.py test src \
             --parallel 4 \
-            --verbosity 2
+            --verbosity 2 \
             --exclude playwright
           coverage combine
         env:
@@ -124,11 +124,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: install playwright
-        if:  ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
+        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
         run: playwright install --with-deps chromium
 
       - name: Run playwright tests
-        if:  ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
+        if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
         run: src/manage.py test src --tag playwright
 
   performance-tests:
