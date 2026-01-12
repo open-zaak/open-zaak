@@ -19,6 +19,7 @@ from openzaak import celery_app
 from openzaak.components.documenten.api.serializers import (
     EnkelvoudigInformatieObjectSerializer,
 )
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
@@ -54,10 +55,13 @@ def copy_file_to_storage(src: Path, dst: Path) -> str:
     default_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
     storage = EnkelvoudigInformatieObject.inhoud.field.storage
 
-    if not settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE and not default_dir.exists():
+    if (
+        DocumentenBackendTypes.filesystem == settings.DOCUMENTEN_API_BACKEND
+        and not default_dir.exists()
+    ):
         default_dir.mkdir(parents=True)
 
-    if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
+    if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
         with open(src, "rb") as file:
             # A file could already exist at `dst` in the storage, so the actual path
             # to which the file ends up being saved is returned and stored on the

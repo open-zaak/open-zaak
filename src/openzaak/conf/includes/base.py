@@ -11,6 +11,7 @@ os.environ["_USE_STRUCTLOG"] = "True"
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
 
 from .api import *  # noqa
@@ -548,19 +549,23 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 LOGIN_URLS = [reverse_lazy("admin:login")]
 
 #
+# DOCUMENTEN API BACKEND CONFIGURATION
+#
+DOCUMENTEN_API_BACKEND = config(
+    "DOCUMENTEN_API_BACKEND",
+    default=DocumentenBackendTypes.filesystem,
+    help_text=(
+        "Indicates which backend should be used for the Documenten API. "
+        "**WARNING**: if documents already exist in one of these backends, switching "
+        "to another backend does not automatically migrate the files. "
+        f"Possible options: {', '.join(f'``{v}``' for v in DocumentenBackendTypes.values)}"
+    ),
+    group="Documenten API",
+)
+
+#
 # DOCUMENTEN API AZURE BLOB STORAGE INTEGRATION
 #
-DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE = config(
-    "DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE",
-    default=False,
-    cast=bool,
-    help_text=(
-        "Indicates whether or not Azure Blob Storage should be used instead of the "
-        "regular filesystem storage to store the content of "
-        "EnkelvoudigInformatieObjecten in the Documenten API."
-    ),
-    group="Documenten API Azure Blob Storage",
-)
 AZURE_ACCOUNT_NAME = config(
     "AZURE_ACCOUNT_NAME",
     None,

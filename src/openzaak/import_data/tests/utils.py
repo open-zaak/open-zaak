@@ -11,6 +11,7 @@ from django.test import override_settings
 
 from celery.utils.text import StringIO
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.import_data.tests.factories import ImportFactory
 from openzaak.utils.fields import get_default_path
 
@@ -70,7 +71,7 @@ class ImportTestMixin(TestCase):
         upload_dir = get_default_path(EnkelvoudigInformatieObject.inhoud.field)
 
         if (
-            not settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE
+            DocumentenBackendTypes.filesystem == settings.DOCUMENTEN_API_BACKEND
             and not upload_dir.is_relative_to(settings.PRIVATE_MEDIA_ROOT)
         ):
             raise ValueError(

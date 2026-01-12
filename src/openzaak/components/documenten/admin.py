@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     AuditTrailInlineAdminMixin,
@@ -258,9 +259,11 @@ class EnkelvoudigInformatieObjectInline(
 
     @property
     def private_media_file_widget(self):
-        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
-            return AzureFileWidget
-        return PrivateFileWidget
+        match settings.DOCUMENTEN_API_BACKEND:
+            case DocumentenBackendTypes.azure_blob_storage:
+                return AzureFileWidget
+            case DocumentenBackendTypes.filesystem | _:
+                return PrivateFileWidget
 
 
 def unlock(modeladmin, request, queryset):
@@ -310,7 +313,7 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
     def clean_inhoud(self):
         inhoud = self.cleaned_data.get("inhoud")
         if (
-            settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE
+            DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND
             and not documenten_storage.connection_check()
         ):
             raise ValidationError(
@@ -352,9 +355,11 @@ class EnkelvoudigInformatieObjectAdmin(
 
     @property
     def private_media_file_widget(self):
-        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
-            return AzureFileWidget
-        return PrivateFileWidget
+        match settings.DOCUMENTEN_API_BACKEND:
+            case DocumentenBackendTypes.azure_blob_storage:
+                return AzureFileWidget
+            case DocumentenBackendTypes.filesystem | _:
+                return PrivateFileWidget
 
     form = EnkelvoudigInformatieObjectForm
     list_select_related = ("canonical",)

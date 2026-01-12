@@ -3,6 +3,8 @@
 from django.test import override_settings
 from django.utils.functional import LazyObject
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
+
 from ...storage import documenten_storage
 
 
@@ -25,7 +27,7 @@ class AzureBlobStorageMixin:
         super().setUp()
 
         self.override_settings = override_settings(
-            DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE=True,
+            DOCUMENTEN_API_BACKEND=DocumentenBackendTypes.azure_blob_storage,
             AZURE_OVERWRITE_FILES=self.azure_overwrite_files,
         )
         self.override_settings.enable()

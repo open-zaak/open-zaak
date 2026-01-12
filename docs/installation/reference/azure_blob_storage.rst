@@ -15,8 +15,11 @@ Configuration
     already contains documents, the existing documents must be migrated to the new storage
     manually, as Open Zaak currently does not provide an automatic migration feature.
 
-In order to use Azure blob storage, several environment variables must be configured,
-see :ref:`installation_env_config` > ``Documenten API Azure Blob Storage``.
+In order to use Azure blob storage, several environment variables must be configured:
+
+* Set ``DOCUMENTEN_API_BACKEND`` to ``azure_blob_storage`` (see :ref:`installation_env_config` > ``Documenten API``)
+* See :ref:`installation_env_config` > ``Documenten API Azure Blob Storage`` for the remaining
+  variables
 
 To configure authentication, a service principal must be configured in Azure.
 Follow the `instructions <https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser>`_

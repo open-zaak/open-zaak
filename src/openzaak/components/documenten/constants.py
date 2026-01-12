@@ -72,3 +72,8 @@ class AfzenderTypes(models.TextChoices):
 class PostAdresTypes(models.TextChoices):
     antwoordnummer = "antwoordnummer", _("Antwoordnummer")
     postbusnummer = "postbusnummer", _("Postbusnummer")
+
+
+class DocumentenBackendTypes(models.TextChoices):
+    filesystem = "filesystem", _("Filesystem storage")
+    azure_blob_storage = "azure_blob_storage", _("Azure Blob Storage")

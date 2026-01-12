@@ -4,7 +4,7 @@ Using Azure blob storage for Documenten API
 ===========================================
 
 In order to test Azure blob storage for the Documenten API locally, make sure the environment
-variable ``DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE`` is set to ``true``.
+variable ``DOCUMENTEN_API_BACKEND`` is set to ``azure_blob_storage``.
 
 By default, the development and CI settings are configured to use a connection string to
 connect with `Azurite <https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite>`_.

@@ -106,10 +106,15 @@ Documenten import
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s. Defaults to: ``500``.
 
 
+Documenten API
+--------------
+
+* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``. Defaults to: ``filesystem``.
+
+
 Documenten API Azure Blob Storage
 ---------------------------------
 
-* ``DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE``: Indicates whether or not Azure Blob Storage should be used instead of the regular filesystem storage to store the content of EnkelvoudigInformatieObjecten in the Documenten API. Defaults to: ``False``.
 * ``AZURE_ACCOUNT_NAME``: Name of the Azure storage account. Defaults to: ``None``.
 * ``AZURE_CLIENT_ID``: Application (client) ID of the app registered in Azure for Open Zaak. Defaults to: ``None``.
 * ``AZURE_TENANT_ID``: Directory (tenant) ID of the Azure AD instance. Defaults to: ``None``.

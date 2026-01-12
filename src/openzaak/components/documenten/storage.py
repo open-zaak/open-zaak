@@ -14,6 +14,8 @@ from azure.storage.blob import BlobServiceClient
 from privates.storages import PrivateMediaFileSystemStorage
 from storages.backends.azure_storage import AzureStorage as _AzureStorage
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
+
 logger = structlog.stdlib.get_logger(__name__)
 
 
@@ -72,10 +74,11 @@ class AzureStorage(_AzureStorage):
 
 class DocumentenStorage(LazyObject):
     def _setup(self):
-        if settings.DOCUMENTEN_API_USE_AZURE_BLOB_STORAGE:
-            self._wrapped = AzureStorage()
-        else:
-            self._wrapped = PrivateMediaFileSystemStorage()
+        match settings.DOCUMENTEN_API_BACKEND:
+            case DocumentenBackendTypes.azure_blob_storage:
+                self._wrapped = AzureStorage()
+            case DocumentenBackendTypes.filesystem | _:
+                self._wrapped = PrivateMediaFileSystemStorage()
 
 
 documenten_storage = cast(Storage, DocumentenStorage())
