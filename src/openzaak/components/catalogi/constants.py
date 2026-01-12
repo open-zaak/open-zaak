@@ -19,6 +19,30 @@ class SelectielijstKlasseProcestermijn(models.TextChoices):
             "procestermijn en bewaartermijn samen een bewaartermijn vormen die direct kan gaan lopen na de procesfase."
         ),
     )
+    bestaansduur_procesobject = (
+        "bestaansduur_procesobject",
+        _(
+            "De lengte van de procestermijn is afhankelijk van het procesobject. "
+            "Nadat het procesobject haar geldigheid heeft verloren of niet meer "
+            "bestaat, gaat de bewaartermijn lopen."
+        ),
+    )
+    vast_te_leggen_datum = (
+        "vast_te_leggen_datum",
+        _(
+            "Tijdens de procesuitvoering wordt de datum bepaald wanneer het "
+            "procesobject haar geldigheid zal verliezen. Tot dat moment loopt de "
+            "procestermijn."
+        ),
+    )
+    samengevoegd_met_bewaartermijn = (
+        "samengevoegd_met_bewaartermijn",
+        _(
+            "De proces- en bewaartermijn zijn samengevoegd als totaalwaarde bij de "
+            "bewaartermijn. De datum waarop deze termijn moet gaan lopen is benoemd in "
+            "de toelichting bij de categorie en kan in het verleden liggen."
+        ),
+    )
 
 
 class FormaatChoices(models.TextChoices):

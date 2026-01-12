@@ -2,19 +2,17 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import gettext_lazy as _
 
-from rest_framework.exceptions import ErrorDetail
-from rest_framework.serializers import Serializer, ValidationError
+from rest_framework.exceptions import ErrorDetail, ValidationError
+from rest_framework.serializers import Serializer
 from rest_framework.settings import api_settings
 from vng_api_common.constants import (
     Archiefnominatie,
-    BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
 
 from openzaak.client import fetch_object
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_FORCED_WRITE
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
-from ..constants import SelectielijstKlasseProcestermijn as Procestermijn
 from ..utils import has_overlapping_objects
 from ..validators import (
     validate_brondatumarchiefprocedure,
@@ -175,59 +173,6 @@ class ProcesTypeValidator:
             raise ValidationError(
                 self.message.format(self.relation_field, self.zaaktype_field),
                 code=self.code,
-            )
-
-
-class ProcestermijnAfleidingswijzeValidator:
-    code = "invalid-afleidingswijze-for-procestermijn"
-    message = _(
-        "afleidingswijze cannot be {} when selectielijstklasse.procestermijn is {}"
-    )
-
-    def __init__(
-        self,
-        selectielijstklasse_field: str,
-        archiefprocedure_field="brondatum_archiefprocedure",
-    ):
-        self.selectielijstklasse_field = selectielijstklasse_field
-        self.archiefprocedure_field = archiefprocedure_field
-
-    def __call__(self, attrs: dict):
-        selectielijstklasse_url = attrs.get(self.selectielijstklasse_field)
-        archiefprocedure = attrs.get(self.archiefprocedure_field)
-
-        if not selectielijstklasse_url or not archiefprocedure:
-            return
-
-        selectielijstklasse = fetch_object(selectielijstklasse_url)
-        procestermijn = selectielijstklasse["procestermijn"]
-        afleidingswijze = archiefprocedure["afleidingswijze"]
-
-        error = False
-
-        if not procestermijn:
-            return
-
-        if (  # noqa
-            procestermijn == Procestermijn.nihil
-            and afleidingswijze != Afleidingswijze.afgehandeld
-        ) or (
-            procestermijn != Procestermijn.nihil
-            and afleidingswijze == Afleidingswijze.afgehandeld
-        ):
-            error = True
-        elif (
-            procestermijn == Procestermijn.ingeschatte_bestaansduur_procesobject
-            and afleidingswijze != Afleidingswijze.termijn
-        ) or (
-            procestermijn != Procestermijn.ingeschatte_bestaansduur_procesobject
-            and afleidingswijze == Afleidingswijze.termijn
-        ):
-            error = True
-
-        if error:
-            raise ValidationError(
-                self.message.format(afleidingswijze, procestermijn), code=self.code
             )
 
 

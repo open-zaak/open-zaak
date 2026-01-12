@@ -9,8 +9,10 @@ to validators when using serializer validation.
 
 import uuid
 from unittest.mock import patch
+from urllib.parse import urlencode
 
 from django.test import TestCase, tag
+from django.utils.translation import gettext as _
 
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
@@ -25,6 +27,9 @@ from ..factories import ZaakTypeFactory
 
 RESULTAAT_URL = "https://selectielijst.openzaak.nl/api/v1/resultaten/{uuid}"
 PROCESTYPE_URL = "https://selectielijst.openzaak.nl/api/v1/procestypen/{uuid}"
+RESULTAATTYPEOMSCHRIJVING_URL = (
+    "https://selectielijst.openzaak.nl/api/v1/omschrijving/1"
+)
 
 
 @tag("resultaattype")
@@ -213,7 +218,13 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                 error = form.errors.as_data()[
                     "brondatum_archiefprocedure_afleidingswijze"
                 ][0]
-                self.assertEqual(error.code, "invalid")
+                self.assertEqual(
+                    error.code, "invalid-afleidingswijze-for-procestermijn"
+                )
+                expected_message = _(
+                    "afleidingswijze must be {} when selectielijstklasse.procestermijn is {}"
+                ).format(Afleidingswijze.afgehandeld, Procestermijn.nihil)
+                self.assertEqual(error.message, expected_message)
 
     def test_procestermijn_nihil_reverse(self, mock_has_shape, mock_fetcher):
         """
@@ -239,12 +250,13 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
 
         # See https://ref.tst.vng.cloud/referentielijsten/api/v1/schema/#operation/resultaat_read
         # procesTermijn enum
-        for value in (
-            "bestaansduur_procesobject",
-            "ingeschatte_bestaansduur_procesobject",
-            "vast_te_leggen_datum",
-            "samengevoegd_met_bewaartermijn",
-        ):
+        for value in Procestermijn.values:
+            if value in (
+                Procestermijn.nihil,
+                Procestermijn.ingeschatte_bestaansduur_procesobject,
+            ):
+                continue
+
             with self.subTest(procestermijn=value):
                 # re-use same form instance...
                 form._errors = None
@@ -266,7 +278,13 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                 error = form.errors.as_data()[
                     "brondatum_archiefprocedure_afleidingswijze"
                 ][0]
-                self.assertEqual(error.code, "invalid")
+                self.assertEqual(
+                    error.code, "invalid-afleidingswijze-for-procestermijn"
+                )
+                expected_message = _(
+                    "afleidingswijze cannot be {} when selectielijstklasse.procestermijn is {}"
+                ).format(Afleidingswijze.afgehandeld, value)
+                self.assertEqual(error.message, expected_message)
 
     def test_procestermijn_ingeschatte_bestaansduur_procesobject(
         self, mock_has_shape, mock_fetcher
@@ -275,7 +293,7 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
         Validate that the afleidingswijze is fixed for 'ingeschatte_bestaansduur_procesobject' values.
 
         If the selectielijstresultaat.procestermijn is ingeschatte_bestaansduur_procesobject, then
-        afleidingswijze MUST be 'afgehandeld' and vice versa.
+        afleidingswijze MUST be 'termijn'
         """
         procestype = PROCESTYPE_URL.format(uuid="e1b73b12-b2f6-4c4e-8929-94f84dd2a57d")
         resultaat_url = RESULTAAT_URL.format(
@@ -314,47 +332,89 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
                 error = form.errors.as_data()[
                     "brondatum_archiefprocedure_afleidingswijze"
                 ][0]
-                self.assertEqual(error.code, "invalid")
+                self.assertEqual(
+                    error.code, "invalid-afleidingswijze-for-procestermijn"
+                )
+                expected_message = _(
+                    "afleidingswijze must be {} when selectielijstklasse.procestermijn is {}"
+                ).format(
+                    Afleidingswijze.termijn,
+                    Procestermijn.ingeschatte_bestaansduur_procesobject,
+                )
+                self.assertEqual(error.message, expected_message)
 
-    def test_procestermijn_ingeschatte_bestaansduur_procesobject_reverse(
+    def test_afleidingswijze_termijn_allowed_for_all_procestermijnen_except_nihil(
         self, mock_has_shape, mock_fetcher
     ):
-        """
-        Validate that the afleidingswijze is fixed for 'nihil' values.
-
-        If the selectielijstresultaat.procestermijn is nihil, then
-        afleidingswijze MUST be 'termijn' and vice versa.
-        """
         procestype = PROCESTYPE_URL.format(uuid="e1b73b12-b2f6-4c4e-8929-94f84dd2a57d")
         resultaat_url = RESULTAAT_URL.format(
-            uuid="ebe82547-609d-464d-875e-7088bf5dc8aa"
+            uuid="d92e5a77-c523-4273-b8e0-c912115ef156"
         )
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=procestype)
-
+        self.requests_mocker.get(
+            f"{self.base}resultaten?{urlencode({'procesType': procestype})}",
+            json={
+                "count": 100,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "algemeenBestuurEnInrichtingOrganisatie": True,
+                        "alleTaakgebieden": False,
+                        "bedrijfsvoeringEnPersoneel": True,
+                        "bewaartermijn": "P5Y",
+                        "burgerzaken": True,
+                        "economie": False,
+                        "generiek": True,
+                        "heffenBelastingen": False,
+                        "herkomst": "Risicoanalyse",
+                        "naam": "Niet doorgegaan",
+                        "nummer": 4,
+                        "omschrijving": "",
+                        "onderwijs": False,
+                        "procesType": procestype,
+                        "procestermijn": "nihil",
+                        "procestermijnOpmerking": "",
+                        "procestermijnWeergave": "Nihil",
+                        "publiekeInformatieEnRegistratie": False,
+                        "sociaalDomein": False,
+                        "specifiek": False,
+                        "sportCultuurEnRecreatie": False,
+                        "toelichting": "",
+                        "url": resultaat_url,
+                        "veiligheid": False,
+                        "verkeerEnVervoer": False,
+                        "vhrosv": False,
+                        "volksgezonheidEnMilieu": False,
+                        "volledigNummer": "1.4",
+                        "waardering": "vernietigen",
+                    },
+                ],
+            },
+        )
+        self.requests_mocker.get(
+            RESULTAATTYPEOMSCHRIJVING_URL, json={"omschrijving": "test"}
+        )
         form = ResultaatTypeForm(
             data={
+                "uuid": "1e64028d-027b-4a62-9ca7-964fce505049",
+                "omschrijving": "resultaattype",
                 "selectielijstklasse": resultaat_url,
+                "resultaattypeomschrijving": RESULTAATTYPEOMSCHRIJVING_URL,
                 "zaaktype": zaaktype.id,
                 "brondatum_archiefprocedure_afleidingswijze": Afleidingswijze.termijn,
+                "brondatum_archiefprocedure_procestermijn_days": 30,
             },
             _zaaktype=zaaktype,
         )
 
-        # See https://ref.tst.vng.cloud/referentielijsten/api/v1/schema/#operation/resultaat_read
-        # procesTermijn enum
-        for value in (
-            "nihil",
-            "bestaansduur_procesobject",
-            "vast_te_leggen_datum",
-            "samengevoegd_met_bewaartermijn",
-        ):
+        for value in Procestermijn.values:
             with self.subTest(procestermijn=value):
                 # re-use same form instance...
                 form._errors = None
 
                 # set up selectielijst API mock
-                self.requests_mocker.register_uri(
-                    "GET",
+                self.requests_mocker.get(
                     resultaat_url,
                     json={
                         "url": resultaat_url,
@@ -365,11 +425,24 @@ class ResultaattypeAfleidingswijzeSelectielijstValidationTests(
 
                 valid = form.is_valid()
 
-                self.assertFalse(valid)
-                error = form.errors.as_data()[
-                    "brondatum_archiefprocedure_afleidingswijze"
-                ][0]
-                self.assertEqual(error.code, "invalid")
+                if value == Procestermijn.nihil:
+                    self.assertFalse(valid)
+                    error = form.errors.as_data()[
+                        "brondatum_archiefprocedure_afleidingswijze"
+                    ][0]
+                    self.assertEqual(
+                        error.code, "invalid-afleidingswijze-for-procestermijn"
+                    )
+                    expected_message = _(
+                        "afleidingswijze must be {} when selectielijstklasse.procestermijn is {}"
+                    ).format(
+                        Afleidingswijze.afgehandeld,
+                        Procestermijn.nihil,
+                    )
+                    self.assertEqual(error.message, expected_message)
+
+                else:
+                    self.assertTrue(valid)
 
 
 @tag("resultaattype")
