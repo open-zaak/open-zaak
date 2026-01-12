@@ -153,4 +153,8 @@ intersphinx_mapping = {
         "https://open-api-framework.readthedocs.io/en/latest",
         None,
     ),
+    "open-notificaties": (
+        "https://open-notificaties.readthedocs.io/en/latest",
+        None,
+    ),
 }
