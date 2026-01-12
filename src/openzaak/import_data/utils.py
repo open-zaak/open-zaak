@@ -2,7 +2,6 @@
 # Copyright (C) 2019 - 2024 Dimpact
 import csv
 import functools
-import shutil
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -133,8 +132,7 @@ def cleanup_import_files(batch: list) -> None:
             continue
 
         path = row.imported_path
-
-        if not path or not path.exists():
+        if not path or not row.instance.inhoud.storage.exists(path):
             continue
 
         logger.debug(
@@ -143,10 +141,7 @@ def cleanup_import_files(batch: list) -> None:
             row_index=row.row_index,
         )
 
-        if path.is_dir():
-            shutil.rmtree(path, ignore_errors=True)
-        else:
-            path.unlink(missing_ok=True)
+        row.instance.inhoud.storage.delete(path)
 
 
 def write_to_file(instance: Import, batch: list, headers: list) -> None:

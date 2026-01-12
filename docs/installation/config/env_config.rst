@@ -106,6 +106,26 @@ Documenten import
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s. Defaults to: ``500``.
 
 
+Documenten API
+--------------
+
+* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``. Defaults to: ``filesystem``.
+
+
+Documenten API Azure Blob Storage
+---------------------------------
+
+* ``AZURE_ACCOUNT_NAME``: Name of the Azure storage account. Defaults to: ``None``.
+* ``AZURE_CLIENT_ID``: Application (client) ID of the app registered in Azure for Open Zaak. Defaults to: ``None``.
+* ``AZURE_TENANT_ID``: Directory (tenant) ID of the Azure AD instance. Defaults to: ``None``.
+* ``AZURE_CLIENT_SECRET``: Client secret of the app registered in Azure for Open Zaak. Defaults to: ``None``.
+* ``AZURE_CONTAINER``: Name of the Azure blob storage container where the content of Documenten will be stored. This container must already exist in Azure. **WARNING**: changing this name after documents have already been created in the old container requires manual migration of those documents. Defaults to: ``openzaak``.
+* ``AZURE_LOCATION``: Location where the uploaded Documenten content will be stored. **WARNING**: changing this location after documents have already been created at the old location requires manual migration of those documents. Defaults to: ``documenten``.
+* ``AZURE_CONNECTION_TIMEOUT_SECS``: Number of seconds before a timeout will be raised when making requests to Azure. Defaults to: ``5``.
+* ``AZURE_STORAGE_API_VERSION``: The Storage API version to use for requests. Default value is the most recent service version that is compatible with the current SDK. Setting to an older version may result in reduced feature compatibility. See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services for more information.
+* ``AZURE_URL_EXPIRATION_SECS``: Seconds before a URL to a blob expires, set to ``None`` to never expire it. Be aware the container must have public read permissions in order to access a URL without expiration date. Defaults to: ``60``.
+
+
 Optional
 --------
 

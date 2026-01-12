@@ -12,6 +12,18 @@ Open Zaak users can make use of the import functionality for ``EnkelvoudigInform
 Open Zaak exposes several API endpoints (which are not part of the Documenten API standard)
 to help aid the user to import larger amounts of ``EnkelvoudigInformatieObject``'s.
 
+.. note::
+
+    This bulk import was specifically implemented for Documenten API using the (default) filestorage backend.
+    It does function correctly for other backends such as Azure blob storage, but it might
+    not be as performant.
+
+    In addition to this, the behavior of the bulk import for filesystem storage and blob storage
+    with regard to existing files is slightly different: with filesystem storage, if a file already exists on storage at the path
+    defined in the metadata file, this existing file will be overwritten by the imported file.
+    For blob storage, a suffix is appended to the filename to make sure the original file
+    is not overwritten.
+
 Configuration
 --------------
 

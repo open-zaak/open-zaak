@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db import transaction
+from django.http import FileResponse
 from django.utils.translation import gettext_lazy as _
 
 import structlog
@@ -35,6 +36,7 @@ from vng_api_common.filters_backend import Backend
 from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
@@ -343,6 +345,8 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
+        if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
+            return FileResponse(eio.inhoud.file, as_attachment=True)
         return sendfile(
             request,
             eio.inhoud.path,

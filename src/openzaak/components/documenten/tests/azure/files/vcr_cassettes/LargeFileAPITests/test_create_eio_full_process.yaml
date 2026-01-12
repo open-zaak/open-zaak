@@ -1,0 +1,200 @@
+interactions:
+- request:
+    body: filecontentstring
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:G35dYE+1N2NQ9SpRMJupvf3vpFG57gWl6NlWjhIa3yA=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '17'
+      Content-Type:
+      - application/octet-stream
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-blob-content-type:
+      - text/plain
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 4d3d3c4c-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: PUT
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/c8f138c5c0d249608f51f5a399a716a2.txt?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      content-md5:
+      - vd7zzIWI+8ImXl1GAHmsgA==
+      date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      etag:
+      - '"0x2567743E5060A80"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-client-request-id:
+      - 4d3d3c4c-d76e-11f0-b763-f4289da6022f
+      x-ms-request-id:
+      - be0a6cb4-9399-41b0-ba5b-f69cdf32409f
+      x-ms-request-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 201
+      message: Created
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:UGB/eI/+FTtxf0raKITQk9yXV9YJHCmI7a8NvA1cg9w=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 4d3d3c4d-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-version:
+      - '2025-11-05'
+    method: HEAD
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/c8f138c5c0d249608f51f5a399a716a2.txt?timeout=5
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '17'
+      content-md5:
+      - vd7zzIWI+8ImXl1GAHmsgA==
+      content-type:
+      - text/plain
+      date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      etag:
+      - '"0x2567743E5060A80"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-access-tier:
+      - Hot
+      x-ms-access-tier-change-time:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-access-tier-inferred:
+      - 'true'
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 4d3d3c4d-d76e-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - e2efff7a-3765-42f1-884f-2dc8a11200dd
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/xml
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - SharedKey devstoreaccount1:2wDjGwyKqhTqFK3x/psjgcdjYYPk0cEm+qD9yFuU2qI=
+      Connection:
+      - keep-alive
+      User-Agent:
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      x-ms-client-request-id:
+      - 4d3d3c4e-d76e-11f0-b763-f4289da6022f
+      x-ms-date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-range:
+      - bytes=0-33554431
+      x-ms-version:
+      - '2025-11-05'
+    method: GET
+    uri: http://127.0.0.1:10000/devstoreaccount1/openzaak/documenten/uploads/2025/12/c8f138c5c0d249608f51f5a399a716a2.txt?timeout=5
+  response:
+    body:
+      string: filecontentstring
+    headers:
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - timeout=5
+      Server:
+      - Azurite-Blob/3.35.0
+      accept-ranges:
+      - bytes
+      content-length:
+      - '17'
+      content-range:
+      - bytes 0-16/17
+      content-type:
+      - text/plain
+      date:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      etag:
+      - '"0x2567743E5060A80"'
+      last-modified:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-blob-content-md5:
+      - vd7zzIWI+8ImXl1GAHmsgA==
+      x-ms-blob-type:
+      - BlockBlob
+      x-ms-client-request-id:
+      - 4d3d3c4e-d76e-11f0-b763-f4289da6022f
+      x-ms-creation-time:
+      - Fri, 12 Dec 2025 15:21:59 GMT
+      x-ms-lease-state:
+      - available
+      x-ms-lease-status:
+      - unlocked
+      x-ms-request-id:
+      - 0b74583d-cb46-47b6-9c0f-599669048403
+      x-ms-server-encrypted:
+      - 'true'
+      x-ms-version:
+      - '2025-11-05'
+    status:
+      code: 206
+      message: Partial Content
+version: 1

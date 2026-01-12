@@ -11,6 +11,7 @@ os.environ["_USE_STRUCTLOG"] = "True"
 from open_api_framework.conf.base import *  # noqa
 from open_api_framework.conf.utils import config, get_sentry_integrations
 
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
 
 from .api import *  # noqa
@@ -546,3 +547,105 @@ CSRF_FAILURE_VIEW = "maykin_common.views.csrf_failure"
 # Note: the LOGIN_URL Django setting is not used because you could have
 # multiple login urls defined.
 LOGIN_URLS = [reverse_lazy("admin:login")]
+
+#
+# DOCUMENTEN API BACKEND CONFIGURATION
+#
+DOCUMENTEN_API_BACKEND = config(
+    "DOCUMENTEN_API_BACKEND",
+    default=DocumentenBackendTypes.filesystem,
+    help_text=(
+        "Indicates which backend should be used for the Documenten API. "
+        "**WARNING**: if documents already exist in one of these backends, switching "
+        "to another backend does not automatically migrate the files. "
+        f"Possible options: {', '.join(f'``{v}``' for v in DocumentenBackendTypes.values)}"
+    ),
+    group="Documenten API",
+)
+
+#
+# DOCUMENTEN API AZURE BLOB STORAGE INTEGRATION
+#
+AZURE_ACCOUNT_NAME = config(
+    "AZURE_ACCOUNT_NAME",
+    None,
+    help_text=("Name of the Azure storage account."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CLIENT_ID = config(
+    "AZURE_CLIENT_ID",
+    None,
+    help_text=("Application (client) ID of the app registered in Azure for Open Zaak."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_TENANT_ID = config(
+    "AZURE_TENANT_ID",
+    None,
+    help_text=("Directory (tenant) ID of the Azure AD instance."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CLIENT_SECRET = config(
+    "AZURE_CLIENT_SECRET",
+    None,
+    help_text=("Client secret of the app registered in Azure for Open Zaak."),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CONTAINER = config(
+    "AZURE_CONTAINER",
+    "openzaak",
+    help_text=(
+        "Name of the Azure blob storage container where the content of Documenten will be stored. "
+        "This container must already exist in Azure. "
+        "**WARNING**: changing this name after documents have already been created "
+        "in the old container requires manual migration of those documents."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_LOCATION = config(
+    "AZURE_LOCATION",
+    "documenten",
+    help_text=(
+        "Location where the uploaded Documenten content will be stored. "
+        "**WARNING**: changing this location after documents have already been created "
+        "at the old location requires manual migration of those documents."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_CONNECTION_TIMEOUT_SECS = config(
+    "AZURE_CONNECTION_TIMEOUT_SECS",
+    5,
+    help_text=(
+        "Number of seconds before a timeout will be raised when making requests to "
+        "Azure."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
+AZURE_STORAGE_API_VERSION = config(
+    "AZURE_STORAGE_API_VERSION",
+    "",
+    help_text=(
+        "The Storage API version to use for requests. Default value is the most recent "
+        "service version that is compatible with the current SDK. Setting to an older "
+        "version may result in reduced feature compatibility. "
+        "See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services "
+        "for more information."
+    ),
+    auto_display_default=False,
+    group="Documenten API Azure Blob Storage",
+)
+
+if AZURE_STORAGE_API_VERSION:
+    # Only override the version if it's explicitly set, that way we can rely on the
+    # default version specified by the azure-sdk if it's not explicitly set
+    AZURE_CLIENT_OPTIONS = {"api_version": AZURE_STORAGE_API_VERSION}
+
+AZURE_URL_EXPIRATION_SECS = config(
+    "AZURE_URL_EXPIRATION_SECS",
+    60,
+    help_text=(
+        "Seconds before a URL to a blob expires, set to ``None`` to never expire it. "
+        "Be aware the container must have public read permissions in order to access "
+        "a URL without expiration date."
+    ),
+    group="Documenten API Azure Blob Storage",
+)
