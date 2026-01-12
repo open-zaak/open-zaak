@@ -69,6 +69,7 @@ Reference
    reference/time
    reference/1-5_upgrade
    reference/import
+   reference/azure_blob_storage
 
 Observability
 -------------
@@ -77,4 +78,3 @@ Observability
    :maxdepth: 1
 
    observability/index
-  
