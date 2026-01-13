@@ -2003,6 +2003,7 @@ class ZaakNotitieViewSet(
         "retrieve": SCOPE_ZAKEN_ALLES_LEZEN,
         "create": SCOPE_ZAKEN_BIJWERKEN,
         "update": SCOPE_ZAKEN_BIJWERKEN,
+        "partial_update": SCOPE_ZAKEN_BIJWERKEN,
         "destroy": SCOPE_ZAKEN_BIJWERKEN,
     }
 

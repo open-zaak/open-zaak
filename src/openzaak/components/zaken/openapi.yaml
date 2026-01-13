@@ -6587,6 +6587,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedZaakNotitieRequest'
+      security:
+      - JWT-Claims:
+        - zaken.bijwerken
       responses:
         '200':
           headers:
