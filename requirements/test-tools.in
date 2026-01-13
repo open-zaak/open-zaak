@@ -35,6 +35,6 @@ django-extensions
 click
 
 
-# playwright
+# user interface testing
 playwright
 pytest-playwright
