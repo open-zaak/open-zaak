@@ -314,7 +314,9 @@ class EnkelvoudigInformatieObjectViewSet(
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.detail:
+        if (
+            self.detail
+        ):  # detail needs to be able to filter by versie for VERSIE_QUERY_PARAM
             return queryset.order_by("canonical", "-versie").distinct("canonical")
         return queryset.filter(latest_version_of__isnull=False)
 
