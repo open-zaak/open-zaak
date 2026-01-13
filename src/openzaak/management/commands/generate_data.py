@@ -285,6 +285,14 @@ class Command(BaseCommand):
             ),
         )
 
+        parser.add_argument(
+            "--documenten-only",
+            dest="document_only",
+            action="store_true",
+            default=False,
+            help=("If enabled, will only generate documenten"),
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
         self.partition = options["partition"]
@@ -296,6 +304,8 @@ class Command(BaseCommand):
         ]
         self.without_zaakgeometrie = options["without_zaakgeometrie"]
 
+        document_only = options["document_only"]
+
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
             "Are you sure you want to do this? Type 'yes' to continue, or 'no' to cancel: "
@@ -305,10 +315,14 @@ class Command(BaseCommand):
 
         self.get_sl_data()
         self.generate_catalogi()
-        self.generate_zaken()
-        self.generate_besluiten()
+        if not document_only:
+            self.generate_zaken()
+            self.generate_besluiten()
+
         self.generate_documenten()
-        self.generate_relations()
+
+        if not document_only:
+            self.generate_relations()
 
         if generate_superuser_credentials:
             self.generate_superuser_credentials()

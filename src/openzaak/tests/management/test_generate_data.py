@@ -520,6 +520,35 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             with self.assertRaises(CommandError):
                 call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
 
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_document_only(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                zaaktypen=1,
+                zaken=1,
+                document_only=True,
+            )
+
+            # check that the data is generated
+            generated_objects_count = {
+                "catalogi.Catalogus": 1,
+                "catalogi.ZaakType": 1,
+                "catalogi.StatusType": 3,
+                "catalogi.RolType": 1,
+                "catalogi.ResultaatType": 2,
+                "catalogi.Eigenschap": 1,
+                "documenten.EnkelvoudigInformatieObjectCanonical": 1,
+                "documenten.EnkelvoudigInformatieObject": 1,
+            }
+
+            for model_name, obj_count in generated_objects_count.items():
+                with self.subTest(model_name):
+                    model = apps.get_model(model_name)
+                    self.assertEqual(model.objects.count(), obj_count)
+
 
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")
