@@ -468,7 +468,7 @@ class BesluitVerwerkenViewSet(
         process_cloudevent(
             type=BESLUIT_VERWERKT,
             subject=str(data["besluit"].uuid),
-            dataref=serializer.data["besluit"]["url"],
+            dataref=data["besluit"].get_absolute_api_url(),
             data={
                 "verantwoordelijkeOrganisatie": data[
                     "besluit"

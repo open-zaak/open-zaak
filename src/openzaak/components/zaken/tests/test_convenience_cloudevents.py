@@ -99,7 +99,7 @@ class ZaakConvenienceCloudEventTest(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             verantwoordelijke_organisatie=517439943,
         )
-        self.zaak_url = self.check_for_instance(self.zaak)
+        self.zaak_url = reverse(self.zaak)
 
     def test_zaak_registreren_cloudevent(self, mock_send_cloudevent):
         url = get_operation_url("registreerzaak_create")
@@ -158,7 +158,7 @@ class ZaakConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         zaak = Zaak.objects.get(bronorganisatie="111222333")
-        zaak_url = self.check_for_instance(zaak)
+        zaak_url = reverse(zaak)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -206,7 +206,7 @@ class ZaakConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         zaak = Zaak.objects.get()
-        zaak_url = self.check_for_instance(zaak)
+        zaak_url = reverse(zaak)
 
         mock_send_cloudevent.assert_called_once_with(
             {

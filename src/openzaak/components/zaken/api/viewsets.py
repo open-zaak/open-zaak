@@ -2121,7 +2121,7 @@ class ZaakRegistrerenViewset(
         process_cloudevent(
             type=ZAAK_GEREGISTREERD,
             subject=serializer.data["zaak"]["uuid"],
-            dataref=serializer.data["zaak"]["url"],
+            dataref=data["zaak"].get_absolute_api_url(),
             data={
                 "bronorganisatie": data["zaak"].bronorganisatie,
                 "verantwoordelijkeOrganisatie": data[
@@ -2273,7 +2273,7 @@ class ZaakUpdateActionViewSet(
         process_cloudevent(
             type=self.cloudevent,
             subject=serializer.data["zaak"]["uuid"],
-            dataref=serializer.data["zaak"]["url"],
+            dataref=data["zaak"].get_absolute_api_url(),
             data={
                 "bronorganisatie": data["zaak"].bronorganisatie,
                 "verantwoordelijkeOrganisatie": data[

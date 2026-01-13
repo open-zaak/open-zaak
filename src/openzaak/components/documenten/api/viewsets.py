@@ -1222,7 +1222,7 @@ class DocumentRegistrerenViewSet(
         process_cloudevent(
             type=DOCUMENT_GEREGISTREERD,
             subject=str(data["enkelvoudiginformatieobject"].uuid),
-            dataref=serializer.data["enkelvoudiginformatieobject"]["url"],
+            dataref=data["enkelvoudiginformatieobject"].get_absolute_api_url(),
             data={
                 "informatieobjecttype": serializer.data["enkelvoudiginformatieobject"][
                     "informatieobjecttype"

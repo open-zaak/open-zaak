@@ -100,7 +100,7 @@ class DocumentConvenienceCloudEventTest(
                 "type": DOCUMENT_GEREGISTREERD,
                 "subject": str(document.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": f"http://testserver{document_url}",
+                "dataref": document_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "informatieobjecttype": f"http://testserver{informatieobjecttype_url}",

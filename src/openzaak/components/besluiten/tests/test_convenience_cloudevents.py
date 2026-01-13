@@ -103,7 +103,7 @@ class BesluitConvenienceCloudEventTest(
                 "type": BESLUIT_VERWERKT,
                 "subject": str(besluit.uuid),
                 "time": "2025-10-10T00:00:00Z",
-                "dataref": f"http://testserver{besluit_url}",
+                "dataref": besluit_url,
                 "datacontenttype": "application/json",
                 "data": {
                     "verantwoordelijkeOrganisatie": "517439943",
