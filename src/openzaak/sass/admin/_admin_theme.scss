@@ -330,3 +330,12 @@ div:has(> div.help ) {
   display: inline-block;
   margin-left: inherit !important;
 }
+
+.audit-button[disabled] {
+  cursor: not-allowed;
+
+  &:hover {
+    background: var(--button-bg);
+  }
+
+}

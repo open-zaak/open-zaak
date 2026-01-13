@@ -521,6 +521,8 @@ googleapis-common-protos==1.72.0
     #   -r requirements/base.txt
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
+greenlet==3.3.0
+    # via playwright
 grpcio==1.76.0
     # via
     #   -c requirements/base.txt
@@ -763,6 +765,10 @@ platformdirs==4.3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
+playwright==1.57.0
+    # via
+    #   -r requirements/test-tools.in
+    #   pytest-playwright
 pluggy==1.5.0
     # via pytest
 prometheus-client==0.22.1
@@ -820,6 +826,8 @@ pydantic-settings==2.7.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-setup-configuration
+pyee==13.0.0
+    # via playwright
 pygments==2.19.2
     # via
     #   -c requirements/base.txt
@@ -857,9 +865,15 @@ pytest==8.3.3
     # via
     #   -r requirements/performance-tests.in
     #   -r requirements/test-tools.in
+    #   pytest-base-url
     #   pytest-benchmark
+    #   pytest-playwright
+pytest-base-url==2.1.0
+    # via pytest-playwright
 pytest-benchmark==5.1.0
     # via -r requirements/performance-tests.in
+pytest-playwright==0.7.2
+    # via -r requirements/test-tools.in
 python-creole==1.4.10
     # via
     #   -c requirements/base.txt
@@ -895,6 +909,8 @@ python-ipware==3.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-ipware
+python-slugify==8.0.4
+    # via pytest-playwright
 pytz==2022.6
     # via
     #   -c requirements/base.txt
@@ -941,6 +957,7 @@ requests==2.32.4
     #   msal
     #   open-api-framework
     #   opentelemetry-exporter-otlp-proto-http
+    #   pytest-base-url
     #   requests-cache
     #   requests-mock
     #   requests-oauthlib
@@ -1054,6 +1071,8 @@ structlog==25.4.0
     #   django-structlog
 tblib==1.7.0
     # via -r requirements/test-tools.in
+text-unidecode==1.3
+    # via python-slugify
 textile==4.0.3
     # via
     #   -c requirements/base.txt
@@ -1083,6 +1102,7 @@ typing-extensions==4.12.2
     #   psycopg-pool
     #   pydantic
     #   pydantic-core
+    #   pyee
     #   pyopenssl
     #   qrcode
     #   zgw-consumers
