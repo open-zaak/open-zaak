@@ -137,6 +137,20 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             _("Notitie can only be modified when status is `concept`."),
         )
 
+    def test_partial_update(self):
+        notitie = ZaakNotitieFactory.create(
+            onderwerp="Old Value",
+            status=NotitieStatus.CONCEPT,
+        )
+        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
+
+        data = {"onderwerp": "New Value"}
+        response = self.client.patch(detail_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        notitie = ZaakNotitie.objects.get()
+        self.assertEqual(notitie.onderwerp, "New Value")
+
     def test_delete(self):
         notitie = ZaakNotitieFactory.create(onderwerp="Old Value")
         self.assertEqual(ZaakNotitie.objects.count(), 1)
