@@ -30,7 +30,7 @@ drf-extra-fields
 drf-writable-nested
 humanize
 
-commonground-api-common[setup-configuration, testutils, oas]
+commonground-api-common[setup-configuration,testutils,oas]
 maykin-common[axes,mfa,otel]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
