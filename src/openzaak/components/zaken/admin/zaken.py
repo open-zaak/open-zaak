@@ -38,6 +38,7 @@ from ..models import (
     ZaakContactMoment,
     ZaakEigenschap,
     ZaakInformatieObject,
+    ZaakNotitie,
     ZaakObject,
     ZaakVerzoek,
 )
@@ -600,6 +601,29 @@ class ZaakKenmerkAdmin(admin.ModelAdmin):
     raw_id_fields = ["zaak"]
 
 
+@admin.register(ZaakNotitie)
+class ZaakNotitieAdmin(admin.ModelAdmin):
+    list_display = [
+        "onderwerp",
+        "notitie_type",
+        "status",
+        "aanmaakdatum",
+    ]
+    readonly_fields = ("uuid", "aanmaakdatum", "wijzigingsdatum")
+    list_select_related = ["gerelateerd_aan"]
+    search_fields = (
+        "gerelateerd_aan__identificatie",
+        "gerelateerd_aan__uuid",
+        "onderwerp",
+        "tekst",
+    )
+    list_filter = (
+        "notitie_type",
+        "status",
+    )
+    raw_id_fields = ["gerelateerd_aan"]
+
+
 # inline classes for Zaak
 class StatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = Status
@@ -679,6 +703,12 @@ class ZaakKenmerkInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakNotitieInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakNotitie
+    fields = ZaakNotitieAdmin.list_display
+    fk_name = "gerelateerd_aan"
+
+
 class ZaakForm(forms.ModelForm):
     class Meta:
         model = Zaak
@@ -748,6 +778,7 @@ class ZaakAdmin(
         RelevanteZaakRelatieInline,
         ZaakBesluitInline,
         KlantContactInline,
+        ZaakNotitieInline,
     ]
     raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
@@ -790,6 +821,7 @@ class ZaakAdmin(
             link_to_related_objects(ZaakKenmerk, obj),
             link_to_related_objects(ZaakBesluit, obj),
             link_to_related_objects(RelevanteZaakRelatie, obj, rel_field_name="zaak"),
+            link_to_related_objects(ZaakNotitie, obj, rel_field_name="gerelateerd_aan"),
         )
 
     def get_queryset(self, request):

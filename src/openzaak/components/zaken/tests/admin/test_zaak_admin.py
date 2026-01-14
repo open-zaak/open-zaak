@@ -123,7 +123,7 @@ class ZaakAdminTests(WebTest):
             .find(class_="field-_get_object_actions")
             .find_all("a")
         )
-        self.assertEqual(len(rel_object_links), 10)
+        self.assertEqual(len(rel_object_links), 11)
         for link in rel_object_links:
             url = link["href"]
             with self.subTest(url):
