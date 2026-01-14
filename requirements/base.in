@@ -19,7 +19,7 @@ django-loose-fk
 django-privates
 django-relativedelta
 django-celery-beat
-django-storages[azure]
+django-storages[azure,s3]
 
 # Admin and UI libraries
 django-sniplates
