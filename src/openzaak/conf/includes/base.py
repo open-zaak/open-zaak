@@ -758,7 +758,7 @@ AWS_S3_FILE_OVERWRITE = config(
 )
 AWS_LOCATION = config(
     "AWS_LOCATION",
-    "",
+    "documenten/",
     help_text=("A path prefix that will be prepended to all uploads."),
     group="Documenten API AWS S3",
 )

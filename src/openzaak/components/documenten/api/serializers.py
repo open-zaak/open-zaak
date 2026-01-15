@@ -127,7 +127,8 @@ class AnyBase64File(Base64FileField):
         # if there is no associated file link is not returned
         try:
             file.file
-        except ValueError:
+        except (ValueError, FileNotFoundError):
+            # TODO should we raise and error here if file doesn't exists ?
             return None
 
         assert self.view_name, (
