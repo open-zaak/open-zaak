@@ -121,7 +121,7 @@ class AnyBase64File(Base64FileField):
         # if there is no associated file link is not returned
         try:
             file.file
-        except ValueError:
+        except (ValueError, FileNotFoundError):
             return None
 
         assert self.view_name, (
@@ -453,36 +453,48 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     def validate(self, attrs):
         valid_attrs = super().validate(attrs)
 
+        def safe_size(file):
+            try:
+                return file.size
+            except FileNotFoundError:
+                return None
+
         # check if file.size equal bestandsomvang
         if self.instance is None or not self.partial:  # create and update PUT
-            if (
-                valid_attrs.get("inhoud") is not None
-                and "bestandsomvang" in valid_attrs
-                and valid_attrs["inhoud"].size != valid_attrs["bestandsomvang"]
-            ):
-                raise serializers.ValidationError(
-                    _(
-                        "The size of upload file should match the 'bestandsomvang' field"
-                    ),
-                    code="file-size",
-                )
+            inhoud = valid_attrs.get("inhoud")
+
+            if inhoud is not None and "bestandsomvang" in valid_attrs:
+                inhoud_size = safe_size(inhoud)
+                if (
+                    inhoud_size is not None
+                    and inhoud_size != valid_attrs["bestandsomvang"]
+                ):
+                    raise serializers.ValidationError(
+                        _(
+                            "The size of upload file should match the 'bestandsomvang' field"
+                        ),
+                        code="file-size",
+                    )
 
             # If `bestandsomvang` is not explicitly defined, derive it from the `inhoud`
-            if (
-                valid_attrs.get("inhoud") is not None
-                and "bestandsomvang" not in valid_attrs
-            ):
-                valid_attrs["bestandsomvang"] = valid_attrs["inhoud"].size
+            if inhoud is not None and "bestandsomvang" not in valid_attrs:
+                inhoud_size = safe_size(inhoud)
+                if inhoud_size is not None:
+                    valid_attrs["bestandsomvang"] = inhoud_size
+
         else:  # update PATCH
             inhoud = get_from_serializer_data_or_instance("inhoud", valid_attrs, self)
             bestandsomvang = get_from_serializer_data_or_instance(
                 "bestandsomvang", valid_attrs, self
             )
-            if inhoud and inhoud.size != bestandsomvang:
-                raise serializers.ValidationError(
-                    _("The size of upload file should match bestandsomvang field"),
-                    code="file-size",
-                )
+
+            if inhoud:
+                inhoud_size = safe_size(inhoud)
+                if inhoud_size is not None and inhoud_size != bestandsomvang:
+                    raise serializers.ValidationError(
+                        _("The size of upload file should match bestandsomvang field"),
+                        code="file-size",
+                    )
 
         return valid_attrs
 
