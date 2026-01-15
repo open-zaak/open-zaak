@@ -135,6 +135,7 @@ class BesluitType(ETagMixin, APIMixin, GeldigheidMixin, ConceptMixin, models.Mod
     class Meta:
         verbose_name = _("besluittype")
         verbose_name_plural = _("besluittypen")
+        ordering = ("pk",)
 
     def __str__(self):
         representation = (
