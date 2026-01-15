@@ -7,7 +7,6 @@ Test the flow described in https://github.com/VNG-Realisatie/gemma-zaken/issues/
 import base64
 from datetime import date
 from io import BytesIO
-from unittest import expectedFailure
 from urllib.parse import urlparse
 
 from django.core.files import File
@@ -100,10 +99,6 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
 
-    # FIXME deleting EIOs via the API currently does not remove the related file from
-    # disk
-    # See: https://github.com/open-zaak/open-zaak/issues/2274
-    @expectedFailure
     def test_delete_eio_deletes_file(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             inhoud=File(BytesIO(b"some data"), name="some-file2.bin"),
