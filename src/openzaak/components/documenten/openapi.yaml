@@ -721,7 +721,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -2665,7 +2666,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       - in: query
@@ -5442,7 +5444,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100).'
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       tags:
