@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models.base import ModelBase
-from django.db.models.signals import ModelSignal, post_delete, post_save
+from django.db.models.signals import ModelSignal, post_delete, post_save, pre_delete
 from django.dispatch import receiver
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 
-from .models import ObjectInformatieObject
+from .models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from .typing import IORelation
 
 
@@ -44,5 +44,25 @@ def sync_oio(
     elif signal is post_delete:
         ObjectInformatieObject.objects.delete_for(instance)
 
+    else:
+        raise NotImplementedError(f"Signal {signal} is not supported")
+
+
+@receiver(
+    [pre_delete, post_save],
+    sender=EnkelvoudigInformatieObject,
+    dispatch_uid="documenten.set_canonical_latest_version",
+)
+def set_canonical_latest_version(sender, signal, instance, **kwargs):
+    if signal is pre_delete:
+        instance.canonical.latest_version = (
+            instance.canonical.enkelvoudiginformatieobject_set.exclude(
+                id=instance.id
+            ).first()
+        )
+        instance.canonical.save()
+    elif signal is post_save:
+        instance.canonical.latest_version = instance
+        instance.canonical.save()
     else:
         raise NotImplementedError(f"Signal {signal} is not supported")
