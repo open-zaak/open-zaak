@@ -373,6 +373,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
                 "publicatiedatum": None,
                 "registratiedatum": "2025-01-01",
                 "relevanteAndereZaken": [],
+                "gerelateerdeZaken": [],
                 "resultaat": None,
                 "rollen": [
                     f"http://testserver{expected_rol_url}",
