@@ -58,6 +58,7 @@ from ..api.cloud_events import (
     ZAAK_GEKOPPELD,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
+    ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
     send_cloud_event,
 )
@@ -1478,3 +1479,151 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         )
         self.assertFalse(self.zaak.zaakobject_set.exists())
         self.assertNotIn("traceback", response.text.lower())
+
+
+class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+
+    component = ComponentTypes.nrc
+    scopes = [SCOPE_CLOUDEVENTS_BEZORGEN]
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.zaak = ZaakFactory.create(zaaktype__concept=False)
+
+        cls.zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
+        )
+
+        from django.urls import reverse as dj_reverse
+
+        cls.endpoint = dj_reverse("cloudevent-webhook")
+
+    def _create_zaakobject(self, **kwargs):
+        return ZaakObject.objects.create(
+            zaak=self.zaak,
+            object="https://example.com",
+            object_type=ZaakobjectTypes.overige,
+            object_type_overige="example",
+            relatieomschrijving="Een voorbeeld URL",
+            **kwargs,
+        )
+
+    def test_ontkoppeld_deletes_existing_zaakobject(self):
+        self._create_zaakobject()
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.zaak_url,
+                "linkTo": "https://example.com",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 0)
+
+    def test_ontkoppeld_unknown_zaak(self):
+        self._create_zaakobject()
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": f"urn:uuid:{uuid4()}",
+                "linkTo": "https://example.com",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+    def test_ontkoppeld_unknown_link(self):
+        self._create_zaakobject()
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.zaak_url,
+                "linkTo": "https://example.com/other",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+    def test_ontkoppeld_missing_linkTo(self):
+        self._create_zaakobject()
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            {"zaak": self.zaak_url},
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+    def test_ontkoppeld_no_event_data(self):
+        self._create_zaakobject()
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            None,
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 1)
+
+    def test_ontkoppeld_multiple_matches(self):
+        self._create_zaakobject()
+        self._create_zaakobject()
+
+        self.assertEqual(self.zaak.zaakobject_set.count(), 2)
+
+        event = CloudEvent(
+            {"type": ZAAK_ONTKOPPELD, "source": "https://example.com/event-producer"},
+            {
+                "zaak": self.zaak_url,
+                "linkTo": "https://example.com",
+            },
+        )
+
+        response = self.client.post(
+            self.endpoint,
+            to_dict(event),
+            headers={"content-type": "application/cloudevents+json"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(self.zaak.zaakobject_set.count(), 0)
