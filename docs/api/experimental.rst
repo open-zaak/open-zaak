@@ -38,6 +38,11 @@ but currently Open Zaak can emit the following cloud events if configured:
 * ``zaak-gemuteerd``: currently only emitted via POST on /statussen when creating a new Status for a Zaak
 * ``zaak-verwijderd``: when deleting a Zaak
 * ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
+* ``zaak-geregistreerd``: emitted when the convenience endpoint 'zaak registreren' is called
+* ``zaak-opgeschort``: emitted when the convenience endpoint 'zaak opschorten' is called
+* ``zaak-bijgewerkt``: emitted when the convenience endpoint 'zaak bijwerken' is called
+* ``zaak-verlengd``: emitted when the convenience endpoint 'zaak verlengen' is called
+* ``zaak-afgesloten`` emitted when the convenience endpoint 'zaak afsluiten' is called
 
 A webhook endpoint ``/events`` has been added where incoming events can be delivered.
 
@@ -248,12 +253,28 @@ Notifications
 
 For ``besluiten`` notification channel a new "kenmerk" ``besluittype.catalogus`` is added.
 
+Cloud events
+------------
+
+Sending of cloud events is still under development and **NOT** suited for production use,
+but currently Open Zaak can emit the following cloud events if configured:
+
+* ``besluit-verwerkt`` emitted when the convenience endpoint 'besluit verwerken' is called
+
 Endpoints
 ---------
 
 New endpoints are added:
 
 * ``/api/v1/besluit_verwerken`` – create a besluit in combination with one or more besluitinformatieobject(en) to immediately link them.
+
+Cloud events
+------------
+
+Sending of cloud events is still under development and **NOT** suited for production use,
+but currently Open Zaak can emit the following cloud events if configured:
+
+* ``document-geregistreerd`` emitted when the convenience endpoint 'document registreren' is called
 
 
 Autorisaties API

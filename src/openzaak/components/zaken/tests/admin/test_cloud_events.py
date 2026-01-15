@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings, tag
 
 from vng_api_common.tests import reverse
 
@@ -14,7 +14,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
 
-from ...api.cloud_events import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
+from ...api.cloudevents import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
 from ...models import Zaak
 from ..factories import StatusFactory, ZaakFactory
 from ..test_cloud_events import (
@@ -22,6 +22,7 @@ from ..test_cloud_events import (
 )
 
 
+@tag("cloudevents")
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",

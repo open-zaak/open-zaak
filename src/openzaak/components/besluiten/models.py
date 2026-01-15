@@ -10,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 from django_loose_fk.virtual_models import ProxyMixin
 from vng_api_common.caching import ETagMixin
 from vng_api_common.fields import RSINField
-from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 from vng_api_common.validators import UntilTodayValidator
 from zgw_consumers.models import ServiceUrlField
@@ -18,7 +17,7 @@ from zgw_consumers.models import ServiceUrlField
 from openzaak.components.documenten.loaders import EIOLoader
 from openzaak.loaders import AuthorizedRequestsLoader
 from openzaak.utils.fields import FkOrServiceUrlField, RelativeURLField, ServiceFkField
-from openzaak.utils.mixins import AuditTrailMixin
+from openzaak.utils.mixins import APIMixin, AuditTrailMixin
 
 from .constants import VervalRedenen
 from .query import BesluitInformatieObjectQuerySet, BesluitQuerySet

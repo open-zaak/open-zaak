@@ -12,12 +12,12 @@ from vng_api_common.caching import ETagMixin
 from vng_api_common.client import to_internal_data
 from vng_api_common.descriptors import GegevensGroepType
 from vng_api_common.fields import RSINField, VertrouwelijkheidsAanduidingField
-from vng_api_common.models import APIMixin
 from vng_api_common.utils import generate_unique_identification
 
 from openzaak.client import get_client
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.utils.fields import DurationField
+from openzaak.utils.mixins import APIMixin
 
 from ..constants import InternExtern
 from ..managers import SyncAutorisatieManager
