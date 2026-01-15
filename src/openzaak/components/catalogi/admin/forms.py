@@ -77,7 +77,7 @@ class ZaakTypeForm(forms.ModelForm):
     )
 
     _besluittypen = forms.ModelMultipleChoiceField(
-        queryset=BesluitType.objects.all(),
+        queryset=BesluitType.objects.order_by("pk"),
         required=False,
         widget=admin.widgets.ManyToManyRawIdWidget(
             rel=ManyToManyRel(
