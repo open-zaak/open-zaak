@@ -47,10 +47,18 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
-from openzaak.components.zaken.tests.utils import get_operation_url
+from openzaak.components.zaken.tests.utils import (
+    get_catalogus_response,
+    get_operation_url,
+    get_zaaktype_response,
+)
 from openzaak.notifications.scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 from openzaak.notifications.viewsets import CloudEventWebhook
-from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
+from openzaak.tests.utils import (
+    JWTAuthMixin,
+    mock_ztc_oas_get,
+    patch_resource_validator,
+)
 
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,
@@ -518,6 +526,61 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             request.headers["content-type"], "application/cloudevents+json"
         )
         self.assertEqual(request.headers["Authorization"], "Token foo")
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_cloudevent_for_deleting_zaak_with_external_zaaktype(self):
+        zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
+        catalogus_url = "https://externe.catalogus.nl/api/v1/catalogi/1"
+
+        with patch_send_cloud_event() as mock_send:
+            with requests_mock.Mocker() as m:
+                mock_ztc_oas_get(m)
+                m.get(
+                    zaaktype_url,
+                    json=get_zaaktype_response(
+                        catalogus_url,
+                        zaaktype_url,
+                    ),
+                )
+                m.get(
+                    catalogus_url,
+                    json=get_catalogus_response(catalogus_url, zaaktype_url),
+                )
+
+                zaak = ZaakFactory.create(zaaktype=zaaktype_url)
+
+                response = self.client.delete(reverse(zaak))
+
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+            args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
+            event_payload = args[0]
+
+            event_payload_copy = dict(event_payload)
+            event_payload_copy.pop("id", None)
+
+            expected_payload = {
+                "specversion": "1.0",
+                "type": ZAAK_VERWIJDEREN,
+                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+                "subject": str(zaak.uuid),
+                "dataref": reverse(zaak),
+                "datacontenttype": "application/json",
+                "data": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": zaaktype_url,
+                    "zaaktype.catalogus": catalogus_url,
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+                "time": "2025-09-23T12:00:00Z",
+            }
+
+            self.assertEqual(event_payload_copy, expected_payload)
 
 
 @skip(reason="#2179 waiting for the issue to be decided for all endpoints")

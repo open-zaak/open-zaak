@@ -14,7 +14,7 @@ from vng_api_common.constants import ZaakobjectTypes
 from openzaak.components.zaken.api.serializers.zaakobjecten import ZaakObjectSerializer
 from openzaak.components.zaken.models import Zaak, ZaakObject
 from openzaak.notifications.viewsets import CloudEventWebhook
-from openzaak.utils.cloudevents import process_cloudevent
+from openzaak.utils.cloudevents import get_url, process_cloudevent
 
 logger = get_logger(__name__)
 
@@ -152,16 +152,8 @@ def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
     if event_type in (ZAAK_GEOPEND, ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN):
         data = {
             "bronorganisatie": zaak.bronorganisatie,
-            "zaaktype": reverse(
-                "zaaktype-detail",
-                kwargs={"uuid": zaak.zaaktype.uuid},
-                request=request,
-            ),
-            "zaaktype.catalogus": reverse(
-                "catalogus-detail",
-                kwargs={"uuid": zaak.zaaktype.catalogus.uuid},
-                request=request,
-            ),
+            "zaaktype": get_url(zaak.zaaktype, request),
+            "zaaktype.catalogus": get_url(zaak.zaaktype.catalogus, request),
             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
         }
 
