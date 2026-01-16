@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 
 from django.db import DatabaseError, transaction
+from django.http import HttpRequest
 
 from cloudevents.http import CloudEvent
 from rest_framework.exceptions import ValidationError
@@ -146,12 +147,29 @@ def conditional_atomic(wrap: bool = True):
     return transaction.atomic if wrap else _fake_atomic
 
 
-def send_zaak_cloudevent(event_type: str, zaak: Zaak):
+def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
+    data = {}
+    if event_type in (ZAAK_GEOPEND, ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN):
+        data = {
+            "bronorganisatie": zaak.bronorganisatie,
+            "zaaktype": reverse(
+                "zaaktype-detail",
+                kwargs={"uuid": zaak.zaaktype.uuid},
+                request=request,
+            ),
+            "zaaktype.catalogus": reverse(
+                "catalogus-detail",
+                kwargs={"uuid": zaak.zaaktype.catalogus.uuid},
+                request=request,
+            ),
+            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+        }
+
     process_cloudevent(
         event_type,
         str(zaak.uuid),
         reverse("zaak-detail", kwargs={"version": "1", "uuid": zaak.uuid}),
-        {},
+        data,
     )
 
 
@@ -172,7 +190,7 @@ class CloudEventCreateMixin(CloudEventMixin):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             super().perform_create(serializer)
             zaak = self._get_zaak_from_instance(serializer.instance)
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
 class CloudEventUpdateMixin(CloudEventMixin):
@@ -180,7 +198,7 @@ class CloudEventUpdateMixin(CloudEventMixin):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             super().perform_update(serializer)
             zaak = self._get_zaak_from_instance(serializer.instance)
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
 class CloudEventPostMixin(CloudEventMixin):
@@ -188,7 +206,7 @@ class CloudEventPostMixin(CloudEventMixin):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             super().perform_post(serializer)
             zaak = self._get_zaak_from_dict(serializer.instance)
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
 class CloudEventDestroyMixin(CloudEventMixin):
@@ -196,7 +214,7 @@ class CloudEventDestroyMixin(CloudEventMixin):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             zaak = self._get_zaak_from_instance(instance)
             super().perform_destroy(instance)
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak)
+            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
 class CloudEventViewSetMixin(
