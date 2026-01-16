@@ -24,6 +24,7 @@ from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from storages.backends.azure_storage import AzureStorage
+from storages.backends.s3 import S3Storage
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import (
     GegevensGroepSerializer,
@@ -112,16 +113,22 @@ class AnyBase64File(Base64FileField):
                 raise ValidationError(str(exc))
 
     def to_representation(self, file):
-        is_private_storage = isinstance(file.storage, PrivateMediaFileSystemStorage)
-        is_azure_storage = isinstance(file.storage, AzureStorage)
-
-        if not (is_private_storage or is_azure_storage) or self.represent_in_base64:
+        is_valid_storage = isinstance(
+            file.storage,
+            (
+                PrivateMediaFileSystemStorage,
+                AzureStorage,
+                S3Storage,
+            ),
+        )
+        if not is_valid_storage or self.represent_in_base64:
             return super().to_representation(file)
 
         # if there is no associated file link is not returned
         try:
             file.file
-        except ValueError:
+        except (ValueError, FileNotFoundError):
+            # TODO should we raise and error here if file doesn't exists ?
             return None
 
         assert self.view_name, (

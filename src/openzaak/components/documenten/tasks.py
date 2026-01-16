@@ -42,7 +42,7 @@ logger = structlog.stdlib.get_logger(__name__)
 def copy_file_to_storage(src: Path, dst: Path) -> str:
     """
     Util to copy a local file to the configured storage backend.
-    Currently supports filesystem storage and Azure blob storage.
+    Currently supports filesystem storage, Azure blob storage and AWS S3 storage
 
     :param src: path to the source file on disk
     :type src: Path
@@ -61,7 +61,10 @@ def copy_file_to_storage(src: Path, dst: Path) -> str:
     ):
         default_dir.mkdir(parents=True)
 
-    if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
+    if settings.DOCUMENTEN_API_BACKEND in [
+        DocumentenBackendTypes.azure_blob_storage,
+        DocumentenBackendTypes.aws_s3_storage,
+    ]:
         with open(src, "rb") as file:
             # A file could already exist at `dst` in the storage, so the actual path
             # to which the file ends up being saved is returned and stored on the

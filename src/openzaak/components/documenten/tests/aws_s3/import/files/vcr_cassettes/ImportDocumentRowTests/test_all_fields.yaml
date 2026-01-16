@@ -1,0 +1,369 @@
+interactions:
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        YWxsIGZpZWxkcw==
+      - 0
+      - null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTYvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1jb250ZW50LXR5cGU7aG9zdDt4LWFtei1j
+        aGVja3N1bS1jcmMzMjt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlO3gtYW16LXNkay1j
+        aGVja3N1bS1hbGdvcml0aG0sIFNpZ25hdHVyZT02OWJhZThhZjk0ZjZkMWE2ODllMDUyNTQ5YzEy
+        NGRhZDM2MjhlYTJlYWY4MTNjNWM0ZTJiNDgwNzVlNTViNWUw
+      Content-Length:
+      - '10'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLGIsWixELFUsRyxlIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        MDU1YjJlYjZkNmY4NjJlNThmNzJkNTkxMmJmMzQzODIxODM3YWNkYzE3NDVlMzZjZGY5YmU3YWYy
+        YjY2YTllMw==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTZUMDkxODM1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        M2E4NGRjMjYtNmJkMC00OTllLThjMjEtM2Y5MTg3NGZkYWZk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        NENhN3l3PT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/foobar.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      ETag:
+      - '"d19fd26e46db412fed1b8b94d314ebc3"'
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - 4Ca7yw==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188B2B81EB7347ED
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '7393'
+      X-Ratelimit-Remaining:
+      - '7393'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTYvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT0wNTQ1ZTgxNjliZDI5NDczYzQ2MDg1NWZiZGRkNDg1NDFl
+        YzI0OWI4NzRmNzllN2EyNzViNWE5MjUyYzQzODYw
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLGIsWixELGUgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTZUMDkxODM1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OWVmMWNmMWEtMmQxOC00OWNkLTkxYzYtNzRmNThhODVmZjFk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/foobar.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '10'
+      Content-Type:
+      - text/plain
+      Date:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      ETag:
+      - '"d19fd26e46db412fed1b8b94d314ebc3"'
+      Last-Modified:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188B2B81EC5CBC51
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '7393'
+      X-Ratelimit-Remaining:
+      - '7393'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTYvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT0wNTQ1ZTgxNjliZDI5NDczYzQ2MDg1NWZiZGRkNDg1NDFl
+        YzI0OWI4NzRmNzllN2EyNzViNWE5MjUyYzQzODYw
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLGIsWixELEcsZSBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4y
+        NyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTZUMDkxODM1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MjM1OTBjODUtOTE5Mi00ODIzLWE1YjYtMzBiYzI0OGQ1Yjc3
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/foobar.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '10'
+      Content-Type:
+      - text/plain
+      Date:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      ETag:
+      - '"d19fd26e46db412fed1b8b94d314ebc3"'
+      Last-Modified:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188B2B81EC9250FD
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '7393'
+      X-Ratelimit-Remaining:
+      - '7393'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTYvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNoZWNrc3VtLW1vZGU7
+        eC1hbXotY29udGVudC1zaGEyNTY7eC1hbXotZGF0ZSwgU2lnbmF0dXJlPWRmNWNhNjk2YjI2NTky
+        YTEzYWQ0NmI3YzYwOTFhODAyNzIzNTEzOWJlNWZhOTc5ZWQzNWEwY2VmOGIxMzI4OWY=
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLGIsWixELEcsZSBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4y
+        NyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTZUMDkxODM1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        N2Y5MmRkM2EtY2NhMi00NmFkLWI4YTQtYmQ2MDU5YjlmYjdh
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-mode:
+      - !!binary |
+        RU5BQkxFRA==
+    method: GET
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/foobar.txt
+  response:
+    body:
+      string: all fields
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '10'
+      Content-Type:
+      - text/plain
+      Date:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      ETag:
+      - '"d19fd26e46db412fed1b8b94d314ebc3"'
+      Last-Modified:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - 4Ca7yw==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188B2B81ECCDD6E5
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '7393'
+      X-Ratelimit-Remaining:
+      - '7393'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTYvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT0wNTQ1ZTgxNjliZDI5NDczYzQ2MDg1NWZiZGRkNDg1NDFl
+        YzI0OWI4NzRmNzllN2EyNzViNWE5MjUyYzQzODYw
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLGIsWixELGUgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTZUMDkxODM1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZDA0YmI5OGMtNmZhMC00MTEyLTgyMzctZjQ5NWM1Y2VjZjRi
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/foobar.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '10'
+      Content-Type:
+      - text/plain
+      Date:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      ETag:
+      - '"d19fd26e46db412fed1b8b94d314ebc3"'
+      Last-Modified:
+      - Fri, 16 Jan 2026 09:18:35 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188B2B81ED011EE0
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '7393'
+      X-Ratelimit-Remaining:
+      - '7393'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
