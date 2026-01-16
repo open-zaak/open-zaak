@@ -15,8 +15,8 @@ from celery.exceptions import Retry
 from cloudevents.conversion import to_dict
 from cloudevents.http import CloudEvent
 from freezegun import freeze_time
-from furl import furl
 from notifications_api_common.models import NotificationsConfig
+from notifications_api_common.tasks import send_cloudevent
 from requests.exceptions import Timeout
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -48,19 +48,16 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.components.zaken.tests.utils import get_operation_url
-from openzaak.config.models import CloudEventConfig
 from openzaak.notifications.scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 from openzaak.notifications.viewsets import CloudEventWebhook
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
 
-from ..api import cloudevents
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
-    send_cloud_event,
 )
 from ..models import (
     Resultaat,
@@ -89,13 +86,6 @@ from .utils import ZAAK_WRITE_KWARGS
 
 
 def mock_cloud_event_send(m: requests_mock.Mocker, **kwargs) -> None:
-    from openzaak.config.models import CloudEventConfig
-
-    config = CloudEventConfig.get_solo()
-    service = config.webhook_service
-    assert service is not None
-    base_url = (furl(service.api_root) / config.webhook_path).url
-
     mock_kwargs = (
         {
             "status_code": 201,
@@ -105,12 +95,12 @@ def mock_cloud_event_send(m: requests_mock.Mocker, **kwargs) -> None:
         if "exc" not in kwargs
         else kwargs
     )
-    m.post(base_url, **mock_kwargs)
+    m.post("http://webhook.local/cloudevents", **mock_kwargs)
 
 
 def patch_send_cloud_event():
     return patch(
-        "openzaak.components.zaken.api.cloudevents.send_cloud_event.delay",
+        "notifications_api_common.tasks.send_cloudevent.delay",
         autospec=True,
     )
 
@@ -126,7 +116,9 @@ class CloudEventSettingMixin(TestCase):
         cls._freezer = freeze_time(cls.CLOUD_EVENT_TIME)
         cls._freezer.start()
 
-        cls._override = override_settings(ENABLE_CLOUD_EVENTS=True)
+        cls._override = override_settings(
+            ENABLE_CLOUD_EVENTS=True, NOTIFICATIONS_SOURCE=cls.CLOUD_EVENT_SOURCE
+        )
         cls._override.enable()
 
     def setUp(self):
@@ -152,13 +144,8 @@ class CloudEventSettingMixin(TestCase):
         self.addCleanup(self._notifications_patcher.stop)
 
         self._patcher = patch(
-            "openzaak.components.zaken.api.cloudevents.CloudEventConfig.get_solo",
-            return_value=CloudEventConfig(
-                enabled=True,
-                source=self.CLOUD_EVENT_SOURCE,
-                webhook_service=self.service,
-                webhook_path="/events",
-            ),
+            "notifications_api_common.models.NotificationsConfig.get_solo",
+            return_value=NotificationsConfig(notifications_api_service=self.service),
         )
         self.mock_get_solo = self._patcher.start()
         self.addCleanup(self._patcher.stop)
@@ -205,12 +192,12 @@ class CloudEventSettingMixin(TestCase):
 @requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @patch(
-    "openzaak.components.zaken.api.cloudevents.uuid4",
+    "notifications_api_common.cloudevents.uuid.uuid4",
     return_value=UUID("627a7fd2-6b9a-4963-8723-6ce7650f37c0"),
 )
-@patch("openzaak.components.zaken.api.cloudevents.send_cloud_event.delay")
+@patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
-    "openzaak.components.zaken.api.cloudevents.send_cloud_event.retry",
+    "notifications_api_common.tasks.send_cloudevent.retry",
     side_effect=Retry,
 )
 class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
@@ -291,7 +278,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         mock_cloud_event_send(m, status_code=403)
 
         with self.assertRaises(Retry):
-            send_cloud_event(message)
+            send_cloudevent(message)
 
         retry_mock.assert_called_once()
 
@@ -374,7 +361,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         mock_cloud_event_send(m, exc=Timeout)
 
         with self.assertRaises(Retry):
-            send_cloud_event(message)
+            send_cloudevent(message)
 
         retry_mock.assert_called_once()
 
@@ -421,7 +408,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
 
         with patch(
-            "openzaak.components.zaken.api.cloudevents.send_cloud_event.delay",
+            "notifications_api_common.tasks.send_cloudevent.delay",
             autospec=True,
         ) as mock_send:
             response = self.client.patch(
@@ -481,15 +468,15 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         }
 
         with requests_mock.Mocker() as m:
-            m.post("http://webhook.local/events")
+            m.post("http://webhook.local/cloudevents")
 
-            cloudevents.send_cloud_event(payload)
+            send_cloudevent(payload)
 
         self.assertEqual(len(m.request_history), 1)
 
         request = m.request_history[0]
 
-        self.assertEqual(request.url, "http://webhook.local/events")
+        self.assertEqual(request.url, "http://webhook.local/cloudevents")
         self.assertEqual(request.json(), payload)
         self.assertEqual(
             request.headers["content-type"], "application/cloudevents+json"
@@ -1503,6 +1490,7 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         self.assertNotIn("traceback", response.text.lower())
 
 
+@tag("cloudevents")
 class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = False
 
