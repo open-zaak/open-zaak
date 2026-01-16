@@ -34,7 +34,7 @@ from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils.api import delete_remote_oio
-from openzaak.utils.cloudevents import process_cloudevent
+from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
@@ -476,14 +476,12 @@ class BesluitVerwerkenViewSet(
                 "besluittype": serializer.data["besluit"][
                     "besluittype"
                 ],  # serializer.data contains url
-                "besluittype.catalogus": reverse(
-                    "catalogus-detail",
-                    kwargs={"uuid": data["besluit"].besluittype.catalogus.uuid},
+                "besluittype.catalogus": get_url(
+                    data["besluit"].besluittype.catalogus,
                     request=self.request,
                 ),
-                "zaak.zaaktype": reverse(
-                    "zaaktype-detail",
-                    kwargs={"uuid": zaak.zaaktype.uuid},
+                "zaak.zaaktype": get_url(
+                    zaak.zaaktype,
                     request=self.request,
                 )
                 if zaak

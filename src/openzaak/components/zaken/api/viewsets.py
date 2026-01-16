@@ -61,7 +61,7 @@ from openzaak.utils.api import (
     delete_remote_objectverzoek,
     delete_remote_oio,
 )
-from openzaak.utils.cloudevents import process_cloudevent
+from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -2129,9 +2129,8 @@ class ZaakRegistrerenViewset(
                 ].verantwoordelijke_organisatie,
                 "vertrouwelijkheidaanduiding": data["zaak"].vertrouwelijkheidaanduiding,
                 "zaaktype": serializer.data["zaak"]["zaaktype"],
-                "zaaktype.catalogus": reverse(
-                    "catalogus-detail",
-                    kwargs={"uuid": data["zaak"].zaaktype.catalogus.uuid},
+                "zaaktype.catalogus": get_url(
+                    data["zaak"].zaaktype.catalogus,
                     request=self.request,
                 ),
             },
@@ -2281,9 +2280,8 @@ class ZaakUpdateActionViewSet(
                 ].verantwoordelijke_organisatie,
                 "vertrouwelijkheidaanduiding": data["zaak"].vertrouwelijkheidaanduiding,
                 "zaaktype": serializer.data["zaak"]["zaaktype"],
-                "zaaktype.catalogus": reverse(
-                    "catalogus-detail",
-                    kwargs={"uuid": data["zaak"].zaaktype.catalogus.uuid},
+                "zaaktype.catalogus": get_url(
+                    data["zaak"].zaaktype.catalogus,
                     request=self.request,
                 ),
             },
