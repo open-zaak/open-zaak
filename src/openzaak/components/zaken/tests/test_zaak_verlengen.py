@@ -357,6 +357,7 @@ class ZaakVerlengenValidationTests(JWTAuthMixin, APITestCase):
                 "publicatiedatum": None,
                 "registratiedatum": "2025-01-01",
                 "relevanteAndereZaken": [],
+                "gerelateerdeZaken": [],
                 "resultaat": None,
                 "rollen": [],
                 "selectielijstklasse": "",

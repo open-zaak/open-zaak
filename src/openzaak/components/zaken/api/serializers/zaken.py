@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from datetime import date
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from django.conf import settings
@@ -131,6 +131,7 @@ from .betrokkenen import (
     RolOrganisatorischeEenheidSerializer,
     RolVestigingSerializer,
 )
+from .types import DRFWritableNestedRelations
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -192,6 +193,31 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
         fields["aard_relatie"].help_text += f"\n\n{value_display_mapping}"
 
         return fields
+
+
+class GerelateerdeZaakSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = RelevanteZaakRelatie
+        fields = ("url",)
+        extra_kwargs = {
+            "url": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
+                ],
+            },
+        }
+
+    def create(self, validated_data: dict) -> RelevanteZaakRelatie:
+        # Inject these for backward compatibility with `relevanteAndereZaken`.
+        # `aardRelatie` is a required field for `relevanteAndereZaken`, so this must
+        # be defined since `relevanteAndereZaken` and `gerelateerdeZaken` share the
+        # same database field
+        validated_data["aard_relatie"] = AardZaakRelatie.overig
+        validated_data["overige_relatie"] = "overig"
+        return super().create(validated_data)
 
 
 class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
@@ -372,6 +398,12 @@ class ZaakSerializer(
     relevante_andere_zaken = RelevanteZaakSerializer(
         many=True, required=False, help_text=_("Een lijst van relevante andere zaken.")
     )
+    # TODO document relation between this and `relevante_andere_zaken` (ideally gerelateerde_zaken and not the other should be used)
+    gerelateerde_zaken = GerelateerdeZaakSerializer(
+        many=True,
+        required=False,
+        help_text=_("Een lijst van gerelateerde zaken."),
+    )
 
     processobject = ProcessobjectSerializer(
         required=False,
@@ -454,6 +486,7 @@ class ZaakSerializer(
             "hoofdzaak",
             "deelzaken",
             "relevante_andere_zaken",
+            "gerelateerde_zaken",
             "eigenschappen",
             # read-only veld, on-the-fly opgevraagd
             "rollen",
@@ -541,6 +574,19 @@ class ZaakSerializer(
             HoofdZaaktypeRelationValidator(),
         ]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # TODO how to deal with missing aardRelatie? default `onderwerp`?
+        # DRF can't handle two attributes with the same source for writes unfortunately
+        # data["relevante_andere_zaken"] = RelevanteZaakSerializer(instance.relevante_andere_zaken).data
+        data.setdefault("gerelateerde_zaken", [])
+        if data.get("relevante_andere_zaken"):
+            data["gerelateerde_zaken"] = GerelateerdeZaakSerializer(
+                many=True, context=self.context
+            ).to_representation(instance.relevante_andere_zaken)
+        return data
+
     def get_betalingsindicatie_weergave(self, obj: Zaak) -> str:
         """
         Display the label of the betalingsindicatie choice for the Zaak
@@ -567,7 +613,43 @@ class ZaakSerializer(
 
         return fields
 
-    def validate(self, attrs):
+    def _extract_relations(
+        self, validated_data: dict[str, Any]
+    ) -> tuple[DRFWritableNestedRelations, DRFWritableNestedRelations]:
+        """
+        Helper function from `drf-writable-nested`
+
+        Overridden to handle writing of `gerelateerdeZaken` to the underlying
+        `relevante_andere_zaken` database field. For backwards compatibility reasons,
+        the API attribute `relevanteAndereZaken` takes precedence over `gerelateerdeZaken`,
+        so the `GerelateerdeZaakSerializer` is only used if `relevanteAndereZaken` is
+        not specified.
+        """
+        relations, reverse_relations = super()._extract_relations(validated_data)
+
+        if (
+            "gerelateerde_zaken" in self.get_initial()
+            and "relevante_andere_zaken" not in self.get_initial()
+        ):
+            #
+            reverse_relations["gerelateerde_zaken"] = (
+                # Underlying database relation is the same as `relevanteAndereZaken`
+                RelevanteZaakRelatie.zaak.field,
+                # Custom serializer for `gerelateerdeZaken`
+                GerelateerdeZaakSerializer(context=self.context),
+                # target field on the model is also `relevante_andere_zaken`
+                "relevante_andere_zaken",
+            )
+        return relations, reverse_relations
+
+    def _is_gegevensgroep(self, name: str) -> bool:
+        # `gerelateerde_zaken` is not actually a model field, this check is to avoid
+        # AttributeErrors
+        if not hasattr(self.Meta.model, name):
+            return False
+        return super()._is_gegevensgroep(name)
+
+    def validate(self, attrs: dict) -> dict:
         super().validate(attrs)
 
         default_betalingsindicatie = (
@@ -608,7 +690,19 @@ class ZaakSerializer(
 
         return attrs
 
+    def update(self, instance: Zaak, validated_data: dict) -> Zaak:
+        # `gerelateerde_zaken` is handled via drf-writable-nested, so we remove it
+        # from `validated_data` to avoid DRF trying to write to `gerelateerde_zaken`,
+        # because that is not an actual model field
+        validated_data.pop("gerelateerde_zaken", None)
+        return super().update(instance, validated_data)
+
     def create(self, validated_data: dict):
+        # `gerelateerde_zaken` is handled via drf-writable-nested, so we remove it
+        # from `validated_data` to avoid DRF trying to write to `gerelateerde_zaken`,
+        # because that is not an actual model field
+        validated_data.pop("gerelateerde_zaken", None)
+
         # set the derived value from ZTC
         if "vertrouwelijkheidaanduiding" not in validated_data:
             zaaktype = validated_data["zaaktype"]
