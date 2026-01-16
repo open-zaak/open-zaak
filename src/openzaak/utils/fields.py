@@ -12,10 +12,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.fields import FkOrURLField
+from privates.storages import PrivateMediaFileSystemStorage
 from relativedeltafield import RelativeDeltaField
 from zgw_consumers.models import ServiceUrlField
 
-from openzaak.components.documenten.storage import AzureStorage
+from openzaak.components.documenten.storage import AzureStorage, S3Storage
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 
 
@@ -211,15 +212,19 @@ class NLPostcodeField(models.CharField):
 
 
 def get_default_path(field: models.FileField) -> Path:
-    storage_location = Path(field.storage.location)
+    storage = field.storage
+    storage_location = Path(storage.location)
     path = Path(storage_location / field.upload_to)
-
-    # TODO cleaner way to do this?
-    # TODO check this also ?
-    if isinstance(field.storage, AzureStorage) and path.is_relative_to(
-        settings.AZURE_LOCATION
-    ):
-        path = path.relative_to(settings.AZURE_LOCATION)
+    match field.storage:
+        case AzureStorage():
+            if path.is_relative_to(settings.AZURE_LOCATION):
+                path = path.relative_to(settings.AZURE_LOCATION)
+        case S3Storage():
+            pass
+        case PrivateMediaFileSystemStorage():
+            pass
+        case _:
+            raise TypeError(f"Unsupported storage type: {type(storage).__name__}")
 
     now = timezone.now()
     return Path(now.strftime(str(path)))

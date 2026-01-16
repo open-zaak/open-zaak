@@ -35,6 +35,7 @@ class AWSS3torageMixin:
             AWS_S3_ACCESS_KEY_ID="minioadmin",
             AWS_S3_SECRET_ACCESS_KEY="minioadmin",
             AWS_S3_ENDPOINT_URL="http://localhost:9000",
+            AWS_S3_FILE_OVERWRITE=self.aws_s3_overwrite_files,
         )
         self.override_settings.enable()
 

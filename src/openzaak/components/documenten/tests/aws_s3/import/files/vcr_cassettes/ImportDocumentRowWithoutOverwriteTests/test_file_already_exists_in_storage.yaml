@@ -1,0 +1,725 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1lN2JmMjE0NjY0MTUyZjA5NmU2Y2EyYWYwZGNkZjRiYWM0
+        NjUzODc1MzNiZGY2ZWE0ZmNkMGYyZTJmZjExNTZl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        Y2M0ODQzYzgtMmExYS00Y2NiLWEyYzctYWYyNzk0MjExMzJm
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CB0C8FA7
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        YWxyZWFkeSBleGlzdHM=
+      - 0
+      - null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1jb250ZW50LXR5cGU7aG9zdDt4LWFtei1j
+        aGVja3N1bS1jcmMzMjt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlO3gtYW16LXNkay1j
+        aGVja3N1bS1hbGdvcml0aG0sIFNpZ25hdHVyZT0xNmNmMjg1OWVjODg2MDg4M2VhMjZkODUyMGVj
+        Yzg3MjBiZmUxNDU2YmUwNmQ2ODg5NWFjYmUwYjNiNTRlN2Zi
+      Content-Length:
+      - '14'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIsRyxVIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        MzIxNDI1NmQ2ZTFhZGM0YzMyNjJkZjc5NGVkNDhmNzAyZTM4NzZiZGYzY2I0ZTYwYmYxYjhkYmRk
+        NDZlZGIwNw==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OWU1MTI3OTAtMWIwYy00NDBjLWJmZmItMzJmNjg2NGNjYTFh
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        L1llYS9nPT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - /Yea/g==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CB743FB1
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1lN2JmMjE0NjY0MTUyZjA5NmU2Y2EyYWYwZGNkZjRiYWM0
+        NjUzODc1MzNiZGY2ZWE0ZmNkMGYyZTJmZjExNTZl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MGNjODRkYTYtMWFhZC00YTI3LWI3NjAtZDc0ZmM4OTkwYWVi
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CCBE9355
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1iNTlmYjI1YTIzNTgyMWNiOWMwMzQ1NmM5NjkyMGI1Nzg4
+        MTMxNjgzZTc3OTM4ZGQ4MDk1MWY1NzEwYzcxZDll
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZjhlZmUyMDUtM2Y3Ni00MmIwLWFmMzAtODFlMzljYjU2Yjcy
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CCF32BED
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        YWxyZWFkeSBleGlzdHM=
+      - 0
+      - null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1jb250ZW50LXR5cGU7aG9zdDt4LWFtei1j
+        aGVja3N1bS1jcmMzMjt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlO3gtYW16LXNkay1j
+        aGVja3N1bS1hbGdvcml0aG0sIFNpZ25hdHVyZT04MmFmNGFjZGM3NDI1NTgxMDMxYjcyNzFmZTZi
+        OTFjZDk0NmYxNzBhOGZlYTM0YWEzYTk0ZmM3NTBjNmU2Yjc4
+      Content-Length:
+      - '14'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIsRyxVIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
+        LjI3IFJlc291cmNl
+      X-Amz-Content-SHA256:
+      - !!binary |
+        MzIxNDI1NmQ2ZTFhZGM0YzMyNjJkZjc5NGVkNDhmNzAyZTM4NzZiZGYzY2I0ZTYwYmYxYjhkYmRk
+        NDZlZGIwNw==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NGZhZWM3Y2QtMWRiNS00MmU0LThiZmMtOGQ3MmI0NDQ2MTY1
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        L1llYS9nPT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - /Yea/g==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CD343625
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1iNTlmYjI1YTIzNTgyMWNiOWMwMzQ1NmM5NjkyMGI1Nzg4
+        MTMxNjgzZTc3OTM4ZGQ4MDk1MWY1NzEwYzcxZDll
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZTk4MzkxYmUtM2I0Zi00YzIxLWExY2UtMDEyN2QxNjc1NjM4
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CE1F0AE7
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1iNTlmYjI1YTIzNTgyMWNiOWMwMzQ1NmM5NjkyMGI1Nzg4
+        MTMxNjgzZTc3OTM4ZGQ4MDk1MWY1NzEwYzcxZDll
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIsRyBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4y
+        NyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        Nzk2YjVjMDUtMzFlOC00YTU0LTg3M2UtYzYwNDlhMTI1MGEz
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CE5A0526
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNoZWNrc3VtLW1vZGU7
+        eC1hbXotY29udGVudC1zaGEyNTY7eC1hbXotZGF0ZSwgU2lnbmF0dXJlPTY1MGNjMWRhOTU4MjM2
+        NGM1ODczMmJlYzM0ZjllNzllMmZjYTYzODM0OTkxMTFjN2RiNzIwM2VhNDBkMGRiMGU=
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIsRyBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4y
+        NyBSZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        MjcyMDdmNzgtYjY4Yy00ZDc5LWI2YWUtYmE0NGQzOTUxMzI3
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-mode:
+      - !!binary |
+        RU5BQkxFRA==
+    method: GET
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: already exists
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - /Yea/g==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CEA9BAF3
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1lN2JmMjE0NjY0MTUyZjA5NmU2Y2EyYWYwZGNkZjRiYWM0
+        NjUzODc1MzNiZGY2ZWE0ZmNkMGYyZTJmZjExNTZl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NDk3NDc4MzItOTUzMy00ZWZiLTg2MTgtZmQzM2I0ZGQ1NjAy
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CED84A2E
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMTUvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1iNTlmYjI1YTIzNTgyMWNiOWMwMzQ1NmM5NjkyMGI1Nzg4
+        MTMxNjgzZTc3OTM4ZGQ4MDk1MWY1NzEwYzcxZDll
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMTVUMTUwMTI2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        ZDE0YWQ1ODItZjJmOS00ODA4LWJjMDYtMWUzZDk1YjcwMjA2
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/documenten/uploads/test/already_exists_1234567.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '14'
+      Content-Type:
+      - text/plain
+      Date:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      ETag:
+      - '"102779676feeffd385f7038542c05441"'
+      Last-Modified:
+      - Thu, 15 Jan 2026 15:01:26 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188AEFA2CEFC8078
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '5928'
+      X-Ratelimit-Remaining:
+      - '5928'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
