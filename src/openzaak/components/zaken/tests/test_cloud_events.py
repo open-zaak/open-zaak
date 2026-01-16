@@ -161,6 +161,15 @@ class CloudEventSettingMixin(TestCase):
         event_payload_copy = dict(event_payload)
         event_payload_copy.pop("id", None)
 
+        data = {}
+        if event_type in (ZAAK_GEOPEND, ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN):
+            data = {
+                "bronorganisatie": obj.bronorganisatie,
+                "zaaktype": self.check_for_instance(obj.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(obj.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": obj.vertrouwelijkheidaanduiding,
+            }
+
         expected_payload = {
             "specversion": "1.0",
             "type": event_type,
@@ -168,7 +177,7 @@ class CloudEventSettingMixin(TestCase):
             "subject": str(obj.uuid),
             "dataref": reverse(obj),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": data,
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -259,7 +268,12 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -345,7 +359,12 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -390,7 +409,14 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
                 "subject": str(zaak.uuid),
                 "dataref": reverse(zaak),
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": self.check_for_instance(zaak.zaaktype),
+                    "zaaktype.catalogus": self.check_for_instance(
+                        zaak.zaaktype.catalogus
+                    ),
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
                 "time": "2025-09-23T12:00:00Z",
             }
 
@@ -438,7 +464,12 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": "2025-09-23T12:00:00Z",
         }
 
@@ -456,7 +487,12 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": "2025-09-23T12:00:00Z",
             "id": event_id,
         }

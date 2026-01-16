@@ -491,7 +491,7 @@ class ZaakViewSet(
             and "laatst_geopend" in serializer.validated_data
             and len(serializer.validated_data) == 1
         ):
-            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak)
+            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():
@@ -533,7 +533,7 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance)
+        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance, self.request)
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(
