@@ -215,6 +215,7 @@ def get_default_path(field: models.FileField) -> Path:
     path = Path(storage_location / field.upload_to)
 
     # TODO cleaner way to do this?
+    # TODO check this also ?
     if isinstance(field.storage, AzureStorage) and path.is_relative_to(
         settings.AZURE_LOCATION
     ):

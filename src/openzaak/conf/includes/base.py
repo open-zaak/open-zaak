@@ -656,3 +656,217 @@ AZURE_URL_EXPIRATION_SECS = config(
     ),
     group="Documenten API Azure Blob Storage",
 )
+
+
+#
+# DOCUMENTEN API AWS S3 STORAGE INTEGRATION
+#
+# Authentication Settings
+AWS_S3_SESSION_PROFILE = config(
+    "AWS_S3_SESSION_PROFILE",
+    None,
+    help_text=(
+        "Name of the AWS CLI profile to use for authentication when connecting to AWS S3."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_ACCESS_KEY_ID = config(
+    "AWS_S3_ACCESS_KEY_ID",
+    None,
+    help_text=("Access key ID used to authenticate with AWS S3."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_SECRET_ACCESS_KEY = config(
+    "AWS_S3_SECRET_ACCESS_KEY",
+    None,
+    help_text=(
+        "Secret access key used together with AWS_S3_ACCESS_KEY_ID to authenticate with AWS S3."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_SESSION_TOKEN = config(
+    "AWS_SESSION_TOKEN",
+    None,
+    help_text=("Session token used for temporary AWS credentials"),
+    group="Documenten API AWS S3",
+)
+
+# General Settings
+AWS_STORAGE_BUCKET_NAME = config(
+    "AWS_STORAGE_BUCKET_NAME",
+    "openzaak",
+    help_text=("The name of the S3 bucket that will host the files."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_OBJECT_PARAMETERS = config(
+    "AWS_S3_OBJECT_PARAMETERS",
+    {},
+    help_text=(
+        "Use this to set parameters on all objects. To set these on a per-object basis,"
+        "subclass the backend and override S3Storage.get_object_parameters."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_DEFAULT_ACL = config(
+    "AWS_DEFAULT_ACL",
+    None,
+    help_text=(
+        "Use this to set an ACL on your file such as public-read. If not set the file will be private per Amazon’s default."
+        "If the ACL parameter is set in object_parameters, then this setting is ignored."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_QUERYSTRING_AUTH = config(
+    "AWS_QUERYSTRING_AUTH",
+    True,
+    help_text=(
+        "Setting AWS_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs."
+        "This can be useful if your S3 buckets are public."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_MAX_MEMORY_SIZE = config(
+    "AWS_S3_MAX_MEMORY_SIZE",
+    0,
+    help_text=(
+        "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_QUERYSTRING_EXPIRE = config(
+    "AWS_QUERYSTRING_EXPIRE",
+    3600,
+    help_text=("The number of seconds that a generated URL is valid for."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_URL_PROTOCOL = config(
+    "AWS_S3_URL_PROTOCOL",
+    "https:",
+    help_text=(
+        "The protocol to use when constructing a custom domain, custom_domain must be True for this to have any effect."
+        "Must end in a `:`"
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_FILE_OVERWRITE = config(
+    "AWS_S3_FILE_OVERWRITE",
+    True,
+    help_text=(
+        "By default files with the same name will overwrite each other. Set this to False to have extra characters appended."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_LOCATION = config(
+    "AWS_LOCATION",
+    "",
+    help_text=("A path prefix that will be prepended to all uploads."),
+    group="Documenten API AWS S3",
+)
+AWS_IS_GZIPPED = config(
+    "AWS_IS_GZIPPED",
+    False,
+    help_text=(
+        "Whether or not to enable gzipping of content types specified by gzip_content_types."
+    ),
+    group="Documenten API AWS S3",
+)
+GZIP_CONTENT_TYPES = config(
+    "GZIP_CONTENT_TYPES",
+    "(text/css,text/javascript,application/javascript,application/x-javascript,image/svg+xml)",
+    help_text=("The list of content types to be gzipped when gzip is True."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_REGION_NAME = config(
+    "AWS_S3_REGION_NAME",
+    None,
+    help_text=("Name of the AWS S3 region to use (eg. eu-west-1)"),
+    group="Documenten API AWS S3",
+)
+AWS_S3_USE_SSL = config(
+    "AWS_S3_USE_SSL",
+    True,
+    help_text=(
+        "Whether or not to use SSL when connecting to S3, this is passed to the boto3 session resource constructor."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_VERIFY = config(
+    "AWS_S3_VERIFY",
+    None,
+    help_text=(
+        "Whether or not to verify the connection to S3. Can be set to False to not verify certificates or a path to a CA cert bundle."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_ENDPOINT_URL = config(
+    "AWS_S3_ENDPOINT_URL",
+    None,
+    help_text=(
+        "Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl."
+        "To avoid AuthorizationQueryParametersError errors, region_name should also be set."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_ADDRESSING_STYLE = config(
+    "AWS_S3_ADDRESSING_STYLE",
+    None,
+    help_text=("Possible values `virtual` and `path`."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_PROXIES = config(
+    "AWS_S3_PROXIES",
+    None,
+    help_text=("Dictionary of proxy servers to use by protocol or endpoint."),
+    group="Documenten API AWS S3",
+)
+AWS_S3_TRANSFER_CONFIG = config(
+    "AWS_S3_TRANSFER_CONFIG",
+    None,
+    help_text=(
+        "Set this to customize the transfer config options such as disabling threads for gevent compatibility;"
+        "See the Boto3 docs for TransferConfig for more info."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_CUSTOM_DOMAIN = config(
+    "AWS_S3_CUSTOM_DOMAIN",
+    None,
+    help_text=("Set this to specify a custom domain for constructed URLs."),
+    group="Documenten API AWS S3",
+)
+AWS_CLOUDFRONT_KEY = config(
+    "AWS_CLOUDFRONT_KEY",
+    None,
+    help_text=(
+        "A private PEM encoded key to use in a boto3 CloudFrontSigner; See CloudFront Signed URLs for more info."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_CLOUDFRONT_KEY_ID = config(
+    "AWS_CLOUDFRONT_KEY_ID",
+    None,
+    help_text=(
+        "The AWS key ID for the private key provided with cloudfront_key / AWS_CLOUDFRONT_KEY;"
+        "See CloudFront Signed URLs for more info."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_SIGNATURE_VERSION = config(
+    "AWS_S3_SIGNATURE_VERSION",
+    None,
+    help_text=(
+        "The default signature version is s3v4. Set this to s3 to use the legacy signing scheme (aka v2)."
+        "Note that only certain regions support that version."
+        "You can check to see if your region is one of them in the S3 region list."
+    ),
+    group="Documenten API AWS S3",
+)
+AWS_S3_CLIENT_CONFIG = config(
+    "AWS_S3_CLIENT_CONFIG",
+    None,
+    help_text=(
+        "An instance of botocore.config.Config to do advanced configuration of the client such as max_pool_connections."
+        "See all options in the Botocore docs."
+    ),
+    group="Documenten API AWS S3",
+)
