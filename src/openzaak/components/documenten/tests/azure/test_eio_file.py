@@ -8,7 +8,6 @@ import base64
 import os
 from datetime import date
 from io import BytesIO
-from unittest import expectedFailure
 from unittest.mock import patch
 from urllib.parse import urlparse
 from uuid import UUID
@@ -157,27 +156,24 @@ class EnkelvoudigInformatieObjectFileAzureBlobStorageTests(
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
 
-    # FIXME deleting EIOs via the API currently does not remove the related file from
-    # disk
-    # See: https://github.com/open-zaak/open-zaak/issues/2274
-    @expectedFailure
     def test_delete_eio_deletes_file(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             inhoud=File(BytesIO(b"some data"), name="some-file2.bin"),
         )
+
         file_url = get_operation_url(
             "enkelvoudiginformatieobject_download", uuid=eio.uuid
         )
 
-        file_path = eio.inhoud.path.split("oz-documenten/")[1]
-        # TODO .exists() doesn't work if you prepend LOCATION
-        self.assertTrue(documenten_storage.exists(file_path))
+        file_path = eio.inhoud.name
 
+        self.assertTrue(documenten_storage.exists(file_path))
         response = self.client.delete(reverse(eio))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        response = self.client.get(file_url)
+        self.assertFalse(documenten_storage.exists(file_path))
 
+        response = self.client.get(file_url)
         self.assertEqual(response.status_code, 404)
         self.assertFalse(documenten_storage.exists(file_path))

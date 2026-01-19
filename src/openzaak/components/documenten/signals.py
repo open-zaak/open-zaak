@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
 
-from .models import ObjectInformatieObject
+from .models import EnkelvoudigInformatieObject, ObjectInformatieObject
 from .typing import IORelation
 
 
@@ -46,3 +46,13 @@ def sync_oio(
 
     else:
         raise NotImplementedError(f"Signal {signal} is not supported")
+
+
+@receiver(
+    post_delete,
+    sender=EnkelvoudigInformatieObject,
+    dispatch_uid="documenten.delete_eio_file",
+)
+def delete_eio_file(sender, instance, **kwargs):
+    if instance.inhoud:
+        instance.inhoud.delete(save=False)
