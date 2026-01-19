@@ -139,6 +139,18 @@ class CloudEventSettingMixin(TestCase):
             header_value="Token foo",
         )
 
+        self.notifications_config = NotificationsConfig(
+            notification_delivery_max_retries=3,
+            notifications_api_service=self.service,
+        )
+
+        self._notifications_patcher = patch(
+            "notifications_api_common.models.NotificationsConfig.get_solo",
+            return_value=self.notifications_config,
+        )
+        self._notifications_patcher.start()
+        self.addCleanup(self._notifications_patcher.stop)
+
         self._patcher = patch(
             "openzaak.components.zaken.api.cloudevents.CloudEventConfig.get_solo",
             return_value=CloudEventConfig(
@@ -212,9 +224,6 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         This test now triggers cloud events via POST on /statussen,
         since zaak-gemuteerd is ONLY emitted for new Status creation.
         """
-        config = NotificationsConfig.get_solo()
-        config.notification_delivery_max_retries = 3
-        config.save()
 
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -293,9 +302,6 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         This test now triggers cloud events via POST on /statussen,
         since zaak-gemuteerd is ONLY emitted for new Status creation.
         """
-        config = NotificationsConfig.get_solo()
-        config.notification_delivery_max_retries = 3
-        config.save()
 
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
