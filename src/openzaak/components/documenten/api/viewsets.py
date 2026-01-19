@@ -348,8 +348,13 @@ class EnkelvoudigInformatieObjectViewSet(
     @action(methods=["get"], detail=True, name="enkelvoudiginformatieobject_download")
     def download(self, request, *args, **kwargs):
         eio = self.get_object()
+
+        if not eio.inhoud:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
             return FileResponse(eio.inhoud.file, as_attachment=True)
+
         return sendfile(
             request,
             eio.inhoud.path,

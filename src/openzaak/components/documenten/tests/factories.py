@@ -68,7 +68,10 @@ class EnkelvoudigInformatieObjectFactory(
     inhoud = factory.django.FileField(
         data=b"some data", filename=factory.Sequence(lambda n: f"file-{n}.bin")
     )
-    bestandsomvang = factory.LazyAttribute(lambda o: o.inhoud.size)
+    bestandsomvang = factory.LazyAttribute(
+        lambda o: o.inhoud.size if o.inhoud else None
+    )
+
     informatieobjecttype = factory.SubFactory(InformatieObjectTypeFactory)
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
 
