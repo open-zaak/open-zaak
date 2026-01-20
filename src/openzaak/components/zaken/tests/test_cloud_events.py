@@ -15,8 +15,8 @@ from celery.exceptions import Retry
 from cloudevents.conversion import to_dict
 from cloudevents.http import CloudEvent
 from freezegun import freeze_time
-from furl import furl
 from notifications_api_common.models import NotificationsConfig
+from notifications_api_common.tasks import send_cloudevent
 from requests.exceptions import Timeout
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -47,20 +47,25 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
-from openzaak.components.zaken.tests.utils import get_operation_url
-from openzaak.config.models import CloudEventConfig
+from openzaak.components.zaken.tests.utils import (
+    get_catalogus_response,
+    get_operation_url,
+    get_zaaktype_response,
+)
 from openzaak.notifications.scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 from openzaak.notifications.viewsets import CloudEventWebhook
-from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
+from openzaak.tests.utils import (
+    JWTAuthMixin,
+    mock_ztc_oas_get,
+    patch_resource_validator,
+)
 
-from ..api import cloudevents
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,
     ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_ONTKOPPELD,
     ZAAK_VERWIJDEREN,
-    send_cloud_event,
 )
 from ..models import (
     Resultaat,
@@ -89,13 +94,6 @@ from .utils import ZAAK_WRITE_KWARGS
 
 
 def mock_cloud_event_send(m: requests_mock.Mocker, **kwargs) -> None:
-    from openzaak.config.models import CloudEventConfig
-
-    config = CloudEventConfig.get_solo()
-    service = config.webhook_service
-    assert service is not None
-    base_url = (furl(service.api_root) / config.webhook_path).url
-
     mock_kwargs = (
         {
             "status_code": 201,
@@ -105,12 +103,12 @@ def mock_cloud_event_send(m: requests_mock.Mocker, **kwargs) -> None:
         if "exc" not in kwargs
         else kwargs
     )
-    m.post(base_url, **mock_kwargs)
+    m.post("http://webhook.local/cloudevents", **mock_kwargs)
 
 
 def patch_send_cloud_event():
     return patch(
-        "openzaak.components.zaken.api.cloudevents.send_cloud_event.delay",
+        "notifications_api_common.tasks.send_cloudevent.delay",
         autospec=True,
     )
 
@@ -126,7 +124,9 @@ class CloudEventSettingMixin(TestCase):
         cls._freezer = freeze_time(cls.CLOUD_EVENT_TIME)
         cls._freezer.start()
 
-        cls._override = override_settings(ENABLE_CLOUD_EVENTS=True)
+        cls._override = override_settings(
+            ENABLE_CLOUD_EVENTS=True, NOTIFICATIONS_SOURCE=cls.CLOUD_EVENT_SOURCE
+        )
         cls._override.enable()
 
     def setUp(self):
@@ -152,13 +152,8 @@ class CloudEventSettingMixin(TestCase):
         self.addCleanup(self._notifications_patcher.stop)
 
         self._patcher = patch(
-            "openzaak.components.zaken.api.cloudevents.CloudEventConfig.get_solo",
-            return_value=CloudEventConfig(
-                enabled=True,
-                source=self.CLOUD_EVENT_SOURCE,
-                webhook_service=self.service,
-                webhook_path="/events",
-            ),
+            "notifications_api_common.models.NotificationsConfig.get_solo",
+            return_value=NotificationsConfig(notifications_api_service=self.service),
         )
         self.mock_get_solo = self._patcher.start()
         self.addCleanup(self._patcher.stop)
@@ -186,6 +181,15 @@ class CloudEventSettingMixin(TestCase):
         event_payload_copy = dict(event_payload)
         event_payload_copy.pop("id", None)
 
+        data = {}
+        if event_type in (ZAAK_GEOPEND, ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN):
+            data = {
+                "bronorganisatie": obj.bronorganisatie,
+                "zaaktype": self.check_for_instance(obj.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(obj.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": obj.vertrouwelijkheidaanduiding,
+            }
+
         expected_payload = {
             "specversion": "1.0",
             "type": event_type,
@@ -193,7 +197,7 @@ class CloudEventSettingMixin(TestCase):
             "subject": str(obj.uuid),
             "dataref": reverse(obj),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": data,
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -205,12 +209,12 @@ class CloudEventSettingMixin(TestCase):
 @requests_mock.Mocker()
 @freeze_time("2012-01-14")
 @patch(
-    "openzaak.components.zaken.api.cloudevents.uuid4",
+    "notifications_api_common.cloudevents.uuid.uuid4",
     return_value=UUID("627a7fd2-6b9a-4963-8723-6ce7650f37c0"),
 )
-@patch("openzaak.components.zaken.api.cloudevents.send_cloud_event.delay")
+@patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
-    "openzaak.components.zaken.api.cloudevents.send_cloud_event.retry",
+    "notifications_api_common.tasks.send_cloudevent.retry",
     side_effect=Retry,
 )
 class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
@@ -281,7 +285,12 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -291,7 +300,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         mock_cloud_event_send(m, status_code=403)
 
         with self.assertRaises(Retry):
-            send_cloud_event(message)
+            send_cloudevent(message)
 
         retry_mock.assert_called_once()
 
@@ -364,7 +373,12 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -374,7 +388,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         mock_cloud_event_send(m, exc=Timeout)
 
         with self.assertRaises(Retry):
-            send_cloud_event(message)
+            send_cloudevent(message)
 
         retry_mock.assert_called_once()
 
@@ -409,7 +423,14 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
                 "subject": str(zaak.uuid),
                 "dataref": reverse(zaak),
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": self.check_for_instance(zaak.zaaktype),
+                    "zaaktype.catalogus": self.check_for_instance(
+                        zaak.zaaktype.catalogus
+                    ),
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
                 "time": "2025-09-23T12:00:00Z",
             }
 
@@ -421,7 +442,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
 
         with patch(
-            "openzaak.components.zaken.api.cloudevents.send_cloud_event.delay",
+            "notifications_api_common.tasks.send_cloudevent.delay",
             autospec=True,
         ) as mock_send:
             response = self.client.patch(
@@ -457,7 +478,12 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": "2025-09-23T12:00:00Z",
         }
 
@@ -475,26 +501,86 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             "subject": str(zaak.uuid),
             "dataref": reverse(zaak),
             "datacontenttype": "application/json",
-            "data": {},
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
             "time": "2025-09-23T12:00:00Z",
             "id": event_id,
         }
 
         with requests_mock.Mocker() as m:
-            m.post("http://webhook.local/events")
+            m.post("http://webhook.local/cloudevents")
 
-            cloudevents.send_cloud_event(payload)
+            send_cloudevent(payload)
 
         self.assertEqual(len(m.request_history), 1)
 
         request = m.request_history[0]
 
-        self.assertEqual(request.url, "http://webhook.local/events")
+        self.assertEqual(request.url, "http://webhook.local/cloudevents")
         self.assertEqual(request.json(), payload)
         self.assertEqual(
             request.headers["content-type"], "application/cloudevents+json"
         )
         self.assertEqual(request.headers["Authorization"], "Token foo")
+
+    @tag("external-urls")
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_cloudevent_for_deleting_zaak_with_external_zaaktype(self):
+        zaaktype_url = "https://externe.catalogus.nl/api/v1/zaaktypen/1"
+        catalogus_url = "https://externe.catalogus.nl/api/v1/catalogi/1"
+
+        with patch_send_cloud_event() as mock_send:
+            with requests_mock.Mocker() as m:
+                mock_ztc_oas_get(m)
+                m.get(
+                    zaaktype_url,
+                    json=get_zaaktype_response(
+                        catalogus_url,
+                        zaaktype_url,
+                    ),
+                )
+                m.get(
+                    catalogus_url,
+                    json=get_catalogus_response(catalogus_url, zaaktype_url),
+                )
+
+                zaak = ZaakFactory.create(zaaktype=zaaktype_url)
+
+                response = self.client.delete(reverse(zaak))
+
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+            args, kwargs = mock_send.call_args
+
+            self.assertEqual(len(args), 1)
+            self.assertEqual(len(kwargs), 0)
+
+            event_payload = args[0]
+
+            event_payload_copy = dict(event_payload)
+            event_payload_copy.pop("id", None)
+
+            expected_payload = {
+                "specversion": "1.0",
+                "type": ZAAK_VERWIJDEREN,
+                "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+                "subject": str(zaak.uuid),
+                "dataref": reverse(zaak),
+                "datacontenttype": "application/json",
+                "data": {
+                    "bronorganisatie": zaak.bronorganisatie,
+                    "zaaktype": zaaktype_url,
+                    "zaaktype.catalogus": catalogus_url,
+                    "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                },
+                "time": "2025-09-23T12:00:00Z",
+            }
+
+            self.assertEqual(event_payload_copy, expected_payload)
 
 
 @skip(reason="#2179 waiting for the issue to be decided for all endpoints")
@@ -1503,6 +1589,7 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         self.assertNotIn("traceback", response.text.lower())
 
 
+@tag("cloudevents")
 class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = False
 

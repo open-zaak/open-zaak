@@ -24,7 +24,6 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.serializers import ErrorDetail, ValidationError
 from rest_framework.settings import api_settings
 from vng_api_common.audittrails.viewsets import (
@@ -51,7 +50,7 @@ from openzaak.import_data.views import (
 from openzaak.notifications.viewsets import (
     MultipleNotificationMixin,
 )
-from openzaak.utils.cloudevents import process_cloudevent
+from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import (
@@ -1232,22 +1231,16 @@ class DocumentRegistrerenViewSet(
                 "informatieobjecttype": serializer.data["enkelvoudiginformatieobject"][
                     "informatieobjecttype"
                 ],  # serializer.data has url
-                "informatieobjecttype.catalogus": reverse(
-                    "catalogus-detail",
-                    kwargs={
-                        "uuid": data[
-                            "enkelvoudiginformatieobject"
-                        ].informatieobjecttype.catalogus.uuid
-                    },
+                "informatieobjecttype.catalogus": get_url(
+                    data["enkelvoudiginformatieobject"].informatieobjecttype.catalogus,
                     request=self.request,
                 ),
                 "bronorganisatie": data["enkelvoudiginformatieobject"].bronorganisatie,
                 "vertrouwelijkheidaanduiding": data[
                     "enkelvoudiginformatieobject"
                 ].vertrouwelijkheidaanduiding,
-                "zaak.zaaktype": reverse(
-                    "zaaktype-detail",
-                    kwargs={"uuid": zaak.zaaktype.uuid},
+                "zaak.zaaktype": get_url(
+                    zaak.zaaktype,
                     request=self.request,
                 )
                 if zaak

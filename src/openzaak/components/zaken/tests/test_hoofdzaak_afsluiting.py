@@ -28,6 +28,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.components.zaken.tests.utils import (
+    get_catalogus_response,
     get_resultaattype_response,
     get_statustype_response,
     get_zaaktype_response,
@@ -89,6 +90,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         cls.mocker.get(
             cls.ext_zaaktype,
             json=get_zaaktype_response(cls.ext_catalogus, cls.ext_zaaktype),
+        )
+        cls.mocker.get(
+            cls.ext_catalogus,
+            json=get_catalogus_response(cls.ext_catalogus, cls.ext_zaaktype),
         )
         cls.mocker.get(
             cls.ext_statustype1,
