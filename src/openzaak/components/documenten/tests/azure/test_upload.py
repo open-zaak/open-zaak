@@ -547,6 +547,22 @@ class SmallFileUpload(JWTAuthMixin, VCRMixin, AzureBlobStorageMixin, APITestCase
         self.assertEqual(eio_new.bestandsomvang, 5)
         self.assertNotEqual(eio.bestandsomvang, eio_new.bestandsomvang)
 
+    def test_api_download_without_inhoud_returns_204(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            inhoud=None,
+            bestandsomvang=None,
+        )
+
+        url = get_operation_url(
+            "enkelvoudiginformatieobject_download",
+            uuid=eio.uuid,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
