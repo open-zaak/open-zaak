@@ -351,15 +351,18 @@ class EnkelvoudigInformatieObjectViewSet(
         if not eio.inhoud:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
-            return FileResponse(eio.inhoud.file, as_attachment=True)
-
-        return sendfile(
-            request,
-            eio.inhoud.path,
-            attachment=True,
-            mimetype="application/octet-stream",
-        )
+        match settings.DOCUMENTEN_API_BACKEND:
+            case DocumentenBackendTypes.azure_blob_storage:
+                return FileResponse(eio.inhoud.file, as_attachment=True)
+            case DocumentenBackendTypes.s3_storage:
+                return FileResponse(eio.inhoud.file, as_attachment=True)
+            case DocumentenBackendTypes.filesystem | _:
+                return sendfile(
+                    request,
+                    eio.inhoud.path,
+                    attachment=True,
+                    mimetype="application/octet-stream",
+                )
 
     @extend_schema(
         "enkelvoudiginformatieobject_lock",

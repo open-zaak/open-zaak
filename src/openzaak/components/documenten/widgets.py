@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from typing import Any, Optional, Union
 
-from django.contrib.admin.widgets import AdminFileWidget
+from django.contrib.admin.widgets import AdminFileWidget as _AdminFileWidget
 from django.core.files.uploadedfile import InMemoryUploadedFile, UploadedFile
 from django.db.models.fields.files import FieldFile
 
@@ -22,9 +22,10 @@ class PrivateFileWidget(_PrivateFileWidget):
         return instance.bestandsnaam or super().get_display_value(value)
 
 
-class AzureFileWidget(AdminFileWidget):
+class AdminFileWidget(_AdminFileWidget):
+    # TODO check delete file
     """
-    Widget to display files stored in Azure
+    Widget to display files stored in Azure and S3 storages
     """
 
     template_name = "admin/widgets/clearable_private_file_input.html"

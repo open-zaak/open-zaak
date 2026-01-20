@@ -109,7 +109,7 @@ Documenten import
 Documenten API
 --------------
 
-* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``. Defaults to: ``filesystem``.
+* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``, ``s3_storage``. Defaults to: ``filesystem``.
 
 
 Documenten API Azure Blob Storage
@@ -124,6 +124,38 @@ Documenten API Azure Blob Storage
 * ``AZURE_CONNECTION_TIMEOUT_SECS``: Number of seconds before a timeout will be raised when making requests to Azure. Defaults to: ``5``.
 * ``AZURE_STORAGE_API_VERSION``: The Storage API version to use for requests. Default value is the most recent service version that is compatible with the current SDK. Setting to an older version may result in reduced feature compatibility. See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services for more information.
 * ``AZURE_URL_EXPIRATION_SECS``: Seconds before a URL to a blob expires, set to ``None`` to never expire it. Be aware the container must have public read permissions in order to access a URL without expiration date. Defaults to: ``60``.
+
+
+Documenten API S3
+-----------------
+
+* ``S3_SESSION_PROFILE``: Name of the S3 CLI profile to use for authentication when connecting to S3 strorage. Defaults to: ``None``.
+* ``S3_ACCESS_KEY_ID``: Access key ID used to authenticate with S3 storage. Defaults to: ``None``.
+* ``S3_SECRET_ACCESS_KEY``: Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage. Defaults to: ``None``.
+* ``S3_SESSION_TOKEN``: Session token used for temporary S3 credentials. Defaults to: ``None``.
+* ``S3_STORAGE_BUCKET_NAME``: The name of the S3 bucket that will host the files. Defaults to: ``openzaak``.
+* ``S3_OBJECT_PARAMETERS``: Use this to set parameters on all objects. To set these on a per-object basis,subclass the backend and override S3Storage.get_object_parameters. Defaults to: ``{}``.
+* ``S3_DEFAULT_ACL``: Use this to set an ACL on your file such as public-read. If not set the file will be private per Amazon’s default.If the ACL parameter is set in object_parameters, then this setting is ignored. Defaults to: ``None``.
+* ``S3_QUERYSTRING_AUTH``: Setting S3_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.This can be useful if your S3 buckets are public. Defaults to: ``True``.
+* ``S3_MAX_MEMORY_SIZE``: The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. Defaults to: ``0``.
+* ``S3_QUERYSTRING_EXPIRE``: The number of seconds that a generated URL is valid for. Defaults to: ``3600``.
+* ``S3_URL_PROTOCOL``: The protocol to use when constructing a custom domain, custom_domain must be True for this to have any effect.Must end in a `:`. Defaults to: ``https:``.
+* ``S3_FILE_OVERWRITE``: By default files with the same name will overwrite each other. Set this to False to have extra characters appended. Defaults to: ``True``.
+* ``S3_LOCATION``: A path prefix that will be prepended to all uploads. Defaults to: ``documenten/``.
+* ``S3_IS_GZIPPED``: Whether or not to enable gzipping of content types specified by gzip_content_types. Defaults to: ``False``.
+* ``S3_GZIP_CONTENT_TYPES``: The list of content types to be gzipped when gzip is True. Defaults to: ``(text/css,text/javascript,application/javascript,application/x-javascript,image/svg+xml)``.
+* ``S3_REGION_NAME``: Name of the S3 storage region to use (eg. eu-west-1). Defaults to: ``None``.
+* ``S3_USE_SSL``: Whether or not to use SSL when connecting to S3, this is passed to the boto3 session resource constructor. Defaults to: ``True``.
+* ``S3_VERIFY``: Whether or not to verify the connection to S3. Can be set to False to not verify certificates or a path to a CA cert bundle. Defaults to: ``None``.
+* ``S3_ENDPOINT_URL``: Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl.To avoid AuthorizationQueryParametersError errors, region_name should also be set. Defaults to: ``None``.
+* ``S3_ADDRESSING_STYLE``: Possible values `virtual` and `path`. Defaults to: ``None``.
+* ``S3_PROXIES``: Dictionary of proxy servers to use by protocol or endpoint. Defaults to: ``None``.
+* ``S3_TRANSFER_CONFIG``: Set this to customize the transfer config options such as disabling threads for gevent compatibility;See the Boto3 docs for TransferConfig for more info. Defaults to: ``None``.
+* ``S3_CUSTOM_DOMAIN``: Set this to specify a custom domain for constructed URLs. Defaults to: ``None``.
+* ``S3_CLOUDFRONT_KEY``: A private PEM encoded key to use in a boto3 CloudFrontSigner; See CloudFront Signed URLs for more info. Defaults to: ``None``.
+* ``S3_CLOUDFRONT_KEY_ID``: The S3 key ID for the private key provided with cloudfront_key / S3_CLOUDFRONT_KEY;See CloudFront Signed URLs for more info. Defaults to: ``None``.
+* ``S3_SIGNATURE_VERSION``: The default signature version is s3v4. Set this to s3 to use the legacy signing scheme (aka v2).Note that only certain regions support that version.You can check to see if your region is one of them in the S3 region list. Defaults to: ``None``.
+* ``S3_CLIENT_CONFIG``: An instance of botocore.config.Config to do advanced configuration of the client such as max_pool_connections.See all options in the Botocore docs. Defaults to: ``None``.
 
 
 Optional

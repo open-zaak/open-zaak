@@ -32,7 +32,7 @@ from .models import (
 )
 from .storage import documenten_storage
 from .views import PrivateMediaView
-from .widgets import AzureFileWidget, PrivateFileWidget
+from .widgets import AdminFileWidget, PrivateFileWidget
 
 
 @admin.register(Gebruiksrechten)
@@ -261,7 +261,9 @@ class EnkelvoudigInformatieObjectInline(
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
             case DocumentenBackendTypes.azure_blob_storage:
-                return AzureFileWidget
+                return AdminFileWidget
+            case DocumentenBackendTypes.s3_storage:
+                return AdminFileWidget
             case DocumentenBackendTypes.filesystem | _:
                 return PrivateFileWidget
 
@@ -312,13 +314,11 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
 
     def clean_inhoud(self):
         inhoud = self.cleaned_data.get("inhoud")
-        if (
-            DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND
-            and not documenten_storage.connection_check()
-        ):
+        if not documenten_storage.connection_check():
             raise ValidationError(
                 _(
-                    "Something went wrong while trying to write the file to Azure storage."
+                    "Something went wrong while trying to write the file to %(storage)s"
+                    % {"storage": settings.DOCUMENTEN_API_BACKEND.label}
                 )
             )
         return inhoud
@@ -357,7 +357,9 @@ class EnkelvoudigInformatieObjectAdmin(
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
             case DocumentenBackendTypes.azure_blob_storage:
-                return AzureFileWidget
+                return AdminFileWidget
+            case DocumentenBackendTypes.s3_storage:
+                return AdminFileWidget
             case DocumentenBackendTypes.filesystem | _:
                 return PrivateFileWidget
 

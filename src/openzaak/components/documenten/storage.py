@@ -11,12 +11,32 @@ import structlog
 from azure.core.exceptions import AzureError
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient
+from botocore.exceptions import EndpointConnectionError
 from privates.storages import PrivateMediaFileSystemStorage
 from storages.backends.azure_storage import AzureStorage as _AzureStorage
+from storages.backends.s3 import S3Storage as _S3Storage
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 
 logger = structlog.stdlib.get_logger(__name__)
+
+
+class S3Storage(_S3Storage):
+    def connection_check(self) -> bool:
+        """
+        Checks if the storage backend is reachable and credentials are valid.
+        """
+        try:
+            self.connection.meta.client.list_buckets()
+            return True
+        except EndpointConnectionError:
+            logger.exception("endpoint_connection_error")
+        except Exception:
+            logger.exception("failed_connection_check")
+        return False
+
+    def path(self, name: str) -> str:
+        return self.get_available_name(name)
 
 
 class AzureStorage(_AzureStorage):
@@ -77,8 +97,15 @@ class DocumentenStorage(LazyObject):
         match settings.DOCUMENTEN_API_BACKEND:
             case DocumentenBackendTypes.azure_blob_storage:
                 self._wrapped = AzureStorage()
+            case DocumentenBackendTypes.s3_storage:
+                self._wrapped = S3Storage()
             case DocumentenBackendTypes.filesystem | _:
                 self._wrapped = PrivateMediaFileSystemStorage()
+
+    def connection_check(self):
+        if hasattr(self._wrapped, "connection_check"):
+            return self._wrapped.connection_check()
+        return True  # PrivateMediaFileSystemStorage
 
 
 documenten_storage = cast(Storage, DocumentenStorage())

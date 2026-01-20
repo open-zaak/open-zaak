@@ -61,7 +61,11 @@ def copy_file_to_storage(src: Path, dst: Path) -> str:
     ):
         default_dir.mkdir(parents=True)
 
-    if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
+    # TODO test this
+    if settings.DOCUMENTEN_API_BACKEND in [
+        DocumentenBackendTypes.azure_blob_storage,
+        DocumentenBackendTypes.s3_storage,
+    ]:
         with open(src, "rb") as file:
             # A file could already exist at `dst` in the storage, so the actual path
             # to which the file ends up being saved is returned and stored on the
