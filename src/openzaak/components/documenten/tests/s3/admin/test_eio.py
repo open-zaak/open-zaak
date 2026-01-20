@@ -131,7 +131,7 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, S3torageMixin, WebTest):
 
         download_link = current_file.find("a").attrs["href"]
 
-        # Verify that the download link points to AWS S3
+        # Verify that the download link points to S3
         self.assertTrue(
             download_link.startswith(
                 "http://localhost:9000/openzaak/documenten/uploads/test/test_get_informatieobject.bin"
