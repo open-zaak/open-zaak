@@ -317,9 +317,8 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
         if not documenten_storage.connection_check():
             raise ValidationError(
                 _(
-                    "Something went wrong while trying to write the file to %(storage)s"
-                    % {"storage": settings.DOCUMENTEN_API_BACKEND.label}
-                )
+                    "Something went wrong while trying to write the file to {storage}"
+                ).format(storage=settings.DOCUMENTEN_API_BACKEND.label)
             )
         return inhoud
 

@@ -128,6 +128,7 @@ class AnyBase64File(Base64FileField):
         try:
             file.file
         except (ValueError, FileNotFoundError):
+            # TODO should we raise and error here if file doesn't exists ?
             return None
 
         assert self.view_name, (
