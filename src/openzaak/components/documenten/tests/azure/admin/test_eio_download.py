@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import tag
 from django.urls import reverse
 
 import requests
@@ -15,10 +15,9 @@ from ...factories import EnkelvoudigInformatieObjectFactory
 from ..mixins import AzureBlobStorageMixin
 
 
+@disable_admin_mfa()
 @freeze_time("2030-01-01T12:00:00")
 @tag("gh-2217", "azure-storage")
-@disable_admin_mfa()
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(
     VCRMixin, AzureBlobStorageMixin, WebTest
 ):

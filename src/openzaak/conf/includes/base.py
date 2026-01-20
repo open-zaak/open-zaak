@@ -661,15 +661,12 @@ AZURE_URL_EXPIRATION_SECS = config(
 #
 # DOCUMENTEN API S3 STORAGE INTEGRATION
 #
+
+# Constants
+AWS_S3_USE_SSL = True
+AWS_S3_VERIFY = True
+
 # Authentication Settings
-AWS_S3_SESSION_PROFILE = config(
-    "S3_SESSION_PROFILE",
-    None,
-    help_text=(
-        "Name of the S3 CLI profile to use for authentication when connecting to S3 strorage."
-    ),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_ACCESS_KEY_ID = config(
     "S3_ACCESS_KEY_ID",
     None,
@@ -710,24 +707,6 @@ AWS_S3_OBJECT_PARAMETERS = config(
     ),
     group="Documenten API S3 Storage",
 )
-AWS_DEFAULT_ACL = config(
-    "S3_DEFAULT_ACL",
-    None,
-    help_text=(
-        "Use this to set an ACL on your file such as public-read. If not set the file will be private per Amazon’s default."
-        "If the ACL parameter is set in object_parameters, then this setting is ignored."
-    ),
-    group="Documenten API S3 Storage",
-)
-AWS_QUERYSTRING_AUTH = config(
-    "S3_QUERYSTRING_AUTH",
-    True,
-    help_text=(
-        "Setting S3_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs."
-        "This can be useful if your S3 buckets are public."
-    ),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_MAX_MEMORY_SIZE = config(
     "S3_MAX_MEMORY_SIZE",
     0,
@@ -738,17 +717,8 @@ AWS_S3_MAX_MEMORY_SIZE = config(
 )
 AWS_QUERYSTRING_EXPIRE = config(
     "S3_QUERYSTRING_EXPIRE",
-    3600,
+    60,
     help_text=("The number of seconds that a generated URL is valid for."),
-    group="Documenten API S3 Storage",
-)
-AWS_S3_URL_PROTOCOL = config(
-    "S3_URL_PROTOCOL",
-    "https:",
-    help_text=(
-        "The protocol to use when constructing a custom domain, custom_domain must be True for this to have any effect."
-        "Must end in a `:`"
-    ),
     group="Documenten API S3 Storage",
 )
 AWS_S3_FILE_OVERWRITE = config(
@@ -785,22 +755,6 @@ AWS_S3_REGION_NAME = config(
     help_text=("Name of the S3 storage region to use (eg. eu-west-1)"),
     group="Documenten API S3 Storage",
 )
-AWS_S3_USE_SSL = config(
-    "S3_USE_SSL",
-    True,
-    help_text=(
-        "Whether or not to use SSL when connecting to S3, this is passed to the boto3 session resource constructor."
-    ),
-    group="Documenten API S3 Storage",
-)
-AWS_S3_VERIFY = config(
-    "S3_VERIFY",
-    None,
-    help_text=(
-        "Whether or not to verify the connection to S3. Can be set to False to not verify certificates or a path to a CA cert bundle."
-    ),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_ENDPOINT_URL = config(
     "S3_ENDPOINT_URL",
     None,
@@ -810,24 +764,11 @@ AWS_S3_ENDPOINT_URL = config(
     ),
     group="Documenten API S3 Storage",
 )
-AWS_S3_ADDRESSING_STYLE = config(
-    "S3_ADDRESSING_STYLE",
-    None,
-    help_text=("Possible values `virtual` and `path`."),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_PROXIES = config(
     "S3_PROXIES",
     None,
-    help_text=("Dictionary of proxy servers to use by protocol or endpoint."),
-    group="Documenten API S3 Storage",
-)
-AWS_S3_TRANSFER_CONFIG = config(
-    "S3_TRANSFER_CONFIG",
-    None,
     help_text=(
-        "Set this to customize the transfer config options such as disabling threads for gevent compatibility;"
-        "See the Boto3 docs for TransferConfig for more info."
+        "A dictionary of proxy servers to use by protocol or endpoint, e.g.: {'http': 'foo.bar:3128', 'http://hostname': 'foo.bar:4012'}."
     ),
     group="Documenten API S3 Storage",
 )
@@ -861,15 +802,6 @@ AWS_S3_SIGNATURE_VERSION = config(
         "The default signature version is s3v4. Set this to s3 to use the legacy signing scheme (aka v2)."
         "Note that only certain regions support that version."
         "You can check to see if your region is one of them in the S3 region list."
-    ),
-    group="Documenten API S3 Storage",
-)
-AWS_S3_CLIENT_CONFIG = config(
-    "S3_CLIENT_CONFIG",
-    None,
-    help_text=(
-        "An instance of botocore.config.Config to do advanced configuration of the client such as max_pool_connections."
-        "See all options in the Botocore docs."
     ),
     group="Documenten API S3 Storage",
 )

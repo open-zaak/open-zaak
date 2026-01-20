@@ -27,6 +27,12 @@ AZURE_CONNECTION_STRING = (
     "BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 )
 
+# S3 Storage
+AWS_S3_USE_SSL = False
+AWS_S3_ACCESS_KEY_ID = "minioadmin"
+AWS_S3_SECRET_ACCESS_KEY = "minioadmin"
+AWS_S3_ENDPOINT_URL = "http://localhost:9000"
+
 NOTIFICATIONS_DISABLED = True
 
 CACHES = {

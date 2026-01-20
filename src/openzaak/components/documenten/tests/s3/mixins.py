@@ -32,9 +32,6 @@ class S3torageMixin:
 
         self.override_settings = override_settings(
             DOCUMENTEN_API_BACKEND=DocumentenBackendTypes.s3_storage,
-            AWS_S3_ACCESS_KEY_ID="minioadmin",
-            AWS_S3_SECRET_ACCESS_KEY="minioadmin",
-            AWS_S3_ENDPOINT_URL="http://localhost:9000",
             AWS_S3_FILE_OVERWRITE=self.s3_overwrite_files,
         )
         self.override_settings.enable()

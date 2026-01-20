@@ -352,9 +352,10 @@ class EnkelvoudigInformatieObjectViewSet(
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         match settings.DOCUMENTEN_API_BACKEND:
-            case DocumentenBackendTypes.azure_blob_storage:
-                return FileResponse(eio.inhoud.file, as_attachment=True)
-            case DocumentenBackendTypes.s3_storage:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
                 return FileResponse(eio.inhoud.file, as_attachment=True)
             case DocumentenBackendTypes.filesystem | _:
                 return sendfile(

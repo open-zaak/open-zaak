@@ -260,9 +260,10 @@ class EnkelvoudigInformatieObjectInline(
     @property
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
-            case DocumentenBackendTypes.azure_blob_storage:
-                return AdminFileWidget
-            case DocumentenBackendTypes.s3_storage:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
                 return AdminFileWidget
             case DocumentenBackendTypes.filesystem | _:
                 return PrivateFileWidget
@@ -355,9 +356,10 @@ class EnkelvoudigInformatieObjectAdmin(
     @property
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
-            case DocumentenBackendTypes.azure_blob_storage:
-                return AdminFileWidget
-            case DocumentenBackendTypes.s3_storage:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
                 return AdminFileWidget
             case DocumentenBackendTypes.filesystem | _:
                 return PrivateFileWidget

@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from uuid import UUID
 
 from django.core.files import File
-from django.test import override_settings, tag
+from django.test import tag
 
 from maykin_common.vcr import VCRMixin
 from privates.test import temp_private_root
@@ -37,7 +37,6 @@ from .mixins import S3torageMixin, upload_to
 
 @temp_private_root()
 @tag("gh-2282", "s3-storage")
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)
 class EnkelvoudigInformatieObjectFileS3StorageTests(
     JWTAuthMixin, S3torageMixin, VCRMixin, APITestCase
