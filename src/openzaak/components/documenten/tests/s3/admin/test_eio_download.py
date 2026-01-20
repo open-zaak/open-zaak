@@ -2,7 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from unittest.mock import patch
 
-from django.test import override_settings, tag
+from django.test import tag
 from django.urls import reverse
 
 import requests

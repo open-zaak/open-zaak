@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.contrib import admin
 from django.test import tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -13,9 +14,11 @@ from webtest import Upload
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
+from openzaak.components.documenten.widgets import AdminFileWidget
 
 from ....storage import documenten_storage
 from ...factories import (
@@ -37,6 +40,13 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, AzureBlobStorageMixin, Web
         super().setUp()
 
         self.app.set_user(self.user)
+
+    def test_form_widget(self):
+        admin_obj = EnkelvoudigInformatieObjectAdmin(
+            EnkelvoudigInformatieObject, admin.site
+        )
+        form = admin_obj.get_form(None)()
+        self.assertIsInstance(form.fields["inhoud"].widget, AdminFileWidget)
 
     def test_add_informatieobject_page(self):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
@@ -105,7 +115,7 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, AzureBlobStorageMixin, Web
             [
                 [
                     _(
-                        "Something went wrong while trying to write the file to Azure storage."
+                        "Something went wrong while trying to write the file to Azure Blob Storage"
                     )
                 ]
             ],

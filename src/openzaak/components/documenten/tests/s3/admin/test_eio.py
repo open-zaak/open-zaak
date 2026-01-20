@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from unittest.mock import patch
 
+from django.contrib import admin
 from django.test import tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -14,9 +15,11 @@ from webtest import Upload
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
+from openzaak.components.documenten.widgets import AdminFileWidget
 
 from ....storage import documenten_storage
 from ...factories import (
@@ -39,6 +42,13 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, S3torageMixin, WebTest):
 
         self.app.set_user(self.user)
 
+    def test_form_widget(self):
+        admin_obj = EnkelvoudigInformatieObjectAdmin(
+            EnkelvoudigInformatieObject, admin.site
+        )
+        form = admin_obj.get_form(None)()
+        self.assertIsInstance(form.fields["inhoud"].widget, AdminFileWidget)
+
     def test_add_informatieobject_page(self):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")
 
@@ -54,7 +64,6 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, S3torageMixin, WebTest):
 
         response = self.app.get(add_url)
         form = response.forms["enkelvoudiginformatieobject_form"]
-
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
         form["creatiedatum"] = "2010-01-01"

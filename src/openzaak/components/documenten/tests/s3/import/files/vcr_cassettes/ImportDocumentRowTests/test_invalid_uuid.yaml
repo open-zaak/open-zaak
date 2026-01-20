@@ -1,0 +1,68 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Authorization:
+      - !!binary |
+        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMjAvdXMtZWFzdC0x
+        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
+        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT1iZmE0ZjY4N2MyYmNkOTNmZjc4NDExNGQxNjkzZTg3NThj
+        Mzc0NGMzMDg2NDg2YmQ0MmY3ZmZmZTIxNGQ0ZTA0
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
+        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
+        eXRob24gbS9OLEQsWixlLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
+        UmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjAxMjBUMTQwOTQ2Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NGRmZmY2OWEtMjJlYi00MzI4LWI0YWUtZjc1NTk5MmZiZWRm
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/foo5.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Tue, 20 Jan 2026 14:09:46 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 188C75B8015C50B9
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '6332'
+      X-Ratelimit-Remaining:
+      - '6332'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+version: 1

@@ -23,7 +23,6 @@ class PrivateFileWidget(_PrivateFileWidget):
 
 
 class AdminFileWidget(_AdminFileWidget):
-    # TODO check delete file
     """
     Widget to display files stored in Azure and S3 storages
     """

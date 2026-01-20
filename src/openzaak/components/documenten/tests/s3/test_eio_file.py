@@ -8,7 +8,6 @@ import base64
 import os
 from datetime import date
 from io import BytesIO
-from unittest import expectedFailure
 from unittest.mock import patch
 from urllib.parse import urlparse
 from uuid import UUID

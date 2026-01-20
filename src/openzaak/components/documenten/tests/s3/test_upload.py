@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings, tag
 
-from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
 from privates.test import temp_private_root
 from rest_framework import status

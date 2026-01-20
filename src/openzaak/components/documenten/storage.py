@@ -11,7 +11,6 @@ import structlog
 from azure.core.exceptions import AzureError
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient
-from botocore.exceptions import EndpointConnectionError
 from privates.storages import PrivateMediaFileSystemStorage
 from storages.backends.azure_storage import AzureStorage as _AzureStorage
 from storages.backends.s3 import S3Storage as _S3Storage
@@ -29,8 +28,6 @@ class S3Storage(_S3Storage):
         try:
             self.connection.meta.client.list_buckets()
             return True
-        except EndpointConnectionError:
-            logger.exception("endpoint_connection_error")
         except Exception:
             logger.exception("failed_connection_check")
         return False
