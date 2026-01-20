@@ -2,6 +2,7 @@
 # Copyright (C) 2020 Dimpact
 from contextlib import contextmanager
 
+from django.conf import settings
 from django.db import DatabaseError, transaction
 from django.http import HttpRequest
 
@@ -148,6 +149,9 @@ def conditional_atomic(wrap: bool = True):
 
 
 def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
+    if not settings.ENABLE_CLOUD_EVENTS:
+        return
+
     data = {}
     if event_type in (ZAAK_GEOPEND, ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN):
         data = {

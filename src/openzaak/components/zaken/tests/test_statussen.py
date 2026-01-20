@@ -18,7 +18,6 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
-from ...documenten.tests.utils import get_catalogus_response
 from ..models import Status
 from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
 from .utils import (
@@ -204,7 +203,6 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             mock_ztc_oas_get(m)
             m.get(statustype, json=get_statustype_response(statustype, zaaktype))
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
 
             response = self.client.post(
                 self.list_url,
@@ -233,7 +231,6 @@ class StatusCreateExternalURLsTests(JWTAuthMixin, APITestCase):
             mock_ztc_oas_get(m)
             m.get(statustype, json=statustype_data)
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
             m.get(
                 resultaattype, json=get_resultaattype_response(resultaattype, zaaktype)
             )

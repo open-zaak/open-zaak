@@ -49,7 +49,6 @@ from .factories import (
 )
 from .utils import (
     ZAAK_WRITE_KWARGS,
-    get_catalogus_response,
     get_operation_url,
     get_resultaattype_response,
     get_statustype_response,
@@ -1380,7 +1379,6 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
                 json=get_statustype_response(statustype, zaaktype, isEindstatus=True),
             )
             m.get(zaaktype, json=get_zaaktype_response(catalogus, zaaktype))
-            m.get(catalogus, json=get_catalogus_response(catalogus, zaaktype))
             m.get(
                 resultaattype,
                 json=get_resultaattype_response(

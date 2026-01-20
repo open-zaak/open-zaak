@@ -598,7 +598,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(66):
+        with self.assertNumQueries(65):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -620,10 +620,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (4) 52-53: savepoints transaction management
         (5) 63: update the deelzaak
         (6) 64: cursor from exist()
-        (7) 66: fetch catalogus for cloudevent
-        (8) 70: savepoint transaction management
+        (7) 70: savepoint transaction management
         """
-        with self.assertNumQueries(71):
+        with self.assertNumQueries(70):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -647,12 +646,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (9-10) 72-73: select from zgw_consumers_service
         (11) 76: update the deelzaak
         (12) 77-78: savepoints transaction management
-        (13) 79: fetch catalogus for cloudevent
-        (14-17) 81-82 select related zaak data
+        (13-17) 81-82 select related zaak data
 
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(83):
+        with self.assertNumQueries(82):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -673,11 +671,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (4) 52-53: savepoints transaction management
         (5) 63: update the deelzaak
         (6) 64: cursor from exist()
-        (7) 66: fetch catalogus for cloudevent
-        (8) 70: savepoint transaction management
+        (7) 70: savepoint transaction management
         """
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(71):
+        with self.assertNumQueries(70):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -694,11 +691,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         """
         A single deelzaak with external catalogi has 12 extra queries over an internal catalogi.
         70 + (10*12) = 190
-
-        + 1 for fetching catalogus for cloudevent
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(191):
+        with self.assertNumQueries(190):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -715,7 +710,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(191):
+        with self.assertNumQueries(190):
             response = self.client.post(
                 self.status_list_url,
                 {
