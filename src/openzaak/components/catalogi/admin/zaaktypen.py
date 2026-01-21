@@ -307,9 +307,11 @@ class ZaakTypeAdmin(
 
         # M2M relations
         resources["BesluitType"] = list(obj.besluittypen.values_list("pk", flat=True))
+        # Since besluittypen can have related informatieobjecttypen that are not
+        # directly related to the zaaktype, include those as well
         resources["InformatieObjectType"] = list(
-            obj.informatieobjecttypen.values_list("pk", flat=True)
-        )
+            obj.besluittypen.values_list("informatieobjecttypen", flat=True)
+        ) + list(obj.informatieobjecttypen.values_list("pk", flat=True))
 
         resources["ZaakTypeInformatieObjectType"] = list(
             obj.zaaktypeinformatieobjecttype_set.values_list("pk", flat=True)
