@@ -322,7 +322,7 @@ class ZaakViewSet(
             "zaakobject_set",
         )
         .order_by("-pk")
-        .distinct()
+        .distinct("pk")
     )
     serializer_class = ZaakSerializer
     search_input_serializer_class = ZaakZoekSerializer
