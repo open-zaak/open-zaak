@@ -17103,7 +17103,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -17340,7 +17343,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -18828,7 +18834,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaak'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -20009,7 +20018,10 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -20403,7 +20415,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -20681,7 +20696,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaak'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -20976,7 +20994,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:
@@ -21297,7 +21318,10 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
-          description: Een lijst van relevante andere zaken.
+          description: 'Een lijst van relevante andere zaken. **LET OP**: Dit attribuut
+            zal verwijderd worden in versie 2.0, maak in plaats van dit attribuut
+            gebruik van `gerelateerdeZaken`.'
+          deprecated: true
         gerelateerdeZaken:
           type: array
           items:

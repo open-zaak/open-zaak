@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
+from drf_spectacular.utils import extend_schema_serializer
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
@@ -296,6 +297,7 @@ class ProcessobjectSerializer(GegevensGroepSerializer):
         gegevensgroep = "processobject"
 
 
+@extend_schema_serializer(deprecate_fields="relevante_andere_zaken")
 class ZaakSerializer(
     NestedGegevensGroepMixin,
     UniqueFieldsMixin,
@@ -397,7 +399,12 @@ class ZaakSerializer(
     )
 
     relevante_andere_zaken = RelevanteZaakSerializer(
-        many=True, required=False, help_text=_("Een lijst van relevante andere zaken.")
+        many=True,
+        required=False,
+        help_text=_(
+            "Een lijst van relevante andere zaken. **LET OP**: Dit attribuut zal verwijderd worden in "
+            "versie 2.0, maak in plaats van dit attribuut gebruik van `gerelateerdeZaken`."
+        ),
     )
     gerelateerde_zaken = GerelateerdeZaakSerializer(
         many=True,
@@ -570,6 +577,7 @@ class ZaakSerializer(
                 "validators": [NotSelfValidator(), HoofdzaakValidator()],
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
+            "relevante_andere_zaken": {"swagger_schema_fields": {"deprecated": True}},
         }
         validators = [
             # Replace a default "unique together" constraint.
