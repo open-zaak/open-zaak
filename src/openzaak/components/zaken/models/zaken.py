@@ -1393,6 +1393,14 @@ class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
         verbose_name = "zaakeigenschap"
         verbose_name_plural = "zaakeigenschappen"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.zaak.einddatum and self.waarde:
+            from openzaak.components.archiving import try_calculate_archiving
+
+            try_calculate_archiving(self.zaak)
+
     def full_clean(self, *args, **kwargs):
         super().full_clean(*args, **kwargs)
         CorrectZaaktypeValidator("eigenschap")(

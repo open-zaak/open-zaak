@@ -17,7 +17,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -913,12 +913,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
 
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, None)
@@ -970,7 +969,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
 
-    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_400(
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_201(
         self,
     ):
         """
@@ -1011,14 +1010,14 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
+        zaak.refresh_from_db()
 
-    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_400(
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_201(
         self,
     ):
         """
@@ -1058,15 +1057,9 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
-
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         zaak.refresh_from_db()
-        self.assertEqual(zaak.archiefactiedatum, None)
+        self.assertIsNone(zaak.archiefactiedatum)
 
     @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_causes_archiefactiedatum_to_be_set(
@@ -1162,12 +1155,11 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
 
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, None)

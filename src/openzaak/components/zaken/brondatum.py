@@ -110,24 +110,18 @@ def get_brondatum(
             )
 
         eigenschap = zaak.zaakeigenschap_set.filter(_naam=datum_kenmerk).first()
-        if eigenschap:
-            if not eigenschap.waarde:
-                return None
 
-            try:
-                return parse_isodatetime(eigenschap.waarde).date()
-            except ValueError:
-                raise DetermineProcessEndDateException(
-                    _('Geen geldige datumwaarde in eigenschap "{}": {}').format(
-                        datum_kenmerk, eigenschap.waarde
-                    )
-                )
-        else:
+        if not eigenschap or not eigenschap.waarde:
+            return None
+
+        try:
+            return parse_isodatetime(eigenschap.waarde).date()
+
+        except ValueError:
             raise DetermineProcessEndDateException(
-                _(
-                    'Geen eigenschap gevonden die overeenkomt met het datumkenmerk "{}" voor het bepalen van de '
-                    "brondatum."
-                ).format(datum_kenmerk)
+                _('Geen geldige datumwaarde in eigenschap "{}": {}').format(
+                    datum_kenmerk, eigenschap.waarde
+                )
             )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ander_datumkenmerk:
@@ -204,12 +198,7 @@ def get_brondatum(
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.gerelateerde_zaak:
         relevante_zaken = zaak.relevante_andere_zaken
         if relevante_zaken.count() == 0:
-            # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
-            raise DetermineProcessEndDateException(
-                _(
-                    "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
-                )
-            )
+            return None
 
         # internal
         relevante_zaken_internal = Zaak.objects.filter(
@@ -235,10 +224,7 @@ def get_brondatum(
     ):
         zaakbesluiten = zaak.besluit_set.all()
         if not zaakbesluiten.exists():
-            # Cannot use ingangsdatum_besluit if Zaak has no Besluiten
-            raise DetermineProcessEndDateException(
-                _("Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.")
-            )
+            return None
 
         max_ingangsdatum = zaakbesluiten.aggregate(Max("ingangsdatum"))[
             "ingangsdatum__max"
@@ -250,20 +236,14 @@ def get_brondatum(
     ):
         zaakbesluiten = zaak.besluit_set.all()
         if not zaakbesluiten.exists():
-            # Cannot use vervaldatum_besluit if Zaak has no Besluiten
-            raise DetermineProcessEndDateException(
-                _("Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.")
-            )
+            return None
 
         max_vervaldatum = zaakbesluiten.aggregate(Max("vervaldatum"))[
             "vervaldatum__max"
         ]
         if max_vervaldatum is None:
-            raise DetermineProcessEndDateException(
-                _(
-                    "Besluit.vervaldatum moet gezet worden voordat de zaak kan worden afgesloten"
-                )
-            )
+            return None
+
         return max_vervaldatum
 
     raise ValueError(f'Onbekende "Afleidingswijze": {afleidingswijze}')
