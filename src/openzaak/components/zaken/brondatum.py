@@ -17,15 +17,13 @@ from .models import Zaak
 
 
 class BrondatumCalculator:
-    def __init__(self, zaak: Zaak, datum_status_gezet: datetime):
+    def __init__(self, zaak: Zaak, datum_status_gezet: datetime, *, force=False):
         self.zaak = zaak
         self.datum_status_gezet = datum_status_gezet
+        self.force = force
         self.brondatum = None
 
     def calculate(self) -> Union[None, date]:
-        if self.zaak.archiefactiedatum:
-            return None
-
         resultaattype = self.zaak.resultaat.resultaattype
 
         archiefactietermijn = resultaattype.archiefactietermijn
@@ -33,7 +31,7 @@ class BrondatumCalculator:
             return None
 
         # if zaak.startdatum_bewaartermijn is filled -> use as brondatum
-        if self.zaak.startdatum_bewaartermijn:
+        if self.zaak.startdatum_bewaartermijn and not self.force:
             brondatum = self.zaak.startdatum_bewaartermijn
 
         else:
@@ -110,24 +108,18 @@ def get_brondatum(
             )
 
         eigenschap = zaak.zaakeigenschap_set.filter(_naam=datum_kenmerk).first()
-        if eigenschap:
-            if not eigenschap.waarde:
-                return None
 
-            try:
-                return parse_isodatetime(eigenschap.waarde).date()
-            except ValueError:
-                raise DetermineProcessEndDateException(
-                    _('Geen geldige datumwaarde in eigenschap "{}": {}').format(
-                        datum_kenmerk, eigenschap.waarde
-                    )
-                )
-        else:
+        if not eigenschap or not eigenschap.waarde:
+            return None
+
+        try:
+            return parse_isodatetime(eigenschap.waarde).date()
+
+        except ValueError:
             raise DetermineProcessEndDateException(
-                _(
-                    'Geen eigenschap gevonden die overeenkomt met het datumkenmerk "{}" voor het bepalen van de '
-                    "brondatum."
-                ).format(datum_kenmerk)
+                _('Geen geldige datumwaarde in eigenschap "{}": {}').format(
+                    datum_kenmerk, eigenschap.waarde
+                )
             )
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.ander_datumkenmerk:
@@ -250,20 +242,14 @@ def get_brondatum(
     ):
         zaakbesluiten = zaak.besluit_set.all()
         if not zaakbesluiten.exists():
-            # Cannot use vervaldatum_besluit if Zaak has no Besluiten
-            raise DetermineProcessEndDateException(
-                _("Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden.")
-            )
+            return None
 
         max_vervaldatum = zaakbesluiten.aggregate(Max("vervaldatum"))[
             "vervaldatum__max"
         ]
         if max_vervaldatum is None:
-            raise DetermineProcessEndDateException(
-                _(
-                    "Besluit.vervaldatum moet gezet worden voordat de zaak kan worden afgesloten"
-                )
-            )
+            return None
+
         return max_vervaldatum
 
     raise ValueError(f'Onbekende "Afleidingswijze": {afleidingswijze}')

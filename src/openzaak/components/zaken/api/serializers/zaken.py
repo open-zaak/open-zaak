@@ -55,6 +55,7 @@ from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, UntilNowValidator
 
 from openzaak.components.documenten.api.fields import EnkelvoudigInformatieObjectField
+from openzaak.components.zaken.archiving import calculate_archiving_data
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.contrib.verzoeken.validators import verzoek_validator
 from openzaak.utils.api import (
@@ -777,6 +778,13 @@ class ZaakZoekSerializer(serializers.Serializer):
         model = Zaak
 
 
+POSTPONABLE_AFLEIDINGSWIJZES = {
+    Afleidingswijze.vervaldatum_besluit,
+    Afleidingswijze.eigenschap,
+    Afleidingswijze.ander_datumkenmerk,
+}
+
+
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Status
@@ -852,37 +860,60 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
     def validate(self, attrs):
         validated_attrs = super().validate(attrs)
 
-        # validate that all InformationObjects have indicatieGebruiksrecht set
-        # and are unlocked
-        if validated_attrs["__is_eindstatus"]:
-            zaak = validated_attrs["zaak"]
+        if not validated_attrs.get("__is_eindstatus"):
+            self.context["brondatum_calculator"] = None
+            return validated_attrs
 
-            brondatum_calculator = BrondatumCalculator(
-                zaak, validated_attrs["datum_status_gezet"]
+        zaak = validated_attrs["zaak"]
+
+        afleidingswijze = (
+            zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
+            if hasattr(zaak, "resultaat")
+            else None
+        )
+
+        if zaak.hoofdzaak and afleidingswijze == Afleidingswijze.hoofdzaak:
+            self.context["brondatum_calculator"] = None
+            return validated_attrs
+
+        brondatum_calculator = BrondatumCalculator(
+            zaak, validated_attrs["datum_status_gezet"]
+        )
+
+        try:
+            archiefactiedatum = brondatum_calculator.calculate()
+
+        except Resultaat.DoesNotExist as exc:
+            raise serializers.ValidationError(
+                exc.args[0],
+                code="resultaat-does-not-exist",
             )
-            try:
-                brondatum_calculator.calculate()
-            except Resultaat.DoesNotExist as exc:
-                raise serializers.ValidationError(
-                    exc.args[0], code="resultaat-does-not-exist"
-                ) from exc
-            except DetermineProcessEndDateException as exc:
-                # ideally, we'd like to do this in the validate function, but that's unfortunately too
-                # early since we don't know the end date yet
-                # thought: we _can_ use the datumStatusGezet though!
-                raise serializers.ValidationError(
-                    exc.args[0], code="archiefactiedatum-error"
-                )
 
+        except DetermineProcessEndDateException as exc:
+            raise serializers.ValidationError(
+                exc.args[0],
+                code="archiefactiedatum-error",
+            )
+
+        if archiefactiedatum is None:
+            if afleidingswijze in POSTPONABLE_AFLEIDINGSWIJZES:
+                logger.info(
+                    "calculating_archiving_parameters_postponed",
+                    reason="missing-brondatum",
+                    zaak_uuid=str(zaak.uuid),
+                    afleidingswijze=str(afleidingswijze),
+                )
+                brondatum_calculator = None
+            else:
+                raise serializers.ValidationError(
+                    _("De archiefactiedatum kon niet worden bepaald."),
+                    code="archiefactiedatum-error",
+                )
             # validate that all deelzaken have a result
-            if zaak.deelzaken.filter(resultaat__isnull=True).exists():
-                raise serializers.ValidationError(
-                    code="deelzaak-resultaat-does-not-exist"
-                )
-
+        if zaak.deelzaken.filter(resultaat__isnull=True).exists():
+            raise serializers.ValidationError(code="deelzaak-resultaat-does-not-exist")
             # nasty to pass state around...
-            self.context["brondatum_calculator"] = brondatum_calculator
-
+        self.context["brondatum_calculator"] = brondatum_calculator
         return validated_attrs
 
     def create(self, validated_data):
@@ -896,7 +927,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         everything or nothing to succeed and no limbo states.
         """
         zaak = validated_data["zaak"]
-        _zaak_fields_changed = ["laatst_gemuteerd"]
+        _zaak_fields_changed = ["laatst_gemuteerd", "einddatum"]
         # TODO should this be now() or datum_status_gezet?
         zaak.laatst_gemuteerd = timezone.now()
 
@@ -906,19 +937,12 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         # are we re-opening the case?
         is_reopening = zaak.einddatum and not is_eindstatus
 
-        afleidingswijze_deelzaak = (
-            zaak.hoofdzaak
-            and hasattr(zaak, "resultaat")
-            and zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
-            == Afleidingswijze.hoofdzaak
-        )
-
         # if the eindstatus is being set, we need to calculate some more things:
         # 1. zaak.einddatum, which may be relevant for archiving purposes
         # 2. zaak.archiefactiedatum, if not explicitly filled in
         if is_eindstatus:
             # zaak.einddatum is date, but status.datum_status_gezet is a datetime with tz support
-            # durin validation step 'datum_status_gezet' was already converted to the
+            # during validation step 'datum_status_gezet' was already converted to the
             # default timezone (UTC).
             # We want to take into consideration the client timezone before saving 'zaak.einddatum',
             # therefore we convert 'datum_status_gezet' back to the client timezone before taking its
@@ -929,45 +953,46 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             zaak.einddatum = local_datum_status_gezet.date()
         else:
             zaak.einddatum = None
-        _zaak_fields_changed.append("einddatum")
+
+        afleidingswijze_deelzaak = (
+            zaak.hoofdzaak
+            and hasattr(zaak, "resultaat")
+            and zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
+            == Afleidingswijze.hoofdzaak
+        )
 
         if not afleidingswijze_deelzaak:
             if is_eindstatus:
                 # in case of eindstatus - retrieve archive parameters from resultaattype
+                archiving_data = calculate_archiving_data(
+                    zaak,
+                    datum_status_gezet=validated_data["datum_status_gezet"],
+                )
 
-                # Archiving: Use default archiefnominatie
-                if not zaak.archiefnominatie:
-                    zaak.archiefnominatie = brondatum_calculator.get_archiefnominatie()
-                    _zaak_fields_changed.append("archiefnominatie")
+                # Archiving: apply calculated archive fields
+                for field, value in archiving_data.items():
+                    setattr(zaak, field, value)
 
-                # Archiving: Calculate archiefactiedatum
-                if not zaak.archiefactiedatum:
-                    zaak.archiefactiedatum = brondatum_calculator.calculate()
-
-                    if zaak.archiefactiedatum is not None:
-                        _zaak_fields_changed.append("archiefactiedatum")
-
-                # Archiving: Calculate brondatum if it's not filled
-                if not zaak.startdatum_bewaartermijn:
-                    zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
-                    if zaak.startdatum_bewaartermijn is not None:
-                        _zaak_fields_changed.append("startdatum_bewaartermijn")
+                _zaak_fields_changed.extend(archiving_data.keys())
 
             elif is_reopening:
+                # reset archiving fields when reopening a zaak
                 zaak.archiefnominatie = None
                 zaak.archiefactiedatum = None
                 zaak.startdatum_bewaartermijn = None
-                _zaak_fields_changed += [
-                    "archiefnominatie",
-                    "archiefactiedatum",
-                    "startdatum_bewaartermijn",
-                ]
+                _zaak_fields_changed.extend(
+                    [
+                        "archiefnominatie",
+                        "archiefactiedatum",
+                        "startdatum_bewaartermijn",
+                    ]
+                )
 
         with transaction.atomic():
             obj = super().create(validated_data)
 
             # Save updated information on the ZAAK
-            zaak.save(update_fields=_zaak_fields_changed)
+            zaak.save(update_fields=list(set(_zaak_fields_changed)))
 
             # Update deelzaken only if hoofdzaak changed to or from it's eind status.
             if (is_eindstatus or is_reopening) and zaak.deelzaken.exists():
