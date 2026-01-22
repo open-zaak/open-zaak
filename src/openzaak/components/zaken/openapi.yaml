@@ -14982,6 +14982,30 @@ components:
       - Feature
       - FeatureCollection
       - GeometryCollection
+    GerelateerdeZaak:
+      type: object
+      properties:
+        url:
+          type: string
+          description: URL-referentie naar de ZAAK. (Het ZAAKTYPE van deze ZAAK hoeft
+            niet te zijn toegevoegd aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)
+          format: uri
+          minLength: 1
+          maxLength: 1000
+      required:
+      - url
+    GerelateerdeZaakRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          minLength: 1
+          description: URL-referentie naar de ZAAK. (Het ZAAKTYPE van deze ZAAK hoeft
+            niet te zijn toegevoegd aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)
+          format: uri
+          maxLength: 1000
+      required:
+      - url
     GeslachtsaanduidingEnum:
       enum:
       - m
@@ -17080,6 +17104,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -17310,6 +17341,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -18791,6 +18829,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -19965,6 +20010,14 @@ components:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          readOnly: true
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -20093,6 +20146,7 @@ components:
       - eigenschappen
       - einddatum
       - einddatumGepland
+      - gerelateerdeZaken
       - hoofdzaak
       - identificatie
       - kenmerken
@@ -20350,6 +20404,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -20621,6 +20682,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaak'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -20909,6 +20977,13 @@ components:
           items:
             $ref: '#/components/schemas/RelevanteZaakRequest'
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaakRequest'
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         kenmerken:
           type: array
           items:
@@ -21223,6 +21298,14 @@ components:
             $ref: '#/components/schemas/RelevanteZaak'
           readOnly: true
           description: Een lijst van relevante andere zaken.
+        gerelateerdeZaken:
+          type: array
+          items:
+            $ref: '#/components/schemas/GerelateerdeZaak'
+          readOnly: true
+          description: '**EXPERIMENTEEL** Lijst van zaken die gerelateerd zijn aan
+            deze zaak. Deze relatie is automatisch wederkerig als beide zaken afkomsting
+            zijn uit hetzelfde zaaksysteem.'
         eigenschappen:
           type: array
           items:
@@ -21351,6 +21434,7 @@ components:
       - eigenschappen
       - einddatum
       - einddatumGepland
+      - gerelateerdeZaken
       - hoofdzaak
       - identificatie
       - kenmerken

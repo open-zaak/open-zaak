@@ -25,7 +25,7 @@ from django.utils.translation import gettext_lazy as _
 
 import structlog
 from django_loose_fk.virtual_models import ProxyMixin
-from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin
+from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
@@ -100,6 +100,7 @@ from ...models import (
     ZaakInformatieObject,
     ZaakKenmerk,
     ZaakNotitie,
+    ZaakRelatie,
     ZaakVerzoek,
 )
 from ..validators import (
@@ -194,6 +195,31 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
         return fields
 
 
+class GerelateerdeZaakSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ZaakRelatie
+        fields = ("url",)
+        extra_kwargs: dict[str, object] = {
+            "url": {
+                "lookup_field": "uuid",
+                "max_length": 1000,
+                "min_length": 1,
+                "validators": [
+                    LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
+                ],
+            },
+        }
+
+    def create(self, validated_data: dict[str, object]) -> ZaakRelatie:
+        # Ensure no duplicate relations are created
+        instance, _ = self.Meta.model.objects.get_or_create(
+            zaak=validated_data.pop("zaak"),
+            url=validated_data.pop("url"),
+            defaults=validated_data,
+        )
+        return instance
+
+
 class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
     startdatum = serializers.DateField()
 
@@ -272,6 +298,7 @@ class ProcessobjectSerializer(GegevensGroepSerializer):
 
 class ZaakSerializer(
     NestedGegevensGroepMixin,
+    UniqueFieldsMixin,
     NestedCreateMixin,
     NestedUpdateMixin,
     serializers.HyperlinkedModelSerializer,
@@ -372,6 +399,16 @@ class ZaakSerializer(
     relevante_andere_zaken = RelevanteZaakSerializer(
         many=True, required=False, help_text=_("Een lijst van relevante andere zaken.")
     )
+    gerelateerde_zaken = GerelateerdeZaakSerializer(
+        many=True,
+        required=False,
+        help_text=mark_experimental(
+            _(
+                "Lijst van zaken die gerelateerd zijn aan deze zaak. Deze relatie is "
+                "automatisch wederkerig als beide zaken afkomsting zijn uit hetzelfde zaaksysteem."
+            )
+        ),
+    )
 
     processobject = ProcessobjectSerializer(
         required=False,
@@ -454,6 +491,7 @@ class ZaakSerializer(
             "hoofdzaak",
             "deelzaken",
             "relevante_andere_zaken",
+            "gerelateerde_zaken",
             "eigenschappen",
             # read-only veld, on-the-fly opgevraagd
             "rollen",
