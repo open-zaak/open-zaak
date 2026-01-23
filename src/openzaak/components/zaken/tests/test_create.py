@@ -538,24 +538,25 @@ class PerformanceTests(
          28-33:   query related objects for etag update that may be affected (should be
                   skipped, it's create of root resource!) vng_api_common.caching.signals
             34:   select zaak relevantezaakrelatie (nested inline create, can't avoid this)
-            35:   select zaak rollen
-            36:   select zaak status
-            37:   select zaak zaakinformatieobjecten
-            38:   select zaak zaakobjecten
-            39:   select zaak kenmerken (nested inline create, can't avoid this)
-            40:   insert audit trail
-         41-42:   notifications, select created zaak (?), notifs config
-            43:   release savepoint (from NotificationsCreateMixin)
-            44:   savepoint create transaction.on_commit ETag handler (start new transaction)
-            45:   update ETag column of zaak
-            46:   release savepoint (commit transaction)
+            35:   select zaak zaakrelatie (nested inline create, can't avoid this)
+            36:   select zaak rollen
+            37:   select zaak status
+            38:   select zaak zaakinformatieobjecten
+            39:   select zaak zaakobjecten
+            40:   select zaak kenmerken (nested inline create, can't avoid this)
+            41:   insert audit trail
+         42-43:   notifications, select created zaak (?), notifs config
+            44:   release savepoint (from NotificationsCreateMixin)
+            45:   savepoint create transaction.on_commit ETag handler (start new transaction)
+            46:   update ETag column of zaak
+            47:   release savepoint (commit transaction)
 
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 46
+        EXPECTED_NUM_QUERIES = 47
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -565,6 +566,46 @@ class PerformanceTests(
             "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
             "registratiedatum": "2018-06-11",
             "startdatum": "2018-06-11",
+        }
+
+        with self.assertNumQueries(EXPECTED_NUM_QUERIES):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mock_notif.assert_called_once()
+
+    @override_settings(NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None)
+    @patch("notifications_api_common.viewsets.send_notification.delay")
+    def test_create_zaak_local_zaaktype_with_gerelateerde_zaken(self, mock_notif):
+        """
+        Assert that the POST /api/v1/zaken does not do too many queries when defining
+        a number of `gerelateerdeZaken`
+        """
+        zaaktype = ZaakTypeFactory.create()
+
+        num_gerelateerde_zaken = 10
+
+        related_zaken = ZaakFactory.create_batch(
+            num_gerelateerde_zaken, zaaktype=zaaktype
+        )
+
+        # Two additional queries when there are any number of related zaken specified
+        # and 9 per specified related zaak
+        EXPECTED_NUM_QUERIES = 47 + 2 + (9 * num_gerelateerde_zaken)
+
+        zaaktype_url = reverse(self.zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "bronorganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "registratiedatum": "2018-06-11",
+            "startdatum": "2018-06-11",
+            "gerelateerdeZaken": [
+                {"url": f"http://testserver{reverse(related_zaak)}"}
+                for related_zaak in related_zaken
+            ],
         }
 
         with self.assertNumQueries(EXPECTED_NUM_QUERIES):
