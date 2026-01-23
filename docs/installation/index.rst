@@ -70,6 +70,7 @@ Reference
    reference/1-5_upgrade
    reference/import
    reference/azure_blob_storage
+   reference/s3_storage
 
 Observability
 -------------

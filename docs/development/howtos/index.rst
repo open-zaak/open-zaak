@@ -13,3 +13,4 @@ of topics.
    dependencies
    data_generation
    azure_blob_storage
+   s3_storage

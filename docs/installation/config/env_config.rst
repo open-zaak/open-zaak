@@ -126,14 +126,14 @@ Documenten API Azure Blob Storage
 * ``AZURE_URL_EXPIRATION_SECS``: Seconds before a URL to a blob expires, set to ``None`` to never expire it. Be aware the container must have public read permissions in order to access a URL without expiration date. Defaults to: ``60``.
 
 
-Documenten API S3
------------------
+Documenten API S3 Storage
+-------------------------
 
 * ``S3_SESSION_PROFILE``: Name of the S3 CLI profile to use for authentication when connecting to S3 strorage. Defaults to: ``None``.
 * ``S3_ACCESS_KEY_ID``: Access key ID used to authenticate with S3 storage. Defaults to: ``None``.
 * ``S3_SECRET_ACCESS_KEY``: Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage. Defaults to: ``None``.
 * ``S3_SESSION_TOKEN``: Session token used for temporary S3 credentials. Defaults to: ``None``.
-* ``S3_STORAGE_BUCKET_NAME``: The name of the S3 bucket that will host the files. Defaults to: ``openzaak``.
+* ``S3_STORAGE_BUCKET_NAME``: The name of the S3 bucket that will host the files. Note: the bucket must exist already, because Open Zaak will not create it automatically. Defaults to: ``openzaak``.
 * ``S3_OBJECT_PARAMETERS``: Use this to set parameters on all objects. To set these on a per-object basis,subclass the backend and override S3Storage.get_object_parameters. Defaults to: ``{}``.
 * ``S3_DEFAULT_ACL``: Use this to set an ACL on your file such as public-read. If not set the file will be private per Amazon’s default.If the ACL parameter is set in object_parameters, then this setting is ignored. Defaults to: ``None``.
 * ``S3_QUERYSTRING_AUTH``: Setting S3_QUERYSTRING_AUTH to False to remove query parameter authentication from generated URLs.This can be useful if your S3 buckets are public. Defaults to: ``True``.
