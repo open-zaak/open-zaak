@@ -102,7 +102,7 @@ deprecation==2.1.0
     # via cloudevents
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==5.2.8
+django==5.2.10
     # via
     #   commonground-api-common
     #   django-admin-index

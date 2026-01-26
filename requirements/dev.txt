@@ -224,7 +224,7 @@ dictdiffer==0.9.0
     #   -r requirements/ci.txt
 distlib==0.3.9
     # via virtualenv
-django==5.2.8
+django==5.2.10
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
