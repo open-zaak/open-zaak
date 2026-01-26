@@ -47,7 +47,7 @@ attrs==21.4.0
     #   requests-cache
 autopep8==2.3.2
     # via django-silk
-azure-core==1.36.0
+azure-core==1.38.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
