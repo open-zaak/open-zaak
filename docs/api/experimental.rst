@@ -96,14 +96,16 @@ Attributes
       env variable is turned on
 
 * Request body of ``/api/v1/zaken/_zoek``:
+
     * ``zaaktype__not_in`` search attribute is added
 
 * ``Rol``:
+
     * ``betrokkeneIdentificatie.identificatie`` max length is changed from 24 to 128  for ``betrokkeneType: "medewerker"``
     * ``betrokkeneIdentificatie.nietNatuurlijkPersoonIdentificatie.kvkNummer`` is added to
       support :ref:`mandates <client-development-mandate>`
     * ``betrokkeneIdentificatie.vestigingsNummer`` is added for ``betrokkeneType: "niet_natuurlijk_persoon"``
-        as ``betrokkeneType: "vestiging"`` has been deprecated.
+      as ``betrokkeneType: "vestiging"`` has been deprecated.
     * ``roltoelichting`` is changed to not required
     * Two attributes are added to track the validity period of a ``Rol`` within a ``Zaak``:
 
@@ -116,6 +118,7 @@ Attributes
       * ``betrokkeneIdentificatie.isGehuisvestIn`` max length is changed from 24 to 255
 
 * ``Zaak``:
+
     * ``communicatiekanaalNaam`` is added
     * ``relevanteAndereZaken.aardRelatie`` is changed: a new enum value "overig" is added
     * ``relevanteAndereZaken.overigeRelatie`` is added
@@ -130,10 +133,14 @@ Attributes
         * ``betaald``: Payment established (for example via online checkout with direct application)
         * ``nvt``: No costs involved
 
+    * ``relevanteAndereZaken`` is marked as deprecated
+    * ``gerelateerdeZaken`` is added
+
 Query parameters
 ----------------
 
 * ``/api/v1/rollen`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
+
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
     * ``betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer``
     * ``betrokkeneIdentificatie__vestiging__kvkNummer`` **(scheduled for deprecation in Open Zaak version 3.0)**
@@ -141,6 +148,7 @@ Query parameters
     * ``machtiging__loa``
 
 * ``/api/v1/zaken`` endpoint. Added new parameters to support :ref:`mandates <client-development-mandate>`:
+
     * ``rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__kvkNummer``
     * ``rol__betrokkeneIdentificatie__nietNatuurlijkPersoon__vestigingsNummer``
     * ``rol__betrokkeneIdentificatie__vestiging__kvkNummer`` **(scheduled for deprecation in Open Zaak version 3.0)**
@@ -148,6 +156,7 @@ Query parameters
     * ``rol__machtiging__loa``
 
 * ``/api/v1/zaken`` endpoint. Other new parameters:
+
     * ``kenmerk__bron``
     * ``kenmerk`` A bron-kenmerk combination of a zaak. (format: ``<bron>:<kenmerk>``)
     * ``status__statustype`` – filter Zaken by the current status that has the given statustype. Accepts a statustype URL.
@@ -232,16 +241,20 @@ Query parameters
 ----------------
 
 * ``/api/v1/informatieobjecttypen`` endpoint. Added new parameters:
+
     * ``zaaktype``
     * ``omschrijving__icontains`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
 
 * ``/api/v1/roltypen`` endpoint. Added new parameters:
+
     * ``omschrijving`` - filter by (a part of the) ``omschrijving`` (case-insensitive match).
 
 * ``/api/v1/zaakobjecttypen`` endpoint. Added new parameters:
+
     * ``status`` – filter ZaakObjectType by concept status: "concept", "definitief", or "alles"
 
 * ``/api/v1/zaaktypen`` endpoint. Added new parameters:
+
     * ``omschrijving__icontains`` – filter by (a part of the) ``zaaktype_omschrijving`` (case-insensitive match).
     * ``identificatie__icontains`` – filter by (a part of the) ``identificatie`` (case-insensitive match).
 
