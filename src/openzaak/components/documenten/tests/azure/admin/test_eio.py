@@ -15,6 +15,7 @@ from webtest import Upload
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
+from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
@@ -115,8 +116,8 @@ class EnkelvoudigInformatieObjectAdminTests(VCRMixin, AzureBlobStorageMixin, Web
             [
                 [
                     _(
-                        "Something went wrong while trying to write the file to Azure Blob Storage"
-                    )
+                        "Something went wrong while trying to write the file to {storage}."
+                    ).format(storage=DocumentenBackendTypes.azure_blob_storage.label)
                 ]
             ],
         )
