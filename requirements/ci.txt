@@ -1124,7 +1124,7 @@ url-normalize==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

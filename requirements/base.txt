@@ -578,7 +578,7 @@ uritemplate==4.1.1
     #   drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   elastic-apm
     #   requests
