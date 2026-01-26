@@ -546,7 +546,7 @@ faker==33.0.0
     #   -r requirements/ci.txt
     #   factory-boy
     #   zgw-consumers-oas
-filelock==3.18.0
+filelock==3.20.3
     # via virtualenv
 flower==2.0.1
     # via
@@ -1339,7 +1339,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.36.1
     # via pre-commit
 waitress==3.0.1
     # via
