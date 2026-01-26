@@ -40,7 +40,7 @@ attrs==21.4.0
     #   glom
     #   jsonschema
     #   requests-cache
-azure-core==1.36.0
+azure-core==1.38.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -79,7 +79,7 @@ cattrs==23.1.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-cbor2==5.6.3
+cbor2==5.8.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -188,7 +188,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==5.2.8
+django==5.2.10
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1124,7 +1124,7 @@ url-normalize==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

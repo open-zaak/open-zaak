@@ -47,7 +47,7 @@ attrs==21.4.0
     #   requests-cache
 autopep8==2.3.2
     # via django-silk
-azure-core==1.36.0
+azure-core==1.38.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -98,7 +98,7 @@ cattrs==23.1.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-cache
-cbor2==5.6.3
+cbor2==5.8.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -224,7 +224,7 @@ dictdiffer==0.9.0
     #   -r requirements/ci.txt
 distlib==0.3.9
     # via virtualenv
-django==5.2.8
+django==5.2.10
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -546,7 +546,7 @@ faker==33.0.0
     #   -r requirements/ci.txt
     #   factory-boy
     #   zgw-consumers-oas
-filelock==3.18.0
+filelock==3.20.3
     # via virtualenv
 flower==2.0.1
     # via
@@ -1315,7 +1315,7 @@ url-normalize==1.4.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-cache
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1339,7 +1339,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.36.1
     # via pre-commit
 waitress==3.0.1
     # via
