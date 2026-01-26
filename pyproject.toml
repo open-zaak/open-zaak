@@ -1,6 +1,6 @@
 [project]
 requires-python = "~= 3.12.12"
-version = "1.26.0"
+version = "1.27.0"
 name = "open-zaak"
 
 # Bumpversion configuration
@@ -8,7 +8,7 @@ name = "open-zaak"
 [tool.bumpversion]
 commit = false
 tag = false
-current_version = "1.26.0"
+current_version = "1.27.0"
 pre_commit_hooks = [
     "npm i",  # ensure that package-lock.json is updated
 ]
