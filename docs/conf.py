@@ -111,6 +111,7 @@ linkcheck_ignore = [
     r"https://.*sentry\.openzaak\.nl.*",
     r"https://www.npmjs.com/.*",
     "https://github.com/maykinmedia/django-setup-configuration/blob/main/README.rst#environment-variable-substitution",
+    r"https://opentelemetry\.io/docs/.*",  # times out frequently, even with 30s timeouts
 ]
 
 linkcheck_request_headers = {
