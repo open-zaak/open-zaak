@@ -80,7 +80,7 @@ def receiver_setup_logging(
                     "handlers": ["console"],
                     "level": "INFO",
                 },
-                "objects": {
+                "openzaak": {
                     "handlers": ["console"],
                     "level": "INFO",
                 },
