@@ -44,7 +44,7 @@ boltons==24.0.0
     #   glom
 cattrs==23.1.2
     # via requests-cache
-cbor2==5.6.3
+cbor2==5.8.0
     # via webauthn
 celery==5.5.3
     # via

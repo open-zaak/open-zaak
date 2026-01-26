@@ -98,7 +98,7 @@ cattrs==23.1.2
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-cache
-cbor2==5.6.3
+cbor2==5.8.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
