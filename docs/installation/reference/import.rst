@@ -50,7 +50,10 @@ The process consists of the following steps:
 5. (Optionally) Deleting the ``Import``
 
 An visual representation of the process can be seen below:
-.. image:: sequence-diagram.png
+
+.. figure:: ../assets/sequence-diagram.png
+    :width: 100%
+    :alt: Open Zaak bulk import sequence diagram
 
 **Permissions**
 
