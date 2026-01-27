@@ -4,7 +4,23 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.db.models import OuterRef, Subquery
 
+
+def set_latest_version(apps, _):
+    Canonical = apps.get_model("documenten.enkelvoudiginformatieobjectcanonical")
+    EnkelvoudigInformatieObject = apps.get_model("documenten.enkelvoudiginformatieobject")
+
+    latest_eio_subquery = (
+        EnkelvoudigInformatieObject.objects
+        .filter(canonical=OuterRef("pk"))
+        .order_by("-versie")
+        .values("pk")[:1]
+    )
+
+    Canonical.objects.update(
+        latest_version=Subquery(latest_eio_subquery)
+    )
 
 class Migration(migrations.Migration):
 
@@ -18,4 +34,5 @@ class Migration(migrations.Migration):
             name='latest_version',
             field=models.OneToOneField(editable=False, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='latest_version_of', to='documenten.enkelvoudiginformatieobject'),
         ),
+        migrations.RunPython(set_latest_version, migrations.RunPython.noop),
     ]
