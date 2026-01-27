@@ -133,7 +133,7 @@ jobs:
 
   performance-tests:
     name: Run the performance test suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
@@ -191,12 +191,11 @@ jobs:
                       --project open-zaak-ed2ce35-z71n5gf8t4f40 \
                       --token '${{ secrets.BENCHER_API_TOKEN }}' \
                       --branch main \
-                      --testbed ubuntu-latest \
+                      --testbed ubuntu-24.04 \
                       --average median \
-                      --start-point-reset \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-json output.json"
+                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
       - name: Run tests for other branches
         if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
@@ -206,17 +205,15 @@ jobs:
                       --token '${{ secrets.BENCHER_API_TOKEN }}' \
                       --branch "$GITHUB_HEAD_REF" \
                       --start-point "$GITHUB_BASE_REF" \
-                      --start-point-reset \
                       --start-point-max-versions 1 \
                       --average median \
                       --threshold-measure latency \
                       --threshold-test percentage \
                       --threshold-upper-boundary 0.05 \
-                      --thresholds-reset \
-                      --testbed ubuntu-latest \
+                      --testbed ubuntu-24.04 \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
-                      "pytest performance_test/ --benchmark-json output.json"
+                      "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
   docs:
     name: Documentation check
