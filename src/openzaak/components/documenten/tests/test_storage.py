@@ -4,9 +4,12 @@ import os
 from importlib import reload
 from unittest.mock import patch
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 import openzaak.conf.includes.base
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
+
+from ..storage import documenten_storage
 
 
 class DocumentenAPIStorageTestCase(SimpleTestCase):
@@ -18,3 +21,8 @@ class DocumentenAPIStorageTestCase(SimpleTestCase):
             self.assertEqual(
                 str(cm.exception), "'invalid' is not a valid DocumentenBackendTypes"
             )
+
+    @override_settings(DOCUMENTEN_API_BACKEND="test")
+    def test_not_implemented_documenten_api_backend(self):
+        with self.assertRaises(DocumentBackendNotImplementedError):
+            documenten_storage._setup()

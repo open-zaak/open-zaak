@@ -37,6 +37,7 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
@@ -75,7 +76,6 @@ from ...zaken.api.scopes import (
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
 from ...zaken.models import ZaakInformatieObject
-from ..exceptions import DocumentBackendNotImplementedError
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -366,6 +366,7 @@ class EnkelvoudigInformatieObjectViewSet(
                     mimetype="application/octet-stream",
                 )
             case _:
+                logger.error("not_implemented_document_api_backend")
                 raise DocumentBackendNotImplementedError(
                     settings.DOCUMENTEN_API_BACKEND
                 )

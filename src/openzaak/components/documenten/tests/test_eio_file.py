@@ -82,6 +82,15 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.getvalue().decode("utf-8"), "some data")
 
+    @override_settings(DOCUMENTEN_API_BACKEND="test")
+    def test_read_detail_file_not_implemented_documenten_api_backend(self):
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        file_url = get_operation_url(
+            "enkelvoudiginformatieobject_download", uuid=eio.uuid
+        )
+        response = self.client.get(file_url)
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def test_list_file(self):
         EnkelvoudigInformatieObjectCanonicalFactory.create()
         eio = EnkelvoudigInformatieObject.objects.get()

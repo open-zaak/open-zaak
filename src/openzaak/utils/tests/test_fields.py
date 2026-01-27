@@ -8,6 +8,7 @@ from django.test import SimpleTestCase, override_settings
 from freezegun import freeze_time
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 
 from ..fields import get_default_path
@@ -42,3 +43,10 @@ class TestFieldUtils(SimpleTestCase):
                 assert str(path).endswith(
                     f"{settings.PRIVATE_MEDIA_URL}uploads/2026/01"
                 )
+
+        with self.subTest("test not implemented documenten API backend"):
+            with override_settings(DOCUMENTEN_API_BACKEND="test"):
+                with self.assertRaises(DocumentBackendNotImplementedError):
+                    field = EnkelvoudigInformatieObject.inhoud.field
+                    field.storage._setup()
+                    get_default_path(field)

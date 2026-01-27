@@ -12,6 +12,7 @@ from privates.test import temp_private_root
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.components.documenten.tasks import import_documents
@@ -142,6 +143,25 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
+
+    @override_settings(DOCUMENTEN_API_BACKEND="test")
+    def test_simple_import_not_implemented_documenten_api_backend(self):
+        ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
+        ZaakFactory(uuid="b02ee3eb-8e94-4cd9-93e7-f8d1b16a1952")
+
+        import_file_path = self.test_data_path / "import.csv"
+
+        with open(import_file_path) as import_file:
+            import_instance = self.create_import(
+                import_type=ImportTypeChoices.documents,
+                status=ImportStatusChoices.pending,
+                import_file__data=import_file.read(),
+                total=0,
+                report_file=None,
+            )
+
+        with self.assertRaises(DocumentBackendNotImplementedError):
+            import_documents(import_instance.pk, self.request_headers)
 
     def test_total_smaller_than_batch_size(self):
         ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
