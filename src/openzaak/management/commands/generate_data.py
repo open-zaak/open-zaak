@@ -286,11 +286,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--documenten-only",
-            dest="document_only",
-            action="store_true",
-            default=False,
-            help=("If enabled, will only generate documenten"),
+            "--resources",
+            dest="resources",
+            nargs="+",
+            type=str,
+            help="List of resources to be created",
+            default=["zaken", "besluiten", "documenten"],
         )
 
     @transaction.atomic
@@ -304,7 +305,10 @@ class Command(BaseCommand):
         ]
         self.without_zaakgeometrie = options["without_zaakgeometrie"]
 
-        document_only = options["document_only"]
+        resources = options["resources"]
+        generate_zaken = "zaken" in resources
+        generate_besluiten = "besluiten" in resources
+        generate_documenten = "documenten" in resources
 
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
@@ -315,13 +319,14 @@ class Command(BaseCommand):
 
         self.get_sl_data()
         self.generate_catalogi()
-        if not document_only:
+        if generate_zaken:
             self.generate_zaken()
+        if generate_besluiten:
             self.generate_besluiten()
+        if generate_documenten:
+            self.generate_documenten()
 
-        self.generate_documenten()
-
-        if not document_only:
+        if generate_besluiten or generate_documenten:
             self.generate_relations()
 
         if generate_superuser_credentials:
