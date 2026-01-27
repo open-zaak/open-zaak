@@ -42,6 +42,12 @@ boltons==24.0.0
     # via
     #   face
     #   glom
+boto3==1.42.27
+    # via django-storages
+botocore==1.42.27
+    # via
+    #   boto3
+    #   s3transfer
 cattrs==23.1.2
     # via requests-cache
 cbor2==5.8.0
@@ -315,6 +321,10 @@ itypes==1.2.0
     # via coreapi
 jinja2==3.1.6
     # via coreschema
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 josepy==1.14.0
     # via mozilla-django-oidc
 jq==1.7.0
@@ -468,6 +478,7 @@ python-crontab==3.2.0
 python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
+    #   botocore
     #   celery
     #   django-relativedelta
     #   faker
@@ -519,6 +530,8 @@ ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
     # via ruamel-yaml
+s3transfer==0.16.0
+    # via boto3
 self-certifi==1.0.0
     # via -r requirements/base.in
 semantic-version==2.10.0
@@ -580,6 +593,7 @@ url-normalize==1.4.3
     # via requests-cache
 urllib3==2.6.3
     # via
+    #   botocore
     #   elastic-apm
     #   requests
     #   requests-cache

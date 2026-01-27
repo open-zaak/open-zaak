@@ -22,6 +22,7 @@ from openzaak.utils.admin import (
 
 from .api import viewsets
 from .constants import ObjectInformatieObjectTypes
+from .exceptions import DocumentBackendNotImplementedError
 from .models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -32,7 +33,7 @@ from .models import (
 )
 from .storage import documenten_storage
 from .views import PrivateMediaView
-from .widgets import AzureFileWidget, PrivateFileWidget
+from .widgets import AdminFileWidget, PrivateFileWidget
 
 
 @admin.register(Gebruiksrechten)
@@ -260,10 +261,17 @@ class EnkelvoudigInformatieObjectInline(
     @property
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
-            case DocumentenBackendTypes.azure_blob_storage:
-                return AzureFileWidget
-            case DocumentenBackendTypes.filesystem | _:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
+                return AdminFileWidget
+            case DocumentenBackendTypes.filesystem:
                 return PrivateFileWidget
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
 
 def unlock(modeladmin, request, queryset):
@@ -312,14 +320,11 @@ class EnkelvoudigInformatieObjectForm(forms.ModelForm):
 
     def clean_inhoud(self):
         inhoud = self.cleaned_data.get("inhoud")
-        if (
-            DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND
-            and not documenten_storage.connection_check()
-        ):
+        if not documenten_storage.connection_check():
             raise ValidationError(
                 _(
-                    "Something went wrong while trying to write the file to Azure storage."
-                )
+                    "Something went wrong while trying to write the file to {storage}"
+                ).format(storage=settings.DOCUMENTEN_API_BACKEND.label)
             )
         return inhoud
 
@@ -356,10 +361,17 @@ class EnkelvoudigInformatieObjectAdmin(
     @property
     def private_media_file_widget(self):
         match settings.DOCUMENTEN_API_BACKEND:
-            case DocumentenBackendTypes.azure_blob_storage:
-                return AzureFileWidget
-            case DocumentenBackendTypes.filesystem | _:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
+                return AdminFileWidget
+            case DocumentenBackendTypes.filesystem:
                 return PrivateFileWidget
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
     form = EnkelvoudigInformatieObjectForm
     list_select_related = ("canonical",)

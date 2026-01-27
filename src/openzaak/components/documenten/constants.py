@@ -77,3 +77,4 @@ class PostAdresTypes(models.TextChoices):
 class DocumentenBackendTypes(models.TextChoices):
     filesystem = "filesystem", _("Filesystem storage")
     azure_blob_storage = "azure_blob_storage", _("Azure Blob Storage")
+    s3_storage = "s3_storage", _("S3 Storage")

@@ -15,7 +15,8 @@ from django_loose_fk.fields import FkOrURLField
 from relativedeltafield import RelativeDeltaField
 from zgw_consumers.models import ServiceUrlField
 
-from openzaak.components.documenten.storage import AzureStorage
+from openzaak.components.documenten.constants import DocumentenBackendTypes
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 
 
@@ -211,14 +212,21 @@ class NLPostcodeField(models.CharField):
 
 
 def get_default_path(field: models.FileField) -> Path:
-    storage_location = Path(field.storage.location)
+    storage = field.storage
+    storage._setup()
+    storage_location = Path(storage.location)
     path = Path(storage_location / field.upload_to)
-
-    # TODO cleaner way to do this?
-    if isinstance(field.storage, AzureStorage) and path.is_relative_to(
-        settings.AZURE_LOCATION
-    ):
-        path = path.relative_to(settings.AZURE_LOCATION)
+    match settings.DOCUMENTEN_API_BACKEND:
+        case DocumentenBackendTypes.azure_blob_storage:
+            if path.is_relative_to(settings.AZURE_LOCATION):
+                path = path.relative_to(settings.AZURE_LOCATION)
+        case DocumentenBackendTypes.s3_storage:
+            if path.is_relative_to(settings.AWS_LOCATION):
+                path = path.relative_to(settings.AWS_LOCATION)
+        case DocumentenBackendTypes.filesystem:
+            pass
+        case _:
+            raise DocumentBackendNotImplementedError(settings.DOCUMENTEN_API_BACKEND)
 
     now = timezone.now()
     return Path(now.strftime(str(path)))

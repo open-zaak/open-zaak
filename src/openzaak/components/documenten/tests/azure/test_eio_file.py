@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from uuid import UUID
 
 from django.core.files import File
-from django.test import override_settings, tag
+from django.test import tag
 
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
@@ -38,7 +38,6 @@ from .mixins import AzureBlobStorageMixin
 
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 @temp_private_root()
 class EnkelvoudigInformatieObjectFileAzureBlobStorageTests(
     JWTAuthMixin, AzureBlobStorageMixin, VCRMixin, APITestCase

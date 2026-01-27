@@ -87,6 +87,16 @@ boltons==24.0.0
     #   -r requirements/ci.txt
     #   face
     #   glom
+boto3==1.42.27
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+botocore==1.42.27
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   boto3
+    #   s3transfer
 bracex==2.5.post1
     # via wcmatch
 build==1.2.1
@@ -651,6 +661,12 @@ jinja2==3.1.6
     #   -r requirements/ci.txt
     #   coreschema
     #   sphinx
+jmespath==1.0.1
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   boto3
+    #   botocore
 josepy==1.14.0
     # via
     #   -c requirements/ci.txt
@@ -1023,6 +1039,7 @@ python-dateutil==2.8.2
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   botocore
     #   celery
     #   django-relativedelta
     #   faker
@@ -1138,6 +1155,11 @@ ruff==0.11.10
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+s3transfer==0.16.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   boto3
 self-certifi==1.0.0
     # via
     #   -c requirements/ci.txt
@@ -1319,6 +1341,7 @@ urllib3==2.6.3
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   botocore
     #   elastic-apm
     #   requests
     #   requests-cache

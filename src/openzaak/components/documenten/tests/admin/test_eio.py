@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import tag
+from django.contrib import admin
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -10,10 +11,13 @@ from webtest import Upload
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
+from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
     EnkelvoudigInformatieObjectCanonical,
 )
+from openzaak.components.documenten.widgets import PrivateFileWidget
 
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
@@ -28,6 +32,21 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         super().setUp()
 
         self.app.set_user(self.user)
+
+    def test_form_widget(self):
+        admin_obj = EnkelvoudigInformatieObjectAdmin(
+            EnkelvoudigInformatieObject, admin.site
+        )
+        form = admin_obj.get_form(None)()
+        self.assertIsInstance(form.fields["inhoud"].widget, PrivateFileWidget)
+
+    @override_settings(DOCUMENTEN_API_BACKEND="test")
+    def test_form_widget_not_implemented_documenten_api_backend(self):
+        with self.assertRaises(DocumentBackendNotImplementedError):
+            admin_obj = EnkelvoudigInformatieObjectAdmin(
+                EnkelvoudigInformatieObject, admin.site
+            )
+            admin_obj.get_form(None)()
 
     def test_add_informatieobject_page(self):
         add_url = reverse("admin:documenten_enkelvoudiginformatieobject_add")

@@ -132,6 +132,7 @@ def cleanup_import_files(batch: list) -> None:
             continue
 
         path = row.imported_path
+
         if not path or not row.instance.inhoud.storage.exists(path):
             continue
 

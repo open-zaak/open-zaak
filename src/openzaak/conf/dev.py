@@ -32,6 +32,12 @@ os.environ.setdefault("NUM_PROXIES", "0")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 os.environ.setdefault("OTEL_EXPORTER_OTLP_METRICS_INSECURE", "true")
 
+# S3 Storage
+os.environ.setdefault("S3_USE_SSL", "no")
+os.environ.setdefault("S3_ACCESS_KEY_ID", "minioadmin")
+os.environ.setdefault("S3_SECRET_ACCESS_KEY", "minioadmin")
+os.environ.setdefault("S3_ENDPOINT_URL", "http://localhost:9000")
+
 from .includes.base import *  # noqa isort:skip
 
 # Well-known authentication key to connect with Azurite

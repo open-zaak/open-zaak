@@ -656,3 +656,90 @@ AZURE_URL_EXPIRATION_SECS = config(
     ),
     group="Documenten API Azure Blob Storage",
 )
+
+
+#
+# DOCUMENTEN API S3 STORAGE INTEGRATION
+#
+
+# Constants
+AWS_S3_USE_SSL = True
+AWS_S3_VERIFY = True
+
+# Authentication Settings
+AWS_S3_ACCESS_KEY_ID = config(
+    "S3_ACCESS_KEY_ID",
+    None,
+    help_text=("Access key ID used to authenticate with S3 storage."),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_SECRET_ACCESS_KEY = config(
+    "S3_SECRET_ACCESS_KEY",
+    None,
+    help_text=(
+        "Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage."
+    ),
+    group="Documenten API S3 Storage",
+)
+
+# General Settings
+AWS_STORAGE_BUCKET_NAME = config(
+    "S3_STORAGE_BUCKET_NAME",
+    "openzaak",
+    help_text=(
+        "The name of the S3 bucket that will host the files."
+        " Note: the bucket must exist already, because Open Zaak will not create it automatically."
+    ),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_MAX_MEMORY_SIZE = config(
+    "S3_MAX_MEMORY_SIZE",
+    0,
+    help_text=(
+        "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. "
+        "``0`` means that files will never roll over."
+    ),
+    group="Documenten API S3 Storage",
+)
+AWS_QUERYSTRING_EXPIRE = config(
+    "S3_QUERYSTRING_EXPIRE",
+    60,
+    help_text=("The number of seconds that a generated URL is valid for."),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_FILE_OVERWRITE = config(
+    "S3_FILE_OVERWRITE",
+    False,
+    help_text=(
+        "By default files with the same name will have extra characters appended to avoid overwriting. "
+        "Set this to ``True`` to ensure that files are overwritten instead."
+    ),
+    group="Documenten API S3 Storage",
+)
+AWS_LOCATION = config(
+    "S3_LOCATION",
+    "documenten/",
+    help_text=("A path prefix that will be prepended to all uploads."),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_REGION_NAME = config(
+    "S3_REGION_NAME",
+    None,
+    help_text=("Name of the S3 storage region to use (eg. ``eu-west-1``)"),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_ENDPOINT_URL = config(
+    "S3_ENDPOINT_URL",
+    None,
+    help_text=(
+        "Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl."
+        "To avoid AuthorizationQueryParametersError errors, region_name should also be set."
+    ),
+    group="Documenten API S3 Storage",
+)
+AWS_S3_CUSTOM_DOMAIN = config(
+    "S3_CUSTOM_DOMAIN",
+    None,
+    help_text=("Set this to specify a custom domain for constructed URLs."),
+    group="Documenten API S3 Storage",
+)

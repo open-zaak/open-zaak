@@ -37,6 +37,7 @@ from vng_api_common.search import SearchMixin
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tasks import import_documents
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
@@ -351,15 +352,24 @@ class EnkelvoudigInformatieObjectViewSet(
         if not eio.inhoud:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        if DocumentenBackendTypes.azure_blob_storage == settings.DOCUMENTEN_API_BACKEND:
-            return FileResponse(eio.inhoud.file, as_attachment=True)
-
-        return sendfile(
-            request,
-            eio.inhoud.path,
-            attachment=True,
-            mimetype="application/octet-stream",
-        )
+        match settings.DOCUMENTEN_API_BACKEND:
+            case (
+                DocumentenBackendTypes.azure_blob_storage
+                | DocumentenBackendTypes.s3_storage
+            ):
+                return FileResponse(eio.inhoud.file, as_attachment=True)
+            case DocumentenBackendTypes.filesystem:
+                return sendfile(
+                    request,
+                    eio.inhoud.path,
+                    attachment=True,
+                    mimetype="application/octet-stream",
+                )
+            case _:
+                logger.error("not_implemented_document_api_backend")
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
     @extend_schema(
         "enkelvoudiginformatieobject_lock",

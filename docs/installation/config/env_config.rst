@@ -109,7 +109,7 @@ Documenten import
 Documenten API
 --------------
 
-* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``. Defaults to: ``filesystem``.
+* ``DOCUMENTEN_API_BACKEND``: Indicates which backend should be used for the Documenten API. **WARNING**: if documents already exist in one of these backends, switching to another backend does not automatically migrate the files. Possible options: ``filesystem``, ``azure_blob_storage``, ``s3_storage``. Defaults to: ``filesystem``.
 
 
 Documenten API Azure Blob Storage
@@ -124,6 +124,21 @@ Documenten API Azure Blob Storage
 * ``AZURE_CONNECTION_TIMEOUT_SECS``: Number of seconds before a timeout will be raised when making requests to Azure. Defaults to: ``5``.
 * ``AZURE_STORAGE_API_VERSION``: The Storage API version to use for requests. Default value is the most recent service version that is compatible with the current SDK. Setting to an older version may result in reduced feature compatibility. See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services for more information.
 * ``AZURE_URL_EXPIRATION_SECS``: Seconds before a URL to a blob expires, set to ``None`` to never expire it. Be aware the container must have public read permissions in order to access a URL without expiration date. Defaults to: ``60``.
+
+
+Documenten API S3 Storage
+-------------------------
+
+* ``S3_ACCESS_KEY_ID``: Access key ID used to authenticate with S3 storage. Defaults to: ``None``.
+* ``S3_SECRET_ACCESS_KEY``: Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage. Defaults to: ``None``.
+* ``S3_STORAGE_BUCKET_NAME``: The name of the S3 bucket that will host the files. Note: the bucket must exist already, because Open Zaak will not create it automatically. Defaults to: ``openzaak``.
+* ``S3_MAX_MEMORY_SIZE``: The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. ``0`` means that files will never roll over. Defaults to: ``0``.
+* ``S3_QUERYSTRING_EXPIRE``: The number of seconds that a generated URL is valid for. Defaults to: ``60``.
+* ``S3_FILE_OVERWRITE``: By default files with the same name will have extra characters appended to avoid overwriting. Set this to ``True`` to ensure that files are overwritten instead. Defaults to: ``False``.
+* ``S3_LOCATION``: A path prefix that will be prepended to all uploads. Defaults to: ``documenten/``.
+* ``S3_REGION_NAME``: Name of the S3 storage region to use (eg. ``eu-west-1``). Defaults to: ``None``.
+* ``S3_ENDPOINT_URL``: Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl.To avoid AuthorizationQueryParametersError errors, region_name should also be set. Defaults to: ``None``.
+* ``S3_CUSTOM_DOMAIN``: Set this to specify a custom domain for constructed URLs. Defaults to: ``None``.
 
 
 Optional
