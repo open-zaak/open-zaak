@@ -33,10 +33,8 @@ In order to use S3 Storage, several environment variables must be configured:
 
 **Authentication Settings**:
 
-1. ``S3_SESSION_PROFILE``: Name of the CLI profile to use for authentication when connecting to S3 storage.
-2. ``S3_ACCESS_KEY_ID``: Access key ID used to authenticate with S3 storage.
-3. ``S3_SECRET_ACCESS_KEY``: Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage.
-4. ``S3_SESSION_TOKEN``: Session token used for temporary S3 credentials.
+1. ``S3_ACCESS_KEY_ID``: Access key ID used to authenticate with S3 storage.
+2. ``S3_SECRET_ACCESS_KEY``: Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage.
 
 For more information, please refer to the documentation of the S3-compatible system for authentication configuration:
 `django-storages S3-compatible systems <https://django-storages.readthedocs.io/en/latest/backends/s3_compatible/index.html#>`_.

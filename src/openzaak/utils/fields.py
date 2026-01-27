@@ -16,6 +16,7 @@ from relativedeltafield import RelativeDeltaField
 from zgw_consumers.models import ServiceUrlField
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
+from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.forms.fields import RelativeDeltaField as RelativeDeltaFormField
 
 
@@ -222,8 +223,10 @@ def get_default_path(field: models.FileField) -> Path:
         case DocumentenBackendTypes.s3_storage:
             if path.is_relative_to(settings.AWS_LOCATION):
                 path = path.relative_to(settings.AWS_LOCATION)
-        case DocumentenBackendTypes.filesystem | _:
+        case DocumentenBackendTypes.filesystem:
             pass
+        case _:
+            raise DocumentBackendNotImplementedError(settings.DOCUMENTEN_API_BACKEND)
 
     now = timezone.now()
     return Path(now.strftime(str(path)))

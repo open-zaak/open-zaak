@@ -681,12 +681,6 @@ AWS_S3_SECRET_ACCESS_KEY = config(
     ),
     group="Documenten API S3 Storage",
 )
-AWS_SESSION_TOKEN = config(
-    "S3_SESSION_TOKEN",
-    None,
-    help_text=("Session token used for temporary S3 credentials."),
-    group="Documenten API S3 Storage",
-)
 
 # General Settings
 AWS_STORAGE_BUCKET_NAME = config(
@@ -698,20 +692,12 @@ AWS_STORAGE_BUCKET_NAME = config(
     ),
     group="Documenten API S3 Storage",
 )
-AWS_S3_OBJECT_PARAMETERS = config(
-    "S3_OBJECT_PARAMETERS",
-    {},
-    help_text=(
-        "Use this to set parameters on all objects. To set these on a per-object basis,"
-        "subclass the backend and override S3Storage.get_object_parameters."
-    ),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_MAX_MEMORY_SIZE = config(
     "S3_MAX_MEMORY_SIZE",
     0,
     help_text=(
-        "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk."
+        "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. "
+        "``0`` means that files will never roll over."
     ),
     group="Documenten API S3 Storage",
 )
@@ -723,9 +709,10 @@ AWS_QUERYSTRING_EXPIRE = config(
 )
 AWS_S3_FILE_OVERWRITE = config(
     "S3_FILE_OVERWRITE",
-    True,
+    False,
     help_text=(
-        "By default files with the same name will overwrite each other. Set this to False to have extra characters appended."
+        "By default files with the same name will have extra characters appended to avoid overwriting. "
+        "Set this to ``True`` to ensure that files are overwritten instead."
     ),
     group="Documenten API S3 Storage",
 )
@@ -735,24 +722,10 @@ AWS_LOCATION = config(
     help_text=("A path prefix that will be prepended to all uploads."),
     group="Documenten API S3 Storage",
 )
-AWS_IS_GZIPPED = config(
-    "S3_IS_GZIPPED",
-    False,
-    help_text=(
-        "Whether or not to enable gzipping of content types specified by gzip_content_types."
-    ),
-    group="Documenten API S3 Storage",
-)
-GZIP_CONTENT_TYPES = config(
-    "S3_GZIP_CONTENT_TYPES",
-    "(text/css,text/javascript,application/javascript,application/x-javascript,image/svg+xml)",
-    help_text=("The list of content types to be gzipped when gzip is True."),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_REGION_NAME = config(
     "S3_REGION_NAME",
     None,
-    help_text=("Name of the S3 storage region to use (eg. eu-west-1)"),
+    help_text=("Name of the S3 storage region to use (eg. ``eu-west-1``)"),
     group="Documenten API S3 Storage",
 )
 AWS_S3_ENDPOINT_URL = config(
@@ -764,44 +737,9 @@ AWS_S3_ENDPOINT_URL = config(
     ),
     group="Documenten API S3 Storage",
 )
-AWS_S3_PROXIES = config(
-    "S3_PROXIES",
-    None,
-    help_text=(
-        "A dictionary of proxy servers to use by protocol or endpoint, e.g.: {'http': 'foo.bar:3128', 'http://hostname': 'foo.bar:4012'}."
-    ),
-    group="Documenten API S3 Storage",
-)
 AWS_S3_CUSTOM_DOMAIN = config(
     "S3_CUSTOM_DOMAIN",
     None,
     help_text=("Set this to specify a custom domain for constructed URLs."),
-    group="Documenten API S3 Storage",
-)
-AWS_CLOUDFRONT_KEY = config(
-    "S3_CLOUDFRONT_KEY",
-    None,
-    help_text=(
-        "A private PEM encoded key to use in a boto3 CloudFrontSigner; See CloudFront Signed URLs for more info."
-    ),
-    group="Documenten API S3 Storage",
-)
-AWS_CLOUDFRONT_KEY_ID = config(
-    "S3_CLOUDFRONT_KEY_ID",
-    None,
-    help_text=(
-        "The S3 key ID for the private key provided with cloudfront_key / S3_CLOUDFRONT_KEY;"
-        "See CloudFront Signed URLs for more info."
-    ),
-    group="Documenten API S3 Storage",
-)
-AWS_S3_SIGNATURE_VERSION = config(
-    "S3_SIGNATURE_VERSION",
-    None,
-    help_text=(
-        "The default signature version is s3v4. Set this to s3 to use the legacy signing scheme (aka v2)."
-        "Note that only certain regions support that version."
-        "You can check to see if your region is one of them in the S3 region list."
-    ),
     group="Documenten API S3 Storage",
 )

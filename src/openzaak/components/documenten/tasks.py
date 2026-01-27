@@ -36,6 +36,8 @@ from openzaak.import_data.utils import (
 )
 from openzaak.utils.fields import get_default_path
 
+from .exceptions import DocumentBackendNotImplementedError
+
 logger = structlog.stdlib.get_logger(__name__)
 
 
@@ -61,19 +63,22 @@ def copy_file_to_storage(src: Path, dst: Path) -> str:
     ):
         default_dir.mkdir(parents=True)
 
-    if settings.DOCUMENTEN_API_BACKEND in [
-        DocumentenBackendTypes.azure_blob_storage,
-        DocumentenBackendTypes.s3_storage,
-    ]:
-        with open(src, "rb") as file:
-            # A file could already exist at `dst` in the storage, so the actual path
-            # to which the file ends up being saved is returned and stored on the
-            # `EnkelvoudigInformatieObject.inhoud`
-            name = storage.save(dst, file)
-        return name
-    else:
-        shutil.copy2(src, dst)
-        return str(dst)
+    match settings.DOCUMENTEN_API_BACKEND:
+        case (
+            DocumentenBackendTypes.azure_blob_storage
+            | DocumentenBackendTypes.s3_storage
+        ):
+            with open(src, "rb") as file:
+                # A file could already exist at `dst` in the storage, so the actual path
+                # to which the file ends up being saved is returned and stored on the
+                # `EnkelvoudigInformatieObject.inhoud`
+                name = storage.save(dst, file)
+            return name
+        case DocumentenBackendTypes.filesystem:
+            shutil.copy2(src, dst)
+            return str(dst)
+        case _:
+            raise DocumentBackendNotImplementedError(settings.DOCUMENTEN_API_BACKEND)
 
 
 def _import_document_row(

@@ -22,6 +22,7 @@ from openzaak.utils.admin import (
 
 from .api import viewsets
 from .constants import ObjectInformatieObjectTypes
+from .exceptions import DocumentBackendNotImplementedError
 from .models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -265,8 +266,12 @@ class EnkelvoudigInformatieObjectInline(
                 | DocumentenBackendTypes.s3_storage
             ):
                 return AdminFileWidget
-            case DocumentenBackendTypes.filesystem | _:
+            case DocumentenBackendTypes.filesystem:
                 return PrivateFileWidget
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
 
 def unlock(modeladmin, request, queryset):
@@ -361,8 +366,12 @@ class EnkelvoudigInformatieObjectAdmin(
                 | DocumentenBackendTypes.s3_storage
             ):
                 return AdminFileWidget
-            case DocumentenBackendTypes.filesystem | _:
+            case DocumentenBackendTypes.filesystem:
                 return PrivateFileWidget
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
     form = EnkelvoudigInformatieObjectForm
     list_select_related = ("canonical",)

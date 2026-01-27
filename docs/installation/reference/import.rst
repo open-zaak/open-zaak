@@ -15,13 +15,13 @@ to help aid the user to import larger amounts of ``EnkelvoudigInformatieObject``
 .. note::
 
     This bulk import was specifically implemented for Documenten API using the (default) filestorage backend.
-    It does function correctly for other backends such as Azure blob storage or AWS S3 storage, but it might
+    It does function correctly for other backends such as Azure blob storage or S3 storage, but it might
     not be as performant.
 
-    In addition to this, the behavior of the bulk import for filesystem storage and blob storage
+    In addition to this, the behavior of the bulk import for filesystem storage compared to blob storage and S3 storage
     with regard to existing files is slightly different: with filesystem storage, if a file already exists on storage at the path
     defined in the metadata file, this existing file will be overwritten by the imported file.
-    For blob storage, a suffix is appended to the filename to make sure the original file is not overwritten.
+    For blob storage and s3 storage, a suffix is appended to the filename to make sure the original file is not overwritten.
 
 Configuration
 --------------

@@ -17,6 +17,8 @@ from storages.backends.s3 import S3Storage as _S3Storage
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 
+from .exceptions import DocumentBackendNotImplementedError
+
 logger = structlog.stdlib.get_logger(__name__)
 
 
@@ -96,8 +98,12 @@ class DocumentenStorage(LazyObject):
                 self._wrapped = AzureStorage()
             case DocumentenBackendTypes.s3_storage:
                 self._wrapped = S3Storage()
-            case DocumentenBackendTypes.filesystem | _:
+            case DocumentenBackendTypes.filesystem:
                 self._wrapped = PrivateMediaFileSystemStorage()
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
+                )
 
     def connection_check(self):
         if hasattr(self._wrapped, "connection_check"):

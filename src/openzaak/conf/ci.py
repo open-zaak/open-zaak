@@ -18,6 +18,13 @@ os.environ.setdefault("SENDFILE_BACKEND", "django_sendfile.backends.simple")
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 os.environ.setdefault("OTEL_SERVICE_NAME", "openzaak-ci")
 
+# S3 Storage
+os.environ.setdefault("S3_USE_SSL", "no")
+os.environ.setdefault("S3_ACCESS_KEY_ID", "minioadmin")
+os.environ.setdefault("S3_SECRET_ACCESS_KEY", "minioadmin")
+os.environ.setdefault("S3_ENDPOINT_URL", "http://localhost:9000")
+
+
 from .includes.base import *  # noqa isort:skip
 
 # Well-known authentication key to connect with Azurite
@@ -26,12 +33,6 @@ AZURE_CONNECTION_STRING = (
     "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
     "BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 )
-
-# S3 Storage
-AWS_S3_USE_SSL = False
-AWS_S3_ACCESS_KEY_ID = "minioadmin"
-AWS_S3_SECRET_ACCESS_KEY = "minioadmin"
-AWS_S3_ENDPOINT_URL = "http://localhost:9000"
 
 NOTIFICATIONS_DISABLED = True
 

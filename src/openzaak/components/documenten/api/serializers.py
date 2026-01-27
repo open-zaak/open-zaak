@@ -18,6 +18,7 @@ from django.db import transaction
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 
+import structlog
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
 from privates.storages import PrivateMediaFileSystemStorage
@@ -77,6 +78,7 @@ from .validators import (
     VerzendingAddressValidator,
 )
 
+logger = structlog.stdlib.get_logger(__name__)
 oz = "openzaak.components"
 
 
@@ -127,8 +129,11 @@ class AnyBase64File(Base64FileField):
         # if there is no associated file link is not returned
         try:
             file.file
-        except (ValueError, FileNotFoundError):
-            # TODO should we raise and error here if file doesn't exists ?
+        except ValueError as e:
+            logger.warning("unable_to_open_file", error=str(e))
+            return None
+        except FileNotFoundError as e:
+            logger.warning("file_not_found", error=str(e))
             return None
 
         assert self.view_name, (

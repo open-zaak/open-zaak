@@ -75,6 +75,7 @@ from ...zaken.api.scopes import (
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
 from ...zaken.models import ZaakInformatieObject
+from ..exceptions import DocumentBackendNotImplementedError
 from ..models import (
     BestandsDeel,
     EnkelvoudigInformatieObject,
@@ -357,12 +358,16 @@ class EnkelvoudigInformatieObjectViewSet(
                 | DocumentenBackendTypes.s3_storage
             ):
                 return FileResponse(eio.inhoud.file, as_attachment=True)
-            case DocumentenBackendTypes.filesystem | _:
+            case DocumentenBackendTypes.filesystem:
                 return sendfile(
                     request,
                     eio.inhoud.path,
                     attachment=True,
                     mimetype="application/octet-stream",
+                )
+            case _:
+                raise DocumentBackendNotImplementedError(
+                    settings.DOCUMENTEN_API_BACKEND
                 )
 
     @extend_schema(
