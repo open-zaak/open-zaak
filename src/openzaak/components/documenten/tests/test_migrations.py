@@ -136,3 +136,74 @@ class MigrateCompositeUrlsForwardTest(TestMigrations):
             self.oio_known._object_relative_url,
             "zaken/7ebd86f8-ce22-4ecf-972b-b2ac20b219c0",
         )
+
+
+class MigrateLatestVersionTest(TestMigrations):
+    migrate_from = "0036_reserveddocument"
+    migrate_to = "0037_enkelvoudiginformatieobjectcanonical_latest_version"
+    app = "documenten"
+
+    def _get_models(self, apps):
+        self.Service = apps.get_model("zgw_consumers", "Service")
+        self.EnkelvoudigInformatieObjectCanonical = apps.get_model(
+            "documenten", "EnkelvoudigInformatieObjectCanonical"
+        )
+        self.EnkelvoudigInformatieObject = apps.get_model(
+            "documenten", "EnkelvoudigInformatieObject"
+        )
+
+    def setUpBeforeMigration(self, apps):
+        self._get_models(apps)
+
+        ztc = self.Service.objects.create(
+            label="external Catalogi",
+            slug="external-catalogi",
+            api_type=APITypes.ztc,
+            api_root="https://externe.catalogus.nl/api/v1/",
+        )
+        canonical1 = self.EnkelvoudigInformatieObjectCanonical.objects.create()
+        self.EnkelvoudigInformatieObjectCanonical.objects.create()
+
+        self.EnkelvoudigInformatieObject.objects.create(
+            canonical=canonical1,
+            _informatieobjecttype_base_url=ztc,
+            _informatieobjecttype_relative_url="informatieobjecttypen/56750100-c537-45cb-a1d8-f39c2385a868",
+            identificatie="known",
+            bronorganisatie="517439943",
+            creatiedatum="2020-01-01",
+            titel="some document",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            auteur="John Smith",
+            taal="nld",
+            inhoud=File(BytesIO(b"some content"), name="filename.bin"),
+            versie=1,
+        )
+
+        self.EnkelvoudigInformatieObject.objects.create(
+            canonical=canonical1,
+            _informatieobjecttype_base_url=ztc,
+            _informatieobjecttype_relative_url="informatieobjecttypen/56750100-c537-45cb-a1d8-f39c2385a868",
+            identificatie="known",
+            bronorganisatie="517439943",
+            creatiedatum="2020-01-01",
+            titel="some document",
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+            auteur="John Smith",
+            taal="nld",
+            inhoud=File(BytesIO(b"some content"), name="filename.bin"),
+            versie=2,
+        )
+
+    def test_latest_version_is_set(self):
+        self._get_models(self.apps)
+
+        canonical1 = self.EnkelvoudigInformatieObjectCanonical.objects.get(
+            latest_version__isnull=False
+        )
+        eio2 = self.EnkelvoudigInformatieObject.objects.get(versie=2)
+        self.assertEqual(canonical1.latest_version, eio2)
+
+        # canonical2
+        self.EnkelvoudigInformatieObjectCanonical.objects.get(
+            latest_version__isnull=True
+        )
