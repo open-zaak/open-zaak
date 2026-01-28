@@ -777,6 +777,15 @@ class ZaakZoekSerializer(serializers.Serializer):
         model = Zaak
 
 
+POSTPONABLE_AFLEIDINGSWIJZES = {
+    Afleidingswijze.vervaldatum_besluit,
+    Afleidingswijze.ingangsdatum_besluit,
+    Afleidingswijze.gerelateerde_zaak,
+    Afleidingswijze.eigenschap,
+    Afleidingswijze.ander_datumkenmerk,
+}
+
+
 class StatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Status
@@ -867,12 +876,24 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                     exc.args[0], code="resultaat-does-not-exist"
                 ) from exc
             except DetermineProcessEndDateException as exc:
-                # ideally, we'd like to do this in the validate function, but that's unfortunately too
-                # early since we don't know the end date yet
-                # thought: we _can_ use the datumStatusGezet though!
-                raise serializers.ValidationError(
-                    exc.args[0], code="archiefactiedatum-error"
+                afleidingswijze = (
+                    zaak.resultaat.resultaattype.brondatum_archiefprocedure_afleidingswijze
+                    if hasattr(zaak, "resultaat")
+                    else None
                 )
+
+                if afleidingswijze in POSTPONABLE_AFLEIDINGSWIJZES:
+                    logger.info(
+                        "Archiving postponed: missing required brondatum at case closure",
+                        zaak_uuid=str(zaak.uuid),
+                        afleidingswijze=str(afleidingswijze),
+                    )
+                    brondatum_calculator = None
+                else:
+                    raise serializers.ValidationError(
+                        exc.args[0],
+                        code="archiefactiedatum-error",
+                    )
 
             # validate that all deelzaken have a result
             if zaak.deelzaken.filter(resultaat__isnull=True).exists():
@@ -936,19 +957,19 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 # in case of eindstatus - retrieve archive parameters from resultaattype
 
                 # Archiving: Use default archiefnominatie
-                if not zaak.archiefnominatie:
+                if brondatum_calculator and not zaak.archiefnominatie:
                     zaak.archiefnominatie = brondatum_calculator.get_archiefnominatie()
                     _zaak_fields_changed.append("archiefnominatie")
 
                 # Archiving: Calculate archiefactiedatum
-                if not zaak.archiefactiedatum:
+                if brondatum_calculator and not zaak.archiefactiedatum:
                     zaak.archiefactiedatum = brondatum_calculator.calculate()
 
                     if zaak.archiefactiedatum is not None:
                         _zaak_fields_changed.append("archiefactiedatum")
 
                 # Archiving: Calculate brondatum if it's not filled
-                if not zaak.startdatum_bewaartermijn:
+                if brondatum_calculator and not zaak.startdatum_bewaartermijn:
                     zaak.startdatum_bewaartermijn = brondatum_calculator.brondatum
                     if zaak.startdatum_bewaartermijn is not None:
                         _zaak_fields_changed.append("startdatum_bewaartermijn")
@@ -971,7 +992,11 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
             # Update deelzaken only if hoofdzaak changed to or from it's eind status.
             if (is_eindstatus or is_reopening) and zaak.deelzaken.exists():
-                brondatum = brondatum_calculator.brondatum if is_eindstatus else None
+                brondatum = (
+                    brondatum_calculator.brondatum
+                    if is_eindstatus and brondatum_calculator
+                    else None
+                )
                 self.update_deelzaken(zaak.deelzaken, brondatum)
 
         return obj

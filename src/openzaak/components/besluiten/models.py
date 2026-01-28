@@ -210,6 +210,13 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
 
         super().save(*args, **kwargs)
 
+        if self.vervaldatum:
+            from openzaak.components.archiving import try_calculate_archiving
+
+            zaak = self.zaak or self.previous_zaak
+            if zaak:
+                try_calculate_archiving(zaak)
+
     def unique_representation(self):
         return f"{self.identificatie}"
 
