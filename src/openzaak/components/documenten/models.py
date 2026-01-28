@@ -271,7 +271,7 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
 
     latest_version = models.OneToOneField(
         "EnkelvoudigInformatieObject",
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         related_name="latest_version_of",
         null=True,
         editable=False,
