@@ -64,6 +64,14 @@ class RelevanteZaakRelatieFactory(
         model = "zaken.RelevanteZaakRelatie"
 
 
+class ZaakRelatieFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
+    zaak = factory.SubFactory(ZaakFactory)
+    url = factory.SubFactory(ZaakFactory)
+
+    class Meta:
+        model = "zaken.ZaakRelatie"
+
+
 class ZaakInformatieObjectFactory(
     FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
 ):

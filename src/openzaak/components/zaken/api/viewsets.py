@@ -92,6 +92,7 @@ from ..models import (
     ZaakInformatieObject,
     ZaakNotitie,
     ZaakObject,
+    ZaakRelatie,
     ZaakVerzoek,
 )
 from .audits import AUDIT_ZRC
@@ -305,6 +306,10 @@ class ZaakViewSet(
             models.Prefetch(
                 "relevante_andere_zaken",
                 queryset=RelevanteZaakRelatie.objects.select_related("_relevant_zaak"),
+            ),
+            models.Prefetch(
+                "gerelateerde_zaken",
+                queryset=ZaakRelatie.objects.select_related("_gerelateerde_zaak"),
             ),
             "zaakkenmerk_set",
             "resultaat",

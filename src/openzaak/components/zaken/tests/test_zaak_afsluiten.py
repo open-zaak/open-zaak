@@ -359,6 +359,7 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
                 "publicatiedatum": None,
                 "registratiedatum": "2025-01-01",
                 "relevanteAndereZaken": [],
+                "gerelateerdeZaken": [],
                 "resultaat": f"http://testserver{expected_resultaat_url}",
                 "rollen": [],
                 "selectielijstklasse": "",

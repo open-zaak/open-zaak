@@ -40,6 +40,7 @@ from ..models import (
     ZaakInformatieObject,
     ZaakNotitie,
     ZaakObject,
+    ZaakRelatie,
     ZaakVerzoek,
 )
 from ..models.zaken import ZaakKenmerk
@@ -474,6 +475,27 @@ class RelevanteZaakRelatieForm(forms.ModelForm):
         return cleaned_data
 
 
+class ZaakRelatieForm(forms.ModelForm):
+    class Meta:
+        model = ZaakRelatie
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("_gerelateerde_zaak") and not cleaned_data.get(
+            "_gerelateerde_zaak_base_url"
+        ):
+            raise forms.ValidationError(
+                _(
+                    "Je moet een gerelateerde zaak opgeven: "
+                    "selecteer een zaak of vul een externe URL in."
+                )
+            )
+
+        return cleaned_data
+
+
 @admin.register(RelevanteZaakRelatie)
 class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
     list_display = (
@@ -510,6 +532,45 @@ class RelevanteZaakRelatieAdmin(admin.ModelAdmin):
             relevant_zaak_url=Concat(
                 F("_relevant_zaak_base_url__api_root"),
                 F("_relevant_zaak_relative_url"),
+                output_field=CharField(),
+            )
+        )
+
+
+@admin.register(ZaakRelatie)
+class ZaakRelatieAdmin(admin.ModelAdmin):
+    list_display = (
+        "zaak",
+        "_gerelateerde_zaak",
+        "_gerelateerde_zaak_base_url",
+        "_gerelateerde_zaak_relative_url",
+    )
+    search_fields = (
+        "zaak__uuid",
+        "zaak__identificatie",
+        "_gerelateerde_zaak__uuid",
+        "_gerelateerde_zaak__identificatie",
+        "relevant_zaak_url",
+    )
+    form = ZaakRelatieForm
+    ordering = (
+        "zaak",
+        "_gerelateerde_zaak",
+        "_gerelateerde_zaak_base_url",
+        "_gerelateerde_zaak_relative_url",
+    )
+    raw_id_fields = ("zaak", "_gerelateerde_zaak", "_gerelateerde_zaak_base_url")
+    list_select_related = ("zaak", "_gerelateerde_zaak", "_gerelateerde_zaak_base_url")
+
+    def get_queryset(self, request):
+        """
+        annotate queryset with composite url field for search purposes
+        """
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            relevant_zaak_url=Concat(
+                F("_gerelateerde_zaak_base_url__api_root"),
+                F("_gerelateerde_zaak_relative_url"),
                 output_field=CharField(),
             )
         )
@@ -679,6 +740,12 @@ class RelevanteZaakRelatieInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "zaak"
 
 
+class ZaakRelatieInline(EditInlineAdminMixin, admin.TabularInline):
+    model = ZaakRelatie
+    fields = ZaakRelatieAdmin.list_display
+    fk_name = "zaak"
+
+
 class ZaakBesluitInline(EditInlineAdminMixin, admin.TabularInline):
     model = ZaakBesluit
     fields = ZaakBesluitAdmin.list_display
@@ -776,6 +843,7 @@ class ZaakAdmin(
         RolInline,
         ResultaatInline,
         RelevanteZaakRelatieInline,
+        ZaakRelatieInline,
         ZaakBesluitInline,
         KlantContactInline,
         ZaakNotitieInline,

@@ -66,6 +66,7 @@ logger = structlog.stdlib.get_logger(__name__)
 __all__ = [
     "Zaak",
     "RelevanteZaakRelatie",
+    "ZaakRelatie",
     "Status",
     "SubStatus",
     "Resultaat",
@@ -563,6 +564,68 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
     def unique_representation(self):
         return f"{self.bronorganisatie} - {self.identificatie}"
+
+
+class _FkOrServiceUrlField(FkOrServiceUrlField):
+    # TODO move this to `django-loose-fk`
+    # Django 4.2 added `db_comment`, models for which migrations already exist are not
+    # affected but new models raise errors when running migrations if this attribute
+    # is missing from the field
+    db_comment: str | None = None
+
+
+class ZaakRelatie(models.Model):
+    """
+    Registreer twee ZAAKen als gerelateerd aan elkaar
+    """
+
+    zaak = models.ForeignKey(
+        Zaak, on_delete=models.CASCADE, related_name="gerelateerde_zaken"
+    )
+
+    _gerelateerde_zaak_base_url = ServiceFkField(
+        help_text="Basis deel van URL-referentie naar externe ZAAK (in een andere Zaken API).",
+    )
+    _gerelateerde_zaak_relative_url = RelativeURLField(
+        _("gerelateerde zaak relative url"),
+        blank=True,
+        null=True,
+        help_text="Relatief deel van URL-referentie naar externe ZAAK (in een andere Zaken API).",
+    )
+    _gerelateerde_zaak_url = ServiceUrlField(
+        base_field="_gerelateerde_zaak_base_url",
+        relative_field="_gerelateerde_zaak_relative_url",
+        verbose_name=_("externe gerelateerde zaak"),
+        blank=True,
+        null=True,
+        max_length=1000,
+        help_text=_("URL-referentie naar externe ZAAK (in een andere zaken API)"),
+    )
+    _gerelateerde_zaak = models.ForeignKey(
+        Zaak,
+        on_delete=models.CASCADE,
+        verbose_name=_("gerelateerde zaak"),
+        help_text=_("URL-referentie naar de ZAAK."),
+        null=True,
+        blank=True,
+    )
+    url = _FkOrServiceUrlField(
+        fk_field="_gerelateerde_zaak",
+        url_field="_gerelateerde_zaak_url",
+        help_text=_(
+            "URL-referentie naar de ZAAK. "
+            "(Het ZAAKTYPE van deze ZAAK hoeft niet te zijn toegevoegd "
+            "aan de gerelateerdeZaaktypen van het andere ZAAKTYPE.)"
+        ),
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["zaak", "_gerelateerde_zaak"],
+                name="zaak_gerelateerde_zaak_unique_together",
+            )
+        ]
 
 
 class RelevanteZaakRelatie(models.Model):

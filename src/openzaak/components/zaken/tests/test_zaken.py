@@ -57,6 +57,7 @@ from .factories import (
     StatusFactory,
     ZaakEigenschapFactory,
     ZaakFactory,
+    ZaakRelatieFactory,
 )
 from .utils import (
     ZAAK_READ_KWARGS,
@@ -1643,3 +1644,38 @@ class ZakenWerkVoorraadTests(JWTAuthMixin, APITestCase):
 
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data["count"], 1)
+
+
+class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    @override_settings(ALLOWED_HOSTS=["example.com", "testserver"])
+    def test_zaak_list_performance_with_gerelateerde_zaken(self):
+        """
+        Test the performance of zaak-list when zaken have `gerelateerdeZaken` set
+        """
+        # queries not directly involved with this endpoint in particular
+        BASE_NUM_QUERIES = 3
+        # queries because of the list endpoint itself
+        ENDPOINT_NUM_QUERIES = 13
+        TOTAL_EXPECTED_QUERIES = BASE_NUM_QUERIES + ENDPOINT_NUM_QUERIES
+
+        zaaktype = ZaakTypeFactory.create()
+
+        # check with different orders of magnitude for the number of zaaktypen the client
+        # is authorized for
+        for num_gerelateerde_zaken in (1, 10, 50):
+            with self.subTest(num_related_zaken=num_gerelateerde_zaken):
+                Zaak.objects.all().delete()
+
+                related_zaken = ZaakFactory.create_batch(
+                    num_gerelateerde_zaken, zaaktype=zaaktype
+                )
+                for zaak in related_zaken:
+                    ZaakRelatieFactory(zaak=zaak)
+
+                with self.assertNumQueries(TOTAL_EXPECTED_QUERIES):
+                    response = self.client.get(reverse("zaak-list"), **ZAAK_READ_KWARGS)
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["count"], num_gerelateerde_zaken * 2)

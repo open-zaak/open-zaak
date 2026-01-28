@@ -34,6 +34,7 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
     SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
 )
+from openzaak.components.zaken.constants import AardZaakRelatie
 from openzaak.components.zaken.models import (
     Rol,
     Status,
@@ -224,6 +225,9 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
     def setUp(self):
         super().setUp()
 
+        self.related_case1 = ZaakFactory.create()
+        self.related_case2 = ZaakFactory.create()
+
         self.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
 
         self.zaaktype = ZaakTypeFactory.create(
@@ -256,6 +260,17 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
             "registratiedatum": "2018-06-11",
             "startdatum": "2018-06-11",
             "toelichting": "toelichting",
+            "relevanteAndereZaken": [
+                {
+                    "url": f"http://testserver{reverse(self.related_case1)}",
+                    "aardRelatie": AardZaakRelatie.vervolg,
+                    "overigeRelate": "",
+                }
+            ],
+            # Should be ignored, because `relevanteAndereZaken` takes precedence over this
+            "gerelateerdeZaken": [
+                {"url": f"http://testserver{reverse(self.related_case2)}"}
+            ],
         }
 
         self.rol = {
@@ -297,7 +312,7 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        zaak = Zaak.objects.get()
+        zaak = Zaak.objects.get(zaaktype=self.zaaktype)
 
         self.assertEqual(
             zaak.vertrouwelijkheidaanduiding, VertrouwelijkheidsAanduiding.openbaar
@@ -382,7 +397,17 @@ class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
                 "productenOfDiensten": [],
                 "publicatiedatum": None,
                 "registratiedatum": "2018-06-11",
-                "relevanteAndereZaken": [],
+                "relevanteAndereZaken": [
+                    {
+                        "url": f"http://testserver{reverse(self.related_case1)}",
+                        "aardRelatie": AardZaakRelatie.vervolg,
+                        "overigeRelatie": "",
+                        "toelichting": "",
+                    }
+                ],
+                "gerelateerdeZaken": [
+                    {"url": f"http://testserver{reverse(self.related_case2)}"}
+                ],
                 "resultaat": None,
                 "rollen": [
                     f"http://testserver{expected_rol_url}",
