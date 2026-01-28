@@ -56,3 +56,22 @@ def sync_oio(
 def delete_eio_file(sender, instance, **kwargs):
     if instance.inhoud:
         instance.inhoud.delete(save=False)
+
+
+@receiver(
+    [post_delete, post_save],
+    sender=EnkelvoudigInformatieObject,
+    dispatch_uid="documenten.set_canonical_latest_version",
+)
+def set_canonical_latest_version(sender, signal, instance, **kwargs):
+    if signal is post_delete:
+        # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
+        instance.canonical.latest_version = (
+            instance.canonical.enkelvoudiginformatieobject_set.first()
+        )
+    elif signal is post_save:
+        instance.canonical.latest_version = instance
+    else:
+        raise NotImplementedError(f"Signal {signal} is not supported")
+
+    instance.canonical.save()

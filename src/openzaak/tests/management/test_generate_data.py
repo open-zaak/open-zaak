@@ -520,6 +520,95 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
             with self.assertRaises(CommandError):
                 call_command("generate_data", partition=1, zaaktypen=1, zaken=2)
 
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_with_zaken_only(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                zaaktypen=1,
+                zaken=1,
+                resources=["zaken"],
+            )
+
+            # check that the data is generated
+            generated_objects_count = {
+                "catalogi.Catalogus": 1,
+                "catalogi.ZaakType": 1,
+                "catalogi.StatusType": 3,
+                "catalogi.RolType": 1,
+                "catalogi.ResultaatType": 2,
+                "catalogi.Eigenschap": 1,
+                "zaken.Zaak": 1,
+                "zaken.Status": 3,
+                "zaken.Rol": 1,
+                "zaken.Resultaat": 1,
+                "zaken.ZaakEigenschap": 1,
+            }
+
+            for model_name, obj_count in generated_objects_count.items():
+                with self.subTest(model_name):
+                    model = apps.get_model(model_name)
+                    self.assertEqual(model.objects.count(), obj_count)
+
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_with_besluiten_only(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                zaaktypen=1,
+                zaken=1,
+                resources=["besluiten"],
+            )
+
+            # check that the data is generated
+            generated_objects_count = {
+                "catalogi.Catalogus": 1,
+                "catalogi.ZaakType": 1,
+                "catalogi.StatusType": 3,
+                "catalogi.RolType": 1,
+                "catalogi.ResultaatType": 2,
+                "catalogi.Eigenschap": 1,
+                "besluiten.Besluit": 1,
+            }
+
+            for model_name, obj_count in generated_objects_count.items():
+                with self.subTest(model_name):
+                    model = apps.get_model(model_name)
+                    self.assertEqual(model.objects.count(), obj_count)
+
+    @override_settings(
+        SITE_DOMAIN="openzaak.local", ALLOWED_HOSTS=["openzaak.local", "testserver"]
+    )
+    def test_generate_data_with_documenten_only(self):
+        with patch("builtins.input", lambda *args: "yes"):
+            call_command(
+                "generate_data",
+                zaaktypen=1,
+                zaken=1,
+                resources=["documenten"],
+            )
+
+            # check that the data is generated
+            generated_objects_count = {
+                "catalogi.Catalogus": 1,
+                "catalogi.ZaakType": 1,
+                "catalogi.StatusType": 3,
+                "catalogi.RolType": 1,
+                "catalogi.ResultaatType": 2,
+                "catalogi.Eigenschap": 1,
+                "documenten.EnkelvoudigInformatieObjectCanonical": 1,
+                "documenten.EnkelvoudigInformatieObject": 1,
+            }
+
+            for model_name, obj_count in generated_objects_count.items():
+                with self.subTest(model_name):
+                    model = apps.get_model(model_name)
+                    self.assertEqual(model.objects.count(), obj_count)
+
 
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")
