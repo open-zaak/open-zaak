@@ -155,8 +155,8 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "\n"
             "De objecten bevatten metadata over de documenten en de downloadlink "
             "(`inhoud`) naar de binary data. Alleen de laatste versie van elk "
-            "(ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen "
-            "alleen"
+            "(ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen middels "
+            "query-string parameters worden opgevraagd."
         ),
     ),
     retrieve=extend_schema(
