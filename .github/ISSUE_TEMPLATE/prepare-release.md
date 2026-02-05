@@ -22,6 +22,7 @@ projects: ["maykinmedia/15"]
   - [ ] Deploy the new version on Kubernetes
   - [ ] Run performance tests and add the results to the docs
 - [ ] Update changelog
+- [ ] Update ``docs/introduction/versioning.rst``
 - [ ] Check the impact of this release on the Helm charts and make issues for this in https://github.com/maykinmedia/charts if needed, e.g.
   - [ ] New environment variables were added
   - [ ] New setup configuration steps or changes to format
