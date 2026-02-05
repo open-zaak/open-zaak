@@ -108,7 +108,7 @@ deprecation==2.1.0
     # via cloudevents
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==5.2.10
+django==5.2.11
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -434,7 +434,7 @@ prometheus-client==0.22.1
     # via flower
 prompt-toolkit==3.0.31
     # via click-repl
-protobuf==6.33.1
+protobuf==6.33.5
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
