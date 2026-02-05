@@ -208,7 +208,24 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         if not self.identificatie:
             self.identificatie = generate_unique_identification(self, "datum")
 
+        is_update = self.pk is not None
+
+        old_vervaldatum = None
+        if is_update:
+            old_vervaldatum = (
+                Besluit.objects.filter(pk=self.pk)
+                .values_list("vervaldatum", flat=True)
+                .first()
+            )
+
         super().save(*args, **kwargs)
+
+        if self.vervaldatum and self.vervaldatum != old_vervaldatum:
+            from openzaak.components.zaken.archiving import try_calculate_archiving
+
+            zaak = self.zaak
+            if zaak:
+                try_calculate_archiving(zaak, force=True)
 
     def unique_representation(self):
         return f"{self.identificatie}"

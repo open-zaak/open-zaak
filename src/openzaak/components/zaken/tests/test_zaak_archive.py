@@ -23,6 +23,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
+    BesluitTypeFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -970,7 +971,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
 
-    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_400(
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_and_besluit_vervaldatum_none_gives_201(
         self,
     ):
         """
@@ -1011,14 +1012,14 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
+        zaak.refresh_from_db()
 
-    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_400(
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
+
+    def test_add_resultaat_on_zaak_with_afleidingswijze_vervaldatum_besluit_without_besluiten_gives_201(
         self,
     ):
         """
@@ -1058,15 +1059,9 @@ class US345TestCase(JWTAuthMixin, APITestCase):
 
         response = self.client.post(status_create_url, data)
 
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        self.assertEqual(error["code"], "archiefactiedatum-error")
-
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         zaak.refresh_from_db()
-        self.assertEqual(zaak.archiefactiedatum, None)
+        self.assertIsNone(zaak.archiefactiedatum)
 
     @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_add_resultaat_on_zaak_with_afleidingswijze_gerelateerde_zaak_causes_archiefactiedatum_to_be_set(
@@ -1403,3 +1398,135 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 1))
         self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 1))
+
+    def test_vervaldatum_besluit_recalculates_archiefactiedatum_on_update(self):
+        zaak = ZaakFactory.create(
+            closed=True,
+            einddatum=date(2025, 1, 1),
+        )
+
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+        )
+
+        besluit = BesluitFactory.create(
+            zaak=zaak,
+            vervaldatum=date(2026, 1, 1),
+        )
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2026, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2036, 1, 1))
+
+        besluit.vervaldatum = date(2027, 1, 1)
+        besluit.save()
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2027, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2037, 1, 1))
+
+    def test_vervaldatum_besluit_recalculates_archiefactiedatum_on_patch_update(self):
+        zaak = ZaakFactory.create(
+            closed=True,
+            einddatum=date(2025, 1, 1),
+        )
+
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+        )
+
+        besluittype = BesluitTypeFactory.create(
+            catalogus=zaak.zaaktype.catalogus,
+            zaaktypen=[zaak.zaaktype],
+        )
+
+        besluit = BesluitFactory.create(
+            zaak=zaak,
+            besluittype=besluittype,
+            datum=date(2025, 1, 1),
+            ingangsdatum=date(2025, 1, 1),
+            vervaldatum=None,
+        )
+
+        besluit_detail_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
+
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        response = self.client.patch(
+            besluit_detail_url,
+            {"vervaldatum": "2026-01-01"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2026, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2036, 1, 1))
+
+        response = self.client.patch(
+            besluit_detail_url,
+            {"vervaldatum": "2027-01-01"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2027, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2037, 1, 1))
+
+    def test_eigenschap_recalculates_archiefactiedatum_on_patch_update(self):
+        zaak = ZaakFactory.create(
+            closed=True,
+            einddatum=date(2025, 1, 1),
+        )
+
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.eigenschap,
+            resultaattype__brondatum_archiefprocedure_datumkenmerk="expiryDate",
+        )
+
+        eigenschap = ZaakEigenschapFactory.create(
+            zaak=zaak,
+            _naam="expiryDate",
+            waarde="",
+        )
+
+        eigenschap_detail_url = reverse(
+            "zaakeigenschap-detail",
+            kwargs={
+                "zaak_uuid": zaak.uuid,
+                "uuid": eigenschap.uuid,
+            },
+        )
+
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        response = self.client.patch(
+            eigenschap_detail_url,
+            {"waarde": "2026-01-01T00:00:00Z"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2026, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2036, 1, 1))
+
+        response = self.client.patch(
+            eigenschap_detail_url,
+            {"waarde": "2027-01-01T00:00:00Z"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2027, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2037, 1, 1))

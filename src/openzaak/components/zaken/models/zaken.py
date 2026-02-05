@@ -936,6 +936,15 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
             f"({self.zaak.unique_representation()}) - {self.resultaattype.omschrijving}"
         )
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # If the zaak is already closed, adding a Resultaat may make archiving possible.
+        if self.zaak.einddatum:
+            from openzaak.components.zaken.archiving import try_calculate_archiving
+
+            try_calculate_archiving(self.zaak)
+
 
 _SUPPORTS_AUTH_CONTEXT = models.Q(
     betrokkene_type__in=[
@@ -1455,6 +1464,24 @@ class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
     class Meta:
         verbose_name = "zaakeigenschap"
         verbose_name_plural = "zaakeigenschappen"
+
+    def save(self, *args, **kwargs):
+        is_update = self.pk is not None
+
+        old_waarde = None
+        if is_update:
+            old_waarde = (
+                ZaakEigenschap.objects.filter(pk=self.pk)
+                .values_list("waarde", flat=True)
+                .first()
+            )
+
+        super().save(*args, **kwargs)
+
+        if self.zaak.einddatum and self.waarde and self.waarde != old_waarde:
+            from openzaak.components.zaken.archiving import try_calculate_archiving
+
+            try_calculate_archiving(self.zaak, force=True)
 
     def full_clean(self, *args, **kwargs):
         super().full_clean(*args, **kwargs)

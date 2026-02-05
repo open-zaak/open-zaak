@@ -184,9 +184,12 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
             _("Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten"),
         )
 
-    def test_reopen_zaak(self):
+    def test_zaak_geforceerd_bijwerken(self):
         self._add_zaken_auth(
-            scopes=[SCOPEN_ZAKEN_HEROPENEN, SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN]
+            scopes=[
+                SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN,
+                SCOPEN_ZAKEN_HEROPENEN,
+            ]
         )
 
         self.zaak.einddatum = timezone.now()
