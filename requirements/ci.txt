@@ -799,7 +799,7 @@ prompt-toolkit==3.0.31
     #   click-repl
 propcache==0.2.0
     # via yarl
-protobuf==6.33.1
+protobuf==6.33.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt

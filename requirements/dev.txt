@@ -904,7 +904,7 @@ propcache==0.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   yarl
-protobuf==6.33.1
+protobuf==6.33.5
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
