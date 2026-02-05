@@ -93,9 +93,9 @@ class ObjectInformatieObjectForm(forms.ModelForm):
 
 
 @admin.register(ObjectInformatieObject)
-class ObjectInformatieObjectAdmin(
-    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
-):
+class ObjectInformatieObjectAdmin(UUIDAdminMixin, admin.ModelAdmin):
+    actions = None
+
     form = ObjectInformatieObjectForm
     list_display = ("informatieobject", "object_type", "get_object_display")
     list_filter = ("object_type",)
@@ -226,9 +226,7 @@ class GebruiksrechtenInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "informatieobject"
 
 
-class ObjectInformatieObjectInline(
-    AuditTrailAdminMixin, EditInlineAdminMixin, admin.TabularInline
-):
+class ObjectInformatieObjectInline(EditInlineAdminMixin, admin.TabularInline):
     model = ObjectInformatieObject
     fields = ObjectInformatieObjectAdmin.list_display
     fk_name = "informatieobject"
