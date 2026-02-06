@@ -1,6 +1,87 @@
 Changelog
 =========
 
+1.27.0 (2026-02-06)
+-------------------
+
+**New features**
+
+* Support new storage backends for Documenten API (next to the default filesystem storage)
+
+  * [:open-zaak:`2217`] Add Azure Blob Storage backend support for Documenten API
+    (see :ref:`installation_documenten_azure_blob_storage`)
+  * [:open-zaak:`2282`] Add S3 storage backend support for Documenten API
+    (see :ref:`installation_documenten_s3_storage`)
+
+* [:open-zaak:`2183`] Changes related to archiving of zaken (calculation of ``startdatumBewaartermijn`` and ``archiefactiedatum``)
+
+  * For ``afleidingswijze=vervaldatum_besluit``: ``Besluit.vervaldatum`` is no longer required at the moment of
+    closing the Zaak. Instead, when the ``Besluit.vervaldatum`` is set for a closed Zaak, the archiving parameters are (re)-calculated
+  * For ``afleidingswijze=eigenschap``: ``ZaakEigenschap.waarde`` is no longer required at the moment of
+    closing the Zaak. Instead, when the ``ZaakEigenschap.waarde`` is set for a closed Zaak, the archiving parameters are (re)-calculated
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`2260`] Add ``gerelateerdeZaken`` attribute to ``/zaken`` endpoint
+* [:open-zaak:`2260`] Mark ``Zaak.relevanteAndereZaken`` as deprecated in OAS
+* [:open-zaak:`2236`] Increase maximum length for ``Rol.betrokkeneIdentificatie`` fields for ``betrokkeneType=organisatorische_eenheid``
+
+  * ``identificatie`` max length is changed from 24 to 255
+  * ``naam`` max length is changed from 50 to 255
+  * ``isGehuisvestIn`` max length is changed from 24 to 255
+
+* [:open-zaak:`2263`] Allow afleidingswijze termijn for all procestermijnen except nihil (see :ref:`archiving`)
+* [:open-zaak:`2261`] Mark ``ResultaatType.brondatumArchiefprocedure.afleidingswijze=gerelateerde_zaak`` as deprecated in the OAS
+* [:open-zaak:`2259`] Add ``data`` to cloudevents with attributes to enable filtering via Open Notificaties
+* [:open-zaak:`2121`] Emit cloudevents for functional API endpoints (handelingsendpoints) (see :ref:`cloud_events`)
+* [:open-zaak:`2265`] Emit cloud events on for actions via admin interface
+* [:open-zaak:`2258`] Only emit ``zaak-gemuteerd`` for POST on ``/statussen``
+* [:open-zaak:`2251` / :open-zaak:`2279`] Add handlers for ``zaak-gekoppeld`` and ``zaak-ontkoppeld`` events
+  to create ZaakObjecten
+
+.. warning::
+
+    The ``zaak-gekoppeld`` and ``zaak-ontkoppeld`` pattern is still under active development
+    and could be subject to change in future releases. It is not recommended to rely on this pattern
+    in production yet.
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`2275`] Fix 500 error when trying to download content for ``EnkelvoudigInformatieObject`` without inhoud via API
+* [:open-zaak:`2274`] Properly remove the related ``inhoud`` file when an ``EnkelvoudigInformatieObject`` is removed
+* [:open-zaak:`2283`] Add link to show ``Zaaknotities`` in the admin interface for the Zaken list
+* [:open-zaak:`2230`] Fix PATCH operation for ``/zaaknotities`` endpoint
+* [:open-zaak:`1962`] Fix 500 error in Resultaattype admin page in case the resultaattype omschrijving URL is invalid
+* [:open-zaak:`2268`] Fix button to show audittrail changes in admin interface
+* Fix celery logger name
+* Avoid using ``event`` key in uwsgi logs
+
+**Project maintenance**
+
+* Upgrade python dependencies
+
+  * ``cbor2`` to 5.8.0
+  * ``django`` to 5.2.11
+  * ``azure-core`` to 1.38.0
+  * ``urllib3`` to 2.6.3
+  * ``zgw-consumers`` to 1.2.0
+  * ``notifications-api-common`` to 0.10.1
+  * ``commonground-api-common`` to 2.10.7
+  * ``protobuf`` to 6.33.5
+  * ``virtualenv`` to 20.36.1
+  * ``filelock`` to 3.20.3
+  * ``pip`` to 26.0.1
+
+* [:open-zaak:`2268`] Add playwright to testing tools to test admin interface
+* Improve setup for bencher to more properly monitor performance on the ``main`` branch
+
+**Documentation**
+
+* Describe versioning policy in documentation (see :ref:`versioning_policy`)
+* [:open-api-framework:`197`] Document maximum value of ``pageSize`` query parameter in OAS
+* [:open-zaak:`2233`] Document required configuration for cloud events (see :ref:`cloud_events_configuration`)
+* [:open-zaak:`2276`] Fix broken sequence diagram image for bulk import documentation
+
 1.26.0 (2025-12-01)
 -------------------
 

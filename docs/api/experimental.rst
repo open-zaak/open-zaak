@@ -63,7 +63,12 @@ Example of a ``zaak-gemuteerd`` cloud event in its current shape:
             "time": "2025-11-28T09:57:45Z",
             "dataref": "/zaken/api/v1/zaken/89b06186-c133-4c74-8492-b43392bc4fdb",
             "datacontenttype": "application/json",
-            "data": {}
+            "data": {
+                "bronorganisatie": "000000000",
+                "zaaktype": "http://open-zaak.local/catalogi/api/v1/zaaktypen/c9d5df4e-8c2e-46b7-9d05-e5172c1290a2",
+                "zaaktype.catalogus": "http://open-zaak.local/catalogi/api/v1/catalogussen/f4c18dd3-124d-47f0-9d8a-c0bfaa2ceba0",
+                "vertrouwelijkheidaanduiding": "openbaar"
+            }
         }
 
 The shape of these cloud events and the actions that trigger these cloud events are still subject to change.

@@ -183,6 +183,8 @@ Optional
 * ``ZAAK_EIGENSCHAP_WAARDE_VALIDATION``: if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` property would be validated against the related ``Eigenschap.specificatie``. Defaults to: ``False``.
 * ``FUZZY_PAGINATION``: if this variable is set to ``true``, ``yes`` or ``1``, fuzzy pagination will be applied to all paginated API endpoints. This is to optimize performance of the endpoints and results in the ``count`` property to return a non-exact (fuzzy) value. Defaults to: ``False``.
 * ``FUZZY_PAGINATION_COUNT_LIMIT``: an integer value to indicate the maximum number of objects where the exact count is calculated in pagination when ``FUZZY_PAGINATION`` is enabled. Defaults to: ``500``.
+* ``ENABLE_CLOUD_EVENTS``: **EXPERIMENTAL**: indicates whether or not cloud events should be sent to the configured endpoint for specific operations on Zaak (not ready for use in production). Defaults to: ``False``.
+* ``NOTIFICATIONS_SOURCE``: **EXPERIMENTAL**: the identifier of this application to use as the source in notifications and cloudevents. Defaults to: ``(empty string)``.
 
 
 
