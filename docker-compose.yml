@@ -155,6 +155,8 @@ services:
       - "9000:80"
     depends_on:
       - web.local
+    networks:
+      - open-zaak-dev
 
 volumes:
   db:
