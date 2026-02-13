@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 from django.conf import settings
 from django.core.exceptions import DisallowedHost, ValidationError
 from django.db import Error as DatabaseError, IntegrityError, transaction
+from django.db.models import Exists, OuterRef, Subquery
 from django.db.models.signals import post_save
 from django.http import HttpRequest
 from django.utils import timezone
@@ -513,3 +514,22 @@ def import_documents(self, import_pk: int, request_headers: dict) -> None:
         batch.clear()
 
     finish_import(import_instance, ImportStatusChoices.finished)
+
+
+@celery_app.task()
+def set_canonical_latest_version():
+    """
+    This task updates the latest_version field of eio canonical
+    if for some reason the post_delete did not trigger and the latest_version is set to None incorrectly.
+    """
+    first_eio_subquery = EnkelvoudigInformatieObject.objects.filter(
+        canonical=OuterRef("pk")
+    )
+
+    count = EnkelvoudigInformatieObjectCanonical.objects.filter(
+        Exists(first_eio_subquery),
+        latest_version__isnull=True,
+    ).update(latest_version=Subquery(first_eio_subquery.values("pk")[:1]))
+
+    if count:
+        logger.warning("outdated_canonical_latest_versions", count=count)
