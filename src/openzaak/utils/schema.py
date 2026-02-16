@@ -21,6 +21,7 @@ from furl import furl
 from rest_framework import exceptions, serializers, status
 from vng_api_common.caching.introspection import has_cache_header
 from vng_api_common.constants import HEADER_AUDIT, HEADER_LOGRECORD_ID, VERSION_HEADER
+from vng_api_common.exception_handling import ERROR_CONTENT_TYPE
 from vng_api_common.exceptions import PreconditionFailed
 from vng_api_common.geo import DEFAULT_CRS, HEADER_ACCEPT, HEADER_CONTENT, GeoMixin
 from vng_api_common.permissions import get_required_scopes
@@ -31,7 +32,6 @@ from vng_api_common.schema import (
     _view_supports_audittrail,
 )
 from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
-from vng_api_common.views import ERROR_CONTENT_TYPE
 
 from .expansion import EXPAND_KEY
 from .mixins import ExpandMixin
