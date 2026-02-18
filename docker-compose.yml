@@ -24,7 +24,7 @@ services:
 
   web.local:
     build: .
-    image: openzaak/open-zaak:latest
+    image: openzaak/open-zaak:${TAG:-latest}
     environment: &app-env
       DJANGO_SETTINGS_MODULE: openzaak.conf.docker
       SECRET_KEY: ${SECRET_KEY:-7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i}
@@ -90,7 +90,7 @@ services:
       - open-zaak-dev
 
   web-init:
-    build: .
+    image: openzaak/open-zaak:${TAG:-latest}
     environment:
       <<: *app-env
       #
@@ -106,8 +106,7 @@ services:
       - open-zaak-dev
 
   celery:
-    build: .
-    image: openzaak/open-zaak:latest
+    image: openzaak/open-zaak:${TAG:-latest}
     environment: *app-env
     command: /celery_worker.sh
     healthcheck:
@@ -124,8 +123,7 @@ services:
       - open-zaak-dev
 
   celery-beat:
-    build: .
-    image: openzaak/open-zaak:latest
+    image: openzaak/open-zaak:${TAG:-latest}
     environment: *app-env
     command: /celery_beat.sh
     depends_on:
@@ -134,8 +132,7 @@ services:
       - open-zaak-dev
 
   celery-flower:
-    build: .
-    image: openzaak/open-zaak:latest
+    image: openzaak/open-zaak:${TAG:-latest}
     environment: *app-env
     command: /celery_flower.sh
     ports:
