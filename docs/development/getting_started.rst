@@ -19,11 +19,13 @@ Prerequisites
 You need the following libraries and/or programs:
 
 * `Python`_ 3.12
-* Python `Virtualenv`_ and `Pip`_ 20.0 or above
+* Python `Virtualenv`_ and `Pip`_ 26.0.1 or above
+* `uv`_ 0.9.5 or above (recommended)
 * `PostgreSQL`_ 14.0 or above, with the `PostGIS-extension`_ version 3.2 or above
-* `Node.js`_ 18.0 or above
+* `Node.js`_ 24.0 or above
 * `npm`_ 8.0 or above
-* `Docker`_ 19.03 or above (and `docker-compose`_)
+* `Docker`_ 29.2.1 or above (and `docker compose v2`_)
+* `nvm`_ 0.40.3 or above
 
 .. _Python: https://www.python.org/
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
@@ -33,8 +35,9 @@ You need the following libraries and/or programs:
 .. _Node.js: http://nodejs.org/
 .. _npm: https://www.npmjs.com/
 .. _Docker: https://www.docker.com/
-.. _docker-compose: https://docs.docker.com/compose/install/
-
+.. _docker compose v2: https://docs.docker.com/compose/install/
+.. _nvm: https://github.com/nvm-sh/nvm
+.. _uv: https://github.com/astral-sh/uv
 
 Step by step
 ------------
@@ -46,58 +49,61 @@ development machine.
 
 2. Get the code:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ git clone git@github.com:open-zaak/open-zaak.git
-       $ cd open-zaak
+   git clone git@github.com:open-zaak/open-zaak.git
+   cd open-zaak
 
 3. At this point you can already built the Docker image and run Open Zaak. You
    can skip this if you don't want that.
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ docker-compose up
+   docker compose up
+
+.. note::
 
    **Note:** If you are using Git on Windows, line-endings might change in
-   checked out files depending on your `core.autocrlf` setting in `.gitconfig`.
+   checked out files depending on your ``core.autocrlf`` setting in ``.gitconfig``.
    This is problematic because files are copied into a Docker image, which runs
-   on Linux. Specifically, the `bin/docker_start.sh` file is affected by this
+   on Linux. Specifically, the ``bin/docker_start.sh`` file is affected by this
    which causes the Docker container fail to start up.
 
 4. Install all required libraries:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ virtualenv env  # or, python -m venv env
-       $ source env/bin/activate
-       $ pip install -r requirements/dev.txt
+   virtualenv env  # or, python -m venv env
+   source env/bin/activate
+   uv pip install -r requirements/dev.txt
 
 5. Install the frontend libraries:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ npm install
-       $ npm run build
+   nvm use
+   npm install
+   npm run build
 
 6. Activate your virtual environment and create the statics and database:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ source env/bin/activate
-       $ python src/manage.py migrate
+   source env/bin/activate
+   python src/manage.py migrate
 
 7. Create a superuser to access the management interface:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ python src/manage.py createsuperuser
+   python src/manage.py createsuperuser
 
 8. You can now run your installation and point your browser to the address
    given by this command:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ python src/manage.py runserver
+   python src/manage.py runserver
 
 
 **Note:** If you are making local, machine specific, changes, add them to
@@ -117,26 +123,51 @@ When updating an existing installation:
 
 1. Activate the virtual environment:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ cd open-zaak
-       $ source env/bin/activate
+   cd open-zaak
+   source env/bin/activate
 
 2. Update the code and libraries:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ git pull
-       $ pip install -r requirements/dev.txt
-       $ npm install
-       $ npm run build
+   git pull
+   uv pip install -r requirements/dev.txt
+   nvm use
+   npm install
+   npm run build
 
 3. Update the statics and database:
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       $ python src/manage.py migrate
+   python src/manage.py migrate
 
+
+Test data for development purposes
+----------------------------------
+
+There is a fixture available to configure a basic Catalogus, which can be used to get started
+quickly with making API requests. This fixture is loaded automatically when running with
+``docker compose`` and when running with with ``runserver`` can be loaded with:
+
+.. code-block:: bash
+
+   src/manage.py loaddata docker/fixtures/catalogi.json
+
+To update this fixture, you can run:
+
+.. code-block:: bash
+
+   bin/generate_development_fixtures.sh
+
+Additional configuration for development purposes (also loaded with ``docker compose`` by default)
+can be loaded with:
+
+.. code-block:: bash
+
+   src/manage.py setup_configuration --yaml-file docker/setup_configuration/data.yaml
 
 Testsuite
 ---------
@@ -145,7 +176,7 @@ To run the test suite:
 
 .. code-block:: bash
 
-    $ python src/manage.py test openzaak
+   python src/manage.py test openzaak
 
 Configuration via environment variables
 ---------------------------------------
@@ -155,13 +186,11 @@ environment variables, add them to your ``.env`` file or persist them in
 ``src/openzaak/conf/includes/local.py``.
 
 * ``SECRET_KEY``: the secret key to use. A default is set in ``dev.py``
-
 * ``DB_NAME``: name of the database for the project. Defaults to ``open-zaak``.
 * ``DB_USER``: username to connect to the database with. Defaults to ``open-zaak``.
 * ``DB_PASSWORD``: password to use to connect to the database. Defaults to ``open-zaak``.
 * ``DB_HOST``: database host. Defaults to ``localhost``
 * ``DB_PORT``: database port. Defaults to ``5432``.
-
 * ``SENTRY_DSN``: the DSN of the project in Sentry. If set, enabled Sentry SDK as
   logger and will send errors/logging to Sentry. If unset, Sentry SDK will be
   disabled.
@@ -176,7 +205,7 @@ and is only loaded for the dev settings.
 
 
 Running background tasks
-=====================================
+========================
 
 We use `Celery`_ as background task queue.
 
@@ -187,14 +216,14 @@ To start the background workers executing tasks:
 
 .. code-block:: bash
 
-   $ ./bin/celery_worker.sh
+   DB_HOST=localhost ./bin/celery_worker.sh
 
 
 To start flower for task monitoring:
 
 .. code-block:: bash
 
-   $ ./bin/celery_flower.sh
+   DB_HOST=localhost ./bin/celery_flower.sh
 
 
 .. _Celery: https://docs.celeryq.dev/en/stable/
