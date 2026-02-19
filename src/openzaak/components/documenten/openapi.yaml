@@ -602,7 +602,7 @@ paths:
       description: |-
         Deze lijst kan gefilterd wordt met query-string parameters.
 
-        De objecten bevatten metadata over de documenten en de downloadlink (`inhoud`) naar de binary data. Alleen de laatste versie van elk (ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen alleen
+        De objecten bevatten metadata over de documenten en de downloadlink (`inhoud`) naar de binary data. Alleen de laatste versie van elk (ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen middels query-string parameters worden opgevraagd.
       summary: Alle (ENKELVOUDIGe) INFORMATIEOBJECTen opvragen.
       parameters:
       - in: query

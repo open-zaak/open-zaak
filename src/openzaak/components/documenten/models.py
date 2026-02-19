@@ -269,14 +269,16 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
         help_text="Hash string, wordt gebruikt als ID voor de lock",
     )
 
+    latest_version = models.OneToOneField(
+        "EnkelvoudigInformatieObject",
+        on_delete=models.SET_NULL,
+        related_name="latest_version_of",
+        null=True,
+        editable=False,
+    )
+
     def __str__(self):
         return str(self.latest_version)
-
-    @property
-    def latest_version(self):
-        # there is implicit sorting by versie desc in EnkelvoudigInformatieObject.Meta.ordering
-        versies = self.enkelvoudiginformatieobject_set.all()
-        return versies.first()
 
     def lock_document(self, doc_uuid: str) -> None:
         lock = _uuid.uuid4().hex
