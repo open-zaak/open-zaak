@@ -24,6 +24,10 @@ class UtilsConfig(AppConfig):
         )
         from .signals import update_admin_index
 
+        from azure.core.exceptions import AzureError
+        from vng_api_common.exception_handling import register_exception_handler
+        from openzaak.utils.views import azure_error_handler
+
         utils.default_user_agent = default_user_agent
 
         post_migrate.connect(update_admin_index, sender=self)
@@ -37,6 +41,8 @@ class UtilsConfig(AppConfig):
 
         # register one-to-one field (for multi-table inheritance of Zaak)
         HANDLERS[models.OneToOneField] = FKHandler
+
+        register_exception_handler(AzureError, azure_error_handler)
 
 
 def default_user_agent(name=settings.USER_AGENT):
