@@ -1,8 +1,8 @@
 sites_config_enable: true
 sites_config:
   items:
-    - domain: example.com
-      name: Example site
+    - domain: web.local:8000
+      name: Open Zaak
 
 zgw_consumers_config_enable: true
 zgw_consumers:
@@ -43,16 +43,16 @@ openzaak_selectielijst_config:
 vng_api_common_credentials_config_enable: true
 vng_api_common_credentials:
   items:
-    - identifier: user-id
-      secret: super-secret
+    - identifier: admin
+      secret: admin
 
 vng_api_common_applicaties_config_enable: true
 vng_api_common_applicaties:
   items:
     - uuid: 78591bab-9a00-4887-849c-53b21a67782f
       client_ids:
-        - user-id
-      label: applicatie
+        - admin
+      label: admin applicatie
       heeft_alle_autorisaties: true
 
 oidc_db_config_enable: true
