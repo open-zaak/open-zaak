@@ -171,6 +171,8 @@ De architectuur van de notificaties staat beschreven op <a href="https://github.
 
 * <code>status</code>: create
 
+* <code>substatus</code>: create
+
 * <code>zaakobject</code>: create, update, destroy
 
 * <code>zaakinformatieobject</code>: create
