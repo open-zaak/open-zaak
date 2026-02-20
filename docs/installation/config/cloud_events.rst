@@ -13,7 +13,9 @@ Open Zaak
 ---------
 
 1. Make sure the ``ENABLE_CLOUD_EVENTS`` environment variable is set to ``True`` (see :ref:`installation_env_config`).
-2. Make sure the connection with Open Notificaties is configured via ``setup_configuration``.
+2. Make sure the ``NOTIFICATIONS_SOURCE`` environment variable is set, the value of this
+   is used in the ``source`` field for cloud events (see :ref:`installation_env_config`).
+3. Make sure the connection with Open Notificaties is configured via ``setup_configuration``.
    See :ref:`installation_configuration_cli` for more information.
 
 Alternatively, if ``setup_configuration`` is not used for programmatic configuration,
