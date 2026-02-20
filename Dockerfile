@@ -73,7 +73,6 @@ COPY ./bin/uninstall_adfs.sh \
 COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
 COPY ./bin/load_fixtures.sh /load_fixtures.sh
-COPY ./bin/dump_auth_config.sh /dump_auth_config.sh
 COPY ./bin/dump_data.sh /dump_data.sh
 COPY ./bin/uwsgi.ini /
 
