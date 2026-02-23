@@ -6,6 +6,7 @@ from django.test import override_settings, tag
 
 import requests_mock
 from furl import furl
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import (
@@ -45,6 +46,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 
 
 @tag("oio")
+@temp_private_root()
 @override_settings(
     ALLOWED_HOSTS=["testserver", "openzaak.nl"], SITE_DOMAIN="testserver"
 )
@@ -327,6 +329,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 
 
 @tag("external-urls")
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

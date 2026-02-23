@@ -11,6 +11,7 @@ from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils import timezone
 
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from vng_api_common.utils import generate_unique_identification
@@ -39,6 +40,7 @@ from openzaak.utils.fields import get_default_path
 from ..mixins import S3torageMixin, upload_to
 
 
+@temp_private_root()
 @tag("gh-2282", "s3-storage")
 @override_settings(ALLOWED_HOSTS=["testserver"])
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)

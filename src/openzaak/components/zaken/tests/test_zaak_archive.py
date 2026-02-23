@@ -9,6 +9,7 @@ from datetime import date
 from django.test import override_settings, tag
 
 import requests_mock
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -61,6 +62,7 @@ from .utils import (
 VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 
+@temp_private_root()
 class US345TestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

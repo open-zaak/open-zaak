@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.test import tag
 
+from privates.test import temp_private_root
 from rest_framework.test import APITestCase
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -12,6 +13,7 @@ from ...models import ObjectInformatieObject
 from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
+@temp_private_root()
 class UniqueRepresentationTestCase(APITestCase):
     def test_eio(self):
         eio = EnkelvoudigInformatieObjectFactory(

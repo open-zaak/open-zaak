@@ -8,6 +8,7 @@ from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
@@ -15,6 +16,7 @@ from ...factories import EnkelvoudigInformatieObjectFactory
 from ..mixins import AzureBlobStorageMixin
 
 
+@temp_private_root()
 @disable_admin_mfa()
 @freeze_time("2030-01-01T12:00:00")
 @tag("gh-2217", "azure-storage")

@@ -4,6 +4,7 @@
 Test that the caching mechanisms are in place.
 """
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
@@ -16,6 +17,7 @@ from ..models import ObjectInformatieObject
 from ..tests.factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
+@temp_private_root()
 class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -165,6 +167,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+@temp_private_root()
 class EnkelvoudigInformatieObjectCacheTransactionTests(
     JWTAuthMixin, APITransactionTestCase
 ):

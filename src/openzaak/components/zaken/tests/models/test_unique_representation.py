@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from privates.test import temp_private_root
 from rest_framework.test import APITestCase
 
 from openzaak.components.documenten.tests.factories import (
@@ -9,6 +10,7 @@ from openzaak.components.documenten.tests.factories import (
 from ..factories import RolFactory, ZaakInformatieObjectFactory
 
 
+@temp_private_root()
 class UniqueRepresentationTestCase(APITestCase):
     def test_zaakinformatieobject(self):
         eio = EnkelvoudigInformatieObjectFactory.create(identificatie="12345")

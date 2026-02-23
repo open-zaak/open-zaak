@@ -9,6 +9,7 @@ import requests
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
@@ -16,6 +17,7 @@ from ...factories import EnkelvoudigInformatieObjectFactory
 from ..mixins import S3torageMixin, upload_to
 
 
+@temp_private_root()
 @disable_admin_mfa()
 @tag("gh-2282", "s3-storage")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)

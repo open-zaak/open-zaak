@@ -12,6 +12,7 @@ from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.models import NotificationsConfig
 from notifications_api_common.tasks import NotificationException, send_notification
+from privates.test import temp_private_root
 from requests.exceptions import RequestException
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
@@ -71,6 +72,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 
 @tag("notifications")
 @freeze_time("2012-01-14")
+@temp_private_root()
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
@@ -1127,6 +1129,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
 @tag("notifications", "DEPRECATED")
 @requests_mock.Mocker()
+@temp_private_root()
 @override_settings(NOTIFICATIONS_DISABLED=False)
 @freeze_time("2019-01-01T12:00:00Z")
 @patch("notifications_api_common.viewsets.send_notification.delay")
