@@ -4,6 +4,7 @@ from io import BytesIO
 
 from django.core.files import File
 
+from privates.test import temp_private_root
 from rest_framework.test import APITestCase
 
 from openzaak.components.documenten.models import BestandsDeel
@@ -11,6 +12,7 @@ from openzaak.components.documenten.models import BestandsDeel
 from .factories import BestandsDeelFactory, EnkelvoudigInformatieObjectFactory
 
 
+@temp_private_root()
 class UploadTestCase(APITestCase):
     def test_complete_upload_true(self):
         eio = EnkelvoudigInformatieObjectFactory(

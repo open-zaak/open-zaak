@@ -10,6 +10,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 
 import requests_mock
+from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
 from zgw_consumers.constants import APITypes
@@ -36,6 +37,7 @@ from openzaak.tests.utils.mocks import MockSchemasMixin
 from openzaak.utils.fields import get_default_path
 
 
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
     mocker_attr = "requests_mock"

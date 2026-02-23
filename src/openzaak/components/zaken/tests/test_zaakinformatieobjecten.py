@@ -11,6 +11,7 @@ from django.test.utils import override_script_prefix
 
 import requests_mock
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import RelatieAarden
@@ -40,6 +41,7 @@ from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
 from .utils import get_zaaktype_response
 
 
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(ZaakInformatieObject)
@@ -432,6 +434,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertTrue(Zaak.objects.exists())
 
 
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 @tag("external-urls")
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
@@ -617,6 +620,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(zio.beschrijving, "same")
 
 
+@temp_private_root()
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):

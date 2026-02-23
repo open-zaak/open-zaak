@@ -5,6 +5,7 @@ from datetime import date
 from django.test import tag
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse, reverse_lazy
@@ -22,6 +23,7 @@ from openzaak.tests.utils import JWTAuthMixin
 
 
 @tag("gh-2018")
+@temp_private_root()
 @freeze_time("2025-01-01T12:00:00")
 class ReservedDocumentTests(JWTAuthMixin, APITestCase):
     url = reverse_lazy("reserveddocument-list")

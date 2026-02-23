@@ -7,6 +7,7 @@ Guarantee that the proper authorization machinery is in place.
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -1335,6 +1336,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
             )
 
 
+@temp_private_root()
 class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar

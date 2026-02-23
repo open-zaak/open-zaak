@@ -3,6 +3,7 @@
 
 from django.test import override_settings
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -14,6 +15,7 @@ from ..models import Verzending
 from .factories import EnkelvoudigInformatieObjectFactory, VerzendingFactory
 
 
+@temp_private_root()
 class VerzendingAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -501,6 +503,7 @@ class VerzendingAPITests(JWTAuthMixin, APITestCase):
         self.assertFalse(Verzending.objects.exists())
 
 
+@temp_private_root()
 class VerzendingFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     url = reverse_lazy(Verzending)

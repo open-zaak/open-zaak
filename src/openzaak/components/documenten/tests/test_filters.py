@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.test import override_settings, tag
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -34,6 +35,7 @@ from .factories import (
 )
 
 
+@temp_private_root()
 class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

@@ -5,12 +5,14 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
+from privates.test import temp_private_root
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@temp_private_root()
 @disable_admin_mfa()
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):

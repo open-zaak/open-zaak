@@ -3,6 +3,8 @@
 from django.db import IntegrityError
 from django.test import TestCase, tag
 
+from privates.test import temp_private_root
+
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
@@ -18,6 +20,7 @@ from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
 @tag("oio")
+@temp_private_root()
 class OIOTests(TestCase):
     def test_not_both_zaak_besluit(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()

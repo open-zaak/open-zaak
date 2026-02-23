@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from maykin_2fa.test import disable_admin_mfa
+from privates.test import temp_private_root
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.documenten.models import Gebruiksrechten
@@ -16,6 +17,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFacto
 from ..utils import get_operation_url
 
 
+@temp_private_root()
 @disable_admin_mfa()
 class GebruiksrechtenAdminTests(AdminTestMixin, TestCase):
     heeft_alle_autorisaties = True
