@@ -70,6 +70,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
             download_url.path,
             get_operation_url("enkelvoudiginformatieobject_download", uuid=eio.uuid),
         )
+        self.assertEqual(eio.canonical.latest_version, eio)
 
     def test_read_detail_file(self):
         eio = EnkelvoudigInformatieObjectFactory.create()

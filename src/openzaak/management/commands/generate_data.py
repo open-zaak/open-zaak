@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models, transaction
+from django.db.models.signals import post_save
 from django.utils import timezone
 
 import factory.fuzzy
@@ -284,6 +285,15 @@ class Command(BaseCommand):
             ),
         )
 
+        parser.add_argument(
+            "--resources",
+            dest="resources",
+            nargs="+",
+            type=str,
+            help="List of resources to be created",
+            default=["zaken", "besluiten", "documenten"],
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
         self.partition = options["partition"]
@@ -295,6 +305,11 @@ class Command(BaseCommand):
         ]
         self.without_zaakgeometrie = options["without_zaakgeometrie"]
 
+        resources = options["resources"]
+        generate_zaken = "zaken" in resources
+        generate_besluiten = "besluiten" in resources
+        generate_documenten = "documenten" in resources
+
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
             "Are you sure you want to do this? Type 'yes' to continue, or 'no' to cancel: "
@@ -304,10 +319,15 @@ class Command(BaseCommand):
 
         self.get_sl_data()
         self.generate_catalogi()
-        self.generate_zaken()
-        self.generate_besluiten()
-        self.generate_documenten()
-        self.generate_relations()
+        if generate_zaken:
+            self.generate_zaken()
+        if generate_besluiten:
+            self.generate_besluiten()
+        if generate_documenten:
+            self.generate_documenten()
+
+        if generate_besluiten or generate_documenten:
+            self.generate_relations()
 
         if generate_superuser_credentials:
             self.generate_superuser_credentials()
@@ -587,7 +607,10 @@ class Command(BaseCommand):
                     )
 
         documenten_generator = generate_enkelvoudiginformatieobjecten()
-        self.bulk_create(EnkelvoudigInformatieObject, documenten_generator)
+        docs = [doc for doc in documenten_generator]
+        self.bulk_create(EnkelvoudigInformatieObject, docs)
+        for doc in docs:
+            post_save.send(doc.__class__, instance=doc, created=True)
 
         self.stdout.write("Finished creating documenten")
 

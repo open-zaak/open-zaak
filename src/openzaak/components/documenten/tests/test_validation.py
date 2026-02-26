@@ -155,7 +155,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
             eio_url,
             {"informatieobjecttype": f"http://testserver{iotype_url}", "lock": lock},
         )
-
+        eio.refresh_from_db()
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(eio.canonical.latest_version.informatieobjecttype, iotype)
 

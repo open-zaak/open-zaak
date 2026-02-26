@@ -295,6 +295,26 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
                     getattr(first_information_object, order_option),
                 )
 
+    @tag("gh-1653")
+    def test_ordering_filter_does_not_include_old_versions(self):
+        eio = EnkelvoudigInformatieObjectFactory.create(
+            canonical__lock="abc",
+        )
+
+        # creates new version using patch
+        patch_response = self.client.patch(
+            reverse(eio), {"beschrijving": "test", "lock": "abc"}
+        )
+
+        self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(
+            reverse(EnkelvoudigInformatieObject), {"ordering": "creatiedatum"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["count"], 1)
+
     def test_trefwoorden(self):
         EnkelvoudigInformatieObjectFactory.create(trefwoorden=["foo"])
         EnkelvoudigInformatieObjectFactory.create(trefwoorden=["foo", "bar"])

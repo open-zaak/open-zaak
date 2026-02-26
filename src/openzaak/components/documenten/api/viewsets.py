@@ -155,8 +155,8 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "\n"
             "De objecten bevatten metadata over de documenten en de downloadlink "
             "(`inhoud`) naar de binary data. Alleen de laatste versie van elk "
-            "(ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen "
-            "alleen"
+            "(ENKELVOUDIG) INFORMATIEOBJECT wordt getoond. Specifieke versies kunnen middels "
+            "query-string parameters worden opgevraagd."
         ),
     ),
     retrieve=extend_schema(
@@ -251,14 +251,9 @@ class EnkelvoudigInformatieObjectViewSet(
     Opvragen en bewerken van (ENKELVOUDIG) INFORMATIEOBJECTen (documenten).
     """
 
-    queryset = (
-        EnkelvoudigInformatieObject.objects.select_related(
-            "canonical", "_informatieobjecttype"
-        )
-        .prefetch_related("canonical__bestandsdelen")
-        .order_by("canonical", "-versie")
-        .distinct("canonical")
-    )
+    queryset = EnkelvoudigInformatieObject.objects.select_related(
+        "canonical", "_informatieobjecttype"
+    ).prefetch_related("canonical__bestandsdelen")
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer
     search_input_serializer_class = EIOZoekSerializer
@@ -316,6 +311,14 @@ class EnkelvoudigInformatieObjectViewSet(
         if self.detail:
             return EnkelvoudigInformatieObjectDetailFilter
         return EnkelvoudigInformatieObjectListFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if (
+            self.detail
+        ):  # detail needs to be able to filter by versie for VERSIE_QUERY_PARAM
+            return queryset.order_by("canonical", "-versie").distinct("canonical")
+        return queryset.filter(latest_version_of__isnull=False)
 
     def get_serializer_class(self):
         """
