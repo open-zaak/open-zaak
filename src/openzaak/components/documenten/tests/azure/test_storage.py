@@ -6,6 +6,7 @@ from django.test import SimpleTestCase, TestCase, override_settings, tag
 import requests_mock
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 
 from ...storage import documenten_storage
 from ..factories import EnkelvoudigInformatieObjectFactory
@@ -45,6 +46,7 @@ class AzureStorageOverrideAPIVersionTests(AzureBlobStorageMixin, SimpleTestCase)
         self.assertEqual(request.headers["x-ms-version"], "2025-07-05")
 
 
+@temp_private_root()
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
@@ -71,6 +73,7 @@ class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
         self.assertTrue(documenten_storage.exists(eio.inhoud.file.name))
 
 
+@temp_private_root()
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 class AzureStorageServicePrincipalAuthenticationTests(AzureBlobStorageMixin, TestCase):

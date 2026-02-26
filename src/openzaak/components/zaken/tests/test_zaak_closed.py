@@ -8,6 +8,7 @@ from django.test import tag
 from django.utils import timezone
 
 import requests_mock
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -172,6 +173,7 @@ class ZaakClosedTests(JWTAuthMixin, APITestCase):
 
 
 @tag("closed-zaak")
+@temp_private_root()
 class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCase):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is
@@ -361,6 +363,7 @@ class ClosedZaakRelatedDataNotAllowedTests(JWTAuthMixin, CRUDAssertions, APITest
 
 
 @tag("closed-zaak")
+@temp_private_root()
 class ClosedZaakRelatedDataAllowedTests(JWTAuthMixin, CRUDAssertions, APITestCase):
     """
     Test that updating/adding related data of a Zaak is not allowed when the Zaak is

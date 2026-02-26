@@ -8,6 +8,7 @@ from django.utils.timezone import make_aware
 
 import requests_mock
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import (
@@ -44,6 +45,7 @@ from .factories import (
 from .utils import isodatetime
 
 
+@temp_private_root()
 class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 from vng_api_common.utils import generate_unique_identification
@@ -40,6 +41,7 @@ from openzaak.utils.fields import get_default_path
 from ..mixins import AzureBlobStorageMixin
 
 
+@temp_private_root()
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 @override_settings(ALLOWED_HOSTS=["testserver"])

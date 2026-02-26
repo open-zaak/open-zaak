@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 import datetime
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
@@ -12,6 +13,7 @@ from ..models import Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
 
 
+@temp_private_root()
 class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

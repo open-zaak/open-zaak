@@ -5,6 +5,7 @@ from copy import deepcopy
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
@@ -39,6 +40,7 @@ from .test_rol import BETROKKENE
 from .utils import ZAAK_WRITE_KWARGS
 
 
+@temp_private_root()
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

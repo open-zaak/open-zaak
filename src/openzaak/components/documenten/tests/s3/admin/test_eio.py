@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 from requests.exceptions import RequestException
 from webtest import Upload
 
@@ -30,6 +31,7 @@ from ...factories import (
 from ..mixins import S3torageMixin, upload_to
 
 
+@temp_private_root()
 @disable_admin_mfa()
 @tag("gh-2282", "s3-storage")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)

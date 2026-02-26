@@ -6,6 +6,7 @@ from django.test import override_settings, tag
 
 import requests_mock
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
@@ -25,6 +26,7 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 from .utils import get_besluittype_response, get_operation_url
 
 
+@temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

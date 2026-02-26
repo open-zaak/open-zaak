@@ -9,6 +9,7 @@ from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
+from privates.test import temp_private_root
 from requests.exceptions import RequestException
 from webtest import Upload
 
@@ -29,6 +30,7 @@ from ...factories import (
 from ..mixins import AzureBlobStorageMixin
 
 
+@temp_private_root()
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 @disable_admin_mfa()
