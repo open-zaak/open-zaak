@@ -52,9 +52,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
         # (geo) django dependencies
         postgresql-client \
         gettext \
-        binutils \
         libpcre2-8-0 \
-        libproj-dev \
         gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
