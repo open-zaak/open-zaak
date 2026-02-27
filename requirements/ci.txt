@@ -109,7 +109,7 @@ certifi==2024.7.4
     #   requests
     #   self-certifi
     #   sentry-sdk
-cffi==1.16.0
+cffi==2.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -174,7 +174,7 @@ cron-descriptor==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-celery-beat
-cryptography==44.0.1
+cryptography==46.0.5
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -859,7 +859,7 @@ pyjwt==2.10.1
     #   commonground-api-common
     #   msal
     #   zgw-consumers
-pyopenssl==25.0.0
+pyopenssl==25.3.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
