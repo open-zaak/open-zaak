@@ -91,7 +91,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
+          apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client gdal-bin"
           python-version: "3.12"
           optimize-postgres: "yes"
           pg-service: "postgres"
@@ -151,7 +151,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "gdal-bin"
           python-version: "3.12"
           optimize-postgres: "no"
           setup-node: "no"
@@ -223,7 +223,7 @@ jobs:
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@v1.3
         with:
-          apt-packages: "libgdal-dev gdal-bin"
+          apt-packages: "gdal-bin"
           python-version: "3.12"
 
       - name: Generate environment variable documentation using OAf and check if it was updated
@@ -259,7 +259,7 @@ jobs:
     needs:
       - store-reusable-workflow-vars
     with:
-      apt-packages: "libgdal-dev gdal-bin graphviz graphviz-dev"
+      apt-packages: "gdal-bin graphviz graphviz-dev"
       main-branch: "main"
       python-version: "3.12"
       django-settings-module: openzaak.conf.ci
