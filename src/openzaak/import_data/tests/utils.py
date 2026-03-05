@@ -85,27 +85,43 @@ class ImportTestMixin(TestCase):
         """
         Removes all files that are referenced in the import metadata file
         """
-        import_dir = self._get_import_dir()
-        files = import_dir.glob("*")
+        try:
+            import_dir = self._get_import_dir()
+        except ValueError:
+            return
 
-        for file in files:
-            if file.is_file():
-                file.unlink()
-            else:
-                shutil.rmtree(file)
+        if not import_dir.exists():
+            return
+
+        for file in import_dir.glob("*"):
+            try:
+                if file.is_file():
+                    file.unlink(missing_ok=True)
+                elif file.is_dir():
+                    shutil.rmtree(file, ignore_errors=True)
+            except OSError:
+                pass
 
     def remove_documenten_files(self):
         """
         Removes the files that are linked to EIO's
         """
-        upload_dir = self._get_documenten_dir()
-        files = upload_dir.glob("*")
+        try:
+            upload_dir = self._get_documenten_dir()
+        except ValueError:
+            return
 
-        for file in files:
-            if file.is_file():
-                file.unlink()
-            else:
-                shutil.rmtree(file)
+        if not upload_dir.exists():
+            return
+
+        for file in upload_dir.glob("*"):
+            try:
+                if file.is_file():
+                    file.unlink(missing_ok=True)
+                elif file.is_dir():
+                    shutil.rmtree(file, ignore_errors=True)
+            except OSError:
+                pass
 
     def create_import(self, **kwargs):
         instance = ImportFactory(**kwargs)

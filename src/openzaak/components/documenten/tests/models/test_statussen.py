@@ -9,10 +9,13 @@ from datetime import date
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from privates.test import temp_private_root
+
 from ...constants import Statussen
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@temp_private_root()
 class StatusTests(TestCase):
     def test_empty_status_empty_ontvangstdatum(self):
         try:

@@ -8,6 +8,7 @@ from datetime import datetime
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
@@ -32,6 +33,7 @@ from ..models import (
 from .factories import EnkelvoudigInformatieObjectFactory
 
 
+@temp_private_root()
 @freeze_time("2019-01-01")
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     informatieobject_list_url = reverse_lazy(EnkelvoudigInformatieObject)
@@ -378,6 +380,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zio_audittrail.nieuw, response.data["zaakinformatieobject"])
 
 
+@temp_private_root()
 class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 

@@ -4,9 +4,12 @@ from datetime import date
 
 from django.test import TestCase
 
+from privates.test import temp_private_root
+
 from ..factories import EnkelvoudigInformatieObjectFactory
 
 
+@temp_private_root()
 class EIOTests(TestCase):
     def test_default_human_readable(self):
         eio = EnkelvoudigInformatieObjectFactory.create(

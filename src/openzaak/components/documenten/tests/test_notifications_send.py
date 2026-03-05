@@ -10,6 +10,7 @@ import requests_mock
 from django_db_logger.models import StatusLog
 from freezegun import freeze_time
 from notifications_api_common.tasks import NotificationException, send_notification
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
@@ -168,6 +169,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
 
 @tag("notifications", "DEPRECATED")
+@temp_private_root()
 @requests_mock.Mocker()
 @override_settings(NOTIFICATIONS_DISABLED=False, LOGGING=LOGGING_SETTINGS)
 @freeze_time("2019-01-01T12:00:00Z")

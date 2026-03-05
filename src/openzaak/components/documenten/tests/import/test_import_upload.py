@@ -7,6 +7,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.test import override_settings, tag
 
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
@@ -32,6 +33,7 @@ from openzaak.import_data.tests.utils import (
 from openzaak.tests.utils.auth import JWTAuthMixin
 
 
+@temp_private_root()
 @tag("documenten-import-upload")
 class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
     component = ComponentTypes.drc

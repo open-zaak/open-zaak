@@ -5,6 +5,7 @@ from datetime import date
 from django.test import override_settings, tag
 
 from freezegun import freeze_time
+from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -47,6 +48,7 @@ from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
 
 
+@temp_private_root()
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(
