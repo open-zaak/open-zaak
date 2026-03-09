@@ -211,20 +211,27 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         is_update = self.pk is not None
 
         old_vervaldatum = None
+        old_ingangsdatum = None
+
         if is_update:
-            old_vervaldatum = (
+            old_values = (
                 Besluit.objects.filter(pk=self.pk)
-                .values_list("vervaldatum", flat=True)
+                .values("vervaldatum", "ingangsdatum")
                 .first()
             )
+            if old_values:
+                old_vervaldatum = old_values["vervaldatum"]
+                old_ingangsdatum = old_values["ingangsdatum"]
 
         super().save(*args, **kwargs)
+        vervaldatum_changed = self.vervaldatum != old_vervaldatum
+        ingangsdatum_changed = self.ingangsdatum != old_ingangsdatum
 
-        if self.vervaldatum and self.vervaldatum != old_vervaldatum:
+        if vervaldatum_changed or ingangsdatum_changed:
             from openzaak.components.zaken.archiving import try_calculate_archiving
 
             zaak = self.zaak
-            if zaak:
+            if zaak and zaak.einddatum:
                 try_calculate_archiving(zaak, force=True)
 
     def unique_representation(self):
