@@ -880,7 +880,6 @@ playwright==1.57.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   pytest-playwright
 pluggy==1.5.0
     # via
     #   -c requirements/ci.txt
@@ -1008,23 +1007,12 @@ pytest==8.3.3
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
-    #   pytest-base-url
     #   pytest-benchmark
-    #   pytest-playwright
-pytest-base-url==2.1.0
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   pytest-playwright
 pytest-benchmark==5.1.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   -r requirements/performance-tests.in
-pytest-playwright==0.7.2
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
 python-creole==1.4.10
     # via
     #   -c requirements/ci.txt
@@ -1061,11 +1049,6 @@ python-ipware==3.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-ipware
-python-slugify==8.0.4
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   pytest-playwright
 pytz==2022.6
     # via
     #   -c requirements/ci.txt
@@ -1117,7 +1100,6 @@ requests==2.32.4
     #   msal
     #   open-api-framework
     #   opentelemetry-exporter-otlp-proto-http
-    #   pytest-base-url
     #   requests-cache
     #   requests-mock
     #   requests-oauthlib
@@ -1277,11 +1259,6 @@ tblib==1.7.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-text-unidecode==1.3
-    # via
-    #   -c requirements/ci.txt
-    #   -r requirements/ci.txt
-    #   python-slugify
 textile==4.0.3
     # via
     #   -c requirements/ci.txt
