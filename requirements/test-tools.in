@@ -37,4 +37,3 @@ click
 
 # user interface testing
 playwright
-pytest-playwright
