@@ -54,6 +54,8 @@ services:
       DB_CONN_MAX_AGE: "0"
       DB_POOL_ENABLED: True
       TIME_LEEWAY: ${TIME_LEEWAY:-0}
+      ENABLE_CLOUD_EVENTS: ${ENABLE_CLOUD_EVENTS:-False}
+      NOTIFICATIONS_SOURCE: ${NOTIFICATIONS_SOURCE:-openzaak}
 
       # Enabling Open Telemetry requires the services in docker/docker-compose.observability.yaml
       # to be up and running.
