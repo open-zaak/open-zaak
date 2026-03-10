@@ -219,9 +219,9 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
                 .values("vervaldatum", "ingangsdatum")
                 .first()
             )
-            if old_values:
-                old_vervaldatum = old_values["vervaldatum"]
-                old_ingangsdatum = old_values["ingangsdatum"]
+
+            old_vervaldatum = old_values["vervaldatum"]
+            old_ingangsdatum = old_values["ingangsdatum"]
 
         super().save(*args, **kwargs)
         vervaldatum_changed = self.vervaldatum != old_vervaldatum
