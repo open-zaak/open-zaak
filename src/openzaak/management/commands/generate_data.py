@@ -86,6 +86,7 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.components.zaken.models import (
+    NatuurlijkPersoon,
     Resultaat,
     Rol,
     Status,
@@ -95,6 +96,7 @@ from openzaak.components.zaken.models import (
     ZaakObject,
 )
 from openzaak.components.zaken.tests.factories import (
+    NatuurlijkPersoonFactory,
     ResultaatFactory,
     RolFactory,
     StatusFactory,
@@ -283,6 +285,15 @@ class Command(BaseCommand):
                 "for all Zaken."
             ),
         )
+        parser.add_argument(
+            "--generate-natuurlijk-personen",
+            dest="generate_natuurlijk_personen",
+            nargs="+",
+            help=(
+                "Accepts pairs in the form `<bsn>:<amount>` and will generate the specified "
+                "amount of NatuurlijkPersonen with the specified BSNs."
+            ),
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -294,6 +305,16 @@ class Command(BaseCommand):
             "generate_non_superuser_credentials"
         ]
         self.without_zaakgeometrie = options["without_zaakgeometrie"]
+
+        self.parsed_np_subsets = {}
+        if np_subsets := options.get("generate_natuurlijk_persoon", []):
+            for spec in np_subsets:
+                try:
+                    bsn, amount = spec.split(":")
+                    self.parsed_np_subsets[bsn] = int(amount)
+                except ValueError:
+                    self.stderr.write(self.style.ERROR(f"Invalid subset spec: {spec}"))
+                    return
 
         confirm = input(
             "Data generation should only be used for test purposes and should not be run in production.\n"
@@ -431,6 +452,23 @@ class Command(BaseCommand):
             )
         self.log_created(besluittypen)
 
+    def generate_natuurlijk_personen(self):
+        rollen = Rol.objects.order_by("id").all()
+
+        def generate_rol_resource(generate_from_rol: callable, range: tuple[int, int]):
+            for rol in rollen[slice(*range)]:
+                obj_list = generate_from_rol(rol)
+                yield from obj_list
+
+        index = 0
+        for bsn, amount in self.parsed_np_subsets.items():
+            np_generator = generate_rol_resource(
+                lambda rol: [NatuurlijkPersoonFactory.build(rol=rol, inp_bsn=bsn)],
+                (index, index + amount),
+            )
+            self.bulk_create(NatuurlijkPersoon, np_generator)
+            index += amount
+
     def generate_zaken(self):
         # 1mln zaken
         zaken_per_zaaktype = self.zaken_amount // self.zaaktypen_amount
@@ -516,6 +554,8 @@ class Command(BaseCommand):
             ]
         )
         self.bulk_create(Rol, rollen_generator)
+
+        self.generate_natuurlijk_personen()
 
         # 1 mln zaak-eigenschappen
         eigenschappen = Eigenschap.objects.order_by("zaaktype", "id")
