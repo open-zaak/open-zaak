@@ -375,10 +375,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "openzaak.import_data.tasks.remove_imports",
         "schedule": crontab(hour="9"),
     },
-    "daily-set-canonical-latest-version": {
-        "task": "openzaak.components.documenten.tasks.set_canonical_latest_version",
-        "schedule": crontab(hour="8"),
-    },
 }
 CELERY_RESULT_EXPIRES = config(
     "CELERY_RESULT_EXPIRES",

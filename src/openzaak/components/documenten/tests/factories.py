@@ -78,6 +78,12 @@ class EnkelvoudigInformatieObjectFactory(
     class Meta:
         model = "documenten.EnkelvoudigInformatieObject"
 
+    @classmethod
+    def _after_postgeneration(cls, instance, create, results=None):
+        super()._after_postgeneration(instance, create, results)
+        if create:
+            instance.refresh_from_db(fields=["canonical"])
+
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)

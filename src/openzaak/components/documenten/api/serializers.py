@@ -570,7 +570,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             self._create_bestandsdeel(
                 validated_data["bestandsomvang"], **create_bestandsdeel_kwargs
             )
-
+        eio.refresh_from_db(fields=["canonical"])
         return eio
 
     def to_representation(self, instance):
@@ -654,7 +654,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # create empty file if size == 0
         if instance.bestandsomvang == 0 and not instance.inhoud:
             instance.inhoud.save("empty_file", ContentFile(b""))
-
         return instance
 
 
