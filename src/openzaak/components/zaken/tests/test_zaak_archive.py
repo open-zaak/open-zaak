@@ -1532,3 +1532,52 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2027, 1, 1))
         self.assertEqual(zaak.archiefactiedatum, date(2037, 1, 1))
+
+    def test_ingangsdatum_besluit_triggers_archiving_calculation(self):
+        zaak = ZaakFactory.create()
+        zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        )
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P1Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
+            zaaktype=zaak.zaaktype,
+        )
+
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        besluittype = BesluitTypeFactory.create(
+            concept=False, zaaktypen=[zaak.zaaktype]
+        )
+
+        besluit = BesluitFactory.create(
+            zaak=zaak, besluittype=besluittype, ingangsdatum=date(2023, 1, 1)
+        )
+
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        self.client.post(
+            get_operation_url("status_create"),
+            {
+                "zaak": zaak_url,
+                "statustype": f"http://testserver{reverse(statustype)}",
+                "datumStatusGezet": "2023-10-10T10:00:00Z",
+            },
+        )
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2024, 1, 1))
+
+        besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
+        data = {
+            "ingangsdatum": "2025-01-01",
+            "besluittype": f"http://testserver{reverse(besluittype)}",
+        }
+
+        response = self.client.patch(besluit_url, data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
