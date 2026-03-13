@@ -51,6 +51,12 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
         "canonical",
     )
 
+    @classmethod
+    def _after_postgeneration(cls, instance, create, results=None):
+        if create and results:
+            # refresh instead of save which sets latest_version back to None
+            instance.refresh_from_db(fields=["latest_version"])
+
 
 class EnkelvoudigInformatieObjectFactory(
     FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
@@ -82,7 +88,7 @@ class EnkelvoudigInformatieObjectFactory(
     def _after_postgeneration(cls, instance, create, results=None):
         super()._after_postgeneration(instance, create, results)
         if create:
-            instance.refresh_from_db(fields=["canonical"])
+            instance.canonical.refresh_from_db(fields=["latest_version"])
 
 
 class GebruiksrechtenFactory(factory.django.DjangoModelFactory):

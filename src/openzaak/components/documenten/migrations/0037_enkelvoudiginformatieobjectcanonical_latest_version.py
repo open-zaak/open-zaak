@@ -64,12 +64,12 @@ class Migration(migrations.Migration):
                     END IF;
                 END;
             $$ LANGUAGE plpgsql;
-            CREATE TRIGGER after_delete_update_canonical
+            CREATE TRIGGER after_insert_delete_update_canonical
                 AFTER INSERT OR UPDATE OR DELETE ON documenten_enkelvoudiginformatieobject
                 FOR EACH ROW EXECUTE FUNCTION set_latest_version();
             """,
             """
-            DROP TRIGGER after_delete_update_canonical ON documenten_enkelvoudiginformatieobject;
+            DROP TRIGGER after_insert_delete_update_canonical ON documenten_enkelvoudiginformatieobject;
             DROP FUNCTION IF EXISTS set_latest_version();
             """,
         ),
