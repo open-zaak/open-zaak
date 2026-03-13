@@ -17,5 +17,5 @@ class LastVersionTests(TestCase):
         EnkelvoudigInformatieObjectFactory.create(canonical=canonical, versie=1)
         EnkelvoudigInformatieObjectFactory.create(canonical=canonical, versie=2)
         eio3 = EnkelvoudigInformatieObjectFactory.create(canonical=canonical, versie=3)
-
+        canonical.refresh_from_db(fields=["latest_version"])
         self.assertEqual(canonical.latest_version, eio3)
