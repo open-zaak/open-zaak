@@ -570,7 +570,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             self._create_bestandsdeel(
                 validated_data["bestandsomvang"], **create_bestandsdeel_kwargs
             )
-        eio.refresh_from_db(fields=["canonical"])
+        eio.canonical.refresh_from_db(fields=["latest_version"])
         return eio
 
     def to_representation(self, instance):

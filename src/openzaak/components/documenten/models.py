@@ -467,6 +467,12 @@ class EnkelvoudigInformatieObject(
     def has_gebruiksrechten(self):
         return self.canonical.gebruiksrechten_set.exists()
 
+    def delete(self, *args, **kwargs):
+        canonical = self.canonical
+        result = super().delete()
+        canonical.refresh_from_db(fields=["latest_version"])
+        return result
+
 
 class BestandsDeel(models.Model):
     uuid = models.UUIDField(
