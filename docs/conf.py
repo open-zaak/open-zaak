@@ -55,7 +55,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.graphviz",
     "recommonmark",
-    "sphinx_markdown_tables",
     "sphinx_tabs.tabs",
     "sphinx.ext.autodoc",
     "django_setup_configuration.documentation.setup_config_example",

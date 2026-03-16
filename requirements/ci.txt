@@ -616,7 +616,6 @@ markdown==3.10.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-markup
-    #   sphinx-markdown-tables
 markupsafe==2.1.1
     # via
     #   -c requirements/base.txt
@@ -982,6 +981,8 @@ requests-oauthlib==2.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+roman-numerals==4.1.0
+    # via sphinx
 ruamel-yaml==0.18.10
     # via
     #   -c requirements/base.txt
@@ -1033,28 +1034,26 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==1.9.5
     # via beautifulsoup4
-sphinx==7.3.7
+sphinx==9.1.0
     # via
     #   -r requirements/test-tools.in
     #   recommonmark
     #   sphinx-rtd-theme
     #   sphinx-tabs
     #   sphinxcontrib-jquery
-sphinx-markdown-tables==0.0.15
-    # via -r requirements/test-tools.in
-sphinx-rtd-theme==3.0.2
+sphinx-rtd-theme==3.1.0
     # via -r requirements/test-tools.in
 sphinx-tabs==3.4.7
     # via -r requirements/test-tools.in
-sphinxcontrib-applehelp==1.0.1
+sphinxcontrib-applehelp==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sphinxcontrib-devhelp==1.0.1
+sphinxcontrib-devhelp==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.1.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
@@ -1062,7 +1061,7 @@ sphinxcontrib-jquery==4.1
     # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.2
+sphinxcontrib-qthelp==2.0.0
     # via
     #   -r requirements/test-tools.in
     #   sphinx
