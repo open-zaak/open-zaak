@@ -61,7 +61,7 @@ the formula to calculate the time to wait until the next retry is as follows:
 
 .. math::
 
-    t = \text{backoff_factor} * 2^c
+    t = \text{backoffFactor} * \text{baseFactor}^c
 
 where `c` is the number of retries that have been performed already.
 
@@ -69,13 +69,16 @@ In **Configuratie > Notificatiescomponentconfiguratie** admin page the autoretry
 can be configured:
 
 * **Notification delivery max retries**: the maximum number of retries the task queue
-  will do if sending a notification failed. Default is ``5``.
+  will do if sending a notification has failed. Default is ``7``.
 * **Notification delivery retry backoff**: a boolean or a number. If this option is set to
   ``True``, autoretries will be delayed following the rules of binary exponential backoff. If
-  this option is set to a number, it is used as a delay factor. Default is ``3``.
+  this option is set to a number, it is used as a delay factor. Default is ``25``.
 * **Notification delivery retry backoff max**: an integer, specifying number of seconds.
   If ``Notification delivery retry backoff`` is enabled, this option will set a maximum
-  delay in seconds between task autoretries. Default is ``48`` seconds.
+  delay in seconds between task autoretries. Default is ``52000`` seconds.
+* **Notification delivery base factor**: the base factor used for exponential backoff.
+  This can be increased or decreased to spread retries over a longer or shorter time period.
+  Default is ``4``.
 
 With the assumption that the requests are done immediately we can model the notification
 tasks schedule with the default configurations:
