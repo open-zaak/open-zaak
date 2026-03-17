@@ -9,21 +9,22 @@ zgw_consumers:
   services:
     - identifier: notifications-api
       label: Notificaties API
-      api_root: http://notificaties.local/api/v1/
+      api_root: https://notificaties.test.openzaak.nl/api/v1/
       api_connection_check_path: notificaties
       api_type: nrc
       auth_type: api_key
       header_key: Authorization
       header_value: Token ba9d233e95e04c4a8a661a27daffe7c9bd019067
 
-    - identifier: selectielijst-api
-      label: Selectielijst API
-      api_root: https://selectielijst.local/api/v1/
-      api_connection_check_path: selectielijst
-      api_type: orc
-      auth_type: api_key
-      header_key: Authorization
-      header_value: Token dRlyhrXpcJVjZ0Hvt5dGf2t0dSQctAgkmfAHvZHh
+    # Example of how to set Selectielijst API
+    # - identifier: open-zaak-selectielijst
+    #   label: Selectielijst API
+    #   api_root: https://selectielijst.openzaak.nl/api/v1/
+    #   api_connection_check_path: selectielijst
+    #   api_type: orc
+    #   auth_type: api_key
+    #   header_key: Authorization
+    #   header_value: Token dRlyhrXpcJVjZ0Hvt5dGf2t0dSQctAgkmfAHvZHh
 
 notifications_config_enable: true
 notifications_config:
@@ -32,13 +33,14 @@ notifications_config:
   notification_delivery_retry_backoff: 2
   notification_delivery_retry_backoff_max: 3
 
-openzaak_selectielijst_config_enable: true
-openzaak_selectielijst_config:
-  selectielijst_api_service_identifier: selectielijst-api
-  allowed_years:
-    - 2017
-    - 2020
-  default_year: 2020
+# Example of how to set Selectielijst API
+# openzaak_selectielijst_config_enable: true
+# openzaak_selectielijst_config:
+#   selectielijst_api_service_identifier: selectielijst-api
+#   allowed_years:
+#     - 2017
+#     - 2020
+#   default_year: 2020
 
 vng_api_common_credentials_config_enable: true
 vng_api_common_credentials:
