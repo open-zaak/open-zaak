@@ -570,7 +570,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             self._create_bestandsdeel(
                 validated_data["bestandsomvang"], **create_bestandsdeel_kwargs
             )
-
+        eio.canonical.refresh_from_db(fields=["latest_version"])
         return eio
 
     def to_representation(self, instance):
@@ -598,6 +598,9 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             k for k, v in self.get_fields().items() if not v.read_only
         ]
         for field in instance._meta.get_fields():
+            # Ignore latest_version_of since it is a reverse relation
+            if field.name == "latest_version_of":
+                continue
             if field.name not in validated_data_field_names and (
                 self.partial or field.name not in updatable_field_names
             ):
@@ -651,7 +654,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
         # create empty file if size == 0
         if instance.bestandsomvang == 0 and not instance.inhoud:
             instance.inhoud.save("empty_file", ContentFile(b""))
-
         return instance
 
 
