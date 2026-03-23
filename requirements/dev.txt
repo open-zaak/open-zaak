@@ -972,7 +972,7 @@ pyjwt==2.12.1
     #   mozilla-django-oidc
     #   msal
     #   zgw-consumers
-pyopenssl==25.3.0
+pyopenssl==26.0.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

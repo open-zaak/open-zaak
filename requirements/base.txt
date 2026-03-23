@@ -461,7 +461,7 @@ pyjwt==2.12.1
     #   mozilla-django-oidc
     #   msal
     #   zgw-consumers
-pyopenssl==25.3.0
+pyopenssl==26.0.0
     # via webauthn
 pypng==0.20220715.0
     # via qrcode
