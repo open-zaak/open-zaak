@@ -98,7 +98,6 @@ cryptography==46.0.5
     #   azure-identity
     #   azure-storage-blob
     #   django-simple-certmanager
-    #   josepy
     #   mozilla-django-oidc
     #   msal
     #   pyjwt
@@ -325,8 +324,6 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-josepy==1.14.0
-    # via mozilla-django-oidc
 jq==1.7.0
     # via -r requirements/base.in
 jsonschema==4.7.2
@@ -347,9 +344,9 @@ maykin-2fa==1.0.1
     #   open-api-framework
 maykin-common==0.11.0
     # via -r requirements/base.in
-mozilla-django-oidc==4.0.1
+mozilla-django-oidc==5.0.2
     # via mozilla-django-oidc-db
-mozilla-django-oidc-db==1.1.0
+mozilla-django-oidc-db==2.0.1
     # via open-api-framework
 msal==1.34.0
     # via
@@ -461,12 +458,11 @@ pygments==2.19.2
 pyjwt==2.12.1
     # via
     #   commonground-api-common
+    #   mozilla-django-oidc
     #   msal
     #   zgw-consumers
 pyopenssl==25.3.0
-    # via
-    #   josepy
-    #   webauthn
+    # via webauthn
 pypng==0.20220715.0
     # via qrcode
 pyrsistent==0.18.1
