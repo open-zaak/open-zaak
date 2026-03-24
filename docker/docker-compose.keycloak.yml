@@ -10,7 +10,7 @@
 #
 # Start a Keycloak instance in your local environment from the parent directory:
 #
-#     docker compose -f docker-compose.keycloak.yml up -d
+#     docker compose -f docker/docker-compose.keycloak.yml up -d
 #
 
 version: '3'
