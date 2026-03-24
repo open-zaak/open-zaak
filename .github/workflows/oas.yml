@@ -10,6 +10,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# least privilege as default, should be overridden per job if necessary
+permissions:
+  contents: read
+
 jobs:
   oas:
     name: Checks
