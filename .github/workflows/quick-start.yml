@@ -9,6 +9,10 @@ on:
       - '**'
   workflow_dispatch:
 
+# least privilege as default, should be overridden per job if necessary
+permissions:
+  contents: read
+
 jobs:
   open-api-workflow-quick-start:
     uses: maykinmedia/open-api-workflows/.github/workflows/quick-start.yml@v6

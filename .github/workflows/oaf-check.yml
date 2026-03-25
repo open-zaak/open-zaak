@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '0 7 * * 1'
 
+# least privilege as default, should be overridden per job if necessary
+permissions:
+  contents: read
 
 jobs:
   open-api-workflow-check-oas:
