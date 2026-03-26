@@ -2,13 +2,18 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
+from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.constants import CommonResourceAction
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.admin import (
@@ -255,6 +260,7 @@ class EnkelvoudigInformatieObjectInline(
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
+    can_delete = False
 
     @property
     def private_media_file_widget(self):
@@ -355,6 +361,7 @@ class EnkelvoudigInformatieObjectAdmin(
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
+    actions = None
 
     @property
     def private_media_file_widget(self):
@@ -464,6 +471,50 @@ class EnkelvoudigInformatieObjectAdmin(
             link_to_related_objects(ObjectInformatieObject, obj.canonical),
             link_to_related_objects(Verzending, obj.canonical),
         )
+
+    def delete_model(self, request, obj):
+        if obj.has_references():
+            self.message_user(
+                request,
+                _(
+                    "All relations to the document must be destroyed before destroying the document"
+                ),
+                level=messages.ERROR,
+            )
+            return
+
+        viewset = self.get_viewset(request)
+        if not viewset:
+            obj.destroy()
+            return
+
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+        action = CommonResourceAction.destroy
+
+        data = self.get_serializer_data(request, viewset, obj)
+
+        if basename == viewset.audit.main_resource:
+            with transaction.atomic():
+                obj.destroy()
+                AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
+                return
+
+        obj.destroy()
+
+        self.trail(obj, viewset, request, action, data, None)
+
+    def response_delete(self, request, obj_display, obj_id):
+        if messages.get_messages(request):
+            opts = self.model._meta
+            return HttpResponseRedirect(
+                reverse(
+                    f"admin:{opts.app_label}_{opts.model_name}_change",
+                    args=[obj_id],
+                )
+            )
+
+        return super().response_delete(request, obj_display, obj_id)
 
 
 @admin.register(BestandsDeel)

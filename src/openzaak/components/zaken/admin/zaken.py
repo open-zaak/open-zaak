@@ -296,6 +296,11 @@ class ZaakInformatieObjectForm(forms.ModelForm):
 
         return cleaned_data
 
+    def _post_clean(self):
+        if self.errors:
+            return
+        super()._post_clean()
+
 
 @admin.register(ZaakInformatieObject)
 class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
