@@ -181,7 +181,7 @@ class CloudEventMixin:
         return data.get(zaak_field, None)
 
 
-class CloudEventCreateMixin(CloudEventMixin):
+class ZaakGemuteerdCloudEventCreateMixin(CloudEventMixin):
     def perform_create(self, serializer):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             super().perform_create(serializer)
@@ -189,7 +189,7 @@ class CloudEventCreateMixin(CloudEventMixin):
             send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
-class CloudEventUpdateMixin(CloudEventMixin):
+class ZaakGemuteerdCloudEventUpdateMixin(CloudEventMixin):
     def perform_update(self, serializer):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             super().perform_update(serializer)
@@ -197,15 +197,7 @@ class CloudEventUpdateMixin(CloudEventMixin):
             send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
-class CloudEventPostMixin(CloudEventMixin):
-    def perform_post(self, serializer):
-        with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
-            super().perform_post(serializer)
-            zaak = self._get_zaak_from_dict(serializer.instance)
-            send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
-
-
-class CloudEventDestroyMixin(CloudEventMixin):
+class ZaakGemuteerdCloudEventDestroyMixin(CloudEventMixin):
     def perform_destroy(self, instance):
         with conditional_atomic(self.cloud_events_wrap_in_atomic_block)():
             zaak = self._get_zaak_from_instance(instance)
@@ -213,7 +205,9 @@ class CloudEventDestroyMixin(CloudEventMixin):
             send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
 
 
-class CloudEventViewSetMixin(
-    CloudEventCreateMixin, CloudEventUpdateMixin, CloudEventDestroyMixin
+class ZaakGemuteerdCloudEventViewSetMixin(
+    ZaakGemuteerdCloudEventCreateMixin,
+    ZaakGemuteerdCloudEventUpdateMixin,
+    ZaakGemuteerdCloudEventDestroyMixin,
 ):
     pass

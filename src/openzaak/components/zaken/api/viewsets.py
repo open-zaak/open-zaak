@@ -99,12 +99,13 @@ from .audits import AUDIT_ZRC
 from .cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
+    ZAAK_GEMUTEERD,
     ZAAK_GEOPEND,
     ZAAK_GEREGISTREERD,
     ZAAK_OPGESCHORT,
     ZAAK_VERLENGD,
     ZAAK_VERWIJDEREN,
-    CloudEventCreateMixin,
+    ZaakGemuteerdCloudEventCreateMixin,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -581,7 +582,7 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    CloudEventCreateMixin,
+    ZaakGemuteerdCloudEventCreateMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -2021,6 +2022,9 @@ class ZaakNotitieViewSet(
     }
 
 
+#
+# HANDELINGSENDPOINTS
+#
 @extend_schema(
     summary="Registreer een zaak",
     description=mark_experimental(
@@ -2140,6 +2144,8 @@ class ZaakRegistrerenViewset(
                 ),
             },
         )
+
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, serializer.instance["zaak"], self.request)
 
 
 class ZaakUpdateActionViewSet(
@@ -2291,6 +2297,9 @@ class ZaakUpdateActionViewSet(
                 ),
             },
         )
+
+        send_zaak_cloudevent(ZAAK_GEMUTEERD, serializer.instance["zaak"], self.request)
+
         return data
 
 
