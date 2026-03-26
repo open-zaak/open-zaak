@@ -150,6 +150,28 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 0)
         self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 0)
 
+    def test_delete_without_references_locked(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=True)
+
+        eio = canonical.latest_version
+
+        url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete", args=(eio.pk,)
+        )
+        response = self.app.get(url)
+        form = response.forms[1]
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertInHTML(
+            _("Gelockte objecten mogen niet worden verwijderd"),
+            response.content.decode("utf-8"),
+        )
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
+
     def test_delete_with_references(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
 
