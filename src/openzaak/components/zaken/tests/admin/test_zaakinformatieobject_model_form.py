@@ -8,6 +8,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.admin import ZaakInformatieObjectForm
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 
 
 @disable_admin_mfa()
@@ -48,3 +49,12 @@ class TestZaakInformatieObjectForm(TestCase):
         form.cleaned_data = {}
         with self.assertRaises(forms.ValidationError):
             form.clean()
+
+    def test_zaakinformatieobject_form_update_clearing_io_shows_error(self):
+        zio = ZaakInformatieObjectFactory.create()
+        form = ZaakInformatieObjectForm(
+            data={"uuid": zio.uuid, "aard_relatie": zio.aard_relatie, "zaak": zio.zaak},
+            instance=zio,
+        )
+
+        self.assertFalse(form.is_valid())
