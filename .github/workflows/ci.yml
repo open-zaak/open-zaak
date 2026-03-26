@@ -269,7 +269,7 @@ jobs:
       - store-reusable-workflow-vars
     permissions:
       contents: read
-      security-events: read  # required for `Scan docker image` step
+      security-events: write  # required for `Scan docker image` step
     with:
       apt-packages: "gdal-bin graphviz graphviz-dev"
       main-branch: "main"
