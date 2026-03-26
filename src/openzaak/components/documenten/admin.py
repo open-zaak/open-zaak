@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.constants import CommonResourceAction
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.admin import (
@@ -483,26 +482,19 @@ class EnkelvoudigInformatieObjectAdmin(
             )
             return
 
-        viewset = self.get_viewset(request)
-        if not viewset:
-            obj.destroy()
+        if obj.canonical.lock:
+            self.message_user(
+                request, _("Locked objects cannot be destroyed"), level=messages.ERROR
+            )
             return
 
-        model = obj.__class__
-        basename = model._meta.object_name.lower()
-        action = CommonResourceAction.destroy
+        viewset = self.get_viewset(request)
 
         data = self.get_serializer_data(request, viewset, obj)
 
-        if basename == viewset.audit.main_resource:
-            with transaction.atomic():
-                obj.destroy()
-                AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
-                return
-
-        obj.destroy()
-
-        self.trail(obj, viewset, request, action, data, None)
+        with transaction.atomic():
+            obj.destroy()
+            AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
 
     def response_delete(self, request, obj_display, obj_id):
         if messages.get_messages(request):

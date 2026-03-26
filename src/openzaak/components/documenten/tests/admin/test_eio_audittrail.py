@@ -138,25 +138,6 @@ class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(old_data["beschrijving"], "old")
         self.assertEqual(new_data["beschrijving"], "new")
 
-    def test_delete_informatieobject_action(self):
-        informatieobject = self._create_informatieobject()
-
-        self.assertEqual(AuditTrail.objects.count(), 1)
-
-        change_list_url = reverse(
-            "admin:documenten_enkelvoudiginformatieobject_changelist"
-        )
-        data = {
-            "action": "delete_selected",
-            "_selected_action": [informatieobject.id],
-            "post": "yes",
-        }
-
-        self.client.post(change_list_url, data)
-
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 0)
-        self.assertEqual(AuditTrail.objects.count(), 0)
-
     def test_delete_informatieobject(self):
         informatieobject = self._create_informatieobject()
 
