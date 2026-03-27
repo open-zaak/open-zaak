@@ -6,6 +6,7 @@ from notifications_api_common.cloudevents import (
     process_cloudevent as _process_cloudevent,
 )
 from vng_api_common.tests import reverse
+from django.db import transaction
 
 
 def process_cloudevent(
@@ -15,7 +16,7 @@ def process_cloudevent(
     data: dict | None = None,
 ):
     if settings.ENABLE_CLOUD_EVENTS:
-        _process_cloudevent(type, subject, dataref, data)
+        transaction.on_commit(lambda: _process_cloudevent(type, subject, dataref, data))
 
 
 def get_url(obj, request):
