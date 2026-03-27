@@ -128,7 +128,8 @@ class AnyBase64File(Base64FileField):
 
         # if there is no associated file link is not returned
         try:
-            file.file
+            with file.file:
+                pass
         except ValueError as e:
             logger.warning("unable_to_open_file", error=str(e))
             return None
