@@ -144,6 +144,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
+        for eio in eios:
+            self.assertEqual(eio.canonical.latest_version, eio)
+
     @override_settings(DOCUMENTEN_API_BACKEND="test")
     def test_simple_import_not_implemented_documenten_api_backend(self):
         ZaakFactory(uuid="43f1d8f4-c689-46eb-ae6e-c64d892d5341")
