@@ -427,9 +427,18 @@ class AuditTrailAdmin(admin.ModelAdmin):
         "bron",
         "resultaat",
         "applicatie_weergave",
+        "aanmaakdatum",
     )
-    list_filter = ("bron", "resource", "actie", "applicatie_id", "resultaat")
+    list_filter = (
+        "bron",
+        "resource",
+        "actie",
+        "applicatie_id",
+        "resultaat",
+        "aanmaakdatum",
+    )
     date_hierarchy = "aanmaakdatum"
+    readonly_fields = ("aanmaakdatum",)
 
     def has_change_permission(self, request: HttpRequest, obj=None):
         return False
