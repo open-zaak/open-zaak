@@ -296,6 +296,15 @@ class ZaakInformatieObjectForm(forms.ModelForm):
 
         return cleaned_data
 
+    def _post_clean(self):
+        """
+        django calls eio __str__ within _post_clean which fails if new object does not have IO set
+        clean() did add the error but post clean is done regardless by default
+        """
+        if self.errors:
+            return
+        super()._post_clean()
+
 
 @admin.register(ZaakInformatieObject)
 class ZaakInformatieObjectAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
