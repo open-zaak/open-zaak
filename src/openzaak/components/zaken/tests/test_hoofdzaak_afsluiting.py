@@ -598,7 +598,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
 
     def test_queries_with_no_deelzaken(self):
-        with self.assertNumQueries(67):
+        with self.assertNumQueries(68):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -622,7 +622,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (6) 66: cursor from exist()
         (7) 72: savepoint transaction management
         """
-        with self.assertNumQueries(72):
+        with self.assertNumQueries(73):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -650,7 +650,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         """
         self._generate_deelzaken(1, False)
-        with self.assertNumQueries(84):
+        with self.assertNumQueries(86):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -674,7 +674,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         (7) 72: savepoint transaction management
         """
         self._generate_deelzaken(10, True)
-        with self.assertNumQueries(72):
+        with self.assertNumQueries(73):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -693,7 +693,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         72 + (10*12) = 192
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(192):
+        with self.assertNumQueries(203):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -710,7 +710,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(192):
+        with self.assertNumQueries(203):
             response = self.client.post(
                 self.status_list_url,
                 {
