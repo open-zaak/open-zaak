@@ -590,6 +590,26 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
                 ):
                     try_calculate_archiving(self, force=True)
 
+        for subzaak in self.deelzaken.all():
+            resultaat = getattr(subzaak, "resultaat", None)
+            if not resultaat:
+                continue
+
+            resultaattype = getattr(resultaat, "resultaattype", None)
+            if not resultaattype:
+                continue
+
+            afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+                "afleidingswijze"
+            )
+
+            if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
+                if subzaak.einddatum != self.einddatum:
+                    subzaak.einddatum = self.einddatum
+                    subzaak.save(update_fields=["einddatum"])
+
+                try_calculate_archiving(subzaak, force=True)
+
     @property
     def current_status_uuid(self):
         # .first() is used instead of .last because:
