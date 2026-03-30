@@ -1401,6 +1401,10 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 1))
         self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 1))
 
+
+class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
     def test_vervaldatum_besluit_recalculates_archiefactiedatum_on_update(self):
         zaak = ZaakFactory.create(
             closed=True,
@@ -1532,3 +1536,210 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         zaak.refresh_from_db()
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2027, 1, 1))
         self.assertEqual(zaak.archiefactiedatum, date(2037, 1, 1))
+
+    def test_ingangsdatum_besluit_triggers_archiving_calculation(self):
+        zaak = ZaakFactory.create()
+        zaak_url = (
+            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        )
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P1Y",
+            archiefnominatie=Archiefnominatie.vernietigen,
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
+            zaaktype=zaak.zaaktype,
+        )
+
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        besluittype = BesluitTypeFactory.create(
+            concept=False, zaaktypen=[zaak.zaaktype]
+        )
+
+        besluit = BesluitFactory.create(
+            zaak=zaak, besluittype=besluittype, ingangsdatum=date(2023, 1, 1)
+        )
+
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        self.client.post(
+            get_operation_url("status_create"),
+            {
+                "zaak": zaak_url,
+                "statustype": f"http://testserver{reverse(statustype)}",
+                "datumStatusGezet": "2023-10-10T10:00:00Z",
+            },
+        )
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.archiefactiedatum, date(2024, 1, 1))
+
+        besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
+        data = {
+            "ingangsdatum": "2025-01-01",
+            "besluittype": f"http://testserver{reverse(besluittype)}",
+        }
+
+        response = self.client.patch(besluit_url, data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(zaak.archiefactiedatum, date(2026, 1, 1))
+
+    def test_afgehandeld_zaak_einddatum_recalculates_archiefactiedatum_on_update(self):
+        zaak = ZaakFactory.create(einddatum=None)
+
+        ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+
+        zaak.refresh_from_db()
+        self.assertIsNone(zaak.archiefactiedatum)
+
+        zaak.einddatum = date(2025, 1, 1)
+        zaak.save()
+
+        zaak.refresh_from_db()
+        self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 1))
+        self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 1))
+
+    def test_delete_resultaat_sets_archiefactiedatum_to_none(self):
+        zaak = ZaakFactory.create(
+            closed=True,
+            einddatum=date(2025, 1, 1),
+        )
+
+        resultaat = ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
+        )
+
+        zaak.refresh_from_db()
+        self.assertIsNotNone(zaak.archiefactiedatum)
+
+        resultaat.delete()
+
+        zaak.refresh_from_db()
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)
+
+    def test_einddatum_change_on_hoofdzaak_updates_deelzaak_archiving(self):
+        hoofdzaak = ZaakFactory.create(einddatum=None)
+        deelzaak = ZaakFactory.create(
+            hoofdzaak=hoofdzaak,
+            zaaktype__selectielijst_procestype_jaar=2024,
+        )
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype__archiefactietermijn="P10Y",
+            resultaattype__brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+        )
+
+        hoofdzaak.einddatum = date(2024, 1, 1)
+
+        hoofdzaak.save()
+
+        deelzaak.refresh_from_db()
+
+        self.assertIsNotNone(deelzaak.archiefactiedatum)
+        self.assertEqual(deelzaak.startdatum_bewaartermijn, hoofdzaak.einddatum)
+
+    def test_zaakobject_recalculates_archiefactiedatum_on_update(self):
+        zaak = ZaakFactory.create()
+
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak,
+            object="",
+            object_type="woz_waarde",
+        )
+
+        woz = WozWaardeFactory.create(
+            zaakobject=zaakobject,
+            waardepeildatum="2025-1-5",
+        )
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_datumkenmerk="waardepeildatum",
+            brondatum_archiefprocedure_objecttype="woz_waarde",
+            zaaktype=zaak.zaaktype,
+        )
+
+        ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+
+        self.client.post(
+            reverse("status-list"),
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "statustype": f"http://testserver{reverse(statustype)}",
+                "datumStatusGezet": "2025-01-01T00:00:00Z",
+            },
+        )
+
+        zaak.refresh_from_db()
+        old_archiefdatum = zaak.archiefactiedatum
+
+        woz.waardepeildatum = "2026-1-5"
+        woz.save()
+
+        zaak.refresh_from_db()
+
+        self.assertIsNotNone(zaak.archiefactiedatum)
+        self.assertNotEqual(old_archiefdatum, zaak.archiefactiedatum)
+
+    def test_delete_resultaat_via_api_recalculates_archiving(self):
+        zaak = ZaakFactory.create()
+
+        zaakobject = ZaakObjectFactory.create(
+            zaak=zaak,
+            object="",
+            object_type="woz_waarde",
+        )
+
+        WozWaardeFactory.create(
+            zaakobject=zaakobject,
+            waardepeildatum="2025-1-5",
+        )
+
+        resultaattype = ResultaatTypeFactory.create(
+            archiefactietermijn="P10Y",
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.zaakobject,
+            brondatum_archiefprocedure_datumkenmerk="waardepeildatum",
+            brondatum_archiefprocedure_objecttype="woz_waarde",
+            zaaktype=zaak.zaaktype,
+        )
+
+        resultaat = ResultaatFactory.create(
+            zaak=zaak,
+            resultaattype=resultaattype,
+        )
+
+        statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
+        self.client.post(
+            reverse("status-list"),
+            {
+                "zaak": f"http://testserver{reverse(zaak)}",
+                "statustype": f"http://testserver{reverse(statustype)}",
+                "datumStatusGezet": "2025-01-01T00:00:00Z",
+            },
+        )
+
+        zaak.refresh_from_db()
+        self.assertIsNotNone(zaak.archiefactiedatum)
+
+        resultaat_url = reverse("resultaat-detail", kwargs={"uuid": resultaat.uuid})
+        response = self.client.delete(resultaat_url)
+
+        self.assertEqual(response.status_code, 204)
+
+        zaak.refresh_from_db()
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)

@@ -688,11 +688,11 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
-        A single deelzaak with external catalogi has 12 extra queries over an internal catalogi.
-        76 + (10*12) = 196
+        A single deelzaak with external catalogi has 13 extra queries over an internal catalogi.
+        73 + (10*13) = 203
         """
         self._generate_deelzaken(10, False)
-        with self.assertNumQueries(196):
+        with self.assertNumQueries(203):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -709,7 +709,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self._generate_deelzaken(10, True)
         self._generate_deelzaken(10, False)
 
-        with self.assertNumQueries(196):
+        with self.assertNumQueries(203):
             response = self.client.post(
                 self.status_list_url,
                 {
