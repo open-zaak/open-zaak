@@ -1024,10 +1024,26 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
         super().save(*args, **kwargs)
 
         # If the zaak is already closed, adding a Resultaat may make archiving possible.
-        if self.zaak.einddatum:
+        if self.zaak.einddatum and not kwargs.get("update_fields"):
             from openzaak.components.zaken.archiving import try_calculate_archiving
 
             try_calculate_archiving(self.zaak)
+
+    def delete(self, *args, **kwargs):
+        zaak = self.zaak
+        super().delete(*args, **kwargs)
+
+        if zaak and zaak.einddatum:
+            from openzaak.components.zaken.archiving import try_calculate_archiving
+
+            try_calculate_archiving(zaak, force=True)
+
+            if not Resultaat.objects.filter(zaak=zaak).exists():
+                zaak.archiefactiedatum = None
+                zaak.startdatum_bewaartermijn = None
+                zaak.save(
+                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
+                )
 
 
 _SUPPORTS_AUTH_CONTEXT = models.Q(
