@@ -524,7 +524,44 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         if self.opschorting_indicatie:
             self.opschorting_eerdere_opschorting = True
 
+        old_einddatum = None
+
+        if self.pk:
+            old_einddatum = (
+                type(self)
+                .objects.filter(pk=self.pk)
+                .values_list("einddatum", flat=True)
+                .first()
+            )
+
         super().save(*args, **kwargs)
+
+        if kwargs.get("update_fields"):
+            return
+
+        einddatum_changed = self.einddatum != old_einddatum
+
+        if not einddatum_changed or not self.einddatum:
+            return
+
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+
+        resultaat = getattr(self, "resultaat", None)
+        if resultaat:
+            resultaattype = getattr(resultaat, "resultaattype", None)
+
+            if resultaattype:
+                afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+                    "afleidingswijze"
+                )
+
+                if (
+                    afleidingswijze
+                    == BrondatumArchiefprocedureAfleidingswijze.afgehandeld
+                ):
+                    try_calculate_archiving(self, force=True)
 
     @property
     def current_status_uuid(self):
