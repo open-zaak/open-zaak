@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import (
+    BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
@@ -21,15 +22,18 @@ from openzaak.components.autorisaties.tests.factories import CatalogusAutorisati
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
 from openzaak.components.besluiten.constants import VervalRedenen
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
+    ResultaatTypeFactory,
 )
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
-from openzaak.components.zaken.tests.factories import ZaakFactory
+from openzaak.components.zaken.archiving import try_calculate_archiving
+from openzaak.components.zaken.tests.factories import ResultaatFactory, ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 
 
@@ -385,3 +389,39 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
             response, "besluitinformatieobjecten.0.informatieobject"
         )
         self.assertEqual(error["code"], "does_not_exist")
+
+    def test_archiving_reset_when_vervaldatum_removed(self):
+        zaak = ZaakFactory(einddatum=date.today())
+
+        resultaattype = ResultaatTypeFactory(
+            archiefactietermijn="P10Y",
+            archiefnominatie="vernietigen",
+        )
+
+        resultaattype.brondatum_archiefprocedure_afleidingswijze = (
+            BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit.value
+        )
+        resultaattype.save()
+
+        ResultaatFactory(
+            zaak=zaak,
+            resultaattype=resultaattype,
+        )
+
+        besluit = BesluitFactory(
+            zaak=zaak,
+            ingangsdatum=date(2024, 1, 1),
+            vervaldatum=date(2025, 1, 1),
+        )
+        try_calculate_archiving(zaak, force=True)
+
+        zaak.refresh_from_db()
+        self.assertIsNotNone(zaak.archiefactiedatum)
+
+        besluit.vervaldatum = None
+        besluit.save()
+
+        zaak.refresh_from_db()
+
+        self.assertIsNone(zaak.archiefactiedatum)
+        self.assertIsNone(zaak.startdatum_bewaartermijn)

@@ -224,33 +224,48 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
             old_ingangsdatum = old_values["ingangsdatum"]
 
         super().save(*args, **kwargs)
+
         vervaldatum_changed = self.vervaldatum != old_vervaldatum
         ingangsdatum_changed = self.ingangsdatum != old_ingangsdatum
 
-        if vervaldatum_changed or ingangsdatum_changed:
-            from vng_api_common.constants import (
-                BrondatumArchiefprocedureAfleidingswijze,
+        if not (vervaldatum_changed or ingangsdatum_changed):
+            return
+
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+
+        zaak = self.zaak
+        if not zaak or not zaak.einddatum:
+            return
+
+        resultaat = getattr(zaak, "resultaat", None)
+        if not resultaat:
+            return
+
+        resultaattype = resultaat.resultaattype
+        afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+            "afleidingswijze"
+        )
+
+        if afleidingswijze in {
+            BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
+            BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
+        }:
+            source_date = (
+                self.vervaldatum
+                if afleidingswijze
+                == BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit
+                else self.ingangsdatum
             )
 
-            from openzaak.components.zaken.archiving import try_calculate_archiving
-
-            zaak = self.zaak
-            if not zaak or not zaak.einddatum:
-                return
-
-            resultaat = getattr(zaak, "resultaat", None)
-            if not resultaat:
-                return
-
-            resultaattype = resultaat.resultaattype
-            afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
-                "afleidingswijze"
-            )
-
-            if afleidingswijze in {
-                BrondatumArchiefprocedureAfleidingswijze.ingangsdatum_besluit,
-                BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
-            }:
+            if source_date is None:
+                zaak.archiefactiedatum = None
+                zaak.startdatum_bewaartermijn = None
+                zaak.save(
+                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
+                )
+            else:
                 try_calculate_archiving(zaak, force=True)
 
     def unique_representation(self):

@@ -512,6 +512,11 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         }
 
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+
+        if update_fields and set(update_fields) == {"_etag"}:
+            return super().save(*args, **kwargs)
+
         if not self.identificatie:
             assert not self.identificatie_ptr_id
             self.identificatie_ptr = ZaakIdentificatie.objects.generate(
@@ -577,7 +582,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
         resultaat = getattr(self, "resultaat", None)
         if resultaat:
-            resultaattype = getattr(resultaat, "resultaattype", None)
+            resultaattype = resultaat.resultaattype
 
             if resultaattype:
                 afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
@@ -595,9 +600,7 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             if not resultaat:
                 continue
 
-            resultaattype = getattr(resultaat, "resultaattype", None)
-            if not resultaattype:
-                continue
+            resultaattype = resultaat.resultaattype
 
             afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
                 "afleidingswijze"
@@ -606,7 +609,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
                 if subzaak.einddatum != self.einddatum:
                     subzaak.einddatum = self.einddatum
-                    subzaak.save(update_fields=["einddatum"])
 
                 try_calculate_archiving(subzaak, force=True)
 
@@ -1031,19 +1033,25 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
 
     def delete(self, *args, **kwargs):
         zaak = self.zaak
+        pk = self.pk
+
         super().delete(*args, **kwargs)
 
-        if zaak and zaak.einddatum:
-            from openzaak.components.zaken.archiving import try_calculate_archiving
+        self.pk = pk
 
+        if not zaak:
+            return
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+        from openzaak.components.zaken.models import Resultaat
+
+        if Resultaat.objects.filter(zaak=zaak).exists():
             try_calculate_archiving(zaak, force=True)
-
-            if not Resultaat.objects.filter(zaak=zaak).exists():
-                zaak.archiefactiedatum = None
-                zaak.startdatum_bewaartermijn = None
-                zaak.save(
-                    update_fields=["archiefactiedatum", "startdatum_bewaartermijn"]
-                )
+        else:
+            type(zaak).objects.filter(pk=zaak.pk).update(
+                archiefactiedatum=None,
+                startdatum_bewaartermijn=None,
+            )
 
 
 _SUPPORTS_AUTH_CONTEXT = models.Q(
@@ -1578,10 +1586,24 @@ class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
 
         super().save(*args, **kwargs)
 
-        if self.zaak.einddatum and self.waarde and self.waarde != old_waarde:
+        if self.zaak.einddatum and self.waarde != old_waarde:
+            from vng_api_common.constants import (
+                BrondatumArchiefprocedureAfleidingswijze,
+            )
+
             from openzaak.components.zaken.archiving import try_calculate_archiving
 
-            try_calculate_archiving(self.zaak, force=True)
+            resultaat = getattr(self.zaak, "resultaat", None)
+            if not resultaat:
+                return
+
+            resultaattype = resultaat.resultaattype
+            afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+                "afleidingswijze"
+            )
+
+            if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.eigenschap:
+                try_calculate_archiving(self.zaak, force=True)
 
     def full_clean(self, *args, **kwargs):
         super().full_clean(*args, **kwargs)
@@ -1763,6 +1785,11 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
         return f"({zaak_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+
+        if update_fields and set(update_fields) == {"_etag"}:
+            return super().save(*args, **kwargs)
+
         # override to set aard_relatie
         self.aard_relatie = RelatieAarden.from_object_type("zaak")
 
