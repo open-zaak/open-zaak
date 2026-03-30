@@ -2,6 +2,8 @@
 # Copyright (C) 2019 - 2022 Dimpact
 from datetime import date, timezone
 
+from django.db.models.signals import post_save
+
 import factory
 import factory.fuzzy
 from vng_api_common.constants import (
@@ -24,9 +26,42 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
 from ..constants import AardZaakRelatie
+from ..signals import (
+    send_resultaat_zaak_gemuteerd_event,
+    send_status_zaak_gemuteerd_event,
+    send_substatus_zaak_gemuteerd_event,
+    send_zaak_gemuteerd_event,
+    send_zio_zaak_gemuteerd_event,
+)
 
 
-class ZaakFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
+class MuteReceiverFactoryMixin:
+    _muted_receivers = []  # [(signal, receiver, sender, dispatch_uid)]
+
+    @classmethod
+    def _generate(cls, strategy, params):
+        disconnected = []
+
+        for signal, receiver, sender, dispatch_uid in cls._muted_receivers:
+            sender_class = cls._load_model_class(sender)
+            if signal.disconnect(
+                receiver, sender=sender_class, dispatch_uid=dispatch_uid
+            ):
+                disconnected.append((signal, receiver, sender_class, dispatch_uid))
+
+        try:
+            result = super()._generate(strategy, params)
+        finally:
+            for signal, receiver, sender, dispatch_uid in disconnected:
+                signal.connect(receiver, sender=sender, dispatch_uid=dispatch_uid)
+        return result
+
+
+class ZaakFactory(
+    MuteReceiverFactoryMixin,
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory,
+):
     zaaktype = factory.SubFactory(ZaakTypeFactory)
     vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
         choices=VertrouwelijkheidsAanduiding.values
@@ -35,6 +70,15 @@ class ZaakFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory)
     startdatum = factory.Faker("date_this_month", before_today=True)
     bronorganisatie = factory.Faker("ssn", locale="nl_NL")
     verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
+
+    _muted_receivers = [
+        (
+            post_save,
+            send_zaak_gemuteerd_event,
+            "zaken.Zaak",
+            "zaken.zaak.send_zaak_gemuteerd_event",
+        )
+    ]
 
     class Meta:
         model = "zaken.Zaak"
@@ -73,10 +117,21 @@ class ZaakRelatieFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelF
 
 
 class ZaakInformatieObjectFactory(
-    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+    MuteReceiverFactoryMixin,
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory,
 ):
     zaak = factory.SubFactory(ZaakFactory)
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
+
+    _muted_receivers = [
+        (
+            post_save,
+            send_zio_zaak_gemuteerd_event,
+            "zaken.ZaakInformatieObject",
+            "zaken.zio.send_zaak_gemuteerd_event",
+        )
+    ]
 
     class Meta:
         model = "zaken.ZaakInformatieObject"
@@ -140,10 +195,23 @@ class RolFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
         )
 
 
-class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
+class StatusFactory(
+    MuteReceiverFactoryMixin,
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory,
+):
     zaak = factory.SubFactory(ZaakFactory)
     statustype = factory.SubFactory(StatusTypeFactory)
     datum_status_gezet = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
+
+    _muted_receivers = [
+        (
+            post_save,
+            send_status_zaak_gemuteerd_event,
+            "zaken.Status",
+            "zaken.status.send_zaak_gemuteerd_event",
+        )
+    ]
 
     class Meta:
         model = "zaken.Status"
@@ -154,12 +222,25 @@ class StatusFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactor
         )
 
 
-class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
+class ResultaatFactory(
+    MuteReceiverFactoryMixin,
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory,
+):
     zaak = factory.SubFactory(ZaakFactory)
     resultaattype = factory.SubFactory(
         ResultaatTypeFactory,
         zaaktype=factory.SelfAttribute("..zaak.zaaktype"),
     )
+
+    _muted_receivers = [
+        (
+            post_save,
+            send_resultaat_zaak_gemuteerd_event,
+            "zaken.Resultaat",
+            "zaken.resultaat.send_zaak_gemuteerd_event",
+        )
+    ]
 
     class Meta:
         model = "zaken.Resultaat"
@@ -170,10 +251,20 @@ class ResultaatFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFac
         )
 
 
-class SubStatusFactory(factory.django.DjangoModelFactory):
+# @factory.django.mute_signals(post_save)
+class SubStatusFactory(MuteReceiverFactoryMixin, factory.django.DjangoModelFactory):
     zaak = factory.SubFactory(ZaakFactory)
     status = factory.SubFactory(StatusFactory)
     tijdstip = factory.Faker("date_time_this_month", tzinfo=timezone.utc)
+
+    _muted_receivers = [
+        (
+            post_save,
+            send_substatus_zaak_gemuteerd_event,
+            "zaken.SubStatus",
+            "zaken.substatus.send_zaak_gemuteerd_event",
+        )
+    ]
 
     class Meta:
         model = "zaken.SubStatus"

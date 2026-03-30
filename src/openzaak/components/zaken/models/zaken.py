@@ -63,6 +63,7 @@ from .identification import ZaakIdentificatie
 
 logger = structlog.stdlib.get_logger(__name__)
 
+
 __all__ = [
     "Zaak",
     "RelevanteZaakRelatie",
@@ -471,7 +472,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         _("laatst gewijzigd op"),
         help_text=mark_experimental(
             _(
-                "Tijdstip waarop de ZAAK voor het laatst een nieuwe STATUS heeft gekregen."
+                "Tijdstip waarop de ZAAK voor het laatst wijzingen heeft gehad die "
+                "relevant kunnen zijn voor de initiator van de ZAAK."
             )
         ),
         default=timezone.now,
@@ -499,6 +501,16 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     def __str__(self):
         return self.identificatie
 
+    def __init__(self, *args, **kwargs):
+        """
+        Ensure the values before saving are stored, to make sure we can determine
+        whether or not `laatst_gemuteerd` must be updated on save
+        """
+        super().__init__(*args, **kwargs)
+        self._original_values = {
+            f.attname: getattr(self, f.attname) for f in self._meta.concrete_fields
+        }
+
     def save(self, *args, **kwargs):
         if not self.identificatie:
             assert not self.identificatie_ptr_id
@@ -523,6 +535,21 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
         if self.opschorting_indicatie:
             self.opschorting_eerdere_opschorting = True
+
+        if not self._state.adding:
+            changed = False
+            for field_name, value in self._original_values.items():
+                # These fields do not represent a change that requires updating
+                # `laatst_gemuteerd`
+                if field_name in ["laatst_gemuteerd", "laatst_geopend", "_etag"]:
+                    continue
+
+                if value != getattr(self, field_name):
+                    changed = True
+                    break
+
+            if changed:
+                self.laatst_gemuteerd = timezone.now()
 
         super().save(*args, **kwargs)
 

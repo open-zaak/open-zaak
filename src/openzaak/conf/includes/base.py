@@ -120,6 +120,7 @@ MIDDLEWARE = [
     "openzaak.utils.middleware.LogHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # 'django.middleware.locale.LocaleMiddleware',
+    "openzaak.utils.cloudevents.CloudEventSchedulingMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

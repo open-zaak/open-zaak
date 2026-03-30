@@ -17,7 +17,6 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Cast
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -927,9 +926,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
         everything or nothing to succeed and no limbo states.
         """
         zaak = validated_data["zaak"]
-        _zaak_fields_changed = ["laatst_gemuteerd", "einddatum"]
-        # TODO should this be now() or datum_status_gezet?
-        zaak.laatst_gemuteerd = timezone.now()
+        _zaak_fields_changed = ["einddatum"]
 
         is_eindstatus = validated_data.pop("__is_eindstatus")
         brondatum_calculator = self.context.pop("brondatum_calculator", None)
