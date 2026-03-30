@@ -1470,6 +1470,33 @@ class ZaakObject(APIMixin, models.Model):
         object = self.object.rstrip("/") if self.object.endswith("/") else self.object
         return f"({self.zaak.unique_representation()}) - {object.rsplit('/')[-1]}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.zaak.einddatum:
+            return
+        if self.object:
+            return
+
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+
+        resultaat = getattr(self.zaak, "resultaat", None)
+        if not resultaat:
+            return
+
+        resultaattype = getattr(resultaat, "resultaattype", None)
+        if not resultaattype:
+            return
+
+        afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+            "afleidingswijze"
+        )
+
+        if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+            try_calculate_archiving(self.zaak, force=True)
+
 
 class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
     """

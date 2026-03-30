@@ -5,6 +5,7 @@ Ref: https://github.com/VNG-Realisatie/gemma-zaken/issues/345
 """
 
 from datetime import date
+from unittest.mock import patch
 
 from django.test import override_settings, tag
 
@@ -1647,3 +1648,21 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
 
         self.assertIsNotNone(deelzaak.archiefactiedatum)
         self.assertEqual(deelzaak.startdatum_bewaartermijn, hoofdzaak.einddatum)
+
+    @patch("openzaak.components.zaken.archiving.try_calculate_archiving")
+    def test_recalculate_archiving_when_zaakobject_changes(self, mock_calc):
+        zaak = ZaakFactory(einddatum=date.today())
+
+        resultaattype = ResultaatTypeFactory(
+            brondatum_archiefprocedure_afleidingswijze="zaakobject"
+        )
+
+        ResultaatFactory(zaak=zaak, resultaattype=resultaattype)
+
+        zaakobject = ZaakObjectFactory(zaak=zaak, object="")
+
+        zaakobject.relatieomschrijving = "changed"
+        zaakobject.save()
+
+        assert mock_calc.called
+        mock_calc.assert_any_call(zaak, force=True)
