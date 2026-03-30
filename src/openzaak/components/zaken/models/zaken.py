@@ -471,7 +471,8 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         _("laatst gewijzigd op"),
         help_text=mark_experimental(
             _(
-                "Tijdstip waarop de ZAAK voor het laatst een nieuwe STATUS heeft gekregen."
+                "Tijdstip waarop de ZAAK voor het laatst wijzingen heeft gehad die "
+                "relevant kunnen zijn voor de initiator van de ZAAK."
             )
         ),
         default=timezone.now,

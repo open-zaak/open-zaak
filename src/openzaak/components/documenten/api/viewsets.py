@@ -40,10 +40,6 @@ from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
 from openzaak.components.documenten.import_utils import DocumentRow
 from openzaak.components.documenten.tasks import import_documents
-from openzaak.components.zaken.api.cloudevents import (
-    ZAAK_GEMUTEERD,
-    send_zaak_cloudevent,
-)
 from openzaak.import_data.models import ImportStatusChoices, ImportTypeChoices
 from openzaak.import_data.views import (
     ImportCreateview,
@@ -1265,4 +1261,4 @@ class DocumentRegistrerenViewSet(
             },
         )
 
-        send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)
+        # send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)

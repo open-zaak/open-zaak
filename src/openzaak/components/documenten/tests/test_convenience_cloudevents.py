@@ -19,6 +19,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
+from openzaak.components.zaken.signals import scheduled
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -37,11 +38,19 @@ from .utils import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
+@override_settings(
+    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+)
 class DocumentConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
     heeft_alle_autorisaties = True
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        scheduled.set(False)
 
     def test_document_registreren_cloudevent(self, mock_send_cloudevent):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -82,6 +91,7 @@ class DocumentConvenienceCloudEventTest(
                 "status": f"http://testserver{status_url}",
             },
         }
+        mock_send_cloudevent.reset_mock()
 
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
@@ -95,6 +105,24 @@ class DocumentConvenienceCloudEventTest(
 
         mock_send_cloudevent.assert_has_calls(
             [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "000000000",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                            "zaaktype": f"http://testserver{zaaktype_url}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                        },
+                    }
+                ),
                 call(
                     {
                         "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
@@ -114,23 +142,6 @@ class DocumentConvenienceCloudEventTest(
                         },
                     }
                 ),
-                call(
-                    {
-                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                        "source": settings.NOTIFICATIONS_SOURCE,
-                        "specversion": settings.CLOUDEVENT_SPECVERSION,
-                        "type": ZAAK_GEMUTEERD,
-                        "subject": str(zaak.uuid),
-                        "time": "2025-10-10T00:00:00Z",
-                        "dataref": zaak_url,
-                        "datacontenttype": "application/json",
-                        "data": {
-                            "bronorganisatie": "000000000",
-                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
-                            "zaaktype": f"http://testserver{zaaktype_url}",
-                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
-                        },
-                    }
-                ),
             ],
+            any_order=True,
         )
