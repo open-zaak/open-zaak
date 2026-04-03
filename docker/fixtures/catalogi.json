@@ -15,6 +15,33 @@
     }
 },
 {
+    "model": "catalogi.eigenschapspecificatie",
+    "pk": 501,
+    "fields": {
+        "groep": "foo",
+        "formaat": "datum",
+        "lengte": "8",
+        "kardinaliteit": "100",
+        "waardenverzameling": "[]"
+    }
+},
+{
+    "model": "catalogi.eigenschap",
+    "pk": 501,
+    "fields": {
+        "_etag": "51b936fc7e544dd0908f534d6c153684",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "14fcf400-e5f0-4d72-b9ec-db7617b87ade",
+        "eigenschapnaam": "eigenschap",
+        "definitie": "foo",
+        "specificatie_van_eigenschap": 501,
+        "toelichting": "",
+        "zaaktype": 504,
+        "statustype": null
+    }
+},
+{
     "model": "catalogi.informatieobjecttype",
     "pk": 501,
     "fields": {
@@ -67,12 +94,12 @@
     "model": "catalogi.resultaattype",
     "pk": 1005,
     "fields": {
-        "_etag": "f60e3437bad77c9ca0ee590ab27179a1",
+        "_etag": "5ec24c3a15da2a287a182e099686f00d",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "cb5a069b-48a1-4969-b9bb-ea5e3368c070",
         "zaaktype": 504,
-        "omschrijving": "Afgebroken",
+        "omschrijving": "afgehandeld",
         "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506",
         "omschrijving_generiek": "Afgebroken",
         "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/71b3a170-d6df-4548-a03d-c6219f468ba4",
@@ -337,7 +364,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1023,
     "fields": {
-        "_etag": "8bd03148371edb4104f41521d776cd63",
+        "_etag": "99d180b90995511f6da43677dcf00267",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "25712ce9-a16b-492f-bfe1-c7c74d77f66e",
@@ -349,7 +376,7 @@
         "archiefnominatie": "vernietigen",
         "archiefactietermijn": "P10Y",
         "brondatum_archiefprocedure_afleidingswijze": "zaakobject",
-        "brondatum_archiefprocedure_datumkenmerk": "attribute",
+        "brondatum_archiefprocedure_datumkenmerk": "overige_data/datum",
         "brondatum_archiefprocedure_einddatum_bekend": false,
         "brondatum_archiefprocedure_objecttype": "overige",
         "brondatum_archiefprocedure_registratie": "",
@@ -384,6 +411,36 @@
         "brondatum_archiefprocedure_objecttype": "",
         "brondatum_archiefprocedure_registratie": "",
         "brondatum_archiefprocedure_procestermijn": "P5Y",
+        "toelichting": "",
+        "procesobjectaard": "",
+        "indicatie_specifiek": null,
+        "procestermijn": null,
+        "informatieobjecttypen": [],
+        "besluittypen": [],
+        "zaakobjecttypen": []
+    }
+},
+{
+    "model": "catalogi.resultaattype",
+    "pk": 1033,
+    "fields": {
+        "_etag": "3793da3b009fa1bcdb7500827dbaafd8",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "f67224dd-cff3-4e83-afb1-7d0b437ef752",
+        "zaaktype": 517,
+        "omschrijving": "hoofdzaak",
+        "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+        "omschrijving_generiek": "Afgehandeld",
+        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/c9b84207-7610-46d8-93a5-a0dc686cbc9f",
+        "archiefnominatie": "vernietigen",
+        "archiefactietermijn": "P10Y",
+        "brondatum_archiefprocedure_afleidingswijze": "hoofdzaak",
+        "brondatum_archiefprocedure_datumkenmerk": "",
+        "brondatum_archiefprocedure_einddatum_bekend": false,
+        "brondatum_archiefprocedure_objecttype": "",
+        "brondatum_archiefprocedure_registratie": "",
+        "brondatum_archiefprocedure_procestermijn": "P0D",
         "toelichting": "",
         "procesobjectaard": "",
         "indicatie_specifiek": null,
@@ -557,7 +614,7 @@
     "model": "catalogi.zaaktype",
     "pk": 504,
     "fields": {
-        "_etag": "d039d449313b6845232bd39a5ddd5e0c",
+        "_etag": "7bf1e87f7f7518aedec683b82e25355f",
         "datum_begin_geldigheid": "2024-04-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -607,7 +664,7 @@
     "model": "catalogi.zaaktype",
     "pk": 517,
     "fields": {
-        "_etag": "5e3258e74b77663fcf5ac973d2916388",
+        "_etag": "eca386fe826ffea63fcac2a0fcd9d98b",
         "datum_begin_geldigheid": "2024-04-02",
         "datum_einde_geldigheid": null,
         "concept": true,
