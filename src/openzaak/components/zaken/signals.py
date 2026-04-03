@@ -163,8 +163,9 @@ def send_zaak_gemuteerd_event(sender, instance, created, **kwargs):
     ):
         return
 
-    instance.laatst_gemuteerd = timezone.now()
-    instance.save(update_fields=["laatst_gemuteerd"])
+    # TODO move to pre-save? or model level
+    # instance.laatst_gemuteerd = timezone.now()
+    # instance.save(update_fields=["laatst_gemuteerd"])
 
     schedule_zaak_gemuteerd(instance)
 

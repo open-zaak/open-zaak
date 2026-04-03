@@ -63,6 +63,7 @@ from .identification import ZaakIdentificatie
 
 logger = structlog.stdlib.get_logger(__name__)
 
+
 __all__ = [
     "Zaak",
     "RelevanteZaakRelatie",
@@ -500,6 +501,12 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
     def __str__(self):
         return self.identificatie
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_values = {
+            f.attname: getattr(self, f.attname) for f in self._meta.concrete_fields
+        }
+
     def save(self, *args, **kwargs):
         if not self.identificatie:
             assert not self.identificatie_ptr_id
@@ -524,6 +531,19 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
         if self.opschorting_indicatie:
             self.opschorting_eerdere_opschorting = True
+
+        if not self._state.adding:
+            changed = False
+            for field_name, value in self._original_values.items():
+                if field_name in ["laatst_gemuteerd", "laatst_geopend", "_etag"]:
+                    continue
+
+                if value != getattr(self, field_name):
+                    changed = True
+                    break
+
+            if changed:
+                self.laatst_gemuteerd = timezone.now()
 
         super().save(*args, **kwargs)
 
