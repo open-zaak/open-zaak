@@ -104,7 +104,6 @@ from .cloudevents import (
     ZAAK_OPGESCHORT,
     ZAAK_VERLENGD,
     ZAAK_VERWIJDEREN,
-    CloudEventCreateMixin,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -476,9 +475,22 @@ class ZaakViewSet(
             if zaak.is_closed:
                 msg = "Modifying a closed case with current scope is forbidden"
                 raise PermissionDenied(detail=msg)
-        super().perform_update(serializer)
 
-        updated_zaak = serializer.instance
+        if (
+            serializer.partial
+            and "laatst_geopend" in serializer.validated_data
+            and len(serializer.validated_data) == 1
+        ):
+            # DRF's serializers do not use `update_fields` for partial updates,
+            # which the signals for the Zaak model rely on to avoid
+            # also sending `zaak-gemuteerd` when updating `laatstGeopend`
+            zaak.laatst_geopend = serializer.validated_data["laatst_geopend"]
+            zaak.save(update_fields=["laatst_geopend"])
+            updated_zaak = zaak
+            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
+        else:
+            super().perform_update(serializer)
+            updated_zaak = serializer.instance
 
         zaken_update_counter.add(1)
         logger.info(
@@ -489,14 +501,6 @@ class ZaakViewSet(
             zaaktype=str(updated_zaak.zaaktype),
             partial=serializer.partial,
         )
-
-        # TODO validate that this is the only correct situation to send this event for
-        if (
-            serializer.partial
-            and "laatst_geopend" in serializer.validated_data
-            and len(serializer.validated_data) == 1
-        ):
-            send_zaak_cloudevent(ZAAK_GEOPEND, updated_zaak, self.request)
 
     def perform_destroy(self, instance: Zaak):
         if instance.besluit_set.exists():
@@ -581,7 +585,6 @@ class ZaakViewSet(
 @conditional_retrieve()
 class StatusViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    CloudEventCreateMixin,
     NotificationCreateMixin,
     AuditTrailCreateMixin,
     CheckQueryParamsMixin,
@@ -2021,6 +2024,9 @@ class ZaakNotitieViewSet(
     }
 
 
+#
+# HANDELINGSENDPOINTS
+#
 @extend_schema(
     summary="Registreer een zaak",
     description=mark_experimental(
@@ -2140,6 +2146,8 @@ class ZaakRegistrerenViewset(
                 ),
             },
         )
+
+        # send_zaak_cloudevent(ZAAK_GEMUTEERD, serializer.instance["zaak"], self.request)
 
 
 class ZaakUpdateActionViewSet(
@@ -2291,6 +2299,9 @@ class ZaakUpdateActionViewSet(
                 ),
             },
         )
+
+        # send_zaak_cloudevent(ZAAK_GEMUTEERD, serializer.instance["zaak"], self.request)
+
         return data
 
 

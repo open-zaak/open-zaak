@@ -1140,6 +1140,9 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
             return output_serializer.data
 
 
+#
+# HANDELINGSENDPOINTS
+#
 @extend_schema(
     summary="Registreer een document",
     description=mark_experimental(
@@ -1257,3 +1260,5 @@ class DocumentRegistrerenViewSet(
                 else None,
             },
         )
+
+        # send_zaak_cloudevent(ZAAK_GEMUTEERD, zaak, self.request)

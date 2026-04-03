@@ -35,14 +35,28 @@ Cloud events
 Sending of cloud events is still under development and **NOT** suited for production use,
 but currently Open Zaak can emit the following cloud events if configured:
 
-* ``zaak-gemuteerd``: currently only emitted via POST on /statussen when creating a new Status for a Zaak
-* ``zaak-verwijderd``: when deleting a Zaak
-* ``zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
-* ``zaak-geregistreerd``: emitted when the convenience endpoint 'zaak registreren' is called
-* ``zaak-opgeschort``: emitted when the convenience endpoint 'zaak opschorten' is called
-* ``zaak-bijgewerkt``: emitted when the convenience endpoint 'zaak bijwerken' is called
-* ``zaak-verlengd``: emitted when the convenience endpoint 'zaak verlengen' is called
-* ``zaak-afgesloten`` emitted when the convenience endpoint 'zaak afsluiten' is called
+* ``nl.overheid.zaken.zaak-gemuteerd``: currently only emitted via POST on /statussen when creating a new Status for a Zaak and
+  when making changes to a Zaak via one of the following endpoints:
+
+        * ``/zaken/api/v1/zaak_registreren``
+        * ``/zaken/api/v1/zaak_opschorten/{uuid}``
+        * ``/zaken/api/v1/zaak_verlengen/{uuid}``
+        * ``/zaken/api/v1/zaak_bijwerken/{uuid}``
+        * ``/zaken/api/v1/zaak_afsluiten/{uuid}``
+        * ``/documenten/api/v1/document_registreren``
+
+.. TODO::
+
+    In the future, ``nl.overheid.zaken.zaak-gemuteerd`` will emitted be for any changes made to the
+    Zaak or related resources that are relevant for the initiator of the Zaak.
+
+* ``nl.overheid.zaken.zaak-verwijderd``: when deleting a Zaak
+* ``nl.overheid.zaken.zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
+* ``nl.overheid.zaken.zaak-geregistreerd``: emitted when the convenience endpoint 'zaak registreren' is called
+* ``nl.overheid.zaken.zaak-opgeschort``: emitted when the convenience endpoint 'zaak opschorten' is called
+* ``nl.overheid.zaken.zaak-bijgewerkt``: emitted when the convenience endpoint 'zaak bijwerken' is called
+* ``nl.overheid.zaken.zaak-verlengd``: emitted when the convenience endpoint 'zaak verlengen' is called
+* ``nl.overheid.zaken.zaak-afgesloten`` emitted when the convenience endpoint 'zaak afsluiten' is called
 
 A webhook endpoint ``/events`` has been added where incoming events can be delivered.
 
@@ -50,7 +64,7 @@ A webhook endpoint ``/events`` has been added where incoming events can be deliv
 
    In order to make sure that cloud events are only sent when the initial Zaak is "complete" (meaning that it has all the required resources to be considered a valid Zaak, such as a Rol for the `initiator`), the assumption is made that the initial Status will only be set by client applications once the initial Zaak is complete (meaning that the Rollen already exist before adding the Status). No validation exists for this currently, but in the future this will likely be enforced via validation on the API endpoints.
 
-Example of a ``zaak-gemuteerd`` cloud event in its current shape:
+Example of a ``nl.overheid.zaken.zaak-gemuteerd`` cloud event in its current shape:
 
 .. code-block:: json
 

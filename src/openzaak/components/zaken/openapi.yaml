@@ -18723,7 +18723,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -19895,7 +19896,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -20585,7 +20587,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time
@@ -21195,7 +21198,8 @@ components:
           readOnly: true
           title: Laatst gewijzigd op
           description: '**EXPERIMENTEEL** Tijdstip waarop de ZAAK voor het laatst
-            een nieuwe STATUS heeft gekregen.'
+            wijzingen heeft gehad die relevant kunnen zijn voor de initiator van de
+            ZAAK.'
         laatstGeopend:
           type: string
           format: date-time

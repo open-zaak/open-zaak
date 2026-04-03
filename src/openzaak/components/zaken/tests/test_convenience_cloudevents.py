@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.conf import settings
 from django.test import override_settings, tag
@@ -37,6 +37,7 @@ from ...documenten.tests.utils import get_informatieobjecttype_response
 from ..api.cloudevents import (
     ZAAK_AFGESLOTEN,
     ZAAK_BIJGEWERKT,
+    ZAAK_GEMUTEERD,
     ZAAK_GEREGISTREERD,
     ZAAK_OPGESCHORT,
     ZAAK_VERLENGD,
@@ -60,11 +61,22 @@ from .utils import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
+@override_settings(
+    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+)
 class ZaakConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
     heeft_alle_autorisaties = True
+
+    # TODO mixin or different fix
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        from openzaak.components.zaken.signals import scheduled
+
+        scheduled.set(False)
 
     def setUp(self):
         super().setUp()
@@ -163,29 +175,52 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get(bronorganisatie="111222333")
         zaak_url = reverse(zaak)
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_GEREGISTREERD,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "111222333",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": self.zaaktype_url,
-                    "zaaktype.catalogus": self.catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "111222333",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEREGISTREERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "111222333",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     @tag("external-urls")
@@ -256,8 +291,8 @@ class ZaakConvenienceCloudEventTest(
             },
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            with requests_mock.Mocker() as m:
+        with requests_mock.Mocker() as m:
+            with self.captureOnCommitCallbacks(execute=True):
                 mock_ztc_oas_get(m)
                 m.get(
                     zaaktype_url,
@@ -287,29 +322,52 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get(bronorganisatie="111222333")
         zaak_url = reverse(zaak)
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_GEREGISTREERD,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "111222333",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": zaaktype_url,
-                    "zaaktype.catalogus": catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "111222333",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEREGISTREERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "111222333",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": zaaktype_url,
+                            "zaaktype.catalogus": catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_zaak_opschorten_cloudevent(self, mock_send_cloudevent):
@@ -335,29 +393,52 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get()
         zaak_url = reverse(zaak)
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_OPGESCHORT,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": self.zaaktype_url,
-                    "zaaktype.catalogus": self.catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_OPGESCHORT,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_zaak_bijwerken_cloudevent(self, mock_send_cloudevent):
@@ -391,28 +472,51 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get()
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_BIJGEWERKT,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": self.zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": self.zaaktype_url,
-                    "zaaktype.catalogus": self.catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_BIJGEWERKT,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_zaak_verlengen_cloudevent(self, mock_send_cloudevent):
@@ -438,28 +542,51 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get()
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_VERLENGD,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": self.zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": self.zaaktype_url,
-                    "zaaktype.catalogus": self.catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_VERLENGD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_zaak_afsluiten_cloudevent(self, mock_send_cloudevent):
@@ -483,28 +610,51 @@ class ZaakConvenienceCloudEventTest(
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         zaak = Zaak.objects.get()
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": ZAAK_AFGESLOTEN,
-                "subject": str(zaak.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": self.zaak_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "bronorganisatie": "517439943",
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-                    "zaaktype": self.zaaktype_url,
-                    "zaaktype.catalogus": self.catalogus_url,
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_AFGESLOTEN,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:00:00Z",
+                        "dataref": self.zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                            "zaaktype": self.zaaktype_url,
+                            "zaaktype.catalogus": self.catalogus_url,
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
         )
 
     def test_cloudevent_not_send(self, mock_send_cloudevent):
@@ -529,7 +679,8 @@ class ZaakConvenienceCloudEventTest(
             self.subTest("enable cloudevents false"),
             override_settings(ENABLE_CLOUD_EVENTS=False),
         ):
-            response = self.client.post(url, data)
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             mock_send_cloudevent.assert_not_called()
 
@@ -539,6 +690,7 @@ class ZaakConvenienceCloudEventTest(
         ):
             data["status"]["datumStatusGezet"] = "2011-01-01T00:00:01"
 
-            response = self.client.post(url, data)
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             mock_send_cloudevent.assert_not_called()
