@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-05 11:30+0000\n"
+"POT-Creation-Date: 2026-04-07 07:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,12 +76,12 @@ msgstr ""
 msgid "Use a recovery token"
 msgstr ""
 
-#: openzaak/accounts/tests/test_oidc.py:41
-#: openzaak/accounts/tests/test_oidc.py:57
-#: openzaak/accounts/tests/test_oidc.py:73
-#: openzaak/accounts/tests/test_oidc.py:94
-#: openzaak/accounts/tests/test_oidc.py:135
-#: openzaak/accounts/tests/test_oidc.py:166
+#: openzaak/accounts/tests/test_oidc.py:60
+#: openzaak/accounts/tests/test_oidc.py:76
+#: openzaak/accounts/tests/test_oidc.py:92
+#: openzaak/accounts/tests/test_oidc.py:114
+#: openzaak/accounts/tests/test_oidc.py:155
+#: openzaak/accounts/tests/test_oidc.py:186
 #: openzaak/templates/admin/login.html:15
 #: openzaak/templates/maykin_2fa/login.html:13
 msgid "Login with organization account"
@@ -1556,7 +1556,7 @@ msgid ""
 msgstr ""
 
 #: openzaak/components/catalogi/models/catalogus.py:94
-#: openzaak/components/documenten/admin.py:255
+#: openzaak/components/documenten/admin.py:253
 msgid "versie"
 msgstr ""
 
@@ -2765,11 +2765,11 @@ msgstr ""
 msgid "Afwijkend correspondentie postadres verzending"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:256
+#: openzaak/components/documenten/admin.py:254
 msgid "versies"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:326
+#: openzaak/components/documenten/admin.py:324
 #: openzaak/components/documenten/tests/azure/admin/test_eio.py:119
 #: openzaak/components/documenten/tests/s3/admin/test_eio.py:119
 #, python-brace-format
@@ -2777,33 +2777,33 @@ msgid "Something went wrong while trying to write the file to {storage}."
 msgstr ""
 "Er ging iets fout bij het wegschrijven van het bestand naar de {storage}."
 
-#: openzaak/components/documenten/admin.py:381
+#: openzaak/components/documenten/admin.py:379
 #: openzaak/components/zaken/api/serializers/zaken.py:540
 msgid "Identificatie"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:394
+#: openzaak/components/documenten/admin.py:392
 msgid "Typering"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:404
+#: openzaak/components/documenten/admin.py:402
 msgid "Documentgegevens"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:424
+#: openzaak/components/documenten/admin.py:422
 msgid "Verzending/ontvangst"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:434
+#: openzaak/components/documenten/admin.py:432
 msgid "Ondertekening"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:444
+#: openzaak/components/documenten/admin.py:442
 msgid "Integriteit"
 msgstr ""
 
-#: openzaak/components/documenten/admin.py:457
-#: openzaak/components/documenten/api/serializers.py:336
+#: openzaak/components/documenten/admin.py:455
+#: openzaak/components/documenten/api/serializers.py:337
 msgid "locked"
 msgstr "geblokkeerd"
 
@@ -2813,7 +2813,7 @@ msgid "Een lijst van trefwoorden gescheiden door comma's."
 msgstr ""
 
 #: openzaak/components/documenten/api/filters.py:230
-#: openzaak/components/documenten/api/serializers.py:915
+#: openzaak/components/documenten/api/serializers.py:916
 msgid ""
 "URL-referentie naar het gerelateerde OBJECT (in deze of een andere API)."
 msgstr ""
@@ -2822,70 +2822,70 @@ msgstr ""
 msgid "The provided base64 data has incorrect padding"
 msgstr "De aangeleverde base64-data heeft een ongeldige padding"
 
-#: openzaak/components/documenten/api/serializers.py:249
+#: openzaak/components/documenten/api/serializers.py:250
 msgid ""
 "Indicatie of dit bestandsdeel volledig is geupload. Dat wil zeggen: het "
 "aantal bytes dat staat genoemd bij grootte is daadwerkelijk ontvangen."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:267
+#: openzaak/components/documenten/api/serializers.py:268
 #, python-brace-format
 msgid ""
 "Het aangeleverde bestand heeft een afwijkende bestandsgrootte (volgens het "
 "`omvang`-veld).Verwachting: {expected}b, ontvangen: {received}b"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:276
-#: openzaak/components/documenten/api/serializers.py:698
-#: openzaak/components/documenten/api/serializers.py:800
+#: openzaak/components/documenten/api/serializers.py:277
+#: openzaak/components/documenten/api/serializers.py:699
+#: openzaak/components/documenten/api/serializers.py:801
 msgid "Lock id is not correct"
 msgstr "Het lock ID is niet geldig"
 
-#: openzaak/components/documenten/api/serializers.py:293
+#: openzaak/components/documenten/api/serializers.py:294
 #, python-brace-format
 msgid ""
 "Minimal accepted size of uploaded file = {settings.MIN_UPLOAD_SIZE} bytes "
 msgstr ""
 "Minimale toegestane grootte van uploads = {settings.MIN_UPLOAD_SIZE} bytes "
 
-#: openzaak/components/documenten/api/serializers.py:303
+#: openzaak/components/documenten/api/serializers.py:304
 #: openzaak/components/documenten/models.py:339
 msgid "Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:306
+#: openzaak/components/documenten/api/serializers.py:307
 msgid "integriteit"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:310
+#: openzaak/components/documenten/api/serializers.py:311
 msgid ""
 "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal "
 "bestand."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:318
+#: openzaak/components/documenten/api/serializers.py:319
 #: openzaak/components/documenten/models.py:206
 msgid "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:327
+#: openzaak/components/documenten/api/serializers.py:328
 msgid "ondertekening"
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:331
+#: openzaak/components/documenten/api/serializers.py:332
 msgid ""
 "Aanduiding van de rechtskracht van een informatieobject. Mag niet van een "
 "waarde zijn voorzien als de `status` de waarde 'in bewerking' of 'ter "
 "vaststelling' heeft."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:340
+#: openzaak/components/documenten/api/serializers.py:341
 msgid ""
 "Geeft aan of het document gelocked is. Alleen als een document gelocked is, "
 "mogen er aanpassingen gemaakt worden."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:401
+#: openzaak/components/documenten/api/serializers.py:402
 msgid ""
 "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n"
 "\n"
@@ -2898,7 +2898,7 @@ msgid ""
 "rol speelt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:413
+#: openzaak/components/documenten/api/serializers.py:414
 msgid ""
 "**DEPRECATED** Dit attribuut is verplaatst naar resource Verzending.\n"
 "\n"
@@ -2910,39 +2910,39 @@ msgid ""
 "rol speelt."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:447
+#: openzaak/components/documenten/api/serializers.py:448
 msgid ""
 "De indicatie kan niet weggehaald worden of ongespecifieerd zijn als er "
 "Gebruiksrechten gedefinieerd zijn."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:458
+#: openzaak/components/documenten/api/serializers.py:459
 msgid ""
 "De indicatie moet op 'ja' gezet worden door `gebruiksrechten` aan te maken, "
 "dit kan niet direct op deze resource."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:486
+#: openzaak/components/documenten/api/serializers.py:487
 msgid "The size of upload file should match the 'bestandsomvang' field"
 msgstr ""
 "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
 "veld"
 
-#: openzaak/components/documenten/api/serializers.py:507
+#: openzaak/components/documenten/api/serializers.py:508
 msgid "The size of upload file should match bestandsomvang field"
 msgstr ""
 "De bestandsomvang van de upload moet overeenkomen met het 'bestandsomvang'-"
 "veld"
 
-#: openzaak/components/documenten/api/serializers.py:686
+#: openzaak/components/documenten/api/serializers.py:687
 msgid "Unlocked document can't be modified"
 msgstr "Een geblokkeerd document kan niet gewijzigd worden"
 
-#: openzaak/components/documenten/api/serializers.py:693
+#: openzaak/components/documenten/api/serializers.py:694
 msgid "Lock id must be provided"
 msgstr "Je moet het lock ID meegeven"
 
-#: openzaak/components/documenten/api/serializers.py:716
+#: openzaak/components/documenten/api/serializers.py:717
 msgid ""
 "Lock id generated if the large file is created and should be used while "
 "updating the document. Documents with base64 encoded files are created "
@@ -2952,24 +2952,24 @@ msgstr ""
 "bij document updates. Documenten met base64-encoded bestandsdata worden "
 "zonder lock aangemaakt."
 
-#: openzaak/components/documenten/api/serializers.py:766
+#: openzaak/components/documenten/api/serializers.py:767
 msgid "The document is already locked"
 msgstr "Het document is al geblokkeerd"
 
-#: openzaak/components/documenten/api/serializers.py:810
+#: openzaak/components/documenten/api/serializers.py:811
 msgid "Upload of part files is not complete"
 msgstr "Nog niet alle bestandsdelen zijn volledig geüpload"
 
-#: openzaak/components/documenten/api/serializers.py:815
+#: openzaak/components/documenten/api/serializers.py:816
 msgid "Either file should be upload or the file size = 0"
 msgstr "Je moet een bestand uploaden of de bestandsomvang op 0 zetten"
 
-#: openzaak/components/documenten/api/serializers.py:870
+#: openzaak/components/documenten/api/serializers.py:871
 #: openzaak/components/zaken/api/serializers/zaken.py:764
 msgid "Array of unieke resource identifiers (UUID4)"
 msgstr "Lijst van unieke resource identifiers (UUID4)"
 
-#: openzaak/components/documenten/api/serializers.py:1014
+#: openzaak/components/documenten/api/serializers.py:1015
 msgid ""
 "Het correspondentieadres, betreffende een adresseerbaar object, van de "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -2977,7 +2977,7 @@ msgid ""
 "binnenlandse correspondentieadres van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1027
+#: openzaak/components/documenten/api/serializers.py:1028
 msgid ""
 "De gegevens van het adres in het buitenland van BETROKKENE, zijnde afzender "
 "of geadresseerde, zoals vermeld in het ontvangen of verzonden "
@@ -2985,7 +2985,7 @@ msgid ""
 "BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1039
+#: openzaak/components/documenten/api/serializers.py:1040
 msgid ""
 "De gegevens die tezamen een postbusadres of antwoordnummeradres vormen van "
 "BETROKKENE, zijnde afzender of geadresseerde, zoals vermeld in het ontvangen "
@@ -2993,7 +2993,7 @@ msgid ""
 "correspondentiegegevens van BETROKKENE."
 msgstr ""
 
-#: openzaak/components/documenten/api/serializers.py:1084
+#: openzaak/components/documenten/api/serializers.py:1085
 #: openzaak/components/zaken/api/serializers/zaken.py:253
 msgid "Het aantal identificaties om te reserveren."
 msgstr ""
@@ -5488,13 +5488,13 @@ msgstr "zaaknotitie"
 msgid "zaaknotities"
 msgstr "zaaknotities"
 
-#: openzaak/components/zaken/tests/test_auth.py:881
-#: openzaak/components/zaken/tests/test_auth.py:1014
-#: openzaak/components/zaken/tests/test_auth.py:1202
-#: openzaak/components/zaken/tests/test_auth.py:1334
-#: openzaak/components/zaken/tests/test_auth.py:1480
-#: openzaak/components/zaken/tests/test_auth.py:1870
-#: openzaak/components/zaken/tests/test_auth.py:2605
+#: openzaak/components/zaken/tests/test_auth.py:882
+#: openzaak/components/zaken/tests/test_auth.py:1015
+#: openzaak/components/zaken/tests/test_auth.py:1203
+#: openzaak/components/zaken/tests/test_auth.py:1335
+#: openzaak/components/zaken/tests/test_auth.py:1482
+#: openzaak/components/zaken/tests/test_auth.py:1872
+#: openzaak/components/zaken/tests/test_auth.py:2607
 #: openzaak/utils/permissions.py:119
 #, python-brace-format
 msgid "Incorrect resource. Expected: {expected}"
@@ -5748,6 +5748,14 @@ msgstr "Sorry, je hebt geen toegang tot deze pagina (403)"
 #: openzaak/templates/404.html:17
 msgid "Sorry, the requested page could not be found (404)"
 msgstr "Sorry, de gevraagde pagina kon niet gevonden worden (404)"
+
+#: openzaak/templates/account_blocked.html:17
+msgid "Sorry, your account has been blocked"
+msgstr "Sorry, je account is geblokkeerd"
+
+#: openzaak/templates/account_blocked.html:18
+msgid "If you you want your account unblocked, please contact the webmaster."
+msgstr "Als je je account wilt deblokkeren, neem dan contact op met de webmaster."
 
 #: openzaak/templates/admin/authorizations/applicatie/change_form.html:16
 msgid "Beheer autorisaties"
