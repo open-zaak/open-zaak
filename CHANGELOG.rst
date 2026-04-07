@@ -1,6 +1,77 @@
 Changelog
 =========
 
+1.28.0 (2026-04-14)
+-------------------
+
+**New features**
+
+* [:open-zaak:`2182`] Ensure Zaak archiving parameters (``startdatumBewaartermijn`` and ``archiefactiedatum``) are
+  recalculated if changes are made to related objects (based on the ``afleidingswijze``, see :ref:`archiving`)
+
+  * For afleidingswijze ``ingangsdatum_besluit`` if the related ``Besluit.ingangsdatum`` changes
+  * For afleidingswijze ``vervaldatum_besluit`` if the related ``Besluit.vervaldatum`` changes
+  * For afleidingswijze ``eigenschap`` if the related ``ZaakEigenschap.waarde`` changes
+  * For afleidingswijze ``hoofdzaak`` if the related ``hoofdzaak.einddatum`` changes
+  * For afleidingswijze ``zaakobject`` if the related ``ZaakObject`` changes
+
+**Experimental features** (see :ref:`api_experimental`)
+
+* [:open-zaak:`2308`] Ensure ``zaak-gemuteerd`` cloud event is emitted for all changes
+  made to a Zaak (or related resources) that could be relevant for the initiator of the Zaak (see :ref:`cloud_events` for more details)
+
+**Bugfixes and QoL**
+
+* Fix ``OSError: Too many open files`` for ``/enkelvoudiginformatieobjecten`` endpoint that could occur after performing
+  GETs with large page sizes
+* [:open-zaak:`2348`] Add ``aanmaakdatum`` column to audittrail admin list view with optional ordering
+* [:open-zaak:`2303`] Add missing ``account_blocked.html`` template
+* [:open-zaak:`2319`] Fix deletion of ``ObjectInformatieObject`` via the admin interface
+
+**Project maintenance**
+
+* [:open-api-framework:`211`] Optimize memory usage for uWSGI and celery-flower
+
+  * Make sure uWSGI workers restart after 1000 requests
+  * Set ``FLOWER_MAX_TASKS=1000`` and ``FLOWER_MAX_WORKERS=50``
+
+* Upgrade python dependencies
+
+  * ``cbor2`` to 5.9.0
+  * ``cffi`` to 2.0.0
+  * ``commonground-api-common`` to 2.11.0
+  * ``cryptography`` to 46.0.7
+  * ``django`` to 5.2.13
+  * ``markdown`` to 3.10.2
+  * ``mozilla-django-oidc`` to 5.0.2
+  * ``mozilla-django-oidc-db`` to 2.0.1
+  * ``open-api-framework`` to 0.13.4
+  * ``pygments`` to 2.20.0
+  * ``pyjwt`` to 2.12.1
+  * ``pyopenssl`` to 26.0.0
+  * ``requests`` to 2.33.1
+  * ``sqlparse`` to 0.5.5
+  * ``tornado`` to 6.5.5
+  * ``sphinx`` to 9.1.0 and remove unused extensions
+
+* Upgrade NPM dependencies
+* Add extra catalogi fixtures to test archiving
+* Remove unnecessary dev packages from docker build
+* Fix CodeQL warning for codeql-analysis action
+* Add explicit least privilege permissions for each workflow
+* Change setupconfig data for docker-compose setup to be more realistic
+* Remove unused ``dump_auth_config`` script
+* [:open-zaak:`2334`] Add catalogus fixture for development use
+* [:open-zaak:`2334`] Make setupconfig data more usable for docker-compose setup
+* [:commonground-api-common:`142`] Use exception handler registry from ``commonground-api-common`` to avoid code duplication
+
+**Documentation**
+
+* Update delivery guarantee parameter defaults
+* [:open-api-framework:`213`] Consistent styling for documentation for all applications
+* [:open-zaak:`2233`] Mention ``NOTIFICATIONS_SOURCE`` in cloud events config documentation
+* Regenerate notifcaties documentation to add substatus
+
 1.27.0 (2026-02-06)
 -------------------
 
