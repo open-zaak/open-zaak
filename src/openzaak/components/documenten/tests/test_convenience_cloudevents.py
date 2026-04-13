@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 import base64
+from datetime import datetime
 from unittest.mock import call, patch
 
 from django.conf import settings
 from django.test import override_settings, tag
+from django.utils import timezone
 
 from freezegun.api import freeze_time
 from rest_framework import status
@@ -19,7 +21,6 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
-from openzaak.components.zaken.signals import scheduled
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -32,7 +33,7 @@ from .utils import (
 
 
 @tag("convenience-endpoints", "cloudevents")
-@freeze_time("2025-10-10")
+@freeze_time("2025-10-10T13:00:00Z")
 @patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
@@ -46,18 +47,14 @@ class DocumentConvenienceCloudEventTest(
 ):
     heeft_alle_autorisaties = True
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        scheduled.set(False)
-
     def test_document_registreren_cloudevent(self, mock_send_cloudevent):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype_url = reverse(informatieobjecttype)
         catalogus_url = reverse(informatieobjecttype.catalogus)
 
-        zaak = ZaakFactory.create(bronorganisatie="000000000")
+        with freeze_time("2026-01-02T12:00:00Z"):
+            zaak = ZaakFactory.create(bronorganisatie="000000000")
+
         zaak_url = reverse(zaak)
         zaaktype_url = reverse(zaak.zaaktype)
 
@@ -112,7 +109,7 @@ class DocumentConvenienceCloudEventTest(
                         "specversion": settings.CLOUDEVENT_SPECVERSION,
                         "type": ZAAK_GEMUTEERD,
                         "subject": str(zaak.uuid),
-                        "time": "2025-10-10T00:00:00Z",
+                        "time": "2025-10-10T13:00:00Z",
                         "dataref": zaak_url,
                         "datacontenttype": "application/json",
                         "data": {
@@ -130,7 +127,7 @@ class DocumentConvenienceCloudEventTest(
                         "specversion": settings.CLOUDEVENT_SPECVERSION,
                         "type": DOCUMENT_GEREGISTREERD,
                         "subject": str(document.uuid),
-                        "time": "2025-10-10T00:00:00Z",
+                        "time": "2025-10-10T13:00:00Z",
                         "dataref": document_url,
                         "datacontenttype": "application/json",
                         "data": {
@@ -144,4 +141,7 @@ class DocumentConvenienceCloudEventTest(
                 ),
             ],
             any_order=True,
+        )
+        self.assertEqual(
+            zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 10, 10, 13, 0, 0))
         )

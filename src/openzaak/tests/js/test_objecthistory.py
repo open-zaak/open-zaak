@@ -3,6 +3,7 @@
 from django.test import override_settings, tag
 from django.utils.translation import gettext as _
 
+from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from playwright.sync_api import expect
 
@@ -42,18 +43,21 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         ).to_be_visible()
 
     def test_object_history_page_with_trails(self):
-        zaak = ZaakFactory.create()
+        with freeze_time("2025-01-01T12:00:00Z"):
+            zaak = ZaakFactory.create()
+
         context = self.browser.new_context(storage_state=self.login_state)
         page = context.new_page()
         page.goto(self.live_reverse("admin:zaken_zaak_change", args=(zaak.pk,)))
 
         # create 5 audittrails
         for i in range(5):
-            page.fill("#id_toelichting", f"test {i}")
-            page.get_by_role("button", name=_("Save and continue editing")).click()
-            page.wait_for_url(
-                self.live_reverse("admin:zaken_zaak_change", args=(zaak.pk,))
-            )
+            with freeze_time(f"2025-01-01T14:12:0{i}Z"):
+                page.fill("#id_toelichting", f"test {i}")
+                page.get_by_role("button", name=_("Save and continue editing")).click()
+                page.wait_for_url(
+                    self.live_reverse("admin:zaken_zaak_change", args=(zaak.pk,))
+                )
 
         page.goto(self.live_reverse("admin:zaken_zaak_history", args=(zaak.pk,)))
 
@@ -83,6 +87,9 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
                 "3",
                 "test",
                 "4",
+                "laatst_gemuteerd",
+                "2025-01-01T14:12:03Z",
+                "2025-01-01T14:12:04Z",
             ],
         )
 
@@ -105,7 +112,20 @@ class ObjectHistoryTests(PlaywrightSyncLiveServerTestCase):
         expect(table_div).to_be_visible()
         text = [t.strip() for t in table_div.text_content().split() if t.strip()]
         self.assertEqual(
-            text, ["veld", "oud", "nieuw", "toelichting", "test", "2", "test", "3"]
+            text,
+            [
+                "veld",
+                "oud",
+                "nieuw",
+                "toelichting",
+                "test",
+                "2",
+                "test",
+                "3",
+                "laatst_gemuteerd",
+                "2025-01-01T14:12:02Z",
+                "2025-01-01T14:12:03Z",
+            ],
         )
 
         # expect other tables to be hidden

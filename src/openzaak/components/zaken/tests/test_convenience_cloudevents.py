@@ -1,21 +1,23 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
+from datetime import datetime
 from unittest.mock import call, patch
 
 from django.conf import settings
 from django.test import override_settings, tag
+from django.utils import timezone
 
 import requests_mock
 from freezegun.api import freeze_time
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     RolTypes,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import reverse
+from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin, reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -69,15 +71,6 @@ class ZaakConvenienceCloudEventTest(
 ):
     heeft_alle_autorisaties = True
 
-    # TODO mixin or different fix
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        from openzaak.components.zaken.signals import scheduled
-
-        scheduled.set(False)
-
     def setUp(self):
         super().setUp()
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
@@ -113,12 +106,13 @@ class ZaakConvenienceCloudEventTest(
         )
         self.resultaattype_url = self.check_for_instance(resultaattype)
 
-        self.zaak = ZaakFactory.create(
-            zaaktype=self.zaaktype,
-            bronorganisatie=517439943,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            verantwoordelijke_organisatie=517439943,
-        )
+        with freeze_time("2026-01-02T12:00:00Z"):
+            self.zaak = ZaakFactory.create(
+                zaaktype=self.zaaktype,
+                bronorganisatie=517439943,
+                vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+                verantwoordelijke_organisatie=517439943,
+            )
         self.zaak_url = reverse(self.zaak)
 
     def test_zaak_registreren_cloudevent(self, mock_send_cloudevent):
@@ -221,6 +215,10 @@ class ZaakConvenienceCloudEventTest(
                 ),
             ],
             any_order=True,
+        )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
         )
 
     @tag("external-urls")
@@ -369,6 +367,10 @@ class ZaakConvenienceCloudEventTest(
             ],
             any_order=True,
         )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
+        )
 
     def test_zaak_opschorten_cloudevent(self, mock_send_cloudevent):
         url = reverse(
@@ -439,6 +441,10 @@ class ZaakConvenienceCloudEventTest(
                 ),
             ],
             any_order=True,
+        )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
         )
 
     def test_zaak_bijwerken_cloudevent(self, mock_send_cloudevent):
@@ -518,6 +524,10 @@ class ZaakConvenienceCloudEventTest(
             ],
             any_order=True,
         )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
+        )
 
     def test_zaak_verlengen_cloudevent(self, mock_send_cloudevent):
         url = reverse(
@@ -588,6 +598,10 @@ class ZaakConvenienceCloudEventTest(
             ],
             any_order=True,
         )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
+        )
 
     def test_zaak_afsluiten_cloudevent(self, mock_send_cloudevent):
         url = reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
@@ -656,6 +670,10 @@ class ZaakConvenienceCloudEventTest(
             ],
             any_order=True,
         )
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2026, 1, 2, 12, 0, 0)),
+        )
 
     def test_cloudevent_not_send(self, mock_send_cloudevent):
         url = reverse(
@@ -694,3 +712,95 @@ class ZaakConvenienceCloudEventTest(
                 response = self.client.post(url, data)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             mock_send_cloudevent.assert_not_called()
+
+
+@tag("convenience-endpoints", "cloudevents")
+@freeze_time("2025-10-10T00:00:00Z")
+@patch("notifications_api_common.tasks.send_cloudevent.delay")
+@override_settings(
+    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+)
+class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
+    heeft_alle_autorisaties = True
+
+    # TODO
+    def setUp(self):
+        super().setUp()
+
+        self._create_credentials(
+            self.client_id,
+            self.secret,
+            self.heeft_alle_autorisaties,
+            self.max_vertrouwelijkheidaanduiding,
+        )
+
+    def test_transaction_failure_does_not_send_zaak_gemuteerd_cloud_event(
+        self, mock_send_cloudevent
+    ):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=False, catalogus=informatieobjecttype.catalogus
+        )
+
+        roltype = RolTypeFactory(zaaktype=zaaktype)
+        roltype_url = f"http://testserver{reverse(roltype)}"
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = f"http://testserver{reverse(statustype)}"
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        with freeze_time("2025-10-10T00:00:00Z"):
+            zaak = ZaakFactory.create(
+                zaaktype=zaaktype,
+                bronorganisatie=517439943,
+                vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+                verantwoordelijke_organisatie=517439943,
+            )
+
+        url = reverse(
+            "zaakbijwerken",
+            kwargs={
+                "uuid": zaak.uuid,
+            },
+        )
+
+        data = {
+            "zaak": {
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                }
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        mock_send_cloudevent.reset_mock()
+
+        with patch(
+            "openzaak.components.zaken.models.zaken.Rol.save",
+            side_effect=Exception("foo"),
+        ):
+            with freeze_time("2025-10-10T00:15:00Z"):
+                response = self.client.post(url, data)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR, response.data
+        )
+        self.assertEqual(mock_send_cloudevent.call_count, 0)
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(
+            zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2025, 10, 10, 0, 0, 0)),
+        )
