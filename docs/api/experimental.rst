@@ -32,23 +32,35 @@ For ``zaken`` notification channel a new "kenmerk" ``zaaktype.catalogus`` is add
 Cloud events
 ------------
 
+.. note::
+
+    Enabling cloud events requires some configuration, see :ref:`cloud_events_configuration`
+    for additional information on this.
+
 Sending of cloud events is still under development and **NOT** suited for production use,
 but currently Open Zaak can emit the following cloud events if configured:
 
-* ``nl.overheid.zaken.zaak-gemuteerd``: currently only emitted via POST on /statussen when creating a new Status for a Zaak and
-  when making changes to a Zaak via one of the following endpoints:
+* ``nl.overheid.zaken.zaak-gemuteerd``: this event is emitted emitted whenever a change is
+  is made to the Zaak or related resources that could be relevant for the initiator of the Zaak:
 
-        * ``/zaken/api/v1/zaak_registreren``
-        * ``/zaken/api/v1/zaak_opschorten/{uuid}``
-        * ``/zaken/api/v1/zaak_verlengen/{uuid}``
-        * ``/zaken/api/v1/zaak_bijwerken/{uuid}``
-        * ``/zaken/api/v1/zaak_afsluiten/{uuid}``
-        * ``/documenten/api/v1/document_registreren``
+  * PUT/PATCH on ``/zaken``
+  * POST on ``/statussen``
+  * POST on ``/substatussen``
+  * POST/PUT/PATCH/DELETE on ``/resultaten``
+  * POST/PUT/PATCH/DELETE on ``/zaakinformatieobjecten``
+  * POST/PUT/PATCH/DELETE on ``/zaakobjecten``
+  * POST/PUT/PATCH/DELETE on ``/resultaten``
+  * POST/PUT/PATCH/DELETE on ``/besluiten`` (if the Besluit is related to a Zaak)
 
-.. TODO::
+  This event is also emitted via the convenience endpoints:
 
-    In the future, ``nl.overheid.zaken.zaak-gemuteerd`` will emitted be for any changes made to the
-    Zaak or related resources that are relevant for the initiator of the Zaak.
+  * ``/zaken/api/v1/zaak_registreren``
+  * ``/zaken/api/v1/zaak_opschorten/{uuid}``
+  * ``/zaken/api/v1/zaak_verlengen/{uuid}``
+  * ``/zaken/api/v1/zaak_bijwerken/{uuid}``
+  * ``/zaken/api/v1/zaak_afsluiten/{uuid}``
+  * ``/documenten/api/v1/document_registreren``
+  * ``besluiten/api/v1/besluit_verwerken`` (if the Besluit is related to a Zaak)
 
 * ``nl.overheid.zaken.zaak-verwijderd``: when deleting a Zaak
 * ``nl.overheid.zaken.zaak-geopend``: when the Zaak information is seen by the end user (can be triggered with a PATCH on only ``Zaak.laatstGeopend``)
@@ -142,8 +154,9 @@ Attributes
     * ``relevanteAndereZaken.aardRelatie`` is changed: a new enum value "overig" is added
     * ``relevanteAndereZaken.overigeRelatie`` is added
     * ``relevanteAndereZaken.toelichting`` is added
-    * ``opschorting.eerdereOpschorting`` is added to indicate whether or not a `Zaak` has been suspended in the past
-    * ``laatstGemuteerd`` is added to indicate when the latest Status change happened for the Zaak
+    * ``opschorting.eerdereOpschorting`` is added to indicate whether or not a Zaak has been suspended in the past
+    * ``laatstGemuteerd`` is added to indicate when the most recent change happened to a Zaak
+      (or a resource related to that Zaak) that could be relevant for the initiator of the Zaak.
     * ``laatstGeopend`` is added to indicate when the Zaak was last opened/seen by the end user (citizen)
     * ``betalingsindicatie`` has new enum values, the original values have been marked as deprecated
 
