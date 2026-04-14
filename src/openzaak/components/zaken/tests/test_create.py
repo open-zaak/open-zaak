@@ -550,13 +550,14 @@ class PerformanceTests(
             45:   savepoint create transaction.on_commit ETag handler (start new transaction)
             46:   update ETag column of zaak
             47:   release savepoint (commit transaction)
+            48:   select previous einddatum when saving Zaak (archiving recalculation logic)
 
         """
         # create a random zaak to get some other initial setup queries out of the way
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 47
+        EXPECTED_NUM_QUERIES = 48
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -592,7 +593,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 47 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

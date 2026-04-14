@@ -306,6 +306,30 @@ class Overige(models.Model):
     zaakobject = models.OneToOneField(ZaakObject, on_delete=models.CASCADE)
     overige_data = models.JSONField()
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+
+        zaak = self.zaakobject.zaak
+
+        if not zaak.einddatum:
+            return
+
+        resultaat = getattr(zaak, "resultaat", None)
+        if not resultaat:
+            return
+
+        resultaattype = resultaat.resultaattype
+        afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+            "afleidingswijze"
+        )
+
+        if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+            try_calculate_archiving(zaak, force=True)
+
     class Meta:
         verbose_name = _("overig")
         verbose_name_plural = _("overige")
@@ -356,6 +380,43 @@ class WozWaarde(models.Model):
         max_length=9,
         help_text="De datum waarnaar de waarde van het WOZ-object wordt bepaald.",
     )
+
+    def save(self, *args, **kwargs):
+        is_update = self.pk is not None
+
+        old_waardepeildatum = None
+        if is_update:
+            old_waardepeildatum = (
+                WozWaarde.objects.filter(pk=self.pk)
+                .values_list("waardepeildatum", flat=True)
+                .first()
+            )
+
+        super().save(*args, **kwargs)
+
+        if self.waardepeildatum == old_waardepeildatum:
+            return
+
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
+
+        from openzaak.components.zaken.archiving import try_calculate_archiving
+
+        zaak = self.zaakobject.zaak
+
+        if not zaak.einddatum:
+            return
+
+        resultaat = getattr(zaak, "resultaat", None)
+        if not resultaat:
+            return
+
+        resultaattype = resultaat.resultaattype
+        afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+            "afleidingswijze"
+        )
+
+        if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+            try_calculate_archiving(zaak, force=True)
 
     class Meta:
         verbose_name = _("WOZ-waarde")
