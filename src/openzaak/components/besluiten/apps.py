@@ -5,3 +5,6 @@ from django.apps import AppConfig
 
 class BesluitenConfig(AppConfig):
     name = "openzaak.components.besluiten"
+
+    def ready(self) -> None:
+        from . import signals  # noqa

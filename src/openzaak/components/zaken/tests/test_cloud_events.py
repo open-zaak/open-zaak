@@ -24,7 +24,6 @@ from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
-    RolOmschrijving,
     RolTypes,
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
@@ -34,9 +33,7 @@ from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
-from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.tests.factories import (
-    InformatieObjectTypeFactory,
     ResultaatTypeFactory,
     RolTypeFactory,
     StatusTypeFactory,
@@ -46,7 +43,6 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
-from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.components.zaken.tests.utils import (
     get_catalogus_response,
     get_operation_url,
@@ -166,7 +162,9 @@ class CloudEventSettingMixin(TestCase):
             cls._override.disable()
         super().tearDownClass()
 
-    def assert_cloud_event_sent(self, event_type: str, obj: Model, mock_send: Mock):
+    def assert_cloud_event_sent(
+        self, event_type: str, obj: Model, mock_send: Mock, timestamp=None
+    ):
         mock_send.assert_called_once()
 
         args, kwargs = mock_send.call_args
@@ -190,6 +188,9 @@ class CloudEventSettingMixin(TestCase):
                 "vertrouwelijkheidaanduiding": obj.vertrouwelijkheidaanduiding,
             }
 
+        if not timestamp:
+            timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+
         expected_payload = {
             "specversion": "1.0",
             "type": event_type,
@@ -198,7 +199,7 @@ class CloudEventSettingMixin(TestCase):
             "dataref": reverse(obj),
             "datacontenttype": "application/json",
             "data": data,
-            "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "time": timestamp,
         }
 
         self.assertEqual(event_payload_copy, expected_payload)
@@ -217,6 +218,7 @@ class CloudEventSettingMixin(TestCase):
     "notifications_api_common.tasks.send_cloudevent.retry",
     side_effect=Retry,
 )
+@override_settings(SITE_DOMAIN="testserver")
 class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -394,6 +396,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
 
 @tag("cloudevents")
+@override_settings(SITE_DOMAIN="testserver")
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -401,7 +404,8 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
 
         with patch_send_cloud_event() as mock_send:
-            response = self.client.delete(reverse(zaak))
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.delete(reverse(zaak))
 
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
             self.assert_cloud_event_sent(ZAAK_VERWIJDEREN, zaak, mock_send)
@@ -439,24 +443,26 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
     @tag("gh-2179")
     def test_patch_zaak_with_only_laatst_geopend_sends_zaak_geopend_event(self):
-        zaak = ZaakFactory.create()
+        with freeze_time("2025-09-23T12:15:00Z"):
+            zaak = ZaakFactory.create()
 
         with patch(
             "notifications_api_common.tasks.send_cloudevent.delay",
             autospec=True,
         ) as mock_send:
-            response = self.client.patch(
-                reverse(zaak),
-                {"laatst_geopend": "2025-01-01T12:00:00"},
-                **ZAAK_WRITE_KWARGS,
-            )
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(
+                    reverse(zaak),
+                    {"laatst_geopend": "2025-01-01T12:00:00"},
+                    **ZAAK_WRITE_KWARGS,
+                )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         zaak.refresh_from_db()
         self.assertEqual(
             zaak.laatst_geopend, timezone.make_aware(datetime(2025, 1, 1, 12, 0, 0))
         )
-
+        # TODO assert zaak-gemuteerd not changed
         mock_send.assert_called_once()
 
         args, kwargs = mock_send.call_args
@@ -489,7 +495,69 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(event_payload_copy, expected_payload)
         self.assertIn("id", event_payload)
+        # Should be unchanged, because no data other than `laatstGeopend` changed
+        self.assertEqual(
+            zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0))
+        )
 
+    def test_patch_zaak_with_relevant_fields_sends_zaak_gemuteerd_event(self):
+        zaak = ZaakFactory.create()
+
+        with patch(
+            "notifications_api_common.tasks.send_cloudevent.delay",
+            autospec=True,
+        ) as mock_send:
+            with freeze_time("2025-01-01T12:00:01"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.patch(
+                        reverse(zaak),
+                        {
+                            "omschrijving": "2025-01-01T12:00:00",
+                        },
+                        **ZAAK_WRITE_KWARGS,
+                    )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        zaak.refresh_from_db()
+
+        self.assertEqual(
+            zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 1, 1, 12, 0, 1))
+        )
+
+        mock_send.assert_called_once()
+
+        args, kwargs = mock_send.call_args
+
+        self.assertEqual(len(args), 1)
+        self.assertEqual(len(kwargs), 0)
+
+        event_payload = args[0]
+
+        zaak = Zaak.objects.get(uuid=response.data["uuid"])
+
+        event_payload_copy = dict(event_payload)
+        event_payload_copy.pop("id", None)
+
+        expected_payload = {
+            "specversion": "1.0",
+            "type": ZAAK_GEMUTEERD,
+            "source": "urn:nld:oin:00000001823288444000:zakensysteem",
+            "subject": str(zaak.uuid),
+            "dataref": reverse(zaak),
+            "datacontenttype": "application/json",
+            "data": {
+                "bronorganisatie": zaak.bronorganisatie,
+                "zaaktype": self.check_for_instance(zaak.zaaktype),
+                "zaaktype.catalogus": self.check_for_instance(zaak.zaaktype.catalogus),
+                "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+            },
+            "time": "2025-01-01T12:00:01Z",
+        }
+
+        self.assertEqual(event_payload_copy, expected_payload)
+        self.assertIn("id", event_payload)
+
+    # TODO move to separate class/file
     def test_send_cloud_event_task_posts_expected_payload(self):
         zaak = ZaakFactory.create()
 
@@ -550,9 +618,11 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
                 zaak = ZaakFactory.create(zaaktype=zaaktype_url)
 
-                response = self.client.delete(reverse(zaak))
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.delete(reverse(zaak))
 
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+            self.assertEqual(mock_send.call_count, 1)
 
             args, kwargs = mock_send.call_args
 
@@ -583,8 +653,8 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(event_payload_copy, expected_payload)
 
 
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @tag("cloudevents")
+@override_settings(SITE_DOMAIN="testserver")
 class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -603,46 +673,74 @@ class ResultaatCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
 
     def test_resultaat_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            response = self.client.post(reverse(Resultaat), self.data)
+            with self.captureOnCommitCallbacks(execute=True):
+                with freeze_time("2025-09-23T12:15:00Z"):
+                    response = self.client.post(reverse(Resultaat), self.data)
 
-            self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, response.data
-            )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+        self.zaak.refresh_from_db()
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+        )
 
     def test_resultaat_update_sends_gemuteerd_cloud_event(self):
         resultaat = ResultaatFactory.create(
             zaak=self.zaak, resultaattype=self.resultaattype
         )
         with patch_send_cloud_event() as mock_send:
-            response = self.client.put(reverse(resultaat), self.data)
+            with self.captureOnCommitCallbacks(execute=True):
+                with freeze_time("2025-09-23T12:15:00Z"):
+                    response = self.client.put(reverse(resultaat), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
             mock_send.reset_mock()
 
-            response = self.client.patch(reverse(resultaat), self.data)
+            with self.captureOnCommitCallbacks(execute=True):
+                with freeze_time("2025-09-23T12:16:00Z"):
+                    response = self.client.patch(reverse(resultaat), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 16, 0)),
+            )
 
     def test_resultaat_destroy_sends_gemuteerd_cloud_event(self):
         resultaat = ResultaatFactory.create(
             zaak=self.zaak, resultaattype=self.resultaattype
         )
         with patch_send_cloud_event() as mock_send:
-            response = self.client.delete(reverse(resultaat))
+            with self.captureOnCommitCallbacks(execute=True):
+                with freeze_time("2025-09-23T12:15:00Z"):
+                    response = self.client.delete(reverse(resultaat))
 
-            self.assertEqual(
-                response.status_code, status.HTTP_204_NO_CONTENT, response.data
-            )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+        self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+        self.zaak.refresh_from_db()
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+        )
 
 
 @tag("cloudevents")
+@override_settings(SITE_DOMAIN="testserver")
 class StatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
@@ -655,19 +753,28 @@ class StatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
     def test_status_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse(Status),
-                {
-                    "zaak": f"http://testserver{reverse(self.zaak)}",
-                    "statustype": f"http://testserver{reverse(self.statustype)}",
-                    "datum_status_gezet": "2025-01-01T12:00:00",
-                },
-            )
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        reverse(Status),
+                        {
+                            "zaak": f"http://testserver{reverse(self.zaak)}",
+                            "statustype": f"http://testserver{reverse(self.statustype)}",
+                            "datum_status_gezet": "2025-01-01T12:00:00",
+                        },
+                    )
 
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
 
 @skip(reason="#2179 waiting for the issue to be decided for all endpoints")
@@ -783,8 +890,9 @@ class ZaakContactMomentCloudEventTests(
                 self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @tag("cloudevents")
+@override_settings(SITE_DOMAIN="testserver")
+@freeze_time("2026-01-02T11:45:00Z")
 class ZaakInformatieObjectCloudEventTests(
     CloudEventSettingMixin, JWTAuthMixin, APITestCase
 ):
@@ -811,12 +919,23 @@ class ZaakInformatieObjectCloudEventTests(
 
     def test_zaak_informatie_object_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            response = self.client.post(reverse(ZaakInformatieObject), self.data)
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        reverse(ZaakInformatieObject), self.data
+                    )
 
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
     def test_zaak_informatie_object_update_sends_gemuteerd_cloud_event(self):
         zio = ZaakInformatieObjectFactory.create(
@@ -824,17 +943,35 @@ class ZaakInformatieObjectCloudEventTests(
         )
 
         with patch_send_cloud_event() as mock_send:
-            response = self.client.put(reverse(zio), self.data)
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.put(reverse(zio), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
             mock_send.reset_mock()
 
-            response = self.client.patch(reverse(zio), self.data)
+            with freeze_time("2025-09-23T12:16:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.patch(reverse(zio), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:16:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 16, 0)),
+            )
 
     def test_zaak_informatie_object_destroy_sends_gemuteerd_cloud_event(self):
         zio = ZaakInformatieObjectFactory.create(
@@ -842,17 +979,28 @@ class ZaakInformatieObjectCloudEventTests(
         )
 
         with patch_send_cloud_event() as mock_send:
-            response = self.client.delete(reverse(zio))
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.delete(reverse(zio))
 
             self.assertEqual(
                 response.status_code, status.HTTP_204_NO_CONTENT, response.data
             )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
 
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
+# TODO?
 @tag("cloudevents")
-@override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
+@override_settings(
+    LINK_FETCHER="vng_api_common.mocks.link_fetcher_200", SITE_DOMAIN="testserver"
+)
 class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -873,12 +1021,22 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
 
     def test_zaak_object_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            response = self.client.post(reverse(ZaakObject), self.data)
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(reverse(ZaakObject), self.data)
 
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+
+        self.zaak.refresh_from_db()
+        self.assertEqual(
+            self.zaak.laatst_gemuteerd,
+            timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+        )
 
     def test_zaak_object_update_sends_gemuteerd_cloud_event(self):
         zaakobject = ZaakObjectFactory.create(
@@ -886,17 +1044,35 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
         )
 
         with patch_send_cloud_event() as mock_send:
-            response = self.client.put(reverse(zaakobject), self.data)
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.put(reverse(zaakobject), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
             mock_send.reset_mock()
 
-            response = self.client.patch(reverse(zaakobject), self.data)
+            with freeze_time("2025-09-23T12:16:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.patch(reverse(zaakobject), self.data)
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:16:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 16, 0)),
+            )
 
     def test_zaak_object_destroy_sends_gemuteerd_cloud_event(self):
         zaakobject = ZaakObjectFactory.create(
@@ -904,12 +1080,21 @@ class ZaakObjectCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCas
         )
 
         with patch_send_cloud_event() as mock_send:
-            response = self.client.delete(reverse(zaakobject))
+            with freeze_time("2025-09-23T12:15:00Z"):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.delete(reverse(zaakobject))
 
             self.assertEqual(
                 response.status_code, status.HTTP_204_NO_CONTENT, response.data
             )
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
+            self.assert_cloud_event_sent(
+                ZAAK_GEMUTEERD, self.zaak, mock_send, timestamp="2025-09-23T12:15:00Z"
+            )
+            self.zaak.refresh_from_db()
+            self.assertEqual(
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
+            )
 
 
 @skip(reason="#2179 waiting for the issue to be decided for all endpoints")
@@ -1024,8 +1209,8 @@ class ZaakNotitieCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCa
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
 @tag("cloudevents")
+@override_settings(SITE_DOMAIN="testserver")
 class SubStatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -1043,254 +1228,19 @@ class SubStatusCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase
 
     def test_substatus_create_sends_gemuteerd_cloud_event(self):
         with patch_send_cloud_event() as mock_send:
-            response = self.client.post(reverse(SubStatus), self.data)
+            with self.captureOnCommitCallbacks(execute=True):
+                with freeze_time("2025-09-23T12:15:00Z"):
+                    response = self.client.post(reverse(SubStatus), self.data)
 
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, response.data
             )
             self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
-
-
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
-@tag("cloudevents")
-class ZaakAfsluitenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.zaaktype = ZaakTypeFactory.create(concept=False)
-        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
-
-        cls.statustype = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-
-        cls.resultaattype = ResultaatTypeFactory(
-            zaaktype=cls.zaaktype,
-            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.afgehandeld,
-            archiefnominatie=ArchiefNominatieChoices.vernietigen,
-        )
-        cls.resultaattype_url = reverse(cls.resultaattype)
-
-    def test_zaak_afsluiten_post_sends_gemuteerd_cloud_event(self):
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid}),
-                {
-                    "zaak": {"toelichting": "toelichting"},
-                    "resultaat": {
-                        "resultaattype": f"http://testserver{reverse(self.resultaattype)}",
-                        "toelichting": "Behandeld",
-                    },
-                    "status": {
-                        "statustype": f"http://testserver{reverse(self.statustype)}",
-                        "datumStatusGezet": "2023-01-01T00:00:00",
-                    },
-                },
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
-
-
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
-@tag("cloudevents")
-class ZaakBijwerkenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.zaaktype = ZaakTypeFactory.create(concept=False)
-        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
-
-        cls.statustype_1 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-        cls.statustype_2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-
-        cls.roltype = RolTypeFactory(
-            zaaktype=cls.zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
-        )
-
-    def test_zaak_bijwerken_post_sends_gemuteerd_cloud_event(self):
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse("zaakbijwerken", kwargs={"uuid": self.zaak.uuid}),
-                {
-                    "zaak": {"toelichting": "toelichting"},
-                    "status": {
-                        "statustype": f"http://testserver{reverse(self.statustype_1)}",
-                        "datumStatusGezet": "2023-01-01T00:00:00",
-                    },
-                    "rollen": [
-                        {
-                            "betrokkene": "http://www.zamora-silva.org/api/betrokkene/8768c581-2817-4fe5-933d-37af92d819dd",
-                            "betrokkene_type": RolTypes.natuurlijk_persoon,
-                            "roltype": f"http://testserver{reverse(self.roltype)}",
-                            "roltoelichting": "abc",
-                        }
-                    ],
-                },
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
-
-
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
-@tag("cloudevents")
-class ZaakOpschortenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.zaaktype = ZaakTypeFactory.create(concept=False)
-        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
-
-        cls.statustype_1 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-        cls.statustype_2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-
-        cls.roltype = RolTypeFactory(
-            zaaktype=cls.zaaktype, omschrijving_generiek=RolOmschrijving.belanghebbende
-        )
-
-    def test_zaak_opschorten_post_sends_gemuteerd_cloud_event(self):
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse("zaakopschorten", kwargs={"uuid": self.zaak.uuid}),
-                {
-                    "zaak": {
-                        "opschorting": {"indicatie": True, "reden": "test"},
-                    },
-                    "status": {
-                        "statustype": f"http://testserver{reverse(self.statustype_1)}",
-                        "datumStatusGezet": "2023-01-01T00:00:00",
-                    },
-                },
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
-
-
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
-@tag("cloudevents")
-class ZaakRegistrerenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.zaaktype = ZaakTypeFactory.create(
-            concept=False, catalogus=cls.informatieobjecttype.catalogus
-        )
-
-        ZaakTypeInformatieObjectTypeFactory.create(
-            zaaktype=cls.zaaktype, informatieobjecttype=cls.informatieobjecttype
-        )
-
-        cls.roltype = RolTypeFactory(zaaktype=cls.zaaktype)
-        cls.statustype_1 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-        cls.statustype_2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-        cls.informatieobject = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=cls.informatieobjecttype
-        )
-
-        cls.zaak = {
-            "zaaktype": f"http://testserver{reverse(cls.zaaktype)}",
-            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
-            "bronorganisatie": "517439943",
-            "verantwoordelijkeOrganisatie": "517439943",
-            "registratiedatum": "2018-06-11",
-            "startdatum": "2018-06-11",
-            "toelichting": "toelichting",
-        }
-
-        cls.rol = {
-            "betrokkene": BETROKKENE,
-            "betrokkene_type": RolTypes.natuurlijk_persoon,
-            "roltype": f"http://testserver{reverse(cls.roltype)}",
-            "roltoelichting": "awerw",
-        }
-
-        cls.zio = {
-            "informatieobject": f"http://testserver{reverse(cls.informatieobject)}",
-            "titel": "string",
-            "beschrijving": "string",
-            "vernietigingsdatum": "2019-08-24T14:15:22Z",
-        }
-
-        cls.zaakobject = {
-            "objectType": ZaakobjectTypes.overige,
-            "objectTypeOverige": "test",
-            "relatieomschrijving": "test",
-            "objectIdentificatie": {"overigeData": {"someField": "some value"}},
-        }
-
-        cls.status = {
-            "statustype": f"http://testserver{reverse(cls.statustype_1)}",
-            "datumStatusGezet": "2023-01-01T00:00:00",
-        }
-
-    def test_zaak_registreren_post_sends_gemuteerd_cloud_event(self):
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse("registreerzaak-list"),
-                {
-                    "zaak": self.zaak,
-                    "rollen": [self.rol],
-                    "zaakinformatieobjecten": [self.zio],
-                    "zaakobjecten": [self.zaakobject],
-                    "status": self.status,
-                },
-            )
-
+            self.zaak.refresh_from_db()
             self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, response.data
+                self.zaak.laatst_gemuteerd,
+                timezone.make_aware(datetime(2025, 9, 23, 12, 15, 0)),
             )
-            self.assert_cloud_event_sent(
-                ZAAK_GEMUTEERD,
-                Zaak.objects.get(uuid=response.data["zaak"]["uuid"]),
-                mock_send,
-            )
-
-
-@skip(reason="#2179 waiting for the issue to be decided for all endpoints")
-@tag("cloudevents")
-class ZaakVerlengenEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.zaaktype = ZaakTypeFactory.create(concept=False)
-        cls.zaak = ZaakFactory.create(zaaktype=cls.zaaktype)
-
-        cls.statustype_1 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-        cls.statustype_2 = StatusTypeFactory.create(zaaktype=cls.zaaktype)
-
-    def test_zaak_verlengen_post_sends_gemuteerd_cloud_event(self):
-        with patch_send_cloud_event() as mock_send:
-            response = self.client.post(
-                reverse("zaakverlengen", kwargs={"uuid": self.zaak.uuid}),
-                {
-                    "zaak": {
-                        "verlenging": {"duur": "P5D", "reden": "test"},
-                    },
-                    "status": {
-                        "statustype": f"http://testserver{reverse(self.statustype_1)}",
-                        "datumStatusGezet": "2023-01-01T00:00:00",
-                    },
-                },
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
 
 @tag("cloudevents")

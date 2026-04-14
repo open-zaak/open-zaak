@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from unittest.mock import patch
+from datetime import datetime
+from unittest.mock import call, patch
 
 from django.conf import settings
 from django.test import override_settings, tag
+from django.utils import timezone
 
 from freezegun.api import freeze_time
 from rest_framework import status
@@ -14,6 +16,7 @@ from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
 )
+from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 
@@ -26,24 +29,105 @@ from ..models import Besluit
 
 @tag("convenience-endpoints", "cloudevents")
 @freeze_time("2025-10-10")
-@patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True)
+@override_settings(
+    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+)
 class BesluitConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
     heeft_alle_autorisaties = True
 
-    def test_besluiten_verwerken_cloudevent(self, mock_send_cloudevent):
+    @patch("notifications_api_common.tasks.send_cloudevent.delay")
+    def test_besluiten_verwerken_cloudevent_without_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
         catalogus_url = reverse(besluittype.catalogus)
 
         zaak = ZaakFactory.create()
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=besluittype.catalogus
+        )
+        informatieobjecttype_url = reverse(informatieobjecttype)
+
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+
+        informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_1 = reverse(informatieobject_1)
+
+        informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_2 = reverse(informatieobject_2)
+
+        url = reverse("verwerkbesluit-list")
+
+        data = {
+            "besluit": {
+                "verantwoordelijkeOrganisatie": "517439943",  # RSIN
+                "besluittype": f"http://testserver{besluittype_url}",
+                "identificatie": "123123",
+                "datum": "2018-09-06",
+                "toelichting": "Vergunning verleend.",
+                "ingangsdatum": "2018-10-01",
+                "vervaldatum": "2018-11-01",
+                "vervalreden": VervalRedenen.tijdelijk,
+            },
+            "besluitinformatieobjecten": [
+                {"informatieobject": f"http://testserver{informatieobject_url_1}"},
+                {"informatieobject": f"http://testserver{informatieobject_url_2}"},
+            ],
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(mock_send_cloudevent.call_count, 1)
+
+        besluit = Besluit.objects.get()
+        besluit_url = reverse(besluit)
+
+        mock_send_cloudevent.assert_called_once_with(
+            {
+                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                "source": settings.NOTIFICATIONS_SOURCE,
+                "specversion": settings.CLOUDEVENT_SPECVERSION,
+                "type": BESLUIT_VERWERKT,
+                "subject": str(besluit.uuid),
+                "time": "2025-10-10T00:00:00Z",
+                "dataref": besluit_url,
+                "datacontenttype": "application/json",
+                "data": {
+                    "verantwoordelijkeOrganisatie": "517439943",
+                    "besluittype": f"http://testserver{besluittype_url}",
+                    "besluittype.catalogus": f"http://testserver{catalogus_url}",
+                    "zaak.zaaktype": None,
+                    "informatieobjecten.iotype": [  # TODO duplicates?
+                        f"http://testserver{informatieobjecttype_url}",
+                        f"http://testserver{informatieobjecttype_url}",
+                    ],
+                },
+            }
+        )
+
+    @patch("notifications_api_common.tasks.send_cloudevent.delay")
+    def test_besluiten_verwerken_cloudevent_with_zaak(self, mock_send_cloudevent):
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype_url = reverse(besluittype)
+
+        catalogus_url = reverse(besluittype.catalogus)
+
+        zaak = ZaakFactory.create(bronorganisatie="517439943")
         zaak_url = reverse(zaak)
         zaaktype_url = reverse(zaak.zaaktype)
 
@@ -85,35 +169,65 @@ class BesluitConvenienceCloudEventTest(
             ],
         }
 
-        with self.captureOnCommitCallbacks(execute=True):
-            response = self.client.post(url, data)
+        with freeze_time("2025-10-10T00:10:00Z"):
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        self.assertEqual(mock_send_cloudevent.call_count, 1)
+        self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
         besluit_url = reverse(besluit)
 
-        mock_send_cloudevent.assert_called_once_with(
-            {
-                "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
-                "source": settings.NOTIFICATIONS_SOURCE,
-                "specversion": settings.CLOUDEVENT_SPECVERSION,
-                "type": BESLUIT_VERWERKT,
-                "subject": str(besluit.uuid),
-                "time": "2025-10-10T00:00:00Z",
-                "dataref": besluit_url,
-                "datacontenttype": "application/json",
-                "data": {
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "besluittype": f"http://testserver{besluittype_url}",
-                    "besluittype.catalogus": f"http://testserver{catalogus_url}",
-                    "zaak.zaaktype": f"http://testserver{zaaktype_url}",
-                    "informatieobjecten.iotype": [  # TODO duplicates?
-                        f"http://testserver{informatieobjecttype_url}",
-                        f"http://testserver{informatieobjecttype_url}",
-                    ],
-                },
-            }
+        mock_send_cloudevent.assert_has_calls(
+            [
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": ZAAK_GEMUTEERD,
+                        "subject": str(zaak.uuid),
+                        "time": "2025-10-10T00:10:00Z",
+                        "dataref": zaak_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "bronorganisatie": "517439943",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                            "zaaktype": f"http://testserver{zaaktype_url}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "id": "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
+                        "source": settings.NOTIFICATIONS_SOURCE,
+                        "specversion": settings.CLOUDEVENT_SPECVERSION,
+                        "type": BESLUIT_VERWERKT,
+                        "subject": str(besluit.uuid),
+                        "time": "2025-10-10T00:10:00Z",
+                        "dataref": besluit_url,
+                        "datacontenttype": "application/json",
+                        "data": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{catalogus_url}",
+                            "zaak.zaaktype": f"http://testserver{zaaktype_url}",
+                            "informatieobjecten.iotype": [  # TODO duplicates?
+                                f"http://testserver{informatieobjecttype_url}",
+                                f"http://testserver{informatieobjecttype_url}",
+                            ],
+                        },
+                    }
+                ),
+            ],
+            any_order=True,
+        )
+
+        zaak.refresh_from_db()
+
+        self.assertEqual(
+            zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 10, 10, 0, 10, 0))
         )

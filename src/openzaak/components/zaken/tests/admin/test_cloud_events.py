@@ -13,6 +13,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
+from openzaak.utils.cloudevents import reset_scheduled_event_registry
 
 from ...api.cloudevents import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
 from ...models import Zaak
@@ -28,7 +29,7 @@ from ..test_cloud_events import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test")
+@override_settings(NOTIFICATIONS_SOURCE="oz-test", SITE_DOMAIN="testserver")
 class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
     def setUp(self):
         super().setUp()
@@ -70,8 +71,12 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
         request.user = self.user
 
         admin = StatusAdmin(status._meta.model, AdminSite())
+
+        reset_scheduled_event_registry()
+
         with self.subTest("Status change False"):
-            admin.save_model(request=request, obj=status, form=Mock(), change=False)
+            with self.captureOnCommitCallbacks(execute=True):
+                admin.save_model(request=request, obj=status, form=Mock(), change=False)
 
             self.assertEqual(mock_send_cloudevent.call_count, 1)
 
@@ -85,7 +90,12 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                     "time": "2025-09-23T12:00:00Z",
                     "dataref": reverse(self.zaak),
                     "datacontenttype": "application/json",
-                    "data": {},
+                    "data": {
+                        "bronorganisatie": self.zaak.bronorganisatie,
+                        "zaaktype": f"http://testserver{reverse(self.zaak.zaaktype)}",
+                        "zaaktype.catalogus": f"http://testserver{reverse(self.zaak.zaaktype.catalogus)}",
+                        "vertrouwelijkheidaanduiding": self.zaak.vertrouwelijkheidaanduiding,
+                    },
                 }
             )
 

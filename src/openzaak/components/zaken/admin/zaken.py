@@ -13,7 +13,6 @@ from notifications_api_common.cloudevents import (
 )
 
 from openzaak.components.zaken.api.cloudevents import (
-    ZAAK_GEMUTEERD,
     ZAAK_VERWIJDEREN,
 )
 from openzaak.utils.admin import (
@@ -121,18 +120,6 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
     inlines = [SubStatusForStatusInline]
-
-    def save_model(self, request, obj, form, change):
-        dataref = obj.zaak.get_absolute_api_url()
-
-        super().save_model(request, obj, form, change)
-        if not change and settings.ENABLE_CLOUD_EVENTS:
-            process_cloudevent(
-                type=ZAAK_GEMUTEERD,
-                subject=str(obj.zaak.uuid),
-                dataref=dataref,
-                data={},
-            )
 
 
 @admin.register(SubStatus)
@@ -932,6 +919,7 @@ class ZaakAdmin(
         dataref = obj.get_absolute_api_url()
 
         super().delete_model(request, obj)
+        # TODO this logic should be moved to signals as well
         if settings.ENABLE_CLOUD_EVENTS:
             process_cloudevent(
                 type=ZAAK_VERWIJDEREN,
