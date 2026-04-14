@@ -396,12 +396,8 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
         resultaattype = ResultaatTypeFactory(
             archiefactietermijn="P10Y",
             archiefnominatie="vernietigen",
+            brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit,
         )
-
-        resultaattype.brondatum_archiefprocedure_afleidingswijze = (
-            BrondatumArchiefprocedureAfleidingswijze.vervaldatum_besluit.value
-        )
-        resultaattype.save()
 
         ResultaatFactory(
             zaak=zaak,

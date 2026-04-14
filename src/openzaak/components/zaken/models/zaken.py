@@ -607,9 +607,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
             )
 
             if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
-                if subzaak.einddatum != self.einddatum:
-                    subzaak.einddatum = self.einddatum
-
                 try_calculate_archiving(subzaak, force=True)
 
     @property

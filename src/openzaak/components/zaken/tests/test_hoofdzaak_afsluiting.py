@@ -694,7 +694,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_queries_with_many_deelzaken_with_external_catalogi(self):
         """
         A single deelzaak with external catalogi has 13 extra queries over an internal catalogi.
-        78 + (10*13) = 203
+        78 + (10*13) = 208
         """
         self._generate_deelzaken(10, False)
         with self.assertNumQueries(208):

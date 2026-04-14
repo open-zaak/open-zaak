@@ -307,17 +307,28 @@ class Overige(models.Model):
     overige_data = models.JSONField()
 
     def save(self, *args, **kwargs):
-        is_update = self.pk is not None
-
         super().save(*args, **kwargs)
 
-        if not is_update:
-            return
+        from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 
         from openzaak.components.zaken.archiving import try_calculate_archiving
 
-        if self.zaakobject and self.zaakobject.zaak:
-            try_calculate_archiving(self.zaakobject.zaak, force=True)
+        zaak = self.zaakobject.zaak
+
+        if not zaak.einddatum:
+            return
+
+        resultaat = getattr(zaak, "resultaat", None)
+        if not resultaat:
+            return
+
+        resultaattype = resultaat.resultaattype
+        afleidingswijze = resultaattype.brondatum_archiefprocedure.get(
+            "afleidingswijze"
+        )
+
+        if afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.zaakobject:
+            try_calculate_archiving(zaak, force=True)
 
     class Meta:
         verbose_name = _("overig")

@@ -13,7 +13,7 @@ from vng_api_common.constants import BrondatumArchiefprocedureAfleidingswijze
 from openzaak.utils import parse_isodatetime
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 
-from .models import Overige, Zaak
+from .models import Zaak
 
 
 class BrondatumCalculator:
@@ -145,18 +145,9 @@ def get_brondatum(
         datum_kenmerk_path = Path(*datum_kenmerk.split("/"))
         dates = []
         for zaak_object in zaak.zaakobject_set.filter(object_type=objecttype):
-            if objecttype == "overige":
-                try:
-                    overige = Overige.objects.get(zaakobject=zaak_object)
-                except Overige.DoesNotExist:
-                    continue
-
-                value = overige.overige_data.get(datum_kenmerk)
-
-            elif zaak_object.object:
+            if zaak_object.object:
                 remote_object = zaak_object._get_object()
                 value = glom(remote_object, datum_kenmerk_path, default=None)
-
             else:
                 local_object = getattr(zaak_object, objecttype.replace("_", ""))
                 value = glom(local_object, datum_kenmerk_path, default=None)
