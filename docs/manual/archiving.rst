@@ -118,3 +118,31 @@ Daarnaast zijn bij de bepaling van de brondatum archiefprocedure per afleidingsw
         -
         - X
         -
+
+Bepaling van de archiefparameters
+---------------------------------
+
+Bij het sluiten van een zaak worden twee datums gezet die van belang zijn voor archivering:
+
+* ``startdatum_bewaartermijn``: soms ook de brondatum genoemd.
+* ``archiefactiedatum``: uitkomst van ``startdatum_bewaartermijn`` + ``archiefactietermijn`` van het resultaattype.
+
+Hieronder is per afleidingswijze beschreven welke waarde gebruikt wordt voor ``startdatum_bewaartermijn``.
+
+* ``afgehandeld``: ``Zaak.einddatum``.
+* ``ander_datumkenmerk``: ``startdatum_bewaartermijn`` dient handmatig gezet te worden.
+* ``eigenschap``: de ``waarde`` van de ZaakEigenschap waarvan de ``naam`` overeenkomt met het ``datumkenmerk`` van het resultaattype.
+* ``hoofdzaak``: de ``einddatum`` van de hoofdzaak.
+* ``ingangsdatum_besluit``: de ``ingangsdatum`` van het gekoppelde Besluit.
+* ``vervaldatum_besluit``: de ``vervaldatum`` van het gekoppelde Besluit. Doordat dit attribuut
+  niet verplicht is, kan het zijn dat deze op het moment van sluiten van de zaak nog leeg is.
+  Zodra de ``vervaldatum`` gezet wordt, worden de archiefparameters ook gezet.
+* ``termijn``: ``Zaak.einddatum`` + ``ResultaatType.procestermijn``.
+* ``zaakobject``: op basis van ``ResultaatType.objecttype`` wordt het gerelateerde ``ZaakObject``
+  geselecteerd, en de waarde het attribuut dat zich bevind op het pad gespecificeerd in ``ResultaatType.datumkenmerk``
+  wordt gebruikt als ``startdatum_bewaartermijn``.
+
+Bij alle bovenstaande afleidingswijzen (behalve ``ander_datumkenmerk`` en ``termijn``)
+worden de archiefparameters herberekend als de attributen waarop deze datums gebaseerd zijn
+aangepast worden. Bovendien zorgt het verwijderen van een resultaat van een zaak ervoor
+dat deze datums op ``null`` gezet worden.
