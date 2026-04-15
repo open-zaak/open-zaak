@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.test import override_settings, tag
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
@@ -18,6 +18,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.components.documenten.widgets import PrivateFileWidget
+from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
@@ -131,6 +132,71 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("Je moet een informatieobjecttype opgeven", response.text)
+
+    def test_delete_without_references(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
+
+        eio = canonical.latest_version
+
+        url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete", args=(eio.pk,)
+        )
+        response = self.app.get(url)
+        form = response.forms[1]
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 0)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 0)
+
+    def test_delete_without_references_locked(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=True)
+
+        eio = canonical.latest_version
+
+        url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete", args=(eio.pk,)
+        )
+        response = self.app.get(url)
+        form = response.forms[1]
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertInHTML(
+            _("Gelockte objecten mogen niet worden verwijderd"),
+            response.content.decode("utf-8"),
+        )
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
+
+    def test_delete_with_references(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
+
+        eio = canonical.latest_version
+
+        ZaakInformatieObjectFactory.create(informatieobject=canonical)
+
+        url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete", args=(eio.pk,)
+        )
+        response = self.app.get(url)
+        form = response.forms[1]
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertInHTML(
+            _(
+                "All relations to the document must be destroyed before destroying the document"
+            ),
+            response.content.decode("utf-8"),
+        )
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
 
 
 @disable_admin_mfa()
