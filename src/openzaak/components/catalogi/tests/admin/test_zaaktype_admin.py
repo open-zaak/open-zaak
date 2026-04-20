@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import override_settings, tag
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext, gettext_lazy as _, ngettext_lazy
+from django.utils.translation import gettext as _, ngettext_lazy
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
@@ -456,7 +456,7 @@ class ZaaktypeAdminTests(
             self.assertContains(changelist_page, "zaaktype 4")
 
         with self.subTest("filter currently valid"):
-            response = changelist_page.click(description=gettext("Now"))
+            response = changelist_page.click(description=_("Now"))
 
             self.assertNotContains(response, "zaaktype 1")
             self.assertContains(response, "zaaktype 2")
@@ -464,7 +464,7 @@ class ZaaktypeAdminTests(
             self.assertNotContains(response, "zaaktype 4")
 
         with self.subTest("filter valid in the past"):
-            response = changelist_page.click(description=gettext("Past"))
+            response = changelist_page.click(description=_("Past"))
 
             self.assertContains(response, "zaaktype 1")
             self.assertNotContains(response, "zaaktype 2")
@@ -472,7 +472,7 @@ class ZaaktypeAdminTests(
             self.assertNotContains(response, "zaaktype 4")
 
         with self.subTest("filter valid in the future"):
-            response = changelist_page.click(description=gettext("Future"))
+            response = changelist_page.click(description=_("Future"))
 
             self.assertNotContains(response, "zaaktype 1")
             self.assertNotContains(response, "zaaktype 2")
@@ -1289,3 +1289,168 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
         self.assertEqual(zt.besluittypen.count(), 2)
         self.assertIn(bt1, zt.besluittypen.all())
         self.assertIn(bt2, zt.besluittypen.all())
+
+
+@tag("gh-1877")
+@disable_admin_mfa()
+class ZaakTypeDeleteAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+    def test_delete_published_zaaktype_not_allowed_if_zaken_related(self):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+
+        ZaakFactory.create(zaaktype=non_concept_zaaktype)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktype_delete", args=(non_concept_zaaktype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("Zaaktype kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _("vereist het verwijderen van de volgende gerelateerde objecten"),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(ZaakType.objects.count(), 1)
+
+    def test_bulk_delete_published_zaaktypen_not_allowed_if_zaken_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+
+        ZaakFactory.create(zaaktype=non_concept_zaaktype)
+
+        admin_url = reverse("admin:catalogi_zaaktype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_zaaktype.id, non_concept_zaaktype.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("Zaaktypen kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _(
+                "vereist het verwijderen van de volgende beschermde gerelateerde objecten"
+            ),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(ZaakType.objects.count(), 2)
+
+    def test_delete_published_zaaktype_allowed_if_no_zaken_related(self):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktype_delete", args=(non_concept_zaaktype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # Zaaktype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakType.objects.exists())
+
+    def test_bulk_delete_published_zaaktypen_allowed_if_no_zaken_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+
+        admin_url = reverse("admin:catalogi_zaaktype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_zaaktype.id, non_concept_zaaktype.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both Zaaktypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakType.objects.exists())
+
+    def test_delete_concept_zaaktype_allowed_if_no_zaken_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktype_delete", args=(concept_zaaktype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # no warning, because all zaaktypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # Zaaktype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakType.objects.exists())
+
+    def test_bulk_delete_concept_zaaktypen_allowed_if_no_zaken_related(self):
+        concept_zaaktype1 = ZaakTypeFactory.create(concept=True)
+        concept_zaaktype2 = ZaakTypeFactory.create(concept=True)
+
+        admin_url = reverse("admin:catalogi_zaaktype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_zaaktype1.id, concept_zaaktype2.id]
+
+        response = form.submit()
+
+        # no warning, because all zaaktypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both Zaaktypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakType.objects.exists())

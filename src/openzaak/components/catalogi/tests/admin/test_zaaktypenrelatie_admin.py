@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -9,6 +9,7 @@ from vng_api_common.tests import reverse as _reverse
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.models import ZaakTypenRelatie
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import ClearCachesMixin
 
 from ...constants import AardRelatieChoices
@@ -254,3 +255,265 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
         lookup = response.html.find("a", {"id": "lookup_id_gerelateerd_zaaktype_0"})
         self.assertIsNotNone(lookup)
+
+
+@tag("gh-1877")
+@disable_admin_mfa()
+class ZaakTypenRelatieDeleteAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+    def test_delete_published_zaaktypenrelatie_allowed_if_zaken_related(self):
+        """
+        Because zaaktypenrelaties are not relevant for runtime validation for zaken,
+        deleting them should be possible
+        """
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        relatie = ZaakTypenRelatieFactory.create(
+            zaaktype=non_concept_zaaktype,
+        )
+        ZaakFactory.create(zaaktype=non_concept_zaaktype)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktypenrelatie_delete", args=(relatie.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # The relation are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_bulk_delete_published_zaaktypenrelaties_allowed_if_zaken_related(
+        self,
+    ):
+        """
+        Because zaaktypenrelaties are not relevant for runtime validation for zaken,
+        deleting them should be possible
+        """
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        relatie = ZaakTypenRelatieFactory.create(
+            zaaktype=non_concept_zaaktype,
+        )
+        ZaakFactory.create(zaaktype=non_concept_zaaktype)
+
+        admin_url = reverse("admin:catalogi_zaaktypenrelatie_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [relatie.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        # delete is allowed
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both relations are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_delete_published_zaaktypenrelatie_allowed_if_no_zaken_related(self):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        relatie = ZaakTypenRelatieFactory.create(zaaktype=non_concept_zaaktype)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktypenrelatie_delete",
+            args=(relatie.id,),
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # The relation are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_bulk_delete_published_zaaktypenrelaties_allowed_if_no_zaken_related(
+        self,
+    ):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        relatie = ZaakTypenRelatieFactory.create(
+            zaaktype=non_concept_zaaktype,
+        )
+        concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        concept_relatie = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype,
+        )
+
+        admin_url = reverse("admin:catalogi_zaaktypenrelatie_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [relatie.id, concept_relatie.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both relations are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_delete_concept_zaaktypenrelatie_allowed_if_zaken_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        concept_relatie = ZaakTypenRelatieFactory.create(zaaktype=concept_zaaktype)
+
+        ZaakFactory.create(zaaktype=concept_zaaktype)
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktypenrelatie_delete",
+            args=(concept_relatie.id,),
+        )
+
+        response = self.app.get(admin_url)
+
+        # no warning, because all relaties are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # Relatie is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_bulk_delete_concept_zaaktypenrelaties_not_allowed_if_zaken_related(
+        self,
+    ):
+        concept_zaaktype1 = ZaakTypeFactory.create(concept=True)
+        concept_relatie1 = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype1,
+        )
+        ZaakFactory.create(zaaktype=concept_zaaktype1)
+
+        concept_zaaktype2 = ZaakTypeFactory.create(concept=True)
+        concept_relatie2 = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype2,
+        )
+
+        ZaakFactory.create(zaaktype=concept_zaaktype2)
+
+        admin_url = reverse("admin:catalogi_zaaktypenrelatie_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_relatie1.id, concept_relatie2.id]
+
+        response = form.submit()
+
+        # no warning, because all relaties are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both relations are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_delete_concept_zaaktypenrelatie_allowed_if_no_zaken_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        concept_relatie = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype,
+        )
+
+        admin_url = reverse(
+            "admin:catalogi_zaaktypenrelatie_delete", args=(concept_relatie.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # no warning, because all relaties are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # Both relaties are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())
+
+    def test_bulk_delete_concept_zaaktypenrelaties_allowed_if_no_zaken_related(
+        self,
+    ):
+        concept_zaaktype1 = ZaakTypeFactory.create(concept=True)
+        concept_relatie1 = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype1,
+        )
+        concept_zaaktype2 = ZaakTypeFactory.create(concept=True)
+        concept_relatie2 = ZaakTypenRelatieFactory.create(
+            zaaktype=concept_zaaktype2,
+        )
+
+        admin_url = reverse("admin:catalogi_zaaktypenrelatie_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_relatie1.id, concept_relatie2.id]
+
+        response = form.submit()
+
+        # no warning, because all relaties are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both relations are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ZaakTypenRelatie.objects.exists())

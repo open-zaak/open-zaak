@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from django.test import tag
 from django.urls import reverse, reverse_lazy
 from django.utils.http import urlencode
 from django.utils.translation import gettext as _, ngettext_lazy
@@ -8,6 +9,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
@@ -319,3 +321,168 @@ class BesluitTypePublishAdminTests(WebTest):
                 "overlappende geldigheid hebben."
             ],
         )
+
+
+@tag("gh-1877")
+@disable_admin_mfa()
+class BesluitTypeDeleteAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+    def test_delete_published_besluittype_not_allowed_if_besluiten_related(self):
+        non_concept_besluittype = BesluitTypeFactory.create(concept=False)
+
+        BesluitFactory.create(besluittype=non_concept_besluittype)
+
+        admin_url = reverse(
+            "admin:catalogi_besluittype_delete", args=(non_concept_besluittype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("besluittype kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _("vereist het verwijderen van de volgende gerelateerde objecten"),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(BesluitType.objects.count(), 1)
+
+    def test_bulk_delete_published_besluittypen_not_allowed_if_besluiten_related(self):
+        concept_besluittype = BesluitTypeFactory.create(concept=True)
+        non_concept_besluittype = BesluitTypeFactory.create(concept=False)
+
+        BesluitFactory.create(besluittype=non_concept_besluittype)
+
+        admin_url = reverse("admin:catalogi_besluittype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_besluittype.id, non_concept_besluittype.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("besluittypen kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _(
+                "vereist het verwijderen van de volgende beschermde gerelateerde objecten"
+            ),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(BesluitType.objects.count(), 2)
+
+    def test_delete_published_besluittype_allowed_if_no_besluiten_related(self):
+        non_concept_besluittype = BesluitTypeFactory.create(concept=False)
+
+        admin_url = reverse(
+            "admin:catalogi_besluittype_delete", args=(non_concept_besluittype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # besluittype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BesluitType.objects.exists())
+
+    def test_bulk_delete_published_besluittypen_allowed_if_no_besluiten_related(self):
+        concept_besluittype = BesluitTypeFactory.create(concept=True)
+        non_concept_besluittype = BesluitTypeFactory.create(concept=False)
+
+        admin_url = reverse("admin:catalogi_besluittype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_besluittype.id, non_concept_besluittype.id]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both Besluittypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BesluitType.objects.exists())
+
+    def test_delete_concept_besluittype_allowed_if_no_besluiten_related(self):
+        concept_besluittype = BesluitTypeFactory.create(concept=True)
+
+        admin_url = reverse(
+            "admin:catalogi_besluittype_delete", args=(concept_besluittype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # no warning, because all besluittypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # besluittype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BesluitType.objects.exists())
+
+    def test_bulk_delete_concept_besluittypen_allowed_if_no_besluiten_related(self):
+        concept_besluittype1 = BesluitTypeFactory.create(concept=True)
+        concept_besluittype2 = BesluitTypeFactory.create(concept=True)
+
+        admin_url = reverse("admin:catalogi_besluittype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [concept_besluittype1.id, concept_besluittype2.id]
+
+        response = form.submit()
+
+        # no warning, because all besluittypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both besluittypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(BesluitType.objects.exists())

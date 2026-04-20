@@ -19,6 +19,7 @@ from vng_api_common.constants import (
 )
 
 from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.components.zaken.tests.factories import ResultaatFactory
 from openzaak.selectielijst.admin_fields import (
     get_resultaattype_omschrijving_readonly_field,
 )
@@ -676,3 +677,199 @@ class ResultaattypeAdminVCRTests(
             "De resultaattypeomschrijving is niet afkomstig uit de Selectielijst API-service"
         )
         assert expected_error in response.text
+
+
+@tag("gh-1877")
+@disable_admin_mfa()
+class ResultaatTypeDeleteAdminTests(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.user = SuperUserFactory.create()
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.set_user(self.user)
+
+    def test_delete_published_resultaattype_not_allowed_if_resultaten_related(self):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        resultaattype = ResultaatTypeFactory.create(zaaktype=non_concept_zaaktype)
+        ResultaatFactory.create(
+            zaak__zaaktype=non_concept_zaaktype, resultaattype=resultaattype
+        )
+
+        admin_url = reverse(
+            "admin:catalogi_resultaattype_delete", args=(resultaattype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("resultaattype kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _("vereist het verwijderen van de volgende gerelateerde objecten"),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(ResultaatType.objects.count(), 1)
+
+    def test_bulk_delete_published_resultaattypen_not_allowed_if_resultaten_related(
+        self,
+    ):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        concept_resultaattype = ResultaatTypeFactory.create(zaaktype=concept_zaaktype)
+        non_concept_resultaattype = ResultaatTypeFactory.create(
+            zaaktype=non_concept_zaaktype
+        )
+
+        ResultaatFactory.create(resultaattype=non_concept_resultaattype)
+
+        admin_url = reverse("admin:catalogi_resultaattype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [
+            concept_resultaattype.id,
+            non_concept_resultaattype.id,
+        ]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+        # Delete is not allowed
+        self.assertIn(_("resultaattypen kan niet worden verwijderd"), response.text)
+        self.assertIn(
+            _(
+                "vereist het verwijderen van de volgende beschermde gerelateerde objecten"
+            ),
+            response.text,
+        )
+        # Delete confirmation form should not be present
+        self.assertNotIn(1, response.forms)
+        self.assertEqual(ResultaatType.objects.count(), 2)
+
+    def test_delete_published_resultaattype_allowed_if_no_resultaten_related(self):
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        non_concept_resultaattype = ResultaatTypeFactory.create(
+            zaaktype=non_concept_zaaktype
+        )
+
+        admin_url = reverse(
+            "admin:catalogi_resultaattype_delete", args=(non_concept_resultaattype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # resultaattype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ResultaatType.objects.exists())
+
+    def test_bulk_delete_published_resultaattypen_allowed_if_no_resultaten_related(
+        self,
+    ):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
+        concept_resultaattype = ResultaatTypeFactory.create(zaaktype=concept_zaaktype)
+        non_concept_resultaattype = ResultaatTypeFactory.create(
+            zaaktype=non_concept_zaaktype
+        )
+
+        admin_url = reverse("admin:catalogi_resultaattype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [
+            concept_resultaattype.id,
+            non_concept_resultaattype.id,
+        ]
+
+        response = form.submit()
+
+        # warning about deleting published types should be present on confirmation page
+        self.assertIsNotNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both resultaattypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ResultaatType.objects.exists())
+
+    def test_delete_concept_resultaattype_allowed_if_no_resultaten_related(self):
+        concept_zaaktype = ZaakTypeFactory.create(concept=True)
+        concept_resultaattype = ResultaatTypeFactory.create(zaaktype=concept_zaaktype)
+
+        admin_url = reverse(
+            "admin:catalogi_resultaattype_delete", args=(concept_resultaattype.id,)
+        )
+
+        response = self.app.get(admin_url)
+
+        # no warning, because all resultaattypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+
+        response = form.submit()
+
+        # resultaattype is successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ResultaatType.objects.exists())
+
+    def test_bulk_delete_concept_resultaattypen_allowed_if_no_resultaten_related(
+        self,
+    ):
+        concept_zaaktype1 = ZaakTypeFactory.create(concept=True)
+        concept_zaaktype2 = ZaakTypeFactory.create(concept=True)
+        concept_resultaattype1 = ResultaatTypeFactory.create(zaaktype=concept_zaaktype1)
+        concept_resultaattype2 = ResultaatTypeFactory.create(zaaktype=concept_zaaktype2)
+
+        admin_url = reverse("admin:catalogi_resultaattype_changelist")
+        form = self.app.get(admin_url).forms["changelist-form"]
+        form["action"] = "delete_selected"
+        form["_selected_action"] = [
+            concept_resultaattype1.id,
+            concept_resultaattype2.id,
+        ]
+
+        response = form.submit()
+
+        # no warning, because all resultaattypen are concepts
+        self.assertIsNone(
+            response.html.find("li", {"id": "deleting-published-types-warning"})
+        )
+
+        form = response.forms[1]
+        form["action"] = "delete_selected"
+        form["post"] = "yes"
+
+        response = form.submit()
+
+        # Both resultaattypen are successfully deleted
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ResultaatType.objects.exists())

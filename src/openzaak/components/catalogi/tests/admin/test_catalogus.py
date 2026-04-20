@@ -1,18 +1,17 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2021 Dimpact
+from django.test import tag
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.zaken.tests.factories import ZaakFactory
 
-<<<<<<< Updated upstream
-from ..factories import CatalogusFactory
-=======
-from ...models import ZaakType
+from ...models import Catalogus
 from ..factories import CatalogusFactory, ZaakTypeFactory, ZaakTypenRelatieFactory
->>>>>>> Stashed changes
 
 
 @disable_admin_mfa()
@@ -63,8 +62,6 @@ class CatalogusAdminTests(WebTest):
             with self.subTest(url):
                 response = self.app.get(url)
                 self.assertEqual(response.status_code, 200)
-<<<<<<< Updated upstream
-=======
 
 
 @tag("gh-1877")
@@ -107,7 +104,7 @@ class CatalogusDeleteAdminTests(WebTest):
         )
         # Delete confirmation form should not be present
         self.assertNotIn(1, response.forms)
-        self.assertEqual(ZaakType.objects.count(), 1)
+        self.assertEqual(Catalogus.objects.count(), 1)
 
     def test_bulk_delete_catalogus_with_published_zaaktypen_not_allowed_if_zaken_related(
         self,
@@ -141,7 +138,7 @@ class CatalogusDeleteAdminTests(WebTest):
         )
         # Delete confirmation form should not be present
         self.assertNotIn(1, response.forms)
-        self.assertEqual(ZaakType.objects.count(), 2)
+        self.assertEqual(Catalogus.objects.count(), 1)
 
     def test_delete_catalogus_with_published_zaaktype_allowed_if_no_zaken_related(self):
         catalogus = CatalogusFactory.create()
@@ -149,6 +146,7 @@ class CatalogusDeleteAdminTests(WebTest):
 
         # Relations should not block deletion
         ZaakTypenRelatieFactory.create(zaaktype=zaaktype)
+        ZaakTypeFactory.create(concept=False, catalogus=catalogus)
 
         admin_url = reverse("admin:catalogi_catalogus_delete", args=(catalogus.id,))
 
@@ -165,7 +163,7 @@ class CatalogusDeleteAdminTests(WebTest):
 
         # Both Zaaktypen are successfully deleted
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(ZaakType.objects.exists())
+        self.assertFalse(Catalogus.objects.exists())
 
     def test_bulk_delete_catalogus_with_published_zaaktypen_allowed_if_no_zaken_related(
         self,
@@ -192,9 +190,9 @@ class CatalogusDeleteAdminTests(WebTest):
 
         response = form.submit()
 
-        # Both Zaaktypen are successfully deleted
+        # catalogus is successfully deleted
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(ZaakType.objects.exists())
+        self.assertFalse(Catalogus.objects.exists())
 
     def test_delete_catalogus_with_concept_zaaktype_allowed_if_no_zaken_related(self):
         catalogus = CatalogusFactory.create()
@@ -213,21 +211,22 @@ class CatalogusDeleteAdminTests(WebTest):
 
         response = form.submit()
 
-        # Both Zaaktypen are successfully deleted
+        # catalogus is successfully deleted
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(ZaakType.objects.exists())
+        self.assertFalse(Catalogus.objects.exists())
 
     def test_bulk_delete_catalogus_with_concept_zaaktypen_allowed_if_no_zaken_related(
         self,
     ):
-        catalogus = CatalogusFactory.create()
-        ZaakTypeFactory.create(concept=True, catalogus=catalogus)
-        ZaakTypeFactory.create(concept=True, catalogus=catalogus)
+        catalogus1 = CatalogusFactory.create()
+        catalogus2 = CatalogusFactory.create()
+        ZaakTypeFactory.create(concept=True, catalogus=catalogus1)
+        ZaakTypeFactory.create(concept=True, catalogus=catalogus2)
 
         admin_url = reverse("admin:catalogi_catalogus_changelist")
         form = self.app.get(admin_url).forms["changelist-form"]
         form["action"] = "delete_selected"
-        form["_selected_action"] = [catalogus.id]
+        form["_selected_action"] = [catalogus1.id, catalogus2.id]
 
         response = form.submit()
 
@@ -242,7 +241,6 @@ class CatalogusDeleteAdminTests(WebTest):
 
         response = form.submit()
 
-        # Both Zaaktypen are successfully deleted
+        # catalogi are successfully deleted
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(ZaakType.objects.exists())
->>>>>>> Stashed changes
+        self.assertFalse(Catalogus.objects.exists())
