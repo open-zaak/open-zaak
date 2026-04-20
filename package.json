@@ -39,6 +39,7 @@
     "mini-css-extract-plugin": "latest",
     "postcss-loader": "latest",
     "postcss-selector-lint": "latest",
+    "sass": "^1.99.0",
     "sass-loader": "latest",
     "webpack": "latest",
     "webpack-cli": "latest",
