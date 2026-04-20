@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 
+from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.components.zaken.models import ZaakInformatieObject
 from openzaak.utils.admin import (
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
@@ -68,6 +70,23 @@ class ZaakTypeInformatieObjectTypeAdmin(
         if not obj:
             return True
         return obj.zaaktype.concept or obj.informatieobjecttype.concept
+
+    def has_delete_permission(self, request, obj=None):
+        # Instead of checking whether or not the zaaktype/informatieobjecttype is a
+        # concept, we check if any relations between Zaken and InformatieObjecten exist
+        # that depend on this relationship. If they do, the relationship cannot be
+        # deleted
+        if obj:
+            # Only allow deletion if no relations exist between zaken and documenten
+            # of the types linked by this ZaakTypeInformatieObjectType object
+            if ZaakInformatieObject.objects.filter(
+                zaak__zaaktype=obj.zaaktype,
+                _informatieobject__pk__in=EnkelvoudigInformatieObject.objects.filter(
+                    _informatieobjecttype=obj.informatieobjecttype
+                ).values_list("canonical", flat=True),
+            ).exists():
+                return False
+        return super().has_delete_permission(request, obj)
 
 
 class ZaakTypeInformatieObjectTypeInline(EditInlineAdminMixin, admin.TabularInline):

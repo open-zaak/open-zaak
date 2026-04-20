@@ -109,6 +109,7 @@ INSTALLED_APPS = (
         "openzaak.config",
         "openzaak.selectielijst",
         "openzaak.notifications",
+        "openzaak.templatetags",
     ]
     + PLUGIN_INSTALLED_APPS
 )

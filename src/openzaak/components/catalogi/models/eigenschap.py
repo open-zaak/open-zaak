@@ -223,6 +223,14 @@ class Eigenschap(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
         ),
     )
 
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept
+
     class Meta:
         unique_together = ("zaaktype", "eigenschapnaam")
         verbose_name = _("Eigenschap")

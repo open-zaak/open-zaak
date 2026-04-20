@@ -106,6 +106,13 @@ class CatalogusAdmin(
     )
     inlines = (ZaakTypeInline, BesluitTypeInline, InformatieObjectTypeInline)
     readonly_fields = ("uuid",)
+    # Templates to add warning message when trying to delete published types
+    delete_confirmation_template = (
+        "admin/catalogi/delete_confirmation_published_warning.html"
+    )
+    delete_selected_confirmation_template = (
+        "admin/catalogi/delete_selected_confirmation_published_warning.html"
+    )
 
     # For import/export mixins
     resource_name = "catalogus"

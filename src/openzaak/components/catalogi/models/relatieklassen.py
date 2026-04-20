@@ -68,6 +68,14 @@ class ZaakTypeInformatieObjectType(ETagMixin, models.Model):
         ),
     )
 
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept and self.informatieobjecttype.concept
+
     class Meta:
         # NOTE: The uniqueness is implied in the specification.
         unique_together = ("zaaktype", "volgnummer")
@@ -116,6 +124,14 @@ class ZaakTypenRelatie(models.Model):
             "Een toelichting op de aard van de relatie tussen beide ZAAKTYPEN."
         ),
     )
+
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept
 
     class Meta:
         # NOTE: The uniqueness is not explicitly defined in specification:
