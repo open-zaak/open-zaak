@@ -32,6 +32,10 @@ class BesluitInformatieObjectForm(forms.ModelForm):
                 "selecteer een informatieobject of vul een externe URL in."
             )
 
+        if canonical := cleaned_data.get("_informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError("Het informatieobject heeft geen versie")
+
         return cleaned_data
 
 

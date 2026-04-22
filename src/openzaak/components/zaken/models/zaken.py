@@ -1776,6 +1776,8 @@ class ZaakInformatieObject(ETagMixin, APIMixin, models.Model):
         informatieobject = self.informatieobject
         if hasattr(informatieobject, "identificatie"):
             doc_identificatie = informatieobject.identificatie
+        elif informatieobject.latest_version is None:
+            doc_identificatie = None
         else:
             doc_identificatie = informatieobject.latest_version.identificatie
 

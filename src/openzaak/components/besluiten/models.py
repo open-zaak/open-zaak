@@ -375,6 +375,8 @@ class BesluitInformatieObject(ETagMixin, models.Model):
 
         if hasattr(self.informatieobject, "identificatie"):
             doc_identificatie = self.informatieobject.identificatie
+        elif self.informatieobject.latest_version is None:
+            doc_identificatie = None
         else:
             doc_identificatie = self.informatieobject.latest_version.identificatie
 

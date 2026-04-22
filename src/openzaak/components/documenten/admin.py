@@ -40,6 +40,21 @@ from .views import PrivateMediaView
 from .widgets import AdminFileWidget, PrivateFileWidget
 
 
+class GebruiksrechtenForm(forms.ModelForm):
+    class Meta:
+        model = Gebruiksrechten
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError("Het informatieobject heeft geen versie")
+
+        return cleaned_data
+
+
 @admin.register(Gebruiksrechten)
 class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("informatieobject", "startdatum", "einddatum")
@@ -54,6 +69,7 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+    form = GebruiksrechtenForm
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):
@@ -92,6 +108,10 @@ class ObjectInformatieObjectForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Je moet een verzoek opgeven: vul een externe URL in."
             )
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError("Het informatieobject heeft geen versie")
 
         return cleaned_data
 
@@ -137,6 +157,21 @@ class ObjectInformatieObjectAdmin(UUIDAdminMixin, admin.ModelAdmin):
         )
 
 
+class VerzendingForm(forms.ModelForm):
+    class Meta:
+        model = Verzending
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError("Het informatieobject heeft geen versie")
+
+        return cleaned_data
+
+
 @admin.register(Verzending)
 class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
     list_display = (
@@ -159,7 +194,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
         "uuid",
     )
     raw_id_fields = ("informatieobject",)
-
+    form = VerzendingForm
     readonly_fields = ("uuid",)
 
     fieldsets = (
@@ -215,7 +250,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "correspondentie_postadres_postbus_of_antwoord_nummer",
-                    "correspondentie_postadres_postadres_postcode",
+                    "correspondentie_postadres_postcode",
                     "correspondentie_postadres_postadrestype",
                     "correspondentie_postadres_woonplaatsnaam",
                 ),
@@ -508,6 +543,19 @@ class EnkelvoudigInformatieObjectAdmin(
 
         return super().response_delete(request, obj_display, obj_id)
 
+class BestandsDeelForm(forms.ModelForm):
+    class Meta:
+        model = BestandsDeel
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError("Het informatieobject heeft geen versie")
+
+        return cleaned_data
 
 @admin.register(BestandsDeel)
 class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
@@ -520,3 +568,4 @@ class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
     )
     list_filter = ("informatieobject",)
     private_media_fields = ("inhoud",)
+    form = BestandsDeelForm
