@@ -214,10 +214,10 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
             _("Afwijkend correspondentie postadres verzending"),
             {
                 "fields": (
-                    "buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer",
-                    "buitenlands_correspondentiepostadres_postadres_postcode",
-                    "buitenlands_correspondentiepostadres_postadrestype",
-                    "buitenlands_correspondentiepostadres_woonplaatsnaam",
+                    "correspondentie_postadres_postbus_of_antwoord_nummer",
+                    "correspondentie_postadres_postadres_postcode",
+                    "correspondentie_postadres_postadrestype",
+                    "correspondentie_postadres_woonplaatsnaam",
                 ),
             },
         ),
