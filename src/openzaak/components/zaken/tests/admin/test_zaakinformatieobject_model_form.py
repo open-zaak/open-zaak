@@ -7,6 +7,9 @@ from maykin_2fa.test import disable_admin_mfa
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
+)
 from openzaak.components.zaken.admin import ZaakInformatieObjectForm
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 
@@ -16,9 +19,10 @@ class TestZaakInformatieObjectForm(TestCase):
     def test_zaakinformatieobject_form_clean_does_not_throw_exception_if_informatieobject_is_given(
         self,
     ):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
         form = ZaakInformatieObjectForm()
         form.cleaned_data = {
-            "_informatieobject": 1,
+            "_informatieobject": canonical,
         }
         try:
             form.clean()

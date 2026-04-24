@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2026 Dimpact
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -11,7 +13,7 @@ from openzaak.components.documenten.tests.factories import (
 
 
 @disable_admin_mfa()
-class EnkelvoudigInformatieObjectAdminTests(WebTest):
+class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.user = SuperUserFactory.create()

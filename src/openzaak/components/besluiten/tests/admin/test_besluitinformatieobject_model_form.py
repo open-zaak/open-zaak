@@ -8,6 +8,9 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.admin import BesluitInformatieObjectForm
+from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
+)
 
 
 @disable_admin_mfa()
@@ -15,9 +18,10 @@ class TestBesluitInformatieObjectForm(TestCase):
     def test_besluit_information_object_form_clean_does_not_throw_exception_if_informatieobject_is_given(
         self,
     ):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
         form = BesluitInformatieObjectForm()
         form.cleaned_data = {
-            "_informatieobject": 1,
+            "_informatieobject": canonical,
         }
         try:
             form.clean()

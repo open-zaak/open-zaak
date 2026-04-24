@@ -383,6 +383,11 @@ class BesluitInformatieObject(ETagMixin, models.Model):
         return f"({besluit_repr}) - {doc_identificatie}"
 
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+
+        if update_fields and set(update_fields) == {"_etag"}:
+            return super().save(*args, **kwargs)
+
         if (
             self._informatieobject is not None
             and self._informatieobject.latest_version is None
