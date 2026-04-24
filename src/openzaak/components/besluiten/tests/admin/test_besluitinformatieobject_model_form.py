@@ -48,3 +48,16 @@ class TestBesluitInformatieObjectForm(TestCase):
         form.cleaned_data = {}
         with self.assertRaises(forms.ValidationError):
             form.clean()
+
+    def test_besluit_information_object_form_throws_exception_if_informatieobject_does_not_have_version(
+        self,
+    ):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        form = BesluitInformatieObjectForm()
+        form.cleaned_data = {
+            "_informatieobject": canonical,
+        }
+        with self.assertRaises(forms.ValidationError):
+            form.clean()

@@ -10,6 +10,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.documenten.admin import ObjectInformatieObjectForm
 
 from ...constants import ObjectInformatieObjectTypes
+from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
 @disable_admin_mfa()
@@ -89,5 +90,18 @@ class TestObjectInformatieObjectForm(TestCase):
     ):
         form = ObjectInformatieObjectForm()
         form.cleaned_data = {"object_type": ObjectInformatieObjectTypes.besluit}
+        with self.assertRaises(forms.ValidationError):
+            form.clean()
+
+    def test_objectinformation_object_form_throws_exception_if_informatieobject_does_not_have_version(
+        self,
+    ):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        form = ObjectInformatieObjectForm()
+        form.cleaned_data = {
+            "informatieobject": canonical,
+        }
         with self.assertRaises(forms.ValidationError):
             form.clean()

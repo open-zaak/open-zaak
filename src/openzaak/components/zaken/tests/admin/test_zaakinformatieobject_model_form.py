@@ -62,3 +62,16 @@ class TestZaakInformatieObjectForm(TestCase):
         )
 
         self.assertFalse(form.is_valid())
+
+    def test_zaakinformation_object_form_throws_exception_if_informatieobject_does_not_have_version(
+        self,
+    ):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
+            latest_version=None
+        )
+        form = ZaakInformatieObjectForm()
+        form.cleaned_data = {
+            "_informatieobject": canonical,
+        }
+        with self.assertRaises(forms.ValidationError):
+            form.clean()
