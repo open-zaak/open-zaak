@@ -50,11 +50,13 @@ class DeleteEmptyEIOCTests(JWTAuthMixin, APITestCase):
 
         zio_url = reverse(zio)
         response = self.client.get(zio_url, **ZAAK_WRITE_KWARGS)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["informatieobject"], None)
 
         bio_url = reverse(bio)
         response = self.client.get(bio_url)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["informatieobject"], None)
 
         response = self.client.get(reverse(besluit))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

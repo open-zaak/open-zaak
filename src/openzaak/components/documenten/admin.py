@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
+from django.forms import BaseInlineFormSet
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -281,6 +282,16 @@ class VerzendingInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "informatieobject"
 
 
+class EnkelvoudigInformatieObjectFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.min_num = 1
+        self.validate_min = True
+        self.error_messages["too_few_forms"] = _(
+            "Een canonical moet minstens 1 versie hebben"
+        )
+
+
 class EnkelvoudigInformatieObjectInline(
     AuditTrailInlineAdminMixin, PrivateMediaMixin, admin.StackedInline
 ):
@@ -288,13 +299,12 @@ class EnkelvoudigInformatieObjectInline(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     readonly_fields = ("uuid",)
     extra = 0
-    min_num = 1
     verbose_name = _("versie")
     verbose_name_plural = _("versies")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
-    can_delete = False
+    formset = EnkelvoudigInformatieObjectFormSet
 
     @property
     def private_media_file_widget(self):
@@ -543,6 +553,7 @@ class EnkelvoudigInformatieObjectAdmin(
 
         return super().response_delete(request, obj_display, obj_id)
 
+
 class BestandsDeelForm(forms.ModelForm):
     class Meta:
         model = BestandsDeel
@@ -556,6 +567,7 @@ class BestandsDeelForm(forms.ModelForm):
                 raise forms.ValidationError("Het informatieobject heeft geen versie")
 
         return cleaned_data
+
 
 @admin.register(BestandsDeel)
 class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
