@@ -4,6 +4,7 @@ from .file import Base64FileFileFieldExtension  # noqa
 from .gegevensgroep import GegevensGroepSerializerExtension  # noqa
 from .geojson import GeometryFieldExtension  # noqa
 from .hyperlink_identity import HyperlinkedIdentityFieldExtension  # noqa
+from .enkelvoudiginformatieobjectfield import EnkelvoudigInformatieObjectFieldExtension  # noqa Needs to be before FKOrURLFieldFieldExtension (subclass)
 from .loose_fk import FKOrURLFieldFieldExtension  # noqa
 from .polymorphic import PolymorphicSerializerExtension  # noqa
 from .query import CamelizeFilterExtension  # noqa

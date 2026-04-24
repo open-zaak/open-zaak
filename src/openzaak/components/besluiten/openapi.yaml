@@ -2471,11 +2471,12 @@ components:
             en locatie van dit object.
         informatieobject:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
-          format: uri
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         besluit:
           type: string
           format: uri
@@ -2491,10 +2492,10 @@ components:
       properties:
         informatieobject:
           type: string
+          format: uri
           minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
-          format: uri
           maxLength: 1000
         besluit:
           type: string
@@ -2518,11 +2519,12 @@ components:
             en locatie van dit object.
         informatieobject:
           type: string
+          format: uri
+          nullable: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
-          format: uri
-          minLength: 1
           maxLength: 1000
+          minLength: 1
         besluit:
           type: string
           format: uri
@@ -2539,10 +2541,10 @@ components:
       properties:
         informatieobject:
           type: string
+          format: uri
           minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
-          format: uri
           maxLength: 1000
       required:
       - informatieobject
