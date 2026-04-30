@@ -6,6 +6,9 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.components.documenten.models import (
+    EnkelvoudigInformatieObject,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
@@ -40,6 +43,7 @@ class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Een canonical moet minstens 1 versie hebben")
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
 
     def test_delete_second_to_last_inline_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
@@ -59,3 +63,4 @@ class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Een canonical moet minstens 1 versie hebben")
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)

@@ -1150,7 +1150,6 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             ),
         ],
         max_length=1000,
-        min_length=1,
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
     )
 
@@ -1238,7 +1237,6 @@ class ZaakInformatieObjectSubSerializer(
 ):
     informatieobject = EnkelvoudigInformatieObjectField(
         max_length=1000,
-        min_length=1,
         help_text=get_help_text("zaken.ZaakInformatieObject", "informatieobject"),
         required=False,
         read_only=True,

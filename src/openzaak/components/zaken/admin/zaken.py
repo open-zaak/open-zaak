@@ -277,13 +277,15 @@ class ZaakInformatieObjectForm(forms.ModelForm):
             "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
-                "Je moet een informatieobject opgeven: "
-                "selecteer een informatieobject of vul een externe URL in."
+                _(
+                    "Je moet een informatieobject opgeven: "
+                    "selecteer een informatieobject of vul een externe URL in."
+                )
             )
 
         if canonical := cleaned_data.get("_informatieobject"):
             if canonical.latest_version is None:
-                raise forms.ValidationError("Het informatieobject heeft geen versie")
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 

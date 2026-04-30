@@ -16807,10 +16807,10 @@ components:
       properties:
         informatieobject:
           type: string
-          format: uri
           minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
         zaak:
           type: string
@@ -19194,12 +19194,10 @@ components:
           description: Unieke resource identifier (UUID4)
         informatieobject:
           type: string
-          format: uri
-          nullable: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
-          minLength: 1
         zaak:
           type: string
           format: uri
@@ -19253,10 +19251,10 @@ components:
       properties:
         informatieobject:
           type: string
-          format: uri
           minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
         zaak:
           type: string
@@ -19309,12 +19307,10 @@ components:
           description: Unieke resource identifier (UUID4)
         informatieobject:
           type: string
-          format: uri
-          nullable: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
-          minLength: 1
         zaak:
           type: string
           format: uri
@@ -19369,10 +19365,10 @@ components:
       properties:
         informatieobject:
           type: string
-          format: uri
           minLength: 1
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
         titel:
           type: string

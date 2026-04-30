@@ -51,7 +51,7 @@ class GebruiksrechtenForm(forms.ModelForm):
 
         if canonical := cleaned_data.get("informatieobject"):
             if canonical.latest_version is None:
-                raise forms.ValidationError("Het informatieobject heeft geen versie")
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 
@@ -112,7 +112,7 @@ class ObjectInformatieObjectForm(forms.ModelForm):
 
         if canonical := cleaned_data.get("informatieobject"):
             if canonical.latest_version is None:
-                raise forms.ValidationError("Het informatieobject heeft geen versie")
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 
@@ -168,7 +168,7 @@ class VerzendingForm(forms.ModelForm):
 
         if canonical := cleaned_data.get("informatieobject"):
             if canonical.latest_version is None:
-                raise forms.ValidationError("Het informatieobject heeft geen versie")
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 
@@ -564,7 +564,7 @@ class BestandsDeelForm(forms.ModelForm):
 
         if canonical := cleaned_data.get("informatieobject"):
             if canonical.latest_version is None:
-                raise forms.ValidationError("Het informatieobject heeft geen versie")
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 

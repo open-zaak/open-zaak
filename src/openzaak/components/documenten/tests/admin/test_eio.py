@@ -198,6 +198,28 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
         self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
         self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
 
+    def test_delete_with_canonical_locK(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(lock=True)
+
+        eio = canonical.latest_version
+
+        url = reverse(
+            "admin:documenten_enkelvoudiginformatieobject_delete", args=(eio.pk,)
+        )
+        response = self.app.get(url)
+        form = response.forms[1]
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertInHTML(
+            _("Locked objects cannot be destroyed"),
+            response.content.decode("utf-8"),
+        )
+
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 1)
+
 
 @disable_admin_mfa()
 class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):

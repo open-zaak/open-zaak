@@ -8880,13 +8880,11 @@ components:
           description: Unieke resource identifier (UUID4)
         informatieobject:
           type: string
-          format: uri
-          nullable: true
           readOnly: true
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
+          format: uri
           maxLength: 1000
-          minLength: 1
         zaak:
           type: string
           format: uri

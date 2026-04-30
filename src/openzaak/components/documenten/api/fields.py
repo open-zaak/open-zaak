@@ -29,7 +29,7 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
         value = value.latest_version
 
         if value is None:
-            return None
+            return ""
 
         return reverse(
             "enkelvoudiginformatieobject-detail",
