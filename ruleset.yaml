@@ -1,0 +1,6 @@
+# 2.1 ruleset got changed without a version increase
+extends: https://static.developer.overheid.nl/adr/2.1/ruleset.yaml
+rules:
+  nlgov:query-keys-camel-case: warn
+  nlgov:paths-kebab-case: warn
+
