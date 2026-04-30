@@ -12,7 +12,11 @@ from openzaak.components.besluiten.tests.factories import BesluitInformatieObjec
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import JWTAuthMixin
 
-from ..models import EnkelvoudigInformatieObject, Gebruiksrechten
+from ..models import (
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+)
 from .factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     GebruiksrechtenFactory,
@@ -44,6 +48,7 @@ class US349TestCase(JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(EnkelvoudigInformatieObject.objects.all().count(), 0)
+        self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.all().count(), 0)
 
         self.assertFalse(Gebruiksrechten.objects.all().exists())
 

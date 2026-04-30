@@ -19197,7 +19197,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
           format: uri
-          minLength: 1
           maxLength: 1000
         zaak:
           type: string
@@ -19311,7 +19310,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API), waar ook de relatieinformatie opgevraagd kan worden.
           format: uri
-          minLength: 1
           maxLength: 1000
         zaak:
           type: string

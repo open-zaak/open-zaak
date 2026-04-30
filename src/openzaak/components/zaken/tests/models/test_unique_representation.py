@@ -4,6 +4,7 @@ from privates.test import temp_private_root
 from rest_framework.test import APITestCase
 
 from openzaak.components.documenten.tests.factories import (
+    EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
 
@@ -35,3 +36,18 @@ class UniqueRepresentationTestCase(APITestCase):
         unique_repr = rol.unique_representation()
 
         self.assertLessEqual(len(unique_repr), 200)
+
+    def test_zaakinformatieobject_with_canonical_without_version(self):
+        canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
+        zio = ZaakInformatieObjectFactory(
+            zaak__bronorganisatie=730924658,
+            zaak__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
+            informatieobject=canonical,
+        )
+
+        canonical.latest_version.delete()
+
+        self.assertEqual(
+            zio.unique_representation(),
+            "(730924658 - 5d940d52-ff5e-4b18-a769-977af9130c04) - None",
+        )

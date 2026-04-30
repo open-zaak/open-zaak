@@ -277,11 +277,26 @@ class ZaakInformatieObjectForm(forms.ModelForm):
             "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
-                "Je moet een informatieobject opgeven: "
-                "selecteer een informatieobject of vul een externe URL in."
+                _(
+                    "Je moet een informatieobject opgeven: "
+                    "selecteer een informatieobject of vul een externe URL in."
+                )
             )
 
+        if canonical := cleaned_data.get("_informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
+
         return cleaned_data
+
+    def _post_clean(self):
+        """
+        django calls eio __str__ within _post_clean which fails if new object does not have IO set
+        clean() did add the error but post clean is done regardless by default
+        """
+        if self.errors:
+            return
+        super()._post_clean()
 
 
 @admin.register(ZaakInformatieObject)

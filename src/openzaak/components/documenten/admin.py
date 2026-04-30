@@ -2,13 +2,18 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
+from django.forms import BaseInlineFormSet
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from privates.admin import PrivateMediaMixin
+from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.admin import (
@@ -36,6 +41,21 @@ from .views import PrivateMediaView
 from .widgets import AdminFileWidget, PrivateFileWidget
 
 
+class GebruiksrechtenForm(forms.ModelForm):
+    class Meta:
+        model = Gebruiksrechten
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
+
+        return cleaned_data
+
+
 @admin.register(Gebruiksrechten)
 class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("informatieobject", "startdatum", "einddatum")
@@ -50,6 +70,7 @@ class GebruiksrechtenAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmi
     ordering = ("startdatum", "informatieobject")
     raw_id_fields = ("informatieobject",)
     viewset = viewsets.GebruiksrechtenViewSet
+    form = GebruiksrechtenForm
 
 
 class ObjectInformatieObjectForm(forms.ModelForm):
@@ -88,6 +109,10 @@ class ObjectInformatieObjectForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Je moet een verzoek opgeven: vul een externe URL in."
             )
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 
@@ -133,6 +158,21 @@ class ObjectInformatieObjectAdmin(UUIDAdminMixin, admin.ModelAdmin):
         )
 
 
+class VerzendingForm(forms.ModelForm):
+    class Meta:
+        model = Verzending
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
+
+        return cleaned_data
+
+
 @admin.register(Verzending)
 class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
     list_display = (
@@ -155,7 +195,7 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
         "uuid",
     )
     raw_id_fields = ("informatieobject",)
-
+    form = VerzendingForm
     readonly_fields = ("uuid",)
 
     fieldsets = (
@@ -210,10 +250,10 @@ class VerzendingAdmin(UUIDAdminMixin, admin.ModelAdmin):
             _("Afwijkend correspondentie postadres verzending"),
             {
                 "fields": (
-                    "buitenlands_correspondentiepostadres_postbus_of_antwoord_nummer",
-                    "buitenlands_correspondentiepostadres_postadres_postcode",
-                    "buitenlands_correspondentiepostadres_postadrestype",
-                    "buitenlands_correspondentiepostadres_woonplaatsnaam",
+                    "correspondentie_postadres_postbus_of_antwoord_nummer",
+                    "correspondentie_postadres_postcode",
+                    "correspondentie_postadres_postadrestype",
+                    "correspondentie_postadres_woonplaatsnaam",
                 ),
             },
         ),
@@ -242,6 +282,16 @@ class VerzendingInline(EditInlineAdminMixin, admin.TabularInline):
     fk_name = "informatieobject"
 
 
+class EnkelvoudigInformatieObjectFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.min_num = 1
+        self.validate_min = True
+        self.error_messages["too_few_forms"] = _(
+            "Een canonical moet minstens 1 versie hebben"
+        )
+
+
 class EnkelvoudigInformatieObjectInline(
     AuditTrailInlineAdminMixin, PrivateMediaMixin, admin.StackedInline
 ):
@@ -249,12 +299,12 @@ class EnkelvoudigInformatieObjectInline(
     raw_id_fields = ("canonical", "_informatieobjecttype")
     readonly_fields = ("uuid",)
     extra = 0
-    min_num = 1
     verbose_name = _("versie")
     verbose_name_plural = _("versies")
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
+    formset = EnkelvoudigInformatieObjectFormSet
 
     @property
     def private_media_file_widget(self):
@@ -355,6 +405,7 @@ class EnkelvoudigInformatieObjectAdmin(
     viewset = viewsets.EnkelvoudigInformatieObjectViewSet
     private_media_fields = ("inhoud",)
     private_media_view_class = PrivateMediaView
+    actions = None
 
     @property
     def private_media_file_widget(self):
@@ -465,6 +516,58 @@ class EnkelvoudigInformatieObjectAdmin(
             link_to_related_objects(Verzending, obj.canonical),
         )
 
+    def delete_model(self, request, obj):
+        if obj.has_references():
+            self.message_user(
+                request,
+                _(
+                    "All relations to the document must be destroyed before destroying the document"
+                ),
+                level=messages.ERROR,
+            )
+            return
+
+        if obj.canonical.lock:
+            self.message_user(
+                request, _("Locked objects cannot be destroyed"), level=messages.ERROR
+            )
+            return
+
+        viewset = self.get_viewset(request)
+
+        data = self.get_serializer_data(request, viewset, obj)
+
+        with transaction.atomic():
+            obj.destroy()
+            AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
+
+    def response_delete(self, request, obj_display, obj_id):
+        if messages.get_messages(request):
+            opts = self.model._meta
+            return HttpResponseRedirect(
+                reverse(
+                    f"admin:{opts.app_label}_{opts.model_name}_change",
+                    args=[obj_id],
+                )
+            )
+
+        return super().response_delete(request, obj_display, obj_id)
+
+
+class BestandsDeelForm(forms.ModelForm):
+    class Meta:
+        model = BestandsDeel
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if canonical := cleaned_data.get("informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
+
+        return cleaned_data
+
 
 @admin.register(BestandsDeel)
 class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
@@ -477,3 +580,4 @@ class BestandsDeelAdmin(PrivateMediaMixin, admin.ModelAdmin):
     )
     list_filter = ("informatieobject",)
     private_media_fields = ("inhoud",)
+    form = BestandsDeelForm

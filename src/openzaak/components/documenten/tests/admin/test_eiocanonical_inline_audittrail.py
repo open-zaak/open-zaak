@@ -50,6 +50,7 @@ class EioAdminInlineTests(WebTest):
         eio = EnkelvoudigInformatieObjectFactory.create(
             canonical=self.canonical, inhoud__filename="12321321.bin"
         )
+        eio2 = EnkelvoudigInformatieObjectFactory.create(canonical=self.canonical)
         eio_url = get_operation_url("enkelvoudiginformatieobject_read", uuid=eio.uuid)
 
         get_response = self.app.get(self.change_url)
@@ -58,7 +59,8 @@ class EioAdminInlineTests(WebTest):
         form["enkelvoudiginformatieobject_set-0-DELETE"] = True
         form.submit()
 
-        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 0)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.count(), 1)
+        self.assertEqual(EnkelvoudigInformatieObject.objects.get(), eio2)
 
         audittrail = AuditTrail.objects.get()
 

@@ -2474,7 +2474,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
           format: uri
-          minLength: 1
           maxLength: 1000
         besluit:
           type: string
@@ -2521,7 +2520,6 @@ components:
           description: URL-referentie naar het INFORMATIEOBJECT (in de Documenten
             API) waarin (een deel van) het besluit beschreven is.
           format: uri
-          minLength: 1
           maxLength: 1000
         besluit:
           type: string

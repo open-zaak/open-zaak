@@ -27,6 +27,10 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
             return super().to_representation(value)
 
         value = value.latest_version
+
+        if value is None:
+            return ""
+
         return reverse(
             "enkelvoudiginformatieobject-detail",
             kwargs={"uuid": value.uuid},

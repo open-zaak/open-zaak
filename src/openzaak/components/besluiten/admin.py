@@ -4,6 +4,7 @@ from django import forms
 from django.contrib import admin
 from django.db.models import CharField, F
 from django.db.models.functions import Concat
+from django.utils.translation import gettext_lazy as _
 
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
@@ -28,9 +29,15 @@ class BesluitInformatieObjectForm(forms.ModelForm):
             "_informatieobject_base_url"
         ):
             raise forms.ValidationError(
-                "Je moet een informatieobject opgeven: "
-                "selecteer een informatieobject of vul een externe URL in."
+                _(
+                    "Je moet een informatieobject opgeven: "
+                    "selecteer een informatieobject of vul een externe URL in."
+                )
             )
+
+        if canonical := cleaned_data.get("_informatieobject"):
+            if canonical.latest_version is None:
+                raise forms.ValidationError(_("Het informatieobject heeft geen versie"))
 
         return cleaned_data
 

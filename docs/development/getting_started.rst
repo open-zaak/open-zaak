@@ -29,7 +29,7 @@ You need the following libraries and/or programs:
 
 .. _Python: https://www.python.org/
 .. _Virtualenv: https://virtualenv.pypa.io/en/stable/
-.. _Pip: https://packaging.python.org/tutorials/installing-packages/#ensure-pip-setuptools-and-wheel-are-up-to-date
+.. _Pip: https://packaging.python.org/en/latest/tutorials/installing-packages/
 .. _PostgreSQL: https://www.postgresql.org
 .. _PostGIS-extension: https://postgis.net/
 .. _Node.js: http://nodejs.org/
