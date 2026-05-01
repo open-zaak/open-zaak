@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.27.1 (2026-05-04)
+-------------------
+
+**Bugfixes**
+
+* Add missing sass dependency that caused failing Docker frontend builds
+
 1.27.0 (2026-02-06)
 -------------------
 
