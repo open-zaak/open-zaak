@@ -10,7 +10,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
 
-from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...factories import EnkelvoudigInformatieObjectFactory
 from ..mixins import S3torageMixin, upload_to
@@ -19,14 +19,12 @@ from ..mixins import S3torageMixin, upload_to
 @disable_admin_mfa()
 @tag("gh-2282", "s3-storage")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)
-class EnkelvoudigInformatieObjectDownloadAdminTests(VCRMixin, S3torageMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
+class EnkelvoudigInformatieObjectDownloadAdminTests(
+    VCRMixin, S3torageMixin, AdminTestMixin, WebTest
+):
     def setUp(self):
         super().setUp()
-        self.app.set_user(self.user)
+
         vcr = self._get_vcr()
         vcr.filter_query_parameters += ("AWSAccessKeyId", "Expires", "Signature")
 

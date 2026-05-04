@@ -7,8 +7,8 @@ from django.utils.translation import gettext as _
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import StatusFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import StatusType
 from ..factories import StatusTypeFactory, ZaakTypeFactory
@@ -16,18 +16,7 @@ from ..factories import StatusTypeFactory, ZaakTypeFactory
 
 @tag("gh-1042")
 @disable_admin_mfa()
-class StatusTypeAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class StatusTypeAdminTests(AdminTestMixin, WebTest):
     def test_create_statustype_for_published_zaaktype_not_allowed(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
@@ -55,18 +44,7 @@ class StatusTypeAdminTests(WebTest):
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class StatusTypeDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class StatusTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_statustype_not_allowed_if_statussen_related(self):
         non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
         statustype = StatusTypeFactory.create(zaaktype=non_concept_zaaktype)

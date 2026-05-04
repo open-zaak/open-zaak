@@ -9,7 +9,6 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from webtest import Upload
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
 from openzaak.components.documenten.exceptions import DocumentBackendNotImplementedError
@@ -19,21 +18,13 @@ from openzaak.components.documenten.models import (
 )
 from openzaak.components.documenten.widgets import PrivateFileWidget
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory
 
 
 @disable_admin_mfa()
-class EnkelvoudigInformatieObjectAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectAdminTests(AdminTestMixin, WebTest):
     def test_form_widget(self):
         admin_obj = EnkelvoudigInformatieObjectAdmin(
             EnkelvoudigInformatieObject, admin.site
@@ -222,16 +213,7 @@ class EnkelvoudigInformatieObjectAdminTests(WebTest):
 
 
 @disable_admin_mfa()
-class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectCanonicalAdminTests(AdminTestMixin, WebTest):
     def test_eio_add_no_version(self):
         self.assertEqual(EnkelvoudigInformatieObjectCanonical.objects.count(), 0)
 

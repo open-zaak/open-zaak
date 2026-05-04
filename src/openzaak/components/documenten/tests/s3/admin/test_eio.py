@@ -13,7 +13,6 @@ from maykin_common.vcr import VCRMixin
 from requests.exceptions import RequestException
 from webtest import Upload
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
 from openzaak.components.documenten.constants import DocumentenBackendTypes
@@ -21,6 +20,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
 from openzaak.components.documenten.widgets import AdminFileWidget
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ....storage import documenten_storage
 from ...factories import (
@@ -33,16 +33,9 @@ from ..mixins import S3torageMixin, upload_to
 @disable_admin_mfa()
 @tag("gh-2282", "s3-storage")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)
-class EnkelvoudigInformatieObjectAdminTests(VCRMixin, S3torageMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectAdminTests(
+    VCRMixin, S3torageMixin, AdminTestMixin, WebTest
+):
     def test_form_widget(self):
         admin_obj = EnkelvoudigInformatieObjectAdmin(
             EnkelvoudigInformatieObject, admin.site

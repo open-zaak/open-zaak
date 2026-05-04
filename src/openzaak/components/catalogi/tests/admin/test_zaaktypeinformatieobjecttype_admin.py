@@ -7,11 +7,11 @@ from django.utils.translation import gettext as _
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import ZaakTypeInformatieObjectType
 from ..factories import (
@@ -23,18 +23,7 @@ from ..factories import (
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class ZaakTypeInformatieObjectTypeDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ZaakTypeInformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_ziot_not_allowed_if_documenten_related(self):
         non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
         non_concept_informatieobjecttype = InformatieObjectTypeFactory.create(

@@ -18,7 +18,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 
-from openzaak.accounts.tests.factories import SuperUserFactory, UserFactory
+from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.zaken.tests.factories import ResultaatFactory
 from openzaak.selectielijst.admin_fields import (
     get_resultaattype_omschrijving_readonly_field,
@@ -31,6 +31,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import ResultaatType
 from ..factories import ResultaatTypeFactory, ZaakTypeFactory
@@ -39,18 +40,8 @@ from ..factories import ResultaatTypeFactory, ZaakTypeFactory
 @disable_admin_mfa()
 @requests_mock.Mocker()
 class ResultaattypeAdminTests(
-    VCRMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+    VCRMixin, ReferentieLijstServiceMixin, ClearCachesMixin, AdminTestMixin, WebTest
 ):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
     def test_zaaktypen_list(self, m):
         ResultaatTypeFactory.create()
         url = reverse("admin:catalogi_resultaattype_changelist")
@@ -684,18 +675,7 @@ class ResultaattypeAdminVCRTests(
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class ResultaatTypeDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ResultaatTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_resultaattype_not_allowed_if_resultaten_related(self):
         non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
         resultaattype = ResultaatTypeFactory.create(zaaktype=non_concept_zaaktype)

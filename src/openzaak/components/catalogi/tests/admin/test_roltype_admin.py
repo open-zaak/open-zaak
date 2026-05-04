@@ -10,6 +10,7 @@ from vng_api_common.constants import RolOmschrijving
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import RolFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import RolType
 from ..factories import RolTypeFactory, ZaakTypeFactory
@@ -17,18 +18,7 @@ from ..factories import RolTypeFactory, ZaakTypeFactory
 
 @tag("gh-1042")
 @disable_admin_mfa()
-class RolTypeAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class RolTypeAdminTests(AdminTestMixin, WebTest):
     def test_create_roltype_for_published_zaaktype_not_allowed(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 

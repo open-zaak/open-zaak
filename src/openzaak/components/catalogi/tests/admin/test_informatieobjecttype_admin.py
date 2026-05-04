@@ -16,6 +16,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import InformatieObjectType, ZaakType, ZaakTypeInformatieObjectType
 from ..factories import (
@@ -27,10 +28,10 @@ from ..factories import (
 
 
 @disable_admin_mfa()
-class ZiotFilterAdminTests(WebTest):
+class ZiotFilterAdminTests(AdminTestMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
+        super().setUpTestData()
 
         cls.catalogus = CatalogusFactory.create()
 
@@ -38,11 +39,6 @@ class ZiotFilterAdminTests(WebTest):
         ZaakType.objects.all().delete()
         cls.zaaktype = ZaakTypeFactory.create(catalogus=cls.catalogus)
         ZaakTypeFactory.create_batch(3, catalogus=CatalogusFactory.create())
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def test_create_ziot_zaaktype_popup_filter_no_catalogus(self):
         response = self.app.get(
@@ -162,19 +158,16 @@ class AddZiotAdminTests(WebTest):
 
 
 @disable_admin_mfa()
-class IoTypePublishAdminTests(WebTest):
+class IoTypePublishAdminTests(AdminTestMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
         cls.user = SuperUserFactory.create()
 
         cls.catalogus = CatalogusFactory.create()
         cls.url = reverse_lazy("admin:catalogi_informatieobjecttype_changelist")
         cls.query_params = {"catalogus_id__exact": cls.catalogus.pk}
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def test_publish_selected_success(self):
         iotype1, iotype2 = InformatieObjectTypeFactory.create_batch(
@@ -292,21 +285,14 @@ class IoTypePublishAdminTests(WebTest):
 
 
 @disable_admin_mfa()
-class CreateIotypeTests(NotificationsConfigMixin, WebTest):
+class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
     url = reverse_lazy("admin:catalogi_informatieobjecttype_add")
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
 
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2022-01-01")
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_notification_actie(self, mock_notif):
         catalogus = CatalogusFactory.create()
-        self.app.set_user(self.user)
 
         response = self.app.get(self.url)
 
@@ -346,18 +332,7 @@ class CreateIotypeTests(NotificationsConfigMixin, WebTest):
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class InformatieObjectTypeDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_informatieobjecttype_not_allowed_if_documenten_related(
         self,
     ):

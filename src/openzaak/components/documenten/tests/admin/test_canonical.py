@@ -5,7 +5,6 @@ from django.urls import reverse
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
@@ -13,19 +12,11 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.tests.utils.admin import AdminTestMixin
 
 
 @disable_admin_mfa()
-class EnkelvoudigInformatieObjectCanonicalAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectCanonicalAdminTests(AdminTestMixin, WebTest):
     def test_delete_last_inline_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
 

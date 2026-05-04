@@ -14,7 +14,6 @@ from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
@@ -25,6 +24,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import ClearCachesMixin, mock_nrc_oas_get
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import ZaakType
 from ..factories import (
@@ -43,24 +43,21 @@ from ..factories import (
 @disable_admin_mfa()
 @requests_mock.Mocker()
 class ZaaktypeAdminTests(
-    NotificationsConfigMixin, SelectieLijstMixin, ClearCachesMixin, WebTest
+    NotificationsConfigMixin,
+    SelectieLijstMixin,
+    ClearCachesMixin,
+    AdminTestMixin,
+    WebTest,
 ):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
 
         # there are TransactionTestCases that truncate the DB, so we need to ensure
         # there are available years
         selectielijst_config = ReferentieLijstConfig.get_solo()
         selectielijst_config.allowed_years = [2017, 2020]
         selectielijst_config.save()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def test_zaaktypen_list(self, m):
         ZaakTypeFactory.create()
@@ -783,17 +780,9 @@ class ZaaktypeAdminTests(
 
 
 @disable_admin_mfa()
-class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
+class ZaakTypePublishAdminTests(SelectieLijstMixin, AdminTestMixin, WebTest):
     def setUp(self):
         super().setUp()
-
-        self.app.set_user(self.user)
 
         self.catalogus = CatalogusFactory.create()
         self.url = reverse_lazy("admin:catalogi_zaaktype_changelist")
@@ -1293,18 +1282,7 @@ class ZaakTypePublishAdminTests(SelectieLijstMixin, WebTest):
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class ZaakTypeDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ZaakTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_zaaktype_not_allowed_if_zaken_related(self):
         non_concept_zaaktype = ZaakTypeFactory.create(concept=False)
 

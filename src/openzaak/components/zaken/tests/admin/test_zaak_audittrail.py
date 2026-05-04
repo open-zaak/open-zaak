@@ -16,11 +16,6 @@ from ..utils import get_operation_url
 
 @disable_admin_mfa()
 class ZaakAdminTests(AdminTestMixin, WebTest):
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
     def _create_zaak(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
 
@@ -139,7 +134,6 @@ class ZaakAdminTests(AdminTestMixin, WebTest):
         self.assertEqual(AuditTrail.objects.count(), 0)
 
     def test_save_zaak_without_change(self):
-        self.app.set_user(self.user)
         zaak = ZaakFactory.create()
         change_url = reverse("admin:zaken_zaak_change", args=(zaak.pk,))
 

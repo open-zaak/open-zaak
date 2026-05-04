@@ -18,10 +18,6 @@ from ..utils import get_operation_url
 class RolAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
-        self.app.set_user(self.user)
-
     def test_create_rol(self):
         zaak = ZaakFactory.create()
         zaak_url = get_operation_url("zaak_read", uuid=zaak.uuid)

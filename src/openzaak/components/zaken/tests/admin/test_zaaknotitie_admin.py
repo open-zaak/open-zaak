@@ -16,10 +16,6 @@ from ..factories import ZaakFactory, ZaakNotitieFactory
 class ZaakNotitieAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
-        self.app.set_user(self.user)
-
     def test_valid_create_zaaknotitie(self):
         zaak = ZaakFactory.create()
 

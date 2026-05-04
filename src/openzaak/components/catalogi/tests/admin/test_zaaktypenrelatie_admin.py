@@ -7,10 +7,10 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.tests import reverse as _reverse
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.models import ZaakTypenRelatie
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
@@ -18,18 +18,7 @@ from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory
 
 @disable_admin_mfa()
 @override_settings(IS_HTTPS=False, ALLOWED_HOSTS=["testserver", "testserver.com"])
-class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ZaakTypenRelatieAdminTests(ClearCachesMixin, AdminTestMixin, WebTest):
     def test_zaaktypenrelatie_create_with_gerelateerd_zaaktype_internal(self):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2)
 
@@ -259,18 +248,7 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, WebTest):
 
 @tag("gh-1877")
 @disable_admin_mfa()
-class ZaakTypenRelatieDeleteAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ZaakTypenRelatieDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_published_zaaktypenrelatie_allowed_if_zaken_related(self):
         """
         Because zaaktypenrelaties are not relevant for runtime validation for zaken,
