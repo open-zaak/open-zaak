@@ -75,6 +75,9 @@ class ResultaattypeAdminTests(
 
         response = self.app.get(url)
 
+        # Resultaattype can only be published via Zaaktype, not directly
+        self.assertIsNone(response.html.find("input", {"name": "_publish"}))
+
         self.assertEqual(response.status_code, 200)
 
         # Verify that the save button is visible

@@ -14,7 +14,8 @@
     <div class="submit-row submit-row-extended">
 
         {% block extra_submit_buttons %}
-            {# Only Catalogus.ZaakType, Catalogus.InformatieObjectType and Catalogus.BesluitType have this concept-attribute #}
+            {# Only Catalogus.ZaakType, Catalogus.InformatieObjectType and Catalogus.BesluitType can be published #}
+            {% if opts.model_name in "zaaktype,informatieobjecttype,besluittype" %}
             {% with concept=original.concept %}
                 {% if concept == True or concept == False %}
                     <span>of <strong>Opslaan</strong> en ...</span>
@@ -22,6 +23,7 @@
                     <input type="submit" value="{% trans 'Publiceren' %}" name="_publish" {% if concept == False %}disabled="disabled"{% endif %}>
                 {% endif %}
             {% endwith %}
+            {% endif %}
         {% endblock %}
 
     </div>

@@ -105,6 +105,30 @@ class EigenschapAdminTests(WebTest):
         )
         self.assertEqual(Eigenschap.objects.count(), 0)
 
+    def test_create_eigenschap_without_zaaktype_raises_error(self):
+        specificatie = EigenschapSpecificatieFactory.create(
+            waardenverzameling=["some,comma", "bla"]
+        )
+
+        response = self.app.get(reverse("admin:catalogi_eigenschap_add"))
+
+        form = response.forms["eigenschap_form"]
+
+        form["eigenschapnaam"] = "foo"
+        form["definitie"] = "bar"
+        form["specificatie_van_eigenschap"] = specificatie.id
+        form["toelichting"] = "baz"
+
+        # Leave zaaktype empty
+        form["zaaktype"] = ""
+        response = form.submit()
+
+        self.assertEqual(
+            response.context["adminform"].errors,
+            {"zaaktype": [_("Dit veld is verplicht.")]},
+        )
+        self.assertEqual(Eigenschap.objects.count(), 0)
+
 
 @tag("gh-1877")
 @disable_admin_mfa()

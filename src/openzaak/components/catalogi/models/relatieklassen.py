@@ -129,7 +129,7 @@ class ZaakTypenRelatie(models.Model):
     def concept(self):
         """
         Subresources of Zaaktype are implicitly concept or non-concept based on the
-        value of this attribute of the Zaaktype
+        value of this attribute of the Zaaktype and the Informatieobjecttype
         """
         return self.zaaktype.concept
 

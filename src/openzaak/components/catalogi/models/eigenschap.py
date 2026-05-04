@@ -239,7 +239,11 @@ class Eigenschap(ETagMixin, APIMixin, OptionalGeldigheidMixin, models.Model):
     def clean(self):
         super().clean()
 
-        validate_zaaktype_concept(self.zaaktype)
+        # This validation is performed before validating required fields, if zaaktype
+        # was not supplied, we skip this validation and the form validate will fail
+        # on the missing zaaktype
+        if zaaktype := getattr(self, "zaaktype", None):
+            validate_zaaktype_concept(zaaktype)
 
     def __str__(self):
         return self.eigenschapnaam
