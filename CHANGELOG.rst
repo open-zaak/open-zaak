@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.28.1 (2026-05-04)
+-------------------
+
+**Bugfixes**
+
+* Add missing sass dependency that caused failing Docker frontend builds
+
 1.28.0 (2026-04-14)
 -------------------
 
@@ -72,6 +79,13 @@ Changelog
 * [:open-api-framework:`213`] Consistent styling for documentation for all applications
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
+
+1.27.1 (2026-05-01)
+-------------------
+
+**Bugfixes**
+
+* Add missing sass dependency that caused failing Docker frontend builds
 
 1.27.0 (2026-02-06)
 -------------------

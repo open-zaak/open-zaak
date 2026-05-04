@@ -114,6 +114,8 @@ linkcheck_ignore = [
     r"https://www.npmjs.com/.*",
     "https://github.com/maykinmedia/django-setup-configuration/blob/main/README.rst#environment-variable-substitution",
     r"https://opentelemetry\.io/docs/.*",  # times out frequently, even with 30s timeouts
+    r"https://samenorganiseren.slack.com",  # raises 403
+    r"https://join.slack.com",  # raises 403
 ]
 
 linkcheck_request_headers = {
