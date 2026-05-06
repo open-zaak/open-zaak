@@ -45,7 +45,10 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
         request = self.factory.get("/")
         request.user = self.user
 
-        self.admin.delete_model(request=request, obj=self.zaak)
+        reset_scheduled_event_registry()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.admin.delete_model(request=request, obj=self.zaak)
 
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
@@ -59,7 +62,16 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                 "time": "2025-09-23T12:00:00Z",
                 "dataref": reverse(self.zaak),
                 "datacontenttype": "application/json",
-                "data": {},
+                "data": {
+                    "bronorganisatie": self.zaak.bronorganisatie,
+                    "zaaktype": f"http://testserver{reverse(self.zaak.zaaktype)}",
+                    "zaaktype.catalogus": (
+                        f"http://testserver{reverse(self.zaak.zaaktype.catalogus)}"
+                    ),
+                    "vertrouwelijkheidaanduiding": (
+                        self.zaak.vertrouwelijkheidaanduiding
+                    ),
+                },
             }
         )
 

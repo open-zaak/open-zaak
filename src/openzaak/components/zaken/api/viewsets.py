@@ -103,7 +103,6 @@ from .cloudevents import (
     ZAAK_GEREGISTREERD,
     ZAAK_OPGESCHORT,
     ZAAK_VERLENGD,
-    ZAAK_VERWIJDEREN,
     send_zaak_cloudevent,
 )
 from .filters import (
@@ -542,7 +541,6 @@ class ZaakViewSet(
             vertrouwelijkheidaanduiding=instance.vertrouwelijkheidaanduiding,
             zaaktype=str(instance.zaaktype),
         )
-        send_zaak_cloudevent(ZAAK_VERWIJDEREN, instance, self.request)
 
     def get_search_input(self):
         serializer = self.get_search_input_serializer_class()(
