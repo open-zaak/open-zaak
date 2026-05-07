@@ -386,15 +386,18 @@ class ImportMixin:
 
 
 class ReadOnlyPublishedBaseMixin:
+    # Templates to add warning message when trying to delete published types
+    delete_confirmation_template = (
+        "admin/catalogi/delete_confirmation_published_warning.html"
+    )
+    delete_selected_confirmation_template = (
+        "admin/catalogi/delete_selected_confirmation_published_warning.html"
+    )
+
     def get_concept(self, obj):
         return NotImplementedError(
             "subclasses of ReadOnlyPublishedBaseMixin must provide a get_concept() method"
         )
-
-    def has_delete_permission(self, request, obj=None):
-        if self.get_concept(obj):
-            return super().has_delete_permission(request, obj)
-        return False
 
     def get_inline_instances(self, request, obj=None):
         inlines = super().get_inline_instances(request, obj)

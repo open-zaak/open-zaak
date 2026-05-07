@@ -10,7 +10,6 @@ from dateutil.relativedelta import relativedelta
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.selectielijst.tests import (
     mock_resource_get,
     mock_resource_list,
@@ -18,6 +17,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import (
     BesluitTypeFactory,
@@ -31,18 +31,9 @@ from ..factories import (
 
 @disable_admin_mfa()
 @requests_mock.Mocker()
-class ReadonlyAdminTests(ReferentieLijstServiceMixin, ClearCachesMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class ReadonlyAdminTests(
+    ReferentieLijstServiceMixin, ClearCachesMixin, AdminTestMixin, WebTest
+):
     def test_readonly_zaaktype(self, m):
         """
         check that in case of published zaaktype only "datum_einde_geldigheid" field is editable

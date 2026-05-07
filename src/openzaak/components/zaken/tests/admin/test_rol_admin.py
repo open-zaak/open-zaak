@@ -20,10 +20,6 @@ from ..factories import RolFactory, ZaakFactory
 class RolAdminTests(AdminTestMixin, WebTest):
     heeft_alle_autorisaties = True
 
-    def setUp(self):
-        super().setUp()
-        self.app.set_user(self.user)
-
     def test_valid_create_rol(self):
         zaak = ZaakFactory.create()
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)

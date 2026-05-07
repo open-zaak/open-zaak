@@ -9,7 +9,7 @@ from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from maykin_common.vcr import VCRMixin
 
-from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...factories import EnkelvoudigInformatieObjectFactory
 from ..mixins import AzureBlobStorageMixin
@@ -19,16 +19,8 @@ from ..mixins import AzureBlobStorageMixin
 @freeze_time("2030-01-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 class EnkelvoudigInformatieObjectDownloadAdminTests(
-    VCRMixin, AzureBlobStorageMixin, WebTest
+    VCRMixin, AzureBlobStorageMixin, AdminTestMixin, WebTest
 ):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-        self.app.set_user(self.user)
-
     def test_eio_download_inhoud(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             bestandsnaam="iets.txt",

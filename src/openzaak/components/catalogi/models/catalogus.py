@@ -120,3 +120,14 @@ class Catalogus(ETagMixin, APIMixin, models.Model):
 
     def __str__(self):
         return self.naam
+
+    @property
+    def concept(self):
+        """
+        A Catalogus is only considered concept if all subresources are concepts
+        """
+        return not (
+            self.zaaktype_set.filter(concept=False).exists()
+            or self.informatieobjecttype_set.filter(concept=False).exists()
+            or self.besluittype_set.filter(concept=False).exists()
+        )

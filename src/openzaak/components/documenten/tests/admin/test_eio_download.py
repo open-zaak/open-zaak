@@ -7,7 +7,7 @@ from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
 from privates.test import temp_private_root
 
-from openzaak.accounts.tests.factories import SuperUserFactory
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import EnkelvoudigInformatieObjectFactory
 
@@ -15,15 +15,7 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 @temp_private_root()
 @disable_admin_mfa()
 @override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
-class EnkelvoudigInformatieObjectDownloadAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectDownloadAdminTests(AdminTestMixin, WebTest):
     def test_eio_download_inhoud(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             bestandsnaam="iets.txt", inhoud__data=b"STUFF"

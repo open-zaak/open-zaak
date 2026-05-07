@@ -28,6 +28,7 @@ from openzaak.components.zaken.models.betrokkenen import (
     NatuurlijkPersoon,
     NietNatuurlijkPersoon,
 )
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import ZaakBesluit
 from ..factories import (
@@ -41,19 +42,16 @@ from ..factories import (
 
 @disable_admin_mfa()
 @override_settings(ALLOWED_HOSTS=["testserver"])
-class ZaakAdminTests(WebTest):
+class ZaakAdminTests(AdminTestMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+
         cls.user = SuperUserFactory.create()
         cls.service = ServiceFactory.create(
             api_type=APITypes.drc,
             api_root="https://external.nl/api/v1/",
         )
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def test_zaaktype_detail_external_io_not_available(self):
         zaak = ZaakFactory.create()

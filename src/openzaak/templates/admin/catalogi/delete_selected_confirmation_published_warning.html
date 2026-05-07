@@ -1,0 +1,23 @@
+{% extends "admin/delete_selected_confirmation.html" %}
+{% comment %} SPDX-License-Identifier: EUPL-1.2 {% endcomment %}
+{% comment %} Copyright (C) 2026 Dimpact {% endcomment %}
+{% load i18n list_filters %}
+
+{% block content %}
+    {% if not queryset|all_true:"concept" %}
+    <ul class="messagelist">
+        <li id="deleting-published-types-warning" class="warning">
+            {% blocktrans %}
+                Het verwijderen van gepubliceerde typen is alleen mogelijk als er geen
+                andere objecten zijn die gebruikmaken van deze typen.
+
+                Let op: er kan alleen gecontroleerd worden of er lokale objecten zijn die
+                deze typen gebruiken, er kan niet gecontroleerd worden of externe systemen
+                gebruikmaken van deze typen!
+            {% endblocktrans %}
+        </li>
+    </ul>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}

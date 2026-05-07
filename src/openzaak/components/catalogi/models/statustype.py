@@ -100,6 +100,14 @@ class StatusType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         help_text=_("Een eventuele toelichting op dit STATUSTYPE."),
     )
 
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept
+
     class Meta:
         unique_together = ("zaaktype", "statustypevolgnummer")
         verbose_name = _("Statustype")

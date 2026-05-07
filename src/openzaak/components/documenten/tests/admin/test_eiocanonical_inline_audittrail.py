@@ -9,9 +9,9 @@ from maykin_2fa.test import disable_admin_mfa
 from privates.test import temp_private_root
 from vng_api_common.audittrails.models import AuditTrail
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
@@ -22,10 +22,10 @@ from ..utils import get_operation_url
 
 @temp_private_root()
 @disable_admin_mfa()
-class EioAdminInlineTests(WebTest):
+class EioAdminInlineTests(AdminTestMixin, WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
+        super().setUpTestData()
         cls.canonical = EnkelvoudigInformatieObjectCanonicalFactory.create(
             latest_version=None
         )
@@ -33,11 +33,6 @@ class EioAdminInlineTests(WebTest):
             "admin:documenten_enkelvoudiginformatieobjectcanonical_change",
             args=(cls.canonical.pk,),
         )
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def assertEioAudittrail(self, audittrail):
         self.assertEqual(audittrail.bron, "DRC")

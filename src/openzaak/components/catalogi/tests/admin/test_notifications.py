@@ -9,11 +9,11 @@ from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ...models import BesluitType, InformatieObjectType, ZaakType
 from ..factories import (
@@ -30,7 +30,11 @@ from ..factories import (
 @freeze_time("2022-01-01")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class NotificationAdminTests(
-    NotificationsConfigMixin, ReferentieLijstServiceMixin, ClearCachesMixin, WebTest
+    NotificationsConfigMixin,
+    ReferentieLijstServiceMixin,
+    ClearCachesMixin,
+    AdminTestMixin,
+    WebTest,
 ):
     @classmethod
     def setUpTestData(cls):
@@ -42,17 +46,10 @@ class NotificationAdminTests(
         config.allowed_years = [2017, 2020]
         config.save()
 
-        cls.user = SuperUserFactory.create()
-
         cls.catalogus = CatalogusFactory.create()
         cls.catalogus_url = reverse(
             "catalogus-detail", kwargs={"uuid": cls.catalogus.uuid, "version": 1}
         )
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
 
     def test_informatieobjecttype_notify_on_create(self, mock_notif):
         url = reverse("admin:catalogi_informatieobjecttype_add")

@@ -284,6 +284,14 @@ class ResultaatType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         ),
     )
 
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept
+
     class Meta:
         unique_together = ("zaaktype", "omschrijving")
         verbose_name = _("resultaattype")

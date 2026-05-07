@@ -51,6 +51,14 @@ class ZaakObjectType(ETagMixin, OptionalGeldigheidMixin, models.Model):
         help_text=_("URL-referentie naar het STATUSTYPE"),
     )
 
+    @property
+    def concept(self):
+        """
+        Subresources of Zaaktype are implicitly concept or non-concept based on the
+        value of this attribute of the Zaaktype
+        """
+        return self.zaaktype.concept
+
     class Meta:
         verbose_name = _("Zaakobjecttype")
         verbose_name_plural = _("Zaakobjecttypen")

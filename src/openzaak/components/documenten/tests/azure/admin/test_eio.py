@@ -12,7 +12,6 @@ from maykin_common.vcr import VCRMixin
 from requests.exceptions import RequestException
 from webtest import Upload
 
-from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.admin import EnkelvoudigInformatieObjectAdmin
 from openzaak.components.documenten.constants import DocumentenBackendTypes
@@ -20,6 +19,7 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObject,
 )
 from openzaak.components.documenten.widgets import AdminFileWidget
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ....storage import documenten_storage
 from ...factories import (
@@ -32,16 +32,9 @@ from ..mixins import AzureBlobStorageMixin
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 @disable_admin_mfa()
-class EnkelvoudigInformatieObjectAdminTests(VCRMixin, AzureBlobStorageMixin, WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = SuperUserFactory.create()
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
+class EnkelvoudigInformatieObjectAdminTests(
+    VCRMixin, AzureBlobStorageMixin, AdminTestMixin, WebTest
+):
     def test_form_widget(self):
         admin_obj = EnkelvoudigInformatieObjectAdmin(
             EnkelvoudigInformatieObject, admin.site
