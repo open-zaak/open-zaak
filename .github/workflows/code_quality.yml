@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   open-api-workflow-code-quality:
-    uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@v6
+    uses: maykinmedia/open-api-workflows/.github/workflows/code-quality.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
     with:
       apt-packages: "gdal-bin"
       python-version: "3.12"
@@ -30,8 +30,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: maykinmedia/setup-django-backend@v1.3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl"
           python-version: "3.12"
