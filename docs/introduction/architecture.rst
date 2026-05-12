@@ -11,7 +11,7 @@ stability and to guarantee data integrity.
 To that end, **Open Zaak** combines the "API's voor Zaakgericht werken" that
 are essentially tightly coupled, into a single product. This allows for major
 performance improvements since related objects (like a `BESLUIT` for a `ZAAK`)
-do not need to fetched over the network but can be directly obtained from the
+do not need to be fetched over the network but can be directly obtained from the
 database. This also guarantees data integrity on database level, rather than on
 service (API) level.
 
