@@ -94,7 +94,7 @@ API's autoriseert.
 Gegevens
 --------
 
-De groep *gegevens* laat je toe om gevens in te kijken die via de Open Zaak
+De groep *gegevens* laat je toe om gegevens in te kijken die via de Open Zaak
 API's aangemaakt en/of gewijzigd worden.
 
 **Besluiten** toont de besluiten die ontsloten worden via de *Besluiten API*.
