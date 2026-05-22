@@ -1,6 +1,11 @@
 =========
 Open Zaak
 =========
+
+.. image:: https://raw.githubusercontent.com/open-zaak/open-zaak/refs/heads/main/.github/assets/open-zaak-logo.svg
+    :height: 100px
+    :alt: Open Zaak
+
 *Productiewaardige API's voor Zaakgericht Werken*
 
 `Read this in English`_

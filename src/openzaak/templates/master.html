@@ -6,9 +6,9 @@
         <meta charset="utf-8">
         <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="{% static 'ico/favicon.png' %}">
+        <link rel="icon" href="{% static 'ico/favicon.png' %}" type="image/png">
+        <link rel="icon" href="{% static 'ico/favicon.svg' %}" type="image/svg+xml">
         <link href="{% static 'bundles/openzaak-css.css' %}" media="all" rel="stylesheet" />
         {% block extra_css %}{% endblock %}
     </head>
@@ -23,7 +23,7 @@
             {% endblock %}
         </main>
 
-        {% include "includes/footer.html" with logo='img/logo.png' %}
+        {% include "includes/footer.html" with logo='img/open-zaak-logo.svg' %}
         {% block scripts %}{% endblock scripts %}
     </body>
 </html>

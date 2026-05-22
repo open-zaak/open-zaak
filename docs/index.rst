@@ -1,3 +1,8 @@
+.. image:: https://raw.githubusercontent.com/open-zaak/open-zaak/refs/heads/main/.github/assets/open-zaak-logo.svg
+    :height: 100px
+    :alt: Open Zaak
+    :class: no-scaled-link product-logo
+
 Open Zaak Documentation
 =======================
 
