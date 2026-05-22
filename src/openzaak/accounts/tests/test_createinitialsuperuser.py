@@ -17,7 +17,7 @@ class CreateInitialSuperuserTests(TestCase):
         call_command(
             "createinitialsuperuser",
             username="maykin",
-            email="support@maykinmedia.nl",
+            email="support@maykin.nl",
             generate_password=True,
             stdout=io.StringIO(),
             stderr=io.StringIO(),
@@ -39,14 +39,14 @@ class CreateInitialSuperuserTests(TestCase):
         self.assertEqual(
             sent_mail.subject, f"Credentials for {settings.PROJECT_NAME} ({link})"
         )
-        self.assertListEqual(sent_mail.recipients(), ["support@maykinmedia.nl"])
+        self.assertListEqual(sent_mail.recipients(), ["support@maykin.nl"])
 
     @override_settings(ALLOWED_HOSTS=[])
     def test_create_initial_superuser_command_allowed_hosts_empty(self):
         call_command(
             "createinitialsuperuser",
             username="maykin",
-            email="support@maykinmedia.nl",
+            email="support@maykin.nl",
             generate_password=True,
             stdout=io.StringIO(),
             stderr=io.StringIO(),
@@ -65,7 +65,7 @@ class CreateInitialSuperuserTests(TestCase):
         self.assertEqual(
             sent_mail.subject, f"Credentials for {settings.PROJECT_NAME} ({link})"
         )
-        self.assertListEqual(sent_mail.recipients(), ["support@maykinmedia.nl"])
+        self.assertListEqual(sent_mail.recipients(), ["support@maykin.nl"])
 
     def test_create_from_cli(self):
         call_command(

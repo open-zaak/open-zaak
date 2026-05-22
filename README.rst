@@ -86,11 +86,11 @@ Links
 Bouw
 ====
 
-Deze API's zijn ontwikkeld door `Maykin Media B.V.`_ in opdracht van Amsterdam,
+Deze API's zijn ontwikkeld door `Maykin B.V.`_ in opdracht van Amsterdam,
 Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en een coalitie
 van Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van `Dimpact`_.
 
-.. _Maykin Media B.V.: https://www.maykinmedia.nl
+.. _Maykin B.V.: https://www.maykin.nl
 .. _Dimpact: https://www.dimpact.nl
 
 Licentie

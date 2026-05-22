@@ -131,7 +131,7 @@ description:
 legal:
   license: EUPL-1.2
   mainCopyrightOwner: Dimpact
-  repoOwner: Maykin Media
+  repoOwner: Maykin
   # authorsFile: 'https://raw.githubusercontent.com/open-zaak/open-zaak/main/AUTHORS.md'
 
 dependsOn:
@@ -173,14 +173,14 @@ localisation:
 
 maintenance:
   contacts:
-    - affiliation: Maykin Media
+    - affiliation: Maykin
       name: Joeri Bekker
-    - affiliation: Maykin Media
+    - affiliation: Maykin
       name: Sergei Maertens
   contractors:
-    - name: Maykin Media
-      website: 'https://www.maykinmedia.nl/'
-      email: info@maykinmedia.nl
+    - name: Maykin
+      website: 'https://www.maykin.nl/'
+      email: info@maykin.nl
   type: contract
 
 usedBy:

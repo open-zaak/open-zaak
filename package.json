@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/open-zaak/open-zaak.git"
   },
-  "author": "Maykin Media",
+  "author": "Maykin",
   "license": "EUPL-1.2",
   "homepage": "https://github.com/open-zaak/open-zaak/",
   "dependencies": {

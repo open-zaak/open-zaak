@@ -50,7 +50,7 @@ anyway, in alphabetical order.
   It's currently used to visualize changes obtained from audit trail records in the
   admin interface. The library is Open Source on Github, and could be forked if needed.
 
-* ``django-auth-adfs-db==0.3.0`` is an add-on for ``django-auth-adfs``. Maykin Media is
+* ``django-auth-adfs-db==0.3.0`` is an add-on for ``django-auth-adfs``. Maykin is
   one of the maintainers.
 
 * ``django-db-logger==0.1.12`` is not mission-critical and can easily be swapped out if
@@ -90,7 +90,7 @@ anyway, in alphabetical order.
 * ``sqlparse==0.4.2`` direct dependency of Django. Given the widespread use of Django,
   this should not pose any problems.
 
-* ``zgw-consumers==0.18.0`` library maintained by Maykin Media. Together with
+* ``zgw-consumers==0.18.0`` library maintained by Maykin. Together with
   gemma-zds-client, preparations are in the works for a 1.0 version.
 
 .. _`requirements`: https://github.com/open-zaak/open-zaak/blob/master/requirements/base.txt
