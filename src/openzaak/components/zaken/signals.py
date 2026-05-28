@@ -14,7 +14,11 @@ from openzaak.components.besluiten.models import Besluit
 from openzaak.utils import build_fake_request
 from openzaak.utils.cloudevents import get_scheduled_event_registry
 
-from .api.cloudevents import ZAAK_GEMUTEERD, send_zaak_cloudevent
+from .api.cloudevents import (
+    ZAAK_GEMUTEERD,
+    ZAAK_VERWIJDEREN,
+    send_zaak_cloudevent,
+)
 from .models import (
     Resultaat,
     Status,
@@ -46,6 +50,28 @@ def schedule_zaak_gemuteerd(instance: Zaak):
             send_zaak_cloudevent(ZAAK_GEMUTEERD, instance, build_fake_request())
         finally:
             registry[ZAAK_GEMUTEERD].discard(instance.pk)
+
+    transaction.on_commit(send)
+
+
+def schedule_zaak_verwijderd(instance: Zaak):
+    registry = get_scheduled_event_registry()
+
+    registry.setdefault(ZAAK_VERWIJDEREN, set())
+    if instance.pk in registry[ZAAK_VERWIJDEREN]:
+        return
+
+    registry[ZAAK_VERWIJDEREN].add(instance.pk)
+
+    def send():
+        try:
+            send_zaak_cloudevent(
+                ZAAK_VERWIJDEREN,
+                instance,
+                build_fake_request(),
+            )
+        finally:
+            registry[ZAAK_VERWIJDEREN].discard(instance.pk)
 
     transaction.on_commit(send)
 
@@ -155,6 +181,15 @@ def send_zaak_gemuteerd_event(sender, instance, created, **kwargs):
         return
 
     schedule_zaak_gemuteerd(instance)
+
+
+@receiver(
+    pre_delete,
+    sender=Zaak,
+    dispatch_uid="zaken.zaak.send_zaak_verwijderd_event",
+)
+def send_zaak_verwijderd_event(sender, instance, **kwargs):
+    schedule_zaak_verwijderd(instance)
 
 
 def zaak_related_resource_trigger_zaak_gemuteerd(sender, instance, **kwargs):

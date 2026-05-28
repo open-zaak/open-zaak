@@ -1,20 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 from django.db.models import CharField, F, Prefetch
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
-from notifications_api_common.cloudevents import (
-    process_cloudevent,
-)
-
-from openzaak.components.zaken.api.cloudevents import (
-    ZAAK_VERWIJDEREN,
-)
 from openzaak.utils.admin import (
     AuditTrailAdminMixin,
     EditInlineAdminMixin,
@@ -929,16 +921,3 @@ class ZaakAdmin(
                 )
             )
         )
-
-    def delete_model(self, request, obj):
-        dataref = obj.get_absolute_api_url()
-
-        super().delete_model(request, obj)
-        # TODO this logic should be moved to signals as well
-        if settings.ENABLE_CLOUD_EVENTS:
-            process_cloudevent(
-                type=ZAAK_VERWIJDEREN,
-                subject=str(obj.uuid),
-                dataref=dataref,
-                data={},
-            )
