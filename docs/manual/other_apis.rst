@@ -59,7 +59,7 @@ Klik tot slot op **Opslaan**.
 NLX
 ====
 
-`NLX`_ faciliteert data-uitwisseling voor overheden en organisaties. Open Zaak
+NLX faciliteert data-uitwisseling voor overheden en organisaties. Open Zaak
 heeft functionaliteiten die het gebruik van NLX aanmoedigen.
 
 Organisaties kunnen ervoor kiezen om de gegevens via NLX te ontsluiten in een opzet
@@ -82,5 +82,3 @@ To value:
     ``http://my-outway:8443/kadaster/bag``.
 
 .. note:: Consulteer de NLX directory om te zien welke services beschikbaar zijn.
-
-.. _NLX: https://nlx.io
