@@ -278,7 +278,12 @@ class EnkelvoudigInformatieObjectCanonical(models.Model):
     )
 
     def __str__(self):
-        return str(self.latest_version)
+        try:
+            return str(self.latest_version)
+        except EnkelvoudigInformatieObject.DoesNotExist:
+            # admin has stale cache after deletion
+            self.refresh_from_db(fields=["latest_version"])
+            return str(self)
 
     def lock_document(self, doc_uuid: str) -> None:
         lock = _uuid.uuid4().hex
@@ -468,9 +473,7 @@ class EnkelvoudigInformatieObject(
         return self.canonical.gebruiksrechten_set.exists()
 
     def delete(self, *args, **kwargs):
-        canonical = self.canonical
         result = super().delete()
-        canonical.refresh_from_db(fields=["latest_version"])
         return result
 
 
