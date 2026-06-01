@@ -29,9 +29,10 @@ jobs:
     runs-on: ubuntu-latest # windows-latest | macos-latest
     name: Determine changed files
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get changed PY files
         id: changed-py-files
@@ -91,9 +92,11 @@ jobs:
           --name postgres
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client gdal-bin"
           python-version: "3.12"
@@ -123,7 +126,7 @@ jobs:
       - name: Publish coverage report
         # TODO find a better way to upload this only once
         if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -155,10 +158,11 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
         with:
           apt-packages: "gdal-bin"
           python-version: "3.12"
@@ -228,9 +232,11 @@ jobs:
     name: Documentation check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
         with:
           apt-packages: "gdal-bin"
           python-version: "3.12"
@@ -264,7 +270,7 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@v6
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
     needs:
       - store-reusable-workflow-vars
     permissions:
@@ -279,7 +285,7 @@ jobs:
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@v6
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
