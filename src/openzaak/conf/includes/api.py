@@ -24,9 +24,9 @@ REST_FRAMEWORK["DEFAULT_SCHEMA_CLASS"] = "openzaak.utils.schema.AutoSchema"
 
 
 SECURITY_DEFINITION_NAME = "JWT-Claims"
-OPENZAAK_API_CONTACT_EMAIL = "support@maykinmedia.nl"
-OPENZAAK_API_CONTACT_URL = "https://www.maykinmedia.nl"
-OPENZAAK_API_CONTACT_NAME = "Maykin Media"
+OPENZAAK_API_CONTACT_EMAIL = "support@maykin.nl"
+OPENZAAK_API_CONTACT_URL = "https://www.maykin.nl"
+OPENZAAK_API_CONTACT_NAME = "Maykin"
 
 SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "SIDECAR",

@@ -68,7 +68,7 @@ This repository contains the source code for the APIs. In order to use the APIs,
 
 ## Construction
 
-These APIs have been developed by Maykin Media B.V. on behalf of Amsterdam, Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, SED, Delft and Hoorn under the direction of Dimpact.
+These APIs have been developed by Maykin B.V. on behalf of Amsterdam, Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, SED, Delft and Hoorn under the direction of Dimpact.
 
 ## License
 

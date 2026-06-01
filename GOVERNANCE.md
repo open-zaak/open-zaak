@@ -31,8 +31,8 @@ have the joint responsibility to:
 The current team members are:
 
 * Anton Boerma, Exxellence
-* Joeri Bekker, Maykin Media
-* Sergei Maertens, Maykin Media
+* Joeri Bekker, Maykin
+* Sergei Maertens, Maykin
 * Tahir Malik, Contezza
 * Tjerk Vaags, Contezza
 

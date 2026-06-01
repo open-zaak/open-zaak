@@ -33,7 +33,7 @@ class TestMigrateVestigingenToNnps(TestCase):
         zaak_object = ZaakObjectFactory.create()
         vestiging = Vestiging.objects.create(
             vestigings_nummer="12345",
-            handelsnaam=["Maykin", "Maykin Media"],
+            handelsnaam=["Maykin"],
             kvk_nummer="12345678",
             zaakobject=zaak_object,
             rol=rol,
@@ -59,7 +59,7 @@ class TestMigrateVestigingenToNnps(TestCase):
 
         nnp = NietNatuurlijkPersoon.objects.get()
         self.assertEqual(nnp.vestigings_nummer, "12345")
-        self.assertEqual(nnp.statutaire_naam, "Maykin, Maykin Media")
+        self.assertEqual(nnp.statutaire_naam, "Maykin")
         self.assertEqual(nnp.kvk_nummer, "12345678")
         self.assertEqual(nnp.zaakobject, zaak_object)
         self.assertEqual(nnp.rol, rol)
@@ -72,7 +72,7 @@ class TestMigrateVestigingenToNnps(TestCase):
         zaak_object = ZaakObjectFactory.create()
         Vestiging.objects.create(
             vestigings_nummer="12345",
-            handelsnaam=["Maykin", "Maykin Media"],
+            handelsnaam=["Maykin"],
             kvk_nummer="12345678",
             zaakobject=zaak_object,
             rol=rol,
@@ -87,7 +87,7 @@ class TestMigrateVestigingenToNnps(TestCase):
 
         nnp = NietNatuurlijkPersoon.objects.get()
         self.assertEqual(nnp.vestigings_nummer, "12345")
-        self.assertEqual(nnp.statutaire_naam, "Maykin, Maykin Media")
+        self.assertEqual(nnp.statutaire_naam, "Maykin")
         self.assertEqual(nnp.kvk_nummer, "12345678")
         self.assertEqual(nnp.zaakobject, zaak_object)
         self.assertEqual(nnp.rol, rol)
@@ -95,9 +95,7 @@ class TestMigrateVestigingenToNnps(TestCase):
 
     def test_vestiging_cannot_be_migrated_when_rol_already_has_nnp(self):
         rol = RolFactory.create()
-        vestiging = Vestiging.objects.create(
-            rol=rol, handelsnaam=["Maykin", "Maykin Media"]
-        )
+        vestiging = Vestiging.objects.create(rol=rol, handelsnaam=["Maykin"])
         NietNatuurlijkPersoon.objects.create(rol=rol)
 
         result = self.call_command()
@@ -117,7 +115,7 @@ class TestMigrateVestigingenToNnps(TestCase):
             handelsnaam=[
                 "Maykin",
                 "Maykin Media",
-                "Maykin Media Besloten Vennootschap Incorporated Vereniging Onder Firma",
+                "Maykin Besloten Vennootschap Incorporated Vereniging Onder Firma",
             ]
             * 6,
             kvk_nummer="12345678",

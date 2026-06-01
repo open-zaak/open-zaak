@@ -38,7 +38,7 @@ installation for you.
 
 Below is a list of service providers.
 
-* `Maykin Media <https://www.maykinmedia.nl/>`_ (maintainer of Open Zaak)
+* `Maykin <https://www.maykin.nl/>`_ (maintainer of Open Zaak)
 * `Contezza <https://www.contezza.nl/>`_
 
 More to come!
@@ -57,4 +57,4 @@ Reporting security issues
 
    security
 
-.. _`Maykin Media`: https://www.maykinmedia.nl/
+.. _`Maykin`: https://www.maykin.nl/
