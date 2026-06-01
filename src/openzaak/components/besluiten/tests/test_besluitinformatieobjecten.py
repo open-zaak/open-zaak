@@ -88,6 +88,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         )
 
         error = get_validation_errors(response, "nonFieldErrors")
+        assert error
         self.assertEqual(error["code"], "unique")
 
     def test_read_besluit(self):
@@ -297,6 +298,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "informatieobject")
+        assert error
         self.assertEqual(error["code"], "bad-url")
 
     @requests_mock.Mocker()
@@ -318,6 +320,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "informatieobject")
+        assert error
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_bio_fail_invalid_schema(self):
@@ -356,6 +359,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "informatieobject")
+        assert error
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_bio_fail_unknown_service(self):
@@ -375,6 +379,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "informatieobject")
+        assert error
         self.assertEqual(error["code"], "unknown-service")
 
 
@@ -425,7 +430,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
 
         def mock_create_remote_oio(*args, **kwargs):
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(worker, besluit.id)
+                future = executor.submit(worker, besluit.pk)
                 future.result()  # raises any exceptions, such as assertionerrors
             return {"url": f"{self.base}objectinformatieobjecten/{uuid.uuid4()}"}
 
@@ -486,6 +491,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
+        assert error
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
@@ -557,6 +563,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
+        assert error
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
@@ -592,6 +599,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
+        assert error
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
@@ -621,6 +629,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "nonFieldErrors")
+        assert error
         self.assertEqual(
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
@@ -705,4 +714,5 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "informatieobject")
+        assert error
         self.assertEqual(error["code"], "pending-relations")

@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import factory
 
+from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectCanonicalFactory,
@@ -11,13 +12,15 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import FkOrServiceUrlFactoryMixin
 
 
-class BesluitFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory):
+class BesluitFactory(
+    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory[Besluit]
+):
     verantwoordelijke_organisatie = factory.Faker("ssn", locale="nl_NL")
     besluittype = factory.SubFactory(BesluitTypeFactory)
     datum = factory.Faker("date_this_decade")
 
     class Meta:
-        model = "besluiten.Besluit"
+        model = Besluit
 
     class Params:
         for_zaak = factory.Trait(
@@ -42,13 +45,14 @@ class BesluitFactory(FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFacto
 
 
 class BesluitInformatieObjectFactory(
-    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory[BesluitInformatieObject],
 ):
     besluit = factory.SubFactory(BesluitFactory)
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
 
     class Meta:
-        model = "besluiten.BesluitInformatieObject"
+        model = BesluitInformatieObject
 
     class Params:
         with_etag = factory.Trait(
