@@ -312,6 +312,7 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
         eios = EnkelvoudigInformatieObject.objects.bulk_create(
             [row.instance for row in batch if row.instance is not None]
         )
+
     except DatabaseError as e:
         for row in batch:
             row.processed = True
@@ -339,6 +340,10 @@ def _batch_create_eios(batch: list[DocumentRow], zaak_uuids: dict[str, int]) -> 
             row.processed = True
             row.succeeded = bool(instance and instance.pk is not None)
             continue
+
+        instance.canonical.refresh_from_db(
+            fields=["latest_version"]
+        )  # TODO move into manager?
 
         # Note that ZaakInformatieObject's will not be created using
         # `bulk_create` (see queryset MRO).

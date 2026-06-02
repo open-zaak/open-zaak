@@ -949,6 +949,7 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         data = response.json()
+        self.eio.refresh_from_db()
         new_version = self.eio.canonical.latest_version
 
         self.assertIsNone(data["inhoud"])  # the link to download is None

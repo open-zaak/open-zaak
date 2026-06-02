@@ -32,12 +32,13 @@ class UniqueRepresentationTestCase(APITestCase):
 
     def test_besluitinformatieobject_with_canonical_without_version(self):
         canonical = EnkelvoudigInformatieObjectCanonicalFactory.create()
-        bio = BesluitInformatieObjectFactory(
+        bio = BesluitInformatieObjectFactory.create(
             besluit__identificatie="5d940d52-ff5e-4b18-a769-977af9130c04",
             informatieobject=canonical,
         )
 
         canonical.latest_version.delete()
+        canonical.refresh_from_db()
 
         self.assertEqual(
             bio.unique_representation(),

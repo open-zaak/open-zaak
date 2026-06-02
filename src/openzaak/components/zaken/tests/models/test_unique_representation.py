@@ -46,6 +46,7 @@ class UniqueRepresentationTestCase(APITestCase):
         )
 
         canonical.latest_version.delete()
+        canonical.refresh_from_db(fields=["latest_version"])
 
         self.assertEqual(
             zio.unique_representation(),
