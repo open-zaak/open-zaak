@@ -1,17 +1,19 @@
 from abc import ABC, abstractmethod
 from datetime import date
 
+from django.conf import settings
 from django.db.models import Max
 from django.db.models.functions import Length
 
-from openzaak.components.zaken.models import ZaakIdentificatie
 from openzaak.utils.db import pg_advisory_lock
+
+from .identification import ZaakIdentificatie
 
 LOCK_ID_IDENTIFICATION_GENERATION = "generate-zaak-identification"
 
 
 class BaseIdentificatie(ABC):
-    def __init__(self, organisation: str):
+    def __init__(self, organisation: str, **kwargs):
         self.organisation = organisation
 
         self.model = ZaakIdentificatie
@@ -25,6 +27,23 @@ class BaseIdentificatie(ABC):
         pass
 
     def generate(self):
+        """
+        Generate an identification based on existing data.
+
+        This uses a PostgreSQL-specific advisory lock, meaning that only one
+        thread/process is able to generate a new identification at a time (other
+        threads will simply wait until they acquire the lock after the running call
+        releases it when the transaction exits).
+
+        Note that this does NOT prevent other records from being read or even written
+        to the involved table, so IntegrityError can still be raised if unique
+        constraints will be violated. However, this does allow for concurrent read
+        and writes with explicit identifications to different rows that don't affect
+        the ID generation and should be a better option for performance than pessimistic
+        locking where the entire table is locked even for reading (as otherwise the view
+        of the data inside by generate_unique_identification could be stale due to new
+        inserts).
+        """
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             return self.model.objects.create(
                 identificatie=self._next(self.current()),
@@ -32,6 +51,17 @@ class BaseIdentificatie(ABC):
             )
 
     def generate_bulk(self, amount: int):
+        """
+        Bulk generate multiple unique identificaties.
+
+        This method uses the same PostgreSQL advisory lock to avoid race conditions
+        and ensures identificaties are unique even when called concurrently.
+
+        :param organisation: The organisation (bronorganisatie) to use.
+        :param date: The date to include in the identificatie.
+        :param amount: How many identificaties to generate.
+        :return: List of created ZaakIdentificatie instances.
+        """
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             next_identificatie = self.current()
 
@@ -49,12 +79,8 @@ class BaseIdentificatie(ABC):
 
 
 class YearIdentification(BaseIdentificatie):
-    def __init__(
-        self,
-        organisation: str,
-        date: date,
-    ):
-        super().__init__(organisation)
+    def __init__(self, organisation: str, date: date, **kwargs):
+        super().__init__(organisation, **kwargs)
 
         self.prefix = f"ZAAK-{date.year}"
 
@@ -77,15 +103,13 @@ class YearIdentification(BaseIdentificatie):
 
 
 class CreationYearIdentification(YearIdentification):
-    def __init__(self, validated_data: dict):
-        super().__init__(validated_data["bronorganisatie"], date.today())
+    def __init__(self, bronorganisatie: str, **kwargs):
+        super().__init__(bronorganisatie, date.today(), **kwargs)
 
 
 class StartDatumYearIdentification(YearIdentification):
-    def __init__(self, validated_data: dict):
-        super().__init__(
-            validated_data["bronorganisatie"], validated_data["startdatum"]
-        )
+    def __init__(self, bronorganisatie: str, startdatum: date, **kwargs):
+        super().__init__(bronorganisatie, startdatum, **kwargs)
 
 
 class UWVIdentification(BaseIdentificatie):
@@ -104,9 +128,6 @@ class UWVIdentification(BaseIdentificatie):
         AA0000001 = 0*1 + 0*2 + 1*10 -> 10 mod 10 -> 10 VALID
 
     """
-
-    def __init__(self, validated_data: dict):
-        super().__init__(validated_data["bronorganisatie"])
 
     def current(self):
         pattern = r"[A-Z]{1,2}[0-9]{8}"
@@ -170,3 +191,13 @@ class UWVIdentification(BaseIdentificatie):
         while not self._validate(next_identificatie):
             next_identificatie = self._increase(next_identificatie)
         return next_identificatie
+
+
+def get_base_identification_class():
+    match settings.ZAAK_IDENTIFICATIE_GENERATOR:
+        case "use-uvw-identification":
+            identification_class = UWVIdentification
+        case _:
+            identification_class = YearIdentification
+
+    return identification_class

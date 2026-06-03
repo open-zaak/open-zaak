@@ -4,17 +4,17 @@ from django.test import TestCase
 
 from freezegun.api import freeze_time
 
-from openzaak.components.zaken.api.identification import (
+from openzaak.components.zaken.models import ZaakIdentificatie
+from openzaak.components.zaken.models.identification_classes import (
     CreationYearIdentification,
     StartDatumYearIdentification,
     UWVIdentification,
 )
-from openzaak.components.zaken.models import ZaakIdentificatie
 
 
 class UWVIdentificationTests(TestCase):
     def setUp(self):
-        self.uwv = UWVIdentification({"bronorganisatie": "111222333"})
+        self.uwv = UWVIdentification("111222333")
 
     def test_current(self):
         with self.subTest("No identificatie"):
@@ -54,6 +54,7 @@ class UWVIdentificationTests(TestCase):
         self.assertEqual(self.uwv._increase("Z99999999"), "AA00000000")
         self.assertEqual(self.uwv._increase("AA99999999"), "AB00000000")
         self.assertEqual(self.uwv._increase("ZZ99999998"), "ZZ99999999")
+        self.assertEqual(self.uwv._increase("AZ99999999"), "BZ00000000")
 
         with self.assertRaises(ValueError):
             self.uwv._increase("ZZ99999999")
@@ -106,7 +107,7 @@ class UWVIdentificationTests(TestCase):
 @freeze_time("2026-01-01")
 class CreationYearIdentificationTests(TestCase):
     def setUp(self):
-        self.cyi = CreationYearIdentification({"bronorganisatie": "111222333"})
+        self.cyi = CreationYearIdentification("111222333")
 
     def test_current(self):
         with self.subTest("No identificatie"):
@@ -168,9 +169,7 @@ class CreationYearIdentificationTests(TestCase):
 
 class StartDatumYearIdentificationTests(TestCase):
     def setUp(self):
-        self.sdi = StartDatumYearIdentification(
-            {"bronorganisatie": "111222333", "startdatum": date(2025, 1, 1)}
-        )
+        self.sdi = StartDatumYearIdentification("111222333", date(2025, 1, 1))
 
     def test_current(self):
         self.assertEqual(self.sdi.current(), "ZAAK-2025-0000000000")
