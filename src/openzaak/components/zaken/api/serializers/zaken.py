@@ -26,7 +26,6 @@ import structlog
 from django_loose_fk.virtual_models import ProxyMixin
 from drf_spectacular.utils import extend_schema_serializer
 from drf_writable_nested import NestedCreateMixin, NestedUpdateMixin, UniqueFieldsMixin
-from models.identification_classes import get_base_identification_class
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 from rest_framework_gis.fields import GeometryField
@@ -105,6 +104,7 @@ from ...models import (
     ZaakRelatie,
     ZaakVerzoek,
 )
+from ...models.identification_classes import get_base_identification_class
 from ..validators import (
     DateNotInFutureValidator,
     DeelzaakReopenValidator,

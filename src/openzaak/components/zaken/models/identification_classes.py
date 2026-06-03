@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2026 Open Zaak maintainers
+
 from abc import ABC, abstractmethod
 from datetime import date
 
