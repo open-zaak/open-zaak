@@ -60,6 +60,7 @@ from ..query import (
     ZaakRelatedQuerySet,
 )
 from .identification import ZaakIdentificatie
+from .identification_classes import get_base_identification_class
 
 logger = structlog.stdlib.get_logger(__name__)
 
@@ -519,10 +520,10 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
 
         if not self.identificatie:
             assert not self.identificatie_ptr_id
-            self.identificatie_ptr = ZaakIdentificatie.objects.generate(
-                organisation=self.bronorganisatie,
-                date=self.registratiedatum,
-            )
+            identification_class = get_base_identification_class()
+            self.identificatie_ptr = identification_class(
+                self.bronorganisatie, date=self.registratiedatum
+            ).generate()
             self.identificatie = self.identificatie_ptr.identificatie
         elif not self.identificatie_ptr_id:
             reserved_identificatie = ZaakIdentificatie.objects.filter(
