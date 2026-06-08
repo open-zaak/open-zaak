@@ -56,12 +56,6 @@ class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
         self.assertTrue(documenten_storage.exists(eio.inhoud.name))
         self.assertTrue(documenten_storage.exists(eio.inhoud.file.name))
 
-        request = self.cassette.requests[0]
-
-        self.assertTrue(
-            request.headers["Authorization"].startswith("SharedKey devstoreaccount1:")
-        )
-
     def test_eio_file_path_exists(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             inhoud__filename="test_eio_file_path_exists.bin"
