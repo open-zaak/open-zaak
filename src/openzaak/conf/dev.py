@@ -6,6 +6,7 @@ import warnings
 
 from django.core.paginator import UnorderedObjectListWarning
 
+from maykin_common.config import no_doc
 from urllib3.exceptions import SystemTimeWarning
 
 os.environ.setdefault("DEBUG", "yes")
@@ -104,13 +105,13 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
 #
 # DJANGO-SILK
 #
-if config("PROFILE", default=False, add_to_docs=False):
+if config("PROFILE", default=False, documentation=no_doc):
     INSTALLED_APPS += ["silk"]
     MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
     security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
     MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-if config("USE_PYINSTRUMENT", default=False, add_to_docs=False):  # pragma:no cover
+if config("USE_PYINSTRUMENT", default=False, documentation=no_doc):  # pragma:no cover
     MIDDLEWARE = ["openzaak.utils.middleware.PyInstrumentMiddleware"] + MIDDLEWARE
 
 
@@ -137,7 +138,7 @@ if "test" in sys.argv:
 
     LOGGING = LOGGING_SETTINGS
 
-ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, add_to_docs=False)
+ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, documentation=no_doc)
 
 # Override settings with local settings.
 try:  # noqa: SIM105

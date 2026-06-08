@@ -10,7 +10,7 @@ import structlog
 from celery import Celery, bootsteps
 from celery.signals import setup_logging, worker_ready, worker_shutdown
 from django_structlog.celery.steps import DjangoStructLogInitStep
-from open_api_framework.conf.utils import config
+from maykin_common.config import config
 
 from openzaak.setup import setup_env
 

@@ -7,9 +7,9 @@ from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
 
 os.environ["_USE_STRUCTLOG"] = "True"
-
+from maykin_common.config import DocumentationParams, config
 from open_api_framework.conf.base import *  # noqa
-from open_api_framework.conf.utils import config, get_sentry_integrations
+from open_api_framework.conf.utils import get_sentry_integrations
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
@@ -37,15 +37,17 @@ if SENTRY_DSN:
 
 DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = config(
     "DB_DISABLE_SERVER_SIDE_CURSORS",
-    False,
-    help_text=(
-        "Whether or not server side cursors should be disabled for Postgres connections. "
-        "Setting this to true is required when using a connection pooler in "
-        "transaction mode (like PgBouncer). "
-        "**WARNING:** the effect of disabling server side cursors on performance has not "
-        "been thoroughly tested yet."
+    default=False,
+    documentation=DocumentationParams(
+        help_text=(
+            "Whether or not server side cursors should be disabled for Postgres connections. "
+            "Setting this to true is required when using a connection pooler in "
+            "transaction mode (like PgBouncer). "
+            "**WARNING:** the effect of disabling server side cursors on performance has not "
+            "been thoroughly tested yet."
+        ),
+        group="Database",
     ),
-    group="Database",
 )
 
 # Define this variable here to ensure it shows up in the envvar documentation
@@ -55,15 +57,19 @@ DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 GEOS_LIBRARY_PATH = config(
     "GEOS_LIBRARY_PATH",
     None,
-    help_text=(
-        "Full path to the GEOS library used by GeoDjango. In most circumstances, this can be left empty."
+    documentation=DocumentationParams(
+        help_text=(
+            "Full path to the GEOS library used by GeoDjango. In most circumstances, this can be left empty."
+        ),
     ),
 )
 GDAL_LIBRARY_PATH = config(
     "GDAL_LIBRARY_PATH",
     None,
-    help_text=(
-        "Full path to the GDAL library used by GeoDjango. In most circumstances, this can be left empty."
+    documentation=DocumentationParams(
+        help_text=(
+            "Full path to the GDAL library used by GeoDjango. In most circumstances, this can be left empty."
+        ),
     ),
 )
 
@@ -188,26 +194,32 @@ SITE_TITLE = "API dashboard"
 # This variable is deprecated; the `SITE_DOMAIN` variable should be used instead.
 OPENZAAK_DOMAIN = config(
     "OPENZAAK_DOMAIN",
-    "",
-    help_text=(
-        "a [host]:[port] or [host] value indicating the canonical domain where Open Zaak "
-        "is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used "
-        "(together with IS_HTTPS) when fully qualified URLs need to be constructed "
-        "without HTTP request context available. "
-        "Deriving the domain from the ``OPENZAAK_DOMAIN`` and ``Sites`` configuration will soon be deprecated, "
-        "please migrate to the ``SITE_DOMAIN`` setting."
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "a [host]:[port] or [host] value indicating the canonical domain where Open Zaak "
+            "is hosted/deployed, e.g. ``openzaak.example.com:8443``. This value is used "
+            "(together with IS_HTTPS) when fully qualified URLs need to be constructed "
+            "without HTTP request context available. "
+            "Deriving the domain from the ``OPENZAAK_DOMAIN`` and ``Sites`` configuration will soon be deprecated, "
+            "please migrate to the ``SITE_DOMAIN`` setting."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )
 
 OPENZAAK_REWRITE_HOST = config(
     "OPENZAAK_REWRITE_HOST",
-    False,
-    help_text=(
-        "whether to rewrite the request host of all incoming requests with the value of "
-        "OPENZAAK_DOMAIN, discarding the original Host header or headers set by reverse "
-        "proxies. Useful if you provide the services only via the NLX network, "
-        "for example. Defaults to False and conflicts with ``USE_X_FORWARDED_HOST``."
+    default=False,
+    documentation=DocumentationParams(
+        help_text=(
+            "whether to rewrite the request host of all incoming requests with the value of "
+            "OPENZAAK_DOMAIN, discarding the original Host header or headers set by reverse "
+            "proxies. Useful if you provide the services only via the NLX network, "
+            "for example. Defaults to False and conflicts with ``USE_X_FORWARDED_HOST``."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )
@@ -215,7 +227,7 @@ OPENZAAK_REWRITE_HOST = config(
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config(
     "MIN_UPLOAD_SIZE",
-    4 * 2**30,
+    default=4 * 2**30,
     help_text=(
         "the max allowed size of POST bodies, in bytes. Defaults to 4GiB. "
         "Note that you should also configure your web server to allow this."
@@ -225,18 +237,23 @@ MIN_UPLOAD_SIZE = config(
 # in the webserver
 DOCUMENTEN_UPLOAD_CHUNK_SIZE = config(
     "DOCUMENTEN_UPLOAD_CHUNK_SIZE",
-    MIN_UPLOAD_SIZE,
-    help_text=(
-        "chunk size in bytes for large file uploads - determines the size for a single "
-        " upload chunk. Note that making this larger than ``MIN_UPLOAD_SIZE`` breaks large file uploads"
+    default=MIN_UPLOAD_SIZE,
+    documentation=DocumentationParams(
+        help_text=(
+            "chunk size in bytes for large file uploads - determines the size for a single "
+            " upload chunk. Note that making this larger than ``MIN_UPLOAD_SIZE`` breaks large file uploads"
+        ),
     ),
 )
 DOCUMENTEN_UPLOAD_READ_CHUNK = config(
     "DOCUMENTEN_UPLOAD_READ_CHUNK",
-    6 * 2**20,
-    help_text=(
-        "chunk size in bytes for large file uploads - when merging upload chunks, this "
-        "determines the number of bytes read to copy to the destination file. Defaults to 6 MiB."
+    default=6 * 2**20,
+    documentation=DocumentationParams(
+        help_text=(
+            "chunk size in bytes for large file uploads - when merging upload chunks, this "
+            "determines the number of bytes read to copy to the destination file. Defaults to 6 MiB."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )  # 6 MB default
@@ -281,11 +298,13 @@ REQUESTS_DEFAULT_TIMEOUT = (10, 30)
 # requires an nginx container running in front
 SENDFILE_BACKEND = config(
     "SENDFILE_BACKEND",
-    "django_sendfile.backends.nginx",
-    help_text=(
-        "which backend to use for authorization-secured upload downloads. Defaults to "
-        "sendfile.backends.nginx. See `django-sendfile2 <https://pypi.org/project/django-sendfile2/>`_ "
-        "for available backends"
+    default="django_sendfile.backends.nginx",
+    documentation=DocumentationParams(
+        help_text=(
+            "which backend to use for authorization-secured upload downloads. Defaults to "
+            "sendfile.backends.nginx. See `django-sendfile2 <https://pypi.org/project/django-sendfile2/>`_ "
+            "for available backends"
+        ),
     ),
 )
 SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
@@ -308,14 +327,16 @@ LOOSE_FK_LOCAL_BASE_URLS = config(
     "LOOSE_FK_LOCAL_BASE_URLS",
     split=True,
     default=[],
-    help_text=(
-        "explicitly list the allowed prefixes of local urls. "
-        "Defaults to an empty list. This setting can be used to separate local and external urls, when "
-        "Open Zaak and other services are deployed within the same domain or API Gateway. "
-        "If this setting is not defined, all urls with the same host as in the request are "
-        "considered local. Example: "
-        "``LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,"
-        "http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/``"
+    documentation=DocumentationParams(
+        help_text=(
+            "explicitly list the allowed prefixes of local urls. "
+            "Defaults to an empty list. This setting can be used to separate local and external urls, when "
+            "Open Zaak and other services are deployed within the same domain or API Gateway. "
+            "If this setting is not defined, all urls with the same host as in the request are "
+            "considered local. Example: "
+            "``LOOSE_FK_LOCAL_BASE_URLS=http://api.example.nl/ozgv-t/zaken/,"
+            "http://api.example.nl/ozgv-t/catalogi/,http://api.example.nl/ozgv-t/autorisaties/``"
+        ),
     ),
 )
 
@@ -348,24 +369,30 @@ SETUP_CONFIGURATION_STEPS = [
 # To make sure these variables appear in the documentation
 config(
     "EXTRA_VERIFY_CERTS",
-    "",
-    help_text=(
-        "a comma-separated list of paths to certificates to trust, "
-        "If you're using self-signed certificates for the services that Open Notificaties "
-        "communicates with, specify the path to those (root) certificates here, rather than "
-        "disabling SSL certificate verification. Example: "
-        "``EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt``."
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "a comma-separated list of paths to certificates to trust, "
+            "If you're using self-signed certificates for the services that Open Notificaties "
+            "communicates with, specify the path to those (root) certificates here, rather than "
+            "disabling SSL certificate verification. Example: "
+            "``EXTRA_VERIFY_CERTS=/etc/ssl/root1.crt,/etc/ssl/root2.crt``."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )
 config(
     "CURL_CA_BUNDLE",
-    "",
-    help_text=(
-        "if this variable is set to an empty string, it disables SSL/TLS certificate "
-        "verification. Even calls from Open Zaak to other services "
-        "such as the `Selectie Lijst`_ will be disabled, so this "
-        "variable should be used with care to prevent unwanted side-effects."
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "if this variable is set to an empty string, it disables SSL/TLS certificate "
+            "verification. Even calls from Open Zaak to other services "
+            "such as the `Selectie Lijst`_ will be disabled, so this "
+            "variable should be used with care to prevent unwanted side-effects."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )
@@ -380,12 +407,14 @@ CELERY_BEAT_SCHEDULE = {
 }
 CELERY_RESULT_EXPIRES = config(
     "CELERY_RESULT_EXPIRES",
-    3600,
-    help_text=(
-        "How long the results of tasks will be stored in Redis (in seconds),"
-        " this can be set to a lower duration to lower memory usage for Redis."
+    default=3600,
+    documentation=DocumentationParams(
+        help_text=(
+            "How long the results of tasks will be stored in Redis (in seconds),"
+            " this can be set to a lower duration to lower memory usage for Redis."
+        ),
+        group="Celery",
     ),
-    group="Celery",
 )
 
 #
@@ -427,9 +456,11 @@ ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS = {
 ZAAK_IDENTIFICATIE_GENERATOR = config(
     "ZAAK_IDENTIFICATIE_GENERATOR",
     default="use-start-datum-year",
-    help_text=(
-        "The method of **Zaak.identificatie** generation. Possible values are: "
-        f"{', '.join(f'``{opt}``' for opt in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS)} "
+    documentation=DocumentationParams(
+        help_text=(
+            "The method of **Zaak.identificatie** generation. Possible values are: "
+            f"{', '.join(f'``{opt}``' for opt in ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS)} "
+        ),
     ),
 )
 
@@ -441,20 +472,25 @@ SILENCED_SYSTEM_CHECKS = SILENCED_SYSTEM_CHECKS + ["vng_api_common.enums.W001"]
 JWT_EXPIRY = config(
     "JWT_EXPIRY",
     default=3600,
-    help_text="duration a JWT is considered to be valid, in seconds.",
+    documentation=DocumentationParams(
+        help_text="duration a JWT is considered to be valid, in seconds.",
+    ),
 )
 # leeway when comparing timestamps - non-zero value account for clock drift
 # This variable is deprecated; the `TIME_LEEWAY` variable should be used for everything instead.
 JWT_LEEWAY = config(
     "JWT_LEEWAY",
     default=0,
-    help_text=(
-        "JWT validation has a time aspect, usually in the form of the ``iat`` and "
-        "``nbf`` claims. Clock drift between server and client can occur. This setting allows "
-        "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
-        "not make this larger than a couple of minutes."
-        "setting a leeway using ``JWT_LEEWAY`` will soon be deprecated, "
-        "please migrate to the ``TIME_LEEWAY`` setting."
+    documentation=DocumentationParams(
+        help_text=(
+            "JWT validation has a time aspect, usually in the form of the ``iat`` and "
+            "``nbf`` claims. Clock drift between server and client can occur. This setting allows "
+            "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
+            "not make this larger than a couple of minutes."
+            "setting a leeway using ``JWT_LEEWAY`` will soon be deprecated, "
+            "please migrate to the ``TIME_LEEWAY`` setting."
+        ),
+        auto_display_default=False,
     ),
     auto_display_default=False,
 )
@@ -462,71 +498,86 @@ JWT_LEEWAY = config(
 TIME_LEEWAY = config(
     "TIME_LEEWAY",
     default=JWT_LEEWAY,
-    help_text=(
-        "Some validation & JWT validation has a time aspect (usually in the form of the ``iat`` and "
-        "``nbf`` claims). Clock drift between server and client can occur. This setting allows "
-        "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
-        "not make this larger than a couple of minutes."
+    documentation=DocumentationParams(
+        help_text=(
+            "Some validation & JWT validation has a time aspect (usually in the form of the ``iat`` and "
+            "``nbf`` claims). Clock drift between server and client can occur. This setting allows "
+            "specifying the leeway in seconds, and defaults to ``0`` (no leeway). It is advised to "
+            "not make this larger than a couple of minutes."
+        ),
     ),
 )
 
 ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
     "ZAAK_EIGENSCHAP_WAARDE_VALIDATION",
     default=False,
-    help_text=(
-        "if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` "
-        "property would be validated against the related ``Eigenschap.specificatie``."
+    documentation=DocumentationParams(
+        help_text=(
+            "if this variable is set to ``true``, ``yes`` or ``1``, ``ZaakEigenschap.waarde`` "
+            "property would be validated against the related ``Eigenschap.specificatie``."
+        ),
     ),
 )
 # improve performance by removing exact count from pagination
 FUZZY_PAGINATION = config(
     "FUZZY_PAGINATION",
     default=False,
-    help_text=(
-        "if this variable is set to ``true``, ``yes`` or ``1``, fuzzy pagination will be applied "
-        "to all paginated API endpoints. This is to optimize performance of the endpoints and results in "
-        "the ``count`` property to return a non-exact (fuzzy) value."
+    documentation=DocumentationParams(
+        help_text=(
+            "if this variable is set to ``true``, ``yes`` or ``1``, fuzzy pagination will be applied "
+            "to all paginated API endpoints. This is to optimize performance of the endpoints and results in "
+            "the ``count`` property to return a non-exact (fuzzy) value."
+        ),
     ),
 )
 FUZZY_PAGINATION_COUNT_LIMIT = config(
     "FUZZY_PAGINATION_COUNT_LIMIT",
     default=500,
-    help_text=(
-        "an integer value to indicate the maximum number of objects where the exact "
-        "count is calculated in pagination when ``FUZZY_PAGINATION`` is enabled"
+    documentation=DocumentationParams(
+        help_text=(
+            "an integer value to indicate the maximum number of objects where the exact "
+            "count is calculated in pagination when ``FUZZY_PAGINATION`` is enabled"
+        ),
     ),
 )
 
 # Import settings
 IMPORT_RETENTION_DAYS = config(
     "IMPORT_RETENTION_DAYS",
-    7,
-    help_text=(
-        "an integer which specifies the number of days after which ``Import`` "
-        "instances will be deleted."
+    default=7,
+    documentation=DocumentationParams(
+        help_text=(
+            "an integer which specifies the number of days after which ``Import`` "
+            "instances will be deleted."
+        ),
+        group="Documenten import",
     ),
-    group="Documenten import",
 )
 IMPORT_DOCUMENTEN_BASE_DIR = config(
     "IMPORT_DOCUMENTEN_BASE_DIR",
-    BASE_DIR,
-    help_text=(
-        "a string value which specifies the absolute path "
-        "of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This "
-        "value is used to determine the file path for each row in the import metadata "
-        "file. By default this is the same directory as the projects directory (``BASE_DIR``)."
+    default=BASE_DIR,
+    documentation=DocumentationParams(
+        help_text=(
+            "a string value which specifies the absolute path "
+            "of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This "
+            "value is used to determine the file path for each row in the import metadata "
+            "file. By default this is the same directory as the projects directory (``BASE_DIR``)."
+        ),
+        group="Documenten import",
+        auto_display_default=False,
     ),
     auto_display_default=False,
-    group="Documenten import",
 )
 IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     "IMPORT_DOCUMENTEN_BATCH_SIZE",
-    500,
-    help_text=(
-        "is the number of rows that will be processed at a time. "
-        "Used for bulk importing ``EnkelvoudigInformatieObject``'s."
+    default=500,
+    documentation=DocumentationParams(
+        help_text=(
+            "is the number of rows that will be processed at a time. "
+            "Used for bulk importing ``EnkelvoudigInformatieObject``'s."
+        ),
+        group="Documenten import",
     ),
-    group="Documenten import",
 )
 
 NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
@@ -535,13 +586,17 @@ ENABLE_CLOUD_EVENTS = config(
     "ENABLE_CLOUD_EVENTS",
     default=False,
     cast=bool,
-    help_text="**EXPERIMENTAL**: indicates whether or not cloud events should be sent to the configured endpoint for specific operations on Zaak (not ready for use in production)",
+    documentation=DocumentationParams(
+        help_text="**EXPERIMENTAL**: indicates whether or not cloud events should be sent to the configured endpoint for specific operations on Zaak (not ready for use in production)",
+    ),
 )
 
 NOTIFICATIONS_SOURCE = config(
     "NOTIFICATIONS_SOURCE",
     default="",
-    help_text="**EXPERIMENTAL**: the identifier of this application to use as the source in notifications and cloudevents",
+    documentation=DocumentationParams(
+        help_text="**EXPERIMENTAL**: the identifier of this application to use as the source in notifications and cloudevents",
+    ),
 )
 
 #
@@ -561,13 +616,15 @@ LOGIN_URLS = [reverse_lazy("admin:login")]
 DOCUMENTEN_API_BACKEND = config(
     "DOCUMENTEN_API_BACKEND",
     default=DocumentenBackendTypes.filesystem,
-    help_text=(
-        "Indicates which backend should be used for the Documenten API. "
-        "**WARNING**: if documents already exist in one of these backends, switching "
-        "to another backend does not automatically migrate the files. "
-        f"Possible options: {', '.join(f'``{v}``' for v in DocumentenBackendTypes.values)}"
+    documentation=DocumentationParams(
+        help_text=(
+            "Indicates which backend should be used for the Documenten API. "
+            "**WARNING**: if documents already exist in one of these backends, switching "
+            "to another backend does not automatically migrate the files. "
+            f"Possible options: {', '.join(f'``{v}``' for v in DocumentenBackendTypes.values)}"
+        ),
+        group="Documenten API",
     ),
-    group="Documenten API",
 )
 
 #
@@ -575,70 +632,89 @@ DOCUMENTEN_API_BACKEND = config(
 #
 AZURE_ACCOUNT_NAME = config(
     "AZURE_ACCOUNT_NAME",
-    None,
-    help_text=("Name of the Azure storage account."),
-    group="Documenten API Azure Blob Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Name of the Azure storage account."),
+        group="Documenten API Azure Blob Storage",
+    ),
 )
 AZURE_CLIENT_ID = config(
     "AZURE_CLIENT_ID",
-    None,
-    help_text=("Application (client) ID of the app registered in Azure for Open Zaak."),
-    group="Documenten API Azure Blob Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=(
+            "Application (client) ID of the app registered in Azure for Open Zaak."
+        ),
+        group="Documenten API Azure Blob Storage",
+    ),
 )
 AZURE_TENANT_ID = config(
     "AZURE_TENANT_ID",
-    None,
-    help_text=("Directory (tenant) ID of the Azure AD instance."),
-    group="Documenten API Azure Blob Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Directory (tenant) ID of the Azure AD instance."),
+        group="Documenten API Azure Blob Storage",
+    ),
 )
 AZURE_CLIENT_SECRET = config(
     "AZURE_CLIENT_SECRET",
-    None,
-    help_text=("Client secret of the app registered in Azure for Open Zaak."),
-    group="Documenten API Azure Blob Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Client secret of the app registered in Azure for Open Zaak."),
+        group="Documenten API Azure Blob Storage",
+    ),
 )
 AZURE_CONTAINER = config(
     "AZURE_CONTAINER",
-    "openzaak",
-    help_text=(
-        "Name of the Azure blob storage container where the content of Documenten will be stored. "
-        "This container must already exist in Azure. "
-        "**WARNING**: changing this name after documents have already been created "
-        "in the old container requires manual migration of those documents."
+    default="openzaak",
+    documentation=DocumentationParams(
+        help_text=(
+            "Name of the Azure blob storage container where the content of Documenten will be stored. "
+            "This container must already exist in Azure. "
+            "**WARNING**: changing this name after documents have already been created "
+            "in the old container requires manual migration of those documents."
+        ),
+        group="Documenten API Azure Blob Storage",
     ),
-    group="Documenten API Azure Blob Storage",
 )
 AZURE_LOCATION = config(
     "AZURE_LOCATION",
-    "documenten",
-    help_text=(
-        "Location where the uploaded Documenten content will be stored. "
-        "**WARNING**: changing this location after documents have already been created "
-        "at the old location requires manual migration of those documents."
+    default="documenten",
+    documentation=DocumentationParams(
+        help_text=(
+            "Location where the uploaded Documenten content will be stored. "
+            "**WARNING**: changing this location after documents have already been created "
+            "at the old location requires manual migration of those documents."
+        ),
+        group="Documenten API Azure Blob Storage",
     ),
-    group="Documenten API Azure Blob Storage",
 )
 AZURE_CONNECTION_TIMEOUT_SECS = config(
     "AZURE_CONNECTION_TIMEOUT_SECS",
-    5,
-    help_text=(
-        "Number of seconds before a timeout will be raised when making requests to "
-        "Azure."
+    default=5,
+    documentation=DocumentationParams(
+        help_text=(
+            "Number of seconds before a timeout will be raised when making requests to "
+            "Azure."
+        ),
+        group="Documenten API Azure Blob Storage",
     ),
-    group="Documenten API Azure Blob Storage",
 )
 AZURE_STORAGE_API_VERSION = config(
     "AZURE_STORAGE_API_VERSION",
-    "",
-    help_text=(
-        "The Storage API version to use for requests. Default value is the most recent "
-        "service version that is compatible with the current SDK. Setting to an older "
-        "version may result in reduced feature compatibility. "
-        "See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services "
-        "for more information."
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "The Storage API version to use for requests. Default value is the most recent "
+            "service version that is compatible with the current SDK. Setting to an older "
+            "version may result in reduced feature compatibility. "
+            "See https://learn.microsoft.com/en-us/rest/api/storageservices/versioning-for-the-azure-storage-services "
+            "for more information."
+        ),
+        group="Documenten API Azure Blob Storage",
+        auto_display_default=False,
     ),
     auto_display_default=False,
-    group="Documenten API Azure Blob Storage",
 )
 
 if AZURE_STORAGE_API_VERSION:
@@ -648,13 +724,15 @@ if AZURE_STORAGE_API_VERSION:
 
 AZURE_URL_EXPIRATION_SECS = config(
     "AZURE_URL_EXPIRATION_SECS",
-    60,
-    help_text=(
-        "Seconds before a URL to a blob expires, set to ``None`` to never expire it. "
-        "Be aware the container must have public read permissions in order to access "
-        "a URL without expiration date."
+    default=60,
+    documentation=DocumentationParams(
+        help_text=(
+            "Seconds before a URL to a blob expires, set to ``None`` to never expire it. "
+            "Be aware the container must have public read permissions in order to access "
+            "a URL without expiration date."
+        ),
+        group="Documenten API Azure Blob Storage",
     ),
-    group="Documenten API Azure Blob Storage",
 )
 
 
@@ -669,77 +747,97 @@ AWS_S3_VERIFY = True
 # Authentication Settings
 AWS_S3_ACCESS_KEY_ID = config(
     "S3_ACCESS_KEY_ID",
-    None,
-    help_text=("Access key ID used to authenticate with S3 storage."),
-    group="Documenten API S3 Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Access key ID used to authenticate with S3 storage."),
+        group="Documenten API S3 Storage",
+    ),
 )
 AWS_S3_SECRET_ACCESS_KEY = config(
     "S3_SECRET_ACCESS_KEY",
-    None,
-    help_text=(
-        "Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage."
+    default=None,
+    documentation=DocumentationParams(
+        help_text=(
+            "Secret access key used together with S3_ACCESS_KEY_ID to authenticate to S3 storage."
+        ),
+        group="Documenten API S3 Storage",
     ),
-    group="Documenten API S3 Storage",
 )
 
 # General Settings
 AWS_STORAGE_BUCKET_NAME = config(
     "S3_STORAGE_BUCKET_NAME",
-    "openzaak",
-    help_text=(
-        "The name of the S3 bucket that will host the files."
-        " Note: the bucket must exist already, because Open Zaak will not create it automatically."
+    default="openzaak",
+    documentation=DocumentationParams(
+        help_text=(
+            "The name of the S3 bucket that will host the files."
+            " Note: the bucket must exist already, because Open Zaak will not create it automatically."
+        ),
+        group="Documenten API S3 Storage",
     ),
-    group="Documenten API S3 Storage",
 )
 AWS_S3_MAX_MEMORY_SIZE = config(
     "S3_MAX_MEMORY_SIZE",
-    0,
-    help_text=(
-        "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. "
-        "``0`` means that files will never roll over."
+    default=0,
+    documentation=DocumentationParams(
+        help_text=(
+            "The maximum amount of memory (in bytes) a file can take up before being rolled over into a temporary file on disk. "
+            "``0`` means that files will never roll over."
+        ),
+        group="Documenten API S3 Storage",
     ),
-    group="Documenten API S3 Storage",
 )
 AWS_QUERYSTRING_EXPIRE = config(
     "S3_QUERYSTRING_EXPIRE",
-    60,
-    help_text=("The number of seconds that a generated URL is valid for."),
-    group="Documenten API S3 Storage",
+    default=60,
+    documentation=DocumentationParams(
+        help_text=("The number of seconds that a generated URL is valid for."),
+        group="Documenten API S3 Storage",
+    ),
 )
 AWS_S3_FILE_OVERWRITE = config(
     "S3_FILE_OVERWRITE",
-    False,
-    help_text=(
-        "By default files with the same name will have extra characters appended to avoid overwriting. "
-        "Set this to ``True`` to ensure that files are overwritten instead."
+    default=False,
+    documentation=DocumentationParams(
+        help_text=(
+            "By default files with the same name will have extra characters appended to avoid overwriting. "
+            "Set this to ``True`` to ensure that files are overwritten instead."
+        ),
+        group="Documenten API S3 Storage",
     ),
-    group="Documenten API S3 Storage",
 )
 AWS_LOCATION = config(
     "S3_LOCATION",
-    "documenten/",
-    help_text=("A path prefix that will be prepended to all uploads."),
-    group="Documenten API S3 Storage",
+    default="documenten/",
+    documentation=DocumentationParams(
+        help_text=("A path prefix that will be prepended to all uploads."),
+        group="Documenten API S3 Storage",
+    ),
 )
 AWS_S3_REGION_NAME = config(
     "S3_REGION_NAME",
-    None,
-    help_text=("Name of the S3 storage region to use (eg. ``eu-west-1``)"),
-    group="Documenten API S3 Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Name of the S3 storage region to use (eg. ``eu-west-1``)"),
+        group="Documenten API S3 Storage",
+    ),
 )
 AWS_S3_ENDPOINT_URL = config(
     "S3_ENDPOINT_URL",
-    None,
-    help_text=(
-        "Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl."
-        "To avoid AuthorizationQueryParametersError errors, region_name should also be set."
+    default=None,
+    documentation=DocumentationParams(
+        help_text=(
+            "Custom S3 URL to use when connecting to S3, including scheme. Overrides region_name and use_ssl."
+            "To avoid AuthorizationQueryParametersError errors, region_name should also be set."
+        ),
+        group="Documenten API S3 Storage",
     ),
-    group="Documenten API S3 Storage",
 )
 AWS_S3_CUSTOM_DOMAIN = config(
     "S3_CUSTOM_DOMAIN",
-    None,
-    help_text=("Set this to specify a custom domain for constructed URLs."),
-    group="Documenten API S3 Storage",
+    default=None,
+    documentation=DocumentationParams(
+        help_text=("Set this to specify a custom domain for constructed URLs."),
+        group="Documenten API S3 Storage",
+    ),
 )
