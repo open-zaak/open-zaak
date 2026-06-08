@@ -127,6 +127,58 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
+    @tag("gh-security-issues-5")
+    def test_zaak_zoek(self):
+        """
+        Regression test for open-zaak/security-issues#5
+
+        Assert you can only search from ZAAKen of the zaaktypes and
+        vertrouwelijkheidaanduiding of your authorization
+        """
+        zaak_authorized = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        zaak_unauthorized_other_zaaktype = ZaakFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        zaak_unauthorized_too_high_confidentiality = ZaakFactory.create(
+            zaaktype=self.zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        zaak_unauthorized_other_zaaktype_and_too_high_confidentiality = (
+            ZaakFactory.create(
+                vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
+            )
+        )
+        url = get_operation_url("zaak__zoek")
+
+        response = self.client.post(
+            url,
+            {
+                "uuid__in": [
+                    zaak_authorized.uuid,
+                    zaak_unauthorized_other_zaaktype.uuid,
+                    zaak_unauthorized_too_high_confidentiality.uuid,
+                    zaak_unauthorized_other_zaaktype_and_too_high_confidentiality.uuid,
+                ]
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["zaaktype"], f"http://testserver{reverse(self.zaaktype)}"
+        )
+        self.assertEqual(
+            results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
     def test_zaak_list_multiple_confidentialities(self):
         """
         Assert you can be authorized for multiple zaaktypen
