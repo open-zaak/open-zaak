@@ -16,15 +16,11 @@ class ListFilterByAuthorizationsMixin:
     def get_queryset(self):
         base = super().get_queryset()
 
-        # drf-yasg introspection - doesn't run the middleware, so this isn't set
-        if not hasattr(self.request, "jwt_auth"):
-            return base
-
-        # we do not apply the filtering for update/partial_update/delete,
-        # because the resource _does exist_, you just don't have permission
-        # to do those operations. A 403 is semantically more correct than a
-        # 404, which would be the result if the queryset is always filtered.
-        if self.action != "list":
+        if self.action in ["retrieve", "create", "destroy", "update", "partial_update"]:
+            # Permission for these actions on singular items is checked in AuthRequired
+            # and AuthScopesRequired (src/openzaak/utils/permissions.py)
+            # and should 403 if the resource exists, not 404 (which happens if we return
+            # an empty filtered queryset here)
             return base
 
         # get the auth apps that are relevant for this particular request
