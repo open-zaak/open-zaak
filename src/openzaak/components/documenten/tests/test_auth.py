@@ -35,6 +35,7 @@ from .factories import (
     GebruiksrechtenFactory,
     VerzendingFactory,
 )
+from .utils import get_operation_url
 
 IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
 IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7634cc6-b312-4d75-ba4d-a12e1fdb1dee"
@@ -121,6 +122,61 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         url = reverse("enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["informatieobjecttype"],
+            f"http://testserver{reverse(self.informatieobjecttype)}",
+        )
+        self.assertEqual(
+            results[0]["vertrouwelijkheidaanduiding"],
+            VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+    @tag("gh-security-issues-5")
+    def test_io_zoek(self):
+        """
+        Regression test for open-zaak/security-issues#5
+
+        Assert you can only search from INFORMATIEOBJECTen of the informatieobjecttypen
+        and vertrouwelijkheidaanduiding of your authorization
+        """
+
+        eio_authorized = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        eio_unauthorized_other_iotype = EnkelvoudigInformatieObjectFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        eio_unauthorized_too_high_confidentiality = (
+            EnkelvoudigInformatieObjectFactory.create(
+                informatieobjecttype=self.informatieobjecttype,
+                vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+            )
+        )
+        eio_unauthorized_other_iotype_and_too_high_confidentiality = (
+            EnkelvoudigInformatieObjectFactory.create(
+                vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
+            )
+        )
+        url = get_operation_url("enkelvoudiginformatieobject__zoek")
+
+        response = self.client.post(
+            url,
+            {
+                "uuid__in": [
+                    eio_authorized.uuid,
+                    eio_unauthorized_other_iotype.uuid,
+                    eio_unauthorized_too_high_confidentiality.uuid,
+                    eio_unauthorized_other_iotype_and_too_high_confidentiality.uuid,
+                ]
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
