@@ -56,7 +56,7 @@ DATABASES["default"]["ENGINE"] = "django.contrib.gis.db.backends.postgis"
 # Geospatial libraries
 GEOS_LIBRARY_PATH = config(
     "GEOS_LIBRARY_PATH",
-    None,
+    default=None,
     documentation=DocumentationParams(
         help_text=(
             "Full path to the GEOS library used by GeoDjango. In most circumstances, this can be left empty."
@@ -65,7 +65,7 @@ GEOS_LIBRARY_PATH = config(
 )
 GDAL_LIBRARY_PATH = config(
     "GDAL_LIBRARY_PATH",
-    None,
+    default=None,
     documentation=DocumentationParams(
         help_text=(
             "Full path to the GDAL library used by GeoDjango. In most circumstances, this can be left empty."
@@ -206,7 +206,6 @@ OPENZAAK_DOMAIN = config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 
 OPENZAAK_REWRITE_HOST = config(
@@ -221,16 +220,17 @@ OPENZAAK_REWRITE_HOST = config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 
 # settings for uploading large files
 MIN_UPLOAD_SIZE = config(
     "MIN_UPLOAD_SIZE",
     default=4 * 2**30,
-    help_text=(
-        "the max allowed size of POST bodies, in bytes. Defaults to 4GiB. "
-        "Note that you should also configure your web server to allow this."
+    documentation=DocumentationParams(
+        help_text=(
+            "the max allowed size of POST bodies, in bytes. Defaults to 4GiB. "
+            "Note that you should also configure your web server to allow this."
+        ),
     ),
 )
 # default to the MIN_UPLOAD_SIZE, as that is typically the maximum post body size configured
@@ -255,7 +255,6 @@ DOCUMENTEN_UPLOAD_READ_CHUNK = config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )  # 6 MB default
 DOCUMENTEN_UPLOAD_DEFAULT_EXTENSION = "bin"
 # Change the User-Agent value for the outgoing requests
@@ -380,7 +379,6 @@ config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 config(
     "CURL_CA_BUNDLE",
@@ -394,7 +392,6 @@ config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
@@ -492,7 +489,6 @@ JWT_LEEWAY = config(
         ),
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 
 TIME_LEEWAY = config(
@@ -566,7 +562,6 @@ IMPORT_DOCUMENTEN_BASE_DIR = config(
         group="Documenten import",
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     "IMPORT_DOCUMENTEN_BATCH_SIZE",
@@ -584,7 +579,7 @@ NOTIFICATIONS_API_GET_DOMAIN = "openzaak.utils.get_openzaak_domain"
 
 ENABLE_CLOUD_EVENTS = config(
     "ENABLE_CLOUD_EVENTS",
-    default=False,
+    default="False",
     cast=bool,
     documentation=DocumentationParams(
         help_text="**EXPERIMENTAL**: indicates whether or not cloud events should be sent to the configured endpoint for specific operations on Zaak (not ready for use in production)",
@@ -714,7 +709,6 @@ AZURE_STORAGE_API_VERSION = config(
         group="Documenten API Azure Blob Storage",
         auto_display_default=False,
     ),
-    auto_display_default=False,
 )
 
 if AZURE_STORAGE_API_VERSION:
