@@ -360,7 +360,7 @@ django-jsonform==2.22.0
     #   -r requirements/ci.txt
     #   mozilla-django-oidc-db
     #   open-api-framework
-django-log-outgoing-requests==0.6.1
+django-log-outgoing-requests==0.9.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -393,6 +393,7 @@ django-privates==3.1.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-simple-certmanager
+    #   open-api-framework
 django-redis==6.0.0
     # via
     #   -c requirements/ci.txt
@@ -428,6 +429,7 @@ django-simple-certmanager==2.4.1
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   open-api-framework
     #   zgw-consumers
 django-sniplates==0.7.2
     # via
@@ -702,10 +704,11 @@ maykin-2fa==1.0.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   open-api-framework
-maykin-common==0.11.0
+maykin-common==0.19.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   open-api-framework
 mdurl==0.1.2
     # via markdown-it-py
 mozilla-django-oidc==5.0.2
@@ -751,7 +754,7 @@ oauthlib==3.3.1
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   requests-oauthlib
-open-api-framework==0.13.4
+open-api-framework==0.14.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -762,7 +765,12 @@ opentelemetry-api==1.38.0
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-celery
+    #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-django
+    #   opentelemetry-instrumentation-psycopg
+    #   opentelemetry-instrumentation-redis
+    #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
@@ -790,9 +798,35 @@ opentelemetry-instrumentation==0.59b0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   opentelemetry-instrumentation-celery
+    #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-django
+    #   opentelemetry-instrumentation-psycopg
+    #   opentelemetry-instrumentation-redis
+    #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
+opentelemetry-instrumentation-celery==0.59b0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+opentelemetry-instrumentation-dbapi==0.59b0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   opentelemetry-instrumentation-psycopg
 opentelemetry-instrumentation-django==0.59b0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+opentelemetry-instrumentation-psycopg==0.59b0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+opentelemetry-instrumentation-redis==0.59b0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+opentelemetry-instrumentation-requests==0.59b0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -824,7 +858,11 @@ opentelemetry-semantic-conventions==0.59b0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-celery
+    #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-django
+    #   opentelemetry-instrumentation-redis
+    #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
 opentelemetry-util-http==0.59b0
@@ -832,6 +870,7 @@ opentelemetry-util-http==0.59b0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   opentelemetry-instrumentation-django
+    #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
 orderedmultidict==1.0.1
     # via
@@ -955,6 +994,7 @@ pygments==2.20.0
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
+    #   django-log-outgoing-requests
     #   django-markup
     #   rich
     #   sphinx
@@ -1030,7 +1070,7 @@ python-decouple==3.8
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
-    #   open-api-framework
+    #   maykin-common
 python-dotenv==1.0.1
     # via
     #   -c requirements/ci.txt
@@ -1273,6 +1313,7 @@ typing-extensions==4.12.2
     #   azure-core
     #   azure-identity
     #   azure-storage-blob
+    #   django-log-outgoing-requests
     #   faker
     #   grpcio
     #   mozilla-django-oidc-db
@@ -1377,6 +1418,8 @@ wrapt==1.16.0
     #   -r requirements/ci.txt
     #   elastic-apm
     #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-dbapi
+    #   opentelemetry-instrumentation-redis
     #   vcrpy
 yarl==1.17.1
     # via
