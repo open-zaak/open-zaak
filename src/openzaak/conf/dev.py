@@ -104,13 +104,19 @@ REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] += (
 #
 # DJANGO-SILK
 #
-if config("PROFILE", default=False, add_to_docs=False):
+if config(
+    "PROFILE", default=False, documentation=DocumentationParams(add_to_docs=False)
+):
     INSTALLED_APPS += ["silk"]
     MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
     security_index = MIDDLEWARE.index("django.middleware.security.SecurityMiddleware")
     MIDDLEWARE.insert(security_index + 1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-if config("USE_PYINSTRUMENT", default=False, add_to_docs=False):  # pragma:no cover
+if config(
+    "USE_PYINSTRUMENT",
+    default=False,
+    documentation=DocumentationParams(add_to_docs=False),
+):  # pragma:no cover
     MIDDLEWARE = ["openzaak.utils.middleware.PyInstrumentMiddleware"] + MIDDLEWARE
 
 
@@ -137,7 +143,11 @@ if "test" in sys.argv:
 
     LOGGING = LOGGING_SETTINGS
 
-ELASTIC_APM["DEBUG"] = config("DISABLE_APM_IN_DEV", default=True, add_to_docs=False)
+ELASTIC_APM["DEBUG"] = config(
+    "DISABLE_APM_IN_DEV",
+    default=True,
+    documentation=DocumentationParams(add_to_docs=False),
+)
 
 # Override settings with local settings.
 try:  # noqa: SIM105
