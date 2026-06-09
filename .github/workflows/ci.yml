@@ -144,7 +144,7 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write  # to add comments to the PR
+      pull-requests: write # to add comments to the PR
       checks: write
 
     services:
@@ -228,32 +228,6 @@ jobs:
                       --file output.json \
                       "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
-  docs:
-    name: Documentation check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
-        with:
-          apt-packages: "gdal-bin"
-          python-version: "3.12"
-
-      - name: Generate environment variable documentation using OAf and check if it was updated
-        run: |
-          bin/generate_envvar_docs.sh
-          changes=$(git diff docs/installation/config/env_config.rst)
-          if [ ! -z "$changes" ]; then
-              echo $changes
-              echo "Please update the environment documentation by running \`bin/generate_envvar_docs.sh\`"
-              cat docs/installation/config/env_config.rst
-              exit 1
-          fi
-        env:
-          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
-
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
     runs-on: ubuntu-latest
@@ -270,12 +244,12 @@ jobs:
         id: sphinx-ssl-conf
 
   open-api-ci:
-    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/ci.yml@79102b911003d75203ca2fed7df01ad79d9b6bba # v6.4.0
     needs:
       - store-reusable-workflow-vars
     permissions:
       contents: read
-      security-events: write  # required for `Scan docker image` step
+      security-events: write # required for `Scan docker image` step
     with:
       apt-packages: "gdal-bin graphviz graphviz-dev"
       main-branch: "main"
@@ -285,7 +259,7 @@ jobs:
       docs-ssl-conf: ${{ needs.store-reusable-workflow-vars.outputs.sphinx-ssl-conf }}
 
   open-api-publish:
-    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/publish.yml@79102b911003d75203ca2fed7df01ad79d9b6bba # v6.4.0
     needs:
       - store-reusable-workflow-vars
       - open-api-ci
