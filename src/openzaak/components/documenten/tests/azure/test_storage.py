@@ -48,6 +48,11 @@ class AzureStorageOverrideAPIVersionTests(AzureBlobStorageMixin, SimpleTestCase)
 @freeze_time("2025-12-01T12:00:00")
 @tag("gh-2217", "azure-storage")
 class AzureStorageTests(VCRMixin, AzureBlobStorageMixin, TestCase):
+    # maykin-common by default filters out authorization headers, but all requests
+    # in these tests are done to a local instance of Azurite with dummy tokens that
+    # are not sensitive, so this filtering is disabled for this testcase
+    VCR_FILTER_HEADERS = {}
+
     def test_auth_use_connection_string(self):
         eio = EnkelvoudigInformatieObjectFactory.create(
             inhoud__filename="test_use_connection_string.bin"
