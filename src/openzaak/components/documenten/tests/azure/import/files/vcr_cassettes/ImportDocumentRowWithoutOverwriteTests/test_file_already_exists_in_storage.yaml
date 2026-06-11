@@ -6,14 +6,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:Mtp0rckOn0fjwfN1TmKZn+JYSCeZKS1IGVFrn3hQC2Y=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6000-6318-11f5-b822-a82bdd58bc01
+      - 737d6000-6318-11f5-bf74-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -27,7 +25,7 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       Keep-Alive:
       - timeout=5
       Server:
@@ -35,7 +33,7 @@ interactions:
       x-ms-error-code:
       - BlobNotFound
       x-ms-request-id:
-      - 912ae3bb-aca6-4b94-a726-20b8e669d55e
+      - 237c08fc-5db7-4d4a-bd84-d72f0e4e100f
     status:
       code: 404
       message: The specified blob does not exist.
@@ -46,8 +44,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:tOUMWj7Py2IXgsZRnmRJo0vmQW9OxgbHhtE4cvHfGqs=
       Connection:
       - keep-alive
       Content-Length:
@@ -57,13 +53,13 @@ interactions:
       If-None-Match:
       - '*'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - text/plain
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6001-6318-11f5-9411-a82bdd58bc01
+      - 737d6001-6318-11f5-ab7c-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -85,15 +81,15 @@ interactions:
       content-md5:
       - ECd5Z2/u/9OF9wOFQsBUQQ==
       date:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x1E7BDA1C2C4E820"'
+      - '"0x2736F19918E97A0"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-client-request-id:
-      - 737d6001-6318-11f5-9411-a82bdd58bc01
+      - 737d6001-6318-11f5-ab7c-a82bdd58bc01
       x-ms-request-id:
-      - 4299124b-59b1-48af-a994-847182b1cbd6
+      - ca95d051-16f2-4b23-99c1-59e929c61637
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -108,14 +104,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:mQ0296XYk7WjcTQlCm2t/4crnL5AyLW+ww07wN5eRtc=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6002-6318-11f5-a952-a82bdd58bc01
+      - 737d6002-6318-11f5-bdb8-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -141,29 +135,29 @@ interactions:
       content-type:
       - text/plain
       date:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x1E7BDA1C2C4E820"'
+      - '"0x2736F19918E97A0"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6002-6318-11f5-a952-a82bdd58bc01
+      - 737d6002-6318-11f5-bdb8-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - ab82a481-df2c-4bdd-95a3-7e6b4434c63a
+      - a4799ef8-274d-4fdd-be79-e4137c5ad641
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -178,14 +172,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:leN7RZYIQ+B6y0wpccRr4gstvwooT9fnl2kT74TAsVw=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6003-6318-11f5-af2b-a82bdd58bc01
+      - 737d6003-6318-11f5-a1e9-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -199,7 +191,7 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       Keep-Alive:
       - timeout=5
       Server:
@@ -207,7 +199,7 @@ interactions:
       x-ms-error-code:
       - BlobNotFound
       x-ms-request-id:
-      - 2da5857b-4d54-4984-ae82-49af2cff0167
+      - 642b808d-169d-428c-81db-12ce5c2f8284
     status:
       code: 404
       message: The specified blob does not exist.
@@ -218,8 +210,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:wA0Ag8TWVKC9SICddWqbG8kpBGi0e/xWNAd3dcWuWHo=
       Connection:
       - keep-alive
       Content-Length:
@@ -229,13 +219,13 @@ interactions:
       If-None-Match:
       - '*'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - text/plain
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6004-6318-11f5-8793-a82bdd58bc01
+      - 737d6004-6318-11f5-8674-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -257,15 +247,15 @@ interactions:
       content-md5:
       - ECd5Z2/u/9OF9wOFQsBUQQ==
       date:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x23EEBB15D193D00"'
+      - '"0x2512AF8ABDB4F80"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-client-request-id:
-      - 737d6004-6318-11f5-8793-a82bdd58bc01
+      - 737d6004-6318-11f5-8674-a82bdd58bc01
       x-ms-request-id:
-      - 60bcbc93-6a25-4a31-b0f7-5ec3b1e2b19a
+      - 690370d8-a819-44b4-a323-ca9e42bf4636
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -280,14 +270,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:8e/qlXlgn0OnGipBGf7f0zBQJMWq7xMbknHeFb6BfV4=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6005-6318-11f5-aff2-a82bdd58bc01
+      - 737d6005-6318-11f5-9367-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-range:
@@ -315,25 +303,25 @@ interactions:
       content-type:
       - text/plain
       date:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x23EEBB15D193D00"'
+      - '"0x2512AF8ABDB4F80"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-blob-content-md5:
       - ECd5Z2/u/9OF9wOFQsBUQQ==
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6005-6318-11f5-aff2-a82bdd58bc01
+      - 737d6005-6318-11f5-9367-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - f270fdb6-c54a-4f0b-93e6-b07feba8a437
+      - 61759206-fa45-4eab-a18b-ebb5521d3684
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -348,14 +336,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:fPOC0jFXQVUEt48LoqiLtiakQe6i3xXmLzIOwQFfU54=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6006-6318-11f5-ac4f-a82bdd58bc01
+      - 737d6006-6318-11f5-841c-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -381,29 +367,29 @@ interactions:
       content-type:
       - text/plain
       date:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x1E7BDA1C2C4E820"'
+      - '"0x2736F19918E97A0"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6006-6318-11f5-ac4f-a82bdd58bc01
+      - 737d6006-6318-11f5-841c-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 19 Dec 2025 14:48:35 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - bc276633-6658-4928-a0e2-c7fc18cceeb1
+      - 7963643f-6f46-478e-bec2-1c5504c27981
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -418,14 +404,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:NG62ypFRbnZyCXwY2BBayEW9MsDXYYlVF/dI0wV4t8c=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1018-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 737d6007-6318-11f5-a2be-a82bdd58bc01
+      - 737d6007-6318-11f5-aed4-a82bdd58bc01
       x-ms-date:
       - Tue, 01 Jan 2030 12:00:00 GMT
       x-ms-version:
@@ -451,29 +435,29 @@ interactions:
       content-type:
       - text/plain
       date:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       etag:
-      - '"0x23EEBB15D193D00"'
+      - '"0x2512AF8ABDB4F80"'
       last-modified:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 737d6007-6318-11f5-a2be-a82bdd58bc01
+      - 737d6007-6318-11f5-aed4-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 19 Dec 2025 14:48:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - 9b7f8351-5db2-4984-bca5-1b5ab6010ab5
+      - 9d98a49f-159c-4c32-aea7-63cd520a519d
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:

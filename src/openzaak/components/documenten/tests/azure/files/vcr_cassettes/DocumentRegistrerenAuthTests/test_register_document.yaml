@@ -6,8 +6,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:T1vQ/x1a+ooLzLMofd19FgaCnFk2Ll+yVEnnimSL+5w=
       Connection:
       - keep-alive
       Content-Length:
@@ -15,13 +13,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - ed31e000-c837-11ef-99be-a82bdd58bc01
+      - ed31e000-c837-11ef-93a0-a82bdd58bc01
       x-ms-date:
       - Wed, 01 Jan 2025 12:00:00 GMT
       x-ms-version:
@@ -43,15 +41,15 @@ interactions:
       content-md5:
       - J8OgCaPLumdNCz6Dby1GhQ==
       date:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       etag:
-      - '"0x1EF8583DE28F9D0"'
+      - '"0x212054EC4500DA0"'
       last-modified:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-client-request-id:
-      - ed31e000-c837-11ef-99be-a82bdd58bc01
+      - ed31e000-c837-11ef-93a0-a82bdd58bc01
       x-ms-request-id:
-      - ec7f9abb-65df-4e68-a1a7-4704d63a4592
+      - 91ebd5ac-2cc3-40dd-9c51-ed79ae8e419a
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -66,14 +64,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:o+pAzx87Cxpg/ABUDe9hmi6fDT/u2GH57PuA3p3N9Rc=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - ed31e001-c837-11ef-81b3-a82bdd58bc01
+      - ed31e001-c837-11ef-bacf-a82bdd58bc01
       x-ms-date:
       - Wed, 01 Jan 2025 12:00:00 GMT
       x-ms-version:
@@ -99,29 +95,29 @@ interactions:
       content-type:
       - application/octet-stream
       date:
-      - Fri, 12 Dec 2025 15:21:57 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       etag:
-      - '"0x1EF8583DE28F9D0"'
+      - '"0x212054EC4500DA0"'
       last-modified:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - ed31e001-c837-11ef-81b3-a82bdd58bc01
+      - ed31e001-c837-11ef-bacf-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - b4c80bbd-544c-40f6-bcb4-bc59b244dc80
+      - 7a3bbd92-a171-4d89-adde-58c9c9e59c66
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -136,14 +132,12 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:sV6BwbuBcsId1BMuknvYfdLb2AF+RZ92aQ8cRL4865M=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - ed31e002-c837-11ef-ba60-a82bdd58bc01
+      - ed31e002-c837-11ef-9ef4-a82bdd58bc01
       x-ms-date:
       - Wed, 01 Jan 2025 12:00:00 GMT
       x-ms-range:
@@ -171,25 +165,25 @@ interactions:
       content-type:
       - application/octet-stream
       date:
-      - Fri, 12 Dec 2025 15:21:57 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       etag:
-      - '"0x1EF8583DE28F9D0"'
+      - '"0x212054EC4500DA0"'
       last-modified:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-blob-content-md5:
       - J8OgCaPLumdNCz6Dby1GhQ==
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - ed31e002-c837-11ef-ba60-a82bdd58bc01
+      - ed31e002-c837-11ef-9ef4-a82bdd58bc01
       x-ms-creation-time:
-      - Fri, 12 Dec 2025 15:21:56 GMT
+      - Thu, 11 Jun 2026 10:33:39 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - bc50fb42-8383-4243-8728-7176cf6e5311
+      - 64d92a6b-2d94-4028-a8b9-9a85c4929842
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
