@@ -197,7 +197,7 @@ dictdiffer==0.9.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-django==5.2.13
+django==5.2.15
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -544,7 +544,7 @@ humanize==4.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   flower
-idna==3.7
+idna==3.18
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -605,7 +605,7 @@ kombu==5.5.4
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   celery
-lxml==5.3.0
+lxml==6.1.1
     # via pyquery
 markdown==3.10.2
     # via
@@ -880,6 +880,7 @@ pygments==2.20.0
     #   -r requirements/base.txt
     #   django-log-outgoing-requests
     #   django-markup
+    #   pytest
     #   sphinx
     #   sphinx-tabs
 pyjwt==2.12.1
@@ -908,7 +909,7 @@ pyrsistent==0.18.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   jsonschema
-pytest==8.3.3
+pytest==9.0.3
     # via
     #   -r requirements/performance-tests.in
     #   -r requirements/test-tools.in
@@ -940,7 +941,7 @@ python-decouple==3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   maykin-common
-python-dotenv==1.0.1
+python-dotenv==1.2.2
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1167,7 +1168,7 @@ url-normalize==1.4.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-cache
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1207,7 +1208,7 @@ webencodings==0.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   bleach
-webob==1.8.8
+webob==1.8.10
     # via webtest
 webtest==3.0.0
     # via django-webtest

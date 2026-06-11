@@ -107,7 +107,7 @@ deprecation==2.1.0
     # via cloudevents
 dictdiffer==0.9.0
     # via -r requirements/base.in
-django==5.2.13
+django==5.2.15
     # via
     #   commonground-api-common
     #   django-admin-index
@@ -309,7 +309,7 @@ humanize==4.0.0
     # via
     #   -r requirements/base.in
     #   flower
-idna==3.7
+idna==3.18
     # via requests
 importlib-metadata==8.7.0
     # via opentelemetry-api
@@ -513,7 +513,7 @@ python-dateutil==2.8.2
     #   python-crontab
 python-decouple==3.8
     # via maykin-common
-python-dotenv==1.0.1
+python-dotenv==1.2.2
     # via
     #   open-api-framework
     #   pydantic-settings
@@ -620,7 +620,7 @@ uritemplate==4.1.1
     #   drf-spectacular
 url-normalize==1.4.3
     # via requests-cache
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   botocore
     #   elastic-apm
