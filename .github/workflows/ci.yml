@@ -189,6 +189,7 @@ jobs:
           ALLOWED_HOSTS: localhost,127.0.0.1
           FUZZY_PAGINATION: true
           DB_CONN_MAX_AGE: 60
+          LOG_REQUESTS: False
 
       - name: Install dependencies
         run: |
