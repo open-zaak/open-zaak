@@ -6,16 +6,14 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:VmRZhzOKd5pgmGEE3PkAFcy4LZyirAP4EKdGnb+zMIM=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 5658496a-dc27-11f0-b763-f4289da6022f
+      - 432a6012-cead-11f0-8b74-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:36 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: HEAD
@@ -27,7 +25,7 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Thu, 18 Dec 2025 15:36:36 GMT
+      - Thu, 11 Jun 2026 10:33:35 GMT
       Keep-Alive:
       - timeout=5
       Server:
@@ -35,7 +33,7 @@ interactions:
       x-ms-error-code:
       - BlobNotFound
       x-ms-request-id:
-      - ec92ca3a-8db4-43cb-9fb4-64fc84d69064
+      - c907e894-1446-45dd-8a37-faaa67cc6908
     status:
       code: 404
       message: The specified blob does not exist.

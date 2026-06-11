@@ -6,8 +6,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:EnGRpEYiuw0Xa8z34lv2vQoACOa/XKdJLRBBJxrBCYk=
       Connection:
       - keep-alive
       Content-Length:
@@ -15,15 +13,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6a7-dc27-11f0-b763-f4289da6022f
+      - 432a6013-cead-11f0-bdd1-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -43,15 +41,15 @@ interactions:
       content-md5:
       - HlAhCgICSX+3m8OLat5sNA==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x237AD908CC20140"'
+      - '"0x21CC4038154F080"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6a7-dc27-11f0-b763-f4289da6022f
+      - 432a6013-cead-11f0-bdd1-a82bdd58bc01
       x-ms-request-id:
-      - eb0cb956-5827-4c61-9825-5737c17debac
+      - c1821647-db58-4e75-b88e-0f21993db71e
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -66,8 +64,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:475u1KMTUcQjKurGiAquaxAZko4uVHnCIzEeuCVfGWY=
       Connection:
       - keep-alive
       Content-Length:
@@ -75,15 +71,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6a8-dc27-11f0-b763-f4289da6022f
+      - 432a6014-cead-11f0-a592-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -103,15 +99,15 @@ interactions:
       content-md5:
       - HlAhCgICSX+3m8OLat5sNA==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x23168F004F66BC0"'
+      - '"0x1E39C75B0B7F4E0"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6a8-dc27-11f0-b763-f4289da6022f
+      - 432a6014-cead-11f0-a592-a82bdd58bc01
       x-ms-request-id:
-      - 6fcace2d-53e3-49e3-a054-92db54b973d8
+      - 50f5b5e7-cd65-466b-91ba-38c8cc644251
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -458,8 +454,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:k2hf9Ae896EneIIF6U/4TCPCIMwjZsCEPDAVonXzAyE=
       Connection:
       - keep-alive
       Content-Length:
@@ -467,15 +461,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6a9-dc27-11f0-b763-f4289da6022f
+      - 432a6015-cead-11f0-af40-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -495,15 +489,15 @@ interactions:
       content-md5:
       - c1zeeixHoMD3Z+T4wrvFEQ==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x25F0FE42048DB60"'
+      - '"0x206297CA0074E80"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6a9-dc27-11f0-b763-f4289da6022f
+      - 432a6015-cead-11f0-af40-a82bdd58bc01
       x-ms-request-id:
-      - 87ae9c51-9bd3-43c8-81e7-ed485d378eaf
+      - 5acb6cce-dc7c-4901-ba73-2ad1a5a5b2d2
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -850,8 +844,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:CmPbYP9aQ9uvQEfWSgHZGxOaXtozrtS7gdxN4HYoxt4=
       Connection:
       - keep-alive
       Content-Length:
@@ -859,15 +851,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6aa-dc27-11f0-b763-f4289da6022f
+      - 432a6016-cead-11f0-97c5-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -887,15 +879,15 @@ interactions:
       content-md5:
       - Wqz9xUg6VEEikc4F4lczag==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x23C825D42C572A0"'
+      - '"0x209CB59407E5D00"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6aa-dc27-11f0-b763-f4289da6022f
+      - 432a6016-cead-11f0-97c5-a82bdd58bc01
       x-ms-request-id:
-      - a57f205f-6632-4a5e-b660-f790e050bf62
+      - f0637bf6-92ca-41a9-9408-06cc750ce87d
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -910,16 +902,14 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:u5WtHRbjepj2zRIdxyiUQdW9QCrACvgiXPncfL+5NFg=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 5704c6ab-dc27-11f0-b763-f4289da6022f
+      - 432a6017-cead-11f0-9689-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: HEAD
@@ -943,29 +933,29 @@ interactions:
       content-type:
       - application/vnd.oasis.opendocument.text
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x25F0FE42048DB60"'
+      - '"0x206297CA0074E80"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6ab-dc27-11f0-b763-f4289da6022f
+      - 432a6017-cead-11f0-9689-a82bdd58bc01
       x-ms-creation-time:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - c0a00bd3-706e-45eb-8d6d-d58594e181c2
+      - 20ac3e29-4918-49da-a734-a440d36a253d
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -980,18 +970,16 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:dazZhm6PfwgA8CI3BLgUr/9iqXhZXlgurvZbr8W5yzI=
       Connection:
       - keep-alive
       Content-Length:
       - '0'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 5704c6ac-dc27-11f0-b763-f4289da6022f
+      - 432a6018-cead-11f0-82bd-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: DELETE
@@ -1009,13 +997,13 @@ interactions:
       Server:
       - Azurite-Blob/3.35.0
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6ac-dc27-11f0-b763-f4289da6022f
+      - 432a6018-cead-11f0-82bd-a82bdd58bc01
       x-ms-delete-type-permanent:
       - 'true'
       x-ms-request-id:
-      - 7fcf5de1-9474-46ae-bad5-37ce1645e525
+      - 4127c5e6-a5a6-4e52-ab04-6bb6fccbf47f
       x-ms-version:
       - '2025-11-05'
     status:
@@ -1028,16 +1016,14 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:Fzk9//Fp2y2Bkyjo8VVMPRgvTPtzNT/cmZfBf9z+ZH8=
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 5704c6ad-dc27-11f0-b763-f4289da6022f
+      - 432a6019-cead-11f0-8584-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: HEAD
@@ -1061,29 +1047,29 @@ interactions:
       content-type:
       - application/vnd.oasis.opendocument.text
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x23C825D42C572A0"'
+      - '"0x209CB59407E5D00"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6ad-dc27-11f0-b763-f4289da6022f
+      - 432a6019-cead-11f0-8584-a82bdd58bc01
       x-ms-creation-time:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - 64e9df86-b12e-4627-94eb-842a97ebe3c2
+      - 892fff74-ba63-45ef-8069-84b319e6f412
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1098,18 +1084,16 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:o5Ush0BAmFhr7Y908mxJ3rCKdykvJuaSUC1qnac+1Mo=
       Connection:
       - keep-alive
       Content-Length:
       - '0'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 5704c6ae-dc27-11f0-b763-f4289da6022f
+      - 432a601a-cead-11f0-8ca8-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: DELETE
@@ -1127,13 +1111,13 @@ interactions:
       Server:
       - Azurite-Blob/3.35.0
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6ae-dc27-11f0-b763-f4289da6022f
+      - 432a601a-cead-11f0-8ca8-a82bdd58bc01
       x-ms-delete-type-permanent:
       - 'true'
       x-ms-request-id:
-      - 553596c4-256b-4eaf-851c-39bd1524e3f7
+      - ff6a54cd-1fe6-4096-b8dd-d5856850419d
       x-ms-version:
       - '2025-11-05'
     status:
@@ -1478,8 +1462,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:TwgZM+Z9s4l+sjfe2gQts7glIxcKGmqXB/9veSb8GqM=
       Connection:
       - keep-alive
       Content-Length:
@@ -1487,15 +1469,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6af-dc27-11f0-b763-f4289da6022f
+      - 432a601b-cead-11f0-9bc6-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -1515,15 +1497,15 @@ interactions:
       content-md5:
       - 3+GvKbe94tVqwtpqDsF81Q==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x26D8170B0CF27A0"'
+      - '"0x2116EA681F5F1A0"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6af-dc27-11f0-b763-f4289da6022f
+      - 432a601b-cead-11f0-9bc6-a82bdd58bc01
       x-ms-request-id:
-      - 7251b7be-51ce-4388-a3c6-cf97490c9896
+      - 73b9a489-03d9-46d6-a29e-5b4bd933e514
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1870,8 +1852,6 @@ interactions:
       - application/xml
       Accept-Encoding:
       - gzip, deflate
-      Authorization:
-      - SharedKey devstoreaccount1:SCqep7geLjTM/dWQrNU+rrcX8BdOrKmgrjDlBb8Q7AA=
       Connection:
       - keep-alive
       Content-Length:
@@ -1879,15 +1859,15 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.14.0-1017-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 5704c6b0-dc27-11f0-b763-f4289da6022f
+      - 432a601c-cead-11f0-b3c8-a82bdd58bc01
       x-ms-date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
       - '2025-11-05'
     method: PUT
@@ -1907,15 +1887,15 @@ interactions:
       content-md5:
       - 4Th75UY/hdMmecN/cogSrA==
       date:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       etag:
-      - '"0x22D14A2F8A915A0"'
+      - '"0x256BAEC7224FA20"'
       last-modified:
-      - Thu, 18 Dec 2025 15:36:37 GMT
+      - Thu, 11 Jun 2026 10:33:36 GMT
       x-ms-client-request-id:
-      - 5704c6b0-dc27-11f0-b763-f4289da6022f
+      - 432a601c-cead-11f0-b3c8-a82bdd58bc01
       x-ms-request-id:
-      - f344e8f9-a505-4207-8955-5faf19dd2c79
+      - d21a7cde-874c-47cd-9932-912368a9aca6
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
