@@ -39,12 +39,20 @@ from ..constants import (
     PostAdresTypes,
     Statussen,
 )
-from ..models import BestandsDeel, EnkelvoudigInformatieObject
+from ..models import (
+    BestandsDeel,
+    EnkelvoudigInformatieObject,
+    EnkelvoudigInformatieObjectCanonical,
+    Gebruiksrechten,
+    Verzending,
+)
 
 
-class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFactory):
+class EnkelvoudigInformatieObjectCanonicalFactory(
+    factory.django.DjangoModelFactory[EnkelvoudigInformatieObjectCanonical]
+):
     class Meta:
-        model = "documenten.EnkelvoudigInformatieObjectCanonical"
+        model = EnkelvoudigInformatieObjectCanonical
 
     latest_version = factory.RelatedFactory(
         "openzaak.components.documenten.tests.factories.EnkelvoudigInformatieObjectFactory",
@@ -59,7 +67,8 @@ class EnkelvoudigInformatieObjectCanonicalFactory(factory.django.DjangoModelFact
 
 
 class EnkelvoudigInformatieObjectFactory(
-    FkOrServiceUrlFactoryMixin, factory.django.DjangoModelFactory
+    FkOrServiceUrlFactoryMixin,
+    factory.django.DjangoModelFactory[EnkelvoudigInformatieObject],
 ):
     canonical = factory.SubFactory(
         EnkelvoudigInformatieObjectCanonicalFactory, latest_version=None
@@ -82,7 +91,7 @@ class EnkelvoudigInformatieObjectFactory(
     vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
 
     class Meta:
-        model = "documenten.EnkelvoudigInformatieObject"
+        model = EnkelvoudigInformatieObject
 
     @classmethod
     def _after_postgeneration(cls, instance, create, results=None):
@@ -91,12 +100,12 @@ class EnkelvoudigInformatieObjectFactory(
             instance.canonical.refresh_from_db(fields=["latest_version"])
 
 
-class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
+class GebruiksrechtenFactory(factory.django.DjangoModelFactory[Gebruiksrechten]):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
     omschrijving_voorwaarden = factory.Faker("paragraph")
 
     class Meta:
-        model = "documenten.Gebruiksrechten"
+        model = Gebruiksrechten
 
     @factory.lazy_attribute
     def startdatum(self):
@@ -105,13 +114,13 @@ class GebruiksrechtenFactory(factory.django.DjangoModelFactory):
         ).replace(tzinfo=datetime.timezone.utc)
 
 
-class BestandsDeelFactory(factory.django.DjangoModelFactory):
+class BestandsDeelFactory(factory.django.DjangoModelFactory[BestandsDeel]):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
     inhoud = factory.django.FileField(data=b"some data", filename="file_part.bin")
     omvang = factory.LazyAttribute(lambda o: o.inhoud.size)
 
     class Meta:
-        model = "documenten.BestandsDeel"
+        model = BestandsDeel
 
     @factory.lazy_attribute
     def volgnummer(self) -> int:
@@ -126,14 +135,14 @@ class BestandsDeelFactory(factory.django.DjangoModelFactory):
         return existing_bestandsdelen.count() + 1
 
 
-class VerzendingFactory(factory.django.DjangoModelFactory):
+class VerzendingFactory(factory.django.DjangoModelFactory[Verzending]):
     informatieobject = factory.SubFactory(EnkelvoudigInformatieObjectCanonicalFactory)
     betrokkene = factory.Faker("url")
     aard_relatie = factory.fuzzy.FuzzyChoice(AfzenderTypes.values)
     contact_persoon = factory.Faker("url")
 
     class Meta:
-        model = "documenten.Verzending"
+        model = Verzending
 
     class Params:
         has_inner_address = factory.Trait(
