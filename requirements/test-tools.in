@@ -10,6 +10,7 @@ pyquery
 requests-mock
 tblib
 vcrpy
+hypothesis
 
 # CI tools
 pytest
