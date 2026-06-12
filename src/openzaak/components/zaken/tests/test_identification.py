@@ -6,6 +6,8 @@ from datetime import date
 from django.test import TestCase
 
 from freezegun.api import freeze_time
+from hypothesis import given, strategies as st
+from hypothesis.extra.django import TestCase as HypothesisTestCase
 
 from openzaak.components.zaken.models import ZaakIdentificatie
 from openzaak.components.zaken.models.identification_classes import (
@@ -21,7 +23,7 @@ class UWVIdentificationTests(TestCase):
 
     def test_current(self):
         with self.subTest("No identificatie"):
-            self.assertEqual(self.uwv.current(), "A00000005")
+            self.assertEqual(self.uwv.current(), "A00000000")
 
         with self.subTest("existing identificatie"):
             ZaakIdentificatie.objects.create(identificatie="A00000006")
@@ -35,39 +37,17 @@ class UWVIdentificationTests(TestCase):
             ZaakIdentificatie.objects.create(identificatie="B00000001")
             self.assertEqual(self.uwv.current(), "B00000001")
 
-    def test_split(self):
-        self.assertEqual(self.uwv._split("A00000006"), ("A", "00000006"))
-        self.assertEqual(self.uwv._split("ZZ00000006"), ("ZZ", "00000006"))
-
-    def test_validate(self):
-        self.assertTrue(self.uwv._validate("A00000006"))
-        self.assertTrue(self.uwv._validate("A00000023"))
-
-        self.assertTrue(self.uwv._validate("B00000001"))
-        self.assertTrue(self.uwv._validate("Z99999990"))
-        self.assertTrue(self.uwv._validate("ZZ99999985"))
-
-        self.assertFalse(self.uwv._validate("A00000000"))
-        self.assertFalse(self.uwv._validate("ZZ99999990"))
-
-    def test_increase(self):
-        self.assertEqual(self.uwv._increase("A00000005"), "A00000006")
-        self.assertEqual(self.uwv._increase("A99999999"), "B00000000")
-        self.assertEqual(self.uwv._increase("B99999999"), "C00000000")
-        self.assertEqual(self.uwv._increase("Z99999999"), "AA00000000")
-        self.assertEqual(self.uwv._increase("AA99999999"), "AB00000000")
-        self.assertEqual(self.uwv._increase("ZZ99999998"), "ZZ99999999")
-        self.assertEqual(self.uwv._increase("AZ99999999"), "BZ00000000")
+    def test_next(self):
+        self.assertEqual(next(self.uwv._sequence("A00000000")), "A00000006")
+        self.assertEqual(next(self.uwv._sequence("A00000006")), "A00000023")
+        self.assertEqual(next(self.uwv._sequence("A99999999")), "B00000001")
+        self.assertEqual(next(self.uwv._sequence("Z99999988")), "Z99999990")
+        self.assertEqual(next(self.uwv._sequence("Z99999999")), "AA00000001")
+        self.assertEqual(next(self.uwv._sequence("AA9999999")), "AB00000003")
+        self.assertEqual(next(self.uwv._sequence("AZ9999999")), "BA00000002")
 
         with self.assertRaises(ValueError):
-            self.uwv._increase("ZZ99999999")
-
-    def test_next(self):
-        self.assertEqual(self.uwv._next("A00000000"), "A00000006")
-        self.assertEqual(self.uwv._next("A00000006"), "A00000023")
-        self.assertEqual(self.uwv._next("A99999999"), "B00000001")
-        self.assertEqual(self.uwv._next("Z99999999"), "AA00000001")
-        self.assertEqual(self.uwv._next("Z99999988"), "Z99999990")
+            next(self.uwv._sequence("ZZ99999999"))
 
     def test_generate(self):
         with self.subTest("from 0"):
@@ -107,6 +87,61 @@ class UWVIdentificationTests(TestCase):
             self.assertEqual(iden.identificatie, expected[i])
 
 
+# A, ..., Z, AA, AB, ..., AZ, BA, ... ZZ
+_LETTER_SEQUENCE = [chr(n + 65) for n in range(26)] + [
+    chr(fst + 65) + chr(snd + 65) for fst in range(26) for snd in range(26)
+]
+assert _LETTER_SEQUENCE[0] == "A"
+assert _LETTER_SEQUENCE[_LETTER_SEQUENCE.index("AA") + 1] == "AB"
+assert _LETTER_SEQUENCE[_LETTER_SEQUENCE.index("AZ") + 1] == "BA"
+
+
+def _uwv_identifier() -> st.SearchStrategy[str]:
+    # this composite is better at searching the space for edge cases than
+    # st.from_regex(r"^[A-Z]{1,2}[0-9]{8}$", fullmatch=True))
+    return st.tuples(
+        st.text(alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ", min_size=1, max_size=2),
+        st.integers(min_value=0, max_value=99_999_999).map(lambda n: f"{n:08d}"),
+    ).map("".join)
+
+
+def _is_valid_uwv_identifier(identificatie: str) -> bool:
+    """
+    Chars multiplied by their position.
+    A = 0, Z = 25
+    total % 11 should be 10
+    """
+    chars = identificatie.strip("0123456789")
+    digits = identificatie[len(chars) :]
+
+    check = 0
+    i = 1
+    for c in chars:
+        check += (ord(c) - 65) * i
+        i += 1
+
+    for d in digits:
+        check += int(d) * i
+        i += 1
+
+    return check % 11 == 10
+
+
+class UWVRandomTests(HypothesisTestCase):
+    @given(current=_uwv_identifier())
+    def test_uwv_generator(self, current):
+        next_id = next(UWVIdentification("111222333")._sequence(current))
+        self.assertTrue(_is_valid_uwv_identifier(next_id))
+        self.assertTrue(len(next_id) > len(current) or next_id > current)
+
+        # assert there is no other prefix in between current and next
+        current_prefix = current.strip("0123456789")
+        next_prefix = next_id.strip("0123456789")
+        current_pos = _LETTER_SEQUENCE.index(current_prefix)
+        next_pos = _LETTER_SEQUENCE.index(next_prefix)
+        self.assertTrue((next_prefix == current_prefix) or next_pos == current_pos + 1)
+
+
 @freeze_time("2026-01-01")
 class CreationYearIdentificationTests(TestCase):
     def setUp(self):
@@ -129,11 +164,15 @@ class CreationYearIdentificationTests(TestCase):
             self.assertEqual(self.cyi.current(), "ZAAK-2026-1000000001")
 
     def test_next(self):
-        self.assertEqual(self.cyi._next("ZAAK-2026-0000000001"), "ZAAK-2026-0000000002")
-        self.assertEqual(self.cyi._next("ZAAK-2026-0000000551"), "ZAAK-2026-0000000552")
         self.assertEqual(
-            self.cyi._next("ZAAK-2026-9999999999"), "ZAAK-2026-10000000000"
-        )  # TODO seems to be allowed in old generate?
+            next(self.cyi._sequence("ZAAK-2026-0000000001")), "ZAAK-2026-0000000002"
+        )
+        self.assertEqual(
+            next(self.cyi._sequence("ZAAK-2026-0000000551")), "ZAAK-2026-0000000552"
+        )
+        self.assertEqual(
+            next(self.cyi._sequence("ZAAK-2026-9999999999")), "ZAAK-2026-10000000000"
+        )  # seems to be allowed in old generate?
 
     def test_generate(self):
         with self.subTest("from 0"):
@@ -178,7 +217,9 @@ class StartDatumYearIdentificationTests(TestCase):
         self.assertEqual(self.sdi.current(), "ZAAK-2025-0000000000")
 
     def test_next(self):
-        self.assertEqual(self.sdi._next("ZAAK-2025-0000000001"), "ZAAK-2025-0000000002")
+        self.assertEqual(
+            next(self.sdi._sequence("ZAAK-2025-0000000001")), "ZAAK-2025-0000000002"
+        )
 
     def test_generate(self):
         self.sdi.generate()

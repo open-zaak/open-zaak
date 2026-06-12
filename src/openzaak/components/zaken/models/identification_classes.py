@@ -3,6 +3,9 @@
 
 from abc import ABC, abstractmethod
 from datetime import date
+from itertools import chain, count, islice, starmap
+from operator import mul
+from typing import Generator
 
 from django.conf import settings
 from django.db.models import Max
@@ -26,7 +29,7 @@ class BaseIdentificatie(ABC):
         pass
 
     @abstractmethod
-    def _next(self, current_identificatie: str) -> str:
+    def _sequence(self, current_identificatie: str) -> Generator[str, None, None]:
         pass
 
     def generate(self):
@@ -49,7 +52,7 @@ class BaseIdentificatie(ABC):
         """
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             return self.model.objects.create(
-                identificatie=self._next(self.current()),
+                identificatie=next(self._sequence(self.current())),
                 bronorganisatie=self.organisation,
             )
 
@@ -66,19 +69,10 @@ class BaseIdentificatie(ABC):
         :return: List of created ZaakIdentificatie instances.
         """
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
-            next_identificatie = self.current()
-
-            instances = []
-            for i in range(amount):
-                next_identificatie = self._next(next_identificatie)
-
-                instance = self.model(
-                    identificatie=next_identificatie,
-                    bronorganisatie=self.organisation,
-                )
-                instances.append(instance)
-
-            return self.model.objects.bulk_create(instances)
+            return self.model.objects.bulk_create(
+                self.model(identificatie=id, bronorganisatie=self.organisation)
+                for id in islice(self._sequence(self.current()), amount)
+            )
 
 
 class YearIdentification(BaseIdentificatie):
@@ -100,9 +94,11 @@ class YearIdentification(BaseIdentificatie):
 
         return max_id or f"{self.prefix}-{''.zfill(10)}"
 
-    def _next(self, current_identificatie: str) -> str:
-        number = int(current_identificatie.split("-")[-1]) + 1
-        return f"{self.prefix}-{str(number).zfill(10)}"
+    def _sequence(self, current_identificatie: str) -> Generator[str, None, None]:
+        number = int(current_identificatie.split("-")[-1])
+        while True:
+            number += 1
+            yield f"{self.prefix}-{str(number).zfill(10)}"
 
 
 class CreationYearIdentification(YearIdentification):
@@ -119,7 +115,7 @@ class UWVIdentification(BaseIdentificatie):
     """
     Custom zaak identification for UWV
 
-    A00000000 -> Z99999999 -> AA99999999 -> AB99999999 -> ZZ99999999
+    A00000000 -> Z99999999 -> AA99999999 -> AB99999999 -> AZ99999999 -> BA99999999 -> ZZ99999999
 
     `elfproef` is used for validation, each char is multiplied by its position (1-9 or 10), and
     letters have the value 0-25. The remainer of the total is divided by 11 and should be 10.
@@ -141,59 +137,76 @@ class UWVIdentification(BaseIdentificatie):
             .first()
         )
 
-        return max_id or "A00000005"
+        return max_id or "A00000000"
 
-    def _split(self, identificatie: str):
-        chars = identificatie.strip("0123456789")
-        digits = identificatie[len(chars) :]
-        return chars, digits
+    def _as_int(self, char: str) -> int:
+        return int(char) if char.isnumeric() else (ord(char) - 65)
 
-    def _validate(self, identificatie: str):
-        chars, digits = self._split(identificatie)
+    def _next_prefix(self, prefix: str) -> str:
+        # convert to int (base 26 bijective)
+        n = 0
+        for char in prefix:
+            # 64: A->1
+            n = n * 26 + (ord(char) - 64)
 
-        check = 0
-        i = 1
-        for c in chars:
-            check += (ord(c) - 65) * i
-            i += 1
+        # next
+        n += 1
 
-        for d in digits:
-            check += int(d) * i
-            i += 1
+        # convert back to str
+        res = []
+        while n > 0:
+            n -= 1  # bijective! (A=1, not A=0)
+            res.append(chr((n % 26) + 65))  # 65 is 'A'
+            n //= 26
 
-        return check % 11 == 10
+        return "".join(reversed(res))
 
-    def _increase(self, identificatie: str):
-        def increase_char(char: str):
-            return chr(ord(char) + 1)
+    def _calc_checksum(self, prefix: str, seq: str):
+        """
+        valid identifier is by definition:
+            weighted_sum + checksum × w ≡ 10 (mod 11)
+        algebra:
+            checksum × w = 10 − weighted_sum (mod 11)
+            checksum = (10 − weighted_sum) * w⁻¹ (mod 11)
+        """
 
-        chars, digits = self._split(identificatie)
+        values = map(self._as_int, chain(prefix, seq))
+        weights = count(1)
+        weighted_sum = sum(starmap(mul, zip(values, weights)))
+        w = next(weights)  # weight of the checksum digit identifier[-1]
 
-        if digits != "99999999":
-            digits = str(int(digits) + 1).zfill(8)
+        # This pow breaks when w is not co-prime to 11. 11 is prime so ValueError
+        # is raised if w is a multiple of 11. But max len of an id is 2 + 8, and
+        # we checked for len(next_prefix), so w < 11 always holds.
+        checksum = ((10 - weighted_sum) * pow(w, -1, 11)) % 11
+        return checksum
 
-        else:
-            digits = "00000000"
-            if len(chars) == 1:
-                if chars == "Z":
-                    chars = "AA"
-                else:
-                    chars = increase_char(chars)
+    def _sequence(self, current_identificatie: str) -> Generator[str, None, None]:
+        if current_identificatie == "A00000000":
+            # special case for initial identification
+            current_identificatie = "A00000006"
+            yield current_identificatie
+
+        prefix = current_identificatie.strip("0123456789")
+        # sequence number without elf proef checksum
+        seq = current_identificatie[len(prefix) : len(prefix) + 7]
+
+        while True:
+            if seq == "9999999":
+                seq = f"{0:07n}"
+                prefix = self._next_prefix(prefix)
             else:
-                if chars[1] == "Z":
-                    if chars[0] == "Z":
-                        raise ValueError("Max identification reached")
-                    chars = increase_char(chars[0]) + chars[1]
-                else:
-                    chars = chars[0] + increase_char(chars[1])
+                seq = f"{int(seq) + 1:07d}"
 
-        return f"{chars}{digits}"
+            if len(prefix) > 2:
+                raise ValueError("Max identification reached")
 
-    def _next(self, current_identificatie: str) -> str:
-        next_identificatie = self._increase(current_identificatie)
-        while not self._validate(next_identificatie):
-            next_identificatie = self._increase(next_identificatie)
-        return next_identificatie
+            checksum = self._calc_checksum(prefix, seq)
+
+            if checksum != 10:
+                # we need a single digit checksum
+                # if 10 calculate next
+                yield f"{prefix}{seq}{checksum}"
 
 
 def get_base_identification_class():
