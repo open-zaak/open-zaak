@@ -1,6 +1,89 @@
 Changelog
 =========
 
+1.29.0 (2026-06-16)
+-------------------
+
+.. note::
+
+  This version of Open Zaak contains a datamigration for documents to explicitly add
+  a reference from the canonical document to the latest version of that document. This
+  migration could take some time to run (it takes ~1 minute for 1 million documents).
+
+.. note::
+
+  The defaults for several environment variables for the ``django-log-outgoing-requests``
+  configuration have changed (see :ref:`installation_env_config` > Logging)
+
+  * ``LOG_REQUESTS`` is now ``True`` by default, instead of ``False``
+  * ``LOG_OUTGOING_REQUESTS_DB_SAVE_BODY`` is now ``True`` by default, instead of ``False``
+  * ``LOG_OUTGOING_REQUESTS_RESET_DB_SAVE_AFTER`` (previously not configurable) has a default of ``60`` minutes
+
+**Security patches**
+
+* [`CVE-2026-54657`_] See `GHSA-f29q-7rpr-jmjx`_ for more information.
+
+  * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
+    endpoints are filtered according to authorizations belonging to the used token
+* [CVE ID pending] See `GHSA-x5cj-23hr-5r54`_ for more information
+
+  * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
+  * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
+    running a containerized environment) instead of ``BASE_DIR`` and disallow setting it to be equal to ``BASE_DIR``
+
+.. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
+.. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
+
+**New features**
+
+* [:open-zaak:`1877`] Allow deletion of unused published catalogi resources via admin
+
+**Bugfixes and QoL**
+
+* [:open-zaak:`1653`] Ensure ``ordering`` query parameter on ``/enkelvoudiginformatieobjecten`` endpoint does not
+  return duplicates
+* [:open-zaak:`2347`] Fix 500 error that occurred when requesting ``/zaakinformatieobjecten``, ``/objectinformatieobjecten``
+  or ``/besluitinformatieobjecten`` related to incorrectly deleted EnkelvoudigInformatieObjecten
+* [:open-zaak:`2347`] Ensure deleting EnkelvoudigInformatieObjecten via the admin cannot
+  result in trailing canonicals
+* [:open-zaak:`2347`] Ensure ``Verzending`` admin detail page loads without errors
+
+**Project maintenance**
+
+* [:open-zaak:`2399`] Upgrade python dependencies
+
+  * ``django`` to 5.2.15
+  * ``django-log-outgoing-requests`` to 0.9.1
+  * ``factory-boy`` to 3.3.3
+  * ``gitpython`` to 3.1.50
+  * ``idna`` to 3.18
+  * ``lxml`` to 6.1.1
+  * ``maykin-common`` to 0.19.0
+  * ``open-api-framework`` to 0.14.0
+  * ``opentelemetry-instrumentation-celery`` to 0.59b0
+  * ``opentelemetry-instrumentation-dbapi`` to 0.59b0
+  * ``opentelemetry-instrumentation-psycopg`` to 0.59b0
+  * ``opentelemetry-instrumentation-redis`` to 0.59b0
+  * ``opentelemetry-instrumentation-requests`` to 0.59b0
+  * ``pip`` to 26.1.2
+  * ``pytest`` to 9.0.3
+  * ``python-dotenv`` to 1.2.2
+  * ``urllib3`` to 2.7.0
+  * ``webob`` to 1.8.10
+
+* [:open-zaak:`2399`] Upgrade NPM dependencies
+* [:open-api-framework:`217`] Use new logos and icons in dashboard and documentation
+* [:open-api-framework:`218`] Add zizmor action to lint Github actions and apply CI hardening
+* [:open-zaak:`2370`] Refactor ``zaak-verwijderen`` logic and move it to signals
+* [:open-zaak:`2369`] Rewrite ``config()`` calls to use ``maykin-common``
+
+**Documentation**
+
+* [:open-api-framework:`217`] Use new logos and icons and apply new styling
+* [:open-zaak:`2369`] use Sphinx directive from ``maykin-common`` to generate environment variable documentation
+* [:open-api-framework:`217`] Replace references to maykinmedia.nl with maykin.nl
+
 1.28.1 (2026-05-04)
 -------------------
 
