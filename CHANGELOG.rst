@@ -1,6 +1,25 @@
 Changelog
 =========
 
+1.27.2 (2026-06-16)
+-------------------
+
+**Security patches**
+
+* [`CVE-2026-54657`_] See `GHSA-f29q-7rpr-jmjx`_ for more information.
+
+  * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
+    endpoints are filtered according to authorizations belonging to the used token
+* [CVE ID pending] See `GHSA-x5cj-23hr-5r54`_ for more information
+
+  * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
+  * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
+    running a containerized environment) instead of ``BASE_DIR`` and disallow setting it to be equal to ``BASE_DIR``
+
+.. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
+.. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
+
 1.27.1 (2026-05-04)
 -------------------
 
