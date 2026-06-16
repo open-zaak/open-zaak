@@ -1,0 +1,83 @@
+interactions:
+- request:
+    body: !!python/object/new:_io.BytesIO
+      state: !!python/tuple
+      - !!binary |
+        c3VwZXItc2VjcmV0
+      - 0
+      - null
+    headers:
+      Content-Length:
+      - '12'
+      Content-Type:
+      - !!binary |
+        dGV4dC9wbGFpbg==
+      Expect:
+      - !!binary |
+        MTAwLWNvbnRpbnVl
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAyNS1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL04sWixELGIsRyxVLGUgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIu
+        MjcgUmVzb3VyY2U=
+      X-Amz-Content-SHA256:
+      - !!binary |
+        YWVjODA4NDg0NWI0MWE2OTUyZDQ2Y2JhYTFjOWI3OTg2NTk0ODdmZmQxMzM3OTZkOTVkMDViYTQ1
+        ZDkwOTZjMg==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjA2MTZUMTAxNzQ1Wg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NzgxYmEyZDQtZDY2NS00YWNkLWIzYjgtOTAxZmY3ZWRlMjVh
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+      x-amz-checksum-crc32:
+      - !!binary |
+        NnJhdFhnPT0=
+      x-amz-sdk-checksum-algorithm:
+      - !!binary |
+        Q1JDMzI=
+    method: PUT
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/some_secret_file.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Tue, 16 Jun 2026 10:17:45 GMT
+      ETag:
+      - '"0682f007844a0266990df1b2912f95bc"'
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Checksum-Crc32:
+      - 6ratXg==
+      X-Amz-Checksum-Type:
+      - FULL_OBJECT
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 18B9885E258AA62B
+      X-Content-Type-Options:
+      - nosniff
+      X-Ratelimit-Limit:
+      - '4376'
+      X-Ratelimit-Remaining:
+      - '4376'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
