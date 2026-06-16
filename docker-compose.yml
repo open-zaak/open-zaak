@@ -56,6 +56,7 @@ services:
       TIME_LEEWAY: ${TIME_LEEWAY:-0}
       ENABLE_CLOUD_EVENTS: ${ENABLE_CLOUD_EVENTS:-False}
       NOTIFICATIONS_SOURCE: ${NOTIFICATIONS_SOURCE:-openzaak}
+      SENDFILE_BACKEND: django_sendfile.backends.development
 
       # Enabling Open Telemetry requires the services in docker/docker-compose.observability.yaml
       # to be up and running.
