@@ -507,16 +507,28 @@ IMPORT_RETENTION_DAYS = config(
 )
 IMPORT_DOCUMENTEN_BASE_DIR = config(
     "IMPORT_DOCUMENTEN_BASE_DIR",
-    BASE_DIR,
+    BASE_DIR / "import-data",
     help_text=(
         "a string value which specifies the absolute path "
         "of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This "
         "value is used to determine the file path for each row in the import metadata "
-        "file. By default this is the same directory as the projects directory (``BASE_DIR``)."
+        "file. Make sure this is an isolated directory, only used for the documenten import. "
+        "By default this ``BASE_DIR / import-data`` (e.g. ``/app/import-data`` "
+        "in a container)."
     ),
     auto_display_default=False,
     group="Documenten import",
 )
+
+if IMPORT_DOCUMENTEN_BASE_DIR == BASE_DIR:
+    # ImproperlyConfigured seems to get swallowed when accessing django.conf.settings,
+    # which causes the app to crash on not finding `CELERY_BROKER_URL` on the settings
+    # object, so we raise RuntimeError instead
+    raise RuntimeError(
+        "Make sure IMPORT_DOCUMENTEN_BASE_DIR is an isolated directory "
+        f"and *not* equal to BASE_DIR (currently: {IMPORT_DOCUMENTEN_BASE_DIR})"
+    )
+
 IMPORT_DOCUMENTEN_BATCH_SIZE = config(
     "IMPORT_DOCUMENTEN_BATCH_SIZE",
     500,
