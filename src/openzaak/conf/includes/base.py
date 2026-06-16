@@ -449,7 +449,7 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
 ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS = {
     "use-creation-year": "openzaak.components.zaken.models.identification_classes.CreationYearIdentification",
     "use-start-datum-year": "openzaak.components.zaken.models.identification_classes.StartDatumYearIdentification",
-    "use-uvw-identification": "openzaak.components.zaken.models.identification_classes.UWVIdentification",
+    "use-uwv-identification": "openzaak.components.zaken.models.identification_classes.UWVIdentification",
 }
 
 ZAAK_IDENTIFICATIE_GENERATOR = config(

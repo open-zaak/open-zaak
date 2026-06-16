@@ -18,11 +18,11 @@ from .identification import ZaakIdentificatie
 LOCK_ID_IDENTIFICATION_GENERATION = "generate-zaak-identification"
 
 
-class BaseIdentificatie(ABC):
-    def __init__(self, organisation: str, **kwargs):
-        self.organisation = organisation
+class BaseZaakIdentificatie(ABC):
+    model = ZaakIdentificatie
 
-        self.model = ZaakIdentificatie
+    def __init__(self, bronorganisatie: str, **kwargs):
+        self.bronorganisatie = bronorganisatie
 
     @abstractmethod
     def current(self) -> str:
@@ -53,7 +53,7 @@ class BaseIdentificatie(ABC):
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             return self.model.objects.create(
                 identificatie=next(self._sequence(self.current())),
-                bronorganisatie=self.organisation,
+                bronorganisatie=self.bronorganisatie,
             )
 
     def generate_bulk(self, amount: int):
@@ -70,14 +70,14 @@ class BaseIdentificatie(ABC):
         """
         with pg_advisory_lock(LOCK_ID_IDENTIFICATION_GENERATION):
             return self.model.objects.bulk_create(
-                self.model(identificatie=id, bronorganisatie=self.organisation)
+                self.model(identificatie=id, bronorganisatie=self.bronorganisatie)
                 for id in islice(self._sequence(self.current()), amount)
             )
 
 
-class YearIdentification(BaseIdentificatie):
-    def __init__(self, organisation: str, date: date, **kwargs):
-        super().__init__(organisation, **kwargs)
+class YearIdentification(BaseZaakIdentificatie):
+    def __init__(self, bronorganisatie: str, date: date, **kwargs):
+        super().__init__(bronorganisatie, **kwargs)
 
         self.prefix = f"ZAAK-{date.year}"
 
@@ -111,7 +111,7 @@ class StartDatumYearIdentification(YearIdentification):
         super().__init__(bronorganisatie, startdatum, **kwargs)
 
 
-class UWVIdentification(BaseIdentificatie):
+class UWVIdentification(BaseZaakIdentificatie):
     """
     Custom zaak identification for UWV
 
@@ -211,7 +211,7 @@ class UWVIdentification(BaseIdentificatie):
 
 def get_base_identification_class():
     match settings.ZAAK_IDENTIFICATIE_GENERATOR:
-        case "use-uvw-identification":
+        case "use-uwv-identification":
             identification_class = UWVIdentification
         case _:
             identification_class = YearIdentification
