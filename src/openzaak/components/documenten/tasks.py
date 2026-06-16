@@ -253,7 +253,25 @@ def _import_document_row(
         return document_row
 
     file_path = document_row.bestandspad
-    path = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR) / Path(file_path)
+
+    # Ensure the supplied file path is relative to the import base directory,
+    # if not, reject it, because otherwise any file can be exposed via the Documenten
+    # API
+    base = Path(settings.IMPORT_DOCUMENTEN_BASE_DIR).resolve(strict=True)
+    candidate = (base / file_path).resolve()
+    if not candidate.is_relative_to(base):
+        error_message = f"The given filepath {file_path} is not relative to the import base directory"
+        logger.warning(
+            "attempt_to_import_file_outside_base_dir",
+            path=str(file_path),
+            row_index=row_index,
+        )
+        document_row.comment = error_message
+        document_row.processed = True
+
+        return document_row
+
+    path = candidate
 
     if not path.exists() or not path.is_file():
         error_message = (
