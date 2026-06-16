@@ -16,6 +16,11 @@ class ListFilterByAuthorizationsMixin:
     def get_queryset(self):
         base = super().get_queryset()
 
+        # django-loose-fk calls get_queryset on viewsets to resolve URLs to resources
+        # and in this case the request has no jwt_auth set
+        if not hasattr(self.request, "jwt_auth"):
+            return base
+
         if self.action in ["retrieve", "create", "destroy", "update", "partial_update"]:
             # Permission for these actions on singular items is checked in AuthRequired
             # and AuthScopesRequired (src/openzaak/utils/permissions.py)
