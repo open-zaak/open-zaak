@@ -31,9 +31,9 @@ Environment variables related to the import functionality are also described in 
 * ``IMPORT_DOCUMENTEN_BASE_DIR`` is used to determine the absolute import path for each
   row in the import metadata file. All file paths specified in the import metadata
   file should be relative to the directory specified for this setting.
-  By default this is the same directory as the projects directory (``BASE_DIR``) and
-  can either be configured through an environment variable or directly through the
-  django's settings file being used.
+  By default this is the directory ``import-data`` within the project's base directory (``BASE_DIR``,
+  which is ``/app`` in a containerized environment) and this be configured through the environment variable
+  ``IMPORT_DOCUMENTEN_BASE_DIR``.
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE`` is the number of rows that will be processed at a time.
 * ``IMPORT_RETENTION_DAYS``: an integer which specifies the number of days after which ``Import`` instances will be deleted
 

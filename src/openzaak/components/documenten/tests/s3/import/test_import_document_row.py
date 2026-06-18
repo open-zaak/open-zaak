@@ -624,6 +624,58 @@ class ImportDocumentRowTests(S3torageMixin, ImportTestMixin, VCRMixin, TestCase)
         self.assertFalse(imported_path.exists())
         self.assertFalse(documenten_storage.exists(str(imported_path)))
 
+    @tag("gh-security-issues-6")
+    def test_import_cannot_use_arbitrary_filepaths(self):
+        # Try to access a file outside of the import base directory
+        rejected_filepaths = [
+            "../some_secret_file.txt",
+            "import-data/../../some_secret_file.txt",
+            "/some_secret_file.txt",
+        ]
+        for filepath in rejected_filepaths:
+            with self.subTest(filepath=filepath):
+                import_file_path = Path(filepath)
+                import_file_content = b"super-secret"
+                default_imported_file_path = get_default_path(self.field)
+
+                imported_path = Path(default_imported_file_path) / import_file_path.name
+
+                row = DocumentRowFactory(
+                    bronorganisatie="706284513",
+                    creatiedatum="2024-01-01",
+                    titel="Document XYZ",
+                    auteur="Auteur Y",
+                    taal="nld",
+                    bestandspad=str(import_file_path),
+                    import_file_content=import_file_content,
+                    informatieobjecttype=self.informatieobjecttype_url,
+                    ignore_import_path=True,
+                )
+
+                identifier = generate_unique_identification(
+                    EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum),
+                    "creatiedatum",
+                )
+
+                document_row = _import_document_row(
+                    row, 0, identifier, [], {}, self.request
+                )
+
+                self.assertIsNone(document_row.instance)
+                self.assertEqual(
+                    document_row.comment,
+                    (
+                        f"The given filepath {filepath} is not relative to the import base directory"
+                    ),
+                )
+
+                # assert that it's not stored in S3
+                self.assertFalse(documenten_storage.exists(str(imported_path)))
+                # Make sure the LOCATION is not prepended twice
+                self.assertFalse(str(imported_path).startswith("documenten/documenten"))
+                # assert the file does not exist on disk
+                self.assertFalse(imported_path.exists())
+
 
 @tag("gh-2282", "s3-storage")
 @override_settings(ALLOWED_HOSTS=["testserver"])

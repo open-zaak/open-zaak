@@ -1,0 +1,182 @@
+interactions:
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAyNS1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL2IsRCxlLE4sWiBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4yNyBS
+        ZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjA2MTZUMTAyMDQzWg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        NTcwYmM1NWMtNmEzNy00NzI1LThlMzgtMzgzNTE0Yjc1ZTg1
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/some_secret_file.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Tue, 16 Jun 2026 10:20:43 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 18B9888785C2D1A3
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '4362'
+      X-Ratelimit-Remaining:
+      - '4362'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAyNS1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL2IsRCxlLE4sWiBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4yNyBS
+        ZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjA2MTZUMTAyMDQzWg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        YmU5OTk5NjAtYjcwNS00ZjEzLWI3OTEtNzQzYzUyODEzY2Fm
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/some_secret_file.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Tue, 16 Jun 2026 10:20:43 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 18B988878AC3FB22
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '4362'
+      X-Ratelimit-Remaining:
+      - '4362'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      User-Agent:
+      - !!binary |
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAyNS1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL2IsRCxlLE4sWiBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4yNyBS
+        ZXNvdXJjZQ==
+      X-Amz-Content-SHA256:
+      - !!binary |
+        ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
+        ODUyYjg1NQ==
+      X-Amz-Date:
+      - !!binary |
+        MjAyNjA2MTZUMTAyMDQzWg==
+      amz-sdk-invocation-id:
+      - !!binary |
+        OWEyODA5NTQtYjI1ZS00Yjk5LWE1ODktNzBiMzc4ZTM0M2Nk
+      amz-sdk-request:
+      - !!binary |
+        YXR0ZW1wdD0x
+    method: HEAD
+    uri: http://localhost:9000/openzaak/documenten/uploads/test/some_secret_file.txt
+  response:
+    body:
+      string: ''
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '0'
+      Date:
+      - Tue, 16 Jun 2026 10:20:43 GMT
+      Server:
+      - MinIO
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Vary:
+      - Origin
+      - Accept-Encoding
+      X-Amz-Id-2:
+      - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
+      X-Amz-Request-Id:
+      - 18B9888790C8C085
+      X-Content-Type-Options:
+      - nosniff
+      X-Minio-Error-Code:
+      - NoSuchKey
+      X-Minio-Error-Desc:
+      - '"The specified key does not exist."'
+      X-Ratelimit-Limit:
+      - '4362'
+      X-Ratelimit-Remaining:
+      - '4362'
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 404
+      message: Not Found
+version: 1
