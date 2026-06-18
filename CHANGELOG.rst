@@ -25,7 +25,7 @@ Changelog
 
   * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
     endpoints are filtered according to authorizations belonging to the used token
-* [CVE ID pending] See `GHSA-x5cj-23hr-5r54`_ for more information
+* [`CVE-2026-55836`_] See `GHSA-x5cj-23hr-5r54`_ for more information
 
   * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
   * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
@@ -33,6 +33,7 @@ Changelog
 
 .. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
 .. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _CVE-2026-55836: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-55836
 .. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
 
 **New features**
@@ -83,6 +84,26 @@ Changelog
 * [:open-api-framework:`217`] Use new logos and icons and apply new styling
 * [:open-zaak:`2369`] use Sphinx directive from ``maykin-common`` to generate environment variable documentation
 * [:open-api-framework:`217`] Replace references to maykinmedia.nl with maykin.nl
+
+1.28.2 (2026-06-16)
+-------------------
+
+**Security patches**
+
+* [`CVE-2026-54657`_] See `GHSA-f29q-7rpr-jmjx`_ for more information.
+
+  * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
+    endpoints are filtered according to authorizations belonging to the used token
+* [`CVE-2026-55836`_] See `GHSA-x5cj-23hr-5r54`_ for more information
+
+  * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
+  * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
+    running a containerized environment) instead of ``BASE_DIR`` and disallow setting it to be equal to ``BASE_DIR``
+
+.. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
+.. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _CVE-2026-55836: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-55836
+.. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
 
 1.28.1 (2026-05-04)
 -------------------
@@ -162,6 +183,26 @@ Changelog
 * [:open-api-framework:`213`] Consistent styling for documentation for all applications
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
+
+1.27.2 (2026-06-16)
+-------------------
+
+**Security patches**
+
+* [`CVE-2026-54657`_] See `GHSA-f29q-7rpr-jmjx`_ for more information.
+
+  * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
+    endpoints are filtered according to authorizations belonging to the used token
+* [`CVE-2026-55836`_] See `GHSA-x5cj-23hr-5r54`_ for more information
+
+  * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
+  * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
+    running a containerized environment) instead of ``BASE_DIR`` and disallow setting it to be equal to ``BASE_DIR``
+
+.. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
+.. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _CVE-2026-55836: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-55836
+.. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
 
 1.27.1 (2026-05-01)
 -------------------
