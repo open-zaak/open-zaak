@@ -102,7 +102,7 @@ Documenten import
 -----------------
 
 * ``IMPORT_RETENTION_DAYS``: an integer which specifies the number of days after which ``Import`` instances will be deleted. Defaults to: ``7``.
-* ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This value is used to determine the file path for each row in the import metadata file. By default this is the same directory as the projects directory (``BASE_DIR``).
+* ``IMPORT_DOCUMENTEN_BASE_DIR``: a string value which specifies the absolute path of a directory used for bulk importing ``EnkelvoudigInformatieObject``'s. This value is used to determine the file path for each row in the import metadata file. Make sure this is an isolated directory, only used for the documenten import. By default this ``BASE_DIR / import-data`` (e.g. ``/app/import-data`` in a container).
 * ``IMPORT_DOCUMENTEN_BATCH_SIZE``: is the number of rows that will be processed at a time. Used for bulk importing ``EnkelvoudigInformatieObject``'s. Defaults to: ``500``.
 
 
