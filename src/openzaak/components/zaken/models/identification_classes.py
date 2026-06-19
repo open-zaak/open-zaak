@@ -177,7 +177,7 @@ class UWVIdentification(BaseZaakIdentificatie):
 
         # This pow breaks when w is not co-prime to 11. 11 is prime so ValueError
         # is raised if w is a multiple of 11. But max len of an id is 2 + 8, and
-        # we checked for len(next_prefix), so w < 11 always holds.
+        # we checked for len(next_prefix) in _sequence, so w < 11 always holds.
         checksum = ((10 - weighted_sum) * pow(w, -1, 11)) % 11
         return checksum
 
