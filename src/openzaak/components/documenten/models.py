@@ -346,8 +346,7 @@ class EnkelvoudigInformatieObject(
         help_text=_("Aantal bytes dat de inhoud van INFORMATIEOBJECT in beslag neemt."),
     )
     inhoud = PrivateMediaFileField(
-        upload_to="uploads/%Y/%m/",
-        storage=documenten_storage,
+        upload_to="uploads/%Y/%m/", storage=documenten_storage, max_length=255
     )
     # inhoud = models.FileField(upload_to='uploads/%Y/%m/')
     link = models.URLField(
@@ -507,6 +506,7 @@ class BestandsDeel(models.Model):
         upload_to="part-uploads/%Y/%m/",
         blank=True,
         help_text=_("De (binaire) bestandsinhoud van dit specifieke bestandsdeel."),
+        max_length=255,
     )
     _voltooid = models.BooleanField(default=False)
     datetime_created = models.DateTimeField(_("datetime created"), auto_now_add=True)
