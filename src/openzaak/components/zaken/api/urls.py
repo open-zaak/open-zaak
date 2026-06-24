@@ -71,6 +71,7 @@ zaakafsluiten_view = ZaakAfsluitenViewSet.as_view({"post": "post"})
 zaakbijwerken_view = ZaakBijwerkenViewset.as_view({"post": "post"})
 zaakverlengen_view = ZaakVerlengenViewset.as_view({"post": "post"})
 
+app_name = "zaken"
 
 urlpatterns = [
     re_path(
