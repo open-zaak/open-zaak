@@ -92,7 +92,7 @@ def get_version_mapping() -> Dict[str, str]:
     version = settings.REST_FRAMEWORK["DEFAULT_VERSION"]
 
     return {
-        reverse(f"api-root-{api}", kwargs={"version": version}): getattr(
+        reverse(f"{api}:api-root-{api}", kwargs={"version": version}): getattr(
             settings, f"{api.upper()}_API_VERSION"
         )
         for api in apis

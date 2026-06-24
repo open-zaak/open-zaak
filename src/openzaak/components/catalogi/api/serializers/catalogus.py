@@ -13,7 +13,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True,
         source="zaaktype_set",
-        view_name="zaaktype-detail",
+        view_name="catalogi:zaaktype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar ZAAKTYPEn die in deze CATALOGUS worden ontsloten."
@@ -24,7 +24,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True,
         source="besluittype_set",
-        view_name="besluittype-detail",
+        view_name="catalogi:besluittype-detail",  # TODO
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden ontsloten."
@@ -35,7 +35,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True,
         source="informatieobjecttype_set",
-        view_name="informatieobjecttype-detail",
+        view_name="catalogi:informatieobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
@@ -58,4 +58,6 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
             "versie",
             "begindatum_versie",
         )
-        extra_kwargs = {"url": {"lookup_field": "uuid"}}
+        extra_kwargs = {
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:catalogus-detail"}
+        }
