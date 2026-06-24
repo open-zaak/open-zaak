@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from typing import ClassVar, Collection
+
 from django.db.models import Model
 
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
+from vng_api_common.scopes import Scope
 from vng_api_common.tests import reverse
 
 
@@ -23,14 +26,19 @@ class JWTAuthMixin:
     user_id = "test_user_id"
     user_representation = "Test User"
 
-    scopes = None
+    scopes: Collection[Scope] | None = None
     heeft_alle_autorisaties = False
-    component = None
-    zaaktype = None
-    informatieobjecttype = None
-    besluittype = None
-    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
+    component: ComponentTypes | None = None
+    zaaktype: Model | str | None = None
+    informatieobjecttype: Model | str | None = None
+    besluittype: Model | str | None = None
+    max_vertrouwelijkheidaanduiding: VertrouwelijkheidsAanduiding = (
+        VertrouwelijkheidsAanduiding.zeer_geheim
+    )
     host_prefix = "http://testserver"
+
+    applicatie: ClassVar[Applicatie]
+    autorisatie: ClassVar[Autorisatie]
 
     @classmethod
     def check_for_instance(cls, obj) -> str:
