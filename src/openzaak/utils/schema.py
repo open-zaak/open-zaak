@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 import typing
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Mapping, Optional, Type
 
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -31,6 +31,7 @@ from vng_api_common.schema import (
     HTTP_STATUS_CODE_TITLES,
     _view_supports_audittrail,
 )
+from vng_api_common.search import is_search_view
 from vng_api_common.serializers import FoutSerializer, ValidatieFoutSerializer
 
 from .expansion import EXPAND_KEY
@@ -205,7 +206,7 @@ class AutoSchema(_AutoSchema):
         if not action:
             return request_serializer
 
-        if not getattr(getattr(self.view, action, ""), "is_search_action", False):
+        if not is_search_view(self.view):
             return request_serializer
 
         filter_params = self._get_filter_parameters()
@@ -314,6 +315,42 @@ class AutoSchema(_AutoSchema):
 
         return response
 
+    @staticmethod
+    def _filter_zoek_params(param: Mapping) -> OpenApiParameter:
+        """Transform a "_filter_parameter" to an OpenApiParameter for _zoek endpoints"""
+        match param:
+            case {
+                "name": "expand",
+                "description": description,
+                "schema": {"items": {"enum": enum, **__}, **___},
+                **rest,
+            }:
+                # add extra description to "expand"
+                return OpenApiParameter(
+                    name="expand",
+                    location="query",
+                    description=f"{description} (samengevoegd met evt. expand in body)",
+                    many=True,
+                    enum=enum,
+                    #
+                    required=rest.get("required", False),
+                    pattern=rest.get("pattern"),
+                    deprecated=rest.get("deprecated", False),
+                    style=rest.get("style"),
+                    explode=rest.get("explode"),
+                    default=rest.get("default"),
+                    allow_blank=rest.get("allowEmptyValue", True),
+                    examples=rest.get("examples"),
+                    extensions=rest.get("extensions"),
+                    response=rest.get("response", False),
+                )
+            case {"name": name, **__}:
+                # The POST search endpoints use Filter backend, but processes
+                # search params from the body, not the query => "exclude" from query
+                return OpenApiParameter(name=name, location="query", exclude=True)
+            case _:
+                raise ValueError(f"Unrecognized {param=}")  # pragma: no cover
+
     def get_override_parameters(self):
         """Add request and response headers"""
         version_headers = self.get_version_headers()
@@ -322,13 +359,23 @@ class AutoSchema(_AutoSchema):
         log_headers = self.get_log_headers()
         location_headers = self.get_location_headers()
         geo_headers = self.get_geo_headers()
+
+        if is_search_view(self.view):
+            ignore_query_params = list(
+                map(self._filter_zoek_params, self._get_filter_parameters())
+            )
+        else:
+            ignore_query_params = []
+
         return (
-            version_headers
+            super().get_override_parameters()
+            + version_headers
             + content_type_headers
             + cache_headers
             + log_headers
             + location_headers
             + geo_headers
+            + ignore_query_params
         )
 
     def get_version_headers(self) -> List[OpenApiParameter]:
