@@ -187,6 +187,17 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
         return queryset.filter(canonical__lock__exact="")
 
 
+class EnkelvoudigInformatieObjectZoekFilter(FilterSet):
+    expand = ExpandFilter(serializer_class=EnkelvoudigInformatieObjectSerializer)
+
+    class Meta:
+        model = EnkelvoudigInformatieObject
+        fields = (
+            "bronorganisatie",
+            "identificatie",
+        )
+
+
 class EnkelvoudigInformatieObjectDetailFilter(FilterSet):
     versie = filters.NumberFilter(field_name="versie")
     registratie_op = filters.IsoDateTimeFilter(

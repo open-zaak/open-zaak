@@ -33,7 +33,7 @@ from vng_api_common.audittrails.viewsets import (
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.filters_backend import Backend
-from vng_api_common.search import SearchMixin
+from vng_api_common.search import SearchMixin, is_search_view
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
@@ -89,6 +89,7 @@ from .cloudevents import DOCUMENT_GEREGISTREERD
 from .filters import (
     EnkelvoudigInformatieObjectDetailFilter,
     EnkelvoudigInformatieObjectListFilter,
+    EnkelvoudigInformatieObjectZoekFilter,
     GebruiksrechtenDetailFilter,
     GebruiksrechtenFilter,
     ObjectInformatieObjectFilter,
@@ -310,6 +311,8 @@ class EnkelvoudigInformatieObjectViewSet(
         """
         if self.detail:
             return EnkelvoudigInformatieObjectDetailFilter
+        if is_search_view(self):
+            return EnkelvoudigInformatieObjectZoekFilter
         return EnkelvoudigInformatieObjectListFilter
 
     def get_queryset(self):
