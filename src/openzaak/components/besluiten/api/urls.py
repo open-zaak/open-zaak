@@ -20,6 +20,8 @@ from .viewsets import (
     BesluitViewSet,
 )
 
+app_name = "besluiten"
+
 router = routers.DefaultRouter()
 router.register(
     "besluiten",
@@ -68,7 +70,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-besluiten-yaml", title=custom_settings["TITLE"]
+                        url_name="besluiten:schema-besluiten-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-besluiten",
                 ),

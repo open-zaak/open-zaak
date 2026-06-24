@@ -18,6 +18,7 @@ from .viewsets import ApplicatieViewSet
 router = routers.DefaultRouter()
 router.register("applicaties", ApplicatieViewSet)
 
+app_name = "autorisaties"
 
 urlpatterns = [
     re_path(
