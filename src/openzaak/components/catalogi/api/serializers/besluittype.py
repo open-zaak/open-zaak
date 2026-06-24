@@ -19,7 +19,7 @@ from ..validators import (
 
 class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     informatieobjecttypen = CachedHyperlinkedRelatedField(
-        view_name="informatieobjecttype-detail",
+        view_name="catalogi:informatieobjecttype-detail",
         many=True,
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
@@ -28,7 +28,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
 
     zaaktypen = CachedHyperlinkedRelatedField(
         many=True,
-        view_name="zaaktype-detail",
+        view_name="catalogi:zaaktype-detail",
         lookup_field="uuid",
         read_only=True,
         help_text=get_help_text("catalogi.BesluitType", "zaaktypen"),
@@ -74,8 +74,11 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BesluitType
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "catalogus": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:besluittype-detail"},
+            "catalogus": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:catalogus-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},

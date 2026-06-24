@@ -10,7 +10,6 @@ from django.utils import timezone
 from freezegun.api import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -19,6 +18,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ...zaken.tests.factories import ZaakFactory
@@ -71,7 +71,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("verwerkbesluit-list")
+        url = reverse("besluiten:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -153,7 +153,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("verwerkbesluit-list")
+        url = reverse("besluiten:verwerkbesluit-list")
 
         data = {
             "besluit": {

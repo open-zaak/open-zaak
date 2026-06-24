@@ -164,6 +164,6 @@ def send_zaak_cloudevent(event_type: str, zaak: Zaak, request: HttpRequest):
     process_cloudevent(
         event_type,
         str(zaak.uuid),
-        reverse("zaak-detail", kwargs={"version": "1", "uuid": zaak.uuid}),
+        reverse("zaken:zaak-detail", kwargs={"version": "1", "uuid": zaak.uuid}),
         data,
     )

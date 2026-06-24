@@ -68,19 +68,27 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = InformatieObjectType
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "catalogus": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:informatieobjecttype-detail",
+            },
+            "catalogus": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:catalogus-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},
             "besluittypen": {
                 "lookup_field": "uuid",
+                "view_name": "catalogi:besluittype-detail",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar de BESLUITTYPEN"),
             },
             "zaaktypen": {
                 "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar de ZAAKTYPEN"),

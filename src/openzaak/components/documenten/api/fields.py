@@ -32,7 +32,7 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
             return ""
 
         return reverse(
-            "enkelvoudiginformatieobject-detail",
+            "documenten:enkelvoudiginformatieobject-detail",
             kwargs={"uuid": value.uuid},
             request=self.context.get("request"),
         )
