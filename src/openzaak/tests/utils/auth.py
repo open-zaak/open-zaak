@@ -6,7 +6,8 @@ from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import reverse
+
+from openzaak.tests.utils.urls import reverse
 
 
 class JWTAuthMixin:

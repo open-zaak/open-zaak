@@ -102,7 +102,7 @@ class ZaakTypeSerializer(
     informatieobjecttypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="informatieobjecttype-detail",
+        view_name="catalogi:informatieobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -154,7 +154,7 @@ class ZaakTypeSerializer(
     besluittypen = CachedHyperlinkedRelatedField(
         many=True,
         label=_("heeft relevante besluittypen"),
-        view_name="besluittype-detail",
+        view_name="catalogi:besluittype-detail",
         lookup_field="uuid",
         queryset=BesluitType.objects.all(),
         help_text=_(
@@ -230,10 +230,13 @@ class ZaakTypeSerializer(
             "zaakobjecttypen",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:zaaktype-detail"},
             "omschrijving": {"source": "zaaktype_omschrijving"},
             "omschrijving_generiek": {"source": "zaaktype_omschrijving_generiek"},
-            "catalogus": {"lookup_field": "uuid"},
+            "catalogus": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:catalogus-detail",
+            },
             "doorlooptijd": {"source": "doorlooptijd_behandeling"},
             "servicenorm": {"source": "servicenorm_behandeling"},
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},

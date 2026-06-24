@@ -65,7 +65,9 @@ from openzaak.utils.api import (
 from openzaak.utils.auth import get_auth
 from openzaak.utils.exceptions import DetermineProcessEndDateException
 from openzaak.utils.help_text import mark_experimental
-from openzaak.utils.serializer_fields import FKOrServiceUrlField
+from openzaak.utils.serializer_fields import (
+    FKOrServiceUrlField,
+)
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     ReadOnlyMixin,
@@ -305,7 +307,9 @@ class ZaakSerializer(
     NestedUpdateMixin,
     serializers.HyperlinkedModelSerializer,
 ):
-    url = CachedHyperlinkedIdentityField(view_name="zaak-detail", lookup_field="uuid")
+    url = CachedHyperlinkedIdentityField(
+        view_name="zaken:zaak-detail", lookup_field="uuid"
+    )
     eigenschappen = CachedNestedHyperlinkedRelatedField(
         many=True,
         read_only=True,
@@ -523,6 +527,7 @@ class ZaakSerializer(
             "uuid": {"read_only": True},
             "zaaktype": {
                 "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
                 "max_length": 1000,
                 "min_length": 1,
                 "validators": [
