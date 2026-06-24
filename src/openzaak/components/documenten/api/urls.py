@@ -45,6 +45,8 @@ router.register(
     "document_registreren", DocumentRegistrerenViewSet, basename="registreerdocument"
 )
 
+app_name = "documenten"
+
 import_patterns = [
     path(
         "create",
