@@ -64,10 +64,14 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
             "uiterlijke_reactiedatum",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "besluiten:besluit-detail",
+            },  # TODO besluiten is not correct for zrc endpoint
             # per BRC API spec!
             "besluittype": {
                 "lookup_field": "uuid",
+                "view_name": "catalogi:besluittype-detail",
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
@@ -79,6 +83,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
             # per BRC API spec!
             "zaak": {
                 "lookup_field": "uuid",
+                "view_name": "zaken:zaak-detail",
                 "max_length": 200,
                 "allow_null": False,
                 "allow_blank": True,
@@ -101,7 +106,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]
         besluit_url = reverse(
-            "besluit-detail",
+            "besluiten:besluit-detail",
             kwargs={
                 "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
                 "uuid": besluit.uuid,
@@ -194,8 +199,15 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             ObjecttypeInformatieobjecttypeRelationValidator("besluit", "besluittype"),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "besluit": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "besluiten:besluitinformatieobject-detail",
+            },
+            "besluit": {
+                "lookup_field": "uuid",
+                "view_name": "besluiten:besluit-detail",
+                "validators": [IsImmutableValidator()],
+            },
         }
 
     def create(self, validated_data):

@@ -10,7 +10,6 @@ from notifications_api_common.models import FailedNotification, NotificationResp
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -22,6 +21,7 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -97,7 +97,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("verwerkbesluit-list")
+        url = reverse("besluiten:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -225,6 +225,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
+    raise_request_exception = True
 
     def test_besluit_create_fail_send_notification_create_db_entry(self, m):
         besluittype = BesluitTypeFactory.create(concept=False)

@@ -10,7 +10,7 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -25,6 +25,7 @@ from openzaak.components.documenten.tests.utils import (
     get_oio_response,
 )
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -33,7 +34,9 @@ from .utils import get_besluittype_response
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-    list_url = reverse_lazy("besluitinformatieobject-list", kwargs={"version": "1"})
+    list_url = reverse_lazy(
+        "besluiten:besluitinformatieobject-list", kwargs={"version": "1"}
+    )
 
     heeft_alle_autorisaties = True
 
@@ -112,7 +115,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_filter_by_besluit(self):
         bio = BesluitInformatieObjectFactory.create()
         besluit_url = reverse(bio.besluit)
-        bio_list_url = reverse("besluitinformatieobject-list")
+        bio_list_url = reverse("besluiten:besluitinformatieobject-list")
 
         response = self.client.get(
             bio_list_url,
@@ -129,7 +132,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_filter_by_informatieobject(self):
         bio = BesluitInformatieObjectFactory.create()
         io_url = reverse(bio.informatieobject.latest_version)
-        bio_list_url = reverse("besluitinformatieobject-list")
+        bio_list_url = reverse("besluiten:besluitinformatieobject-list")
 
         response = self.client.get(
             bio_list_url,

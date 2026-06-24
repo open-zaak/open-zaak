@@ -7,7 +7,7 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.validators import IsImmutableValidator, UntilTodayValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -18,12 +18,13 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from .factories import BesluitFactory
 
 
 class BesluitValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("besluit-list")
+    url = reverse_lazy("besluiten:besluit-list")
     heeft_alle_autorisaties = True
 
     def test_rsin_invalid(self):
@@ -118,7 +119,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_validate_besluittype_valid(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
-        url = reverse("besluit-list")
+        url = reverse("besluiten:besluit-list")
 
         response = self.client.post(
             url,
@@ -138,7 +139,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         ServiceFactory.create(
             api_type=APITypes.ztc, api_root="https://example.com/zrc/"
         )
-        list_url = reverse("besluit-list")
+        list_url = reverse("besluiten:besluit-list")
 
         with requests_mock.Mocker() as m:
             m.get("https://example.com/zrc/zaken/1234", status_code=404)
@@ -162,7 +163,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_besluittype_unpublished(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(besluittype)
-        url = reverse("besluit-list")
+        url = reverse("besluiten:besluit-list")
 
         response = self.client.post(
             url,
@@ -186,7 +187,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        list_url = reverse("besluit-list")
+        list_url = reverse("besluiten:besluit-list")
 
         response = self.client.post(
             list_url,
@@ -207,7 +208,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("besluit-list")
+        list_url = reverse("besluiten:besluit-list")
 
         response = self.client.post(
             list_url,
@@ -279,8 +280,8 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
             api_root="https://foo.bar/",
         )
         besluit = BesluitFactory.create()
-        besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
-        url = reverse("besluitinformatieobject-list")
+        besluit_url = reverse("besluiten:besluit-detail", kwargs={"uuid": besluit.uuid})
+        url = reverse("besluiten:besluitinformatieobject-list")
 
         response = self.client.post(
             url,
@@ -301,7 +302,7 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
-        url = reverse("besluitinformatieobject-list")
+        url = reverse("besluiten:besluitinformatieobject-list")
 
         response = self.client.post(
             url,

@@ -4,13 +4,14 @@ from django.test import override_settings, tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.catalogi.tests.utils import (
     get_operation_url as get_catalogus_operation_url,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -64,7 +65,8 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         BesluitFactory.create(besluittype__concept=False)
         response = self.client.get(
-            reverse(Besluit), {"besluittype": "https://google.com"}
+            reverse(Besluit),
+            {"besluittype": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

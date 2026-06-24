@@ -455,7 +455,7 @@ class BesluitVerwerkenViewSet(
 
         iotype_urls = [
             reverse(
-                "informatieobjecttype-detail",
+                "catalogi:informatieobjecttype-detail",
                 kwargs={
                     "uuid": bio.informatieobject.latest_version.informatieobjecttype.uuid
                 },

@@ -29,7 +29,6 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.notes.constants import NotitieStatus
-from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -55,6 +54,7 @@ from openzaak.tests.utils import (
     mock_ztc_oas_get,
     patch_resource_validator,
 )
+from openzaak.tests.utils.urls import reverse
 
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,

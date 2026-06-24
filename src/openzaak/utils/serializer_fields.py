@@ -91,6 +91,7 @@ class FKOrServiceUrlValidator(FKOrURLValidator):
 
 class FKOrServiceUrlField(FKOrURLField):
     def __init__(self, *args, **kwargs):
+        kwargs.pop("view_name", None)  # TODO why does this work again?
         super().__init__(*args, **kwargs)
 
         # replace FKOrURLValidator with FKOrServiceUrlValidator

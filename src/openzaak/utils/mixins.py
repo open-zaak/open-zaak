@@ -4,6 +4,7 @@
 from django.utils.module_loading import import_string
 
 from dictdiffer import diff
+from rest_framework.reverse import reverse
 from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
@@ -44,7 +45,21 @@ class AuditTrailMixin:
 class APIMixin(_APIMixin):
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         kwargs["version"] = "1"
-        return super().get_absolute_api_url(request=request, **kwargs)
+
+        # TODO move to pkg
+        # build the URL of the informatieobject
+        resource_name = self._meta.model_name  # type: ignore[attr-defined]
+        namespace = self._meta.app_label  #
+
+        reverse_kwargs = {"uuid": self.uuid}  # type: ignore[attr-defined]
+        reverse_kwargs.update(**kwargs)
+
+        url = reverse(
+            f"{namespace}:{resource_name}-detail",
+            kwargs=reverse_kwargs,
+            request=request,
+        )
+        return url
 
 
 class ExpandMixin:
