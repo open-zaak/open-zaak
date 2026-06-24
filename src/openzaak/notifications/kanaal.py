@@ -7,7 +7,8 @@ from django.db.models import Field, Model
 from glom import glom
 from notifications_api_common.kanalen import Kanaal as _Kanaal
 from rest_framework.request import Request
-from vng_api_common.tests import reverse
+
+from openzaak.tests.utils.urls import reverse  # TODO move out of tests?
 
 
 class Kanaal(_Kanaal):
