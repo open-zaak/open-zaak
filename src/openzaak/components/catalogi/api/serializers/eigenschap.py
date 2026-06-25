@@ -47,7 +47,7 @@ class EigenschapSerializer(
         source="specificatie_van_eigenschap"
     )
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -90,10 +90,16 @@ class EigenschapSerializer(
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:eigenschap-detail"},
             "naam": {"source": "eigenschapnaam"},
-            "zaaktype": {"lookup_field": "uuid"},
-            "statustype": {"lookup_field": "uuid"},
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
+            "statustype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:statustype-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }

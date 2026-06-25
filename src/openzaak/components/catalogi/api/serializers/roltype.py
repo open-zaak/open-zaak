@@ -17,7 +17,7 @@ from ..validators import StartBeforeEndValidator, ZaakTypeConceptValidator
 
 class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerializer):
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -57,8 +57,11 @@ class RolTypeSerializer(NestedCreateMixin, serializers.HyperlinkedModelSerialize
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "zaaktype": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:roltype-detail"},
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }

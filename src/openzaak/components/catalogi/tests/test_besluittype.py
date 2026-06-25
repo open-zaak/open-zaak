@@ -6,9 +6,10 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import (
@@ -36,9 +37,9 @@ class BesluitTypeAPITests(APITestCase):
     def test_get_list_default_definitief(self):
         BesluitTypeFactory.create(concept=True)
         besluittype2 = BesluitTypeFactory.create(concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         besluittype2_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype2.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype2.uuid}
         )
 
         response = self.client.get(besluittype_list_url)
@@ -55,9 +56,11 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus, publicatie_indicatie=True
         )
         zaaktype = besluittype.zaaktypen.get()
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         besluittype_detail_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaaktype)
         resultaattype.besluittypen.add(besluittype)
@@ -99,9 +102,11 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.informatieobjecttypen.add(iot1)
 
         besluittype_detail_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
-        iot1_url = reverse("informatieobjecttype-detail", kwargs={"uuid": iot1.uuid})
+        iot1_url = reverse(
+            "catalogi:informatieobjecttype-detail", kwargs={"uuid": iot1.uuid}
+        )
 
         response = self.client.get(besluittype_detail_url)
 
@@ -124,9 +129,11 @@ class BesluitTypeAPITests(APITestCase):
         besluittype.zaaktypen.add(zaaktype1)
 
         besluittype_detail_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
-        zaaktype1_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype1.uuid})
+        zaaktype1_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype1.uuid}
+        )
 
         response = self.client.get(besluittype_detail_url)
 
@@ -141,9 +148,10 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=self.catalogus
         )
         informatieobjecttype_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": informatieobjecttype.uuid}
+            "catalogi:informatieobjecttype-detail",
+            kwargs={"uuid": informatieobjecttype.uuid},
         )
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
@@ -171,14 +179,17 @@ class BesluitTypeAPITests(APITestCase):
 
     def test_create_besluittype_fail_non_concept_informatieobjecttypen(self):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=self.catalogus
         )
         informatieobjecttype_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": informatieobjecttype.uuid}
+            "catalogi:informatieobjecttype-detail",
+            kwargs={"uuid": informatieobjecttype.uuid},
         )
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "zaaktypen": [f"http://testserver{zaaktype_url}"],
@@ -205,12 +216,15 @@ class BesluitTypeAPITests(APITestCase):
         self,
     ):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": informatieobjecttype.uuid}
+            "catalogi:informatieobjecttype-detail",
+            kwargs={"uuid": informatieobjecttype.uuid},
         )
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "zaaktypen": [f"http://testserver{zaaktype_url}"],
@@ -236,7 +250,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_publish_besluittype(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(
-            "besluittype-publish", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-publish", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.post(besluittype_url)
@@ -262,7 +276,7 @@ class BesluitTypeAPITests(APITestCase):
             concept=True,
         )
         besluittype_url = reverse(
-            "besluittype-publish", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-publish", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.post(besluittype_url)
@@ -292,7 +306,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_delete_besluittype(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.delete(besluittype_url)
@@ -303,7 +317,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_delete_besluittype_fail_not_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.delete(besluittype_url)
@@ -316,7 +330,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_update_besluittype(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         data = {
@@ -344,7 +358,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_update_besluittype_fail_not_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
@@ -370,7 +384,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_partial_update_besluittype(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(besluittype_url, {"toelichting": "ja"})
@@ -384,7 +398,7 @@ class BesluitTypeAPITests(APITestCase):
     def test_partial_update_besluittype_fail_not_concept(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(besluittype_url, {"toelichting": "same"})
@@ -403,7 +417,7 @@ class BesluitTypeAPITests(APITestCase):
                 related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(
-                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                    "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
                 )
 
                 response = self.client.delete(besluittype_url)
@@ -420,7 +434,7 @@ class BesluitTypeAPITests(APITestCase):
                 related = zaaktype if resource == "zaaktypen" else informatieobjecttype
                 besluittype = BesluitTypeFactory.create(**{resource: [related]})
                 besluittype_url = reverse(
-                    "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+                    "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
                 )
 
                 response = self.client.delete(besluittype_url)
@@ -437,7 +451,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, informatieobjecttypen=[informatieobjecttype]
         )
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
         data = {
             "catalogus": reverse(catalogus),
@@ -467,7 +481,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, informatieobjecttypen=[informatieobjecttype]
         )
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
         data = {
             "catalogus": reverse(catalogus),
@@ -497,7 +511,7 @@ class BesluitTypeAPITests(APITestCase):
         )
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
         data = {
             "catalogus": reverse(catalogus),
@@ -527,7 +541,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, informatieobjecttypen=[informatieobjecttype]
         )
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(besluittype_url, {"toelichting": "aangepast"})
@@ -544,7 +558,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, informatieobjecttypen=[informatieobjecttype]
         )
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(besluittype_url, {"toelichting": "aangepast"})
@@ -563,7 +577,7 @@ class BesluitTypeAPITests(APITestCase):
         )
         besluittype = BesluitTypeFactory.create(catalogus=catalogus)
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(
@@ -595,7 +609,7 @@ class BesluitTypeAPITests(APITestCase):
             catalogus=catalogus, informatieobjecttypen=[informatieobjecttype]
         )
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype.uuid}
         )
 
         response = self.client.patch(besluittype_url, {"eindeGeldigheid": "2020-01-01"})
@@ -606,12 +620,12 @@ class BesluitTypeAPITests(APITestCase):
 
 class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
     maxDiff = None
-    url = reverse_lazy("besluittype-list")
+    url = reverse_lazy("catalogi:besluittype-list")
 
     def test_filter_besluittype_status_alles(self):
         BesluitTypeFactory.create(concept=True)
         BesluitTypeFactory.create(concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
 
         response = self.client.get(besluittype_list_url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
@@ -623,9 +637,9 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
     def test_filter_besluittype_status_concept(self):
         besluittype1 = BesluitTypeFactory.create(concept=True)
         BesluitTypeFactory.create(concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         besluittype1_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype1.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype1.uuid}
         )
 
         response = self.client.get(besluittype_list_url, {"status": "concept"})
@@ -639,9 +653,9 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
     def test_filter_besluittype_status_definitief(self):
         BesluitTypeFactory.create(concept=True)
         besluittype2 = BesluitTypeFactory.create(concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         besluittype2_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype2.uuid}
+            "catalogi:besluittype-detail", kwargs={"uuid": besluittype2.uuid}
         )
 
         response = self.client.get(besluittype_list_url, {"status": "definitief"})
@@ -657,7 +671,7 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
         BesluitTypeFactory.create(concept=False)
         zaaktype1 = besluittype1.zaaktypen.get()
         zaaktype1_url = f"http://openzaak.nl{reverse(zaaktype1)}"
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         besluittype1_url = reverse(besluittype1)
 
         response = self.client.get(besluittype_list_url, {"zaaktypen": zaaktype1_url})
@@ -674,7 +688,7 @@ class BesluitTypeFilterAPITests(ClearCachesMixin, APITestCase):
         BesluitTypeFactory.create(concept=False)
         iot1 = InformatieObjectTypeFactory.create(catalogus=self.catalogus)
         besluittype1.informatieobjecttypen.add(iot1)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         besluittype1_url = reverse(besluittype1)
         iot1_url = f"http://openzaak.nl{reverse(iot1)}"
 
@@ -739,7 +753,7 @@ class BesluitTypePaginationTestCase(APITestCase):
 
     def test_pagination_default(self):
         BesluitTypeFactory.create_batch(2, concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
 
         response = self.client.get(besluittype_list_url)
 
@@ -752,7 +766,7 @@ class BesluitTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         BesluitTypeFactory.create_batch(2, concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
 
         response = self.client.get(besluittype_list_url, {"page": 1})
 
@@ -765,7 +779,7 @@ class BesluitTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         BesluitTypeFactory.create_batch(10, concept=False)
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
 
         response = self.client.get(besluittype_list_url, {"pageSize": 5})
 
@@ -786,7 +800,7 @@ class BesluitTypeValidationTests(APITestCase):
         Always imported as a concept, should succeed
         """
         BesluitTypeFactory(catalogus=self.catalogus, omschrijving="test")
-        besluittype_list_url = reverse("besluittype-list")
+        besluittype_list_url = reverse("catalogi:besluittype-list")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "zaaktypen": [],

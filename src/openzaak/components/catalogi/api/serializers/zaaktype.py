@@ -112,7 +112,7 @@ class ZaakTypeSerializer(
     statustypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="statustype-detail",
+        view_name="catalogi:statustype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de STATUSTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -122,7 +122,7 @@ class ZaakTypeSerializer(
     resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="resultaattype-detail",
+        view_name="catalogi:resultaattype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de RESULTAATTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -133,7 +133,7 @@ class ZaakTypeSerializer(
         many=True,
         read_only=True,
         source="eigenschap_set",
-        view_name="eigenschap-detail",
+        view_name="catalogi:eigenschap-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de EIGENSCHAPPEN die aanwezig moeten zijn in ZAKEN van dit ZAAKTYPE."
@@ -144,7 +144,7 @@ class ZaakTypeSerializer(
         many=True,
         read_only=True,
         source="roltype_set",
-        view_name="roltype-detail",
+        view_name="catalogi:roltype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de ROLTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -165,7 +165,7 @@ class ZaakTypeSerializer(
         many=True,
         read_only=True,
         source="zaakobjecttype_set",
-        view_name="zaakobjecttype-detail",
+        view_name="catalogi:zaakobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de ZAAKOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."
@@ -248,7 +248,10 @@ class ZaakTypeSerializer(
                     ResourceValidator("ProcesType", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
-            "deelzaaktypen": {"lookup_field": "uuid"},
+            "deelzaaktypen": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
         }
 
         validators = [
