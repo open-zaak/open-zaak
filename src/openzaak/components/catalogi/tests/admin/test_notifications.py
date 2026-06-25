@@ -48,7 +48,8 @@ class NotificationAdminTests(
 
         cls.catalogus = CatalogusFactory.create()
         cls.catalogus_url = reverse(
-            "catalogus-detail", kwargs={"uuid": cls.catalogus.uuid, "version": 1}
+            "catalogi:catalogus-detail",
+            kwargs={"uuid": cls.catalogus.uuid, "version": 1},
         )
 
     def test_informatieobjecttype_notify_on_create(self, mock_notif):
@@ -68,7 +69,8 @@ class NotificationAdminTests(
 
         iotype = InformatieObjectType.objects.get()
         iotype_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": iotype.uuid, "version": 1}
+            "catalogi:informatieobjecttype-detail",
+            kwargs={"uuid": iotype.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
             {
@@ -105,7 +107,7 @@ class NotificationAdminTests(
             form.submit("_save")
 
         iotype_url = reverse(
-            "informatieobjecttype-detail",
+            "catalogi:informatieobjecttype-detail",
             kwargs={"uuid": informatieobjecttype.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
@@ -169,7 +171,8 @@ class NotificationAdminTests(
 
         besluittype = BesluitType.objects.get()
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid, "version": 1}
+            "catalogi:besluittype-detail",
+            kwargs={"uuid": besluittype.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
             {
@@ -200,7 +203,8 @@ class NotificationAdminTests(
             form.submit("_save")
 
         besluittype_url = reverse(
-            "besluittype-detail", kwargs={"uuid": besluittype.uuid, "version": 1}
+            "catalogi:besluittype-detail",
+            kwargs={"uuid": besluittype.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
             {
@@ -257,7 +261,7 @@ class NotificationAdminTests(
 
         zaaktype = ZaakType.objects.get()
         zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {
@@ -298,7 +302,7 @@ class NotificationAdminTests(
             form.submit("_save")
 
         zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {
@@ -365,7 +369,7 @@ class NotificationAdminTests(
         zaaktype_new = ZaakType.objects.exclude(pk=zaaktype_old.pk).get()
 
         zaaktype_new_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype_new.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {

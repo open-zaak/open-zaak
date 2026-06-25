@@ -8,10 +8,10 @@ from freezegun import freeze_time
 from notifications_api_common.models import FailedNotification, NotificationResponse
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase

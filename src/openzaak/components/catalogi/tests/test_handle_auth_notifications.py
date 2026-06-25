@@ -24,7 +24,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         config = AuthorizationsConfig.get_solo()
         uuid = _uuid.uuid4()
         applicatie_url = f"{config.api_root}applicaties/{uuid}"
-        webhook_url = reverse("notificaties-webhook")
+        webhook_url = reverse("catalogi:notificaties-webhook")
         m.get(
             applicatie_url,
             json={
@@ -77,7 +77,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
         # webhook_url = get_operation_url('notification_receive')
         webhook_url = reverse(
-            "notificaties-webhook",
+            "catalogi:notificaties-webhook",
             kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"]},
         )
         m.get(
@@ -130,7 +130,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         config = AuthorizationsConfig.get_solo()
         applicatie_url = f"{config.api_root}/applicaties/{uuid}"
         webhook_url = reverse(
-            "notificaties-webhook",
+            "catalogi:notificaties-webhook",
             kwargs={"version": settings.REST_FRAMEWORK["DEFAULT_VERSION"]},
         )
         data = {

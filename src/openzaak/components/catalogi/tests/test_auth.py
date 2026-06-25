@@ -17,13 +17,14 @@ from vng_api_common.constants import (
     RolOmschrijving,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import AuthCheckMixin, reverse
+from vng_api_common.tests import AuthCheckMixin
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.tests.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_FORCED_DELETE, SCOPE_CATALOGI_FORCED_WRITE
 from ..constants import (
@@ -60,24 +61,26 @@ class ReadTests(AuthCheckMixin, _APITestCase):
         dummy_uuid = str(uuid.uuid4())
         urls = [
             # root
-            reverse("catalogus-list"),
-            reverse("catalogus-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:catalogus-list"),
+            reverse("catalogi:catalogus-detail", kwargs={"uuid": dummy_uuid}),
             # nested one level
-            reverse("zaaktype-list"),
-            reverse("zaaktype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("informatieobjecttype-list"),
-            reverse("informatieobjecttype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("besluittype-list"),
-            reverse("besluittype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:zaaktype-list"),
+            reverse("catalogi:zaaktype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:informatieobjecttype-list"),
+            reverse(
+                "catalogi:informatieobjecttype-detail", kwargs={"uuid": dummy_uuid}
+            ),
+            reverse("catalogi:besluittype-list"),
+            reverse("catalogi:besluittype-detail", kwargs={"uuid": dummy_uuid}),
             # nested two levels
-            reverse("statustype-list"),
-            reverse("statustype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("eigenschap-list"),
-            reverse("eigenschap-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("roltype-list"),
-            reverse("roltype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("zaakobjecttype-list"),
-            reverse("zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:statustype-list"),
+            reverse("catalogi:statustype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:eigenschap-list"),
+            reverse("catalogi:eigenschap-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:roltype-list"),
+            reverse("catalogi:roltype-detail", kwargs={"uuid": dummy_uuid}),
+            reverse("catalogi:zaakobjecttype-list"),
+            reverse("catalogi:zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}),
         ]
 
         for url in urls:
@@ -343,7 +346,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_create_eigenschap_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        eigenschap_list_url = reverse("eigenschap-list")
+        eigenschap_list_url = reverse("catalogi:eigenschap-list")
         data = {
             "naam": "Beoogd product",
             "definitie": "test",
@@ -661,7 +664,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_create_roltype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        rol_type_list_url = reverse("roltype-list")
+        rol_type_list_url = reverse("catalogi:roltype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "omschrijving": "Vergunningaanvrager",
@@ -702,7 +705,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_create_statustype_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        statustype_list_url = reverse("statustype-list")
+        statustype_list_url = reverse("catalogi:statustype-list")
         data = {
             "omschrijving": "Besluit genomen",
             "omschrijvingGeneriek": "",

@@ -113,7 +113,7 @@ def send_applicatie_changed_notification(
             data={
                 "url": build_absolute_url(
                     reverse(
-                        "applicatie-detail",
+                        "autorisaties:applicatie-detail",
                         kwargs={
                             "uuid": str(applicatie.uuid),
                             "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],

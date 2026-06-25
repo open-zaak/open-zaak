@@ -7,7 +7,7 @@ Test that the caching mechanisms are in place.
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.caching import calculate_etag
-from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
+from vng_api_common.tests import CacheMixin, JWTAuthMixin
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -21,6 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.urls import reverse
 
 
 class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):

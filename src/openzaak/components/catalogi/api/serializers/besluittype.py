@@ -37,7 +37,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     resultaattypen = CachedHyperlinkedRelatedField(
         many=True,
         source="resultaattype_set",
-        view_name="resultaattype-detail",
+        view_name="catalogi:resultaattype-detail",
         lookup_field="uuid",
         read_only=True,
         help_text=_(
