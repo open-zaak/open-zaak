@@ -17,7 +17,6 @@ from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse as _reverse
 from zgw_consumers_oas import generate_oas_component
 
 from openzaak.accounts.tests.factories import UserFactory
@@ -46,6 +45,7 @@ from openzaak.components.zaken.api.scopes import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse as _reverse
 from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
@@ -165,7 +165,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
             kwargs={"object_id": cls.applicatie.pk},
         )
         cls.applicatie_url = reverse(
-            "applicatie-detail", kwargs={"version": 1, "uuid": cls.applicatie.uuid}
+            "autorisaties:applicatie-detail",
+            kwargs={"version": 1, "uuid": cls.applicatie.uuid},
         )
         cls.catalogus = CatalogusFactory.create()
 

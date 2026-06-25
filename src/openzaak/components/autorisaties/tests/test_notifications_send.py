@@ -10,11 +10,11 @@ from notifications_api_common.models import FailedNotification, NotificationResp
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from .factories import ApplicatieFactory, AutorisatieFactory
@@ -139,7 +139,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_applicatie_delete_fail_send_notification_create_db_entry(self, m):
         applicatie = ApplicatieFactory.create(heeft_alle_autorisaties=True)
-        url = reverse(applicatie)
+        url = reverse(applicatie, namespace="autorisaties")
 
         mock_notification_send(m, status_code=403)
 

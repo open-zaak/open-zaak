@@ -19,7 +19,7 @@ class ZaaktypeSyncAutorisatieTests(TestCase):
         # Create 5 Autorisaties for non existing ZaakTypen
         for i in range(5):
             AutorisatieFactory.create(
-                zaaktype=f"http://testserver{reverse('zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
+                zaaktype=f"http://testserver{reverse('catalogi:zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
             )
 
         self.assertEqual(Autorisatie.objects.all().count(), 5)
@@ -32,7 +32,7 @@ class ZaaktypeSyncAutorisatieTests(TestCase):
         # Create 5 Autorisaties for non existing ZaakTypen
         for i in range(5):
             AutorisatieFactory.create(
-                zaaktype=f"http://testserver{reverse('zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
+                zaaktype=f"http://testserver{reverse('catalogi:zaaktype-detail', kwargs={'uuid': uuid.uuid4()})}",
             )
 
         # Add an Autorisatie for an existing Zaaktype
