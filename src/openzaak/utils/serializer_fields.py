@@ -134,7 +134,10 @@ class NamespaceMixin:
         if obj._meta.model_name in MOVED_MODELS and getattr(
             request, "resolver_match", None
         ):
-            view_name = f"{request.resolver_match.namespace}:{view_name.split(':')[1]}"
+            if request.resolver_match.namespace != "admin":
+                view_name = (
+                    f"{request.resolver_match.namespace}:{view_name.split(':')[1]}"
+                )
         return super().get_url(obj, view_name, request, format)
 
 
