@@ -50,7 +50,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -76,7 +77,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -99,7 +101,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -127,7 +130,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -150,7 +154,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -195,7 +200,8 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)

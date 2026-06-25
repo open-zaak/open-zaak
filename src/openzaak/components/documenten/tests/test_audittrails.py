@@ -14,7 +14,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse, reverse_lazy
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
@@ -22,6 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from ..models import (
@@ -88,7 +88,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         content = {
             "informatieobject": reverse(
-                "enkelvoudiginformatieobject-detail",
+                "documenten:enkelvoudiginformatieobject-detail",
                 kwargs={"uuid": informatieobject.uuid},
             ),
             "startdatum": datetime.now(),
@@ -288,7 +288,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         eio = EnkelvoudigInformatieObject.objects.get()
         audittrails = AuditTrail.objects.get()
         audittrails_url = reverse(
-            audittrails, kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid}
+            audittrails,
+            kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid},
+            namespace="documenten",
         )
 
         response_audittrails = self.client.get(audittrails_url)
@@ -329,7 +331,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         _status = StatusFactory.create(zaak=zaak)
         status_url = reverse(_status)
 
-        url = reverse("registreerdocument-list")
+        url = reverse("documenten:registreerdocument-list")
 
         data = {
             "enkelvoudiginformatieobject": {
@@ -406,7 +408,7 @@ class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestC
         )
 
         audit_url = reverse(
-            "audittrail-list",
+            "documenten:audittrail-list",
             kwargs={"enkelvoudiginformatieobject_uuid": eio.uuid},
         )
 
@@ -426,7 +428,7 @@ class EnkelvoudigInformatieObjectAuditTrailJWTExpiryTests(JWTAuthMixin, APITestC
         )
 
         audit_url = reverse(
-            "audittrail-detail",
+            "documenten:audittrail-detail",
             kwargs={
                 "enkelvoudiginformatieobject_uuid": eio.uuid,
                 "uuid": audittrail.uuid,
