@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -22,6 +22,7 @@ from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import JWTAuthMixin, MockSchemasMixin
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
@@ -41,7 +42,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_list(self):
         EnkelvoudigInformatieObjectFactory.create_batch(4)
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data["results"]), 4)
@@ -400,7 +401,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         test_object.refresh_from_db()
 
         detail_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": test_object.uuid}
+            "documenten:enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": test_object.uuid},
         )
 
         lock_response = self.client.post(f"{detail_url}/lock")
@@ -436,7 +438,8 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         test_object.refresh_from_db()
 
         detail_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": test_object.uuid}
+            "documenten:enkelvoudiginformatieobject-detail",
+            kwargs={"uuid": test_object.uuid},
         )
 
         lock_response = self.client.post(f"{detail_url}/lock")
@@ -471,7 +474,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
         # Retrieve from the API
         detail_url = reverse(
-            "enkelvoudiginformatieobject-detail",
+            "documenten:enkelvoudiginformatieobject-detail",
             kwargs={"version": "1", "uuid": test_object.uuid},
         )
 
@@ -719,10 +722,10 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
 
         iotype2_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": iotype2.uuid}
+            "catalogi:informatieobjecttype-detail", kwargs={"uuid": iotype2.uuid}
         )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
 
         eio_response = self.client.get(eio_url)
@@ -771,7 +774,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
 
         eio_response = self.client.get(eio_url)
@@ -810,7 +813,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         response = self.client.patch(
@@ -839,7 +842,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
@@ -854,7 +857,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
@@ -867,7 +870,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio1 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object1")
 
         eio1_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid}
         )
         lock1 = self.client.post(f"{eio1_url}/lock").data["lock"]
         self.client.patch(eio1_url, {"beschrijving": "object1 versie2", "lock": lock1})
@@ -875,7 +878,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio2 = EnkelvoudigInformatieObjectFactory.create(beschrijving="object2")
 
         eio2_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
         )
         lock2 = self.client.post(f"{eio2_url}/lock").data["lock"]
         self.client.patch(eio2_url, {"beschrijving": "object2 versie2", "lock": lock2})
@@ -893,7 +896,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
@@ -907,7 +910,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
@@ -922,7 +925,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             )
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         with freeze_time("2019-01-01 13:00:00"):
@@ -937,7 +940,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         eio = EnkelvoudigInformatieObjectFactory.create(beschrijving="beschrijving1")
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(eio_url, {"beschrijving": "beschrijving2", "lock": lock})
@@ -951,7 +954,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
         )
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         self.client.patch(
@@ -978,7 +981,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             )
 
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
         )
         lock = self.client.post(f"{eio_url}/lock").data["lock"]
         with freeze_time("2019-01-01 13:00:00"):

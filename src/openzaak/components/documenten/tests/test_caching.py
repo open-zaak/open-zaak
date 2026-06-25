@@ -7,10 +7,11 @@ Test that the caching mechanisms are in place.
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
+from vng_api_common.tests import CacheMixin, JWTAuthMixin
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.urls import reverse
 
 from ..caching import get_etag_cache_key, set_etag
 from ..models import ObjectInformatieObject

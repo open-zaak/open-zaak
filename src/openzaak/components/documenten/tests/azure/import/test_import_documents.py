@@ -11,7 +11,6 @@ from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
 from privates.storages import private_media_storage
 from privates.test import temp_private_root
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     CatalogusFactory,
@@ -30,6 +29,7 @@ from openzaak.import_data.models import (
     ImportTypeChoices,
 )
 from openzaak.import_data.tests.utils import ImportTestMixin
+from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
 

@@ -9,7 +9,7 @@ from django.test import override_settings, tag
 from maykin_common.vcr import VCRMixin
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -21,6 +21,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
 
 from ...models import EnkelvoudigInformatieObject
@@ -32,7 +33,7 @@ from .mixins import S3torageMixin, upload_to
 @override_settings(OPENZAAK_DOMAIN="testserver", SITE_DOMAIN="testserver")
 @patch("privates.fields.PrivateMediaFileField.generate_filename", upload_to)
 class DocumentRegistrerenAuthTests(VCRMixin, S3torageMixin, JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registreerdocument-list")
+    url = reverse_lazy("documenten:registreerdocument-list")
     heeft_alle_autorisaties = True
 
     def test_register_document(self):

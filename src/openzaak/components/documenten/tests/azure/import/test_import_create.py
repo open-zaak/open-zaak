@@ -31,7 +31,7 @@ from ..mixins import AzureBlobStorageMixin
 class ImportDocumentenCreateTests(
     AzureBlobStorageMixin, ImportTestMixin, JWTAuthMixin, APITestCase
 ):
-    url = reverse_lazy("documenten-import:create")
+    url = reverse_lazy("documenten:documenten-import:create")
 
     clean_documenten_files = True
     clean_import_files = True
@@ -49,13 +49,13 @@ class ImportDocumentenCreateTests(
         self.assertEqual(instance.import_type, ImportTypeChoices.documents)
 
         upload_url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=str(instance.uuid))
+            "documenten:documenten-import:upload", kwargs=dict(uuid=str(instance.uuid))
         )
         status_url = reverse(
-            "documenten-import:status", kwargs=dict(uuid=str(instance.uuid))
+            "documenten:documenten-import:status", kwargs=dict(uuid=str(instance.uuid))
         )
         report_url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
+            "documenten:documenten-import:report", kwargs=dict(uuid=str(instance.uuid))
         )
 
         domain = settings.SITE_DOMAIN

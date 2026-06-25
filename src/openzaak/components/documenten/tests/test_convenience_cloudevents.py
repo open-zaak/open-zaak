@@ -14,7 +14,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -23,6 +22,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from ..api.cloudevents import DOCUMENT_GEREGISTREERD

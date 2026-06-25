@@ -33,7 +33,8 @@ class ImportDocumentenDestroyTests(
         )
 
         url = reverse(
-            "documenten-import:destroy", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:destroy",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.delete(url)
@@ -49,7 +50,8 @@ class ImportDocumentenDestroyTests(
         )
 
         url = reverse(
-            "documenten-import:destroy", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:destroy",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.delete(url)
@@ -65,7 +67,8 @@ class ImportDocumentenDestroyTests(
         )
 
         url = reverse(
-            "documenten-import:destroy", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:destroy",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.delete(url)
@@ -81,7 +84,8 @@ class ImportDocumentenDestroyTests(
         )
 
         url = reverse(
-            "documenten-import:destroy", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:destroy",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.delete(url)
