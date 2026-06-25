@@ -25,7 +25,7 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
         ),
     )
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -60,15 +60,25 @@ class ZaakObjectTypeSerializer(HyperlinkedModelSerializer):
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "zaaktype": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaakobjecttype-detail",
+            },
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
             "resultaattypen": {
                 "lookup_field": "uuid",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar de RESULTAATTYPEN."),
+                "view_name": "catalogi:resultaattype-detail",
             },
-            "statustype": {"lookup_field": "uuid"},
+            "statustype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:statustype-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }

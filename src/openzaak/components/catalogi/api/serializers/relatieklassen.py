@@ -64,7 +64,10 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
                 "lookup_field": "uuid",
                 "view_name": "catalogi:informatieobjecttype-detail",
             },
-            "statustype": {"lookup_field": "uuid"},
+            "statustype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:statustype-detail",
+            },
         }
         validators = [
             ZaakTypeInformatieObjectTypeCatalogusValidator(),

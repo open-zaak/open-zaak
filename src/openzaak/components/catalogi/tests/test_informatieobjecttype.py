@@ -7,7 +7,9 @@ from django.utils.translation import gettext_lazy as _
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
+
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ConceptUpdateValidator, M2MConceptUpdateValidator
@@ -646,7 +648,7 @@ class InformatieObjectTypeAPITests(APITestCase):
 
 class InformatieObjectTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("informatieobjecttype-list")
+    url = reverse_lazy("catalogi:informatieobjecttype-list")
 
     def test_filter_informatieobjecttype_status_alles(self):
         InformatieObjectTypeFactory.create(concept=True)
@@ -766,7 +768,8 @@ class InformatieObjectTypeFilterAPITests(APITestCase):
     def test_filter_zaaktype_not_exist(self):
         InformatieObjectTypeFactory.create(omschrijving="some", concept=False)
         zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"}
+            "catalogi:zaaktype-detail",
+            kwargs={"uuid": "221e7626-a556-4eb5-9714-e7693f82c2dd"},
         )
 
         response = self.client.get(

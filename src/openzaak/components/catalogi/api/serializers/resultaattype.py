@@ -64,7 +64,7 @@ class ResultaatTypeSerializer(
         ),
     )
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -133,7 +133,10 @@ class ResultaatTypeSerializer(
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:resultaattype-detail",
+            },
             "resultaattypeomschrijving": {
                 "validators": [
                     ResourceValidator(
@@ -148,14 +151,26 @@ class ResultaatTypeSerializer(
                     "Waarde van de omschrijving-generiek referentie (attribuut `omschrijving`)"
                 ),
             },
-            "zaaktype": {"lookup_field": "uuid", "label": _("is van")},
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "label": _("is van"),
+                "view_name": "catalogi:zaaktype-detail",
+            },
             "selectielijstklasse": {
                 "validators": [
                     ResourceValidator("Resultaat", settings.SELECTIELIJST_API_STANDARD)
                 ]
             },
-            "besluittypen": {"lookup_field": "uuid", "required": False},
-            "informatieobjecttypen": {"lookup_field": "uuid", "required": False},
+            "besluittypen": {
+                "lookup_field": "uuid",
+                "required": False,
+                "view_name": "catalogi:besluittype-detail",
+            },
+            "informatieobjecttypen": {
+                "lookup_field": "uuid",
+                "required": False,
+                "view_name": "catalogi:informatieobjecttype-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }

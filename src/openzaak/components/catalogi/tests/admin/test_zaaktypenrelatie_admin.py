@@ -5,12 +5,12 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 from maykin_2fa.test import disable_admin_mfa
-from vng_api_common.tests import reverse as _reverse
 
 from openzaak.components.catalogi.models import ZaakTypenRelatie
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
+from openzaak.tests.utils.urls import reverse as _reverse
 
 from ...constants import AardRelatieChoices
 from ..factories import ZaakTypeFactory, ZaakTypenRelatieFactory

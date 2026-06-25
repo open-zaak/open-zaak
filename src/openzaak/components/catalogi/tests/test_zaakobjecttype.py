@@ -6,7 +6,9 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
+
+from openzaak.tests.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -23,9 +25,9 @@ class ZaakObjectTypeAPITests(APITestCase):
     def test_list_zaakobjecttypen_default_definitief(self):
         ZaakObjectTypeFactory.create(zaaktype__concept=True)
         zaakobjecttype2 = ZaakObjectTypeFactory.create(zaaktype__concept=False)
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         zaakobjecttype2_url = reverse(
-            "zaakobjecttype-detail", kwargs={"uuid": zaakobjecttype2.uuid}
+            "catalogi:zaakobjecttype-detail", kwargs={"uuid": zaakobjecttype2.uuid}
         )
 
         response = self.client.get(zaakobjecttype_list_url)
@@ -72,7 +74,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobjecttype(self):
         zaaktype = ZaakTypeFactory.create()
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "anderObjecttype": False,
@@ -97,7 +99,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobjecttype_fail_not_concept_zaaktype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "anderObjecttype": False,
@@ -114,7 +116,7 @@ class ZaakObjectTypeAPITests(APITestCase):
     def test_create_zaakobjecttype_with_statustype(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "anderObjecttype": False,
@@ -133,7 +135,7 @@ class ZaakObjectTypeAPITests(APITestCase):
     def test_create_zaakobjecttype_with_statustype_another_zaaktype_fail(self):
         zaaktype = ZaakTypeFactory.create()
         statustype = StatusTypeFactory.create()
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "anderObjecttype": False,
@@ -150,7 +152,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
     def test_create_zaakobject_with_end_date_before_start_date(self):
         zaaktype = ZaakTypeFactory.create()
-        zaakobjecttype_list_url = reverse("zaakobjecttype-list")
+        zaakobjecttype_list_url = reverse("catalogi:zaakobjecttype-list")
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
             "anderObjecttype": False,
@@ -256,7 +258,7 @@ class ZaakObjectTypeAPITests(APITestCase):
 
 
 class ZaakObjectTypeFilterAPITests(APITestCase):
-    url = reverse_lazy("zaakobjecttype-list")
+    url = reverse_lazy("catalogi:zaakobjecttype-list")
 
     def test_filter_ander_objecttype(self):
         zaakobjecttype1 = ZaakObjectTypeFactory.create(
@@ -408,7 +410,7 @@ class ZaakObjectTypeFilterAPITests(APITestCase):
 
 
 class ZaakObjectTypePaginationTests(APITestCase):
-    url = reverse_lazy("zaakobjecttype-list")
+    url = reverse_lazy("catalogi:zaakobjecttype-list")
 
     def test_pagination_default(self):
         ZaakObjectTypeFactory.create_batch(2, zaaktype__concept=False)
