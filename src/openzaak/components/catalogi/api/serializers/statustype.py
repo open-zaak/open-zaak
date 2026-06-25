@@ -34,7 +34,7 @@ class StatusTypeSerializer(
         ),
     )
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -49,7 +49,7 @@ class StatusTypeSerializer(
         ),
     )
     eigenschappen = CachedHyperlinkedRelatedField(
-        view_name="eigenschap-detail",
+        view_name="catalogi:eigenschap-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -59,7 +59,7 @@ class StatusTypeSerializer(
         ),
     )
     zaakobjecttypen = CachedHyperlinkedRelatedField(
-        view_name="zaakobjecttype-detail",
+        view_name="catalogi:zaakobjecttype-detail",
         many=True,
         read_only=True,
         lookup_field="uuid",
@@ -112,11 +112,14 @@ class StatusTypeSerializer(
             "einde_object",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "catalogi:statustype-detail"},
             "omschrijving": {"source": "statustype_omschrijving"},
             "omschrijving_generiek": {"source": "statustype_omschrijving_generiek"},
             "volgnummer": {"source": "statustypevolgnummer"},
-            "zaaktype": {"lookup_field": "uuid"},
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
         }

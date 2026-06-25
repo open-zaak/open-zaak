@@ -2,9 +2,10 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..models import (
     BesluitType,
@@ -139,7 +140,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
             omschrijving="Another thing", concept=False
         )
 
-        url = f"{reverse('informatieobjecttype-list')}?omschrijving__icontains=descript"
+        url = f"{reverse('catalogi:informatieobjecttype-list')}?omschrijving__icontains=descript"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
