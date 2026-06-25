@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2019 - 2020 Dimpact
+
+
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from openzaak.components.besluiten.tests.factories import (
+    BesluitFactory,
+    BesluitInformatieObjectFactory,
+)
+from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
+
+
+class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = True
+
+    def setUp(self):
+        super().setUp()
+        self.besluit = BesluitFactory.create(for_zaak=True)
+        self.besluitInformatieObject = BesluitInformatieObjectFactory.create()
+
+    def test_deprecated_besluiten_api_response(self):
+        with self.subTest("besluit"):
+            url = reverse(self.besluit, namespace="besluiten")
+
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn("besluiten/api/v1/besluiten", response.data["url"])
+            self.assertIn("catalogi/api/v1/besluittypen", response.data["besluittype"])
+            self.assertIn("zaken/api/v1/zaken", response.data["zaak"])
+
+        with self.subTest("besluitinformatieobject"):
+            url = reverse(self.besluitInformatieObject, namespace="besluiten")
+
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn(
+                "besluiten/api/v1/besluitinformatieobjecten", response.data["url"]
+            )
+            self.assertIn("besluiten/api/v1/besluiten", response.data["besluit"])
+            self.assertIn(
+                "documenten/api/v1/enkelvoudiginformatieobjecten",
+                response.data["informatieobject"],
+            )
+
+    def test_zaken_api_response(self):
+        with self.subTest("besluit"):
+            url = reverse(self.besluit, namespace="zaken")
+
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn("zaken/api/v1/besluiten", response.data["url"])
+            self.assertIn("catalogi/api/v1/besluittypen", response.data["besluittype"])
+            self.assertIn("zaken/api/v1/zaken", response.data["zaak"])
+
+        with self.subTest("besluitinformatieobject"):
+            url = reverse(self.besluitInformatieObject, namespace="zaken")
+
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn(
+                "zaken/api/v1/besluitinformatieobjecten", response.data["url"]
+            )
+            self.assertIn("zaken/api/v1/besluiten", response.data["besluit"])
+            self.assertIn(
+                "documenten/api/v1/enkelvoudiginformatieobjecten",
+                response.data["informatieobject"],
+            )

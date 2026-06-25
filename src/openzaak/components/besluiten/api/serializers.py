@@ -21,9 +21,11 @@ from openzaak.components.zaken.api.utils import (
     delete_remote_zaakbesluit,
 )
 from openzaak.utils.api import create_remote_oio
+from openzaak.utils.serializer_fields import NamespacedLengthHyperlinkedRelatedField
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     ConvertNoneMixin,
+    NamespacedHyperlinkedModelSerializer,
     SubSerializerMixin,
 )
 from openzaak.utils.validators import (
@@ -39,7 +41,7 @@ from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
 
 
-class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer):
+class BesluitSerializer(ConvertNoneMixin, NamespacedHyperlinkedModelSerializer):
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -174,7 +176,7 @@ class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
     pass
 
 
-class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
         validators=[
             LooseFkIsImmutableValidator(instance_path="canonical"),
@@ -186,6 +188,15 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         help_text=get_help_text(
             "besluiten.BesluitInformatieObject", "informatieobject"
         ),
+    )
+
+    # TODO where is LenghtHyperLinkedRelatedField coming from?
+    besluit = NamespacedLengthHyperlinkedRelatedField(
+        view_name="besluiten:besluit-detail",
+        lookup_field="uuid",
+        help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
+        queryset=Besluit.objects.all(),
+        validators=[IsImmutableValidator()],
     )
 
     class Meta:
@@ -202,11 +213,6 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             "url": {
                 "lookup_field": "uuid",
                 "view_name": "besluiten:besluitinformatieobject-detail",
-            },
-            "besluit": {
-                "lookup_field": "uuid",
-                "view_name": "besluiten:besluit-detail",
-                "validators": [IsImmutableValidator()],
             },
         }
 
