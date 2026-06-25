@@ -13,7 +13,6 @@ from notifications_api_common.tasks import send_notification
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.components.zaken.models import Zaak
@@ -21,6 +20,7 @@ from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS, get_operati
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from . import mock_notification_send, mock_nrc_oas_get
 

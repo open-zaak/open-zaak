@@ -220,7 +220,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
-    raise_request_exception = True
 
     def test_besluit_create_fail_send_notification_create_db_entry(self, m, mock_notif):
         besluittype = BesluitTypeFactory.create(concept=False)
