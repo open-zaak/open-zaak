@@ -78,7 +78,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-catalogi-yaml", title=custom_settings["TITLE"]
+                        url_name="catalogi:schema-catalogi-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-catalogi",
                 ),
