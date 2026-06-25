@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db.models import Model
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
@@ -94,9 +95,26 @@ class FKOrServiceUrlValidator(FKOrURLValidator):
         return f"_resolved_{names}"
 
 
-class FKOrServiceUrlField(FKOrURLField):
+class ViewNameInjectionMixin:
+    """
+    Used for FKOrURLField classes to be able to set the view_name in the
+    serializer fields which is needed for the component namespaces
+    """
+
+    def __init__(self, *args, view_name: str | None = None, **kwargs):
+        self.view_name = view_name  # TODO is this safe?
+        super().__init__(*args, **kwargs)
+
+    @cached_property
+    def _field_instance(self):
+        instance = super()._field_instance
+        if self.view_name:
+            instance.view_name = self.view_name
+        return instance
+
+
+class FKOrServiceUrlField(ViewNameInjectionMixin, FKOrURLField):
     def __init__(self, *args, **kwargs):
-        kwargs.pop("view_name", None)  # TODO why does this work again?
         super().__init__(*args, **kwargs)
 
         # replace FKOrURLValidator with FKOrServiceUrlValidator

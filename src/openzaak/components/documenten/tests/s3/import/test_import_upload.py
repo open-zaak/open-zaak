@@ -55,7 +55,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -86,7 +87,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         headers = DocumentRow.import_headers[1:]  # misses the uuid header
@@ -114,7 +116,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         headers = []
@@ -142,7 +145,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.post(url, "", content_type="text/csv")
@@ -165,7 +169,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         data = bytes("%PDF-1.5%äðíø", encoding="latin-1")
@@ -190,7 +195,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -208,7 +214,9 @@ class ImportDocumentenUploadTests(
     def test_unknown_import(self):
         import_uuid = uuid4()
 
-        url = reverse("documenten-import:upload", kwargs=dict(uuid=import_uuid))
+        url = reverse(
+            "documenten:documenten-import:upload", kwargs=dict(uuid=import_uuid)
+        )
 
         rows = [DocumentRowFactory()]
 
@@ -226,7 +234,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -251,7 +260,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -289,7 +299,9 @@ class ImportDocumentenUploadTests(
             processed_invalid=0,
         )
 
-        url = reverse("documenten-import:upload", kwargs=dict(uuid=new_instance.uuid))
+        url = reverse(
+            "documenten:documenten-import:upload", kwargs=dict(uuid=new_instance.uuid)
+        )
 
         rows = [DocumentRowFactory()]
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
@@ -319,7 +331,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -348,7 +361,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -397,7 +411,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory()]
@@ -428,7 +443,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory(ignore_import_path=True)]
@@ -468,7 +484,8 @@ class ImportDocumentenUploadTests(
         )
 
         url = reverse(
-            "documenten-import:upload", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:upload",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         rows = [DocumentRowFactory(ignore_import_path=True)]
