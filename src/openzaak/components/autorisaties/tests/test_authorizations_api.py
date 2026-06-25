@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.autorisaties.models import CatalogusAutorisatie
 from openzaak.components.besluiten.api.scopes import (
@@ -29,6 +29,7 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from ..api.validators import UniqueClientIDValidator
@@ -390,11 +391,14 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url, {"clientId": "client id"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+        self.assertEqual(
+            response.data["url"],
+            f"http://testserver{reverse(app, namespace='autorisaties')}",
+        )
 
     def test_validate_unknown_query_params(self):
         ApplicatieFactory.create_batch(2)
-        url = reverse(Applicatie)
+        url = reverse(Applicatie, namespace="autorisaties")
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -415,8 +419,8 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         expectations from what the standard allows.
         """
         app = ApplicatieFactory.create(heeft_alle_autorisaties=False)
-        url = reverse(Applicatie)
-        app_url = f"http://testserver{reverse(app)}"
+        url = reverse(Applicatie, namespace="autorisaties")
+        app_url = f"http://testserver{reverse(app, namespace='autorisaties')}"
 
         with self.subTest(case="list"):
             response = self.client.get(url)
@@ -517,7 +521,10 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+        self.assertEqual(
+            response.data["url"],
+            f"http://testserver{reverse(app, namespace='autorisaties')}",
+        )
 
         expected = [
             {
@@ -609,7 +616,10 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["url"], f"http://testserver{reverse(app)}")
+        self.assertEqual(
+            response.data["url"],
+            f"http://testserver{reverse(app, namespace='autorisaties')}",
+        )
 
         expected = [
             {
