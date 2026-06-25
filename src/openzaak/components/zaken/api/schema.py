@@ -55,5 +55,7 @@ custom_settings = {
         {"name": "zaakverzoeken"},
         {"name": "zaaknotities"},
         {"name": "klantcontacten"},
+        {"name": "besluiten"},
+        {"name": "besluitinformatieobjecten"},
     ],
 }
