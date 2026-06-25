@@ -12,16 +12,12 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
     ComponentTypes,
 )
-from vng_api_common.tests import (
-    TypeCheckMixin,
-    get_validation_errors,
-    reverse,
-    reverse_lazy,
-)
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..api.validators import ZaakTypeConceptValidator
@@ -85,9 +81,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     def test_get_list_default_definitief(self):
         ResultaatTypeFactory.create(zaaktype__concept=True)
         resultaattype2 = ResultaatTypeFactory.create(zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
         resultaattype2_url = reverse(
-            "resultaattype-detail", kwargs={"uuid": resultaattype2.uuid}
+            "catalogi:resultaattype-detail", kwargs={"uuid": resultaattype2.uuid}
         )
 
         response = self.client.get(resultaattype_list_url)
@@ -109,7 +105,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
             )
             url = reverse(resultaattype)
             zaaktype_url = reverse(
-                "zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
+                "catalogi:zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
             )
 
             response = self.client.get(url)
@@ -157,7 +153,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         resultaattype = ResultaatTypeFactory.create()
         url = f"http://testserver{reverse(resultaattype)}"
         zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
+            "catalogi:zaaktype-detail", kwargs={"uuid": resultaattype.zaaktype.uuid}
         )
 
         response = self.client.get(zaaktype_url)
@@ -186,7 +182,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     @requests_mock.Mocker()
     def test_create_resultaattype(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -238,7 +236,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -293,7 +293,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -351,7 +353,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -392,7 +396,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -432,7 +438,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     def test_delete_resultaattype(self):
         resultaattype = ResultaatTypeFactory.create()
         resultaattype_url = reverse(
-            "resultaattype-detail", kwargs={"uuid": resultaattype.uuid}
+            "catalogi:resultaattype-detail", kwargs={"uuid": resultaattype.uuid}
         )
 
         response = self.client.delete(resultaattype_url)
@@ -443,7 +449,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     def test_delete_resultaattype_fail_not_concept_zaaktype(self):
         resultaattype = ResultaatTypeFactory.create(zaaktype__concept=False)
         resultaattype_url = reverse(
-            "resultaattype-detail", kwargs={"uuid": resultaattype.uuid}
+            "catalogi:resultaattype-detail", kwargs={"uuid": resultaattype.uuid}
         )
 
         response = self.client.delete(resultaattype_url)
@@ -457,7 +463,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     @patch_resource_validator
     def test_derive_archiefactiedatum_from_selectielijstklasse(self, *mocks):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -726,7 +734,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         iotype = InformatieObjectTypeFactory.create(catalogus=zaaktype.catalogus)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -777,7 +787,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         iotype = InformatieObjectTypeFactory.create()
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -877,7 +889,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
     @requests_mock.Mocker()
     def test_create_resultaattype_with_besluittypen(self, mock_shape, mock_fetch, m):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         besluittype = BesluitTypeFactory.create(catalogus=zaaktype.catalogus)
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -928,7 +942,9 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
         self, mock_shape, mock_fetch, m
     ):
         zaaktype = ZaakTypeFactory.create(selectielijst_procestype=PROCESTYPE_URL)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         besluittype = BesluitTypeFactory.create()
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -1024,7 +1040,7 @@ class ResultaatTypeAPITests(SelectieLijstMixin, TypeCheckMixin, APITestCase):
 
 class ResultaatTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("resultaattype-list")
+    url = reverse_lazy("catalogi:resultaattype-list")
 
     @override_settings(ALLOWED_HOSTS=["openzaak.nl"])
     def test_filter_on_zaaktype(self):
@@ -1035,10 +1051,10 @@ class ResultaatTypeFilterAPITests(APITestCase):
         rt1_uri = reverse(rt1)
         rt2_uri = reverse(rt2)
 
-        zt1_uri = reverse("zaaktype-detail", kwargs={"uuid": zt1.uuid})
-        zt2_uri = reverse("zaaktype-detail", kwargs={"uuid": zt2.uuid})
+        zt1_uri = reverse("catalogi:zaaktype-detail", kwargs={"uuid": zt1.uuid})
+        zt2_uri = reverse("catalogi:zaaktype-detail", kwargs={"uuid": zt2.uuid})
         zt1_url = "http://openzaak.nl{}".format(zt1_uri)
-        list_url = reverse("resultaattype-list")
+        list_url = reverse("catalogi:resultaattype-list")
 
         response = self.client.get(
             list_url, {"zaaktype": zt1_url}, headers={"host": "openzaak.nl"}
@@ -1057,7 +1073,7 @@ class ResultaatTypeFilterAPITests(APITestCase):
     def test_filter_resultaattype_status_alles(self):
         ResultaatTypeFactory.create(zaaktype__concept=True)
         ResultaatTypeFactory.create(zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
 
         response = self.client.get(resultaattype_list_url, {"status": "alles"})
         self.assertEqual(response.status_code, 200)
@@ -1069,9 +1085,9 @@ class ResultaatTypeFilterAPITests(APITestCase):
     def test_filter_resultaattype_status_concept(self):
         resultaattype1 = ResultaatTypeFactory.create(zaaktype__concept=True)
         ResultaatTypeFactory.create(zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
         resultaattype1_url = reverse(
-            "resultaattype-detail", kwargs={"uuid": resultaattype1.uuid}
+            "catalogi:resultaattype-detail", kwargs={"uuid": resultaattype1.uuid}
         )
 
         response = self.client.get(resultaattype_list_url, {"status": "concept"})
@@ -1085,9 +1101,9 @@ class ResultaatTypeFilterAPITests(APITestCase):
     def test_filter_resultaattype_status_definitief(self):
         ResultaatTypeFactory.create(zaaktype__concept=True)
         resultaattype2 = ResultaatTypeFactory.create(zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
         resultaattype2_url = reverse(
-            "resultaattype-detail", kwargs={"uuid": resultaattype2.uuid}
+            "catalogi:resultaattype-detail", kwargs={"uuid": resultaattype2.uuid}
         )
 
         response = self.client.get(resultaattype_list_url, {"status": "definitief"})
@@ -1149,7 +1165,7 @@ class ResultaatTypePaginationTestCase(APITestCase):
 
     def test_pagination_default(self):
         ResultaatTypeFactory.create_batch(2, zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
 
         response = self.client.get(resultaattype_list_url)
 
@@ -1162,7 +1178,7 @@ class ResultaatTypePaginationTestCase(APITestCase):
 
     def test_pagination_page_param(self):
         ResultaatTypeFactory.create_batch(2, zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
 
         response = self.client.get(resultaattype_list_url, {"page": 1})
 
@@ -1175,7 +1191,7 @@ class ResultaatTypePaginationTestCase(APITestCase):
 
     def test_pagination_pagesize_param(self):
         ResultaatTypeFactory.create_batch(10, zaaktype__concept=False)
-        resultaattype_list_url = reverse("resultaattype-list")
+        resultaattype_list_url = reverse("catalogi:resultaattype-list")
 
         response = self.client.get(resultaattype_list_url, {"pageSize": 5})
 
@@ -1237,7 +1253,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
     @patch("openzaak.utils.validators.obj_has_shape", return_value=False)
     def test_validate_wrong_resultaattypeomschrijving(self, mock_shape, mock_fetch):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1266,7 +1284,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
     def test_selectielijstklasse_invalid_resource(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -1307,7 +1327,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -1352,7 +1374,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1393,7 +1417,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1435,7 +1461,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1479,7 +1507,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=False
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for procestermijn in Procestermijn.values:
             with self.subTest(procestermijn=procestermijn):
@@ -1529,7 +1559,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
             "omschrijving": "illum",
@@ -1569,7 +1601,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1613,7 +1647,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1658,7 +1694,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1702,7 +1740,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1735,7 +1775,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1779,7 +1821,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1823,7 +1867,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1864,7 +1910,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1905,7 +1953,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1946,7 +1996,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         for afleidingswijze in Afleidingswijze.values:
             with self.subTest(afleidingswijze=afleidingswijze):
@@ -1990,7 +2042,9 @@ class ResultaatTypeValidationTests(SelectieLijstMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(
             selectielijst_procestype=PROCESTYPE_URL, concept=True
         )
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid}
+        )
 
         data = {
             "zaaktype": f"http://testserver{zaaktype_url}",

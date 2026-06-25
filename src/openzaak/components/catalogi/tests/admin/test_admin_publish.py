@@ -119,10 +119,10 @@ class ZaaktypeAdminTests(
 
         # Verify notification is sent
         zaaktype_url = reverse(
-            "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+            "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
         )
         catalogus_url = reverse(
-            "catalogus-detail",
+            "catalogi:catalogus-detail",
             kwargs={"uuid": zaaktype.catalogus.uuid, "version": 1},
         )
         mock_notif.assert_called_with(
