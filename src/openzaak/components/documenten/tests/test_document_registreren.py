@@ -18,7 +18,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -39,13 +39,14 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registreerdocument-list")
+    url = reverse_lazy("documenten:registreerdocument-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -425,7 +426,7 @@ class DocumentRegistrerenAuthTests(JWTAuthMixin, APITestCase):
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registreerdocument-list")
+    url = reverse_lazy("documenten:registreerdocument-list")
     heeft_alle_autorisaties = True
 
     def setUp(self):

@@ -313,7 +313,7 @@ class ZaakSerializer(
         many=True,
         read_only=True,
         lookup_field="uuid",
-        view_name="zaakeigenschap-detail",
+        view_name="zaken:zaakeigenschap-detail",
         parent_lookup_kwargs={"zaak_uuid": "zaak__uuid"},
         source="zaakeigenschap_set",
         help_text=_("URL-referenties naar ZAAK-EIGENSCHAPPen."),
@@ -322,7 +322,7 @@ class ZaakSerializer(
         many=True,
         read_only=True,
         lookup_field="uuid",
-        view_name="rol-detail",
+        view_name="zaken:rol-detail",
         source="rol_set",
         help_text=_("URL-referenties naar ROLLen."),
     )
@@ -330,7 +330,7 @@ class ZaakSerializer(
         source="current_status",
         read_only=True,
         allow_null=True,
-        view_name="status-detail",
+        view_name="zaken:status-detail",
         lookup_field="uuid",
         help_text=_("Indien geen status bekend is, dan is de waarde 'null'"),
     )
@@ -338,7 +338,7 @@ class ZaakSerializer(
         many=True,
         read_only=True,
         lookup_field="uuid",
-        view_name="zaakinformatieobject-detail",
+        view_name="zaken:zaakinformatieobject-detail",
         source="zaakinformatieobject_set",
         help_text=_("URL-referenties naar ZAAKINFORMATIEOBJECTen."),
     )
@@ -346,7 +346,7 @@ class ZaakSerializer(
         many=True,
         read_only=True,
         lookup_field="uuid",
-        view_name="zaakobject-detail",
+        view_name="zaken:zaakobject-detail",
         source="zaakobject_set",
         help_text=_("URL-referenties naar ZAAKOBJECTen."),
     )
@@ -522,7 +522,7 @@ class ZaakSerializer(
             "processobject",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "uuid": {"read_only": True},
             "zaaktype": {
                 "lookup_field": "uuid",
@@ -1187,10 +1187,17 @@ class ZaakInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "zaken:zaakinformatieobject-detail",
+            },
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
-            "status": {"lookup_field": "uuid"},
+            "zaak": {
+                "lookup_field": "uuid",
+                "validators": [IsImmutableValidator()],
+                "view_name": "zaken:zaak-detail",
+            },
+            "status": {"lookup_field": "uuid", "view_name": "zaken:status-detail"},
         }
 
     def create(self, validated_data):
