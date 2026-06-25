@@ -29,3 +29,17 @@ def get_lib_doc_excludes():
         SubSerializerMixin,
         ReadOnlyMixin,
     ]
+
+
+DEPRECATED_URLCONFS = ["openzaak.components.besluiten.api.urls"]
+
+
+def postprocess_deprecate_apis(result, generator, request, public):
+    """
+    Deprecates all methods of urnconf.
+    """
+    if generator.urlconf in DEPRECATED_URLCONFS:
+        for path in result["paths"]:
+            for method in result["paths"][path]:
+                result["paths"][path][method]["deprecated"] = True
+    return result

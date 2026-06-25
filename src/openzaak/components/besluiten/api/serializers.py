@@ -69,7 +69,7 @@ class BesluitSerializer(ConvertNoneMixin, NamespacedHyperlinkedModelSerializer):
             "url": {
                 "lookup_field": "uuid",
                 "view_name": "besluiten:besluit-detail",
-            },  # TODO besluiten is not correct for zrc endpoint
+            },
             # per BRC API spec!
             "besluittype": {
                 "lookup_field": "uuid",

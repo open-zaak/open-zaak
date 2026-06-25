@@ -123,7 +123,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-zaken-yaml", title=custom_settings["TITLE"]
+                        url_name="zaken:schema-zaken-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-zaken",
                 ),
