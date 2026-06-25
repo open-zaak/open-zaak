@@ -241,7 +241,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
             zaaktype_uri = reverse(
-                "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
             )
             self.assertEqual(
                 autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
@@ -269,7 +269,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
             iotype_uri = reverse(
-                "informatieobjecttype-detail",
+                "catalogi:informatieobjecttype-detail",
                 kwargs={"uuid": iotype.uuid, "version": 1},
             )
             self.assertEqual(
@@ -293,7 +293,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 ],
             )
             besluittype_uri = reverse(
-                "besluittype-detail",
+                "catalogi:besluittype-detail",
                 kwargs={"uuid": besluittype.uuid, "version": 1},
             )
             self.assertEqual(
@@ -353,7 +353,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
             zaaktype_uri = reverse(
-                "zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
+                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
             )
             self.assertEqual(
                 autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
@@ -381,7 +381,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
             iotype_uri = reverse(
-                "informatieobjecttype-detail",
+                "catalogi:informatieobjecttype-detail",
                 kwargs={"uuid": iotype.uuid, "version": 1},
             )
             self.assertEqual(
@@ -405,7 +405,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 ],
             )
             besluittype_uri = reverse(
-                "besluittype-detail",
+                "catalogi:besluittype-detail",
                 kwargs={"uuid": besluittype.uuid, "version": 1},
             )
             self.assertEqual(

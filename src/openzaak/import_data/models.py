@@ -107,7 +107,7 @@ class Import(models.Model):
 
     def get_upload_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:upload",
+            "documenten:documenten-import:upload",
             kwargs=dict(
                 uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
             ),
@@ -116,7 +116,7 @@ class Import(models.Model):
 
     def get_status_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:status",
+            "documenten:documenten-import:status",
             kwargs=dict(
                 uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
             ),
@@ -125,7 +125,7 @@ class Import(models.Model):
 
     def get_report_url(self, request=None):
         relative_url = reverse(
-            "documenten-import:report",
+            "documenten:documenten-import:report",
             kwargs=dict(
                 uuid=self.uuid, version=settings.REST_FRAMEWORK["DEFAULT_VERSION"]
             ),
