@@ -949,7 +949,6 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
         if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
-            # TODO should this be zaken already?
             object_field.view_name = "zaken:besluit-detail"
             object_field.validators.append(
                 LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD)

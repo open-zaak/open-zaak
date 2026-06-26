@@ -83,7 +83,7 @@ click-repl==0.2.0
     # via celery
 cloudevents==1.12.0
     # via -r requirements/base.in
-commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@f5621f69caef98dbfa0f72c25b35f81f0d2bc221
+commonground-api-common @ git+https://github.com/maykinmedia/commonground-api-common.git@8a8953aec594711a79921030fa4493fb6f5bf748
     # via
     #   -r requirements/base.in
     #   open-api-framework

@@ -40,10 +40,10 @@ class APIMixin(_APIMixin):
     def get_absolute_api_url(self, request=None, **kwargs) -> str:
         kwargs["version"] = "1"
 
-        # TODO move to pkg
-        # build the URL of the informatieobject
+        namespace = self._meta.app_label
+
+        # copied from _APIMixin.get_absolute_api_url
         resource_name = self._meta.model_name  # type: ignore[attr-defined]
-        namespace = self._meta.app_label  #
 
         reverse_kwargs = {"uuid": self.uuid}  # type: ignore[attr-defined]
         reverse_kwargs.update(**kwargs)
