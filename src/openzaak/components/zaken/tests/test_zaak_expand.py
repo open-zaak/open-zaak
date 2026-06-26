@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
@@ -14,6 +14,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
 from openzaak.tests.utils.auth import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import (
@@ -34,7 +35,7 @@ from .utils import (
 class ZakenIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
-    url = reverse_lazy("zaak-list")
+    url = reverse_lazy("zaken:zaak-list")
 
     @classmethod
     def setUpTestData(cls):
@@ -165,7 +166,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         del hoofdzaak_data["_expand"]
 
         response = self.client.post(
-            reverse("zaak--zoek"),
+            reverse("zaken:zaak--zoek"),
             {
                 "zaakgeometrie": {
                     "within": {
@@ -287,7 +288,7 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
 class ZakenExternalIncludeTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
-    url = reverse_lazy("zaak-list")
+    url = reverse_lazy("zaken:zaak-list")
 
     def test_zaak_list_include(self):
         """

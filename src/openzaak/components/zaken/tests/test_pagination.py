@@ -6,9 +6,10 @@ from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 from openzaak.utils.pagination import FuzzyPagination
 
 from ..models import Zaak
@@ -18,7 +19,7 @@ from .utils import ZAAK_READ_KWARGS
 
 class ZaakPaginationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy("zaak-list")
+    list_url = reverse_lazy("zaken:zaak-list")
 
     def test_pagination_default(self):
         ZaakFactory.create_batch(2)
@@ -69,7 +70,7 @@ class ZaakPaginationTests(JWTAuthMixin, APITestCase):
 @override_settings(FUZZY_PAGINATION=True)
 class ZaakFuzzyPaginationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy("zaak-list")
+    list_url = reverse_lazy("zaken:zaak-list")
 
     @override_settings(FUZZY_PAGINATION_COUNT_LIMIT=10)
     @patch("openzaak.utils.pagination.FuzzyPagination.page_size", 5)

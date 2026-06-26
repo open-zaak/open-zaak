@@ -16,7 +16,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
@@ -38,6 +38,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from .utils import ZAAK_READ_KWARGS
 
@@ -113,7 +114,7 @@ class ZaakAfsluitenAuthTests(JWTAuthMixin, APITestCase):
             verantwoordelijke_organisatie=517439943,
         )
 
-        self.url = reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
+        self.url = reverse("zaken:zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
 
         self.content = {
             "zaak": {},
@@ -286,7 +287,7 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
         }
 
         self.url = reverse(
-            "zaakafsluiten",
+            "zaken:zaakafsluiten",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -531,7 +532,7 @@ class ZaakAfsluitenTests(JWTAuthMixin, APITestCase):
 
         response = self.client.post(
             reverse(
-                "zaakafsluiten",
+                "zaken:zaakafsluiten",
                 kwargs={
                     "uuid": zaak.uuid,
                 },

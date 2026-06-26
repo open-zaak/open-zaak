@@ -185,6 +185,7 @@ class RelevanteZaakSerializer(serializers.HyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
                 ],
+                "view_name": "zaken:zaak-detail",
             },
         }
         validators = [OverigeRelevanteZaakRelatieValidator()]
@@ -210,6 +211,7 @@ class GerelateerdeZaakSerializer(serializers.HyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
                 ],
+                "view_name": "zaken:zaak-detail",
             },
         }
 
@@ -385,7 +387,7 @@ class ZaakSerializer(
     deelzaken = CachedHyperlinkedRelatedField(
         read_only=True,
         many=True,
-        view_name="zaak-detail",
+        view_name="zaken:zaak-detail",
         lookup_url_kwarg="uuid",
         lookup_field="uuid",
         help_text=_("URL-referenties naar deel ZAAKen."),
@@ -394,7 +396,7 @@ class ZaakSerializer(
     resultaat = CachedHyperlinkedRelatedField(
         read_only=True,
         allow_null=True,
-        view_name="resultaat-detail",
+        view_name="zaken:resultaat-detail",
         lookup_url_kwarg="uuid",
         lookup_field="uuid",
         help_text=_(
@@ -580,6 +582,7 @@ class ZaakSerializer(
                 "lookup_field": "uuid",
                 "queryset": Zaak.objects.all(),
                 "validators": [NotSelfValidator(), HoofdzaakValidator()],
+                "view_name": "zaken:zaak-detail",
             },
             "laatste_betaaldatum": {"validators": [UntilNowValidator()]},
             "relevante_andere_zaken": {"swagger_schema_fields": {"deprecated": True}},
@@ -817,9 +820,9 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:status-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "datum_status_gezet": {"validators": [DateNotInFutureValidator()]},
             "statustype": {
                 "lookup_field": "uuid",
@@ -828,6 +831,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("StatusType", settings.ZTC_API_STANDARD),
                 ],
+                "view_name": "catalogi:statustype-detail",
             },
             "indicatie_laatst_gezette_status": {
                 "read_only": True,
@@ -836,12 +840,13 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                     "status gezet van van alle statussen bij de desbetreffende zaak."
                 ),
             },
-            "gezetdoor": {"lookup_field": "uuid"},
+            "gezetdoor": {"lookup_field": "uuid", "view_name": "zaken:rol-detail"},
             "zaakinformatieobjecten": {
                 "lookup_field": "uuid",
                 "read_only": True,
                 "many": True,
                 "help_text": _("URL-referenties naar ZAAKINFORMATIEOBJECTen."),
+                "view_name": "zaken:zaakinformatieobject-detail",
             },
         }
 
@@ -1097,10 +1102,14 @@ class SubStatusSerializer(serializers.HyperlinkedModelSerializer):
         )
         validators = [StatusBelongsToZaakValidator()]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:substatus-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
-            "status": {"lookup_field": "uuid", "required": False},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
+            "status": {
+                "lookup_field": "uuid",
+                "required": False,
+                "view_name": "zaken:status-detail",
+            },
             "tijdstip": {"validators": [DateNotInFutureValidator()]},
         }
 
@@ -1266,7 +1275,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
     zaak = CachedHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
-        view_name="zaak-detail",
+        view_name="zaken:zaak-detail",
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
@@ -1275,7 +1284,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
         model = ZaakEigenschap
         fields = ("url", "uuid", "zaak", "eigenschap", "naam", "waarde")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaakeigenschap-detail"},
             "uuid": {"read_only": True},
             "naam": {"source": "_naam", "read_only": True},
             "eigenschap": {
@@ -1286,6 +1295,7 @@ class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
                     LooseFkResourceValidator("Eigenschap", settings.ZTC_API_STANDARD),
                     LooseFkIsImmutableValidator(),
                 ],
+                "view_name": "catalogi:eigenschap-detail",
             },
         }
         validators = [
@@ -1319,10 +1329,10 @@ class KlantContactSerializer(serializers.HyperlinkedModelSerializer):
             "toelichting",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:klantcontact-detail"},
             "uuid": {"read_only": True},
             "identificatie": {"required": False},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "datumtijd": {"validators": [DateNotInFutureValidator()]},
         }
 
@@ -1384,9 +1394,9 @@ class RolSerializer(PolymorphicSerializer):
             RolIndicatieMachtigingValidator(),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:rol-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "betrokkene": {"required": False},
             "roltype": {
                 "lookup_field": "uuid",
@@ -1397,6 +1407,7 @@ class RolSerializer(PolymorphicSerializer):
                     LooseFkIsImmutableValidator(),
                 ],
                 "help_text": get_help_text("zaken.Rol", "roltype"),
+                "view_name": "catalogi:roltype-detail",
             },
             "statussen": {
                 "lookup_field": "uuid",
@@ -1405,6 +1416,7 @@ class RolSerializer(PolymorphicSerializer):
                     "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd "
                     "dat STATUSsen in die ZAAK bereikt zijn."
                 ),
+                "view_name": "zaken:status-detail",
             },
             "betrokkene_type": {
                 "help_text": "Betrokkene type `vestiging` is **DEPRECATED**."
@@ -1531,9 +1543,9 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
             ZaakArchiefStatusValidator(),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:resultaat-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "resultaattype": {
                 "lookup_field": "uuid",
                 "max_length": 1000,
@@ -1544,6 +1556,7 @@ class ResultaatSerializer(serializers.HyperlinkedModelSerializer):
                     ),
                     LooseFkIsImmutableValidator(),
                 ],
+                "view_name": "catalogi:resultaattype-detail",
             },
         }
 
@@ -1564,9 +1577,9 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
         model = ZaakBesluit
         fields = ("url", "uuid", "besluit")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaakbesluit-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "besluit": {
                 "lookup_field": "uuid",
                 "max_length": 1000,
@@ -1574,6 +1587,7 @@ class ZaakBesluitSerializer(NestedHyperlinkedModelSerializer):
                 "validators": [
                     LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD),
                 ],
+                "view_name": "zaken:besluit-detail",
             },
         }
         validator = [ZaakArchiefStatusValidator()]
@@ -1588,9 +1602,12 @@ class ZaakContactMomentSerializer(serializers.HyperlinkedModelSerializer):
         model = ZaakContactMoment
         fields = ("url", "uuid", "zaak", "contactmoment")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "zaken:zaakcontactmoment-detail",
+            },
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "contactmoment": {
                 "validators": [
                     ResourceValidator(
@@ -1646,9 +1663,9 @@ class ZaakVerzoekSerializer(serializers.HyperlinkedModelSerializer):
         model = ZaakVerzoek
         fields = ("url", "uuid", "zaak", "verzoek")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaakverzoek-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid"},
+            "zaak": {"lookup_field": "uuid", "view_name": "zaken:zaak-detail"},
             "verzoek": {"validators": [verzoek_validator]},
         }
         validators = [ZaakArchiefStatusValidator()]
@@ -1699,7 +1716,7 @@ class ZaakNotitieSerializer(
     gerelateerd_aan = CachedHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         lookup_field="uuid",
-        view_name="zaak-detail",
+        view_name="zaken:zaak-detail",
         help_text=_("URL-referentie naar een ZAAK."),
     )
 
@@ -1707,8 +1724,11 @@ class ZaakNotitieSerializer(
         model = ZaakNotitie
         fields = fields = ("url",) + NotitieSerializerMixin.Meta.fields
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "gerelateerd_aan": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaaknotitie-detail"},
+            "gerelateerd_aan": {
+                "lookup_field": "uuid",
+                "view_name": "zaken:zaak-detail",
+            },
         }
 
     def update(self, instance, validated_data):

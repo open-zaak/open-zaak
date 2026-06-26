@@ -19,7 +19,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.oas import fetcher
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.utils import generate_unique_identification
 
 from openzaak.components.catalogi.tests.factories import (
@@ -29,6 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import ClearCachesMixin, JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
 from ..api.viewsets import ZaakViewSet
