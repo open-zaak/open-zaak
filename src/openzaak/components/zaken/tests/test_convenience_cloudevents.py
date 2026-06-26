@@ -17,7 +17,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin, reverse
+from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -34,6 +34,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 from ...documenten.tests.utils import get_informatieobjecttype_response
 from ..api.cloudevents import (
@@ -374,7 +375,7 @@ class ZaakConvenienceCloudEventTest(
 
     def test_zaak_opschorten_cloudevent(self, mock_send_cloudevent):
         url = reverse(
-            "zaakopschorten",
+            "zaken:zaakopschorten",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -449,7 +450,7 @@ class ZaakConvenienceCloudEventTest(
 
     def test_zaak_bijwerken_cloudevent(self, mock_send_cloudevent):
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -531,7 +532,7 @@ class ZaakConvenienceCloudEventTest(
 
     def test_zaak_verlengen_cloudevent(self, mock_send_cloudevent):
         url = reverse(
-            "zaakverlengen",
+            "zaken:zaakverlengen",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -604,7 +605,7 @@ class ZaakConvenienceCloudEventTest(
         )
 
     def test_zaak_afsluiten_cloudevent(self, mock_send_cloudevent):
-        url = reverse("zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
+        url = reverse("zaken:zaakafsluiten", kwargs={"uuid": self.zaak.uuid})
 
         data = {
             "zaak": {"toelichting": "toelichting"},
@@ -677,7 +678,7 @@ class ZaakConvenienceCloudEventTest(
 
     def test_cloudevent_not_send(self, mock_send_cloudevent):
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -760,7 +761,7 @@ class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
             )
 
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": zaak.uuid,
             },
