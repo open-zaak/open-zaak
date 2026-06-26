@@ -7,13 +7,14 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory
@@ -122,10 +123,10 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         # get ZaakBesluit created via signals
         zaakbesluit = ZaakBesluit.objects.get()
         zaakbesluit_url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
         )
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.get(url)
 
@@ -136,7 +137,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
                 {
                     "url": f"http://testserver{zaakbesluit_url}",
                     "uuid": str(zaakbesluit.uuid),
-                    "besluit": f"http://testserver{reverse(besluit)}",
+                    "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
                 }
             ],
         )
@@ -148,7 +149,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         # get ZaakBesluit created via signals
         zaakbesluit = ZaakBesluit.objects.get()
         url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
         )
 
@@ -160,7 +161,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
             {
                 "url": f"http://testserver{url}",
                 "uuid": str(zaakbesluit.uuid),
-                "besluit": f"http://testserver{reverse(besluit)}",
+                "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
             },
         )
 
@@ -171,7 +172,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         self.assertEqual(ZaakBesluit.objects.count(), 1)
 
         besluit_url = reverse(besluit)
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(url, {"besluit": f"http://testserver{besluit_url}"})
 
@@ -182,7 +183,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(for_zaak=True)
         zaakbesluit = ZaakBesluit.objects.get()
         url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
         )
         besluit.zaak = None
@@ -198,7 +199,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         BesluitFactory.create(for_zaak=True)
         zaakbesluit = ZaakBesluit.objects.get()
         url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
         )
 
@@ -213,7 +214,7 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaakbesluit = ZaakBesluit.objects.create(zaak=zaak, besluit=besluit)
         url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": zaakbesluit.zaak.uuid, "uuid": zaakbesluit.uuid},
         )
 
@@ -241,7 +242,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
     def test_create(self):
         zaak = ZaakFactory.create()
         zaak_url = f"http://testserver{reverse(zaak)}"
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             mock_brc_oas_get(m)
@@ -274,7 +275,7 @@ class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
 
             zaakbesluit = ZaakBesluit.objects.create(zaak=zaak, besluit=self.besluit)
             url = reverse(
-                "zaakbesluit-detail",
+                "zaken:zaakbesluit-detail",
                 kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
             )
 
@@ -301,7 +302,7 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_zaakbesluit_list_jwt_expired(self):
         zaak = ZaakFactory.create()
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.get(url)
 
@@ -314,7 +315,7 @@ class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(for_zaak=True)
         zaakbesluit = besluit.zaak.zaakbesluit_set.first()
         url = reverse(
-            "zaakbesluit-detail",
+            "zaken:zaakbesluit-detail",
             kwargs={"zaak_uuid": besluit.zaak.uuid, "uuid": zaakbesluit.uuid},
         )
 

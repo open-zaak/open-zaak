@@ -12,9 +12,10 @@ from vng_api_common.constants import (
     RolTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ...catalogi.tests.factories import ResultaatTypeFactory, StatusTypeFactory
 from ..models import Resultaat, Rol, Status, Zaak, ZaakInformatieObject, ZaakObject
@@ -224,7 +225,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_startdatum(self):
         ZaakFactory.create(startdatum="2019-01-01")
         ZaakFactory.create(startdatum="2019-03-01")
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response_gt = self.client.get(
             url, {"startdatum__gt": "2019-02-01"}, **ZAAK_READ_KWARGS
@@ -252,7 +253,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         ZaakFactory.create(startdatum="2019-01-01")
         ZaakFactory.create(startdatum="2019-03-01")
         ZaakFactory.create(startdatum="2019-02-01")
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, {"ordering": "-startdatum"}, **ZAAK_READ_KWARGS)
 
@@ -298,7 +299,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
     ):
         ZaakFactory.create(startdatum="2019-01-01")
         ZaakFactory.create(startdatum="2019-03-01")
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(
             url,
@@ -318,7 +319,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
     ):
         ZaakFactory.create(startdatum="2019-01-01")
         ZaakFactory.create(startdatum="2019-03-01")
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(
             url,
@@ -365,7 +366,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
         zaak_c = ZaakFactory.create()
 
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         response = self.client.get(
             url,
             {"status__statustype": f"http://openzaak.nl{reverse(statustype_target)}"},
@@ -392,7 +393,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
         statustype = StatusTypeFactory.create()
 
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(
             url,
@@ -422,7 +423,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
         zaak_c = ZaakFactory.create()
 
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         response = self.client.get(
             url,
             {"resultaat__resultaattype": f"http://openzaak.nl{reverse(rt_target)}"},
@@ -440,7 +441,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_status_statustype_invalid_url(self):
         response = self.client.get(
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             {"status__statustype": "not-a-valid-url"},
             **ZAAK_READ_KWARGS,
         )
@@ -454,7 +455,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         invalid_resultaattype_url = "http://openzaak.nl/api/v1/resultaattypen/99999999-aaaa-bbbb-cccc-deadbeefdead/"
 
         response = self.client.get(
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             {"resultaat__resultaattype": invalid_resultaattype_url},
             **ZAAK_READ_KWARGS,
         )
@@ -476,7 +477,7 @@ class ZaakFilterTests(JWTAuthMixin, APITestCase):
         )
 
         response = self.client.get(
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             {"status__statustype": invalid_url},
             headers={"host": "openzaak.nl"},
             **ZAAK_READ_KWARGS,
