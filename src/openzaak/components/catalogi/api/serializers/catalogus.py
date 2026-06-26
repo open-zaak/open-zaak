@@ -24,7 +24,7 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=True,
         source="besluittype_set",
-        view_name="catalogi:besluittype-detail",  # TODO
+        view_name="catalogi:besluittype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden ontsloten."
