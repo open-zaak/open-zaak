@@ -190,7 +190,6 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
         ),
     )
 
-    # TODO where is LenghtHyperLinkedRelatedField coming from?
     besluit = NamespacedLengthHyperlinkedRelatedField(
         view_name="besluiten:besluit-detail",
         lookup_field="uuid",

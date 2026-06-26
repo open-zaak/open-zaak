@@ -8,7 +8,7 @@ from glom import glom
 from notifications_api_common.kanalen import Kanaal as _Kanaal
 from rest_framework.request import Request
 
-from openzaak.tests.utils.urls import reverse  # TODO move out of tests?
+from openzaak.tests.utils.urls import reverse
 
 
 class Kanaal(_Kanaal):

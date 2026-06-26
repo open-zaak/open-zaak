@@ -753,7 +753,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         zaak = Zaak.objects.get()
         audittrails_url = reverse(
-            "zaken:zaak-audittrail-list", kwargs={"zaak_uuid": zaak.uuid}
+            "zaken:audittrail-list", kwargs={"zaak_uuid": zaak.uuid}
         )
 
         response_audittrails = self.client.get(audittrails_url)
@@ -848,7 +848,7 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
         AuditTrail.objects.create(hoofd_object=url, resource="Zaak", resultaat=200)
 
         audit_url = reverse(
-            "zaken:zaak-audittrail-list",
+            "zaken:audittrail-list",
             kwargs={"zaak_uuid": zaak.uuid},
         )
 
@@ -868,7 +868,7 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
         )
 
         audit_url = reverse(
-            "zaken:zaak-audittrail-detail",
+            "zaken:audittrail-detail",
             kwargs={"zaak_uuid": zaak.uuid, "uuid": audittrail.uuid},
         )
 

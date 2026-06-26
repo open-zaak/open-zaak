@@ -68,3 +68,56 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
                 "documenten/api/v1/enkelvoudiginformatieobjecten",
                 response.data["informatieobject"],
             )
+
+    def test_deprecated_paths(self):
+        self.assertEqual(
+            reverse("besluiten:besluit-list"), "/besluiten/api/v1/besluiten"
+        )
+        self.assertEqual(
+            reverse("besluiten:besluit-detail", kwargs={"uuid": 1}),
+            "/besluiten/api/v1/besluiten/1",
+        )
+        self.assertEqual(
+            reverse("besluiten:besluitinformatieobject-list"),
+            "/besluiten/api/v1/besluitinformatieobjecten",
+        )
+        self.assertEqual(
+            reverse("besluiten:besluitinformatieobject-detail", kwargs={"uuid": 1}),
+            "/besluiten/api/v1/besluitinformatieobjecten/1",
+        )
+        self.assertEqual(
+            reverse("besluiten:verwerkbesluit-list"),
+            "/besluiten/api/v1/besluit_verwerken",
+        )
+        self.assertEqual(
+            reverse("besluiten:audittrail-list", kwargs={"besluit_uuid": 1}),
+            "/besluiten/api/v1/besluiten/1/audittrail",
+        )
+
+    def test_new_paths(self):
+        self.assertEqual(reverse("zaken:besluit-list"), "/zaken/api/v1/besluiten")
+        self.assertEqual(
+            reverse("zaken:besluit-detail", kwargs={"uuid": 1}),
+            "/zaken/api/v1/besluiten/1",
+        )
+        self.assertEqual(
+            reverse("zaken:besluitinformatieobject-list"),
+            "/zaken/api/v1/besluitinformatieobjecten",
+        )
+        self.assertEqual(
+            reverse("zaken:besluitinformatieobject-detail", kwargs={"uuid": 1}),
+            "/zaken/api/v1/besluitinformatieobjecten/1",
+        )
+        self.assertEqual(
+            reverse("zaken:verwerkbesluit-list"), "/zaken/api/v1/besluit_verwerken"
+        )
+
+        # audittrails
+        self.assertEqual(
+            reverse("zaken:audittrail-list", kwargs={"besluit_uuid": 1}),
+            "/zaken/api/v1/besluiten/1/audittrail",
+        )
+        self.assertEqual(
+            reverse("zaken:audittrail-list", kwargs={"zaak_uuid": 1}),
+            "/zaken/api/v1/zaken/1/audittrail",
+        )
