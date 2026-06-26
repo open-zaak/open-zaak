@@ -8,9 +8,6 @@ from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
-from vng_api_common.serializers import (
-    CachedNestedHyperlinkedRelatedField,
-)
 from vng_api_common.validators import URLValidator
 
 
@@ -102,7 +99,8 @@ class ViewNameInjectionMixin:
     """
 
     def __init__(self, *args, view_name: str | None = None, **kwargs):
-        self.view_name = view_name  # TODO is this safe?
+        # TODO FKOrServiceUrlField seems to work when changing this to a safer property but breaks OnlyRemoteOrFKOrURLField
+        self.view_name = view_name
         super().__init__(*args, **kwargs)
 
     @cached_property
@@ -146,6 +144,11 @@ MOVED_MODELS = ["besluit", "besluitinformatieobject"]
 
 
 class NamespaceMixin:
+    """
+    Mixin to use the current namespace for the response so
+    that the deprecated apis still return their original urls.
+    """
+
     def get_url(
         self, obj: Model, view_name: str, request: Request, format: str | None
     ) -> str | None:
@@ -159,12 +162,6 @@ class NamespaceMixin:
         return super().get_url(obj, view_name, request, format)
 
 
-class NamespacedCachedNestedHyperlinkedRelatedField(
-    NamespaceMixin, CachedNestedHyperlinkedRelatedField
-):
-    pass
-
-
 class NamespacedHyperlinkIdentityField(
     NamespaceMixin, serializers.HyperlinkedIdentityField
 ):
@@ -172,6 +169,6 @@ class NamespacedHyperlinkIdentityField(
 
 
 class NamespacedLengthHyperlinkedRelatedField(
-    NamespaceMixin, LengthHyperlinkedRelatedField
+    NamespaceMixin, serializers.HyperlinkedRelatedField
 ):
     pass

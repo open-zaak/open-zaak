@@ -182,9 +182,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         oio_url = reverse(
             "documenten:objectinformatieobject-detail", kwargs={"uuid": oio.uuid}
         )
-        besluit_url = reverse(
-            besluit, namespace="zaken"
-        )  # TODO see oio serializer comment
+        besluit_url = reverse(besluit, namespace="zaken")
 
         response = self.client.get(oio_url)
 
