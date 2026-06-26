@@ -65,7 +65,7 @@ def build_fake_request(*, method="get", **kwargs) -> HttpRequest:
 
 
 def get_loose_fk_object_url(instance, request):
-    from vng_api_common.tests import reverse
+    from openzaak.tests.utils.urls import reverse
 
     if isinstance(instance, ProxyMixin):
         return instance._loose_fk_data["url"]

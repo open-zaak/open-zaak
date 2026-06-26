@@ -29,7 +29,6 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -50,6 +49,7 @@ from openzaak.components.zaken.tests.factories import StatusFactory
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 from ..models import Zaak
 from .factories import (
@@ -517,7 +517,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "zaakopschorten",
+            "zaken:zaakopschorten",
             kwargs={
                 "uuid": zaak.uuid,
             },
@@ -605,7 +605,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             verantwoordelijke_organisatie=517439943,
         )
 
-        url = reverse("zaakafsluiten", kwargs={"uuid": zaak.uuid})
+        url = reverse("zaken:zaakafsluiten", kwargs={"uuid": zaak.uuid})
 
         data = {
             "zaak": {"toelichting": "toelichting"},
@@ -708,7 +708,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": zaak.uuid,
             },
@@ -838,7 +838,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": zaak.uuid,
             },
@@ -989,7 +989,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "zaakverlengen",
+            "zaken:zaakverlengen",
             kwargs={
                 "uuid": zaak.uuid,
             },
@@ -1641,7 +1641,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
     def test_zaakbesluit_create_fail_send_notification_create_db_entry(self, m):
         besluit = BesluitFactory.create(for_zaak=True)
         besluit_url = reverse(besluit)
-        url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
+        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
 
         mock_notification_send(m, status_code=403)
 

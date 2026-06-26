@@ -17,7 +17,7 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -46,6 +46,7 @@ from openzaak.components.zaken.models import (
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 
 @temp_private_root()
@@ -55,7 +56,7 @@ from openzaak.tests.utils import JWTAuthMixin
     OPENZAAK_DOMAIN="testserver", LINK_FETCHER="vng_api_common.mocks.link_fetcher_200"
 )
 class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registreerzaak-list")
+    url = reverse_lazy("zaken:registreerzaak-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -221,7 +222,7 @@ class ZaakRegistrerenAuthTests(JWTAuthMixin, APITestCase):
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class ZaakRegistrerenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("registreerzaak-list")
+    url = reverse_lazy("zaken:registreerzaak-list")
     heeft_alle_autorisaties = True
 
     def setUp(self):

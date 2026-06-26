@@ -6,13 +6,12 @@ from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase, override_settings, tag
 
-from vng_api_common.tests import reverse
-
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
+from openzaak.tests.utils.urls import reverse
 from openzaak.utils.cloudevents import reset_scheduled_event_registry
 
 from ...api.cloudevents import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN

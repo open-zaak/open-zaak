@@ -6,9 +6,9 @@ from rest_framework.test import APITestCase
 from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import reverse
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..metrics import zaken_create_counter, zaken_delete_counter, zaken_update_counter
 from .factories import ZaakFactory, ZaakTypeFactory
@@ -25,7 +25,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
         self.client.post(
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             {
                 "zaaktype": f"http://testserver{zaaktype_url}",
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -43,7 +43,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         self.client.patch(
             reverse(
-                "zaak-detail",
+                "zaken:zaak-detail",
                 kwargs={"uuid": str(zaak.uuid)},
             ),
             {},
@@ -56,7 +56,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         self.client.delete(
             reverse(
-                "zaak-detail",
+                "zaken:zaak-detail",
                 kwargs={"uuid": str(zaak.uuid)},
             ),
             {},
