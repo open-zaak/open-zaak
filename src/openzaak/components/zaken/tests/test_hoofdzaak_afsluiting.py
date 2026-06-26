@@ -16,7 +16,7 @@ from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
 )
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -38,12 +38,13 @@ from openzaak.components.zaken.tests.utils import (
     utcdatetime,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 
 @freeze_time("2025-04-04")
 class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    status_list_url = reverse_lazy("status-list")
+    status_list_url = reverse_lazy("zaken:status-list")
 
     @classmethod
     def setUpClass(cls):
@@ -144,7 +145,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         )
         ResultaatFactory.create(zaak=self.zaak, resultaattype=self.int_resultaattype)
 
-        self.zaak_url = reverse("zaak-detail", kwargs={"uuid": self.zaak.uuid})
+        self.zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": self.zaak.uuid})
 
         # Clear singleton model caches to keep query count
         # the same between running whole test class & tests separately.
@@ -163,7 +164,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             ),
         )
 
-        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+        deelzaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid})
 
         with self.subTest("close deelzaak"):
             response = self.client.post(
@@ -507,7 +508,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.status_list_url,
                 {
-                    "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                    "zaak": reverse(
+                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
+                    ),
                     "statustype": f"http://testserver{self.int_statustype1_url}",
                     "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
                 },
@@ -524,7 +527,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.status_list_url,
                 {
-                    "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                    "zaak": reverse(
+                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
+                    ),
                     "statustype": f"http://testserver{self.int_statustype1_url}",
                     "datumStatusGezet": utcdatetime(2024, 4, 7).isoformat(),
                 },
@@ -549,7 +554,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.status_list_url,
                 {
-                    "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                    "zaak": reverse(
+                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
+                    ),
                     "statustype": self.ext_statustype1,
                     "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
                 },
@@ -566,7 +573,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 self.status_list_url,
                 {
-                    "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                    "zaak": reverse(
+                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
+                    ),
                     "statustype": self.ext_statustype1,
                     "datumStatusGezet": utcdatetime(2024, 4, 7).isoformat(),
                 },
@@ -753,7 +762,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             self.status_list_url,
             {
-                "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                "zaak": reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}),
                 "statustype": f"http://testserver{self.int_statustype2_url}",
                 "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
             },
@@ -764,7 +773,9 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         response = self.client.post(
             self.status_list_url,
             {
-                "zaak": reverse("zaak-detail", kwargs={"uuid": ext_deelzaak.uuid}),
+                "zaak": reverse(
+                    "zaken:zaak-detail", kwargs={"uuid": ext_deelzaak.uuid}
+                ),
                 "statustype": self.ext_statustype2,
                 "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
             },
@@ -916,7 +927,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_change_deelzaak_status_without_resultaat(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
 
-        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+        deelzaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid})
 
         with self.subTest("change deelzaak status"):
             response = self.client.post(
@@ -939,7 +950,7 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
     def test_reopen_deelzaak_status_without_resultaat(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
 
-        deelzaak_url = reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid})
+        deelzaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid})
 
         StatusFactory.create(
             zaak=deelzaak,

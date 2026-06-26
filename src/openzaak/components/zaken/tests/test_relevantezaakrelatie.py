@@ -6,12 +6,13 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_zrc_oas_get
+from openzaak.tests.utils.urls import reverse, reverse_lazy
 
 from ..constants import AardZaakRelatie
 from ..models import Zaak

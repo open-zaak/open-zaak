@@ -17,7 +17,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     RolTypes,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -34,6 +34,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
+from openzaak.tests.utils.urls import reverse
 
 from ..models import ZaakInformatieObject
 from .factories import (
@@ -185,7 +186,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def test_statustype_valid_resource(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -205,7 +206,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         )
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -226,7 +227,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         with requests_mock.Mocker() as m:
             m.get("https://example.com/", status_code=200, text="<html></html>")
@@ -248,7 +249,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def test_statustype_zaaktype_mismatch(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -268,7 +269,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def test_status_datum_status_gezet_cannot_be_in_future(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -289,7 +290,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
     def test_status_datum_status_gezet_cannot_be_in_future_with_leeway(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -314,7 +315,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             zaaktype=self.zaaktype,
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -342,7 +343,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
             zaaktype=self.zaaktype,
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -363,7 +364,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         timestamp = make_aware(datetime(2021, 8, 30, 10, 0, 0))
         StatusFactory.create(zaak=zaak, datum_status_gezet=timestamp)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -380,7 +381,7 @@ class StatusValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(
             archiefstatus=Archiefstatus.gearchiveerd, zaaktype=self.zaaktype
         )
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
 
         response = self.client.post(
             url,
@@ -420,8 +421,8 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
             api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
         )
         zaak = ZaakFactory.create()
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        list_url = reverse("resultaat-list")
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("zaken:resultaat-list")
 
         response = self.client.post(
             list_url,
@@ -440,8 +441,8 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
     def test_resultaattype_invalid_resource(self):
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         zaak = ZaakFactory.create()
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        list_url = reverse("resultaat-list")
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("zaken:resultaat-list")
 
         with requests_mock.Mocker() as m:
             m.get("https://example.com/", status_code=200, text="<html></html>")
@@ -457,11 +458,11 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
 
     def test_resultaattype_incorrect_zaaktype(self):
         zaak = ZaakFactory.create()
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
         resultaattype = ResultaatTypeFactory.create()
         resultaattype_url = reverse(resultaattype)
 
-        list_url = reverse("resultaat-list")
+        list_url = reverse("zaken:resultaat-list")
 
         response = self.client.post(
             list_url,
@@ -480,7 +481,7 @@ class ResultaatValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
         resultaattype = ResultaatTypeFactory.create(zaaktype=zaak.zaaktype)
 
-        url = reverse("resultaat-list")
+        url = reverse("zaken:resultaat-list")
 
         response = self.client.post(
             url,
@@ -502,8 +503,8 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-07-22T12:00:00")
     def test_klantcontact_datumtijd_not_in_future(self):
         zaak = ZaakFactory.create()
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        list_url = reverse("klantcontact-list")
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("zaken:klantcontact-list")
 
         response = self.client.post(
             list_url,
@@ -519,8 +520,8 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
     @override_settings(TIME_LEEWAY=5)
     def test_klantcontact_datumtijd_not_in_future_with_leeway(self):
         zaak = ZaakFactory.create()
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
-        list_url = reverse("klantcontact-list")
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
+        list_url = reverse("zaken:klantcontact-list")
 
         response = self.client.post(
             list_url,
@@ -530,7 +531,7 @@ class KlantContactValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_klantcontact_invalid_zaak(self):
-        list_url = reverse("klantcontact-list")
+        list_url = reverse("zaken:klantcontact-list")
 
         response = self.client.post(
             list_url,
@@ -555,7 +556,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         zaak_url = reverse(zaak)
         eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
         eigenschap_url = reverse(eigenschap)
-        list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+        list_url = reverse("zaken:zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(
             list_url,
@@ -573,7 +574,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+        list_url = reverse("zaken:zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(
             list_url, {"zaak": zaak_url, "eigenschap": "bla", "waarde": "test"}
@@ -590,7 +591,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
-        list_url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+        list_url = reverse("zaken:zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/", status_code=200, text="<html></html>")
@@ -613,7 +614,7 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
         eigenschap = EigenschapFactory.create(zaaktype=zaak.zaaktype)
 
-        url = reverse("zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
+        url = reverse("zaken:zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
         response = self.client.post(
             url,
@@ -637,7 +638,7 @@ class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
     def test_create_zaakobject(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("zaakobject-list")
+        list_url = reverse("zaken:zaakobject-list")
         m.get(
             "http://some-api.com/objecten/1234",
             json={"url": "http://some-api.com/objecten/1234"},
@@ -658,7 +659,7 @@ class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
     def test_create_zaakobject_invalid_url(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("zaakobject-list")
+        list_url = reverse("zaken:zaakobject-list")
         response = self.client.post(
             list_url,
             {
@@ -680,7 +681,7 @@ class ZaakObjectValidationTests(JWTAuthMixin, APITestCase):
             "http://some-api.com/objecten/1234",
             json={"url": "http://some-api.com/objecten/1234"},
         )
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
 
         response = self.client.post(
             url,
@@ -704,7 +705,7 @@ class RolValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
         roltype = RolTypeFactory.create(zaaktype=zaak.zaaktype)
 
-        url = reverse("rol-list")
+        url = reverse("zaken:rol-list")
 
         response = self.client.post(
             url,
@@ -731,7 +732,7 @@ class ZaakContactMomentValidationTests(JWTAuthMixin, APITestCase):
     def test_zaak_is_archived(self, *mocks):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
         contactmoment = "https://contactmomenten.nl/api/v1/contactmomenten/1234"
-        url = reverse("zaakcontactmoment-list")
+        url = reverse("zaken:zaakcontactmoment-list")
 
         with requests_mock.Mocker() as m:
             m.get(contactmoment, json={"url": contactmoment})
@@ -758,7 +759,7 @@ class ZaakVerzoekValidationTests(JWTAuthMixin, APITestCase):
     def test_zaak_is_archived(self, *mocks):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)
         verzoek = "https://verzoeken.nl/api/v1/verzoeken/1234"
-        url = reverse("zaakverzoek-list")
+        url = reverse("zaken:zaakverzoek-list")
 
         with requests_mock.Mocker() as m:
             m.get(verzoek, json={"url": verzoek})

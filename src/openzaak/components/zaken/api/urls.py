@@ -49,7 +49,7 @@ router.register(
     ZaakViewSet,
     [
         routers.Nested("zaakeigenschappen", ZaakEigenschapViewSet),
-        routers.Nested("audittrail", ZaakAuditTrailViewSet),
+        routers.Nested("audittrail", ZaakAuditTrailViewSet, basename="zaak-audittrail"),
         routers.Nested("besluiten", ZaakBesluitViewSet),
     ],
 )
@@ -67,7 +67,11 @@ router.register("zaaknotities", ZaakNotitieViewSet)
 router.register(
     "besluiten",
     BesluitViewSet,
-    [routers.Nested("audittrail", BesluitAuditTrailViewSet)],
+    [
+        routers.Nested(
+            "audittrail", BesluitAuditTrailViewSet, basename="besluit-audittrail"
+        )
+    ],
 )
 router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
 router.register("besluit_verwerken", BesluitVerwerkenViewSet, basename="verwerkbesluit")

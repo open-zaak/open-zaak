@@ -12,7 +12,7 @@ from .utils import ZAAK_READ_KWARGS
 
 class ZaakPaginationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy("zaak-list")
+    list_url = reverse_lazy("zaken:zaak-list")
 
     def test_pagination_default(self):
         ZaakFactory.create_batch(2)

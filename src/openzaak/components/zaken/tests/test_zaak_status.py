@@ -4,9 +4,9 @@ from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from .factories import StatusFactory, ZaakFactory
 from .utils import ZAAK_READ_KWARGS

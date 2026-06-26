@@ -1611,14 +1611,14 @@ class ZaakBesluitViewSet(
 
     def get_audittrail_main_object_url(self, data, main_resource) -> str:
         return reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             request=self.request,
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )
 
     def get_notification_main_object_url(self, data, kanaal):
         return reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             request=self.request,
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )

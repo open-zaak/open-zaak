@@ -19,7 +19,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
@@ -44,6 +44,7 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 
 @tag("convenience-endpoints")
@@ -112,7 +113,7 @@ class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
         )
 
         self.url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },
@@ -295,7 +296,7 @@ class ZaakBijwerkenValidationTests(JWTAuthMixin, APITestCase):
         }
 
         self.url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": self.zaak.uuid,
             },

@@ -5,9 +5,10 @@ from urllib.parse import urlencode
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse, reverse_lazy
+from vng_api_common.tests import reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from .factories import ZaakFactory, ZaakKenmerkFactory
 from .utils import ZAAK_WRITE_KWARGS
@@ -15,7 +16,7 @@ from .utils import ZAAK_WRITE_KWARGS
 
 class ZaakFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    url = reverse_lazy("zaak-list")
+    url = reverse_lazy("zaken:zaak-list")
 
     def test_filter_bronorganisatie_in(self):
         zaak = ZaakFactory.create(bronorganisatie="517439943")

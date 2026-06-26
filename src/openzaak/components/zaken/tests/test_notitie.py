@@ -8,9 +8,10 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.notes.constants import NotitieStatus, NotitieType
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..models import ZaakNotitie
 from .factories import ZaakFactory, ZaakNotitieFactory
@@ -23,7 +24,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
     def test_list(self):
         self.assertEqual(ZaakNotitie.objects.count(), 0)
 
-        list_url = reverse("zaaknotitie-list")
+        list_url = reverse("zaken:zaaknotitie-list")
         response = self.client.get(list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["results"], [])
@@ -54,12 +55,12 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
 
     @freeze_time("2025-01-01")
     def test_detail(self):
-        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": "123456"})
+        detail_url = reverse("zaken:zaaknotitie-detail", kwargs={"uuid": "123456"})
         response = self.client.get(detail_url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         notitie = ZaakNotitieFactory.create()
-        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
+        detail_url = reverse("zaken:zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
         response = self.client.get(detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
@@ -84,7 +85,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
     @freeze_time("2025-01-01")
     def test_create(self):
         self.assertEqual(ZaakNotitie.objects.count(), 0)
-        list_url = reverse("zaaknotitie-list")
+        list_url = reverse("zaken:zaaknotitie-list")
         zaak = ZaakFactory.create()
         data = {
             "onderwerp": "Test onderwerp",
@@ -107,7 +108,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             onderwerp="Old Value",
             status=NotitieStatus.CONCEPT,
         )
-        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
+        detail_url = reverse("zaken:zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
         data = {
             "onderwerp": "New Value",
             "tekst": notitie.tekst,
@@ -142,7 +143,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             onderwerp="Old Value",
             status=NotitieStatus.CONCEPT,
         )
-        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
+        detail_url = reverse("zaken:zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
 
         data = {"onderwerp": "New Value"}
         response = self.client.patch(detail_url, data)
@@ -154,7 +155,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
     def test_delete(self):
         notitie = ZaakNotitieFactory.create(onderwerp="Old Value")
         self.assertEqual(ZaakNotitie.objects.count(), 1)
-        detail_url = reverse("zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
+        detail_url = reverse("zaken:zaaknotitie-detail", kwargs={"uuid": notitie.uuid})
         response = self.client.delete(detail_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ZaakNotitie.objects.count(), 0)
@@ -175,7 +176,7 @@ class ZaakNotitieTestCase(JWTAuthMixin, APITestCase):
             status=NotitieStatus.DEFINITIEF.value,
             notitie_type=NotitieType.INTERN.value,
         )
-        list_url = reverse("zaaknotitie-list")
+        list_url = reverse("zaken:zaaknotitie-list")
 
         with self.subTest("filter_status"):
             response = self.client.get(

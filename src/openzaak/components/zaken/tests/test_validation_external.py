@@ -9,7 +9,7 @@ from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -19,6 +19,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response
+from openzaak.tests.utils.urls import reverse
 
 from .factories import ResultaatFactory, ZaakFactory, ZaakInformatieObjectFactory
 from .utils import isodatetime
@@ -71,7 +72,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             zaaktype=self.zaaktype,
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -100,7 +101,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             zaaktype=self.zaaktype,
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,
@@ -132,7 +133,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             zaaktype=self.zaaktype,
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
-        list_url = reverse("status-list")
+        list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             list_url,

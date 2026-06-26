@@ -8,7 +8,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -17,6 +17,7 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from .factories import ZaakFactory
@@ -41,7 +42,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_bad_url(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         self.requests_mocker.get("https://example.com/zrc/zaken/1234", status_code=404)
 
@@ -65,7 +66,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_zaaktype_invalid_resource(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         self.requests_mocker.get(
             "https://example.com/", status_code=200, text="<html></html>"
@@ -90,7 +91,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["name"], "zaaktype")
 
     def test_validate_zaaktype_valid(self, *mocks):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -110,7 +111,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     def test_validate_zaaktype_unpublished(self):
         zaaktype = ZaakTypeFactory.create()
         zaaktype_url = reverse(zaaktype)
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -130,7 +131,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], "not-published")
 
     def test_validation_camelcase(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(url, {}, **ZAAK_WRITE_KWARGS)
 
@@ -150,7 +151,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.requests_mocker.get(
             communicatiekanaal_url, status_code=200, json={"something": "wrong"}
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         body = {"communicatiekanaal": communicatiekanaal_url}
 
         response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
@@ -161,7 +162,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_404")
     def test_validate_communicatiekanaal_bad_url(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         body = {"communicatiekanaal": "https://someurlthatdoesntexist.com"}
 
         response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
@@ -173,7 +174,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     def test_validate_communicatiekanaal_valid(self):
         mock_selectielijst_oas_get(self.requests_mocker)
         self.requests_mocker.get("https://example.com/dummy", json={"dummy": "json"})
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         body = {"communicatiekanaal": "https://example.com/dummy"}
 
         with patch("openzaak.utils.validators.obj_has_shape", return_value=True):
@@ -185,7 +186,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_relevante_andere_zaken_invalid(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         self.requests_mocker.get("https://example.com/andereZaak", status_code=404)
 
@@ -213,7 +214,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(validation_error["code"], "bad-url")
 
     def test_relevante_andere_zaken_valid_zaak_resource(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         zaak_body = {
             "zaaktype": f"http://testserver{self.zaaktype_url}",
@@ -248,7 +249,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         Assert that the field laatsteBetaaldatum may not be set for the NVT
         indication.
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         # all valid values
         for value in BetalingsIndicatie.values:
@@ -295,7 +296,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @freeze_time("2019-07-22T12:00:00")
     def test_laatste_betaaldatum_cannot_be_in_future(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -320,7 +321,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     @freeze_time("2019-07-22T12:00:00")
     @override_settings(TIME_LEEWAY=5)
     def test_laatste_betaaldatum_cannot_be_in_future_with_leeway(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -340,7 +341,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_invalide_product_of_dienst(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -362,7 +363,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
 
     @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_404")
     def test_validate_selectielijstklasse_invalid_url(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -387,7 +388,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         self.requests_mocker.get(
             "https://ztc.com/resultaten/1234", json={"some": "incorrect property"}
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -411,7 +412,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     @patch("vng_api_common.oas.fetcher")
     @patch("vng_api_common.oas.obj_has_shape", return_value=True)
     def test_validate_opdrachtgevende_organisatie_invalid(self, *mocks):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -436,7 +437,7 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     @patch("vng_api_common.oas.fetcher")
     @patch("vng_api_common.oas.obj_has_shape", return_value=True)
     def test_validate_opdrachtgevende_organisatie_valid(self, *mocks):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -582,7 +583,7 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         """
         Deelzaak kan enkel deelzaak zijn van hoofdzaak en niet andere deelzaken.
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         hoofdzaak = ZaakFactory.create()
         deelzaak = ZaakFactory.create(hoofdzaak=hoofdzaak)
         deelzaak_url = reverse(deelzaak)
@@ -608,7 +609,7 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         # set up hoofdzaak
         hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
 
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -652,7 +653,7 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         )
         # set up hoofdzaak
         hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,

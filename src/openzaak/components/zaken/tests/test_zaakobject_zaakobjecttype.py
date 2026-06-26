@@ -6,10 +6,11 @@ import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils.urls import reverse
 
 from ..models import ZaakObject
 from .factories import ZaakFactory, ZaakObjectFactory
@@ -68,7 +69,7 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
     def test_create_zaakobject_with_zaakobjecttype(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()
         zaak = ZaakFactory.create(zaaktype=zaakobjecttype.zaaktype)
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -89,7 +90,7 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
     def test_create_zaakobject_zaakobjecttype_from_other_catalogus_fail(self):
         zaakobjecttype = ZaakObjectTypeFactory.create()
         zaak = ZaakFactory.create()
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -194,7 +195,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
     @requests_mock.Mocker()
     def test_create_with_zaakobjecttype_external(self, m):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -227,7 +228,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
 
     def test_create_with_zaakobjecttype_bad_url_fail(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -246,7 +247,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
     @requests_mock.Mocker()
     def test_create_with_zaakobjecttype_invalid_schema_fail(self, m):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -276,7 +277,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
     @requests_mock.Mocker()
     def test_create_with_zaakobjecttype_zaaktype_mismatch_fail(self, m):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,
@@ -309,7 +310,7 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
 
     def test_create_with_zaakobjecttype_unknown_service(self):
         zaak = ZaakFactory.create()
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         data = {
             "zaak": f"http://testserver{reverse(zaak)}",
             "object": OBJECT,

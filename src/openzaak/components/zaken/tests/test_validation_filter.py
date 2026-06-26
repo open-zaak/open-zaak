@@ -2,9 +2,10 @@
 # Copyright (C) 2023 Dimpact
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.urls import reverse
 
 from ..models import KlantContact, Resultaat, ZaakInformatieObject, ZaakObject
 from .factories import (
@@ -24,7 +25,7 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaak_invalid_filters(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         invalid_filters = {"zaaktype": "123", "bronorganisatie": "123", "foo": "bar"}
 
@@ -34,7 +35,7 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_rol_invalid_filters(self):
-        url = reverse("rol-list")
+        url = reverse("zaken:rol-list")
 
         invalid_filters = {
             "zaak": "123",  # must be a url
@@ -50,7 +51,7 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_status_invalid_filters(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
 
         invalid_filters = {
             "zaak": "123",  # must be a url
