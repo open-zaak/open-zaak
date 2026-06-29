@@ -13,7 +13,7 @@ on:
 
 jobs:
   open-api-workflow-check-oas:
-    uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@v6
+    uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@0a5525c13f8eea10be40c8eaee5e535ea3a10721 # v6.4.1
 
     with:
       python-version: '3.12'
