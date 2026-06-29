@@ -89,7 +89,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl gettext postgresql-client libgdal-dev gdal-bin"
           python-version: "3.12"
@@ -149,7 +149,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
+        uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "libgdal-dev gdal-bin"
           python-version: "3.12"
@@ -160,7 +160,7 @@ jobs:
         run: |
           createdb -h localhost -U postgres openzaak
           pip install uv
-          uv pip install --system -r requirements/ci.txt
+          uv pip install -r requirements/ci.txt
           src/manage.py migrate
           SCRIPTPATH=bin UWSGI_PROCESSES=4 UWSGI_THREADS=4 bin/docker_start.sh &
           echo "yes" | src/manage.py generate_data --zaken=3500 --generate-superuser-credentials --generate-non-superuser-credentials --without-zaakgeometrie
@@ -182,7 +182,7 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSfL https://bencher.dev/download/install-cli.sh | sh
           pip install uv
           pkgs=$(cat requirements/performance-tests.in)
-          grep -E "^($(echo $pkgs | sed 's/ /|/g'))([=<>]|$)" requirements/ci.txt | xargs uv pip install --system
+          grep -E "^($(echo $pkgs | sed 's/ /|/g'))([=<>]|$)" requirements/ci.txt | xargs uv pip install
 
       - name: Run tests for main branch
         if: github.ref == 'refs/heads/main'
