@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: maykinmedia/setup-django-backend@a9abe0987130ed667fa09ce177a5ae0bd153aed1 # v1.3
+      - uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
           apt-packages: "libxml2 libxmlsec1 libxmlsec1-openssl"
           python-version: "3.12"
