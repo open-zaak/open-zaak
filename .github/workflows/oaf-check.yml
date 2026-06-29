@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   open-api-workflow-check-oas:
-    uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@79102b911003d75203ca2fed7df01ad79d9b6bba  # v6.4.0
+    uses: maykinmedia/open-api-workflows/.github/workflows/oaf-check.yml@0a5525c13f8eea10be40c8eaee5e535ea3a10721 # v6.4.1
 
     with:
       python-version: '3.12'
