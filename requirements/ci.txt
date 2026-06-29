@@ -622,7 +622,7 @@ maykin-2fa==1.0.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
-maykin-common==0.19.0
+maykin-common==0.19.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
