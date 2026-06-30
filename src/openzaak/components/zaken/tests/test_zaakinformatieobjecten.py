@@ -35,7 +35,7 @@ from openzaak.components.documenten.tests.utils import (
     get_oio_response,
 )
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..models import Zaak, ZaakInformatieObject
 from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory

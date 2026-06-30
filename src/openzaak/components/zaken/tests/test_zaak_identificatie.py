@@ -18,7 +18,7 @@ from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Zaak
 from .factories import ZaakFactory

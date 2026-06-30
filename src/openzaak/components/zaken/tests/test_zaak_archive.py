@@ -39,7 +39,7 @@ from openzaak.tests.utils import (
     mock_zrc_oas_get,
     mock_ztc_oas_get,
 )
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Overige
 from .factories import (

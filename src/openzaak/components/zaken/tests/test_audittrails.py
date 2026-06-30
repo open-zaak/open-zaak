@@ -32,7 +32,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Resultaat, Rol, Zaak, ZaakInformatieObject, ZaakObject
 from .factories import RolFactory, ZaakFactory, ZaakObjectFactory

@@ -10,7 +10,7 @@ from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .factories import ResultaatFactory, ZaakFactory
 from .utils import get_operation_url, get_resultaattype_response, get_zaaktype_response

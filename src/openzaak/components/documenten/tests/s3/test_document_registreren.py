@@ -21,8 +21,8 @@ from openzaak.components.zaken.tests.factories import (
     ZaakFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse
 
 from ...models import EnkelvoudigInformatieObject
 from ...storage import documenten_storage

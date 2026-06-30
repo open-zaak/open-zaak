@@ -11,7 +11,7 @@ from vng_api_common.tests import CacheMixin, JWTAuthMixin
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..caching import get_etag_cache_key, set_etag
 from ..models import ObjectInformatieObject

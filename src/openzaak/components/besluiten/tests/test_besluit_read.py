@@ -11,7 +11,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .factories import BesluitFactory
 from .utils import get_besluittype_response

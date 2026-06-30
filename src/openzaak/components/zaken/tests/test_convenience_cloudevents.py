@@ -34,7 +34,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ...documenten.tests.utils import get_informatieobjecttype_response
 from ..api.cloudevents import (

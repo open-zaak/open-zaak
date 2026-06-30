@@ -22,7 +22,7 @@ from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory

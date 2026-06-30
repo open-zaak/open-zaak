@@ -10,7 +10,7 @@ from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakObject
 from .factories import ZaakFactory, ZaakObjectFactory

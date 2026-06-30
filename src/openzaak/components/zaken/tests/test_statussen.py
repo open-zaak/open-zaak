@@ -17,7 +17,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Status
 from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory

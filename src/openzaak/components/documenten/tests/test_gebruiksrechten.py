@@ -12,7 +12,7 @@ from vng_api_common.tests import get_validation_errors, reverse_lazy
 from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import Gebruiksrechten

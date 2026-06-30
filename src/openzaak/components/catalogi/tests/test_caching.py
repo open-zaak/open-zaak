@@ -21,7 +21,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 
 class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):

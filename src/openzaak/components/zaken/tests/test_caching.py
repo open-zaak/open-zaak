@@ -11,7 +11,7 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import CacheMixin, JWTAuthMixin
 
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .factories import (
     ResultaatFactory,

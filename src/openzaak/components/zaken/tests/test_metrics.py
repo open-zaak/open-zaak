@@ -8,7 +8,7 @@ from vng_api_common.constants import (
 )
 
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..metrics import zaken_create_counter, zaken_delete_counter, zaken_update_counter
 from .factories import ZaakFactory, ZaakTypeFactory

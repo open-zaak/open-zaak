@@ -19,8 +19,8 @@ from vng_api_common.tests import (
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE

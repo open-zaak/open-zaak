@@ -17,7 +17,7 @@ from vng_api_common.tests import TypeCheckMixin
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .factories import RolFactory, ZaakFactory
 from .utils import get_operation_url

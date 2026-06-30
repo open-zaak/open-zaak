@@ -15,7 +15,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Zaak
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url, utcdatetime

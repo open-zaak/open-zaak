@@ -14,7 +14,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.besluiten.tests.utils import get_besluit_response
 from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakBesluit
 from .factories import ZaakFactory

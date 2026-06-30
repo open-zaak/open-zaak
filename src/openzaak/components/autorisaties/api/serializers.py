@@ -11,8 +11,8 @@ from vng_api_common.authorizations.serializers import (
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse
 
 logger = structlog.stdlib.get_logger(__name__)
 

@@ -24,7 +24,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_CATALOGI_FORCED_DELETE, SCOPE_CATALOGI_FORCED_WRITE
 from ..constants import (
