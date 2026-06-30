@@ -37,7 +37,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekinformatieobject_response,
 )
 from openzaak.tests.utils import mock_brc_oas_get, mock_vrc_oas_get, mock_zrc_oas_get
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject

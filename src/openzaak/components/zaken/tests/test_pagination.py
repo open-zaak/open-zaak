@@ -9,8 +9,8 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils.pagination import FuzzyPagination
+from openzaak.utils.urls import reverse
 
 from ..models import Zaak
 from .factories import ZaakFactory

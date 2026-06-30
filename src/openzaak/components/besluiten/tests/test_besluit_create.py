@@ -19,7 +19,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from ..models import Besluit

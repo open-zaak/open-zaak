@@ -13,7 +13,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import IndicatieMachtiging
 from ..models import (
