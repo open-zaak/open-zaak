@@ -28,9 +28,9 @@ from openzaak.import_data.models import (
     ImportTypeChoices,
 )
 from openzaak.import_data.tests.utils import ImportTestMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
+from openzaak.utils.urls import reverse
 
 from ....storage import documenten_storage
 from ..mixins import AzureBlobStorageMixin

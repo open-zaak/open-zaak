@@ -17,7 +17,7 @@ from openzaak.components.zaken.tests.test_cloud_events import (
     patch_send_cloud_event,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Besluit
 from .factories import BesluitFactory

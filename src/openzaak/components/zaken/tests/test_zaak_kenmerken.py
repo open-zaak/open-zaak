@@ -29,8 +29,8 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import parse_isodatetime
+from openzaak.utils.urls import reverse
 
 from ..models import Zaak
 from .factories import ZaakFactory

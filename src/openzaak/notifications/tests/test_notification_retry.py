@@ -20,7 +20,7 @@ from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS, get_operati
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from . import mock_notification_send, mock_nrc_oas_get
 

@@ -25,7 +25,7 @@ from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_ge
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ...zaken.tests.factories import StatusFactory, ZaakFactory
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory

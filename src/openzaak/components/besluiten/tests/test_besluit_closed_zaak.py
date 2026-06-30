@@ -23,7 +23,7 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 
 @freeze_time("2025-01-01T12:00:00")

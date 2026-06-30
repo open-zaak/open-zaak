@@ -19,7 +19,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import JWTAuthMixin, MockSchemasMixin
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory

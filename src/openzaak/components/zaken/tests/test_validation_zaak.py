@@ -17,7 +17,7 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from .factories import ZaakFactory

@@ -15,7 +15,7 @@ from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase

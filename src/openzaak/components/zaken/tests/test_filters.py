@@ -15,7 +15,7 @@ from vng_api_common.constants import (
 from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ...catalogi.tests.factories import ResultaatTypeFactory, StatusTypeFactory
 from ..models import Resultaat, Rol, Status, Zaak, ZaakInformatieObject, ZaakObject
