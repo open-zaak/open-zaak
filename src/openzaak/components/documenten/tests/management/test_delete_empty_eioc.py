@@ -20,7 +20,7 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from openzaak.tests.utils import JWTAuthMixin, TestMigrations
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ...models import EnkelvoudigInformatieObjectCanonical
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory

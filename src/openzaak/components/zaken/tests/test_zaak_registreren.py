@@ -46,7 +46,7 @@ from openzaak.components.zaken.models import (
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.components.zaken.tests.test_rol import BETROKKENE
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 
 @temp_private_root()

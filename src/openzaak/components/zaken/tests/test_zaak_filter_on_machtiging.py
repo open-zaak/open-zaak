@@ -12,7 +12,7 @@ from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory, ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..api.filters import MachtigingChoices
 from ..api.serializers.authentication_context import (

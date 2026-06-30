@@ -32,9 +32,9 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.tests.utils import ImportTestMixin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
+from openzaak.utils.urls import reverse
 
 from ..mixins import S3torageMixin, upload_to
 

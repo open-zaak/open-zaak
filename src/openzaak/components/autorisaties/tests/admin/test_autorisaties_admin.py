@@ -45,8 +45,8 @@ from openzaak.components.zaken.api.scopes import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse as _reverse
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse as _reverse
 
 from ...constants import RelatedTypeSelectionMethods
 from ...models import CatalogusAutorisatie

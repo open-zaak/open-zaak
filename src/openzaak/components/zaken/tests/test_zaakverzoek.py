@@ -12,7 +12,7 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.factories import ZaakFactory, ZaakVerzoekFactory
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 VERZOEKEN_BASE = "https://verzoeken.nl/api/v1/"
 VERZOEK = f"{VERZOEKEN_BASE}verzoeken/1234"

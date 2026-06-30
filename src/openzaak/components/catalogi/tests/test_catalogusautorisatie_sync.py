@@ -19,7 +19,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 
 @freeze_time("2024-01-01T12:00:00Z")

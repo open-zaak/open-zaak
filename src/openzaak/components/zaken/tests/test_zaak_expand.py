@@ -14,7 +14,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFactory
 from openzaak.tests.utils.auth import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import (

@@ -3,7 +3,7 @@
 from rest_framework import status
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import Catalogus
 from .base import APITestCase

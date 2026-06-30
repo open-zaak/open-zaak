@@ -29,7 +29,7 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN, SCOPE_AUTORISATIES_LEZEN
 from ..api.validators import UniqueClientIDValidator

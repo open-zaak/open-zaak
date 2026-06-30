@@ -20,7 +20,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaakbesluit_response,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from ..models import Besluit

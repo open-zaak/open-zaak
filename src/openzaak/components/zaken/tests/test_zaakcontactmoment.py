@@ -10,7 +10,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakContactMoment
 from .factories import ZaakContactMomentFactory, ZaakFactory

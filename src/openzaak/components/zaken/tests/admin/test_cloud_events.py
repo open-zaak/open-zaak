@@ -11,8 +11,8 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
 from openzaak.components.zaken.admin import StatusAdmin, ZaakAdmin
-from openzaak.tests.utils.urls import reverse
 from openzaak.utils.cloudevents import reset_scheduled_event_registry
+from openzaak.utils.urls import reverse
 
 from ...api.cloudevents import ZAAK_GEMUTEERD, ZAAK_VERWIJDEREN
 from ...models import Zaak
