@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from .factories import StatusFactory, ZaakFactory
 from .utils import ZAAK_READ_KWARGS

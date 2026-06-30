@@ -11,7 +11,7 @@ from vng_api_common.notes.constants import NotitieStatus, NotitieType
 from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakNotitie
 from .factories import ZaakFactory, ZaakNotitieFactory

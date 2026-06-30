@@ -34,7 +34,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, patch_resource_validator
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakInformatieObject
 from .factories import (

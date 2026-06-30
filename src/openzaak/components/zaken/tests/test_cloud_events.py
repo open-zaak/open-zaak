@@ -54,7 +54,7 @@ from openzaak.tests.utils import (
     mock_ztc_oas_get,
     patch_resource_validator,
 )
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,

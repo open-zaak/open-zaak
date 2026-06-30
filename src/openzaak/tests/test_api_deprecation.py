@@ -10,7 +10,7 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 
 class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):

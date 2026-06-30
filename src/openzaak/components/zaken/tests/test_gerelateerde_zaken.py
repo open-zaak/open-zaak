@@ -12,7 +12,7 @@ from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_zrc_oas_get
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..models import Zaak, ZaakRelatie
 from .factories import ZaakFactory, ZaakRelatieFactory

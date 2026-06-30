@@ -35,7 +35,7 @@ from openzaak.components.zaken.tests.utils import (
     utcdatetime,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 
 @freeze_time("2025-04-04")

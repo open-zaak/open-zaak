@@ -18,7 +18,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from .factories import BesluitFactory
 

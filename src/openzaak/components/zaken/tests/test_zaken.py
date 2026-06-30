@@ -33,7 +33,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,

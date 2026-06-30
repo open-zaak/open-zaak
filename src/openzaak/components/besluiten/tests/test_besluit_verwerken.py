@@ -35,7 +35,7 @@ from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKE
 from openzaak.components.zaken.archiving import try_calculate_archiving
 from openzaak.components.zaken.tests.factories import ResultaatFactory, ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.tests.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse, reverse_lazy
 
 
 @tag("convenience-endpoints")
