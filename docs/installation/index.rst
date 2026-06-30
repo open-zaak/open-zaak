@@ -54,6 +54,7 @@ Guides
    post_install
    updating
    external_components
+   case_identification
 
 Reference
 ---------
