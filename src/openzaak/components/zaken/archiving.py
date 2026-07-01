@@ -32,7 +32,9 @@ def calculate_archiving_data(
         return {}
 
     if archiefactiedatum is None:
-        return {}
+        return {
+            "archiefnominatie": calculator.get_archiefnominatie(),
+        }
 
     return {
         "archiefactiedatum": archiefactiedatum,
