@@ -903,6 +903,13 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
                     afleidingswijze=str(afleidingswijze),
                 )
                 brondatum_calculator = None
+
+            elif (
+                brondatum_calculator.get_archiefnominatie()
+                == Archiefnominatie.blijvend_bewaren
+            ):
+                brondatum_calculator = None
+
             else:
                 raise serializers.ValidationError(
                     _("De archiefactiedatum kon niet worden bepaald."),
