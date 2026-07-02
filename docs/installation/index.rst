@@ -32,12 +32,11 @@ Before you begin
   entry. In some cases, you might want this but it's not recommended. The same machine
   can be used for both Open Zaak and `Open Notificaties`_.
 
-* If you want to use `NLX`_, make sure you have a publicaly available domain name, for
+* If you want to use NLX, make sure you have a publicaly available domain name, for
   example ``nlx.<organization.com>``, where your NLX-inway is accessible to the outside
   world.
 
 .. _`Open Notificaties`: https://github.com/open-zaak/open-notificaties
-.. _`NLX`: https://nlx.io/
 
 Guides
 ------
