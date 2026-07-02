@@ -10,12 +10,12 @@ from freezegun import freeze_time
 from notifications_api_common.tasks import NotificationException, send_notification
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
+from openzaak.utils.urls import reverse
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase

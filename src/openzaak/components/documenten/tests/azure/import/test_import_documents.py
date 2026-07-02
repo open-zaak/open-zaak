@@ -10,7 +10,6 @@ from django.test import RequestFactory, TestCase, override_settings, tag
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
 from privates.test import temp_private_root
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     CatalogusFactory,
@@ -31,6 +30,7 @@ from openzaak.import_data.models import (
 from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
+from openzaak.utils.urls import reverse
 
 from ....storage import documenten_storage
 from ..mixins import AzureBlobStorageMixin

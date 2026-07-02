@@ -7,7 +7,8 @@ from django.db.models import Field, Model
 from glom import glom
 from notifications_api_common.kanalen import Kanaal as _Kanaal
 from rest_framework.request import Request
-from vng_api_common.tests import reverse
+
+from openzaak.utils.urls import reverse
 
 
 class Kanaal(_Kanaal):

@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.conf import settings
 from django.db import transaction
-from django.urls import reverse
 
 import structlog
 from vng_api_common.authorizations.models import Applicatie, Autorisatie
@@ -14,11 +12,21 @@ from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse
 
 logger = structlog.stdlib.get_logger(__name__)
 
 
 class ApplicatieSerializer(_ApplicatieSerializer):
+    class Meta(_ApplicatieSerializer.Meta):
+        extra_kwargs = {
+            **getattr(_ApplicatieSerializer.Meta, "extra_kwargs", {}),
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "autorisaties:applicatie-detail",
+            },
+        }
+
     def to_representation(self, instance):
         """
         Join the regular `Applicatie.autorisaties` with `CatalogusAutorisaties`, by
@@ -55,15 +63,7 @@ class ApplicatieSerializer(_ApplicatieSerializer):
                         "scopes": catalogus_autorisatie.scopes,
                         "max_vertrouwelijkheidaanduiding": catalogus_autorisatie.max_vertrouwelijkheidaanduiding,
                         type_field: build_absolute_url(
-                            reverse(
-                                f"{type_field}-detail",
-                                kwargs={
-                                    "uuid": str(type.uuid),
-                                    "version": settings.REST_FRAMEWORK[
-                                        "DEFAULT_VERSION"
-                                    ],
-                                },
-                            ),
+                            reverse(type),
                             request=self.context["request"],
                         ),
                     }

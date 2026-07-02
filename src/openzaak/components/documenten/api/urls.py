@@ -45,6 +45,8 @@ router.register(
     "document_registreren", DocumentRegistrerenViewSet, basename="registreerdocument"
 )
 
+app_name = "documenten"
+
 import_patterns = [
     path(
         "create",
@@ -121,7 +123,7 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-documenten-yaml",
+                        url_name="documenten:schema-documenten-yaml",
                         title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-documenten",

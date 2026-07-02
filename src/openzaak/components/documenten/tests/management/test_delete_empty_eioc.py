@@ -7,7 +7,6 @@ from django.core.management import call_command
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -21,6 +20,7 @@ from openzaak.components.zaken.tests.factories import (
 )
 from openzaak.components.zaken.tests.utils import ZAAK_WRITE_KWARGS
 from openzaak.tests.utils import JWTAuthMixin, TestMigrations
+from openzaak.utils.urls import reverse
 
 from ...models import EnkelvoudigInformatieObjectCanonical
 from ..factories import EnkelvoudigInformatieObjectCanonicalFactory

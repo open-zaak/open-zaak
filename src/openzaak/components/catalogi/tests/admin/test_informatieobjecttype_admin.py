@@ -310,10 +310,11 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
 
         iotype = InformatieObjectType.objects.get()
         iotype_url = reverse(
-            "informatieobjecttype-detail", kwargs={"uuid": iotype.uuid, "version": 1}
+            "catalogi:informatieobjecttype-detail",
+            kwargs={"uuid": iotype.uuid, "version": 1},
         )
         catalogus_url = reverse(
-            "catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
+            "catalogi:catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
         )
         mock_notif.assert_called_with(
             {

@@ -18,7 +18,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import reverse
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
@@ -33,6 +32,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..models import Resultaat, Rol, Zaak, ZaakInformatieObject, ZaakObject
 from .factories import RolFactory, ZaakFactory, ZaakObjectFactory
@@ -111,7 +111,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("registreerzaak-list")
+        url = reverse("zaken:registreerzaak-list")
 
         data = {
             "zaak": {
@@ -311,7 +311,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "zaakopschorten",
+            "zaken:zaakopschorten",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },
@@ -371,7 +371,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },
@@ -464,7 +464,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
 
         url = reverse(
-            "zaakbijwerken",
+            "zaken:zaakbijwerken",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },
@@ -560,7 +560,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "zaakafsluiten",
+            "zaken:zaakafsluiten",
             kwargs={"uuid": zaak_data["uuid"]},
         )
 
@@ -625,7 +625,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zaak_data = self._create_zaak(zaaktype)
 
         url = reverse(
-            "zaakverlengen",
+            "zaken:zaakverlengen",
             kwargs={
                 "uuid": zaak_data["uuid"],
             },
@@ -752,8 +752,9 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self._create_zaak()
 
         zaak = Zaak.objects.get()
-        audittrails = AuditTrail.objects.get()
-        audittrails_url = reverse(audittrails, kwargs={"zaak_uuid": zaak.uuid})
+        audittrails_url = reverse(
+            "zaken:audittrail-list", kwargs={"zaak_uuid": zaak.uuid}
+        )
 
         response_audittrails = self.client.get(audittrails_url)
 
@@ -847,7 +848,7 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
         AuditTrail.objects.create(hoofd_object=url, resource="Zaak", resultaat=200)
 
         audit_url = reverse(
-            "audittrail-list",
+            "zaken:audittrail-list",
             kwargs={"zaak_uuid": zaak.uuid},
         )
 
@@ -867,7 +868,7 @@ class ZaakAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
         )
 
         audit_url = reverse(
-            "audittrail-detail",
+            "zaken:audittrail-detail",
             kwargs={"zaak_uuid": zaak.uuid, "uuid": audittrail.uuid},
         )
 

@@ -32,19 +32,25 @@ class DisableTests(JWTAuthMixin, APITestCase):
 
     def test_zaken(self):
         self._test_service_disabled(
-            ComponentTypes.zrc, reverse("zaak-list"), **ZAAK_READ_KWARGS
+            ComponentTypes.zrc, reverse("zaken:zaak-list"), **ZAAK_READ_KWARGS
         )
 
     def test_catalogi(self):
-        self._test_service_disabled(ComponentTypes.ztc, reverse("zaaktype-list"))
+        self._test_service_disabled(
+            ComponentTypes.ztc, reverse("catalogi:zaaktype-list")
+        )
 
     def test_besluiten(self):
-        self._test_service_disabled(ComponentTypes.brc, reverse("besluit-list"))
+        self._test_service_disabled(
+            ComponentTypes.brc, reverse("besluiten:besluit-list")
+        )
 
     def test_documenten(self):
         self._test_service_disabled(
-            ComponentTypes.drc, reverse("enkelvoudiginformatieobject-list")
+            ComponentTypes.drc, reverse("documenten:enkelvoudiginformatieobject-list")
         )
 
     def test_authorisaties(self):
-        self._test_service_disabled(ComponentTypes.ac, reverse("applicatie-list"))
+        self._test_service_disabled(
+            ComponentTypes.ac, reverse("autorisaties:applicatie-list")
+        )

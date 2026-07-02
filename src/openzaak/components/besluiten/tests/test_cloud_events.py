@@ -8,7 +8,6 @@ from django.utils import timezone
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
@@ -18,6 +17,7 @@ from openzaak.components.zaken.tests.test_cloud_events import (
     patch_send_cloud_event,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..models import Besluit
 from .factories import BesluitFactory

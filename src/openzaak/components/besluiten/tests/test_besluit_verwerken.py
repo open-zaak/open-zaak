@@ -16,7 +16,7 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
 )
 from vng_api_common.models import JWTSecret
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
@@ -35,13 +35,14 @@ from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKE
 from openzaak.components.zaken.archiving import try_calculate_archiving
 from openzaak.components.zaken.tests.factories import ResultaatFactory, ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse, reverse_lazy
 
 
 @tag("convenience-endpoints")
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("verwerkbesluit-list")
+    url = reverse_lazy("besluiten:verwerkbesluit-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod
@@ -208,7 +209,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("verwerkbesluit-list")
+    url = reverse_lazy("besluiten:verwerkbesluit-list")
     heeft_alle_autorisaties = True
 
     def setUp(self):

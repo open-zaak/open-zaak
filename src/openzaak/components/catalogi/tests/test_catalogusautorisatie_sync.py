@@ -6,7 +6,6 @@ from django.test import TestCase, override_settings, tag
 
 from freezegun import freeze_time
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.components.autorisaties.tests.factories import (
     ApplicatieFactory,
@@ -20,6 +19,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
+from openzaak.utils.urls import reverse
 
 
 @freeze_time("2024-01-01T12:00:00Z")
@@ -87,9 +87,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie1)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie1)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -98,9 +98,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie2)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie2)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -127,9 +127,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie1)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie1)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -138,9 +138,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie2)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie2)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -149,9 +149,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie3)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie3, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie3)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie3, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -175,9 +175,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie1)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie1)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -186,9 +186,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie2)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie2)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -210,9 +210,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie1)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie1)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -221,9 +221,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie2)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie2)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -252,9 +252,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie1)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie1)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie1, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -263,9 +263,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie2)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie2)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie2, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
@@ -274,9 +274,9 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                 call(
                     {
                         "kanaal": "autorisaties",
-                        "hoofdObject": f"http://testserver{reverse(self.applicatie3)}",
+                        "hoofdObject": f"http://testserver{reverse(self.applicatie3, namespace='autorisaties')}",
                         "resource": "applicatie",
-                        "resourceUrl": f"http://testserver{reverse(self.applicatie3)}",
+                        "resourceUrl": f"http://testserver{reverse(self.applicatie3, namespace='autorisaties')}",
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},

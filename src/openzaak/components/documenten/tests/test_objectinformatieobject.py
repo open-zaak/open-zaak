@@ -12,8 +12,6 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import (
     JWTAuthMixin,
     get_validation_errors,
-    reverse,
-    reverse_lazy,
 )
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -39,6 +37,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekinformatieobject_response,
 )
 from openzaak.tests.utils import mock_brc_oas_get, mock_vrc_oas_get, mock_zrc_oas_get
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import ObjectInformatieObject
@@ -52,7 +51,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 )
 class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy("objectinformatieobject-list")
+    list_url = reverse_lazy("documenten:objectinformatieobject-list")
 
     def test_create_with_objecttype_zaak(self):
         zaak = ZaakFactory.create()
@@ -150,7 +149,9 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
-        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
+        oio_url = reverse(
+            "documenten:objectinformatieobject-detail", kwargs={"uuid": oio.uuid}
+        )
         zaak_url = reverse(zaak)
 
         response = self.client.get(oio_url)
@@ -178,12 +179,14 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         # get OIO created via signals
         oio = ObjectInformatieObject.objects.get()
 
-        oio_url = reverse("objectinformatieobject-detail", kwargs={"uuid": oio.uuid})
-        besluit_url = reverse(besluit)
+        oio_url = reverse(
+            "documenten:objectinformatieobject-detail", kwargs={"uuid": oio.uuid}
+        )
+        besluit_url = reverse(besluit, namespace="zaken")
 
         response = self.client.get(oio_url)
 
-        expeceted_response_data = {
+        expected_response_data = {
             "url": f"http://testserver{oio_url}",
             "object": f"http://testserver{besluit_url}",
             "informatieobject": eio_url,
@@ -191,7 +194,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         }
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data, expeceted_response_data)
+        self.assertEqual(response.data, expected_response_data)
 
     def test_post_object_without_created_relations(self):
         """

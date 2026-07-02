@@ -5,11 +5,12 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.urls import reverse
 
 from .factories import ResultaatFactory, ZaakFactory
 from .utils import get_operation_url, get_resultaattype_response, get_zaaktype_response

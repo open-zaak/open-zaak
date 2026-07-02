@@ -6,9 +6,10 @@ Test that the caching mechanisms are in place.
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin, reverse
+from vng_api_common.tests import CacheMixin, JWTAuthMixin
 
 from openzaak.tests.utils import get_spec
+from openzaak.utils.urls import reverse
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 

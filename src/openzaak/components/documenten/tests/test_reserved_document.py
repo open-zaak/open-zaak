@@ -8,7 +8,6 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse, reverse_lazy
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.documenten.api.utils import generate_document_identificatie
@@ -20,13 +19,14 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse, reverse_lazy
 
 
 @tag("gh-2018")
 @temp_private_root()
 @freeze_time("2025-01-01T12:00:00")
 class ReservedDocumentTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("reserveddocument-list")
+    url = reverse_lazy("documenten:reserveddocument-list")
     heeft_alle_autorisaties = True
     bronorganisatie = "812345678"
 
@@ -128,7 +128,7 @@ class ReservedDocumentTests(JWTAuthMixin, APITestCase):
             "bronorganisatie": self.bronorganisatie,
         }
 
-        url = reverse("reserveddocument-list", kwargs={"version": "1"})
+        url = reverse("documenten:reserveddocument-list", kwargs={"version": "1"})
 
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

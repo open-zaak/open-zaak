@@ -11,8 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, reverse, reverse_lazy
-from vng_api_common.tests.schema import get_validation_errors
+from vng_api_common.tests import AuthCheckMixin, get_validation_errors, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
@@ -21,6 +20,7 @@ from openzaak.components.zaken.tests.factories import (
     ZaakInformatieObjectFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
@@ -44,15 +44,15 @@ IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_io_without_correct_scope(self):
         urls = [
-            reverse("enkelvoudiginformatieobject-list"),
-            reverse("enkelvoudiginformatieobject--zoek"),
+            reverse("documenten:enkelvoudiginformatieobject-list"),
+            reverse("documenten:enkelvoudiginformatieobject--zoek"),
         ]
         for url in urls:
             with self.subTest(url=url):
                 self.assertForbidden(url, method="post")
 
     def test_cannot_create_verzending_without_correct_scope(self):
-        url = reverse("verzending-list")
+        url = reverse("documenten:verzending-list")
         eio = EnkelvoudigInformatieObjectFactory()
         self.assertForbidden(
             url,
@@ -60,7 +60,8 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
             request_kwargs={
                 "data": {
                     "informatieobject": reverse(
-                        "enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+                        "documenten:enkelvoudiginformatieobject-detail",
+                        kwargs={"uuid": eio.uuid},
                     )
                 }
             },
@@ -73,13 +74,16 @@ class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
         oio = ObjectInformatieObject.objects.get()
         verzending = VerzendingFactory.create()
         urls = [
-            reverse("enkelvoudiginformatieobject-list"),
-            reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}),
-            reverse("gebruiksrechten-list"),
+            reverse("documenten:enkelvoudiginformatieobject-list"),
+            reverse(
+                "documenten:enkelvoudiginformatieobject-detail",
+                kwargs={"uuid": eio.uuid},
+            ),
+            reverse("documenten:gebruiksrechten-list"),
             reverse(gebruiksrechten),
-            reverse("objectinformatieobject-list"),
+            reverse("documenten:objectinformatieobject-list"),
             reverse(oio),
-            reverse("verzending-list"),
+            reverse("documenten:verzending-list"),
             reverse(verzending),
         ]
 
@@ -119,7 +123,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
@@ -204,8 +208,12 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url1 = reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid})
-        url2 = reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid})
+        url1 = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio1.uuid}
+        )
+        url2 = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio2.uuid}
+        )
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
@@ -247,7 +255,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
@@ -325,7 +333,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
@@ -378,7 +386,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to create EnkelvoudigInformatieObjecten
         that belong to Informatieobjecttypen in the Catalogus
         """
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         with self.subTest("correct VA but incorrect catalogus"):
             response = self.client.post(
@@ -608,7 +616,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_gebruiksrechten_limited_to_authorized_zaken(self):
-        url = reverse("gebruiksrechten-list")
+        url = reverse("documenten:gebruiksrechten-list")
         # must show up
         gebruiksrechten1 = GebruiksrechtenFactory.create(
             informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
@@ -647,7 +655,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("gebruiksrechten-list")
+        url = reverse("documenten:gebruiksrechten-list")
         # must show up
         gebruiksrechten1 = GebruiksrechtenFactory.create(
             informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
@@ -673,7 +681,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_gebruiksrechten_limited_to_authorized_io(self):
-        url = reverse("gebruiksrechten-list")
+        url = reverse("documenten:gebruiksrechten-list")
         eio1 = EnkelvoudigInformatieObjectFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
         )
@@ -691,7 +699,7 @@ class GebruiksrechtenReadTests(JWTAuthMixin, APITestCase):
                     url,
                     {
                         "informatieobject": reverse(
-                            "enkelvoudiginformatieobject-detail",
+                            "documenten:enkelvoudiginformatieobject-detail",
                             kwargs={"uuid": eio.uuid},
                         ),
                         "startdatum": "2018-12-24T00:00:00Z",
@@ -728,7 +736,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_oio_limited_to_authorized_zaken(self):
-        url = reverse("objectinformatieobject-list")
+        url = reverse("documenten:objectinformatieobject-list")
         zaak = ZaakFactory.create()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
@@ -783,7 +791,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("objectinformatieobject-list")
+        url = reverse("documenten:objectinformatieobject-list")
         zaak = ZaakFactory.create()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
@@ -904,7 +912,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
@@ -956,7 +964,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             bronorganisatie="000000000",
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url, {"bronorganisatie": "000000000"})
 
@@ -993,7 +1001,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_oio_list(self):
-        url = reverse("objectinformatieobject-list")
+        url = reverse("documenten:objectinformatieobject-list")
         zaak = ZaakFactory.create()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
@@ -1083,7 +1091,7 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             inhoud__filename="file2.bin",
         )
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.get(url)
 
@@ -1114,7 +1122,7 @@ class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITe
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_oio_list(self):
-        url = reverse("objectinformatieobject-list")
+        url = reverse("documenten:objectinformatieobject-list")
         zaak = ZaakFactory.create()
         # must show up
         eio1 = EnkelvoudigInformatieObjectFactory.create(
@@ -1193,7 +1201,7 @@ class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_verzendingen_limited_to_authorized_io(self):
-        url = reverse("verzending-list")
+        url = reverse("documenten:verzending-list")
         # must show up
         verzending = VerzendingFactory.create(
             informatieobject__latest_version__informatieobjecttype=self.informatieobjecttype,
@@ -1255,7 +1263,7 @@ class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         VerzendingFactory.create(
             informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url = reverse("verzending-list")
+        url = reverse("documenten:verzending-list")
 
         response = self.client.get(url)
 
@@ -1267,7 +1275,7 @@ class VerzendingReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
 @tag("gh-2018")
 class ReserveDocumentAuthTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("reserveddocument-list")
+    url = reverse_lazy("documenten:reserveddocument-list")
     bronorganisatie = "812345678"
 
     def setUp(self):

@@ -20,12 +20,12 @@ from vng_api_common.client import ClientError, get_client, to_internal_data
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze as Afleidingswijze,
 )
-from vng_api_common.tests import reverse as _reverse
 
 from openzaak.forms.widgets import BooleanRadio
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse as _reverse
 from openzaak.utils.validators import ResourceValidator
 
 from ..models import (

@@ -5,6 +5,12 @@ from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularRedocView
 from vng_api_common import routers
 
+from openzaak.components.besluiten.api.viewsets import (
+    BesluitAuditTrailViewSet,
+    BesluitInformatieObjectViewSet,
+    BesluitVerwerkenViewSet,
+    BesluitViewSet,
+)
 from openzaak.utils.oas_extensions.views import (
     DeprecationRedirectView,
     SchemaDeprecationRedirectView,
@@ -58,6 +64,19 @@ router.register("zaakcontactmomenten", ZaakContactMomentViewSet)
 router.register("zaakverzoeken", ZaakVerzoekViewSet)
 router.register("zaaknummer_reserveren", ReserveerZaakNummerViewSet)
 router.register("zaaknotities", ZaakNotitieViewSet)
+router.register(
+    "besluiten",
+    BesluitViewSet,
+    [
+        routers.Nested(
+            "audittrail",
+            BesluitAuditTrailViewSet,
+        )
+    ],
+)
+router.register("besluitinformatieobjecten", BesluitInformatieObjectViewSet)
+router.register("besluit_verwerken", BesluitVerwerkenViewSet, basename="verwerkbesluit")
+
 
 # XXX: alias for this endpoint, will be removed in 2.0
 router.register(
@@ -71,6 +90,7 @@ zaakafsluiten_view = ZaakAfsluitenViewSet.as_view({"post": "post"})
 zaakbijwerken_view = ZaakBijwerkenViewset.as_view({"post": "post"})
 zaakverlengen_view = ZaakVerlengenViewset.as_view({"post": "post"})
 
+app_name = "zaken"
 
 urlpatterns = [
     re_path(
@@ -108,7 +128,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-zaken-yaml", title=custom_settings["TITLE"]
+                        url_name="zaken:schema-zaken-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-zaken",
                 ),

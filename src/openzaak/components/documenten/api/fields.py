@@ -6,7 +6,7 @@ from django_loose_fk.drf import FKOrURLField
 from rest_framework.fields import empty
 from rest_framework.reverse import reverse
 
-from openzaak.utils.serializer_fields import FKOrServiceUrlField
+from openzaak.utils.serializer_fields import FKOrServiceUrlField, ViewNameInjectionMixin
 
 from ..constants import ObjectInformatieObjectTypes
 from ..models import EnkelvoudigInformatieObjectCanonical, ObjectInformatieObject
@@ -32,7 +32,7 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
             return ""
 
         return reverse(
-            "enkelvoudiginformatieobject-detail",
+            "documenten:enkelvoudiginformatieobject-detail",
             kwargs={"uuid": value.uuid},
             request=self.context.get("request"),
         )
@@ -44,7 +44,7 @@ class EnkelvoudigInformatieObjectField(FKOrServiceUrlField):
         return value
 
 
-class OnlyRemoteOrFKOrURLField(FKOrURLField):
+class OnlyRemoteOrFKOrURLField(ViewNameInjectionMixin, FKOrURLField):
     only_remote_object_types = (ObjectInformatieObjectTypes.verzoek,)
 
     def get_attribute(self, instance: ObjectInformatieObject):

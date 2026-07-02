@@ -5,11 +5,12 @@ from django.test import override_settings
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors, reverse
+from vng_api_common.tests import JWTAuthMixin, get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakContactMoment
 from .factories import ZaakContactMomentFactory, ZaakFactory
@@ -36,7 +37,7 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
 
     def test_create(self, *mocks):
         zaak = ZaakFactory.create()
-        url = reverse("zaakcontactmoment-list")
+        url = reverse("zaken:zaakcontactmoment-list")
 
         with requests_mock.Mocker() as m:
             m.post(
@@ -64,7 +65,7 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
 
     def test_create_fail_sync(self, *mocks):
         zaak = ZaakFactory.create()
-        url = reverse("zaakcontactmoment-list")
+        url = reverse("zaken:zaakcontactmoment-list")
 
         with requests_mock.Mocker() as m:
             m.post(
@@ -132,7 +133,7 @@ class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         ZaakContactMomentFactory.create(zaak=zaak)
-        url = reverse("zaakcontactmoment-list")
+        url = reverse("zaken:zaakcontactmoment-list")
 
         response = self.client.get(
             url,
@@ -146,7 +147,7 @@ class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
 
     def test_filter_contactmoment(self):
         ZaakContactMomentFactory.create(contactmoment=CONTACTMOMENT)
-        url = reverse("zaakcontactmoment-list")
+        url = reverse("zaken:zaakcontactmoment-list")
 
         response = self.client.get(url, {"contactmoment": CONTACTMOMENT})
 

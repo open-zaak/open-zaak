@@ -22,7 +22,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
@@ -31,6 +30,7 @@ from openzaak.components.catalogi.tests.factories import (
 )
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils import parse_isodatetime
+from openzaak.utils.urls import reverse
 
 from ..models import Zaak
 from .factories import ZaakFactory

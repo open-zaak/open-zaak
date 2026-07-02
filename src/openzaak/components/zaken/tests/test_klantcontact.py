@@ -14,7 +14,7 @@ class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
 
     def test_list_klantcontact(self):
         KlantContactFactory.create_batch(2)
-        list_url = reverse("klantcontact-list")
+        list_url = reverse("zaken:klantcontact-list")
 
         response = self.client.get(list_url)
 
@@ -25,7 +25,7 @@ class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
 
     def test_list_klantcontact_page(self):
         KlantContactFactory.create_batch(2)
-        list_url = reverse("klantcontact-list")
+        list_url = reverse("zaken:klantcontact-list")
 
         response = self.client.get(list_url, {"page": 1})
 
@@ -35,7 +35,7 @@ class KlantContactFactoryTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(data), 2)
 
     def test_deprecated(self):
-        url = reverse("klantcontact-list")
+        url = reverse("zaken:klantcontact-list")
 
         response = self.client.get(url)
 

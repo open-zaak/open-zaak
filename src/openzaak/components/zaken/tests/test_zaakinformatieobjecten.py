@@ -15,7 +15,7 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.constants import RelatieAarden
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.validators import IsImmutableValidator
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.models import Service
@@ -35,6 +35,7 @@ from openzaak.components.documenten.tests.utils import (
     get_oio_response,
 )
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..models import Zaak, ZaakInformatieObject
 from .factories import StatusFactory, ZaakFactory, ZaakInformatieObjectFactory
@@ -210,7 +211,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_filter_by_zaak(self):
         zio = ZaakInformatieObjectFactory.create()
         zaak_url = reverse(zio.zaak)
-        zio_list_url = reverse("zaakinformatieobject-list")
+        zio_list_url = reverse("zaken:zaakinformatieobject-list")
 
         response = self.client.get(
             zio_list_url,
@@ -223,7 +224,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.data[0]["zaak"], f"http://openzaak.nl{zaak_url}")
 
     def test_filter_by_local_informatieobject(self):
-        zio_list_url = reverse("zaakinformatieobject-list")
+        zio_list_url = reverse("zaken:zaakinformatieobject-list")
 
         zio1 = ZaakInformatieObjectFactory.create()
         io1_url = reverse(zio1.informatieobject.latest_version)
@@ -297,7 +298,7 @@ class ZaakInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             )
 
         io1_url = response1.data["informatieobject"]
-        zio_list_url = reverse("zaakinformatieobject-list")
+        zio_list_url = reverse("zaken:zaakinformatieobject-list")
 
         # Test that only 1 of the 2 ZIOs in the database is returned.
         response = self.client.get(

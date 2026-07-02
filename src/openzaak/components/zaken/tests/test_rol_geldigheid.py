@@ -6,10 +6,11 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory, ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..models import Rol
 from .factories import RolFactory, ZaakFactory

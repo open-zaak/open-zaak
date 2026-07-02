@@ -14,7 +14,7 @@ from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -24,6 +24,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.urls import reverse
 
 from ..models import ZaakEigenschap
 from .factories import ZaakEigenschapFactory, ZaakFactory
@@ -152,7 +153,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             kwargs={"zaak_uuid": zaak.uuid},
         )
         zaak_url = reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             kwargs={"version": 1, "uuid": zaak.uuid},
         )
 
@@ -206,7 +207,7 @@ class US52TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
             kwargs={"zaak_uuid": zaak.uuid},
         )
         zaak_url = reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             kwargs={"version": 1, "uuid": zaak.uuid},
         )
 

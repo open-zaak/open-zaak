@@ -9,7 +9,7 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -17,6 +17,7 @@ from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.urls import reverse
 
 from ..models import Status
 from .factories import ResultaatFactory, RolFactory, StatusFactory, ZaakFactory
@@ -36,11 +37,11 @@ class StatusTests(JWTAuthMixin, APITestCase):
     def test_filter_statussen_op_zaak(self):
         status1, status2 = StatusFactory.create_batch(2)
         assert status1.zaak != status2.zaak
-        status1_url = reverse("status-detail", kwargs={"uuid": status1.uuid})
-        status2_url = reverse("status-detail", kwargs={"uuid": status2.uuid})
+        status1_url = reverse("zaken:status-detail", kwargs={"uuid": status1.uuid})
+        status2_url = reverse("zaken:status-detail", kwargs={"uuid": status2.uuid})
 
-        list_url = reverse("status-list")
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": status1.zaak.uuid})
+        list_url = reverse("zaken:status-list")
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": status1.zaak.uuid})
 
         response = self.client.get(
             list_url,
@@ -71,7 +72,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2020-05-28",
         }
 
-        response = self.client.post(reverse("status-list"), data)
+        response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         error = get_validation_errors(response, "zaak")
@@ -105,7 +106,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_status_with_rol(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         zaak = ZaakFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         StatusTypeFactory.create(zaaktype=zaak.zaaktype)
@@ -126,7 +127,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
         self.assertEqual(status_.gezetdoor, rol)
 
     def test_create_status_with_rol_from_other_zaak(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         zaak = ZaakFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         StatusTypeFactory.create(zaaktype=zaak.zaaktype)
@@ -149,7 +150,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
 
     def test_pagination_pagesize_param(self):
         StatusFactory.create_batch(10)
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
 
         response = self.client.get(url, {"pageSize": 5})
 
@@ -163,7 +164,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
     @tag("gh-2179")
     @freeze_time("2025-01-01T12:00:00")
     def test_create_status_sets_zaak_laatst_gemuteerd(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         zaak = ZaakFactory.create()
         statustype = StatusTypeFactory.create(zaaktype=zaak.zaaktype)
         StatusTypeFactory.create(zaaktype=zaak.zaaktype)
@@ -386,7 +387,7 @@ class IsLastStatusTests(JWTAuthMixin, APITestCase):
                 self.assertTrue(response.json()["indicatieLaatstGezetteStatus"])
 
     def test_filter_last_status(self):
-        url = reverse_lazy("status-list")
+        url = reverse_lazy("zaken:status-list")
 
         with self.subTest("indicatieLaatstGezetteStatus=True"):
             response = self.client.get(url, {"indicatieLaatstGezetteStatus": True})

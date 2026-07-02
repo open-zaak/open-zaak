@@ -18,7 +18,7 @@ from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -39,6 +39,7 @@ from openzaak.tests.utils import (
     mock_zrc_oas_get,
     mock_ztc_oas_get,
 )
+from openzaak.utils.urls import reverse
 
 from ..models import Overige
 from .factories import (
@@ -1195,7 +1196,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2025-01-01T00:00:00Z",
         }
 
-        response = self.client.post(reverse("status-list"), data)
+        response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -1230,7 +1231,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2025-01-01T00:00:00Z",
         }
 
-        response = self.client.post(reverse("status-list"), data)
+        response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -1393,7 +1394,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
                 ),
             )
 
-            response = self.client.post(reverse("status-list"), data)
+            response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -1468,7 +1469,9 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
             vervaldatum=None,
         )
 
-        besluit_detail_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
+        besluit_detail_url = reverse(
+            "zaken:besluit-detail", kwargs={"uuid": besluit.uuid}
+        )
 
         zaak.refresh_from_db()
         self.assertIsNone(zaak.archiefactiedatum)
@@ -1517,7 +1520,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         )
 
         eigenschap_detail_url = reverse(
-            "zaakeigenschap-detail",
+            "zaken:zaakeigenschap-detail",
             kwargs={
                 "zaak_uuid": zaak.uuid,
                 "uuid": eigenschap.uuid,
@@ -1551,9 +1554,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
 
     def test_ingangsdatum_besluit_triggers_archiving_calculation(self):
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaak_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
-        )
+        zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': zaak.uuid})}"
 
         resultaattype = ResultaatTypeFactory.create(
             archiefactietermijn="P1Y",
@@ -1585,7 +1586,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2023, 1, 1))
         self.assertEqual(zaak.archiefactiedatum, date(2024, 1, 1))
 
-        besluit_url = reverse("besluit-detail", kwargs={"uuid": besluit.uuid})
+        besluit_url = reverse("zaken:besluit-detail", kwargs={"uuid": besluit.uuid})
         data = {
             "ingangsdatum": "2025-01-01",
             "besluittype": f"http://testserver{reverse(besluittype)}",
@@ -1633,7 +1634,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
 
         # Close the deelzaak
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(deelzaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
@@ -1655,7 +1656,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
 
         # Close the hoofdzaak
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(hoofdzaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
@@ -1708,7 +1709,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(zaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
@@ -1781,7 +1782,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         )
 
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(zaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
@@ -1793,7 +1794,9 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zaak.startdatum_bewaartermijn, date(2025, 1, 5))
         self.assertEqual(zaak.archiefactiedatum, date(2035, 1, 5))
 
-        resultaat_url = reverse("resultaat-detail", kwargs={"uuid": resultaat.uuid})
+        resultaat_url = reverse(
+            "zaken:resultaat-detail", kwargs={"uuid": resultaat.uuid}
+        )
         response = self.client.delete(resultaat_url)
 
         self.assertEqual(response.status_code, 204)
@@ -1828,7 +1831,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(zaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
@@ -1875,7 +1878,7 @@ class ArchivingParametersRecalculationTests(JWTAuthMixin, APITestCase):
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         self.client.post(
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             {
                 "zaak": f"http://testserver{reverse(zaak)}",
                 "statustype": f"http://testserver{reverse(self.statustype)}",
