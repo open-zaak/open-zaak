@@ -49,9 +49,12 @@ class ExpandMixin:
         return self.action in ["list", "_zoek", "retrieve"]
 
     def get_requested_inclusions(self, request):
-        # Pull expand parameter from request body in case of _zoek operation
+        # Pull expand parameter from request body and/or query_param in case of _zoek operation
         if request.method == "POST":
-            return ",".join(request.data.get(self.expand_param, []))
+            return ",".join(
+                request.data.get(self.expand_param, [])
+                + [request.query_params.get(self.expand_param, "")]
+            )
         return request.GET.get(self.expand_param)
 
 
