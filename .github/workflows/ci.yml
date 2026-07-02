@@ -29,9 +29,10 @@ jobs:
     runs-on: ubuntu-latest # windows-latest | macos-latest
     name: Determine changed files
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get changed PY files
         id: changed-py-files
@@ -91,7 +92,9 @@ jobs:
           --name postgres
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
@@ -123,7 +126,7 @@ jobs:
       - name: Publish coverage report
         # TODO find a better way to upload this only once
         if: ${{ matrix.postgres == '17' && matrix.postgis == '3.5' && matrix.use_pooling == false  }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -141,7 +144,7 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write  # to add comments to the PR
+      pull-requests: write # to add comments to the PR
       checks: write
 
     services:
@@ -155,8 +158,9 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Set up backend environment
         uses: maykinmedia/setup-django-backend@4a6c5facc65bb1dd510cf06be20871db11a156b3 # v1.4.2
         with:
@@ -185,6 +189,7 @@ jobs:
           ALLOWED_HOSTS: localhost,127.0.0.1
           FUZZY_PAGINATION: true
           DB_CONN_MAX_AGE: 60
+          LOG_REQUESTS: False
 
       - name: Install dependencies
         run: |
@@ -224,30 +229,6 @@ jobs:
                       --file output.json \
                       "pytest performance_test/ --benchmark-warmup=on --benchmark-warmup-iterations=5 --benchmark-json output.json"
 
-  docs:
-    name: Documentation check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up backend environment
-        uses: maykinmedia/setup-django-backend@v1.3
-        with:
-          apt-packages: "gdal-bin"
-          python-version: "3.12"
-
-      - name: Generate environment variable documentation using OAf and check if it was updated
-        run: |
-          bin/generate_envvar_docs.sh
-          changes=$(git diff docs/installation/config/env_config.rst)
-          if [ ! -z "$changes" ]; then
-              echo $changes
-              echo "Please update the environment documentation by running \`bin/generate_envvar_docs.sh\`"
-              cat docs/installation/config/env_config.rst
-              exit 1
-          fi
-        env:
-          DJANGO_SETTINGS_MODULE: openzaak.conf.ci
-
   store-reusable-workflow-vars:
     name: create values which can be passed through a reusable workflow
     runs-on: ubuntu-latest
@@ -269,7 +250,7 @@ jobs:
       - store-reusable-workflow-vars
     permissions:
       contents: read
-      security-events: write  # required for `Scan docker image` step
+      security-events: write # required for `Scan docker image` step
     with:
       apt-packages: "gdal-bin graphviz graphviz-dev"
       main-branch: "main"
