@@ -7,7 +7,7 @@ set -ex
 export PGHOST=${DB_HOST:-db}
 export PGPORT=${DB_PORT:-5432}
 
-uwsgi_port=${UWSGI_PORT:-8000}
+uwsgi_port=${OPENZAAK_PORT:-8000}
 uwsgi_processes=${UWSGI_PROCESSES:-4}
 uwsgi_threads=${UWSGI_THREADS:-4}
 
