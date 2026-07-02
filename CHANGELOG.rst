@@ -2258,10 +2258,9 @@ Features:
 * Admin interface to manage Catalogi
 * Admin interface to manage Applicaties and Autorisaties
 * Admin interface to view data created via the APIs
-* `NLX`_ ready (can be used with NLX)
+* NLX ready (can be used with NLX)
 * Documentation on https://open-zaak.readthedocs.io/
 * Deployable on Kubernetes, single server and as VMware appliance
 * Automated test suite
 * Automated deployment
 
-.. _NLX: https://nlx.io/
