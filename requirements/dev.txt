@@ -611,6 +611,10 @@ humanize==4.0.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   flower
+hypothesis==6.155.2
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
 identify==2.6.10
     # via pre-commit
 idna==3.18
@@ -1222,6 +1226,11 @@ snowballstemmer==2.2.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   sphinx
+sortedcontainers==2.4.0
+    # via
+    #   -c requirements/ci.txt
+    #   -r requirements/ci.txt
+    #   hypothesis
 soupsieve==1.9.5
     # via
     #   -c requirements/ci.txt

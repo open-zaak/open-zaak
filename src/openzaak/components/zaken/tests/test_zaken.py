@@ -782,8 +782,85 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
 
+    @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification")
+    def test_reserve_zaak_uwv_identity(self):
+        data = {"bronorganisatie": "111222333"}
+
+        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        zaak_identificatie = ZaakIdentificatie.objects.get()
+        self.assertEqual(zaak_identificatie.identificatie, "A00000006")
+
+        zaak_id = response.json()["zaaknummer"]
+        zaak_data = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaak_id,
+            "bronorganisatie": "111222333",
+            "verantwoordelijkeOrganisatie": "111222333",
+            "startdatum": "2025-02-05",
+        }
+
+        create_response = self.client.post(
+            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Zaak.objects.count(), 1)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        # try to reuse id
+        zaak_data_2 = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaak_id,
+            "bronorganisatie": "111222333",
+            "verantwoordelijkeOrganisatie": "111222333",
+            "startdatum": "2025-02-07",
+        }
+
+        create_response_2 = self.client.post(
+            reverse("zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
+        )
+        self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
+
     @tag("gh-1836")
     def test_reserve_zaak_identity_with_different_bronorganisatie(self):
+        data = {"bronorganisatie": "111222333"}
+
+        response = self.client.post(reverse("zaakidentificatie-list"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Zaak.objects.count(), 0)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 1)
+
+        reserved_zaak_id = ZaakIdentificatie.objects.get()
+
+        zaaknummer = response.data["zaaknummer"]
+        zaak_data = {
+            "zaaktype": f"http://testserver{self.zaaktype_url}",
+            "identificatie": zaaknummer,
+            "bronorganisatie": "517439943",
+            "verantwoordelijkeOrganisatie": "517439943",
+            "startdatum": "2025-02-04",
+        }
+
+        create_response = self.client.post(
+            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+        )
+
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Zaak.objects.count(), 1)
+        self.assertEqual(ZaakIdentificatie.objects.count(), 2)
+
+        zaak = Zaak.objects.get()
+        self.assertEqual(zaak.identificatie, zaaknummer)
+        self.assertNotEqual(zaak.identificatie_ptr, reserved_zaak_id)
+
+    @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification")
+    def test_reserve_zaak_uwv_identity_with_different_bronorganisatie(self):
         data = {"bronorganisatie": "111222333"}
 
         response = self.client.post(reverse("zaakidentificatie-list"), data)
@@ -821,19 +898,35 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "bronorganisatie": "517439943",
             "aantal": 1,
         }
-
         url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
-        response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        with self.subTest("year"):
+            response = self.client.post(url, data)
 
-        self.assertEqual(response.data, {"zaaknummer": "ZAAK-2025-0000000001"})
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertTrue(
-            ZaakIdentificatie.objects.filter(
-                identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
-            ).exists()
-        )
+            self.assertEqual(response.data, {"zaaknummer": "ZAAK-2025-0000000001"})
+
+            self.assertTrue(
+                ZaakIdentificatie.objects.filter(
+                    identificatie="ZAAK-2025-0000000001", bronorganisatie="517439943"
+                ).exists()
+            )
+        with (
+            override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification"),
+            self.subTest("uwv"),
+        ):
+            response = self.client.post(url, data)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            self.assertEqual(response.data, {"zaaknummer": "A00000006"})
+
+            self.assertTrue(
+                ZaakIdentificatie.objects.filter(
+                    identificatie="A00000006", bronorganisatie="517439943"
+                ).exists()
+            )
 
     @freeze_time("2025-01-01")
     def test_reserve_multiple_zaaknummers(self):
@@ -843,33 +936,65 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
-        response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        with self.subTest("year"):
+            response = self.client.post(url, data)
 
-        result = response.data
-        self.assertEqual(len(result), 3)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        expected_ids = [
-            "ZAAK-2025-0000000001",
-            "ZAAK-2025-0000000002",
-            "ZAAK-2025-0000000003",
-        ]
+            result = response.data
+            self.assertEqual(len(result), 3)
 
-        actual_ids = [item["zaaknummer"] for item in result]
-        self.assertEqual(actual_ids, expected_ids)
+            expected_ids = [
+                "ZAAK-2025-0000000001",
+                "ZAAK-2025-0000000002",
+                "ZAAK-2025-0000000003",
+            ]
 
-        for zaaknummer in expected_ids:
-            self.assertTrue(
-                ZaakIdentificatie.objects.filter(
-                    identificatie=zaaknummer, bronorganisatie="517439943"
-                ).exists()
-            )
+            actual_ids = [item["zaaknummer"] for item in result]
+            self.assertEqual(actual_ids, expected_ids)
+
+            for zaaknummer in expected_ids:
+                self.assertTrue(
+                    ZaakIdentificatie.objects.filter(
+                        identificatie=zaaknummer, bronorganisatie="517439943"
+                    ).exists()
+                )
+
+        with (
+            override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification"),
+            self.subTest("uwv"),
+        ):
+            response = self.client.post(url, data)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            result = response.data
+            self.assertEqual(len(result), 3)
+
+            expected_ids = [
+                "A00000006",
+                "A00000023",
+                "A00000037",
+            ]
+
+            actual_ids = [item["zaaknummer"] for item in result]
+            self.assertEqual(actual_ids, expected_ids)
+
+            for zaaknummer in expected_ids:
+                self.assertTrue(
+                    ZaakIdentificatie.objects.filter(
+                        identificatie=zaaknummer, bronorganisatie="517439943"
+                    ).exists()
+                )
 
     @freeze_time("2025-01-01")
     def test_reserve_zaaknummers_continues_from_last_identificatie(self):
         ZaakIdentificatie.objects.create(
             identificatie="ZAAK-2025-0000000010", bronorganisatie="517439943"
+        )
+        ZaakIdentificatie.objects.create(
+            identificatie="A00000006", bronorganisatie="517439943"
         )
 
         data = {
@@ -878,12 +1003,25 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
-        response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        with self.subTest("year"):
+            response = self.client.post(url, data)
 
-        self.assertEqual(response.data[0]["zaaknummer"], "ZAAK-2025-0000000011")
-        self.assertEqual(response.data[1]["zaaknummer"], "ZAAK-2025-0000000012")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            self.assertEqual(response.data[0]["zaaknummer"], "ZAAK-2025-0000000011")
+            self.assertEqual(response.data[1]["zaaknummer"], "ZAAK-2025-0000000012")
+
+        with (
+            override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification"),
+            self.subTest("uwv"),
+        ):
+            response = self.client.post(url, data)
+
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            self.assertEqual(response.data[0]["zaaknummer"], "A00000023")
+            self.assertEqual(response.data[1]["zaaknummer"], "A00000037")
 
     @tag("gh-2011")
     def test_betalingsindicatie_weergave(self):

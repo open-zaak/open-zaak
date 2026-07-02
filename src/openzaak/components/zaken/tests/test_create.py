@@ -33,6 +33,7 @@ from openzaak.tests.utils import ClearCachesMixin, JWTAuthMixin
 from ..api.scopes import SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_CREATE
 from ..api.viewsets import ZaakViewSet
 from ..models import KlantContact, Rol, Status, Zaak, ZaakIdentificatie, ZaakObject
+from ..models.identification_classes import YearIdentification
 from .factories import ZaakFactory
 from .utils import ZAAK_WRITE_KWARGS, get_operation_url, isodatetime
 
@@ -378,9 +379,9 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
             try:
                 # starts first, but commits last
                 with transaction.atomic():
-                    ZaakIdentificatie.objects.generate(
+                    YearIdentification(
                         VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
-                    )
+                    ).generate()
                     time.sleep(0.1)
             finally:
                 close_old_connections()
@@ -388,9 +389,9 @@ class CreateZaakTransactionTests(JWTAuthMixin, APITransactionTestCase):
         def create_zaak2():
             try:
                 with transaction.atomic():
-                    ZaakIdentificatie.objects.generate(
+                    YearIdentification(
                         VERANTWOORDELIJKE_ORGANISATIE, date(2022, 12, 12)
-                    )
+                    ).generate()
             finally:
                 close_old_connections()
 

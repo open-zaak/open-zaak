@@ -104,6 +104,7 @@ from ...models import (
     ZaakRelatie,
     ZaakVerzoek,
 )
+from ...models.identification_classes import get_base_identification_class
 from ..validators import (
     DateNotInFutureValidator,
     DeelzaakReopenValidator,
@@ -229,7 +230,7 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
         fields = ("bronorganisatie", "startdatum")
 
     def create(self, validated_data):
-        func = import_string(
+        identification_class = import_string(
             settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
                 settings.ZAAK_IDENTIFICATIE_GENERATOR,
                 settings.ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS.get(
@@ -237,7 +238,7 @@ class GenerateZaakIdentificatieSerializer(serializers.ModelSerializer):
                 ),
             )
         )
-        return func(validated_data)
+        return identification_class(**validated_data).generate()
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")
@@ -275,17 +276,15 @@ class ReserveZaakIdentificatieSerializer(serializers.ModelSerializer):
         bronorganisatie = validated_data["bronorganisatie"]
         today = date.today()
 
-        if aantal == 1:
-            return self.Meta.model.objects.generate(
-                bronorganisatie,
-                today,
-            )
+        identification_class = get_base_identification_class()
 
-        return self.Meta.model.objects.generate_bulk(
-            bronorganisatie,
-            today,
+        created_identifications = identification_class(
+            bronorganisatie, date=today
+        ).generate_bulk(
             aantal,
         )
+
+        return created_identifications[0] if aantal == 1 else created_identifications
 
     def update(self, instance, data):  # pragma:nocover
         raise NotImplementedError("Updating is not supported in this serializer")
