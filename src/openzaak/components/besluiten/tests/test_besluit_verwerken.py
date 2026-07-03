@@ -275,8 +275,10 @@ class BesluitVerwerkenValidationTests(JWTAuthMixin, APITestCase):
             besluitinformatieobject.informatieobject, self.informatieobject.canonical
         )
 
-        expected_besluit_url = reverse(besluit)
-        expected_besluitinformatieobject_url = reverse(besluitinformatieobject)
+        expected_besluit_url = reverse(besluit, namespace="besluiten")
+        expected_besluitinformatieobject_url = reverse(
+            besluitinformatieobject, namespace="besluiten"
+        )
 
         expected_response = {
             "besluit": {

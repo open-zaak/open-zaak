@@ -1,12 +1,18 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+from urllib import parse
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model
+from django.urls import Resolver404, get_script_prefix, resolve
+from django.utils.encoding import uri_to_iri
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.relations import ObjectTypeError, ObjectValueError
 from rest_framework.request import Request
 from vng_api_common.validators import URLValidator
 
@@ -143,7 +149,7 @@ class FKOrServiceUrlField(ViewNameInjectionMixin, FKOrURLField):
 MOVED_MODELS = ["besluit", "besluitinformatieobject"]
 
 
-class NamespaceMixin:
+class DeprecatedNamespaceMixin:
     """
     Mixin to use the current namespace for the response so
     that the deprecated apis still return their original urls.
@@ -163,12 +169,47 @@ class NamespaceMixin:
 
 
 class NamespacedHyperlinkIdentityField(
-    NamespaceMixin, serializers.HyperlinkedIdentityField
+    DeprecatedNamespaceMixin, serializers.HyperlinkedIdentityField
 ):
     pass
 
 
 class NamespacedLengthHyperlinkedRelatedField(
-    NamespaceMixin, serializers.HyperlinkedRelatedField
+    DeprecatedNamespaceMixin, serializers.HyperlinkedRelatedField
 ):
-    pass
+    def to_internal_value(self, data):
+        # request = self.context.get("request")
+        try:
+            http_prefix = data.startswith(("http:", "https:"))
+        except AttributeError:
+            self.fail("incorrect_type", data_type=type(data).__name__)
+
+        if http_prefix:
+            # If needed convert absolute URLs to relative path
+            data = parse.urlparse(data).path
+            prefix = get_script_prefix()
+            if data.startswith(prefix):
+                data = "/" + data[len(prefix) :]
+
+        data = uri_to_iri(parse.unquote(data))
+
+        try:
+            match = resolve(data)
+        except Resolver404:
+            self.fail("no_match")
+
+        # TODO hardcoded mapping check?
+        # try:
+        #     expected_viewname = request.versioning_scheme.get_versioned_viewname(
+        #         self.view_name, request
+        #     )
+        # except AttributeError:
+        #     expected_viewname = self.view_name
+
+        # if match.view_name != expected_viewname:
+        #     self.fail("incorrect_match")
+
+        try:
+            return self.get_object(match.view_name, match.args, match.kwargs)
+        except (ObjectDoesNotExist, ObjectValueError, ObjectTypeError):
+            self.fail("does_not_exist")
