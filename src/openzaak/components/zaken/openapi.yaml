@@ -1752,7 +1752,6 @@ paths:
         - de combinatie `informatieobject` en `besluit` moet uniek zijn
 
         **Opmerkingen**
-        - De `registratiedatum` wordt door het systeem op 'NU' gezet. De `aardRelatie` wordt ook door het systeem gezet.
         - Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie aangemaakt, echter zonder de relatie-informatie.
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
       parameters:
