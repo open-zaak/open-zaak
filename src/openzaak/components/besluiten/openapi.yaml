@@ -1,8 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Besluiten API
+  title: Besluiten API (DEPRECATED)
   version: 1.1.0
-  description: |
+  description: |2
+
+
+    **Deze API is deprecated en zal worden verwijderd in 3.0. Besluiten zijn verplaatst naar de zaken API.**
+
     Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
     Een BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet
@@ -1757,7 +1761,6 @@ paths:
         - de combinatie `informatieobject` en `besluit` moet uniek zijn
 
         **Opmerkingen**
-        - De `registratiedatum` wordt door het systeem op 'NU' gezet. De `aardRelatie` wordt ook door het systeem gezet.
         - Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie aangemaakt, echter zonder de relatie-informatie.
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
       parameters:
