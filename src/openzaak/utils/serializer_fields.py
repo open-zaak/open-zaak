@@ -108,7 +108,6 @@ class ViewNameInjectionMixin:
     """
 
     def __init__(self, *args, view_name: str | None = None, **kwargs):
-        # TODO FKOrServiceUrlField seems to work when changing this to a safer property but breaks OnlyRemoteOrFKOrURLField
         self.view_name = view_name
         super().__init__(*args, **kwargs)
 
@@ -149,19 +148,20 @@ class FKOrServiceUrlField(ViewNameInjectionMixin, FKOrURLField):
         return model_class, model_field
 
 
-MOVED_MODELS = ["besluit", "besluitinformatieobject"]
-
-
 class DeprecatedNamespaceMixin:
     """
     Mixin to use the current namespace for the response so
     that the deprecated apis still return their original urls.
+
+    request namespaces is used for all models in _MOVED_MODELS
     """
+
+    _MOVED_MODELS = ["besluit", "besluitinformatieobject"]
 
     def get_url(
         self, obj: Model, view_name: str, request: Request, format: str | None
     ) -> str | None:
-        if obj._meta.model_name in MOVED_MODELS and getattr(
+        if obj._meta.model_name in self._MOVED_MODELS and getattr(
             request, "resolver_match", None
         ):
             if request.resolver_match.namespace != "admin":
@@ -177,18 +177,19 @@ class DeprecatedNamespaceHyperlinkIdentityField(
     pass
 
 
-ALLOWED_INCORRECT_MATCHES = {
-    "besluiten:besluit-detail": "zaken:besluit-detail",
-    "besluiten:besluitinformatieobject-detail": "zaken:besluitinformatieobject-detail",
-}
-
-
 class DeprecatedNamespaceLengthHyperlinkedRelatedField(
     DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
 ):
+    _ALLOWED_INCORRECT_MATCHES = {
+        "besluiten:besluit-detail": "zaken:besluit-detail",
+        "besluiten:besluitinformatieobject-detail": "zaken:besluitinformatieobject-detail",
+    }
+
     def to_internal_value(self, data):
         """
         Override for rest_framework HyperlinkedRelatedField.to_internal_value for incorrect matches because of deprecated apis.
+
+        all mappings in _ALLOWED_INCORRECT_MATCHES are allowed
         """
 
         request = self.context.get("request")
@@ -220,7 +221,7 @@ class DeprecatedNamespaceLengthHyperlinkedRelatedField(
 
         if (
             match.view_name != expected_viewname
-            and ALLOWED_INCORRECT_MATCHES[match.view_name] != expected_viewname
+            and self._ALLOWED_INCORRECT_MATCHES[match.view_name] != expected_viewname
         ):
             self.fail("incorrect_match")
 

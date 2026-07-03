@@ -1235,7 +1235,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2025-01-01T00:00:00Z",
         }
 
-        response = self.client.post(reverse("status-list"), data)
+        response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -1275,7 +1275,7 @@ class US345TestCase(JWTAuthMixin, APITestCase):
             "datumStatusGezet": "2025-01-01T00:00:00Z",
         }
 
-        response = self.client.post(reverse("status-list"), data)
+        response = self.client.post(reverse("zaken:status-list"), data)
 
         self.assertEqual(
             response.status_code,
