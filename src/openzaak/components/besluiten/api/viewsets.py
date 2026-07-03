@@ -231,8 +231,6 @@ class BesluitViewSet(
             "- de combinatie `informatieobject` en `besluit` moet uniek zijn\n"
             "\n"
             "**Opmerkingen**\n"
-            "- De `registratiedatum` wordt door het systeem op 'NU' gezet. De "
-            "`aardRelatie` wordt ook door het systeem gezet.\n"
             "- Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie "
             "aangemaakt, echter zonder de relatie-informatie."
         ),
