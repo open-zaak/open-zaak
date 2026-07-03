@@ -98,7 +98,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -182,7 +182,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         mock_send_cloudevent.assert_has_calls(
             [

@@ -104,7 +104,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluit": reverse(besluit),
+                    "besluit": reverse(besluit, namespace="besluiten"),
                     "informatieobject": f"http://testserver{io_url}",
                 },
             )
@@ -258,7 +258,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_external_besluittype_fail_bad_url(self):
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="besluiten")
 
         response = self.client.post(
             url,
@@ -287,7 +287,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             api_root="http://example.com",
         )
 
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="besluiten")
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/some-type", status_code=200)
