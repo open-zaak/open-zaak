@@ -1492,10 +1492,12 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     list=extend_schema(
         summary="Alle ZAAKBESLUITen opvragen.",
         description="Alle ZAAKBESLUITen opvragen.",
+        deprecated=True,
     ),
     retrieve=extend_schema(
         summary="Een specifiek ZAAKBESLUIT opvragen.",
         description="Een specifiek ZAAKBESLUIT opvragen.",
+        deprecated=True,
     ),
     create=extend_schema(
         summary="Maak een ZAAKBESLUIT aan.",
@@ -1508,6 +1510,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "**Er wordt gevalideerd op**\n"
             "- geldigheid URL naar de ZAAK"
         ),
+        deprecated=True,
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKBESLUIT.",
@@ -1517,6 +1520,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "De Besluiten API gebruikt dit endpoint om relaties te synchroniseren, "
             "daarom is dit endpoint in de Zaken API geimplementeerd."
         ),
+        deprecated=True,
     ),
 )
 class ZaakBesluitViewSet(
