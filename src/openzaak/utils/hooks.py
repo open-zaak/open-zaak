@@ -36,7 +36,7 @@ DEPRECATED_URLCONFS = ["openzaak.components.besluiten.api.urls"]
 
 def postprocess_deprecate_apis(result, generator, request, public):
     """
-    Deprecates all methods of urnconf.
+    Deprecates all methods of for the url configs in DEPRECATED_URLCONFS.
     """
     if generator.urlconf in DEPRECATED_URLCONFS:
         for path in result["paths"]:
