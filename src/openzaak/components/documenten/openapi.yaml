@@ -4466,7 +4466,7 @@ paths:
         schema:
           type: string
           enum:
-          - test/csv
+          - text/csv
         description: Content type van de verzoekinhoud.
         required: true
       - in: path
