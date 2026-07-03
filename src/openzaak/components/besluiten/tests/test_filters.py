@@ -45,7 +45,7 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
 
     def test_validate_unknown_query_params(self):
         BesluitFactory.create_batch(2)
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="besluiten")
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -55,7 +55,9 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(Besluit), {"besluittype": "bla"})
+        response = self.client.get(
+            reverse(Besluit, namespace="besluiten"), {"besluittype": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -65,7 +67,7 @@ class BesluitAPIFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         BesluitFactory.create(besluittype__concept=False)
         response = self.client.get(
-            reverse(Besluit),
+            reverse(Besluit, namespace="besluiten"),
             {"besluittype": "https://google.com"},
         )
 
@@ -80,7 +82,7 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
 
     def test_validate_unknown_query_params(self):
         BesluitInformatieObjectFactory.create_batch(2)
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
 
         response = self.client.get(url, {"someparam": "somevalue"})
 
@@ -90,7 +92,9 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(BesluitInformatieObject), {"besluit": "bla"})
+        response = self.client.get(
+            reverse(BesluitInformatieObject, namespace="besluiten"), {"besluit": "bla"}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -100,7 +104,8 @@ class BesluitInformatieObjectAPIFilterTests(JWTAuthMixin, APITestCase):
     def test_filter_by_valid_url_object_does_not_exist(self):
         BesluitInformatieObjectFactory.create()
         response = self.client.get(
-            reverse(BesluitInformatieObject), {"besluit": "https://google.com"}
+            reverse(BesluitInformatieObject, namespace="besluiten"),
+            {"besluit": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
