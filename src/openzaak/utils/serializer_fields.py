@@ -14,6 +14,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import ObjectTypeError, ObjectValueError
 from rest_framework.request import Request
+from vng_api_common.serializers import (
+    LengthHyperlinkedRelatedField as _LengthHyperlinkedRelatedField,
+)
 from vng_api_common.validators import URLValidator
 
 
@@ -168,17 +171,27 @@ class DeprecatedNamespaceMixin:
         return super().get_url(obj, view_name, request, format)
 
 
-class NamespacedHyperlinkIdentityField(
+class DeprecatedNamespaceHyperlinkIdentityField(
     DeprecatedNamespaceMixin, serializers.HyperlinkedIdentityField
 ):
     pass
 
 
-class NamespacedLengthHyperlinkedRelatedField(
-    DeprecatedNamespaceMixin, serializers.HyperlinkedRelatedField
+ALLOWED_INCORRECT_MATCHES = {
+    "besluiten:besluit-detail": "zaken:besluit-detail",
+    "besluiten:besluitinformatieobject-detail": "zaken:besluitinformatieobject-detail",
+}
+
+
+class DeprecatedNamespaceLengthHyperlinkedRelatedField(
+    DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
 ):
     def to_internal_value(self, data):
-        # request = self.context.get("request")
+        """
+        Override for rest_framework HyperlinkedRelatedField.to_internal_value for incorrect matches because of deprecated apis.
+        """
+
+        request = self.context.get("request")
         try:
             http_prefix = data.startswith(("http:", "https:"))
         except AttributeError:
@@ -198,16 +211,18 @@ class NamespacedLengthHyperlinkedRelatedField(
         except Resolver404:
             self.fail("no_match")
 
-        # TODO hardcoded mapping check?
-        # try:
-        #     expected_viewname = request.versioning_scheme.get_versioned_viewname(
-        #         self.view_name, request
-        #     )
-        # except AttributeError:
-        #     expected_viewname = self.view_name
+        try:
+            expected_viewname = request.versioning_scheme.get_versioned_viewname(
+                self.view_name, request
+            )
+        except AttributeError:
+            expected_viewname = self.view_name
 
-        # if match.view_name != expected_viewname:
-        #     self.fail("incorrect_match")
+        if (
+            match.view_name != expected_viewname
+            and ALLOWED_INCORRECT_MATCHES[match.view_name] != expected_viewname
+        ):
+            self.fail("incorrect_match")
 
         try:
             return self.get_object(match.view_name, match.args, match.kwargs)

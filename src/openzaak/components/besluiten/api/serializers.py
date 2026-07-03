@@ -21,11 +21,13 @@ from openzaak.components.zaken.api.utils import (
     delete_remote_zaakbesluit,
 )
 from openzaak.utils.api import create_remote_oio
-from openzaak.utils.serializer_fields import NamespacedLengthHyperlinkedRelatedField
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     ConvertNoneMixin,
-    NamespacedHyperlinkedModelSerializer,
+    DeprecatedNamespaceHyperlinkedModelSerializer,
     SubSerializerMixin,
 )
 from openzaak.utils.validators import (
@@ -41,7 +43,9 @@ from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
 
 
-class BesluitSerializer(ConvertNoneMixin, NamespacedHyperlinkedModelSerializer):
+class BesluitSerializer(
+    ConvertNoneMixin, DeprecatedNamespaceHyperlinkedModelSerializer
+):
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -176,7 +180,7 @@ class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
     pass
 
 
-class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
+class BesluitInformatieObjectSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
         validators=[
             LooseFkIsImmutableValidator(instance_path="canonical"),
@@ -190,7 +194,7 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
         ),
     )
 
-    besluit = NamespacedLengthHyperlinkedRelatedField(
+    besluit = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         view_name="zaken:besluit-detail",
         lookup_field="uuid",
         help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
@@ -248,7 +252,7 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
 class BesluitInformatieObjectSubSerializer(
     SubSerializerMixin, BesluitInformatieObjectSerializer
 ):
-    besluit = NamespacedLengthHyperlinkedRelatedField(
+    besluit = DeprecatedNamespaceLengthHyperlinkedRelatedField(
         view_name="zaken:besluit-detail",
         lookup_field="uuid",
         help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
