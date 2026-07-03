@@ -94,7 +94,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(identificatie="123456")
         besluit2 = BesluitFactory.create(identificatie="123456")
 
-        url = reverse(besluit)
+        url = reverse(besluit, namespace="besluiten")
 
         response = self.client.patch(
             url,
@@ -231,7 +231,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_update(self):
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         besluittype_url = reverse(besluit.besluittype)
         response = self.client.put(
@@ -254,7 +254,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_update_besluittype_fails(self):
         besluit = BesluitFactory.create()
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
 
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(besluittype)
@@ -298,7 +298,7 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_validate_no_informatieobjecttype_besluittype_relation(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 

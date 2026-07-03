@@ -68,7 +68,7 @@ class BesluitSerializer(ConvertNoneMixin, NamespacedHyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "besluiten:besluit-detail",
+                "view_name": "zaken:besluit-detail",
             },
             # per BRC API spec!
             "besluittype": {
@@ -108,7 +108,7 @@ class BesluitSerializer(ConvertNoneMixin, NamespacedHyperlinkedModelSerializer):
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]
         besluit_url = reverse(
-            "besluiten:besluit-detail",
+            "zaken:besluit-detail",
             kwargs={
                 "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
                 "uuid": besluit.uuid,
@@ -191,7 +191,7 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
     )
 
     besluit = NamespacedLengthHyperlinkedRelatedField(
-        view_name="besluiten:besluit-detail",
+        view_name="zaken:besluit-detail",
         lookup_field="uuid",
         help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
         queryset=Besluit.objects.all(),
@@ -211,7 +211,7 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "besluiten:besluitinformatieobject-detail",
+                "view_name": "zaken:besluitinformatieobject-detail",
             },
         }
 

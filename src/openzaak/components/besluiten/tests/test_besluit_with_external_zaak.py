@@ -97,7 +97,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         besluit = Besluit.objects.get()
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='zaken')}"
         self.assertEqual(besluit._zaakbesluit_url, zaakbesluit_data["url"])
 
         history_post = [
@@ -155,7 +155,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         # update zaak in the besluit
         zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='zaken')}"
 
         with requests_mock.Mocker() as m:
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
@@ -198,7 +198,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         # update zaak in the besluit
         zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
 
         with requests_mock.Mocker() as m:
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
@@ -218,7 +218,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_delete_with_external_zaak(self):
         zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
         zaakbesluit_url = besluit._zaakbesluit_url
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
@@ -244,7 +244,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_delete_with_external_zaak_fail_delete_zaakbesluit(self):
         zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
         zaakbesluit_url = besluit._zaakbesluit_url
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"

@@ -360,7 +360,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
 
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(besluit=besluit1)
@@ -393,7 +393,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
 
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(besluit=besluit1)
@@ -530,7 +530,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype,
@@ -607,7 +607,7 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype
