@@ -248,8 +248,13 @@ class BesluitInformatieObjectSerializer(NamespacedHyperlinkedModelSerializer):
 class BesluitInformatieObjectSubSerializer(
     SubSerializerMixin, BesluitInformatieObjectSerializer
 ):
-    class Meta(BesluitInformatieObjectSerializer.Meta):
-        read_only_fields = ("besluit",)
+    besluit = NamespacedLengthHyperlinkedRelatedField(
+        view_name="zaken:besluit-detail",
+        lookup_field="uuid",
+        help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
+        validators=[IsImmutableValidator()],
+        read_only=True,
+    )
 
 
 class BesluitVerwerkenSerializer(ConvenienceSerializer):

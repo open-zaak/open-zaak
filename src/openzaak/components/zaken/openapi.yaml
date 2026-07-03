@@ -12865,6 +12865,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
       responses:
         '200':
           headers:
@@ -13035,6 +13036,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.bijwerken
+      deprecated: true
       responses:
         '201':
           headers:
@@ -13186,6 +13188,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.lezen
+      deprecated: true
       responses:
         '200':
           headers:
@@ -13344,6 +13347,7 @@ paths:
       security:
       - JWT-Claims:
         - zaken.bijwerken
+      deprecated: true
       responses:
         '204':
           headers:
@@ -16368,6 +16372,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
       - besluit
       - informatieobject
@@ -16386,6 +16392,8 @@ components:
           type: string
           format: uri
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
       - besluit
       - informatieobject
@@ -16409,7 +16417,10 @@ components:
         besluit:
           type: string
           format: uri
+          readOnly: true
           description: URL-referentie naar het BESLUIT.
+          minLength: 1
+          maxLength: 1000
       required:
       - besluit
       - informatieobject
@@ -16424,12 +16435,7 @@ components:
             API) waarin (een deel van) het besluit beschreven is.
           format: uri
           maxLength: 1000
-        besluit:
-          type: string
-          format: uri
-          description: URL-referentie naar het BESLUIT.
       required:
-      - besluit
       - informatieobject
     BesluitRequest:
       type: object
