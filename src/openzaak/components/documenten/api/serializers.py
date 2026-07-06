@@ -640,8 +640,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
 
         bestandsdelen.wipe()
 
-        create_bestandsdeel_kwargs = {"canonical": instance.canonical}
-
         # large file process
         if (
             not instance.inhoud
@@ -649,12 +647,17 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             and instance.bestandsomvang > 0
         ):
             self._create_bestandsdeel(
-                instance.bestandsomvang, **create_bestandsdeel_kwargs
+                instance.bestandsomvang,
+                canonical=instance.canonical,
             )
 
         # create empty file if size == 0
         if instance.bestandsomvang == 0 and not instance.inhoud:
             instance.inhoud.save("empty_file", ContentFile(b""))
+
+        if hasattr(instance.canonical, "_prefetched_objects_cache"):
+            instance.canonical._prefetched_objects_cache.pop("bestandsdelen", None)
+
         return instance
 
 
