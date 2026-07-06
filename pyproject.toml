@@ -57,6 +57,23 @@ search = "releaseDate: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
 replace = "releaseDate: '{now:%Y-%m-%d}'"
 regex = true
 
+[tool.coverage.run]
+branch = true
+source = ["src"]
+omit = [
+    "*/test_*.py",
+    "*/tests/utils/playwright.py",
+    "*/import_data/tests/utils.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if settings.DEBUG",
+    "if bypass_permissions(request)",
+    "if TYPE_CHECKING:",
+    'case _:\n\s*(assert_never|raise)',
+]
+
 
 # Ruff configuration
 [tool.ruff]
