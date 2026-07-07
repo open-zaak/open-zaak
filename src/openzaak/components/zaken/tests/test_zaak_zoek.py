@@ -21,8 +21,8 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
 
 from .constants import POLYGON_AMSTERDAM_CENTRUM
-from .factories import ZaakFactory
-from .utils import ZAAK_WRITE_KWARGS, get_operation_url
+from .factories import StatusFactory, ZaakFactory
+from .utils import ZAAK_WRITE_KWARGS as POST_KWARGS, get_operation_url
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
@@ -52,7 +52,7 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                     }
                 }
             },
-            **ZAAK_WRITE_KWARGS,
+            **POST_KWARGS,
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -84,7 +84,7 @@ class US42TestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
                 },
                 "zaaktype": f"http://openzaak.nl{zaaktype1_url}",
             },
-            **ZAAK_WRITE_KWARGS,
+            **POST_KWARGS,
             HTTP_HOST="openzaak.nl",
         )
 
@@ -102,7 +102,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         url = get_operation_url("zaak__zoek")
         data = {"uuid__in": [zaak1.uuid, zaak2.uuid]}
 
-        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, data, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -116,7 +116,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
     def test_zoek_without_params(self):
         url = get_operation_url("zaak__zoek")
 
-        response = self.client.post(url, {}, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, {}, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -133,7 +133,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
             "ordering": "-startdatum",
         }
 
-        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, body, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -148,7 +148,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         zaak2 = ZaakFactory.create(startdatum=date(2022, 9, 1))
         body = {"identificatie": zaak2.identificatie}
 
-        response = self.client.post(url, body, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, body, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.json()["results"]
@@ -169,7 +169,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         response = self.client.post(
             url,
             data,
-            **ZAAK_WRITE_KWARGS,
+            **POST_KWARGS,
             HTTP_HOST="testserver.com",
         )
 
@@ -181,6 +181,53 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["url"], f"http://testserver.com{reverse(zaak1)}")
         self.assertEqual(data[1]["url"], f"http://testserver.com{reverse(zaak2)}")
+
+    @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
+    def test_zoek_supports_vng_query_params(self):
+        """VNG spec defines page and expand as query_param
+        https://vng-realisatie.github.io/gemma-zaken/standaard/zaken/redoc-1.7.0.html#tag/zaken/operation/zaak__zoek
+        """
+        zaak1, zaak2, zaak3 = ZaakFactory.create_batch(3)
+        StatusFactory.create(zaak=zaak3)
+        url = get_operation_url("zaak__zoek")
+        data = {
+            "zaaktype__in": [
+                f"http://testserver.com{reverse(zaak1.zaaktype)}",
+                f"http://testserver.com{reverse(zaak2.zaaktype)}",
+                f"http://testserver.com{reverse(zaak3.zaaktype)}",
+            ],
+            # VNG body spec says expand :: str, not list[str] but also Deprecated
+            # so this tests what we implemented, not what the standard says
+            "expand": ["status"],
+            # ensure pages are deterministic
+            "ordering": "identificatie",
+        }
+
+        response = self.client.post(
+            url,
+            data,
+            follow=True,
+            **POST_KWARGS,
+            HTTP_HOST="testserver.com",
+            query_params={
+                "expand": "zaaktype",
+                "pageSize": 2,  # not VNG
+                "page": 2,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver.com{reverse(zaak3)}")
+        self.assertIn("zaaktype", data[0]["_expand"])
+        self.assertIn("status", data[0]["_expand"])
+        self.assertEqual(
+            data[0]["_expand"]["zaaktype"]["identificatie"],
+            zaak3.zaaktype.identificatie,
+        )
 
     @tag("external-urls")
     @override_settings(ALLOWED_HOSTS=["testserver"])
@@ -197,7 +244,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         m.get(external_zaaktype1, json={"url": external_zaaktype1})
         m.get(external_zaaktype2, json={"url": external_zaaktype2})
 
-        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, data, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -231,7 +278,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         m.get(external_zaaktype2, json={"url": external_zaaktype2})
 
         response = self.client.post(
-            url, data, **ZAAK_WRITE_KWARGS, HTTP_HOST="testserver.com"
+            url, data, **POST_KWARGS, HTTP_HOST="testserver.com"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -259,7 +306,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         response = self.client.post(
             url,
             data,
-            **ZAAK_WRITE_KWARGS,
+            **POST_KWARGS,
             HTTP_HOST="testserver.com",
         )
 
@@ -295,7 +342,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         m.get(external_zaaktype1, json={"url": external_zaaktype1})
         m.get(external_zaaktype2, json={"url": external_zaaktype2})
 
-        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        response = self.client.post(url, data, **POST_KWARGS)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -338,7 +385,7 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
         m.get(external_zaaktype2, json={"url": external_zaaktype2})
 
         response = self.client.post(
-            url, data, **ZAAK_WRITE_KWARGS, HTTP_HOST="testserver.com"
+            url, data, **POST_KWARGS, HTTP_HOST="testserver.com"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

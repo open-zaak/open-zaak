@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+import unittest
+
+from django.test import tag
+
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -29,6 +33,26 @@ class EIOZoekTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio1)}")
         self.assertEqual(data[1]["url"], f"http://testserver{reverse(eio2)}")
+
+    @tag("gh-2406")
+    @unittest.expectedFailure
+    def test_zoek_with_experimental_params(self):
+        # The experimental body attributes probably only work in the list filter
+        # as query_params. Therefore I removed them from the OAS.
+        eio1, eio2, _ = EnkelvoudigInformatieObjectFactory.create_batch(3)
+
+        assert eio2.titel
+        response = self.client.post(
+            self.url,
+            data={"uuid__in": [eio1.uuid, eio2.uuid], "titel": eio2.titel},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()["results"]
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio2)}")
 
     def test_zoek_without_params(self):
         response = self.client.post(self.url, {})
