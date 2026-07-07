@@ -10303,6 +10303,7 @@ components:
           maxLength: 40
         reactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
@@ -10317,6 +10318,7 @@ components:
             BESLUITTYPE
         publicatietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
@@ -10413,6 +10415,7 @@ components:
           maxLength: 40
         reactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
@@ -10427,6 +10430,7 @@ components:
             BESLUITTYPE
         publicatietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
@@ -10641,6 +10645,7 @@ components:
           maxLength: 80
         procestermijn:
           type: string
+          format: duration
           nullable: true
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
@@ -10745,6 +10750,7 @@ components:
           maxLength: 80
         procestermijn:
           type: string
+          format: duration
           nullable: true
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
@@ -11756,6 +11762,7 @@ components:
           maxLength: 40
         reactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
@@ -11770,6 +11777,7 @@ components:
             BESLUITTYPE
         publicatietermijn:
           type: string
+          format: duration
           nullable: true
           description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
             of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
@@ -11952,6 +11960,7 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn, na het vervallen van het bedrjfsvoeringsbelang,
             waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen)
@@ -11979,6 +11988,7 @@ components:
             betreft dat specifiek is voor een bepaalde procesobjectaard.
         procestermijn:
           type: string
+          format: duration
           nullable: true
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
@@ -12096,6 +12106,7 @@ components:
             dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang.
         doorlooptijd:
           type: string
+          format: duration
           nullable: true
           description: De door de zaakbehandelende organisatie(s) gestelde norm voor
             de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij
@@ -12298,10 +12309,12 @@ components:
           maxLength: 20
         doorlooptijd:
           type: string
+          format: duration
           description: De periode waarbinnen volgens wet- en regelgeving een ZAAK
             van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.
         servicenorm:
           type: string
+          format: duration
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -12317,6 +12330,7 @@ components:
             ZAAKen van dit ZAAKTYPE kan worden verlengd.
         verlengingstermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn (typisch een aantal dagen) waarmee de Doorlooptijd
             behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen
@@ -12528,6 +12542,7 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn, na het vervallen van het bedrjfsvoeringsbelang,
             waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen)
@@ -12555,6 +12570,7 @@ components:
             betreft dat specifiek is voor een bepaalde procesobjectaard.
         procestermijn:
           type: string
+          format: duration
           nullable: true
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
@@ -12684,6 +12700,7 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         archiefactietermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn, na het vervallen van het bedrjfsvoeringsbelang,
             waarna het zaakdossier (de ZAAK met alle bijbehorende INFORMATIEOBJECTen)
@@ -12711,6 +12728,7 @@ components:
             betreft dat specifiek is voor een bepaalde procesobjectaard.
         procestermijn:
           type: string
+          format: duration
           nullable: true
           description: De periode dat het zaakdossier na afronding van de zaak actief
             gebruikt en/of geraadpleegd wordt ter ondersteuning van de taakuitoefening
@@ -12938,6 +12956,7 @@ components:
             dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang.
         doorlooptijd:
           type: string
+          format: duration
           nullable: true
           description: De door de zaakbehandelende organisatie(s) gestelde norm voor
             de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij
@@ -13046,6 +13065,7 @@ components:
             dit STATUSTYPE de Initiator moet worden geïnformeerd over de statusovergang.
         doorlooptijd:
           type: string
+          format: duration
           nullable: true
           description: De door de zaakbehandelende organisatie(s) gestelde norm voor
             de doorlooptijd voor het bereiken van STATUSsen van dit STATUSTYPE bij
@@ -13348,10 +13368,12 @@ components:
           maxLength: 20
         doorlooptijd:
           type: string
+          format: duration
           description: De periode waarbinnen volgens wet- en regelgeving een ZAAK
             van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.
         servicenorm:
           type: string
+          format: duration
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -13367,6 +13389,7 @@ components:
             ZAAKen van dit ZAAKTYPE kan worden verlengd.
         verlengingstermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn (typisch een aantal dagen) waarmee de Doorlooptijd
             behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen
@@ -13776,10 +13799,12 @@ components:
           maxLength: 20
         doorlooptijd:
           type: string
+          format: duration
           description: De periode waarbinnen volgens wet- en regelgeving een ZAAK
             van het ZAAKTYPE afgerond dient te zijn, in kalenderdagen.
         servicenorm:
           type: string
+          format: duration
           nullable: true
           description: De periode waarbinnen verwacht wordt dat een ZAAK van het ZAAKTYPE
             afgerond wordt conform de geldende servicenormen van de zaakbehandelende
@@ -13795,6 +13820,7 @@ components:
             ZAAKen van dit ZAAKTYPE kan worden verlengd.
         verlengingstermijn:
           type: string
+          format: duration
           nullable: true
           description: De termijn (typisch een aantal dagen) waarmee de Doorlooptijd
             behandeling van ZAAKen van dit ZAAKTYPE kan worden verlengd. Mag alleen

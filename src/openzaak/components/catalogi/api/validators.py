@@ -2,6 +2,7 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.utils.translation import gettext_lazy as _
 
+from dateutil.relativedelta import relativedelta
 from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.serializers import Serializer
 from rest_framework.settings import api_settings
@@ -519,3 +520,16 @@ class ZaakTypeRelationsPublishValidator:
 
         if len(serializer_errors) > 0:
             raise ValidationError(serializer_errors, code=self.code)
+
+
+class NonZeroRelativeDeltaValidator:
+    """
+    Validate that a relative delta is not empty
+    """
+
+    code = "empty-duration"
+    message = _("duration cannot be empty, null may be allowed")
+
+    def __call__(self, value):
+        if value == relativedelta():
+            raise ValidationError(self.message, code=self.code)

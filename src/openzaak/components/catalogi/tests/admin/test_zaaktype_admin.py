@@ -778,6 +778,62 @@ class ZaaktypeAdminTests(
         form = response.forms["zaaktype_form"]
         self.assertEqual(form.fields["_besluittypen"][0].value, f"{bt1.pk},{bt2.pk}")
 
+    @tag("gh-2165")
+    def test_create_zaaktype_without_servicenorm(self, m):
+        catalogus = CatalogusFactory.create()
+        url = reverse("admin:catalogi_zaaktype_add")
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+        add_page = self.app.get(url)
+        form = add_page.forms["zaaktype_form"]
+
+        form["zaaktype_omschrijving"] = "test"
+        form["doel"] = "test"
+        form["aanleiding"] = "test"
+        form["indicatie_intern_of_extern"].select("intern")
+        form["handeling_initiator"] = "test"
+        form["onderwerp"] = "test"
+        form["handeling_behandelaar"] = "test"
+        form["doorlooptijd_behandeling_days"] = 12
+        form["opschorting_en_aanhouding_mogelijk"].select(False)
+        form["verlenging_mogelijk"].select(False)
+        form["vertrouwelijkheidaanduiding"].select("openbaar")
+        form["referentieproces_naam"] = "test"
+        form["catalogus"] = catalogus.pk
+        form["datum_begin_geldigheid"] = "21-11-2019"
+        form["verantwoordelijke"] = "063308836"
+
+        response = form.submit()
+
+        # redirect on successful create, 200 on validation errors, 500 on db errors
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ZaakType.objects.count(), 1)
+
+        zaaktype = ZaakType.objects.get()
+        self.assertEqual(zaaktype.servicenorm_behandeling, None)
+
+    @tag("gh-2165")
+    def test_servicenorm_zero_is_null(self, m):
+        mock_selectielijst_oas_get(m)
+        mock_resource_list(m, "procestypen")
+
+        catalogus = CatalogusFactory.create()
+        zaaktype = ZaakTypeFactory.create(catalogus=catalogus)
+        url = reverse("admin:catalogi_zaaktype_change", args=[zaaktype.pk])
+
+        update_page = self.app.get(url)
+
+        form = update_page.forms["zaaktype_form"]
+        form["servicenorm_behandeling_days"] = 0
+        form["servicenorm_behandeling_months"] = 0
+        form["servicenorm_behandeling_years"] = 0
+
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+
+        zaaktype.refresh_from_db()
+        self.assertEqual(zaaktype.servicenorm_behandeling, None)
+
 
 @disable_admin_mfa()
 class ZaakTypePublishAdminTests(SelectieLijstMixin, AdminTestMixin, WebTest):
