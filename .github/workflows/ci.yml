@@ -219,11 +219,12 @@ jobs:
                       --token '${{ secrets.BENCHER_API_TOKEN }}' \
                       --branch "$GITHUB_HEAD_REF" \
                       --start-point "$GITHUB_BASE_REF" \
-                      --start-point-max-versions 1 \
+                      --start-point-max-versions 30 \
                       --average median \
                       --threshold-measure latency \
-                      --threshold-test percentage \
-                      --threshold-upper-boundary 0.05 \
+                      --threshold-test iqr \
+                      --threshold-upper-boundary 2.0 \
+                      --threshold-min-sample-size 15 \
                       --testbed ubuntu-24.04 \
                       --github-actions '${{ secrets.GITHUB_TOKEN }}' \
                       --file output.json \
