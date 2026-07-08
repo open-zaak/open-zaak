@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2026 Dimpact
 import inspect
-from typing import Any
 
 from django.conf import settings
 from django.db import models
@@ -9,8 +8,8 @@ from django.urls import reverse as _reverse, reverse_lazy as _reverse_lazy
 
 
 def _magic_args(
-    args: tuple[Any, ...], kwargs: dict[str, Any]
-) -> tuple[tuple[Any], dict[str, Any]]:
+    args: tuple[object, ...], kwargs: dict[str, object]
+) -> tuple[tuple[object], dict[str, object]]:
     """
     Copied over from common_ground_api_common. This version injects the given namepace or use the Model _meta.app_label
     Since Open Zaak is currently the only application using namepaces this cannot be moved to the pkg.
@@ -31,7 +30,7 @@ def _magic_args(
     return args, kwargs
 
 
-def reverse(*args: tuple[Any, ...], **kwargs: dict[str, Any]) -> str:
+def reverse(*args: tuple[object, ...], **kwargs: dict[str, object]) -> str:
     """
     Determine the path for a named URL, instance or model.
 
@@ -50,7 +49,7 @@ def reverse(*args: tuple[Any, ...], **kwargs: dict[str, Any]) -> str:
     return _reverse(*args, **kwargs)  # type: ignore
 
 
-def reverse_lazy(*args: tuple[Any, ...], **kwargs: dict[str, Any]) -> str:
+def reverse_lazy(*args: tuple[object, ...], **kwargs: dict[str, object]) -> str:
     """
     Determine the path for a named URL, instance or model, lazily.
 
