@@ -22,7 +22,9 @@ class ZakenSchemaTests(WebTest):
         vng_query_params = {"page", "expand"}
         vng_header_params = {"Content-Type", "Content-Crs", "Accept-Crs"}
 
-        response = self.app.get(reverse("schema-zaken-json", kwargs={"version": 1}))
+        response = self.app.get(
+            reverse("zaken:schema-zaken-json", kwargs={"version": 1})
+        )
 
         schema = response.json
         params_in = {
