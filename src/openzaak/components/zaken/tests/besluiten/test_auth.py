@@ -429,10 +429,10 @@ class BioReadTests(JWTAuthMixin, APITestCase):
             informatieobject.informatieobjecttype
         )
 
-        besluit_uri1 = reverse(besluit1)
+        besluit_uri1 = reverse(besluit1, namespace="zaken")
         besluit_url1 = f"http://testserver{besluit_uri1}"
 
-        besluit_uri2 = reverse(besluit2)
+        besluit_uri2 = reverse(besluit2, namespace="zaken")
         besluit_url2 = f"http://testserver{besluit_uri2}"
 
         url1 = reverse("zaken:besluitinformatieobject-list")
