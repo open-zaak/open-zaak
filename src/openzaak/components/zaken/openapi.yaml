@@ -594,7 +594,7 @@ paths:
           description: Internal server error
   /besluiten/{besluit_uuid}/audittrail:
     get:
-      operationId: audittrail_list
+      operationId: besluiten_audittrail_list
       description: Alle audit trail regels behorend bij het BESLUIT.
       summary: Alle audit trail regels behorend bij het BESLUIT.
       parameters:
@@ -734,7 +734,7 @@ paths:
           description: Internal server error
   /besluiten/{besluit_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_read
+      operationId: besluiten_audittrail_read
       description: Een specifieke audit trail
       summary: Een specifieke audit trail regel opvragen.
       parameters:
@@ -12561,7 +12561,7 @@ paths:
           description: No response body
   /zaken/{zaak_uuid}/audittrail:
     get:
-      operationId: audittrail_list_2
+      operationId: audittrail_list
       description: Alle audit trail regels behorend bij de ZAAK.
       summary: Alle audit trail regels behorend bij de ZAAK.
       parameters:
@@ -12702,7 +12702,7 @@ paths:
           description: Internal server error
   /zaken/{zaak_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_read_2
+      operationId: audittrail_read
       description: Een specifieke audit trail regel opvragen.
       summary: Een specifieke audit trail regel opvragen.
       parameters:

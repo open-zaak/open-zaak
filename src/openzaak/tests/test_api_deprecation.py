@@ -127,6 +127,10 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
 
 
 class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
+    """
+    Urls are stored in auditrail itself and won't change when changing namespace
+    """
+
     heeft_alle_autorisaties = True
     maxDiff = None
 
@@ -201,7 +205,6 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
                 },
             )
 
-        # TODO urls are stored in auditrail itself and wont changes when changing namespace
         with self.subTest("fetch from zaken api"):
             url = reverse(
                 "zaken:audittrail-list", kwargs={"besluit_uuid": besluit.uuid}
@@ -297,7 +300,6 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
                 },
             )
 
-        # TODO urls are stored in auditrail itself and wont changes when changing namespace
         with self.subTest("fetch from zaken api"):
             url = reverse(
                 "zaken:audittrail-list", kwargs={"besluit_uuid": besluit.uuid}
