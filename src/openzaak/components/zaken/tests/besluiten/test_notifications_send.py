@@ -328,7 +328,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             informatieobjecttype__concept=False
         )
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="zaken")
         io_url = reverse(io)
         data = {
             "informatieobject": f"http://testserver{io_url}",

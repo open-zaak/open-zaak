@@ -10,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
@@ -111,13 +110,8 @@ class BesluitSerializer(
 
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]
-        besluit_url = reverse(
-            "zaken:besluit-detail",
-            kwargs={
-                "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
-                "uuid": besluit.uuid,
-            },
-            request=self.context["request"],
+        besluit_url = besluit.get_absolute_api_url(
+            request=self.context["request"], namespace="zaken"
         )
         return create_remote_zaakbesluit(besluit_url, zaak_url)
 
@@ -275,7 +269,9 @@ class BesluitVerwerkenSerializer(ConvenienceSerializer):
         besluit = besluit_serializer.save()
 
         besluit_data = {
-            "besluit": besluit.get_absolute_api_url(request=self.context["request"])
+            "besluit": besluit.get_absolute_api_url(
+                request=self.context["request"], namespace="zaken"
+            )
         }
 
         bios = []

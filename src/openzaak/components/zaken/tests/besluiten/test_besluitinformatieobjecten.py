@@ -77,7 +77,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Test the (informatieobject, object) unique together validation.
         """
         bio = BesluitInformatieObjectFactory.create()
-        besluit_url = reverse(bio.besluit)
+        besluit_url = reverse(bio.besluit, namespace="zaken")
         io_url = reverse(bio.informatieobject.latest_version)
 
         content = {

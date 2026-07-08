@@ -108,7 +108,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluit": reverse(besluit),
+                    "besluit": reverse(besluit, namespace="zaken"),
                     "informatieobject": f"http://testserver{io_url}",
                 },
             )

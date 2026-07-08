@@ -297,7 +297,7 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_validate_no_informatieobjecttype_besluittype_relation(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="zaken")
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
