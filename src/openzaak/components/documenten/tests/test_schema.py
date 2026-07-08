@@ -23,7 +23,7 @@ class DocumentenSchemaTests(WebTest):
         vng_header_params = {"Content-Type"}
 
         response = self.app.get(
-            reverse("schema-documenten-json", kwargs={"version": 1})
+            reverse("documenten:schema-documenten-json", kwargs={"version": 1})
         )
 
         zoek_schema = response.json["paths"]["/enkelvoudiginformatieobjecten/_zoek"][
