@@ -447,8 +447,9 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
 
 
 ZAAK_IDENTIFICATIE_GENERATOR_OPTIONS = {
-    "use-creation-year": "openzaak.components.zaken.api.utils.generate_zaak_identificatie_with_creation_year",
-    "use-start-datum-year": "openzaak.components.zaken.api.utils.generate_zaak_identificatie_with_start_datum_year",
+    "use-creation-year": "openzaak.components.zaken.models.identification_classes.CreationYearIdentification",
+    "use-start-datum-year": "openzaak.components.zaken.models.identification_classes.StartDatumYearIdentification",
+    "use-uwv-identification": "openzaak.components.zaken.models.identification_classes.UWVIdentification",
 }
 
 ZAAK_IDENTIFICATIE_GENERATOR = config(

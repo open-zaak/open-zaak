@@ -143,3 +143,24 @@ class US164TestCase(JWTAuthMixin, APITestCase):
 
         zaak = Zaak.objects.get()
         self.assertEqual(zaak.identificatie, "ZAAK-2025-0000000001")
+
+    @override_settings(ZAAK_IDENTIFICATIE_GENERATOR="use-uwv-identification")
+    @freeze_time("2025-1-1")
+    def test_zaak_identificatie_with_uwv_identification(self):
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        zaaktype_url = reverse(zaaktype)
+        url = get_operation_url("zaak_create")
+        data = {
+            "zaaktype": f"http://testserver{zaaktype_url}",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "verantwoordelijkeOrganisatie": VERANTWOORDELIJKE_ORGANISATIE,
+            "bronorganisatie": "517439943",
+            "startdatum": "2018-06-11",
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        zaak = Zaak.objects.get()
+        self.assertEqual(zaak.identificatie, "A00000006")

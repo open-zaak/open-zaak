@@ -544,6 +544,8 @@ humanize==4.0.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   flower
+hypothesis==6.155.2
+    # via -r requirements/test-tools.in
 idna==3.18
     # via
     #   -c requirements/base.txt
@@ -1067,6 +1069,8 @@ smartypants==2.0.2
     #   django-markup
 snowballstemmer==2.2.0
     # via sphinx
+sortedcontainers==2.4.0
+    # via hypothesis
 soupsieve==1.9.5
     # via beautifulsoup4
 sphinx==9.1.0
