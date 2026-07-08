@@ -5,7 +5,7 @@ info:
   description: |2
 
 
-    **Deze API is deprecated en zal worden verwijderd in 3.0. Besluiten zijn verplaatst naar de zaken API.**
+    **Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.**
 
     Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
@@ -595,7 +595,7 @@ paths:
       deprecated: true
   /besluiten/{besluit_uuid}/audittrail:
     get:
-      operationId: audittrail_list
+      operationId: besluiten_audittrail_list
       description: Alle audit trail regels behorend bij het BESLUIT.
       summary: Alle audit trail regels behorend bij het BESLUIT.
       parameters:
@@ -736,7 +736,7 @@ paths:
       deprecated: true
   /besluiten/{besluit_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_read
+      operationId: besluiten_audittrail_read
       description: Een specifieke audit trail
       summary: Een specifieke audit trail regel opvragen.
       parameters:

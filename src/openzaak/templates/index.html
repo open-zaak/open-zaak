@@ -7,7 +7,7 @@
 {% block page_title %}{{ settings.PROJECT_NAME }} {% trans "Starting point" %}{% endblock %}
 {% block page_subtitle %}{{ settings.SITE_TITLE }}{% endblock page_subtitle %}
 
-{% block title_component %}{{ component|capfirst }} <br>{{ description }}{% endblock title_component %}
+{% block title_component %}{{ component|capfirst }}  {% if deprecated %}<strong>(DEPRECATED)</strong>{% endif %} <br>{{ description|linebreaks }}{% endblock title_component %}
 {% block subtitle_component %}
     {% trans "Technical API documentation in the form of an Open API Specification (OAS)." %}
 {% endblock subtitle_component %}

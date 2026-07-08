@@ -30,7 +30,10 @@ urlpatterns = [
         ComponentIndexView.as_view(
             component="besluiten",
             api_version="1",
-            description="Besluit Registratie Component (BRC)",
+            deprecated=True,
+            description="Besluit Registratie Component (BRC)"
+            "\n\n"
+            "Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.",
             notification_url=f"{BASE_NOTIFICATION_URL}#besluiten",
         ),
         name="index-besluiten",

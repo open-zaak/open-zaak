@@ -347,6 +347,7 @@ class BesluitInformatieObjectViewSet(
     list=extend_schema(
         summary="Alle audit trail regels behorend bij het BESLUIT.",
         description="Alle audit trail regels behorend bij het BESLUIT.",
+        operation_id="besluiten_audittrail_list",
         parameters=[
             OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
         ],
@@ -354,6 +355,7 @@ class BesluitInformatieObjectViewSet(
     retrieve=extend_schema(
         summary="Een specifieke audit trail regel opvragen.",
         description="Een specifieke audit trail",
+        operation_id="besluiten_audittrail_read",
         parameters=[
             OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
         ],
