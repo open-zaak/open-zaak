@@ -10,7 +10,7 @@ from .kanalen import KANAAL_BESLUITEN
 
 description = f"""
 
-**Deze API is deprecated en zal worden verwijderd in 3.0. Besluiten zijn verplaatst naar de zaken API.**
+**Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.**
 
 Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
