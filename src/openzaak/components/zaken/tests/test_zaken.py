@@ -789,7 +789,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_uwv_identity(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
@@ -808,7 +808,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
 
@@ -825,7 +825,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response_2 = self.client.post(
-            reverse("zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -833,7 +833,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_identity_with_different_bronorganisatie(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Zaak.objects.count(), 0)
@@ -851,7 +851,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
 
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
