@@ -40,14 +40,19 @@ class AuditTrailMixin:
 
 class APIMixin(_APIMixin):
     def get_absolute_api_url(
-        self, request=None, with_namespace: bool = True, **kwargs
+        self,
+        request=None,
+        namespace: str | None = None,
+        with_namespace: bool = True,
+        **kwargs,
     ) -> str:
         """
         Namespace is required for the reverse call but can be removed from the return url using with_namespace=False
         """
         kwargs["version"] = "1"
 
-        namespace = self._meta.app_label
+        if namespace is None:
+            namespace = self._meta.app_label
 
         # copied from _APIMixin.get_absolute_api_url
         resource_name = self._meta.model_name  # type: ignore[attr-defined]
