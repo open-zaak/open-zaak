@@ -151,8 +151,8 @@
                 "statuslog"
             ],
             [
-                "notifications_log",
-                "failednotification"
+                "notifications_api_common",
+                "basenotification"
             ],
             [
                 "log_outgoing_requests",
