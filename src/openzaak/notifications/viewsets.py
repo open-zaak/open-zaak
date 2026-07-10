@@ -26,6 +26,21 @@ from .scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 logger = structlog.stdlib.get_logger(__name__)
 
 
+def create_notification(message: dict) -> int | None:
+    """
+    Creates a notification based on settings.LOG_NOTIFICATIONS_IN_DB.
+    """
+
+    pk = None
+    if settings.LOG_NOTIFICATIONS_IN_DB:
+        pk = BaseNotification.objects.create(
+            message=message,
+            type=NotificationTypes.notification,
+        ).pk  # pyright: ignore
+
+    return pk
+
+
 class MultipleNotificationMixin(NotificationMixin):
     notification_fields: dict[str, dict[str, str]]
 
@@ -53,12 +68,7 @@ class MultipleNotificationMixin(NotificationMixin):
                     action=config.get("action"),
                 )
 
-                pk = None
-                if settings.LOG_NOTIFICATIONS_IN_DB:
-                    pk = BaseNotification.objects.create(
-                        message=message,
-                        type=NotificationTypes.notification,
-                    ).pk  # pyright: ignore
+                pk = create_notification(message)
 
                 transaction.on_commit(
                     lambda msg=message: send_notification.delay(msg, pk)

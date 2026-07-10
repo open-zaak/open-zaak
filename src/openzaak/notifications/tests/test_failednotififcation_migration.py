@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2020 Dimpact
 from notifications_api_common.models import BaseNotification
 
 from openzaak.tests.utils import TestMigrations
