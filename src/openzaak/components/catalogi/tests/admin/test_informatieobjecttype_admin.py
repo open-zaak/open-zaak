@@ -291,6 +291,7 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
     @override_settings(NOTIFICATIONS_DISABLED=False)
     @freeze_time("2022-01-01")
     @patch("notifications_api_common.viewsets.send_notification.delay")
+    @tag("notifications")
     def test_create_notification_actie(self, mock_notif):
         catalogus = CatalogusFactory.create()
 
@@ -326,7 +327,8 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
                 "kenmerken": {
                     "catalogus": f"http://testserver{catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
 

@@ -117,7 +117,8 @@ class BesluitConvenienceCloudEventTest(
                         f"http://testserver{informatieobjecttype_url}",
                     ],
                 },
-            }
+            },
+            None,
         )
 
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
@@ -198,7 +199,8 @@ class BesluitConvenienceCloudEventTest(
                             "zaaktype": f"http://testserver{zaaktype_url}",
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -220,7 +222,8 @@ class BesluitConvenienceCloudEventTest(
                                 f"http://testserver{informatieobjecttype_url}",
                             ],
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,

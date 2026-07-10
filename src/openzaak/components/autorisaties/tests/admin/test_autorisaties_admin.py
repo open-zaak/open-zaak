@@ -143,7 +143,7 @@ class ApplicatieInlinesAdminTests(WebTest):
         )
 
 
-@tag("admin-autorisaties")
+@tag("admin-autorisaties", "notifications")
 @freeze_time("2022-01-01")
 @disable_admin_mfa()
 @override_settings(SITE_DOMAIN="testserver")
@@ -382,7 +382,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "actie": "update",
                 "aanmaakdatum": "2022-01-01T00:00:00Z",
                 "kenmerken": {},
-            }
+            },
+            None,
         )
 
     @requests_mock.Mocker()

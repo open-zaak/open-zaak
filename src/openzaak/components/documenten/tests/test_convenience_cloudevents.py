@@ -118,7 +118,8 @@ class DocumentConvenienceCloudEventTest(
                             "zaaktype": f"http://testserver{zaaktype_url}",
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -137,7 +138,8 @@ class DocumentConvenienceCloudEventTest(
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                             "zaak.zaaktype": f"http://testserver{zaaktype_url}",
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
