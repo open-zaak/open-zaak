@@ -29,11 +29,9 @@ def format_dict_diff(changes):
 class AuditTrailMixin:
     @property
     def audittrail(self):
-        qs = AuditTrail.objects.filter(
-            hoofd_object__contains=self.get_absolute_api_url(
-                version=1, with_namespace=False
-            )
-        ).order_by("-aanmaakdatum")
+        qs = AuditTrail.objects.filter(hoofd_object__contains=self.uuid).order_by(
+            "-aanmaakdatum"
+        )
         res = []
         for audit in qs:
             oud = audit.oud or {}
@@ -49,11 +47,10 @@ class APIMixin(_APIMixin):
         self,
         request=None,
         namespace: str | None = None,
-        with_namespace: bool = True,
         **kwargs,
     ) -> str:
         """
-        Namespace is required for the reverse call but can be removed from the return url using with_namespace=False
+        Model meta app_label is used as the namespace if not passed as an parameter.
         """
         kwargs["version"] = "1"
 
@@ -71,7 +68,7 @@ class APIMixin(_APIMixin):
             kwargs=reverse_kwargs,
             request=request,
         )
-        return url if with_namespace else url.replace(f"/{namespace}", "", 1)
+        return url
 
 
 class ExpandMixin:
