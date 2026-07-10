@@ -279,7 +279,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self, m, mock_notif):
         besluit = BesluitFactory.create()
-        url = reverse(besluit)
+        url = reverse(besluit, namespace="zaken")
 
         # 1. check that notification task is called
         with self.captureOnCommitCallbacks(execute=True):
@@ -377,7 +377,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self, m, mock_notif
     ):
         bio = BesluitInformatieObjectFactory.create()
-        url = reverse(bio)
+        url = reverse(bio, namespace="zaken")
 
         # 1. check that notification task is called
         with self.captureOnCommitCallbacks(execute=True):
@@ -388,7 +388,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
-            "hoofdObject": f"http://testserver{reverse(bio.besluit)}",
+            "hoofdObject": f"http://testserver{reverse(bio.besluit, namespace='zaken')}",
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": bio.besluit.verantwoordelijke_organisatie,
