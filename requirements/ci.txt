@@ -657,7 +657,7 @@ nh3==0.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   textile
-notifications-api-common==0.10.1
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@d2e5567bf864a73f1463d1c6c2e0378320384d12
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -1118,6 +1118,7 @@ structlog==25.4.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-structlog
+    #   notifications-api-common
 tblib==1.7.0
     # via -r requirements/test-tools.in
 textile==4.0.3
