@@ -72,7 +72,8 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                         self.zaak.vertrouwelijkheidaanduiding
                     ),
                 },
-            }, None,
+            },
+            None,
         )
 
     def test_admin_add_status_triggers_zaak_gemuteerd(self, mock_send_cloudevent):
@@ -108,7 +109,8 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                         "zaaktype.catalogus": f"http://testserver{reverse(self.zaak.zaaktype.catalogus)}",
                         "vertrouwelijkheidaanduiding": self.zaak.vertrouwelijkheidaanduiding,
                     },
-                }, None,
+                },
+                None,
             )
 
         mock_send_cloudevent.reset_mock()

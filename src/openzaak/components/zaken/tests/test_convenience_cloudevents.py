@@ -192,7 +192,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -211,7 +212,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -343,7 +345,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": zaaktype_url,
                             "zaaktype.catalogus": catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -362,7 +365,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": zaaktype_url,
                             "zaaktype.catalogus": catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -418,7 +422,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -437,7 +442,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -500,7 +506,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -519,7 +526,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -574,7 +582,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -593,7 +602,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -646,7 +656,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -665,7 +676,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }, None,
+                    },
+                    None,
                 ),
             ],
             any_order=True,
