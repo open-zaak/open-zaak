@@ -50,7 +50,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.post(
-                        reverse(Besluit),
+                        reverse(Besluit, namespace="zaken"),
                         {
                             "besluittype": f"http://testserver{reverse(self.besluittype)}",
                             "ingangsdatum": "2025-01-02",
@@ -65,7 +65,9 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with patch_send_cloud_event() as mock_send:
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
-                    response = self.client.post(reverse(Besluit), self.data)
+                    response = self.client.post(
+                        reverse(Besluit, namespace="zaken"), self.data
+                    )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_cloud_event_sent(
@@ -88,7 +90,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.put(
-                        reverse(besluit_without_zaak),
+                        reverse(besluit_without_zaak, namespace="zaken"),
                         {
                             "besluittype": f"http://testserver{reverse(self.besluittype)}",
                             "ingangsdatum": "2025-01-02",
@@ -103,7 +105,8 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
             with freeze_time("2025-09-23T12:16:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
                     response = self.client.patch(
-                        reverse(besluit_without_zaak), {"datum": "2024-01-01"}
+                        reverse(besluit_without_zaak, namespace="zaken"),
+                        {"datum": "2024-01-01"},
                     )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -117,7 +120,9 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with patch_send_cloud_event() as mock_send:
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
-                    response = self.client.put(reverse(besluit), self.data)
+                    response = self.client.put(
+                        reverse(besluit, namespace="zaken"), self.data
+                    )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(
@@ -133,7 +138,9 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
             with freeze_time("2025-09-23T12:16:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
-                    response = self.client.patch(reverse(besluit), self.data)
+                    response = self.client.patch(
+                        reverse(besluit, namespace="zaken"), self.data
+                    )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assert_cloud_event_sent(
@@ -153,7 +160,9 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with patch_send_cloud_event() as mock_send:
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
-                    response = self.client.delete(reverse(besluit_without_zaak))
+                    response = self.client.delete(
+                        reverse(besluit_without_zaak, namespace="zaken")
+                    )
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -164,7 +173,7 @@ class BesluitCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with patch_send_cloud_event() as mock_send:
             with freeze_time("2025-09-23T12:15:00Z"):
                 with self.captureOnCommitCallbacks(execute=True):
-                    response = self.client.delete(reverse(besluit))
+                    response = self.client.delete(reverse(besluit, namespace="zaken"))
 
         self.assertEqual(
             response.status_code, status.HTTP_204_NO_CONTENT, response.data
