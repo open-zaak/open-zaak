@@ -134,7 +134,8 @@ class ZaaktypeAdminTests(
                 "actie": "update",
                 "aanmaakdatum": "2022-01-01T00:00:00Z",
                 "kenmerken": {"catalogus": f"http://testserver{catalogus_url}"},
-            }
+            },
+            None,
         )
 
     def test_publish_besluittype(self, m):

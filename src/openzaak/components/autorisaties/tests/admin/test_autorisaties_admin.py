@@ -292,7 +292,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "actie": "update",
                 "aanmaakdatum": "2022-01-01T00:00:00Z",
                 "kenmerken": {},
-            }
+            },
+            None,
         )
 
     @tag("notifications")
@@ -334,7 +335,8 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
                 "actie": "update",
                 "aanmaakdatum": "2022-01-01T00:00:00Z",
                 "kenmerken": {},
-            }
+            },
+            None,
         )
 
     @override_settings(

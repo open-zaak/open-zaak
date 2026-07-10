@@ -306,7 +306,8 @@ class ZaaktypeAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{catalogus_url}",
                 },
-            }
+            },
+            None,
         )
         # assert that sub-resources have old datum_begin_geldigheid
         self.assertEqual(

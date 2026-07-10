@@ -2,11 +2,13 @@
 # Copyright (C) 2020 Dimpact
 from typing import Callable, Dict, List, Union
 
+from django.conf import settings
 from django.db import models, transaction
 
 import structlog
 from cloudevents.exceptions import GenericException
 from cloudevents.http import CloudEvent, from_http
+from notifications_api_common.models import BaseNotification, NotificationTypes
 from notifications_api_common.tasks import send_notification
 from notifications_api_common.viewsets import NotificationMixin
 from rest_framework import status
@@ -51,7 +53,16 @@ class MultipleNotificationMixin(NotificationMixin):
                     action=config.get("action"),
                 )
 
-                transaction.on_commit(lambda msg=message: send_notification.delay(msg))
+                pk = None
+                if settings.LOG_NOTIFICATIONS_IN_DB:
+                    pk = BaseNotification.objects.create(
+                        message=message,
+                        type=NotificationTypes.notification,
+                    ).pk  # pyright: ignore
+
+                transaction.on_commit(
+                    lambda msg=message: send_notification.delay(msg, pk)
+                )
 
 
 type CloudEventHandler = Callable[[CloudEvent], None]

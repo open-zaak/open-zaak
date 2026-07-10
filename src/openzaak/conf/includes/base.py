@@ -154,26 +154,6 @@ MIDDLEWARE = [
 # Sending EMAIL
 #
 
-#
-# LOGGING
-#
-LOGGING["filters"]["failed_notification"] = {
-    "()": "openzaak.notifications.filters.FailedNotificationFilter"
-}
-LOGGING["handlers"]["failed_notification"] = {
-    "level": "DEBUG",
-    "filters": ["failed_notification"],
-    "class": "openzaak.notifications.handlers.DatabaseLogHandler",
-}
-LOGGING["loggers"]["notifications_api_common.tasks"] = {
-    "handlers": [
-        "failed_notification",  # always log this to the database!
-        *logging_root_handlers,
-    ],
-    "level": "WARNING",
-    "propagate": True,
-}
-
 
 #
 # AUTH settings - user accounts, passwords, backends...

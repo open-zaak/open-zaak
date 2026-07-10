@@ -81,7 +81,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_informatieobjecttype_notify_on_change(self, mock_notif):
@@ -118,7 +119,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_no_informatieobjecttype_notify_on_no_change(self, mock_notif):
@@ -180,7 +182,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_besluit_notify_on_change(self, mock_notif):
@@ -210,7 +213,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_besluit_no_notify_on_no_change(self, mock_notif):
@@ -266,7 +270,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_zaaktype_notify_on_change(self, mock_notif):
@@ -306,7 +311,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_zaaktype_no_notify_on_no_change(self, mock_notif):
@@ -372,5 +378,6 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
