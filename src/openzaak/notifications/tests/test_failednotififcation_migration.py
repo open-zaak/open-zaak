@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from notifications_api_common.models import BaseNotification
 
 from openzaak.tests.utils import TestMigrations
 
@@ -17,6 +16,9 @@ class TestFailedNotificationMigration(TestMigrations):
         self.BaseNotification = apps.get_model(
             "notifications_api_common", "BaseNotification"
         )
+        self.NotificationResponse = apps.get_model(
+            "notifications_api_common", "NotificationResponse"
+        )
 
         self.message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
@@ -28,6 +30,7 @@ class TestFailedNotificationMigration(TestMigrations):
             "resourceUrl": "http://testserver/foo",
         }
 
+        # No status_code
         self.FailedNotification.objects.create(
             logger_name="notifications_api_common.tasks",
             level=30,  # WARNING
@@ -36,10 +39,40 @@ class TestFailedNotificationMigration(TestMigrations):
             message=self.message,
         )
 
+        # with status_code
+        self.FailedNotification.objects.create(
+            logger_name="notifications_api_common.tasks",
+            level=30,  # WARNING
+            msg="Failed to send notification",
+            status_code=403,
+            message=self.message,
+        )
+
+        # long msg
+        self.FailedNotification.objects.create(
+            logger_name="notifications_api_common.tasks",
+            level=30,  # WARNING
+            msg="a" * 1000,
+            status_code=500,
+            message=self.message,
+        )
+
     def test_failed_notification_migrated_to_base_notification(self):
         self.assertEqual(self.FailedNotification.objects.count(), 0)
-        self.assertEqual(self.BaseNotification.objects.count(), 1)
+        self.assertEqual(self.BaseNotification.objects.count(), 3)
+        self.assertEqual(self.NotificationResponse.objects.count(), 3)
 
-        bn = BaseNotification.objects.get()
-        self.assertEqual(bn.type, "notification")
-        self.assertEqual(bn.message, self.message)
+        nr_none = self.NotificationResponse.objects.get(response_status=None)
+        self.assertEqual(nr_none.exception, "Failed to send notification")
+        self.assertEqual(nr_none.failed_notification.type, "notification")
+        self.assertEqual(nr_none.failed_notification.message, self.message)
+
+        nr_403 = self.NotificationResponse.objects.get(response_status=403)
+        self.assertEqual(nr_403.exception, "Failed to send notification")
+        self.assertEqual(nr_403.failed_notification.type, "notification")
+        self.assertEqual(nr_403.failed_notification.message, self.message)
+
+        nr_long = self.NotificationResponse.objects.get(response_status=500)
+        self.assertEqual(nr_long.exception, "a" * 500)
+        self.assertEqual(nr_long.failed_notification.type, "notification")
+        self.assertEqual(nr_long.failed_notification.message, self.message)

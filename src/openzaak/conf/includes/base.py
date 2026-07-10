@@ -593,7 +593,7 @@ LOG_NOTIFICATIONS_IN_DB = config(
     default=False,
     documentation=DocumentationParams(
         help_text="Indicates whether or not failed notifications/cloud events should be saved to the database"
-    )
+    ),
 )
 
 #
