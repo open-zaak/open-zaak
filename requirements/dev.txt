@@ -748,7 +748,7 @@ nh3==0.3.0
     #   textile
 nodeenv==1.9.1
     # via pre-commit
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@d2e5567bf864a73f1463d1c6c2e0378320384d12
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@745ccb706600965ddc2551f94cd74edcf36bfdaf
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt

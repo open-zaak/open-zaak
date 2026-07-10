@@ -10,7 +10,7 @@ from django.utils.timezone import now
 import requests_mock
 from freezegun import freeze_time
 from notifications_api_common.models import (
-    BaseNotification,
+    FailedNotification,
     NotificationResponse,
     NotificationsConfig,
 )
@@ -1212,7 +1212,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaak_delete_fail_send_notification_create_db_entry(self, m):
@@ -1242,7 +1242,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_status_create_fail_send_notification_create_db_entry(self, m):
@@ -1289,7 +1289,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaakobject_create_fail_send_notification_create_db_entry(self, m):
@@ -1331,7 +1331,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
@@ -1377,7 +1377,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     @skip(reason="Standard does not prescribe ZIO destroy notifications.")
@@ -1411,7 +1411,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaakeigenschap_create_fail_send_notification_create_db_entry(self, m):
@@ -1450,7 +1450,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_klantcontact_create_fail_send_notification_create_db_entry(self, m):
@@ -1487,7 +1487,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_rol_create_fail_send_notification_create_db_entry(self, m):
@@ -1535,7 +1535,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_rol_delete_fail_send_notification_create_db_entry(self, m):
@@ -1565,7 +1565,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_resultaat_create_fail_send_notification_create_db_entry(self, m):
@@ -1605,7 +1605,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_resultaat_delete_fail_send_notification_create_db_entry(self, m):
@@ -1635,7 +1635,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaakbesluit_create_fail_send_notification_create_db_entry(self, m):
@@ -1669,7 +1669,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
 

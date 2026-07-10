@@ -5,7 +5,7 @@ from django.test import override_settings, tag
 
 import requests_mock
 from freezegun import freeze_time
-from notifications_api_common.models import BaseNotification, NotificationResponse
+from notifications_api_common.models import FailedNotification, NotificationResponse
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
@@ -70,7 +70,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_besluittype_delete_fail_send_notification_create_db_entry(self, m):
@@ -97,7 +97,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_informatieobjecttype_create_fail_send_notification_create_db_entry(
@@ -134,7 +134,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_informatieobjecttype_delete_fail_send_notification_create_db_entry(
@@ -163,7 +163,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaaktype_create_fail_send_notification_create_db_entry(self, m):
@@ -222,7 +222,7 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaaktype_delete_fail_send_notification_create_db_entry(self, m):
@@ -249,5 +249,5 @@ class FailedNotificationTests(NotificationsConfigMixin, APITestCase):
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)

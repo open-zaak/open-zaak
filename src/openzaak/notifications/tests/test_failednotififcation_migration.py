@@ -10,11 +10,11 @@ class TestFailedNotificationMigration(TestMigrations):
     app = "notifications_log"
 
     def setUpBeforeMigration(self, apps):
-        self.FailedNotification = apps.get_model(
+        self.OldFailedNotification = apps.get_model(
             "notifications_log", "FailedNotification"
         )
-        self.BaseNotification = apps.get_model(
-            "notifications_api_common", "BaseNotification"
+        self.NewFailedNotification = apps.get_model(
+            "notifications_api_common", "FailedNotification"
         )
         self.NotificationResponse = apps.get_model(
             "notifications_api_common", "NotificationResponse"
@@ -31,7 +31,7 @@ class TestFailedNotificationMigration(TestMigrations):
         }
 
         # No status_code
-        self.FailedNotification.objects.create(
+        self.OldFailedNotification.objects.create(
             logger_name="notifications_api_common.tasks",
             level=30,  # WARNING
             msg="Failed to send notification",
@@ -40,7 +40,7 @@ class TestFailedNotificationMigration(TestMigrations):
         )
 
         # with status_code
-        self.FailedNotification.objects.create(
+        self.OldFailedNotification.objects.create(
             logger_name="notifications_api_common.tasks",
             level=30,  # WARNING
             msg="Failed to send notification",
@@ -49,7 +49,7 @@ class TestFailedNotificationMigration(TestMigrations):
         )
 
         # long msg
-        self.FailedNotification.objects.create(
+        self.OldFailedNotification.objects.create(
             logger_name="notifications_api_common.tasks",
             level=30,  # WARNING
             msg="a" * 1000,
@@ -58,8 +58,8 @@ class TestFailedNotificationMigration(TestMigrations):
         )
 
     def test_failed_notification_migrated_to_base_notification(self):
-        self.assertEqual(self.FailedNotification.objects.count(), 0)
-        self.assertEqual(self.BaseNotification.objects.count(), 3)
+        self.assertEqual(self.OldFailedNotification.objects.count(), 0)
+        self.assertEqual(self.NewFailedNotification.objects.count(), 3)
         self.assertEqual(self.NotificationResponse.objects.count(), 3)
 
         nr_none = self.NotificationResponse.objects.get(response_status=None)

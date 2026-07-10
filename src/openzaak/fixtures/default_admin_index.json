@@ -152,7 +152,7 @@
             ],
             [
                 "notifications_api_common",
-                "basenotification"
+                "failednotification"
             ],
             [
                 "log_outgoing_requests",

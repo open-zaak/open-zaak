@@ -7,27 +7,27 @@ from django.db.migrations import RunPython
 
 SIZE = 500
 def migrate_failed_notifications(apps, schema_editor):
-    FailedNotification = apps.get_model('notifications_log', 'FailedNotification')
-    BaseNotification = apps.get_model('notifications_api_common', 'BaseNotification')
+    OldFailedNotification = apps.get_model('notifications_log', 'FailedNotification')
+    NewFailedNotification = apps.get_model('notifications_api_common', 'FailedNotification')
     NotificationResponse = apps.get_model('notifications_api_common', 'NotificationResponse')
 
     notifications = []
     notification_responses = []
-    for fn in FailedNotification.objects.iterator(chunk_size=SIZE):
+    for ofn in OldFailedNotification.objects.iterator(chunk_size=SIZE):
         # cloudevents where never caught in the logging filter
-        bn = BaseNotification(message=fn.message,  type="notification")
+        nfn = NewFailedNotification(message=ofn.message,  type="notification")
 
         # status_code & response_status are both an integer field that allow null
         # msg is a textfield and could be larger than exception max length
-        nr = NotificationResponse(failed_notification=bn, exception=fn.msg[:500], response_status=fn.status_code)
+        nr = NotificationResponse(failed_notification=nfn, exception=ofn.msg[:500], response_status=ofn.status_code)
 
-        notifications.append(bn)
+        notifications.append(nfn)
         notification_responses.append(nr)
 
-    BaseNotification.objects.bulk_create(notifications)
+    NewFailedNotification.objects.bulk_create(notifications)
     NotificationResponse.objects.bulk_create(notification_responses)
 
-    FailedNotification.objects.all().delete()
+    OldFailedNotification.objects.all().delete()
 
 class Migration(migrations.Migration):
 

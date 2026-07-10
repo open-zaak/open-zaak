@@ -685,19 +685,19 @@
                 "subscription"
             ],
             [
-                "change_basenotification",
+                "change_failednotification",
                 "notifications_api_common",
-                "basenotification"
+                "failednotification"
             ],
             [
-                "delete_basenotification",
+                "delete_failednotification",
                 "notifications_api_common",
-                "basenotification"
+                "failednotification"
             ],
             [
-                "view_basenotification",
+                "view_failednotification",
                 "notifications_api_common",
-                "basenotification"
+                "failednotification"
             ],
             [
                 "add_session",

@@ -6,7 +6,7 @@ from django.test import override_settings, tag
 
 import requests_mock
 from freezegun import freeze_time
-from notifications_api_common.models import BaseNotification, NotificationResponse
+from notifications_api_common.models import FailedNotification, NotificationResponse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
@@ -134,7 +134,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_applicatie_delete_fail_send_notification_create_db_entry(self, m):
@@ -159,5 +159,5 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         }
 
         self.assertEqual(m.last_request.json(), message)
-        self.assertEqual(BaseNotification.objects.count(), 1)
+        self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)

@@ -56,7 +56,7 @@ from openzaak.components.zaken.metrics import (
 )
 from openzaak.notifications.viewsets import (
     MultipleNotificationMixin,
-    create_notification,
+    create_failed_notification,
 )
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
@@ -2466,7 +2466,7 @@ class ZaakBijwerkenViewset(
                 action=action,
             )
 
-            pk = create_notification(message)
+            pk = create_failed_notification(message)
 
             transaction.on_commit(lambda msg=message: send_notification.delay(msg, pk))
 
