@@ -29,7 +29,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         """
         besluit = BesluitFactory.create(zaak=None)
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="zaken"))
 
         self.assertResponseTypes(
             response.data,
@@ -89,7 +89,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             ingangsdatum="2022-01-01",
         )
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="zaken"))
 
         self.assertResponseTypes(
             response.data,
@@ -138,7 +138,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             zaak=zaak,
         )
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="zaken"))
 
         self.assertResponseTypes(
             response.data,

@@ -28,7 +28,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def _create_besluit(self, **headers):
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="zaken")
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
@@ -110,7 +110,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
         io_url = reverse(io)
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        url = reverse(BesluitInformatieObject)
+        url = reverse(BesluitInformatieObject, namespace="zaken")
 
         response = self.client.post(
             url,
@@ -295,7 +295,7 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_besluit_audittrail_list_jwt_expired(self):
         besluit = BesluitFactory.create()
-        url = reverse(besluit)
+        url = reverse(besluit, namespace="zaken")
 
         AuditTrail.objects.create(hoofd_object=url, resource="Besluit", resultaat=200)
 
@@ -313,7 +313,7 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_besluit_audittrail_detail_jwt_expired(self):
         besluit = BesluitFactory.create()
-        url = reverse(besluit)
+        url = reverse(besluit, namespace="zaken")
 
         audittrail = AuditTrail.objects.create(
             hoofd_object=url, resource="Besluit", resultaat=200
