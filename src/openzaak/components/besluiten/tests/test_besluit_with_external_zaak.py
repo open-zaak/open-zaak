@@ -97,7 +97,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         besluit = Besluit.objects.get()
-        besluit_url = f"http://testserver{reverse(besluit, namespace='zaken')}"
+        besluit_url = f"http://testserver{reverse(besluit)}"
         self.assertEqual(besluit._zaakbesluit_url, zaakbesluit_data["url"])
 
         history_post = [
@@ -155,7 +155,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         # update zaak in the besluit
         zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
-        besluit_url = f"http://testserver{reverse(besluit, namespace='zaken')}"
+        besluit_url = f"http://testserver{reverse(besluit)}"
 
         with requests_mock.Mocker() as m:
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
