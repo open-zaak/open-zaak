@@ -9,13 +9,15 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
+from openzaak.components.besluiten.tests.factories import (
+    BesluitFactory,
+    BesluitInformatieObjectFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.urls import reverse
-
-from ..factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
 @disable_admin_mfa()
