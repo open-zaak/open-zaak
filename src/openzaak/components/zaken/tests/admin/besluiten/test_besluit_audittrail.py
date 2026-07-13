@@ -9,11 +9,10 @@ from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.besluiten.models import Besluit
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.tests.utils import AdminTestMixin
 from openzaak.utils.urls import reverse
-
-from ..factories import BesluitFactory
 
 inline_data = {
     "besluitinformatieobject_set-TOTAL_FORMS": 0,
