@@ -111,7 +111,8 @@ class BesluitSerializer(
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]
         besluit_url = besluit.get_absolute_api_url(
-            request=self.context["request"], namespace="zaken"
+            request=self.context["request"],
+            namespace=self.context["request"].resolver_match.namespace,
         )
         return create_remote_zaakbesluit(besluit_url, zaak_url)
 
@@ -270,7 +271,8 @@ class BesluitVerwerkenSerializer(ConvenienceSerializer):
 
         besluit_data = {
             "besluit": besluit.get_absolute_api_url(
-                request=self.context["request"], namespace="zaken"
+                request=self.context["request"],
+                namespace=self.context["request"].resolver_match.namespace,
             )
         }
 
