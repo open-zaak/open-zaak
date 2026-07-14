@@ -11,8 +11,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, reverse, reverse_lazy
-from vng_api_common.tests.schema import get_validation_errors
+from vng_api_common.tests import (
+    AuthCheckMixin,
+    get_validation_errors,
+    reverse,
+    reverse_lazy,
+)
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory

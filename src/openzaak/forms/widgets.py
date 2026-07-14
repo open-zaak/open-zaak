@@ -143,3 +143,11 @@ class SplitRelativeDeltaWidget(forms.Widget):
             attrs=attrs,
         )
         return widget_context["widget"]
+
+
+class NonZeroSplitRelativeDeltaWidget(SplitRelativeDeltaWidget):
+    def value_from_datadict(self, data, files, name) -> str | None:
+        value = super().value_from_datadict(data, files, name)
+        if value == "P0D":
+            return None
+        return value

@@ -18024,6 +18024,7 @@ components:
           maxLength: 200
         duur:
           type: string
+          format: duration
           description: Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling
             van de ZAAK is verlengd (of verkort) ten opzichte van de eerder gecommuniceerde
             doorlooptijd.
@@ -18040,6 +18041,7 @@ components:
           maxLength: 200
         duur:
           type: string
+          format: duration
           description: Het aantal werkbare dagen waarmee de doorlooptijd van de behandeling
             van de ZAAK is verlengd (of verkort) ten opzichte van de eerder gecommuniceerde
             doorlooptijd.

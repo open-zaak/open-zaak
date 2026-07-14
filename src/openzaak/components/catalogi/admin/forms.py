@@ -22,7 +22,7 @@ from vng_api_common.constants import (
 )
 from vng_api_common.tests import reverse as _reverse
 
-from openzaak.forms.widgets import BooleanRadio
+from openzaak.forms.widgets import BooleanRadio, NonZeroSplitRelativeDeltaWidget
 from openzaak.selectielijst.admin_fields import get_selectielijst_resultaat_choices
 from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.utils import build_absolute_url
@@ -100,6 +100,7 @@ class ZaakTypeForm(forms.ModelForm):
             "opschorting_en_aanhouding_mogelijk": BooleanRadio,
             "verlenging_mogelijk": BooleanRadio,
             "publicatie_indicatie": BooleanRadio,
+            "servicenorm_behandeling": NonZeroSplitRelativeDeltaWidget,
         }
 
     def __init__(self, *args, **kwargs):
