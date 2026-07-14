@@ -1013,6 +1013,9 @@ class LargeFileAPITests(JWTAuthMixin, AzureBlobStorageMixin, VCRMixin, APITestCa
         self.assertEqual(len(data["bestandsdelen"]), 2)
         self.assertEqual(new_version.beschrijving, "beschrijving2")
 
+        for part in data["bestandsdelen"]:
+            self.assertIsNotNone(part["url"])
+
     def test_update_metadata_after_unfinished_upload(self):
         """
         Test the update process of the document metadata with some of part files uploaded
