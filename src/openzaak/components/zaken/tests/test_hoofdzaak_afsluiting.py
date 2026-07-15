@@ -866,6 +866,41 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(deelzaak.archiefactiedatum)
         self.assertIsNone(deelzaak.startdatum_bewaartermijn)
 
+    @tag("gh-2448")
+    def test_close_zaak_afleidingswijze_hoofdzaak_without_hoofdzaak(self):
+        self.zaak.resultaat.delete()
+        ResultaatFactory.create(
+            zaak=self.zaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                selectielijstklasse="",
+                archiefnominatie=Archiefnominatie.vernietigen,
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=(
+                    BrondatumArchiefprocedureAfleidingswijze.hoofdzaak
+                ),
+            ),
+        )
+
+        self.assertIsNone(self.zaak.hoofdzaak)
+
+        # close the zaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": f"http://testserver{self.zaak_url}",
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "archiefactiedatum-error"
+        )
+
     @tag("gh-2098")
     def test_change_deelzaak_status_without_resultaat(self):
         deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
