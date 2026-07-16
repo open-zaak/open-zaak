@@ -9,7 +9,6 @@ from rest_framework_inclusions.renderer import (
     get_allowed_paths,
 )
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 from .permissions import ExpandAuthRequired
@@ -42,7 +41,7 @@ class AuditTrailMixin:
         return res
 
 
-class APIMixin(_APIMixin):
+class APIMixin:
     def get_absolute_api_url(
         self,
         request=None,
