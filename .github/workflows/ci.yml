@@ -203,7 +203,7 @@ jobs:
         run: |
           bencher run --adapter python_pytest \
                       --project open-zaak-ed2ce35-z71n5gf8t4f40 \
-                      --token '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --key '${{ secrets.BENCHER_API_TOKEN }}' \
                       --branch main \
                       --testbed ubuntu-24.04 \
                       --average median \
@@ -216,7 +216,7 @@ jobs:
         run: |
           bencher run --adapter python_pytest \
                       --project open-zaak-ed2ce35-z71n5gf8t4f40 \
-                      --token '${{ secrets.BENCHER_API_TOKEN }}' \
+                      --key '${{ secrets.BENCHER_API_TOKEN }}' \
                       --branch "$GITHUB_HEAD_REF" \
                       --start-point "$GITHUB_BASE_REF" \
                       --start-point-max-versions 30 \
