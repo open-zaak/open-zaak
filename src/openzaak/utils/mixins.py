@@ -4,7 +4,6 @@
 from dictdiffer import diff
 from rest_framework.reverse import reverse
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 
@@ -36,7 +35,7 @@ class AuditTrailMixin:
         return res
 
 
-class APIMixin(_APIMixin):
+class APIMixin:
     def get_absolute_api_url(
         self,
         request=None,
