@@ -98,6 +98,32 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     """
 
     notifications_kanalen: list[Kanaal]
+    notifications_main_resource_keys: dict[str, str]  # kanaal label, main_resource_key
+    replace_urls_for: list[str]
+
+    def get_main_resource_key(self, kanaal: Kanaal):
+        if hasattr(
+            self, "notifications_main_resource_keys"
+        ) and self.notifications_main_resource_keys.get(kanaal.label):
+            return self.notifications_main_resource_keys.get(kanaal.label)
+
+        return kanaal.main_resource._meta.model_name
+
+    def get_notification_main_object_url(self, data: dict, kanaal: Kanaal) -> str:
+        """
+        Retrieve the URL for the main object.
+        """
+
+        key = self.get_main_resource_key(kanaal)
+
+        if "." not in key:
+            # original flow
+            return data[key]
+
+        obj = data.serializer.instance
+        for field in key.split("."):
+            obj = getattr(obj, field, None)
+        return obj.get_absolute_api_url(request=self.request) if obj else ""
 
     def _replace_namespace(self, url: str, namespace: str) -> str:
         prefix, sep, rest = url.partition("/api")
@@ -129,14 +155,6 @@ class MultipleChannelNotificationMixin(NotificationMixin):
             ):
                 continue
 
-            # notification_data["url"] = data.serializer.instance.get_absolute_api_url(
-            #     request=self.request, namespace=kanaal.label
-            # )
-
-            # notification_data["url"] = self._replace_namespace(
-            #     notification_data["url"], kanaal.label
-            # )
-
             for field in replace_urls_for:
                 notification_data[field] = self._replace_namespace(
                     notification_data[field], kanaal.label
@@ -145,11 +163,11 @@ class MultipleChannelNotificationMixin(NotificationMixin):
             yield kanaal, notification_data
 
     def _message(self, data, instance=None):
-        # TODO something better than self.queryset().model?
         for kanaal, notification_data in self._iter_kanalen(
             data,
             self.get_queryset().model,
             self.notifications_kanalen,
+            getattr(self, "replace_urls_for", None),
         ):
             message = self.construct_message(
                 notification_data, instance=instance, kanaal=kanaal
@@ -161,6 +179,20 @@ class MultipleChannelNotificationViewSetMixin(
     MultipleChannelNotificationMixin,
     NotificationCreateMixin,
     NotificationUpdateMixin,
+    NotificationDestroyMixin,
+):
+    pass
+
+
+class MultipleChannelNotificationCreateMixin(
+    MultipleChannelNotificationMixin,
+    NotificationCreateMixin,
+):
+    pass
+
+
+class MultipleChannelNotificationDestroyMixin(
+    MultipleChannelNotificationMixin,
     NotificationDestroyMixin,
 ):
     pass
