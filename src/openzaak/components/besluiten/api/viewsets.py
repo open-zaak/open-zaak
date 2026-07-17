@@ -274,7 +274,7 @@ class BesluitInformatieObjectViewSet(
     }
     notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
     notifications_main_resource_keys = {"zaken": "besluit.zaak"}
-    replace_urls_for = ["besluit"]
+    notifications_replace_urls_for = ["besluit"]
     audit = AUDIT_BRC
 
     @property
@@ -397,9 +397,10 @@ class BesluitVerwerkenViewSet(
             "model": Besluit,
         },
         "besluitinformatieobjecten": {
-            "notifications_kanalen": [KANAAL_BESLUITEN],
+            "notifications_kanalen": [KANAAL_BESLUITEN, KANAAL_ZAKEN],
             "model": BesluitInformatieObject,
-            "replace_urls_for": ["besluit"],
+            "notifications_replace_urls_for": ["besluit"],
+            "notifications_main_resource_keys": {"zaken": "besluit.zaak"},
         },
     }
 
