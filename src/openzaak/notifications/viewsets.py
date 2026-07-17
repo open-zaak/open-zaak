@@ -101,29 +101,74 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     notifications_main_resource_keys: dict[str, str]  # kanaal label, main_resource_key
     replace_urls_for: list[str]
 
-    def get_main_resource_key(self, kanaal: Kanaal):
-        if hasattr(
-            self, "notifications_main_resource_keys"
-        ) and self.notifications_main_resource_keys.get(kanaal.label):
-            return self.notifications_main_resource_keys.get(kanaal.label)
+    def _get_main_resource_key(
+        self, main_resource_keys: dict[str, str] | None, kanaal: Kanaal
+    ) -> str:
+        """
+        Get the main_resource defined for the kanaal label
+        Otherwise use the kanaal main resource.
+
+        main_resource_keys are only used for nested fields
+        besluitInformatieObject -> besluit -> zaak
+        """
+        if main_resource_keys and main_resource_keys.get(kanaal.label):
+            return main_resource_keys.get(kanaal.label)
 
         return kanaal.main_resource._meta.model_name
 
-    def get_notification_main_object_url(self, data: dict, kanaal: Kanaal) -> str:
-        """
-        Retrieve the URL for the main object.
-        """
-
-        key = self.get_main_resource_key(kanaal)
-
-        if "." not in key:
-            # original flow
-            return data[key]
-
-        obj = data.serializer.instance
+    def _get_nested_main_object_url_from_instance(self, key, instance):
+        """Returns the url of an nested FK field"""
+        obj = instance
         for field in key.split("."):
             obj = getattr(obj, field, None)
         return obj.get_absolute_api_url(request=self.request) if obj else ""
+
+    def _get_nested_main_object_url_from_dict(self, key, data):
+        """Returns a nested url field from a dict"""
+        for field in key.split("."):
+            if data is None:
+                return ""
+            data = data.get(field)
+        return data if isinstance(data, str) else ""
+
+    def _get_nested_main_object_url(
+        self,
+        key: str,  # format a.b.c
+        nested_main_object_resource: Type[models.Model] | dict | None,
+    ):
+        """returns the nested url key field from an instance or dict"""
+        if isinstance(nested_main_object_resource, dict):
+            return self._get_nested_main_object_url_from_dict(
+                key, nested_main_object_resource
+            )
+
+        if isinstance(nested_main_object_resource, models.Model):
+            return self._get_nested_main_object_url_from_instance(
+                key, nested_main_object_resource
+            )
+
+        return ""
+
+    def _main_object_url_exists(
+        self,
+        data: dict,
+        key: str,
+        nested_main_object_resource: Type[models.Model] | dict | None,
+    ) -> bool:
+        """
+        Checks if the main object url exists
+        E.g. besluit zaak is not required
+        if the main_object_url is not part of the notification data it is fetched from an
+        instance or dict and added to the notification data
+        """
+        if "." not in key:
+            # original flow
+            url = data.get(key)
+        else:
+            url = self._get_nested_main_object_url(key, nested_main_object_resource)
+            final_key = key.split(".")[-1]
+            data[final_key] = url
+        return url != ""
 
     def _replace_namespace(self, url: str, namespace: str) -> str:
         prefix, sep, rest = url.partition("/api")
@@ -139,6 +184,8 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         model: models.Model,
         kanalen: list[Kanaal],
         replace_urls_for: list[str] | None = None,
+        main_resource_keys: dict[str, str] | None = None,
+        nested_main_object_resource: Type[models.Model] | dict | None = None,
     ):
         if replace_urls_for is None:
             replace_urls_for = []
@@ -146,12 +193,10 @@ class MultipleChannelNotificationMixin(NotificationMixin):
 
         notification_data = data.copy()
         for kanaal in kanalen:
-            # Do not send notification if kanaal main object does not exist on the instance
-            # E.g. besluit zaak is not required
-            if (
-                model != kanaal.main_resource
-                and self.get_notification_main_object_url(notification_data, kanaal)
-                == ""
+            if model != kanaal.main_resource and not self._main_object_url_exists(
+                notification_data,
+                self._get_main_resource_key(main_resource_keys, kanaal),
+                nested_main_object_resource,
             ):
                 continue
 
@@ -167,7 +212,9 @@ class MultipleChannelNotificationMixin(NotificationMixin):
             data,
             self.get_queryset().model,
             self.notifications_kanalen,
-            getattr(self, "replace_urls_for", None),
+            getattr(self, "notifications_replace_urls_for", None),
+            getattr(self, "notifications_main_resource_keys", None),
+            data.serializer.instance,
         ):
             message = self.construct_message(
                 notification_data, instance=instance, kanaal=kanaal
@@ -211,7 +258,9 @@ class MultipleObjectsMultipleChannelNotificationMixin(
                 notification,
                 config["model"],
                 config["notifications_kanalen"],
-                config.get("replace_urls_for"),
+                config.get("notifications_replace_urls_for"),
+                config.get("notifications_main_resource_keys"),
+                data,
             ):
                 message = self.construct_message(
                     notification_data,

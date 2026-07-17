@@ -216,15 +216,18 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         self.assertEqual(BesluitInformatieObject.objects.count(), 2)
 
+        bio_1 = BesluitInformatieObject.objects.first()
+        bio_2 = BesluitInformatieObject.objects.last()
+
         self.assertCountEqual(
             [bio["url"] for bio in data["besluitinformatieobjecten"]],
             [
-                f"http://testserver{reverse(BesluitInformatieObject.objects.first(), namespace='besluiten')}",
-                f"http://testserver{reverse(BesluitInformatieObject.objects.last(), namespace='besluiten')}",
+                f"http://testserver{reverse(bio_1, namespace='besluiten')}",
+                f"http://testserver{reverse(bio_2, namespace='besluiten')}",
             ],
         )
 
-        self.assertEqual(mock_notif.call_count, 4)
+        self.assertEqual(mock_notif.call_count, 6)
         mock_notif.assert_has_calls(
             [
                 call(
@@ -275,6 +278,22 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 ),
                 call(
                     {
+                        "kanaal": "zaken",
+                        "hoofdObject": f"http://testserver{zaak_url}",
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": f"http://testserver{reverse(bio_1, namespace='zaken')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+                call(
+                    {
                         "kanaal": "besluiten",
                         "hoofdObject": data["besluit"]["url"],
                         "resource": "besluitinformatieobject",
@@ -285,6 +304,22 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "verantwoordelijkeOrganisatie": "517439943",
                             "besluittype": f"http://testserver{besluittype_url}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": f"http://testserver{zaak_url}",
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": f"http://testserver{reverse(bio_2, namespace='zaken')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
                     }
                 ),
