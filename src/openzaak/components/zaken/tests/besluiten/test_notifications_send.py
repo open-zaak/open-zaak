@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from openzaak.components.besluiten.constants import VervalRedenen
+from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
     BesluitFactory,
     BesluitInformatieObjectFactory,
@@ -31,6 +32,7 @@ from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ..factories import ZaakFactory
 from ..utils import get_operation_url
 
 
@@ -46,6 +48,73 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         """
         Check if notifications will be send when Besluit is created
         """
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+        besluittype_url = reverse(besluittype)
+        url = get_operation_url("besluit_create")
+        data = {
+            "zaak": f"http://testserver{zaak_url}",
+            "verantwoordelijkeOrganisatie": "517439943",  # RSIN
+            "besluittype": f"http://testserver{besluittype_url}",
+            "identificatie": "123123",
+            "datum": "2018-09-06",
+            "toelichting": "Vergunning verleend.",
+            "ingangsdatum": "2018-10-01",
+            "vervaldatum": "2018-11-01",
+            "vervalreden": VervalRedenen.tijdelijk,
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        besluit = Besluit.objects.get()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "resource": "besluit",
+                        "resourceUrl": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": f"http://testserver{zaak_url}",
+                        "resource": "besluit",
+                        "resourceUrl": data["url"],
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+            ]
+        )
+
+    def test_send_notif_create_besluit_without_zaak(self, mock_notif):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
         url = get_operation_url("besluit_create")
@@ -66,25 +135,38 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         data = response.json()
-        mock_notif.assert_called_once_with(
-            {
-                "kanaal": "besluiten",
-                "hoofdObject": data["url"],
-                "resource": "besluit",
-                "resourceUrl": data["url"],
-                "actie": "create",
-                "aanmaakdatum": "2018-09-07T00:00:00Z",
-                "kenmerken": {
-                    "verantwoordelijkeOrganisatie": "517439943",
-                    "besluittype": f"http://testserver{besluittype_url}",
-                    "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
-                },
-            },
+        besluit = Besluit.objects.get()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "resource": "besluit",
+                        "resourceUrl": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+            ]
         )
 
     @tag("convenience-endpoints")
     def test_send_notif_verwerk_besluit(self, mock_notif):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
         besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype.zaaktypen.add(zaak.zaaktype)
         besluittype_url = reverse(besluittype)
 
         informatieobjecttype = InformatieObjectTypeFactory.create(
@@ -106,6 +188,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
 
         data = {
             "besluit": {
+                "zaak": f"http://testserver{zaak_url}",
                 "verantwoordelijkeOrganisatie": "517439943",  # RSIN
                 "besluittype": f"http://testserver{besluittype_url}",
                 "identificatie": "123123",
@@ -127,16 +210,63 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         data = response.json()
+        besluit = Besluit.objects.get()
 
-        self.assertEqual(mock_notif.call_count, 3)
+        self.assertEqual(
+            data["besluit"]["url"],
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
+
+        self.assertEqual(BesluitInformatieObject.objects.count(), 2)
+
+        self.assertCountEqual(
+            [bio["url"] for bio in data["besluitinformatieobjecten"]],
+            [
+                f"http://testserver{reverse(BesluitInformatieObject.objects.first(), namespace='zaken')}",
+                f"http://testserver{reverse(BesluitInformatieObject.objects.last(), namespace='zaken')}",
+            ],
+        )
+
+        self.assertEqual(mock_notif.call_count, 4)
         mock_notif.assert_has_calls(
             [
                 call(
                     {
                         "kanaal": "besluiten",
-                        "hoofdObject": data["besluit"]["url"],
+                        "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
                         "resource": "besluit",
-                        "resourceUrl": data["besluit"]["url"],
+                        "resourceUrl": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": "517439943",
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": f"http://testserver{zaak_url}",
+                        "resource": "besluit",
+                        "resourceUrl": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": f"http://testserver{reverse(BesluitInformatieObject.objects.first(), namespace='besluiten')}",
                         "actie": "create",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
@@ -149,24 +279,9 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 call(
                     {
                         "kanaal": "besluiten",
-                        "hoofdObject": data["besluit"]["url"],
+                        "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
                         "resource": "besluitinformatieobject",
-                        "resourceUrl": data["besluitinformatieobjecten"][0]["url"],
-                        "actie": "create",
-                        "aanmaakdatum": "2018-09-07T00:00:00Z",
-                        "kenmerken": {
-                            "verantwoordelijkeOrganisatie": "517439943",
-                            "besluittype": f"http://testserver{besluittype_url}",
-                            "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
-                        },
-                    }
-                ),
-                call(
-                    {
-                        "kanaal": "besluiten",
-                        "hoofdObject": data["besluit"]["url"],
-                        "resource": "besluitinformatieobject",
-                        "resourceUrl": data["besluitinformatieobjecten"][1]["url"],
+                        "resourceUrl": f"http://testserver{reverse(BesluitInformatieObject.objects.last(), namespace='besluiten')}",
                         "actie": "create",
                         "aanmaakdatum": "2018-09-07T00:00:00Z",
                         "kenmerken": {
