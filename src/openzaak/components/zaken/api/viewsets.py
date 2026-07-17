@@ -54,7 +54,7 @@ from openzaak.components.zaken.metrics import (
     zaken_delete_counter,
     zaken_update_counter,
 )
-from openzaak.notifications.viewsets import MultipleNotificationMixin
+from openzaak.notifications.viewsets import MultipleObjectsNotificationMixin
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
@@ -2036,7 +2036,7 @@ class ZaakNotitieViewSet(
     ),
 )
 class ZaakRegistrerenViewset(
-    viewsets.ViewSet, MultipleNotificationMixin, AuditTrailMixin, GeoMixin
+    viewsets.ViewSet, MultipleObjectsNotificationMixin, AuditTrailMixin, GeoMixin
 ):
     serializer_class = ZaakRegistrerenSerializer
     permission_classes = (ZaakActionAuthRequired,)
@@ -2151,7 +2151,7 @@ class ZaakRegistrerenViewset(
 
 
 class ZaakUpdateActionViewSet(
-    MultipleNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
+    MultipleObjectsNotificationMixin, AuditTrailMixin, ClosedZaakMixin, viewsets.ViewSet
 ):
     permission_classes = (ZaakActionAuthRequired,)
     required_scopes = {
