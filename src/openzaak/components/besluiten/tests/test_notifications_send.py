@@ -292,9 +292,9 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
             any_order=True,
         )
 
-    def test_send_notif_delete_resultaat(self, mock_notif):
+    def test_send_notif_delete_besluitinformatieobject_without_zaak(self, mock_notif):
         """
-        Check if notifications will be send when resultaat is deleted
+        Check if notifications will be send when besluitinformatieobject is deleted
         """
         besluit = BesluitFactory.create()
         besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
@@ -324,6 +324,63 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                 },
             },
             None,
+        )
+
+    def test_send_notif_delete_besluitinformatieobject_with_zaak(self, mock_notif):
+        """
+        Check if notifications will be send when besluitinformatieobject is deleted
+        """
+
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        besluit = BesluitFactory.create(zaak=zaak)
+        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
+        besluittype_url = reverse(besluit.besluittype)
+        bio = BesluitInformatieObjectFactory.create(besluit=besluit)
+        bio_url = get_operation_url("besluitinformatieobject_delete", uuid=bio.uuid)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(bio_url)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "besluiten",
+                        "hoofdObject": f"http://testserver{besluit_url}",
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": f"http://testserver{bio_url}",
+                        "actie": "destroy",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
+                            "besluittype": f"http://testserver{besluittype_url}",
+                            "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
+                        },
+                    }
+                ),
+                call(
+                    {
+                        "kanaal": "zaken",
+                        "hoofdObject": f"http://testserver{zaak_url}",
+                        "resource": "besluitinformatieobject",
+                        "resourceUrl": f"http://testserver{reverse(bio, namespace='zaken')}",
+                        "actie": "destroy",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "bronorganisatie": zaak.bronorganisatie,
+                            "zaaktype": f"http://testserver{reverse(zaak.zaaktype)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
+                        },
+                    }
+                ),
+            ]
         )
 
 

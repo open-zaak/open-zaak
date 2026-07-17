@@ -11,10 +11,6 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.viewsets import (
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
-)
 from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -33,6 +29,8 @@ from openzaak.components.zaken.api.kanalen import KANAAL_ZAKEN
 from openzaak.components.zaken.api.mixins import ClosedZaakMixin
 from openzaak.components.zaken.api.utils import delete_remote_zaakbesluit
 from openzaak.notifications.viewsets import (
+    MultipleChannelNotificationCreateMixin,
+    MultipleChannelNotificationDestroyMixin,
     MultipleChannelNotificationViewSetMixin,
     MultipleObjectsMultipleChannelNotificationMixin,
 )
@@ -246,8 +244,8 @@ class BesluitViewSet(
 @conditional_retrieve()
 class BesluitInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
-    NotificationCreateMixin,
-    NotificationDestroyMixin,
+    MultipleChannelNotificationCreateMixin,
+    MultipleChannelNotificationDestroyMixin,
     AuditTrailCreateMixin,
     AuditTrailDestroyMixin,
     CheckQueryParamsMixin,
@@ -274,8 +272,9 @@ class BesluitInformatieObjectViewSet(
         "create": SCOPE_BESLUITEN_AANMAKEN,
         "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     }
-    notifications_kanaal = KANAAL_BESLUITEN
-    notifications_main_resource_key = "besluit"
+    notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
+    notifications_main_resource_keys = {"zaken": "besluit.zaak"}
+    replace_urls_for = ["besluit"]
     audit = AUDIT_BRC
 
     @property
