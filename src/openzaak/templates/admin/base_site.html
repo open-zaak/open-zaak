@@ -9,12 +9,14 @@
 
 {% block extrastyle %}
     {{ block.super }}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'maykin_common/css/version.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'bundles/admin_overrides.css' %}">
-    <link rel="icon" href="{% static 'ico/favicon.png' %}" type="image/png">
-    <link rel="icon" href="{% static 'ico/favicon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" type="text/css" href="{% static 'maykin_common/css/env-info.css' %}">
 
+    <link href="{% static 'maykin_common/ico/favicon.svg' %}" sizes="any" rel="icon" type="image/svg+xml" />
+    <link href="{% static 'maykin_common/ico/favicon-96x96.png' %}" sizes="96x96" rel="icon" type="image/png" />
+    <link href="{% static 'maykin_common/ico/favicon-32x32.png' %}" sizes="32x32" rel="icon" type="image/png" />
+    <link href="{% static 'maykin_common/ico/favicon.png' %}" sizes="16x16" rel="icon" type="image/png" />
+    <link href="{% static 'maykin_common/ico/favicon.png' %}" rel="shortcut icon">
 {% endblock %}
 
 {% block branding %}
@@ -58,13 +60,9 @@
 
 {% block nav-global %}{% endblock %}
 
-{# Override footer block to display version information if you're a logged in staff user #}
+{# Django 5.2 puts this block inside the <footer id="footer"> element #}
 {% block footer %}
-    <div id="footer">
-        {% if user.is_authenticated and user.is_staff %}
-            {% show_version_info %}
-        {% endif %}
-    </div>
+    {% include "maykin_common/includes/footer.html" with user=user only %}
 
     {# Load the custom JS #}
     <script src="{% static 'bundles/openzaak-js.js' %}"></script>
