@@ -674,6 +674,62 @@ class LargeFileAPITests(JWTAuthMixin, APITestCase):
         self._unlock()
         self._download_file()
 
+    @override_settings(DOCUMENTEN_UPLOAD_CHUNK_SIZE=200)
+    def test_create_large_file_name(self):
+        """
+        #2385 Test to ensure that files with long names can be created.
+        It used to produce the following error:
+
+        django.core.exceptions.SuspiciousFileOperation: Storage can not find an available filename for ...
+        Please make sure that the corresponding file field allows sufficient "max_length".
+
+        This is because the default max length of a file field within django is 100 chars.
+        """
+
+        file_content = SimpleUploadedFile(
+            "name_which_is_a_lot_longer_then_one_"
+            "hundred_characters_to_showcase_that_"
+            "the_max_length_error_will_not_trigger_on_most_files",
+            b"filecontentstring",
+        )
+
+        content = {
+            "identificatie": uuid.uuid4().hex,
+            "bronorganisatie": "159351741",
+            "creatiedatum": "2018-06-27",
+            "titel": "detailed summary",
+            "auteur": "test_auteur",
+            "formaat": "txt",
+            "taal": "eng",
+            "bestandsnaam": file_content.name,
+            "bestandsomvang": file_content.size,
+            "link": "http://een.link",
+            "beschrijving": "test_beschrijving",
+            "informatieobjecttype": self.informatieobjecttype_url,
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+        }
+        list_url = reverse(EnkelvoudigInformatieObject)
+
+        response = self.client.post(list_url, content)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["inhoud"], None)
+
+        eio = EnkelvoudigInformatieObject.objects.get()
+        canonical = eio.canonical
+        file_part = canonical.bestandsdelen.order_by("volgnummer")[0]
+
+        part_url = get_operation_url("bestandsdeel_update", uuid=file_part.uuid)
+
+        response = self.client.put(
+            part_url,
+            {"inhoud": file_content, "lock": canonical.lock},
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.json()["lock"], canonical.lock)
+
     def test_upload_part_wrong_size(self):
         """
         Test the upload of the incorrect part file
