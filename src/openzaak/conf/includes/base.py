@@ -421,6 +421,23 @@ CELERY_RESULT_EXPIRES = config(
 )
 
 #
+# CELERY-ONCE
+#
+CELERY_ONCE_REDIS_URL = config(
+    "CELERY_ONCE_REDIS_URL",
+    default=CELERY_BROKER_URL,
+    documentation=no_doc,
+)
+CELERY_ONCE = {
+    "backend": "celery_once.backends.Redis",
+    "settings": {
+        "url": CELERY_ONCE_REDIS_URL,
+        "default_timeout": 60 * 60,  # one hour
+    },
+}
+
+
+#
 # DJANGO-CSP
 #
 CONTENT_SECURITY_POLICY["EXCLUDE_URL_PREFIXES"] = [
@@ -504,6 +521,14 @@ MKN_BRANDING_DERIVED_PRODUCT_DEFINITION = (
     if custom_product_name
     else None
 )
+
+#
+# MAYKIN-COMMON health checks
+#
+MKN_HEALTH_CHECKS_WORKER_EVENT_LOOP_LIVENESS_FILE = (
+    BASE_DIR / "tmp" / "celery_worker_event_loop.live"
+)
+MKN_HEALTH_CHECKS_WORKER_READINESS_FILE = BASE_DIR / "tmp" / "celery_worker.ready"
 
 
 #
