@@ -91,6 +91,7 @@ INSTALLED_APPS = (
         "maykin_common",
         # health check + plugins
         *default_health_check_apps,
+        "maykin_common.health_checks.celery",
         # Optional applications.
         "django.contrib.gis",
         # `django.contrib.sites` added at the project level because it has been removed at the packages level.
@@ -525,6 +526,7 @@ MKN_BRANDING_DERIVED_PRODUCT_DEFINITION = (
 #
 # MAYKIN-COMMON health checks
 #
+MKN_HEALTH_CHECKS_BEAT_LIVENESS_FILE = BASE_DIR / "tmp" / "celery_beat.live"
 MKN_HEALTH_CHECKS_WORKER_EVENT_LOOP_LIVENESS_FILE = (
     BASE_DIR / "tmp" / "celery_worker_event_loop.live"
 )

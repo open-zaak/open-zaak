@@ -34,7 +34,7 @@ echo "Starting celery worker $WORKER_NAME with queue $QUEUE"
 # unset this if NOT using a process pool
 export _OTEL_DEFER_SETUP="true"
 exec celery \
-    --app openzaak \
+    --app openzaak.celery \
     --workdir src \
     worker "${worker_options[@]}" \
     -E \
