@@ -7,6 +7,11 @@ amqp==5.1.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   kombu
+annotated-doc==0.0.4
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 annotated-types==0.7.0
     # via
     #   -c requirements/base.txt
@@ -213,6 +218,7 @@ django==5.2.15
     #   django-extra-views
     #   django-filter
     #   django-formtools
+    #   django-health-check
     #   django-jsonform
     #   django-log-outgoing-requests
     #   django-loose-fk
@@ -307,6 +313,10 @@ django-formtools==2.5.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
+django-health-check==4.4.3
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 django-ipware==7.0.1
     # via
     #   -c requirements/base.txt
@@ -451,6 +461,11 @@ djangorestframework-inclusions==1.2.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+dnspython==2.8.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   django-health-check
 docutils==0.21.2
     # via
     #   -c requirements/base.txt
@@ -614,6 +629,11 @@ markdown==3.10.2
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-markup
+markdown-it-py==4.2.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   rich
 markupsafe==2.1.1
     # via
     #   -c requirements/base.txt
@@ -629,6 +649,11 @@ maykin-common==0.20.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   open-api-framework
+mdurl==0.1.2
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   markdown-it-py
 mozilla-django-oidc==5.0.2
     # via
     #   -c requirements/base.txt
@@ -883,6 +908,7 @@ pygments==2.20.0
     #   django-log-outgoing-requests
     #   django-markup
     #   pytest
+    #   rich
     #   sphinx
     #   sphinx-tabs
 pyjwt==2.12.1
@@ -1018,6 +1044,11 @@ requests-oauthlib==2.0.0
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
+rich==15.0.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 roman-numerals==4.1.0
     # via sphinx
 ruamel-yaml==0.18.10
@@ -1052,6 +1083,11 @@ sentry-sdk==2.13.0
     #   -r requirements/base.txt
     #   commonground-api-common
     #   open-api-framework
+shellingham==1.5.4
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
+    #   typer
 six==1.16.0
     # via
     #   -c requirements/base.txt
@@ -1130,6 +1166,10 @@ tornado==6.5.5
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   flower
+typer==0.27.0
+    # via
+    #   -c requirements/base.txt
+    #   -r requirements/base.txt
 typing-extensions==4.12.2
     # via
     #   -c requirements/base.txt

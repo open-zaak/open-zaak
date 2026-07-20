@@ -66,6 +66,9 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    # health_checks urls
+    path("", include("maykin_common.health_checks.urls")),
+    # show the main template
     path("", TemplateView.as_view(template_name="main.html"), name="home"),
     # separate apps per component
     path("", include("openzaak.components.urls")),

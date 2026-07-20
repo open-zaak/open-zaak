@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import os
-from maykin_common.branding import ProductDefinition
+
 import sentry_sdk
 from celery.schedules import crontab
+from maykin_common.branding import ProductDefinition
 from notifications_api_common.settings import *  # noqa
 
 os.environ["_USE_STRUCTLOG"] = "True"
@@ -14,6 +15,8 @@ from maykin_common.config import config, DocumentationParams
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
+
+from maykin_common.health_checks import default_health_check_apps
 
 from .api import *  # noqa
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -86,6 +89,8 @@ INSTALLED_APPS = (
     INSTALLED_APPS
     + [
         "maykin_common",
+        # health check + plugins
+        *default_health_check_apps,
         # Optional applications.
         "django.contrib.gis",
         # `django.contrib.sites` added at the project level because it has been removed at the packages level.
@@ -439,11 +444,6 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
     "cdnjs.cloudflare.com",
     "cdn.jsdelivr.net",
 ]
-
-
-#
-# maykin-commn
-#
 
 
 #
