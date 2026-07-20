@@ -258,7 +258,8 @@ paths:
   /besluiten:
     get:
       operationId: besluit_list
-      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      description: '**EXPERIMENTEEL** Deze lijst kan gefilterd wordt met query-string
+        parameters.'
       summary: Alle BESLUITen opvragen.
       parameters:
       - in: query
@@ -426,7 +427,7 @@ paths:
     post:
       operationId: besluit_create
       description: |-
-        Indien geen identificatie gegeven is, dan wordt deze automatisch gegenereerd.
+        **EXPERIMENTEEL** Indien geen identificatie gegeven is, dan wordt deze automatisch gegenereerd.
 
         Er wordt gevalideerd op:
         - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
@@ -595,7 +596,7 @@ paths:
   /besluiten/{besluit_uuid}/audittrail:
     get:
       operationId: besluiten_audittrail_list
-      description: Alle audit trail regels behorend bij het BESLUIT.
+      description: '**EXPERIMENTEEL** Alle audit trail regels behorend bij het BESLUIT.'
       summary: Alle audit trail regels behorend bij het BESLUIT.
       parameters:
       - in: path
@@ -735,7 +736,7 @@ paths:
   /besluiten/{besluit_uuid}/audittrail/{uuid}:
     get:
       operationId: besluiten_audittrail_read
-      description: Een specifieke audit trail
+      description: '**EXPERIMENTEEL** Een specifieke audit trail'
       summary: Een specifieke audit trail regel opvragen.
       parameters:
       - in: path
@@ -880,7 +881,7 @@ paths:
   /besluiten/{uuid}:
     get:
       operationId: besluit_read
-      description: Een specifiek BESLUIT opvragen.
+      description: '**EXPERIMENTEEL** Een specifiek BESLUIT opvragen.'
       summary: Een specifiek BESLUIT opvragen.
       parameters:
       - in: header
@@ -1041,7 +1042,7 @@ paths:
     put:
       operationId: besluit_update
       description: |-
-        Er wordt gevalideerd op:
+        **EXPERIMENTEEL** Er wordt gevalideerd op:
         - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
         - geldigheid `verantwoorlijkeOrganisatie` RSIN
         - het `besluittype` mag niet gewijzigd worden
@@ -1222,7 +1223,7 @@ paths:
     patch:
       operationId: besluit_partial_update
       description: |-
-        Er wordt gevalideerd op:
+        **EXPERIMENTEEL** Er wordt gevalideerd op:
         - uniciteit van `verantwoorlijkeOrganisatie` + `identificatie`
         - geldigheid `verantwoorlijkeOrganisatie` RSIN
         - het `besluittype` mag niet gewijzigd worden
@@ -1402,7 +1403,7 @@ paths:
     delete:
       operationId: besluit_delete
       description: |
-        Verwijder een BESLUIT samen met alle gerelateerde resources binnen deze API.
+        **EXPERIMENTEEL** Verwijder een BESLUIT samen met alle gerelateerde resources binnen deze API.
 
         **De gerelateerde resources zijn**
         - `BESLUITINFORMATIEOBJECT`
@@ -1550,7 +1551,8 @@ paths:
           description: Internal server error
     head:
       operationId: besluit_head
-      description: Vraag de headers op die je bij een GET request zou krijgen.
+      description: '**EXPERIMENTEEL** Vraag de headers op die je bij een GET request
+        zou krijgen.'
       summary: 'De headers voor een specifiek(e) BESLUIT opvragen '
       parameters:
       - in: header
@@ -1599,7 +1601,8 @@ paths:
   /besluitinformatieobjecten:
     get:
       operationId: besluitinformatieobject_list
-      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      description: '**EXPERIMENTEEL** Deze lijst kan gefilterd wordt met query-string
+        parameters.'
       summary: Alle BESLUIT-INFORMATIEOBJECT relaties opvragen.
       parameters:
       - in: query
@@ -1744,7 +1747,7 @@ paths:
     post:
       operationId: besluitinformatieobject_create
       description: |-
-        Registreer een INFORMATIEOBJECT bij een BESLUIT. Er worden twee types van relaties met andere objecten gerealiseerd:
+        **EXPERIMENTEEL** Registreer een INFORMATIEOBJECT bij een BESLUIT. Er worden twee types van relaties met andere objecten gerealiseerd:
 
         **Er wordt gevalideerd op**
         - geldigheid `besluit` URL
@@ -1913,7 +1916,8 @@ paths:
   /besluitinformatieobjecten/{uuid}:
     get:
       operationId: besluitinformatieobject_read
-      description: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
+      description: '**EXPERIMENTEEL** Een specifieke BESLUIT-INFORMATIEOBJECT relatie
+        opvragen.'
       summary: Een specifieke BESLUIT-INFORMATIEOBJECT relatie opvragen.
       parameters:
       - in: header
@@ -2073,7 +2077,7 @@ paths:
           description: Internal server error
     delete:
       operationId: besluitinformatieobject_delete
-      description: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
+      description: '**EXPERIMENTEEL** Verwijder een BESLUIT-INFORMATIEOBJECT relatie.'
       summary: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
       parameters:
       - in: header
@@ -2217,7 +2221,8 @@ paths:
           description: Internal server error
     head:
       operationId: besluitinformatieobject_head
-      description: Vraag de headers op die je bij een GET request zou krijgen.
+      description: '**EXPERIMENTEEL** Vraag de headers op die je bij een GET request
+        zou krijgen.'
       summary: 'De headers voor een specifiek(e) BESLUITINFORMATIEOBJECT opvragen '
       parameters:
       - in: header

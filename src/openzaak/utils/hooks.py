@@ -5,6 +5,8 @@ from drf_spectacular.plumbing import (
     get_lib_doc_excludes as default_get_lib_doc_excludes,
 )
 
+from openzaak.utils.help_text import mark_experimental
+
 
 def preprocess_exclude_endpoints(endpoints, **kwargs):
     """
@@ -42,4 +44,27 @@ def postprocess_deprecate_apis(result, generator, request, public):
         for path in result["paths"]:
             for method in result["paths"][path]:
                 result["paths"][path][method]["deprecated"] = True
+    return result
+
+
+def postprocess_mark_moved_apis_as_experimental(result, generator, request, public):
+    """
+    Marks all methods of moved apis as experimental.
+    """
+    urlconfs = {
+        "openzaak.components.zaken.api.urls": [
+            "/besluiten",
+            "/besluiten/{besluit_uuid}/audittrail",
+            "/besluiten/{besluit_uuid}/audittrail/{uuid}",
+            "/besluiten/{uuid}",
+            "/besluitinformatieobjecten",
+            "/besluitinformatieobjecten/{uuid}",
+        ]
+    }
+
+    if generator.urlconf in list(urlconfs.keys()):
+        for path in urlconfs[generator.urlconf]:
+            for method in result["paths"][path].values():
+                method["description"] = mark_experimental(method["description"])
+
     return result
