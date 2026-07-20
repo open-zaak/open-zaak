@@ -55,6 +55,7 @@ Guides
    updating
    external_components
    case_identification
+   health_checks
 
 Reference
 ---------
