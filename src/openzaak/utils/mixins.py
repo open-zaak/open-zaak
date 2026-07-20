@@ -2,8 +2,8 @@
 # Copyright (C) 2019 - 2020 Dimpact
 
 from dictdiffer import diff
+from rest_framework.reverse import reverse
 from vng_api_common.audittrails.models import AuditTrail
-from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
 
@@ -22,9 +22,9 @@ def format_dict_diff(changes):
 class AuditTrailMixin:
     @property
     def audittrail(self):
-        qs = AuditTrail.objects.filter(
-            hoofd_object__contains=self.get_absolute_api_url(version=1)
-        ).order_by("-aanmaakdatum")
+        qs = AuditTrail.objects.filter(hoofd_object__contains=self.uuid).order_by(
+            "-aanmaakdatum"
+        )
         res = []
         for audit in qs:
             oud = audit.oud or {}
@@ -35,10 +35,33 @@ class AuditTrailMixin:
         return res
 
 
-class APIMixin(_APIMixin):
-    def get_absolute_api_url(self, request=None, **kwargs) -> str:
+class APIMixin:
+    def get_absolute_api_url(
+        self,
+        request=None,
+        namespace: str | None = None,
+        **kwargs,
+    ) -> str:
+        """
+        Model meta app_label is used as the namespace if not passed as an parameter.
+        """
         kwargs["version"] = "1"
-        return super().get_absolute_api_url(request=request, **kwargs)
+
+        if namespace is None:
+            namespace = self._meta.app_label
+
+        # copied from _APIMixin.get_absolute_api_url
+        resource_name = self._meta.model_name  # type: ignore[attr-defined]
+
+        reverse_kwargs = {"uuid": self.uuid}  # type: ignore[attr-defined]
+        reverse_kwargs.update(**kwargs)
+
+        url = reverse(
+            f"{namespace}:{resource_name}-detail",
+            kwargs=reverse_kwargs,
+            request=request,
+        )
+        return url
 
 
 class ExpandMixin:

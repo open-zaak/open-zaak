@@ -14,13 +14,13 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 from vng_api_common.tests import (
     TypeCheckMixin,
     get_validation_errors,
-    reverse,
     reverse_lazy,
 )
 
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
 from openzaak.utils import build_absolute_url
+from openzaak.utils.urls import reverse
 
 from ...autorisaties.tests.factories import ApplicatieFactory, AutorisatieFactory
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
@@ -1421,7 +1421,10 @@ class ZaakTypeAPITests(TypeCheckMixin, APITestCase):
         zaaktype = ZaakTypeFactory.create(catalogus=self.catalogus, concept=False)
 
         response = self.client.patch(
-            reverse("zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": "1"}),
+            reverse(
+                "catalogi:zaaktype-detail",
+                kwargs={"uuid": zaaktype.uuid, "version": "1"},
+            ),
             {"omschrijving": "Updated description"},
             format="json",
         )
@@ -1938,7 +1941,7 @@ class ZaakTypeCreateDuplicateTests(APITestCase):
 
 class ZaakTypeFilterAPITests(APITestCase):
     maxDiff = None
-    url = reverse_lazy("zaaktype-list")
+    url = reverse_lazy("catalogi:zaaktype-list")
 
     def test_filter_zaaktype_status_alles(self):
         ZaakTypeFactory.create(concept=True)

@@ -1491,10 +1491,12 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
     list=extend_schema(
         summary="Alle ZAAKBESLUITen opvragen.",
         description="Alle ZAAKBESLUITen opvragen.",
+        deprecated=True,
     ),
     retrieve=extend_schema(
         summary="Een specifiek ZAAKBESLUIT opvragen.",
         description="Een specifiek ZAAKBESLUIT opvragen.",
+        deprecated=True,
     ),
     create=extend_schema(
         summary="Maak een ZAAKBESLUIT aan.",
@@ -1507,6 +1509,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "**Er wordt gevalideerd op**\n"
             "- geldigheid URL naar de ZAAK"
         ),
+        deprecated=True,
     ),
     destroy=extend_schema(
         summary="Verwijder een ZAAKBESLUIT.",
@@ -1516,6 +1519,7 @@ class ZaakAuditTrailViewSet(AuditTrailViewSet):
             "De Besluiten API gebruikt dit endpoint om relaties te synchroniseren, "
             "daarom is dit endpoint in de Zaken API geimplementeerd."
         ),
+        deprecated=True,
     ),
 )
 class ZaakBesluitViewSet(
@@ -1610,14 +1614,14 @@ class ZaakBesluitViewSet(
 
     def get_audittrail_main_object_url(self, data, main_resource) -> str:
         return reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             request=self.request,
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )
 
     def get_notification_main_object_url(self, data, kanaal):
         return reverse(
-            "zaak-detail",
+            "zaken:zaak-detail",
             request=self.request,
             kwargs={"uuid": self.kwargs["zaak_uuid"]},
         )

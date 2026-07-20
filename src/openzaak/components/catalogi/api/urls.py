@@ -38,6 +38,7 @@ router.register(r"resultaattypen", ResultaatTypeViewSet)
 router.register(r"zaaktype-informatieobjecttypen", ZaakTypeInformatieObjectTypeViewSet)
 router.register(r"zaakobjecttypen", ZaakObjectTypeViewSet)
 
+app_name = "catalogi"
 
 urlpatterns = [
     re_path(
@@ -77,7 +78,8 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-catalogi-yaml", title=custom_settings["TITLE"]
+                        url_name="catalogi:schema-catalogi-yaml",
+                        title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-catalogi",
                 ),

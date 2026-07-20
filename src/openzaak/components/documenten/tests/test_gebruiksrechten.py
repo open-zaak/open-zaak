@@ -5,9 +5,10 @@ import datetime
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..models import Gebruiksrechten
 from .factories import EnkelvoudigInformatieObjectFactory, GebruiksrechtenFactory
@@ -18,12 +19,12 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_create(self):
-        url = reverse("gebruiksrechten-list")
+        url = reverse("documenten:gebruiksrechten-list")
         eio = EnkelvoudigInformatieObjectFactory.create(
             creatiedatum=datetime.date(2018, 12, 24)
         )
         eio_url = reverse(
-            "enkelvoudiginformatieobject-detail",
+            "documenten:enkelvoudiginformatieobject-detail",
             kwargs={"uuid": eio.uuid},
         )
 
@@ -54,7 +55,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         gebruiksrechten = GebruiksrechtenFactory.create()
 
         url = reverse(
-            "enkelvoudiginformatieobject-detail",
+            "documenten:enkelvoudiginformatieobject-detail",
             kwargs={"uuid": gebruiksrechten.get_informatieobject().uuid},
         )
 
@@ -72,7 +73,9 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
         no gebruiksrechten.
         """
         eio = EnkelvoudigInformatieObjectFactory.create()
-        url = reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid})
+        url = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
 
         response = self.client.patch(url, {"indicatieGebruiksrecht": True})
 
@@ -178,7 +181,7 @@ class GebruiksrechtenTests(JWTAuthMixin, APITestCase):
 
 class GebruiksrechtenFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    url = reverse_lazy("gebruiksrechten-list")
+    url = reverse_lazy("documenten:gebruiksrechten-list")
 
     def test_list_expand(self):
         gebruiksrechten = GebruiksrechtenFactory.create()

@@ -3,17 +3,16 @@
 import uuid
 
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse as django_reverse
 
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.besluiten.models import Besluit
+from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.tests.utils import AdminTestMixin
-
-from ..factories import BesluitFactory
-from ..utils import get_operation_url
+from openzaak.utils.urls import reverse
 
 inline_data = {
     "besluitinformatieobject_set-TOTAL_FORMS": 0,
@@ -29,7 +28,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def _create_besluit(self):
         besluittype = BesluitTypeFactory.create(concept=False)
-        add_url = reverse("admin:besluiten_besluit_add")
+        add_url = django_reverse("admin:besluiten_besluit_add")
         data = {
             "uuid": uuid.uuid4(),
             "_besluittype": besluittype.id,
@@ -48,7 +47,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def test_create_besluit(self):
         besluit = self._create_besluit()
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
+        besluit_url = reverse(besluit, namespace="zaken")
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -72,8 +71,10 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def test_change_besluit(self):
         besluit = BesluitFactory.create(toelichting="old")
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
-        change_url = reverse("admin:besluiten_besluit_change", args=(besluit.pk,))
+        besluit_url = reverse(besluit, namespace="zaken")
+        change_url = django_reverse(
+            "admin:besluiten_besluit_change", args=(besluit.pk,)
+        )
         data = {
             "uuid": besluit.uuid,
             "_besluittype": besluit._besluittype.id,
@@ -111,7 +112,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
-        change_list_url = reverse("admin:besluiten_besluit_changelist")
+        change_list_url = django_reverse("admin:besluiten_besluit_changelist")
         data = {
             "action": "delete_selected",
             "_selected_action": [besluit.id],
@@ -128,7 +129,9 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
-        delete_url = reverse("admin:besluiten_besluit_delete", args=(besluit.pk,))
+        delete_url = django_reverse(
+            "admin:besluiten_besluit_delete", args=(besluit.pk,)
+        )
         data = {"post": "yes"}
 
         self.client.post(delete_url, data)

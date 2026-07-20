@@ -22,7 +22,7 @@ from vng_api_common.constants import (
     RolTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -33,6 +33,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import (
     SCOPE_ZAKEN_ALLES_LEZEN,
@@ -79,7 +80,7 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
         # gebruikt te worden, en zien er vreemd uit t.o.v. wel courant gebruikte
         # opties.
         zaak = ZaakFactory.create(zaakgeometrie=Point(4.887990, 52.377595))  # LONG LAT
-        url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_412_PRECONDITION_FAILED)
@@ -94,7 +95,7 @@ class ApiStrategyTests(JWTAuthMixin, APITestCase):
         with self.subTest(crud="create"):
             zaaktype = ZaakTypeFactory.create(concept=False)
             zaaktype_url = reverse(zaaktype)
-            url = reverse("zaak-list")
+            url = reverse("zaken:zaak-list")
 
             response = self.client.post(
                 url,
@@ -123,7 +124,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
     def test_zaak_afsluiten(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaak = ZaakFactory.create(zaaktype=zaaktype)
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
         statustype1 = StatusTypeFactory.create(zaaktype=zaaktype)
         statustype1_url = reverse(statustype1)
         statustype2 = StatusTypeFactory.create(zaaktype=zaaktype)
@@ -137,7 +138,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         resultaattype_url = reverse(resultaattype)
 
         # Set initial status
-        status_list_url = reverse("status-list")
+        status_list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             status_list_url,
@@ -196,7 +197,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         """
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaak = ZaakFactory.create(zaaktype=zaaktype, startdatum="2023-01-01")
-        zaak_url = reverse("zaak-detail", kwargs={"uuid": zaak.uuid})
+        zaak_url = reverse("zaken:zaak-detail", kwargs={"uuid": zaak.uuid})
         statustype = StatusTypeFactory.create(zaaktype=zaaktype)
         resultaattype = ResultaatTypeFactory.create(
             zaaktype=zaaktype,
@@ -206,7 +207,7 @@ class ZakenAfsluitenTests(JWTAuthMixin, APITestCase):
         )
         ResultaatFactory(zaak=zaak, resultaattype=resultaattype)
         statustype_url = reverse(statustype)
-        status_list_url = reverse("status-list")
+        status_list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             status_list_url,
@@ -247,7 +248,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         """
         zaak = ZaakFactory.create(zaaktype=self.zaaktype)
         zaak_url = reverse(zaak)
-        status_list_url = reverse("status-list")
+        status_list_url = reverse("zaken:status-list")
 
         # initiele status
         response = self.client.post(
@@ -284,7 +285,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             datum_status_gezet="2019-01-07T12:51:41+0000",
         )
         zaak_url = reverse(zaak)
-        status_list_url = reverse("status-list")
+        status_list_url = reverse("zaken:status-list")
 
         # Set status other than eindstatus
         datum_status_gezet = utcdatetime(2019, 1, 7, 12, 53, 25)
@@ -310,7 +311,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.applicatie.heeft_alle_autorisaties = True
         self.applicatie.save()
 
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         response = self.client.post(
             url,
             {
@@ -331,7 +332,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "max_length")
 
     def test_zaak_met_producten(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         self.zaaktype.producten_of_diensten = [
             "https://example.com/product/123",
             "https://example.com/dienst/123",
@@ -376,7 +377,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         self.zaaktype.vertrouwelijkheidaanduiding = (
             VertrouwelijkheidsAanduiding.zaakvertrouwelijk
         )
@@ -404,7 +405,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         """
         Assert that the default vertrouwelijkheidaanduiding is set.
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         self.zaaktype.vertrouwelijkheidaanduiding = (
             VertrouwelijkheidsAanduiding.zaakvertrouwelijk
         )
@@ -447,7 +448,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         zaakeigenschap = ZaakEigenschapFactory.create(zaak=zaak)
         detail_url = reverse(zaak)
         zaakeigenschap_url = reverse(
-            "zaakeigenschap-detail",
+            "zaken:zaakeigenschap-detail",
             kwargs={"zaak_uuid": str(zaak.uuid), "uuid": str(zaakeigenschap.uuid)},
         )
 
@@ -470,7 +471,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         detail_url = reverse(hoofdzaak)
 
         response = self.client.post(
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             {
                 "zaaktype": zaaktype2_url,
                 "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
@@ -529,7 +530,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(response_data["next"])
 
     def test_complex_geometry(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -560,7 +561,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
 
         https://github.com/open-zaak/open-zaak/issues/1108
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -650,7 +651,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
                 ZaakFactory.create(**{param: date(2019, 1, 1)}, zaaktype=self.zaaktype)
                 ZaakFactory.create(**{param: date(2019, 3, 1)}, zaaktype=self.zaaktype)
                 ZaakFactory.create(**{param: date(2019, 2, 1)}, zaaktype=self.zaaktype)
-                url = reverse("zaak-list")
+                url = reverse("zaken:zaak-list")
 
                 response = self.client.get(url, {"ordering": param}, **ZAAK_READ_KWARGS)
 
@@ -677,7 +678,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
                 ZaakFactory.create(**{param: date(2019, 1, 1)}, zaaktype=self.zaaktype)
                 ZaakFactory.create(**{param: date(2019, 3, 1)}, zaaktype=self.zaaktype)
                 ZaakFactory.create(**{param: date(2019, 2, 1)}, zaaktype=self.zaaktype)
-                url = reverse("zaak-list")
+                url = reverse("zaken:zaak-list")
 
                 response = self.client.get(
                     url, {"ordering": f"-{param}"}, **ZAAK_READ_KWARGS
@@ -694,7 +695,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_sort_identificatie(self):
         ZaakFactory.create(identificatie="ZAAK1", zaaktype=self.zaaktype)
         ZaakFactory.create(identificatie="ZAAK2", zaaktype=self.zaaktype)
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         with self.subTest(param="identificatie"):
             response = self.client.get(
@@ -717,7 +718,9 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     @tag("gh-1511")
     def test_create_zaak_with_incorrect_local_zaaktype(self):
         url = reverse(Zaak)
-        zaaktype_url = reverse("zaaktype-detail", kwargs={"uuid": uuid.uuid4()})
+        zaaktype_url = reverse(
+            "catalogi:zaaktype-detail", kwargs={"uuid": uuid.uuid4()}
+        )
 
         zaak_data = {
             "zaaktype": f"http://testserver{zaaktype_url}",
@@ -740,7 +743,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_identity(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
@@ -761,7 +764,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
 
@@ -778,7 +781,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response_2 = self.client.post(
-            reverse("zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -786,7 +789,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_uwv_identity(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Zaak.objects.count(), 0)
@@ -805,7 +808,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
 
@@ -822,7 +825,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response_2 = self.client.post(
-            reverse("zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data_2, **ZAAK_WRITE_KWARGS
         )
         self.assertEqual(create_response_2.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -830,7 +833,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_identity_with_different_bronorganisatie(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Zaak.objects.count(), 0)
@@ -848,7 +851,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
 
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
@@ -863,7 +866,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
     def test_reserve_zaak_uwv_identity_with_different_bronorganisatie(self):
         data = {"bronorganisatie": "111222333"}
 
-        response = self.client.post(reverse("zaakidentificatie-list"), data)
+        response = self.client.post(reverse("zaken:zaakidentificatie-list"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Zaak.objects.count(), 0)
@@ -881,7 +884,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         }
 
         create_response = self.client.post(
-            reverse("zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
+            reverse("zaken:zaak-list"), zaak_data, **ZAAK_WRITE_KWARGS
         )
 
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
@@ -898,7 +901,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "bronorganisatie": "517439943",
             "aantal": 1,
         }
-        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        url = reverse_lazy("zaken:zaakidentificatie-list", kwargs={"version": "1"})
 
         with self.subTest("year"):
             response = self.client.post(url, data)
@@ -935,7 +938,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "aantal": 3,
         }
 
-        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        url = reverse_lazy("zaken:zaakidentificatie-list", kwargs={"version": "1"})
 
         with self.subTest("year"):
             response = self.client.post(url, data)
@@ -1002,7 +1005,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
             "aantal": 2,
         }
 
-        url = reverse_lazy("zaakidentificatie-list", kwargs={"version": "1"})
+        url = reverse_lazy("zaken:zaakidentificatie-list", kwargs={"version": "1"})
 
         with self.subTest("year"):
             response = self.client.post(url, data)
@@ -1083,7 +1086,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
 
     def test_zaak_autofill_einddatums(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         startdatum = date(2020, 1, 1)
         self.zaaktype.servicenorm_behandeling = relativedelta(days=20)
         self.zaaktype.save()
@@ -1113,7 +1116,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         )
 
     def test_zaak_met_eindatums(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         startdatum = date(2020, 1, 1)
         einddatum_gepland = startdatum + relativedelta(days=10)
         uiterlijke = startdatum + relativedelta(months=2)
@@ -1146,7 +1149,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         self.zaaktype.save()
 
         startdatum = date(2020, 1, 1)
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.post(
             url,
@@ -1387,7 +1390,7 @@ class ZaakArchivingTests(JWTAuthMixin, APITestCase):
         BesluitFactory.create(zaak=zaak, ingangsdatum="2020-05-03")
 
         # Set initial status
-        status_list_url = reverse("status-list")
+        status_list_url = reverse("zaken:status-list")
 
         response = self.client.post(
             status_list_url,
@@ -1813,7 +1816,9 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
                     ZaakRelatieFactory(zaak=zaak)
 
                 with self.assertNumQueries(TOTAL_EXPECTED_QUERIES):
-                    response = self.client.get(reverse("zaak-list"), **ZAAK_READ_KWARGS)
+                    response = self.client.get(
+                        reverse("zaken:zaak-list"), **ZAAK_READ_KWARGS
+                    )
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(response.data["count"], num_gerelateerde_zaken * 2)

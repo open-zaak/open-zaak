@@ -11,7 +11,6 @@ from notifications_api_common.tasks import NotificationException, send_notificat
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import reverse
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -25,6 +24,7 @@ from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_ge
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -99,7 +99,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("verwerkbesluit-list")
+        url = reverse("besluiten:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -276,7 +276,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self, m, mock_notif):
         besluit = BesluitFactory.create()
-        url = reverse(besluit)
+        url = reverse(besluit, namespace="besluiten")
 
         # 1. check that notification task is called
         with self.captureOnCommitCallbacks(execute=True):
@@ -325,7 +325,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             informatieobjecttype__concept=False
         )
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = reverse(besluit)
+        besluit_url = reverse(besluit, namespace="besluiten")
         io_url = reverse(io)
         data = {
             "informatieobject": f"http://testserver{io_url}",
@@ -342,7 +342,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
-            "hoofdObject": f"http://testserver{reverse(besluit)}",
+            "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,

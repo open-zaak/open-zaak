@@ -4,7 +4,9 @@ from django.test import override_settings
 
 from rest_framework import status
 from vng_api_common.constants import ComponentTypes
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
+
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..api.scopes import SCOPE_CATALOGI_READ, SCOPE_CATALOGI_WRITE
 from ..constants import RichtingChoices

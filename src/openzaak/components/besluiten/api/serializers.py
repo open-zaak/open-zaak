@@ -10,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.virtual_models import ProxyMixin
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.utils import get_help_text
 from vng_api_common.validators import IsImmutableValidator, validate_rsin
@@ -21,9 +20,13 @@ from openzaak.components.zaken.api.utils import (
     delete_remote_zaakbesluit,
 )
 from openzaak.utils.api import create_remote_oio
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     ConvertNoneMixin,
+    DeprecatedNamespaceHyperlinkedModelSerializer,
     SubSerializerMixin,
 )
 from openzaak.utils.validators import (
@@ -39,7 +42,9 @@ from ..models import Besluit, BesluitInformatieObject
 from .validators import BesluittypeZaaktypeValidator, UniekeIdentificatieValidator
 
 
-class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer):
+class BesluitSerializer(
+    ConvertNoneMixin, DeprecatedNamespaceHyperlinkedModelSerializer
+):
     vervalreden_weergave = serializers.CharField(
         source="get_vervalreden_display", read_only=True
     )
@@ -64,10 +69,14 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
             "uiterlijke_reactiedatum",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "zaken:besluit-detail",
+            },
             # per BRC API spec!
             "besluittype": {
                 "lookup_field": "uuid",
+                "view_name": "catalogi:besluittype-detail",
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
@@ -79,6 +88,7 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
             # per BRC API spec!
             "zaak": {
                 "lookup_field": "uuid",
+                "view_name": "zaken:zaak-detail",
                 "max_length": 200,
                 "allow_null": False,
                 "allow_blank": True,
@@ -100,13 +110,9 @@ class BesluitSerializer(ConvertNoneMixin, serializers.HyperlinkedModelSerializer
 
     def create_zaakbesluit(self, besluit):
         zaak_url = self.initial_data["zaak"]
-        besluit_url = reverse(
-            "besluit-detail",
-            kwargs={
-                "version": settings.REST_FRAMEWORK["DEFAULT_VERSION"],
-                "uuid": besluit.uuid,
-            },
+        besluit_url = besluit.get_absolute_api_url(
             request=self.context["request"],
+            namespace=self.context["request"].resolver_match.namespace,
         )
         return create_remote_zaakbesluit(besluit_url, zaak_url)
 
@@ -169,7 +175,7 @@ class BesluitSubSerializer(SubSerializerMixin, BesluitSerializer):
     pass
 
 
-class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
+class BesluitInformatieObjectSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectField(
         validators=[
             LooseFkIsImmutableValidator(instance_path="canonical"),
@@ -183,6 +189,14 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
+    besluit = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        view_name="zaken:besluit-detail",
+        lookup_field="uuid",
+        help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
+        queryset=Besluit.objects.all(),
+        validators=[IsImmutableValidator()],
+    )
+
     class Meta:
         model = BesluitInformatieObject
         fields = ("url", "informatieobject", "besluit")
@@ -194,8 +208,10 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
             ObjecttypeInformatieobjecttypeRelationValidator("besluit", "besluittype"),
         ]
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "besluit": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "zaken:besluitinformatieobject-detail",
+            },
         }
 
     def create(self, validated_data):
@@ -231,8 +247,13 @@ class BesluitInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 class BesluitInformatieObjectSubSerializer(
     SubSerializerMixin, BesluitInformatieObjectSerializer
 ):
-    class Meta(BesluitInformatieObjectSerializer.Meta):
-        read_only_fields = ("besluit",)
+    besluit = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        view_name="zaken:besluit-detail",
+        lookup_field="uuid",
+        help_text=get_help_text("besluiten.BesluitInformatieObject", "besluit"),
+        validators=[IsImmutableValidator()],
+        read_only=True,
+    )
 
 
 class BesluitVerwerkenSerializer(ConvenienceSerializer):
@@ -249,7 +270,10 @@ class BesluitVerwerkenSerializer(ConvenienceSerializer):
         besluit = besluit_serializer.save()
 
         besluit_data = {
-            "besluit": besluit.get_absolute_api_url(request=self.context["request"])
+            "besluit": besluit.get_absolute_api_url(
+                request=self.context["request"],
+                namespace=self.context["request"].resolver_match.namespace,
+            )
         }
 
         bios = []

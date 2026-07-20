@@ -13,7 +13,6 @@ from django.utils import timezone
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 from vng_api_common.utils import generate_unique_identification
 
 from openzaak.components.catalogi.tests.factories import (
@@ -36,6 +35,7 @@ from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.import_data.tests.utils import ImportTestMixin
 from openzaak.utils import build_absolute_url
 from openzaak.utils.fields import get_default_path
+from openzaak.utils.urls import reverse
 
 from ..mixins import AzureBlobStorageMixin
 

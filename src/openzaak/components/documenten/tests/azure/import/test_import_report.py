@@ -55,7 +55,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -81,7 +82,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -104,7 +106,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -132,7 +135,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -155,7 +159,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)
@@ -200,7 +205,8 @@ class ImportDocumentenReportTests(
         )
 
         url = reverse(
-            "documenten-import:report", kwargs=dict(uuid=import_instance.uuid)
+            "documenten:documenten-import:report",
+            kwargs=dict(uuid=import_instance.uuid),
         )
 
         response = self.client.get(url)

@@ -7,9 +7,10 @@ from django.test import tag
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from .factories import EnkelvoudigInformatieObjectFactory
 
@@ -17,7 +18,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 @temp_private_root()
 class EIOZoekTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    url = reverse_lazy("enkelvoudiginformatieobject--zoek")
+    url = reverse_lazy("documenten:enkelvoudiginformatieobject--zoek")
 
     def test_zoek_uuid_in(self):
         eio1, eio2, eio3 = EnkelvoudigInformatieObjectFactory.create_batch(3)

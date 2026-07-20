@@ -8,10 +8,11 @@ The related US - https://github.com/open-zaak/open-zaak/issues/1733
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolOmschrijving, RolTypes
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..api.filters import MachtigingChoices
 from ..api.serializers.authentication_context import (

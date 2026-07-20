@@ -18,6 +18,7 @@ from .viewsets import ApplicatieViewSet
 router = routers.DefaultRouter()
 router.register("applicaties", ApplicatieViewSet)
 
+app_name = "autorisaties"
 
 urlpatterns = [
     re_path(
@@ -57,7 +58,7 @@ urlpatterns = [
                 path(
                     "schema/",
                     SpectacularRedocView.as_view(
-                        url_name="schema-autorisaties-yaml",
+                        url_name="autorisaties:schema-autorisaties-yaml",
                         title=custom_settings["TITLE"],
                     ),
                     name="schema-redoc-autorisaties",

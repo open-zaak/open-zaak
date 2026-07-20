@@ -7,6 +7,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 from rest_framework.serializers import Serializer
 
+from openzaak.utils.serializer_fields import DeprecatedNamespaceHyperlinkIdentityField
+
 
 class ConvertNoneMixin:
     """
@@ -92,3 +94,9 @@ class ConvenienceSerializer(serializers.Serializer):
 
         if found_errors:
             raise ValidationError(found_errors)
+
+
+class DeprecatedNamespaceHyperlinkedModelSerializer(
+    serializers.HyperlinkedModelSerializer
+):
+    serializer_url_field = DeprecatedNamespaceHyperlinkIdentityField

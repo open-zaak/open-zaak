@@ -9,7 +9,7 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -19,6 +19,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -103,7 +104,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "besluit": reverse(besluit),
+                    "besluit": reverse(besluit, namespace="besluiten"),
                     "informatieobject": f"http://testserver{io_url}",
                 },
             )
@@ -257,7 +258,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_external_besluittype_fail_bad_url(self):
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="besluiten")
 
         response = self.client.post(
             url,
@@ -286,7 +287,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             api_root="http://example.com",
         )
 
-        url = reverse(Besluit)
+        url = reverse(Besluit, namespace="besluiten")
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/some-type", status_code=200)

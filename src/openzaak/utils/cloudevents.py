@@ -8,7 +8,8 @@ from django.db import transaction
 from notifications_api_common.cloudevents import (
     process_cloudevent as _process_cloudevent,
 )
-from vng_api_common.tests import reverse
+
+from openzaak.utils.urls import reverse
 
 """
 Because cloud events are triggered via model signals, endpoints that affect multiple

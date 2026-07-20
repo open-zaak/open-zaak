@@ -1,8 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Besluiten API
+  title: Besluiten API (DEPRECATED)
   version: 1.1.0
-  description: |
+  description: |2
+
+
+    **Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.**
+
     Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
     Een BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet
@@ -249,6 +253,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluiten:
     get:
       operationId: besluit_list
@@ -417,6 +422,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: besluit_create
       description: |-
@@ -586,9 +592,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluiten/{besluit_uuid}/audittrail:
     get:
-      operationId: audittrail_list
+      operationId: besluiten_audittrail_list
       description: Alle audit trail regels behorend bij het BESLUIT.
       summary: Alle audit trail regels behorend bij het BESLUIT.
       parameters:
@@ -726,9 +733,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluiten/{besluit_uuid}/audittrail/{uuid}:
     get:
-      operationId: audittrail_read
+      operationId: besluiten_audittrail_read
       description: Een specifieke audit trail
       summary: Een specifieke audit trail regel opvragen.
       parameters:
@@ -871,6 +879,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluiten/{uuid}:
     get:
       operationId: besluit_read
@@ -1032,6 +1041,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: besluit_update
       description: |-
@@ -1213,6 +1223,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: besluit_partial_update
       description: |-
@@ -1393,6 +1404,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: besluit_delete
       description: |
@@ -1542,6 +1554,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: besluit_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -1590,6 +1603,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /besluitinformatieobjecten:
     get:
       operationId: besluitinformatieobject_list
@@ -1735,6 +1749,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: besluitinformatieobject_create
       description: |-
@@ -1746,7 +1761,6 @@ paths:
         - de combinatie `informatieobject` en `besluit` moet uniek zijn
 
         **Opmerkingen**
-        - De `registratiedatum` wordt door het systeem op 'NU' gezet. De `aardRelatie` wordt ook door het systeem gezet.
         - Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie aangemaakt, echter zonder de relatie-informatie.
       summary: Maak een BESLUIT-INFORMATIEOBJECT relatie aan.
       parameters:
@@ -1905,6 +1919,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluitinformatieobjecten/{uuid}:
     get:
       operationId: besluitinformatieobject_read
@@ -2066,6 +2081,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: besluitinformatieobject_delete
       description: Verwijder een BESLUIT-INFORMATIEOBJECT relatie.
@@ -2210,6 +2226,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: besluitinformatieobject_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -2258,6 +2275,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
 components:
   schemas:
     AuditTrail:

@@ -12,12 +12,13 @@ from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import (
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -58,7 +59,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     def test_validate_informatieobjecttype_invalid(self):
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
             url,
@@ -73,7 +74,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_validate_informatieobjecttype_invalid_resource(self, m):
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
         m.get("https://example.com/", text="<html><head></head><body></body></html>")
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         with requests_mock.Mocker() as m:
             m.get("https://example.com/", status_code=200, text="<html></html>")
@@ -89,7 +90,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_validate_informatieobjecttype_unpublished(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         informatieobjecttype_url = reverse(informatieobjecttype)
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
             url,
@@ -101,7 +102,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "not-published")
 
     def test_integriteit(self):
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         base_body = {"algoritme": "MD5", "waarde": "foobarbaz", "datum": "2018-12-13"}
 
@@ -114,7 +115,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertGegevensGroepRequired(url, "integriteit", base_body, cases)
 
     def test_integriteit_bad_values(self):
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         base_body = {"algoritme": "MD5", "waarde": "foobarbaz", "datum": "2018-12-13"}
 
@@ -126,7 +127,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertGegevensGroepValidation(url, "integriteit", base_body, cases)
 
     def test_ondertekening(self):
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         base_body = {"soort": OndertekeningSoorten.analoog, "datum": "2018-12-13"}
 
@@ -135,7 +136,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertGegevensGroepRequired(url, "ondertekening", base_body, cases)
 
     def test_ondertekening_bad_values(self):
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         base_body = {"soort": OndertekeningSoorten.digitaal, "datum": "2018-12-13"}
         cases = (("soort", "invalid_choice", ""), ("datum", "null", None))
@@ -164,7 +165,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         iotype = InformatieObjectTypeFactory.create(concept=False)
         iotype_url = reverse(iotype)
 
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -195,7 +196,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         iotype = InformatieObjectTypeFactory.create(concept=False)
         iotype_url = reverse(iotype)
 
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -226,7 +227,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
         iotype = InformatieObjectTypeFactory.create(concept=False)
         iotype_url = reverse(iotype)
 
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
         content = {
             "identificatie": "123456",
             "bronorganisatie": "159351741",
@@ -260,7 +261,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("enkelvoudiginformatieobject-list")
+    url = reverse_lazy("documenten:enkelvoudiginformatieobject-list")
     heeft_alle_autorisaties = True
 
     def test_ontvangen_informatieobjecten(self):
@@ -316,7 +317,9 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         has been set, is not possible.
         """
         eio = EnkelvoudigInformatieObjectFactory.create(ontvangstdatum=None)
-        url = reverse("enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid})
+        url = reverse(
+            "documenten:enkelvoudiginformatieobject-detail", kwargs={"uuid": eio.uuid}
+        )
 
         for invalid_status in (Statussen.in_bewerking, Statussen.ter_vaststelling):
             with self.subTest(status=invalid_status):
@@ -404,7 +407,7 @@ class FilterValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_oio_invalid_filters(self):
-        url = reverse("objectinformatieobject-list")
+        url = reverse("documenten:objectinformatieobject-list")
 
         invalid_filters = {
             "object": "123",  # must be url

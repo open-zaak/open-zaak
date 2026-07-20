@@ -1,10 +1,17 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+
+from django.db.models import Model
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from django_loose_fk.drf import FKOrURLField, FKOrURLValidator
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.request import Request
+from vng_api_common.serializers import (
+    LengthHyperlinkedRelatedField as _LengthHyperlinkedRelatedField,
+)
 from vng_api_common.validators import URLValidator
 
 
@@ -89,7 +96,25 @@ class FKOrServiceUrlValidator(FKOrURLValidator):
         return f"_resolved_{names}"
 
 
-class FKOrServiceUrlField(FKOrURLField):
+class ViewNameInjectionMixin:
+    """
+    Used for FKOrURLField classes to be able to set the view_name in the
+    serializer fields which is needed for the component namespaces
+    """
+
+    def __init__(self, *args, view_name: str | None = None, **kwargs):
+        self.view_name = view_name
+        super().__init__(*args, **kwargs)
+
+    @cached_property
+    def _field_instance(self):
+        instance = super()._field_instance
+        if self.view_name:
+            instance.view_name = self.view_name
+        return instance
+
+
+class FKOrServiceUrlField(ViewNameInjectionMixin, FKOrURLField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -116,3 +141,51 @@ class FKOrServiceUrlField(FKOrURLField):
         source = source.split("__")[0]
         model_field = model_class._meta.get_field(source)
         return model_class, model_field
+
+
+class DeprecatedNamespaceMixin:
+    """
+    Mixin to use the current namespace for the response so
+    that the deprecated apis still return their original urls.
+
+    request namespaces is used for all models in _MOVED_MODELS
+    """
+
+    _MOVED_MODELS = ["besluit", "besluitinformatieobject"]
+
+    def get_url(
+        self, obj: Model, view_name: str, request: Request, format: str | None
+    ) -> str | None:
+        if obj._meta.model_name in self._MOVED_MODELS and getattr(
+            request, "resolver_match", None
+        ):
+            # serializers called in the AuditTrailAdminMixin pass the admin request.
+            if request.resolver_match.namespace != "admin":
+                view_name = (
+                    f"{request.resolver_match.namespace}:{view_name.split(':')[1]}"
+                )
+        return super().get_url(obj, view_name, request, format)
+
+
+class DeprecatedNamespaceHyperlinkIdentityField(
+    DeprecatedNamespaceMixin, serializers.HyperlinkedIdentityField
+):
+    pass
+
+
+class DeprecatedNamespaceLengthHyperlinkedRelatedField(
+    DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
+):
+    _DEPRECATED_NAMESPACES = ["besluiten"]
+
+    def fail(self, key, **kwargs):
+        """
+        Checks if incorrect_match happend with deprecated namespace which is allowed.
+        """
+        if (
+            key == "incorrect_match"
+            and self.context["request"].resolver_match.namespace
+            in self._DEPRECATED_NAMESPACES
+        ):
+            return
+        super().fail(key, kwargs)

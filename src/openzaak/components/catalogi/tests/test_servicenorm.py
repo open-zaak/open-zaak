@@ -6,12 +6,12 @@ from dateutil.relativedelta import relativedelta
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests.urls import reverse
 
 from openzaak.components.catalogi.constants import InternExtern
 from openzaak.components.catalogi.models import ZaakType
 from openzaak.components.catalogi.tests.factories import CatalogusFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 
 @tag("gh-2165")
@@ -50,7 +50,7 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         }
 
     def test_create_zaaktype_without_servicenorm(self):
-        zaaktype_list_url = reverse("zaaktype-list")
+        zaaktype_list_url = reverse("catalogi:zaaktype-list")
 
         response = self.client.post(zaaktype_list_url, self.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -80,7 +80,7 @@ class ServiceNormDurationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(zt.servicenorm_behandeling, None)
 
     def test_create_zaaktype_with_servicenorm_P0D(self):
-        zaaktype_list_url = reverse("zaaktype-list")
+        zaaktype_list_url = reverse("catalogi:zaaktype-list")
 
         response = self.client.post(
             zaaktype_list_url, self.data | {"servicenorm": "P0D"}

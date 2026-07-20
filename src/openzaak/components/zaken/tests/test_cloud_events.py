@@ -29,7 +29,6 @@ from vng_api_common.constants import (
     ZaakobjectTypes,
 )
 from vng_api_common.notes.constants import NotitieStatus
-from vng_api_common.tests import reverse
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -55,6 +54,7 @@ from openzaak.tests.utils import (
     mock_ztc_oas_get,
     patch_resource_validator,
 )
+from openzaak.utils.urls import reverse
 
 from ..api.cloudevents import (
     ZAAK_GEKOPPELD,
@@ -260,10 +260,8 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         )
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
-        zaak_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
-        )
-        statustype_url = f"http://testserver{reverse('statustype-detail', kwargs={'uuid': statustype.uuid})}"
+        zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        statustype_url = f"http://testserver{reverse('catalogi:statustype-detail', kwargs={'uuid': statustype.uuid})}"
 
         status_request_data = {
             "zaak": zaak_url,
@@ -347,10 +345,8 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
         ResultaatFactory.create(zaak=zaak, resultaattype=resultaattype)
 
         status_url = get_operation_url("status_create")
-        zaak_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': zaak.uuid})}"
-        )
-        statustype_url = f"http://testserver{reverse('statustype-detail', kwargs={'uuid': statustype.uuid})}"
+        zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': zaak.uuid})}"
+        statustype_url = f"http://testserver{reverse('catalogi:statustype-detail', kwargs={'uuid': statustype.uuid})}"
 
         status_request_data = {
             "zaak": zaak_url,
@@ -1255,11 +1251,9 @@ class IncomingZaakCloudEventTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
         cls.zaak = ZaakFactory.create(zaaktype__concept=False)
 
-        cls.zaak_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
-        )
+        cls.zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
         cls.deleted_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': uuid4()})}"
+            f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': uuid4()})}"
         )
 
         from django.urls import reverse as dj_reverse
@@ -1551,9 +1545,7 @@ class IncomingZaakOntkoppeldCloudEventTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
         cls.zaak = ZaakFactory.create(zaaktype__concept=False)
 
-        cls.zaak_url = (
-            f"http://testserver{reverse('zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
-        )
+        cls.zaak_url = f"http://testserver{reverse('zaken:zaak-detail', kwargs={'uuid': cls.zaak.uuid})}"
 
         from django.urls import reverse as dj_reverse
 

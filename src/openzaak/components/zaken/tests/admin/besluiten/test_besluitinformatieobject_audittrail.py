@@ -3,19 +3,21 @@
 import uuid
 
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse as django_reverse
 
 from maykin_2fa.test import disable_admin_mfa
 from vng_api_common.audittrails.models import AuditTrail
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
+from openzaak.components.besluiten.tests.factories import (
+    BesluitFactory,
+    BesluitInformatieObjectFactory,
+)
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.tests.utils import AdminTestMixin
-
-from ..factories import BesluitFactory, BesluitInformatieObjectFactory
-from ..utils import get_operation_url
+from openzaak.utils.urls import reverse
 
 
 @disable_admin_mfa()
@@ -24,9 +26,9 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
     def test_create_bio(self):
         besluit = BesluitFactory.create()
-        besluit_url = get_operation_url("besluit_read", uuid=besluit.uuid)
+        besluit_url = reverse(besluit, namespace="zaken")
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
-        add_url = reverse("admin:besluiten_besluitinformatieobject_add")
+        add_url = django_reverse("admin:besluiten_besluitinformatieobject_add")
         data = {
             "uuid": uuid.uuid4(),
             "besluit": besluit.id,
@@ -38,7 +40,7 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(BesluitInformatieObject.objects.count(), 1)
 
         bio = BesluitInformatieObject.objects.get()
-        bio_url = get_operation_url("besluitinformatieobject_read", uuid=bio.uuid)
+        bio_url = reverse(bio, namespace="zaken")
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -62,8 +64,8 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
     def test_change_bio(self):
         besluit_old, besluit_new = BesluitFactory.create_batch(2)
         bio = BesluitInformatieObjectFactory.create(besluit=besluit_old)
-        bio_url = get_operation_url("besluitinformatieobject_read", uuid=bio.uuid)
-        change_url = reverse(
+        bio_url = reverse(bio, namespace="zaken")
+        change_url = django_reverse(
             "admin:besluiten_besluitinformatieobject_change", args=(bio.pk,)
         )
         data = {
@@ -78,8 +80,8 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         bio.refresh_from_db()
         audittrail = AuditTrail.objects.get()
-        besluit_old_url = get_operation_url("besluit_read", uuid=besluit_old.uuid)
-        besluit_new_url = get_operation_url("besluit_read", uuid=besluit_new.uuid)
+        besluit_old_url = reverse(besluit_old, namespace="zaken")
+        besluit_new_url = reverse(besluit_new, namespace="zaken")
 
         self.assertEqual(audittrail.bron, "BRC")
         self.assertEqual(audittrail.actie, "update")
@@ -99,9 +101,11 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
     def test_delete_bio_action(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_url = get_operation_url("besluitinformatieobject_read", uuid=bio.uuid)
-        besluit_url = get_operation_url("besluit_read", uuid=bio.besluit.uuid)
-        change_list_url = reverse("admin:besluiten_besluitinformatieobject_changelist")
+        bio_url = reverse(bio, namespace="zaken")
+        besluit_url = reverse(bio.besluit, namespace="zaken")
+        change_list_url = django_reverse(
+            "admin:besluiten_besluitinformatieobject_changelist"
+        )
         data = {
             "action": "delete_selected",
             "_selected_action": [bio.id],
@@ -132,9 +136,9 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
     def test_delete_bio(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_url = get_operation_url("besluitinformatieobject_read", uuid=bio.uuid)
-        besluit_url = get_operation_url("besluit_read", uuid=bio.besluit.uuid)
-        delete_url = reverse(
+        bio_url = reverse(bio, namespace="zaken")
+        besluit_url = reverse(bio.besluit, namespace="zaken")
+        delete_url = django_reverse(
             "admin:besluiten_besluitinformatieobject_delete", args=(bio.pk,)
         )
         data = {"post": "yes"}

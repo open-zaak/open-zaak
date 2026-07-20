@@ -12,10 +12,11 @@ from base64 import b64encode
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
-from vng_api_common.tests import TypeCheckMixin, reverse
+from vng_api_common.tests import TypeCheckMixin
 
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 
 class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
@@ -31,7 +32,7 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             concept=False,
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
             url,
@@ -65,7 +66,7 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             concept=False,
         )
         informatieobjecttype_url = reverse(informatieobjecttype)
-        url = reverse("enkelvoudiginformatieobject-list")
+        url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
             url,

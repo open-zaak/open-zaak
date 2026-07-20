@@ -13,7 +13,6 @@ from vng_api_common.constants import (
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
-from vng_api_common.tests import reverse, reverse_lazy
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
@@ -24,12 +23,13 @@ from openzaak.components.catalogi.tests.factories import (
 from openzaak.components.zaken.api.scopes import SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse, reverse_lazy
 
 
 @freeze_time("2025-01-01T12:00:00")
 @override_settings(OPENZAAK_DOMAIN="testserver")
 class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("besluit-list")
+    url = reverse_lazy("besluiten:besluit-list")
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.zeer_geheim
 
     @classmethod

@@ -6,9 +6,10 @@ from django.test import override_settings
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..constants import AfzenderTypes, PostAdresTypes
 from ..models import Verzending

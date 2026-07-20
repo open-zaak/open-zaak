@@ -231,8 +231,6 @@ class BesluitViewSet(
             "- de combinatie `informatieobject` en `besluit` moet uniek zijn\n"
             "\n"
             "**Opmerkingen**\n"
-            "- De `registratiedatum` wordt door het systeem op 'NU' gezet. De "
-            "`aardRelatie` wordt ook door het systeem gezet.\n"
             "- Bij het aanmaken wordt ook in de Documenten API de gespiegelde relatie "
             "aangemaakt, echter zonder de relatie-informatie."
         ),
@@ -349,6 +347,7 @@ class BesluitInformatieObjectViewSet(
     list=extend_schema(
         summary="Alle audit trail regels behorend bij het BESLUIT.",
         description="Alle audit trail regels behorend bij het BESLUIT.",
+        operation_id="besluiten_audittrail_list",
         parameters=[
             OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
         ],
@@ -356,6 +355,7 @@ class BesluitInformatieObjectViewSet(
     retrieve=extend_schema(
         summary="Een specifieke audit trail regel opvragen.",
         description="Een specifieke audit trail",
+        operation_id="besluiten_audittrail_read",
         parameters=[
             OpenApiParameter("besluit_uuid", OpenApiTypes.UUID, OpenApiParameter.PATH)
         ],
@@ -455,7 +455,7 @@ class BesluitVerwerkenViewSet(
 
         iotype_urls = [
             reverse(
-                "informatieobjecttype-detail",
+                "catalogi:informatieobjecttype-detail",
                 kwargs={
                     "uuid": bio.informatieobject.latest_version.informatieobjecttype.uuid
                 },
@@ -468,7 +468,9 @@ class BesluitVerwerkenViewSet(
         process_cloudevent(
             type=BESLUIT_VERWERKT,
             subject=str(data["besluit"].uuid),
-            dataref=data["besluit"].get_absolute_api_url(),
+            dataref=data["besluit"].get_absolute_api_url(
+                namespace=self.request.resolver_match.namespace
+            ),
             data={
                 "verantwoordelijkeOrganisatie": data[
                     "besluit"

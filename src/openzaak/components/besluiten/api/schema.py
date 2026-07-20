@@ -8,7 +8,11 @@ from openzaak.utils.apidoc import DOC_AUTH_JWT
 
 from .kanalen import KANAAL_BESLUITEN
 
-description = f"""Een API om een besluitregistratiecomponent (BRC) te benaderen.
+description = f"""
+
+**Deze API is deprecated en zal worden verwijderd in Open Zaak versie 3.0. Besluiten zijn verplaatst naar de Zaken API.**
+
+Een API om een besluitregistratiecomponent (BRC) te benaderen.
 
 Een BESLUIT wordt veelal schriftelijk vastgelegd maar dit is niet
 noodzakelijk. Omgekeerd kan het voorkomen dat in een INFORMATIEOBJECT meerdere
@@ -46,7 +50,7 @@ Deze API is afhankelijk van:
 """
 
 custom_settings = {
-    "TITLE": "Besluiten API",
+    "TITLE": "Besluiten API (DEPRECATED)",
     "VERSION": settings.BESLUITEN_API_VERSION,
     "DESCRIPTION": description,
     "SERVERS": [{"url": "/besluiten/api/v1"}],

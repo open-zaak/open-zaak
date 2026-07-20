@@ -24,7 +24,7 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
     """
 
     catalogus = CachedHyperlinkedRelatedField(
-        view_name="catalogus-detail",
+        view_name="catalogi:catalogus-detail",
         source="zaaktype.catalogus",
         read_only=True,
         lookup_field="uuid",
@@ -52,10 +52,22 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "catalogus",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
-            "zaaktype": {"lookup_field": "uuid"},
-            "informatieobjecttype": {"lookup_field": "uuid"},
-            "statustype": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktypeinformatieobjecttype-detail",
+            },
+            "zaaktype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:zaaktype-detail",
+            },
+            "informatieobjecttype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:informatieobjecttype-detail",
+            },
+            "statustype": {
+                "lookup_field": "uuid",
+                "view_name": "catalogi:statustype-detail",
+            },
         }
         validators = [
             ZaakTypeInformatieObjectTypeCatalogusValidator(),

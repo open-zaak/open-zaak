@@ -11,13 +11,13 @@ from notifications_api_common.tasks import NotificationException, send_notificat
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import reverse
 
 from openzaak.notifications.models import FailedNotification
 from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.notifications.tests.utils import LOGGING_SETTINGS
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
 from .factories import ApplicatieFactory, AutorisatieFactory
@@ -152,7 +152,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self, m, mock_notif
     ):
         applicatie = ApplicatieFactory.create(heeft_alle_autorisaties=True)
-        url = reverse(applicatie)
+        url = reverse(applicatie, namespace="autorisaties")
 
         # 1. check that notification task is called
         with self.captureOnCommitCallbacks(execute=True):

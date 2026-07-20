@@ -168,9 +168,13 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             "relatieomschrijving",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:zaakobject-detail"},
             "uuid": {"read_only": True},
-            "zaak": {"lookup_field": "uuid", "validators": [IsImmutableValidator()]},
+            "zaak": {
+                "lookup_field": "uuid",
+                "validators": [IsImmutableValidator()],
+                "view_name": "zaken:zaak-detail",
+            },
             "object": {
                 "required": False,
                 "validators": [URLValidator(get_auth=get_auth), IsImmutableValidator()],
@@ -189,6 +193,7 @@ class ZaakObjectSerializer(PolymorphicSerializer):
                     ),
                     LooseFkIsImmutableValidator(),
                 ],
+                "view_name": "catalogi:zaakobjecttype-detail",
             },
         }
         validators = [

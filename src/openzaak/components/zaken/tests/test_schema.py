@@ -13,14 +13,18 @@ from ..api.schema import custom_settings
 @disable_admin_mfa()
 class ZakenSchemaTests(WebTest):
     def test_schema_page_title(self):
-        response = self.app.get(reverse("schema-redoc-zaken", kwargs={"version": 1}))
+        response = self.app.get(
+            reverse("zaken:schema-redoc-zaken", kwargs={"version": 1})
+        )
         self.assertEqual(response.html.find("title").text, custom_settings["TITLE"])
 
     def test_schema(self):
         vng_query_params = {"page", "expand"}
         vng_header_params = {"Content-Type", "Content-Crs", "Accept-Crs"}
 
-        response = self.app.get(reverse("schema-zaken-json", kwargs={"version": 1}))
+        response = self.app.get(
+            reverse("zaken:schema-zaken-json", kwargs={"version": 1})
+        )
 
         schema = response.json
         params_in = {

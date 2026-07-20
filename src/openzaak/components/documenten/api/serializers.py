@@ -237,6 +237,7 @@ class BestandsDeelSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
+                "view_name": "documenten:bestandsdeel-detail",
             },
             "volgnummer": {
                 "read_only": True,
@@ -286,10 +287,10 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
     """
 
     url = serializers.HyperlinkedIdentityField(
-        view_name="enkelvoudiginformatieobject-detail", lookup_field="uuid"
+        view_name="documenten:enkelvoudiginformatieobject-detail", lookup_field="uuid"
     )
     inhoud = AnyBase64File(
-        view_name="enkelvoudiginformatieobject-download",
+        view_name="documenten:enkelvoudiginformatieobject-download",
         help_text=_(
             f"Minimal accepted size of uploaded file = {settings.MIN_UPLOAD_SIZE} bytes "
             f"(or {naturalsize(settings.MIN_UPLOAD_SIZE, binary=True)})"
@@ -395,6 +396,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     ),
                     PublishValidator(),
                 ],
+                "view_name": "catalogi:informatieobjecttype-detail",
             },
             # todo mark 'deprecated' in OAS after moving to drf-spectacular
             "verzenddatum": {
@@ -879,7 +881,7 @@ class EIOZoekSerializer(serializers.Serializer):
 
 class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
+        view_name="documenten:enkelvoudiginformatieobject-detail",
         lookup_field="uuid",
         queryset=EnkelvoudigInformatieObject.objects,
         help_text=get_help_text("documenten.Gebruiksrechten", "informatieobject"),
@@ -900,14 +902,17 @@ class GebruiksrechtenSerializer(serializers.HyperlinkedModelSerializer):
             "omschrijving_voorwaarden",
         )
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "documenten:gebruiksrechten-detail",
+            },
             "informatieobject": {"validators": [IsImmutableValidator()]},
         }
 
 
 class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
+        view_name="documenten:enkelvoudiginformatieobject-detail",
         lookup_field="uuid",
         queryset=EnkelvoudigInformatieObject.objects,
         help_text=get_help_text(
@@ -926,7 +931,10 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
         model = ObjectInformatieObject
         fields = ("url", "informatieobject", "object", "object_type")
         extra_kwargs = {
-            "url": {"lookup_field": "uuid"},
+            "url": {
+                "lookup_field": "uuid",
+                "view_name": "documenten:objectinformatieobject-detail",
+            },
             "object": {"lookup_field": "uuid"},
         }
         validators = [InformatieObjectUniqueValidator()]
@@ -944,11 +952,13 @@ class ObjectInformatieObjectSerializer(serializers.HyperlinkedModelSerializer):
 
         if object_type == ObjectInformatieObjectTypes.besluit:
             object_field.source = "besluit"
+            object_field.view_name = "zaken:besluit-detail"
             object_field.validators.append(
                 LooseFkResourceValidator("Besluit", settings.BRC_API_STANDARD)
             )
         elif object_type == ObjectInformatieObjectTypes.zaak:
             object_field.source = "zaak"
+            object_field.view_name = "zaken:zaak-detail"
             object_field.validators.append(
                 LooseFkResourceValidator("Zaak", settings.ZRC_API_STANDARD)
             )
@@ -1006,7 +1016,7 @@ class VerzendingSerializer(
     serializers.HyperlinkedModelSerializer,
 ):
     informatieobject = EnkelvoudigInformatieObjectHyperlinkedRelatedField(
-        view_name="enkelvoudiginformatieobject-detail",
+        view_name="documenten:enkelvoudiginformatieobject-detail",
         lookup_field="uuid",
         queryset=EnkelvoudigInformatieObject.objects,
         help_text=get_help_text("documenten.Verzending", "informatieobject"),
@@ -1076,7 +1086,11 @@ class VerzendingSerializer(
         )
 
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "read_only": True},
+            "url": {
+                "lookup_field": "uuid",
+                "read_only": True,
+                "view_name": "documenten:verzending-detail",
+            },
         }
         validators = [VerzendingAddressValidator()]
 

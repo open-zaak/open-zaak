@@ -4,13 +4,14 @@ from django.test.utils import override_settings, tag
 
 import requests_mock
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, reverse
+from vng_api_common.tests import TypeCheckMixin
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.zaken.tests.utils import get_zaak_response
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from .factories import BesluitFactory
 from .utils import get_besluittype_response
@@ -29,7 +30,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         """
         besluit = BesluitFactory.create(zaak=None)
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="besluiten"))
 
         self.assertResponseTypes(
             response.data,
@@ -89,7 +90,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             ingangsdatum="2022-01-01",
         )
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="besluiten"))
 
         self.assertResponseTypes(
             response.data,
@@ -138,7 +139,7 @@ class BesluitReadTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             zaak=zaak,
         )
 
-        response = self.client.get(reverse(besluit))
+        response = self.client.get(reverse(besluit, namespace="besluiten"))
 
         self.assertResponseTypes(
             response.data,

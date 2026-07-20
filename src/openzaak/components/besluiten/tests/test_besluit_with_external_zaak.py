@@ -7,7 +7,7 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import TypeCheckMixin, get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -20,6 +20,7 @@ from openzaak.components.zaken.tests.utils import (
     get_zaakbesluit_response,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from ..models import Besluit
@@ -197,7 +198,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         # update zaak in the besluit
         zaak_new = f"{self.base}zaken/{uuid.uuid4()}"
         zaakbesluit_new_data = get_zaakbesluit_response(zaak_new)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
 
         with requests_mock.Mocker() as m:
             m.get(zaak_old, json=get_zaak_response(zaak_old, zaaktype_url))
@@ -217,7 +218,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_delete_with_external_zaak(self):
         zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
         zaakbesluit_url = besluit._zaakbesluit_url
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
@@ -243,7 +244,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_delete_with_external_zaak_fail_delete_zaakbesluit(self):
         zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluit = self._create_besluit(zaak)
-        besluit_url = f"http://testserver{reverse(besluit)}"
+        besluit_url = f"http://testserver{reverse(besluit, namespace='besluiten')}"
         zaakbesluit_url = besluit._zaakbesluit_url
         zaaktype = besluit.besluittype.zaaktypen.get()
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"

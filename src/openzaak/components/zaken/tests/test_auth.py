@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
-from vng_api_common.tests import AuthCheckMixin, get_validation_errors, reverse
+from vng_api_common.tests import AuthCheckMixin, get_validation_errors
 
 from openzaak.components.autorisaties.tests.factories import (
     AutorisatieFactory,
@@ -29,6 +29,7 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ...documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..api.scopes import (
@@ -56,7 +57,7 @@ from .utils import ZAAK_READ_KWARGS, ZAAK_WRITE_KWARGS, get_operation_url
 
 class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_zaak_without_correct_scope(self):
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
         self.assertForbidden(url, method="post")
 
     def test_cannot_read_without_correct_scope(self):
@@ -65,13 +66,13 @@ class ZakenScopeForbiddenTests(AuthCheckMixin, APITestCase):
         zaak_object = ZaakObjectFactory.create()
         resultaat = ResultaatFactory.create()
         urls = [
-            reverse("zaak-list"),
+            reverse("zaken:zaak-list"),
             reverse(zaak),
-            reverse("status-list"),
+            reverse("zaken:status-list"),
             reverse(status),
-            reverse("resultaat-list"),
+            reverse("zaken:resultaat-list"),
             reverse(resultaat),
-            reverse("zaakobject-list"),
+            reverse("zaken:zaakobject-list"),
             reverse(zaak_object),
         ]
 
@@ -109,7 +110,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         ZaakFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -208,7 +209,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             zaaktype=zaaktype2,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -287,7 +288,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         ZaakFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -356,7 +357,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             zaaktype=zaaktype3,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -450,7 +451,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         ZaakFactory.create(
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -498,7 +499,7 @@ class ZaakWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to create Zaken
         that belong to Zaaktypen in the Catalogus
         """
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         with self.subTest("correct VA but incorrect catalogus"):
             response = self.client.post(
@@ -748,7 +749,9 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
                 ZaakFactory.create(zaaktype=zaaktype)
 
                 with self.assertNumQueries(TOTAL_EXPECTED_QUERIES):
-                    response = self.client.get(reverse("zaak-list"), **ZAAK_READ_KWARGS)
+                    response = self.client.get(
+                        reverse("zaken:zaak-list"), **ZAAK_READ_KWARGS
+                    )
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 self.assertEqual(response.data["count"], 1)
@@ -765,7 +768,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_statussen_limited_to_authorized_zaken(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         # must show up
         status1 = StatusFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -804,7 +807,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         # must show up
         status1 = StatusFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -830,7 +833,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_status_limited_to_authorized_zaken(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
 
         zaak = ZaakFactory.create(
             zaaktype=self.zaaktype,
@@ -870,7 +873,7 @@ class StatusTests(JWTAuthMixin, APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_write_operations_validate_main_object(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
 
         zaak = ZaakFactory.create(
             zaaktype=self.zaaktype,
@@ -938,7 +941,7 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
     component = ComponentTypes.zrc
-    url = reverse("zaaknotitie-list")
+    url = reverse("zaken:zaaknotitie-list")
 
     @classmethod
     def setUpTestData(cls):
@@ -1015,7 +1018,7 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
     def test_write_operations_validate_main_object(self):
         with self.subTest("POST invalid main object url"):
             response = self.client.post(
-                reverse("zaaknotitie-list"),
+                reverse("zaken:zaaknotitie-list"),
                 {
                     "onderwerp": "Test onderwerp",
                     "tekst": "Test tekst",
@@ -1033,7 +1036,7 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
             old_zaak = ZaakFactory.create()
             Zaak.objects.filter(uuid=old_zaak.uuid).delete()
             response = self.client.post(
-                reverse("zaaknotitie-list"),
+                reverse("zaken:zaaknotitie-list"),
                 {
                     "onderwerp": "Test onderwerp",
                     "tekst": "Test tekst",
@@ -1049,7 +1052,7 @@ class ZaakNotitieTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object resource"):
             response = self.client.post(
-                reverse("zaaknotitie-list"),
+                reverse("zaken:zaaknotitie-list"),
                 {
                     "onderwerp": "Test onderwerp",
                     "tekst": "Test tekst",
@@ -1078,7 +1081,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_resultaat_limited_to_authorized_zaken(self):
-        url = reverse("resultaat-list")
+        url = reverse("zaken:resultaat-list")
         # must show up
         resultaat = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -1117,7 +1120,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("resultaat-list")
+        url = reverse("zaken:resultaat-list")
         # must show up
         resultaat = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -1176,7 +1179,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=zaak1.vertrouwelijkheidaanduiding,
         ):
             response = self.client.post(
-                reverse("resultaat-list"),
+                reverse("zaken:resultaat-list"),
                 {
                     "zaak": f"http://testserver{reverse(zaak1)}",
                     "resultaattype": f"http://testserver{reverse(resultaattype)}",
@@ -1193,7 +1196,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
                 vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             ):
                 response = self.client.post(
-                    reverse("resultaat-list"),
+                    reverse("zaken:resultaat-list"),
                     {
                         "zaak": f"http://testserver{reverse(zaak)}",
                         "resultaattype": f"http://testserver{reverse(resultaattype)}",
@@ -1209,7 +1212,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object url"):
             response = self.client.post(
-                reverse("resultaat-list"),
+                reverse("zaken:resultaat-list"),
                 {
                     "zaak": "http://example.com",
                     "resultaattype": f"http://testserver{reverse(resultaattype)}",
@@ -1225,7 +1228,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
             old_zaak = ZaakFactory.create()
             Zaak.objects.filter(uuid=old_zaak.uuid).delete()
             response = self.client.post(
-                reverse("resultaat-list"),
+                reverse("zaken:resultaat-list"),
                 {
                     "zaak": f"http://testserver{reverse(old_zaak)}",
                     "resultaattype": f"http://testserver{reverse(resultaattype)}",
@@ -1239,7 +1242,7 @@ class ResultaatTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object resource"):
             response = self.client.post(
-                reverse("resultaat-list"),
+                reverse("zaken:resultaat-list"),
                 {
                     "zaak": f"http://testserver{reverse(self.zaaktype)}",
                     "resultaattype": f"http://testserver{reverse(resultaattype)}",
@@ -1266,7 +1269,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_zaakobject_limited_to_authorized_zaken(self):
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         # must show up
         zaakobject = ZaakObjectFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -1305,7 +1308,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         # must show up
         zaakobject = ZaakObjectFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -1331,7 +1334,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
         )
 
     def test_create_zaakobject_limited_to_authorized_zaken(self):
-        url = reverse("zaakobject-list")
+        url = reverse("zaken:zaakobject-list")
         zaak1 = ZaakFactory.create()
         zaak2 = ZaakFactory.create(
             zaaktype=self.zaaktype,
@@ -1350,7 +1353,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
     def test_write_operations_validate_main_object(self):
         with self.subTest("POST invalid main object url"):
             response = self.client.post(
-                reverse("zaakobject-list"),
+                reverse("zaken:zaakobject-list"),
                 {"zaak": "http://example.com"},
             )
 
@@ -1363,7 +1366,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
             old_zaak = ZaakFactory.create()
             Zaak.objects.filter(uuid=old_zaak.uuid).delete()
             response = self.client.post(
-                reverse("zaakobject-list"),
+                reverse("zaken:zaakobject-list"),
                 {"zaak": f"http://testserver{reverse(old_zaak)}"},
             )
 
@@ -1374,7 +1377,7 @@ class ZaakObjectTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object resource"):
             response = self.client.post(
-                reverse("zaakobject-list"),
+                reverse("zaken:zaakobject-list"),
                 {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
             )
 
@@ -1483,7 +1486,7 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
             "status": f"http://testserver{reverse(_status)}",
         }
 
-        url = reverse("zaakinformatieobject-list")
+        url = reverse("zaken:zaakinformatieobject-list")
 
         response = self.client.post(url, zaakinformatieobject)
 
@@ -1497,7 +1500,7 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_write_operations_validate_main_object(self):
         with self.subTest("POST invalid main object url"):
             response = self.client.post(
-                reverse("zaakinformatieobject-list"),
+                reverse("zaken:zaakinformatieobject-list"),
                 {"zaak": "http://example.com"},
             )
 
@@ -1510,7 +1513,7 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
             old_zaak = ZaakFactory.create()
             Zaak.objects.filter(uuid=old_zaak.uuid).delete()
             response = self.client.post(
-                reverse("zaakinformatieobject-list"),
+                reverse("zaken:zaakinformatieobject-list"),
                 {"zaak": f"http://testserver{reverse(old_zaak)}"},
             )
 
@@ -1521,7 +1524,7 @@ class ZaakInformatieObjectTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object resource"):
             response = self.client.post(
-                reverse("zaakinformatieobject-list"),
+                reverse("zaken:zaakinformatieobject-list"),
                 {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
             )
 
@@ -1565,7 +1568,7 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=eigenschap1.zaak.vertrouwelijkheidaanduiding,
         ):
             url = reverse(
-                "zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
+                "zaken:zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
             )
             eigenschap1_url = reverse(
                 eigenschap1, kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
@@ -1587,7 +1590,8 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
                 vertrouwelijkheidaanduiding=eigenschap.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = reverse(
-                    "zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap.zaak.uuid}
+                    "zaken:zaakeigenschap-list",
+                    kwargs={"zaak_uuid": eigenschap.zaak.uuid},
                 )
 
                 response = self.client.get(url)
@@ -1628,7 +1632,7 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=eigenschap1.zaak.vertrouwelijkheidaanduiding,
         ):
             url = reverse(
-                "zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
+                "zaken:zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
             )
             eigenschap1_url = reverse(
                 eigenschap1, kwargs={"zaak_uuid": eigenschap1.zaak.uuid}
@@ -1650,7 +1654,8 @@ class ZaakEigenschapTests(JWTAuthMixin, APITestCase):
                 vertrouwelijkheidaanduiding=eigenschap.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = reverse(
-                    "zaakeigenschap-list", kwargs={"zaak_uuid": eigenschap.zaak.uuid}
+                    "zaken:zaakeigenschap-list",
+                    kwargs={"zaak_uuid": eigenschap.zaak.uuid},
                 )
 
                 response = self.client.get(url)
@@ -1778,7 +1783,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
             zaaktype=substatus1.zaak.zaaktype,
             vertrouwelijkheidaanduiding=substatus1.zaak.vertrouwelijkheidaanduiding,
         ):
-            url = reverse("substatus-list")
+            url = reverse("zaken:substatus-list")
             substatus1_url = reverse(substatus1)
 
             response = self.client.get(url)
@@ -1849,7 +1854,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
             zaaktype=zaak1.zaaktype,
             vertrouwelijkheidaanduiding=zaak1.vertrouwelijkheidaanduiding,
         ):
-            url = reverse("substatus-list")
+            url = reverse("zaken:substatus-list")
 
             response = self.client.post(
                 url,
@@ -1869,7 +1874,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
                 zaaktype=zaak.zaaktype,
                 vertrouwelijkheidaanduiding=zaak.vertrouwelijkheidaanduiding,
             ):
-                url = reverse("substatus-list")
+                url = reverse("zaken:substatus-list")
 
                 response = self.client.post(
                     url,
@@ -1887,7 +1892,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
     def test_write_operations_validate_main_object(self):
         with self.subTest("POST invalid main object url"):
             response = self.client.post(
-                reverse("substatus-list"),
+                reverse("zaken:substatus-list"),
                 {"zaak": "http://example.com"},
             )
 
@@ -1900,7 +1905,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
             old_zaak = ZaakFactory.create()
             Zaak.objects.filter(uuid=old_zaak.uuid).delete()
             response = self.client.post(
-                reverse("substatus-list"),
+                reverse("zaken:substatus-list"),
                 {"zaak": f"http://testserver{reverse(old_zaak)}"},
             )
 
@@ -1911,7 +1916,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("POST invalid main object resource"):
             response = self.client.post(
-                reverse("substatus-list"),
+                reverse("zaken:substatus-list"),
                 {"zaak": f"http://testserver{reverse(self.zaaktype)}"},
             )
 
@@ -1935,7 +1940,7 @@ class RolReadTests(JWTAuthMixin, APITestCase):
         super().setUpTestData()
 
     def test_list_rol_limited_to_authorized_zaken(self):
-        url = reverse("rol-list")
+        url = reverse("zaken:rol-list")
         # must show up
         rol = RolFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -1970,7 +1975,7 @@ class RolReadTests(JWTAuthMixin, APITestCase):
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
-        url = reverse("rol-list")
+        url = reverse("zaken:rol-list")
         # must show up
         rol = RolFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -2031,7 +2036,7 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=zaakbesluit1.zaak.vertrouwelijkheidaanduiding,
         ):
             url = reverse(
-                "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit1.zaak.uuid}
+                "zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit1.zaak.uuid}
             )
             zaakbesluit1_url = get_operation_url(
                 "zaakbesluit_read",
@@ -2055,7 +2060,8 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
                 vertrouwelijkheidaanduiding=zaakbesluit.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = reverse(
-                    "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit.zaak.uuid}
+                    "zaken:zaakbesluit-list",
+                    kwargs={"zaak_uuid": zaakbesluit.zaak.uuid},
                 )
 
                 response = self.client.get(url)
@@ -2102,7 +2108,7 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=zaakbesluit1.zaak.vertrouwelijkheidaanduiding,
         ):
             url = reverse(
-                "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit1.zaak.uuid}
+                "zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit1.zaak.uuid}
             )
             zaakbesluit1_url = get_operation_url(
                 "zaakbesluit_read",
@@ -2126,7 +2132,8 @@ class ZaakBesluitTests(JWTAuthMixin, APITestCase):
                 vertrouwelijkheidaanduiding=zaakbesluit.zaak.vertrouwelijkheidaanduiding,
             ):
                 url = reverse(
-                    "zaakbesluit-list", kwargs={"zaak_uuid": zaakbesluit.zaak.uuid}
+                    "zaken:zaakbesluit-list",
+                    kwargs={"zaak_uuid": zaakbesluit.zaak.uuid},
                 )
 
                 response = self.client.get(url)
@@ -2237,7 +2244,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             zaaktype=external_zaaktype2,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -2294,7 +2301,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             zaaktype=external_zaaktype2,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(
             url, {"bronorganisatie": "000000000"}, **ZAAK_READ_KWARGS
@@ -2327,7 +2334,7 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_statussen_list(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         # must show up
         status1 = StatusFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -2384,7 +2391,7 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
             zaaktype="https://externe.catalogus.nl/api/v1/zaaktypen/1",
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
-        url = reverse("zaak-list")
+        url = reverse("zaken:zaak-list")
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
 
@@ -2412,7 +2419,7 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_statussen_list(self):
-        url = reverse("status-list")
+        url = reverse("zaken:status-list")
         # must show up
         status1 = StatusFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -2452,7 +2459,7 @@ class ExternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_resultaten_list(self):
-        url = reverse("resultaat-list")
+        url = reverse("zaken:resultaat-list")
         # must show up
         resultaat = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
@@ -2542,7 +2549,7 @@ class ReserveerZaaknummerTests(JWTAuthMixin, APITestCase):
     component = ComponentTypes.zrc
 
     def test_cannot_reserveer_zaaknummer_without_correct_scope(self):
-        url = reverse("zaakidentificatie-list")
+        url = reverse("zaken:zaakidentificatie-list")
 
         response = self.client.post(url, {"bronorganisatie": "000000000"})
 
@@ -2553,7 +2560,7 @@ class KlantContactTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_ZAKEN_ALLES_LEZEN, SCOPE_ZAKEN_BIJWERKEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.beperkt_openbaar
     component = ComponentTypes.zrc
-    url = reverse("klantcontact-list")
+    url = reverse("zaken:klantcontact-list")
 
     @classmethod
     def setUpTestData(cls):
