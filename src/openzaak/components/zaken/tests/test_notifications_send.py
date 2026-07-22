@@ -74,7 +74,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @tag("notifications")
 @freeze_time("2012-01-14")
 @temp_private_root()
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -1671,6 +1671,100 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self.assertEqual(m.last_request.json(), message)
         self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
+
+    def test_zaak_registreren_create_fail_send_notification_create_db_entry(self, m):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=False, catalogus=informatieobjecttype.catalogus
+        )
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        roltype = RolTypeFactory(zaaktype=zaaktype)
+        roltype_url = self.check_for_instance(roltype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url = reverse(informatieobject)
+
+        url = get_operation_url("registreerzaak_create")
+
+        mock_notification_send(m, status_code=403)
+
+        data = {
+            "zaak": {
+                "zaaktype": zaaktype_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2011-06-11",
+                "startdatum": "2018-06-11",
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                }
+            ],
+            "zaakinformatieobjecten": [
+                {
+                    "informatieobject": f"http://testserver{informatieobject_url}",
+                    "titel": "string",
+                    "beschrijving": "string",
+                    "vernietigingsdatum": "2011-08-24T14:15:22Z",
+                }
+            ],
+            "zaakobjecten": [
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+                },
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "test"}},
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(FailedNotification.objects.count(), 6)
+        self.assertCountEqual(
+            list(
+                FailedNotification.objects.values_list("message__resource", flat=True)
+            ),
+            [
+                "zaak",
+                "status",
+                "rol",
+                "zaakinformatieobject",
+                "zaakobject",
+                "zaakobject",
+            ],
+        )
 
 
 @tag("notifications")

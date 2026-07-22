@@ -385,7 +385,7 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
 
 @tag("cloudevents")
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver", LOG_NOTIFICATIONS_IN_DB=False)
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -571,7 +571,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             m.post("http://webhook.local/cloudevents")
 
-            send_cloudevent(payload)
+            send_cloudevent(payload, None)
 
         self.assertEqual(len(m.request_history), 1)
 

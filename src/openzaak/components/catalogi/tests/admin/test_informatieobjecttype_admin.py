@@ -288,7 +288,7 @@ class IoTypePublishAdminTests(AdminTestMixin, WebTest):
 class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
     url = reverse_lazy("admin:catalogi_informatieobjecttype_add")
 
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
     @freeze_time("2022-01-01")
     @patch("notifications_api_common.viewsets.send_notification.delay")
     @tag("notifications")

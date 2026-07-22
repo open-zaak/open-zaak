@@ -507,7 +507,9 @@ class PerformanceTests(
         fetcher.cache.clear()
         self.addCleanup(fetcher.cache.clear)
 
-    @override_settings(NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None)
+    @override_settings(
+        NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None, LOG_NOTIFICATIONS_IN_DB=False
+    )
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_zaak_local_zaaktype(self, mock_notif):
         """
@@ -577,7 +579,9 @@ class PerformanceTests(
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mock_notif.assert_called_once()
 
-    @override_settings(NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None)
+    @override_settings(
+        NOTIFICATIONS_DISABLED=False, SOLO_CACHE=None, LOG_NOTIFICATIONS_IN_DB=False
+    )
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_zaak_local_zaaktype_with_gerelateerde_zaken(self, mock_notif):
         """

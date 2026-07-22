@@ -200,7 +200,7 @@ class ZaaktypeAdminTests(
         self.assertEqual(response.status_code, 302)
 
     @tag("notifications")
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
     @freeze_time("2019-11-01")
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_new_version(self, m, mock_notif):

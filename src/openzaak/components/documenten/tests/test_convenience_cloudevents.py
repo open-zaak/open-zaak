@@ -40,7 +40,10 @@ from .utils import (
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
 @override_settings(
-    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+    NOTIFICATIONS_SOURCE="oz-test",
+    ENABLE_CLOUD_EVENTS=True,
+    SITE_DOMAIN="testserver",
+    LOG_NOTIFICATIONS_IN_DB=False,
 )
 class DocumentConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase

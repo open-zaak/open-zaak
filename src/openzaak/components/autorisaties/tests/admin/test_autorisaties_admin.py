@@ -241,7 +241,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         self.assertFalse(mock_send_notif.called)
 
     @tag("notifications")
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_changes_to_regular_autorisatie_send_notifications(self, mock_notif):
         zt = ZaakTypeFactory.create()
@@ -297,7 +297,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         )
 
     @tag("notifications")
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_changes_to_catalogus_autorisatie_send_notifications(self, mock_notif):
         zt = ZaakTypeFactory.create()
@@ -344,6 +344,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         OPENZAAK_DOMAIN="openzaak.example.com",
         OPENZAAK_REWRITE_HOST=True,
         ALLOWED_HOSTS=["testserver", "openzaak.example.com"],
+        LOG_NOTIFICATIONS_IN_DB=False,
     )
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_changes_send_notifications_with_openzaak_domain_setting(self, mock_notif):

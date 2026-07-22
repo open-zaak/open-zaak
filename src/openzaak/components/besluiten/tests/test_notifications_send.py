@@ -31,7 +31,7 @@ from .utils import get_operation_url
 @tag("notifications")
 @freeze_time("2018-09-07T00:00:00Z")
 @temp_private_root()
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
