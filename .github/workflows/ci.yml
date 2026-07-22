@@ -122,6 +122,10 @@ jobs:
           coverage combine
         env:
           DB_POOL_ENABLED: ${{ matrix.use_pooling }}
+          CELERY_BROKER_URL: 'redis://bad-host:6379/0'
+          # specified explicitly, since the broker URL is broken, but the once backend
+          # needs to be available even with CELERY_TASK_ALWAYS_EAGER
+          CELERY_ONCE_REDIS_URL: 'redis://localhost:6379/0'
 
       - name: Publish coverage report
         # TODO find a better way to upload this only once
@@ -156,6 +160,10 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:8
+        ports:
+          - 6379:6379
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
