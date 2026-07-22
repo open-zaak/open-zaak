@@ -20,7 +20,8 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.tasks import send_notification
+from notifications_api_common.models import NotificationTypes
+from notifications_api_common.tasks import create_failed_notification, send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationViewSetMixin,
@@ -54,10 +55,7 @@ from openzaak.components.zaken.metrics import (
     zaken_delete_counter,
     zaken_update_counter,
 )
-from openzaak.notifications.viewsets import (
-    MultipleNotificationMixin,
-    create_failed_notification,
-)
+from openzaak.notifications.viewsets import MultipleNotificationMixin
 from openzaak.utils import get_loose_fk_object_url
 from openzaak.utils.api import (
     delete_remote_objectcontactmoment,
@@ -2466,9 +2464,13 @@ class ZaakBijwerkenViewset(
                 action=action,
             )
 
-            pk = create_failed_notification(message)
+            pk = create_failed_notification(message, NotificationTypes.notification)
 
-            transaction.on_commit(lambda msg=message: send_notification.delay(msg, pk))
+            transaction.on_commit(
+                lambda msg=message, notification_id=pk: send_notification.delay(
+                    msg, notification_id
+                )
+            )
 
         config = self.notification_fields["rollen"]
 

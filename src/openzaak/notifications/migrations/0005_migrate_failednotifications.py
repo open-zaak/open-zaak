@@ -33,6 +33,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('notifications_log', '0004_alter_failednotification_status_code'),
+        ('notifications_api_common', '0011_failednotification_notificationresponse')
     ]
 
     operations = [
