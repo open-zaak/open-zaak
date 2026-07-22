@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 import os
-
+from maykin_common.branding import ProductDefinition
 import sentry_sdk
 from celery.schedules import crontab
 from notifications_api_common.settings import *  # noqa
@@ -439,6 +439,71 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
     "cdnjs.cloudflare.com",
     "cdn.jsdelivr.net",
 ]
+
+
+#
+# maykin-commn
+#
+
+
+#
+# MAYKIN-COMMON branding
+#
+MKN_BRANDING_PRODUCT_DEFINITION = ProductDefinition(
+    name="Open Zaak",
+    hyperlink="https://github.com/open-zaak/open-zaak",
+    logo_path="ico/open-zaak-icon.svg",
+)
+
+custom_product_name: str = config(
+    "CUSTOM_PRODUCT_NAME",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Specify the custom product name when redistributing the application, e.g. "
+            "as part of your own software suite."
+        ),
+        group="Branding",
+    ),
+)
+custom_product_url: str = config(
+    "CUSTOM_PRODUCT_URL",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Optional link for the custom product when redistributing the "
+            "application. If provided, the product name will be clickable."
+        ),
+        group="Branding",
+    ),
+)
+custom_product_logo_path: str = config(
+    "CUSTOM_PRODUCT_LOGO_PATH",
+    default="",
+    documentation=DocumentationParams(group="Branding"),
+)
+custom_product_logo_url: str = config(
+    "CUSTOM_PRODUCT_LOGO_URL",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Optional link for the custom product logo when redistributing the "
+            "application. When using externally hosted assets, note that you may "
+            "need to tweak the Content-Security-Policy settings."
+        ),
+        group="Branding",
+    ),
+)
+MKN_BRANDING_DERIVED_PRODUCT_DEFINITION = (
+    ProductDefinition(
+        name=custom_product_name,
+        hyperlink=custom_product_url,
+        logo_path=custom_product_logo_path,
+        logo_url=custom_product_logo_url,
+    )
+    if custom_product_name
+    else None
+)
 
 
 #
