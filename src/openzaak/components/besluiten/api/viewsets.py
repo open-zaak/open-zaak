@@ -16,10 +16,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from vng_api_common.audittrails.viewsets import (
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
     AuditTrailMixin,
-    AuditTrailViewsetMixin,
 )
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.constants import CommonResourceAction
@@ -35,6 +32,11 @@ from openzaak.notifications.viewsets import (
     MultipleObjectsMultipleChannelNotificationMixin,
 )
 from openzaak.utils.api import delete_remote_oio
+from openzaak.utils.audittrails import (
+    MultipleAuditTrailsCreateMixin,
+    MultipleAuditTrailsDestroyMixin,
+    MultipleAuditTrailsViewsetMixin,
+)
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
@@ -43,6 +45,7 @@ from openzaak.utils.pagination import OptimizedPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
 
+from ...zaken.api.audits import AUDIT_ZRC
 from ..models import Besluit, BesluitInformatieObject
 from .audits import AUDIT_BRC
 from .cloudevents import BESLUIT_VERWERKT
@@ -131,7 +134,7 @@ logger = structlog.stdlib.get_logger(__name__)
 class BesluitViewSet(
     CheckQueryParamsMixin,
     MultipleChannelNotificationViewSetMixin,
-    AuditTrailViewsetMixin,
+    MultipleAuditTrailsViewsetMixin,
     ListFilterByAuthorizationsMixin,
     ClosedZaakMixin,
     viewsets.ModelViewSet,
@@ -153,7 +156,7 @@ class BesluitViewSet(
         "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
     notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
-    audit = AUDIT_BRC
+    audits = [AUDIT_BRC, AUDIT_ZRC]
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -246,8 +249,8 @@ class BesluitInformatieObjectViewSet(
     CacheQuerysetMixin,  # should be applied before other mixins
     MultipleChannelNotificationCreateMixin,
     MultipleChannelNotificationDestroyMixin,
-    AuditTrailCreateMixin,
-    AuditTrailDestroyMixin,
+    MultipleAuditTrailsCreateMixin,
+    MultipleAuditTrailsDestroyMixin,
     CheckQueryParamsMixin,
     ListFilterByAuthorizationsMixin,
     mixins.CreateModelMixin,
@@ -275,7 +278,9 @@ class BesluitInformatieObjectViewSet(
     notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
     notifications_main_resource_keys = {"zaken": "besluit.zaak"}
     notifications_replace_urls_for = ["besluit"]
-    audit = AUDIT_BRC
+    audits = [AUDIT_BRC, AUDIT_ZRC]
+    audittrail_main_resource_keys = {"ZRC": "besluit.zaak"}
+    audittrail_replace_urls_for = ["besluit"]
 
     @property
     def notifications_wrap_in_atomic_block(self):
@@ -415,6 +420,7 @@ class BesluitVerwerkenViewSet(
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        # TODO conv namespace audittrails
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
