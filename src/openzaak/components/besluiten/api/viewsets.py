@@ -15,9 +15,6 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from vng_api_common.audittrails.viewsets import (
-    AuditTrailMixin,
-)
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.constants import CommonResourceAction
 from vng_api_common.viewsets import CheckQueryParamsMixin
@@ -35,6 +32,7 @@ from openzaak.utils.api import delete_remote_oio
 from openzaak.utils.audittrails import (
     MultipleAuditTrailsCreateMixin,
     MultipleAuditTrailsDestroyMixin,
+    MultipleAuditTrailsMixin,
     MultipleAuditTrailsViewsetMixin,
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
@@ -385,7 +383,7 @@ class BesluitVerwerkenViewSet(
     viewsets.ViewSet,
     MultipleObjectsMultipleChannelNotificationMixin,
     ClosedZaakMixin,
-    AuditTrailMixin,
+    MultipleAuditTrailsMixin,
 ):
     serializer_class = BesluitVerwerkenSerializer
     permission_classes = (BesluitVerwerkenAuthRequired,)
@@ -420,33 +418,71 @@ class BesluitVerwerkenViewSet(
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # TODO conv namespace audittrails
+        brc_data = self._replace_namespaces(
+            serializer.data["besluit"], ["url"], "besluiten"
+        )
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
             version_before_edit=None,
-            version_after_edit=serializer.data["besluit"],
+            version_after_edit=brc_data,
             unique_representation=serializer.instance[
                 "besluit"
             ].unique_representation(),
             audit=AUDIT_BRC,
             basename="besluit",
-            main_object=serializer.data["besluit"]["url"],
+            main_object=brc_data["url"],
         )
 
-        for i, data in enumerate(serializer.data["besluitinformatieobjecten"]):
+        zaak = serializer.data["besluit"]["zaak"]
+
+        if zaak:
+            zrc_data = self._replace_namespaces(
+                serializer.data["besluit"], ["url"], "zaken"
+            )
             self.create_audittrail(
                 response.status_code,
                 CommonResourceAction.create,
                 version_before_edit=None,
-                version_after_edit=data,
+                version_after_edit=zrc_data,
+                unique_representation=serializer.instance[
+                    "besluit"
+                ].unique_representation(),
+                audit=AUDIT_ZRC,
+                basename="besluit",
+                main_object=zaak,
+            )
+
+        for i, data in enumerate(serializer.data["besluitinformatieobjecten"]):
+            brc_data = self._replace_namespaces(data, ["url", "besluit"], "besluiten")
+            self.create_audittrail(
+                response.status_code,
+                CommonResourceAction.create,
+                version_before_edit=None,
+                version_after_edit=brc_data,
                 unique_representation=serializer.instance["besluitinformatieobjecten"][
                     i
                 ].unique_representation(),
                 audit=AUDIT_BRC,
                 basename="besluitinformatieobject",
-                main_object=data["url"],
+                main_object=brc_data["url"],
             )
+
+            if zaak:
+                zrc_data = self._replace_namespaces(data, ["url", "besluit"], "zaken")
+                self.create_audittrail(
+                    response.status_code,
+                    CommonResourceAction.create,
+                    version_before_edit=None,
+                    version_after_edit=zrc_data,
+                    unique_representation=serializer.instance[
+                        "besluitinformatieobjecten"
+                    ][i].unique_representation(),
+                    audit=AUDIT_ZRC,
+                    basename="besluitinformatieobject",
+                    main_object=zaak,
+                )
+
         self.notify(response.status_code, response.data)
         return response
 

@@ -390,6 +390,8 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             hoofd_object=response.data["besluit"]["url"]
         )
 
+        besluit = Besluit.objects.get()
+
         self.assertEqual(besluit_audittrail.bron, "BRC")
         self.assertEqual(besluit_audittrail.actie, "create")
         self.assertEqual(besluit_audittrail.resource, "besluit")
@@ -403,6 +405,113 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             self.assertEqual(trail.actie, "create")
             self.assertEqual(trail.resource, "besluitinformatieobject")
             self.assertEqual(trail.oud, None)
+            self.assertEqual(
+                trail.hoofd_object,
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
+
+    @tag("convenience-endpoints")
+    def test_verwerk_besluit__with_zaak_audittrails(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+        besluittype_url = reverse(besluittype)
+
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            concept=False, catalogus=besluittype.catalogus
+        )
+        besluittype.informatieobjecttypen.add(informatieobjecttype)
+
+        informatieobject_1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_1 = reverse(informatieobject_1)
+
+        informatieobject_2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url_2 = reverse(informatieobject_2)
+
+        url = reverse("zaken:verwerkbesluit-list")
+
+        data = {
+            "besluit": {
+                "verantwoordelijkeOrganisatie": "000000000",
+                "besluittype": f"http://testserver{besluittype_url}",
+                "zaak": f"http://testserver{zaak_url}",
+                "datum": "2019-04-25",
+                "ingangsdatum": "2019-04-26",
+                "vervaldatum": "2019-04-28",
+                "identificatie": "123123",
+            },
+            "besluitinformatieobjecten": [
+                {"informatieobject": f"http://testserver{informatieobject_url_1}"},
+                {"informatieobject": f"http://testserver{informatieobject_url_2}"},
+            ],
+        }
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(AuditTrail.objects.count(), 6)
+
+        besluit_brc_audittrail = AuditTrail.objects.get(resource="besluit", bron="BRC")
+
+        besluit = Besluit.objects.get()
+
+        self.assertEqual(besluit_brc_audittrail.actie, "create")
+        self.assertEqual(besluit_brc_audittrail.oud, None)
+        self.assertEqual(
+            besluit_brc_audittrail.nieuw,
+            response.data["besluit"]
+            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+        )
+        self.assertEqual(
+            besluit_brc_audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+
+        besluit_zrc_audittrail = AuditTrail.objects.get(resource="besluit", bron="ZRC")
+
+        self.assertEqual(besluit_zrc_audittrail.actie, "create")
+        self.assertEqual(besluit_zrc_audittrail.oud, None)
+        self.assertEqual(
+            besluit_zrc_audittrail.nieuw,
+            response.data["besluit"],
+        )
+        self.assertEqual(
+            besluit_zrc_audittrail.hoofd_object, f"http://testserver{zaak_url}"
+        )
+
+        for brc_bio_trail in AuditTrail.objects.filter(
+            resource="besluitinfromatieobject", bron="BRC"
+        ):
+            self.assertEqual(brc_bio_trail.actie, "create")
+            self.assertEqual(brc_bio_trail.oud, None)
+            self.assertEqual(
+                brc_bio_trail.hoofd_object,
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
+            self.assertIn(
+                "besluiten/api/besluitinformatieobjecten", brc_bio_trail.nieuw["url"]
+            )
+            self.assertIn("besluiten/api/besluiten", brc_bio_trail.nieuw["besluit"])
+
+        for zrc_bio_trail in AuditTrail.objects.filter(
+            resource="besluitinfromatieobject", bron="ZRC"
+        ):
+            self.assertEqual(zrc_bio_trail.actie, "create")
+            self.assertEqual(zrc_bio_trail.oud, None)
+            self.assertEqual(
+                zrc_bio_trail.hoofd_object,
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
+            self.assertIn(
+                "zaken/api/besluitinformatieobjecten", brc_bio_trail.nieuw["url"]
+            )
+            self.assertIn("zaken/api/besluiten", brc_bio_trail.nieuw["besluit"])
 
     def test_delete_besluit_cascade_audittrails(self):
         besluit_data = self._create_besluit()
