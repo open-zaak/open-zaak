@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
 from copy import deepcopy
+from typing import Type
 
 from django.test import override_settings, tag
 
@@ -9,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.authorizations.utils import generate_jwt
+from vng_api_common.tests import get_validation_errors
 from vng_api_common.utils import get_uuid_from_path
 
 from openzaak.components.catalogi.tests.factories import (
@@ -21,6 +23,8 @@ from openzaak.components.documenten.tests.factories import (
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ...zaken.models import Zaak
+from ...zaken.tests.factories import ZaakFactory
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory
 
@@ -28,10 +32,14 @@ from .factories import BesluitFactory
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def _create_besluit(self, **headers):
+    def _create_besluit(self, zaak: Type[Zaak] | None = None, **headers):
         url = reverse(Besluit, namespace="besluiten")
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
+
+        if zaak:
+            besluittype.zaaktypen.add(zaak.zaaktype)
+            zaak_url = reverse(zaak)
 
         besluit_data = {
             "verantwoordelijkeOrganisatie": "000000000",
@@ -41,6 +49,14 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             "vervaldatum": "2019-04-28",
             "identificatie": "123123",
         }
+
+        if zaak:
+            besluit_data.update(
+                {
+                    "zaak": f"http://testserver{zaak_url}",
+                }
+            )
+
         response = self.client.post(url, besluit_data, **headers)
 
         return response.data
@@ -48,7 +64,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     def test_create_besluit_audittrail(self):
         besluit_response = self._create_besluit()
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response["url"])
+        audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 1)
 
         # Verify that the audittrail for the Besluit creation contains the correct
@@ -59,6 +75,47 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(besluit_create_audittrail.resultaat, 201)
         self.assertEqual(besluit_create_audittrail.oud, None)
         self.assertEqual(besluit_create_audittrail.nieuw, besluit_response)
+
+    def test_create_besluit_audittrail_with_zaak(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        besluit_response = self._create_besluit(zaak=zaak)
+
+        besluit = Besluit.objects.get()
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 2)
+
+        besluiten_create_audittrail = audittrails.get(bron="BRC")
+        self.assertEqual(besluiten_create_audittrail.actie, "create")
+        self.assertEqual(besluiten_create_audittrail.resultaat, 201)
+        self.assertEqual(
+            besluiten_create_audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+        self.assertEqual(
+            besluiten_create_audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+        self.assertEqual(besluiten_create_audittrail.oud, None)
+        self.assertEqual(besluiten_create_audittrail.nieuw, besluit_response)
+
+        zaken_create_audittrail = audittrails.get(bron="ZRC")
+        self.assertEqual(zaken_create_audittrail.actie, "create")
+        self.assertEqual(zaken_create_audittrail.resultaat, 201)
+        self.assertEqual(
+            zaken_create_audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
+        self.assertEqual(
+            zaken_create_audittrail.hoofd_object, f"http://testserver{zaak_url}"
+        )
+        self.assertEqual(zaken_create_audittrail.oud, None)
+        self.assertEqual(
+            zaken_create_audittrail.nieuw,
+            besluit_response
+            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+        )
 
     def test_update_besluit_audittrails(self):
         besluit_data = self._create_besluit()
@@ -72,12 +129,12 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         besluit_response = response.data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response["url"])
+        audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the Besluit update contains the correct
         # information
-        besluit_update_audittrail = audittrails[1]
+        besluit_update_audittrail = audittrails.last()
         self.assertEqual(besluit_update_audittrail.bron, "BRC")
         self.assertEqual(besluit_update_audittrail.actie, "update")
         self.assertEqual(besluit_update_audittrail.resultaat, 200)
@@ -90,17 +147,69 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         response = self.client.patch(besluit_data["url"], {"toelichting": "aangepast"})
         besluit_response = response.data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=besluit_response["url"])
+        audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the Besluit partial_update contains the
         # correct information
-        besluit_update_audittrail = audittrails[1]
+        besluit_update_audittrail = audittrails.last()
         self.assertEqual(besluit_update_audittrail.bron, "BRC")
         self.assertEqual(besluit_update_audittrail.actie, "partial_update")
         self.assertEqual(besluit_update_audittrail.resultaat, 200)
         self.assertEqual(besluit_update_audittrail.oud, besluit_data)
         self.assertEqual(besluit_update_audittrail.nieuw, besluit_response)
+
+    def test_partial_update_besluit_audittrails_add_zaak(self):
+        besluit_data = self._create_besluit()
+
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+
+        besluit = Besluit.objects.get()
+        besluit.besluittype.zaaktypen.add(zaak.zaaktype)
+
+        response = self.client.patch(
+            besluit_data["url"], {"zaak": f"http://testserver{zaak_url}"}
+        )
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 3)
+
+        # Verify that the audittrail for the Besluit partial_update contains the
+        # correct information
+        besluit_update_audittrail = audittrails.get(bron="BRC", actie="partial_update")
+        self.assertEqual(besluit_update_audittrail.resultaat, 200)
+        self.assertEqual(besluit_update_audittrail.oud, besluit_data)
+        self.assertEqual(besluit_update_audittrail.nieuw, response.data)
+        self.assertEqual(
+            besluit_update_audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+        self.assertEqual(
+            besluit_update_audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+
+        zaken_update_audittrail = audittrails.get(bron="ZRC")
+        self.assertEqual(zaken_update_audittrail.actie, "partial_update")
+        self.assertEqual(zaken_update_audittrail.resultaat, 200)
+        self.assertEqual(
+            zaken_update_audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
+        self.assertEqual(
+            zaken_update_audittrail.hoofd_object, f"http://testserver{zaak_url}"
+        )
+        self.assertEqual(
+            zaken_update_audittrail.oud,
+            besluit_data
+            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+        )
+        self.assertEqual(
+            zaken_update_audittrail.nieuw,
+            response.data
+            | {"url": f"http://testserver{reverse(besluit, namespace='zaken')}"},
+        )
 
     def test_create_besluitinformatieobject_audittrail(self):
         besluit_data = self._create_besluit()
@@ -124,17 +233,79 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         besluitinformatieobject_response = response.data
 
-        audittrails = AuditTrail.objects.filter(hoofd_object=besluit_data["url"])
+        audittrails = AuditTrail.objects
         self.assertEqual(audittrails.count(), 2)
 
         # Verify that the audittrail for the BesluitInformatieObject creation
         # contains the correct information
-        bio_create_audittrail = audittrails[1]
+        bio_create_audittrail = audittrails.last()
         self.assertEqual(bio_create_audittrail.bron, "BRC")
         self.assertEqual(bio_create_audittrail.actie, "create")
         self.assertEqual(bio_create_audittrail.resultaat, 201)
         self.assertEqual(bio_create_audittrail.oud, None)
         self.assertEqual(bio_create_audittrail.nieuw, besluitinformatieobject_response)
+
+    def test_create_besluitinformatieobject_audittrail_with_zaak(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        besluit_data = self._create_besluit(zaak=zaak)
+
+        besluit = Besluit.objects.get()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = reverse(io)
+        besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": besluit_data["url"],
+                "informatieobject": f"http://testserver{io_url}",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        besluitinformatieobject_response = response.data
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 4)
+
+        bio = BesluitInformatieObject.objects.get()
+
+        # Verify that the audittrail for the BesluitInformatieObject creation
+        # contains the correct information
+        bio_create_audittrail = audittrails.get(
+            bron="BRC", resource="besluitinformatieobject"
+        )
+        self.assertEqual(bio_create_audittrail.actie, "create")
+        self.assertEqual(bio_create_audittrail.resultaat, 201)
+        self.assertEqual(bio_create_audittrail.oud, None)
+        self.assertEqual(bio_create_audittrail.nieuw, besluitinformatieobject_response)
+        self.assertEqual(
+            bio_create_audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
+
+        bio_zrc_create_audittrail = audittrails.get(
+            bron="ZRC", resource="besluitinformatieobject"
+        )
+        self.assertEqual(bio_zrc_create_audittrail.actie, "create")
+        self.assertEqual(bio_zrc_create_audittrail.resultaat, 201)
+        self.assertEqual(bio_zrc_create_audittrail.oud, None)
+        self.assertEqual(
+            bio_zrc_create_audittrail.nieuw,
+            besluitinformatieobject_response
+            | {
+                "url": f"http://testserver{reverse(bio, namespace='zaken')}",
+                "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
+            },
+        )
+        self.assertEqual(
+            bio_zrc_create_audittrail.hoofd_object,
+            f"http://testserver{zaak_url}",
+        )
 
     @tag("convenience-endpoints")
     def test_verwerk_besluit_audittrails(self):
@@ -205,8 +376,43 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(response.status_code, 204)
         # Verify that deleting the Besluit deletes all related AuditTrails
-        audittrails = AuditTrail.objects.filter(hoofd_object=besluit_data["url"])
+        audittrails = AuditTrail.objects
         self.assertFalse(audittrails.exists())
+
+    def test_delete_besluit_with_zaak(self):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        besluit_data = self._create_besluit(zaak=zaak)
+
+        # Delete the Besluit
+        response = self.client.delete(besluit_data["url"])
+        self.assertEqual(response.status_code, 204)
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 2)
+
+        zrc_delete_trail = audittrails.get(actie="destroy")
+        self.assertEqual(zrc_delete_trail.bron, "ZRC")
+        self.assertEqual(zrc_delete_trail.hoofd_object, f"http://testserver{zaak_url}")
+
+    def test_delete_zaak(self):
+        zaak = ZaakFactory.create()
+        besluit_data = self._create_besluit(zaak=zaak)
+
+        # Delete the zaak first
+        response = self.client.delete(besluit_data["zaak"])
+        self.assertEqual(response.status_code, 400)
+        error = get_validation_errors(response, "nonFieldErrors")
+        self.assertEqual(error["code"], "related-besluiten")
+
+        response = self.client.delete(besluit_data["url"])
+        self.assertEqual(response.status_code, 204)
+
+        response = self.client.delete(besluit_data["zaak"])
+        self.assertEqual(response.status_code, 204)
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 0)
 
     def test_audittrail_applicatie_information(self):
         besluit_response = self._create_besluit()
