@@ -123,9 +123,6 @@ jobs:
         env:
           DB_POOL_ENABLED: ${{ matrix.use_pooling }}
           CELERY_BROKER_URL: 'redis://bad-host:6379/0'
-          # specified explicitly, since the broker URL is broken, but the once backend
-          # needs to be available even with CELERY_TASK_ALWAYS_EAGER
-          CELERY_ONCE_REDIS_URL: 'redis://localhost:6379/0'
 
       - name: Publish coverage report
         # TODO find a better way to upload this only once

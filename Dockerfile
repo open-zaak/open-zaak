@@ -68,7 +68,6 @@ COPY ./bin/uninstall_adfs.sh \
     ./bin/uninstall_django_auth_adfs_db.sql \
     ./bin/dump_configuration.sh \
     /app/bin/
-COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
 COPY ./bin/load_fixtures.sh /load_fixtures.sh
 COPY ./bin/dump_data.sh /dump_data.sh

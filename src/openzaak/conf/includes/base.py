@@ -422,26 +422,6 @@ CELERY_RESULT_EXPIRES = config(
 )
 
 #
-# CELERY-ONCE
-#
-
-# Used for the distributed locks to avoid the same task being scheduled multiple times.
-# By default, it falls back to ``CELERY_BROKER_URL``.
-CELERY_ONCE_REDIS_URL = config(
-    "CELERY_ONCE_REDIS_URL",
-    default=CELERY_BROKER_URL,
-    documentation=no_doc,
-)
-CELERY_ONCE = {
-    "backend": "celery_once.backends.Redis",
-    "settings": {
-        "url": CELERY_ONCE_REDIS_URL,
-        "default_timeout": 60 * 60,  # one hour
-    },
-}
-
-
-#
 # DJANGO-CSP
 #
 CONTENT_SECURITY_POLICY["EXCLUDE_URL_PREFIXES"] = [
