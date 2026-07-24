@@ -2,6 +2,8 @@
 #    ./bin/compile_dependencies.sh
 amqp==5.1.1
     # via kombu
+annotated-doc==0.0.4
+    # via typer
 annotated-types==0.7.0
     # via pydantic
 ape-pie==0.2.0
@@ -120,6 +122,7 @@ django==5.2.15
     #   django-extra-views
     #   django-filter
     #   django-formtools
+    #   django-health-check
     #   django-jsonform
     #   django-log-outgoing-requests
     #   django-loose-fk
@@ -188,6 +191,8 @@ django-filter==24.2
     #   open-api-framework
 django-formtools==2.5.1
     # via django-two-factor-auth
+django-health-check==4.4.3
+    # via maykin-common
 django-ipware==7.0.1
     # via django-structlog
 django-jsonform==2.22.0
@@ -268,6 +273,8 @@ djangorestframework-gis==1.2.0
     # via open-api-framework
 djangorestframework-inclusions==1.2.0
     # via open-api-framework
+dnspython==2.8.0
+    # via django-health-check
 docutils==0.21.2
     # via
     #   django-markup
@@ -339,16 +346,20 @@ markdown==3.10.2
     # via
     #   -r requirements/base.in
     #   django-markup
+markdown-it-py==4.2.0
+    # via rich
 markupsafe==2.1.1
     # via jinja2
 maykin-2fa==1.0.1
     # via
     #   maykin-common
     #   open-api-framework
-maykin-common==0.19.1
+maykin-common==0.20.1
     # via
     #   -r requirements/base.in
     #   open-api-framework
+mdurl==0.1.2
+    # via markdown-it-py
 mozilla-django-oidc==5.0.2
     # via mozilla-django-oidc-db
 mozilla-django-oidc-db==2.0.1
@@ -489,6 +500,7 @@ pygments==2.20.0
     # via
     #   django-log-outgoing-requests
     #   django-markup
+    #   rich
 pyjwt==2.12.1
     # via
     #   commonground-api-common
@@ -542,6 +554,7 @@ requests==2.33.1
     #   commonground-api-common
     #   coreapi
     #   django-log-outgoing-requests
+    #   maykin-common
     #   mozilla-django-oidc
     #   msal
     #   open-api-framework
@@ -556,6 +569,8 @@ requests-mock==1.12.1
     # via commonground-api-common
 requests-oauthlib==2.0.0
     # via zgw-consumers
+rich==15.0.0
+    # via typer
 ruamel-yaml==0.18.10
     # via django-setup-configuration
 ruamel-yaml-clib==0.2.12
@@ -570,6 +585,8 @@ sentry-sdk==2.13.0
     # via
     #   commonground-api-common
     #   open-api-framework
+shellingham==1.5.4
+    # via typer
 six==1.16.0
     # via
     #   click-repl
@@ -591,6 +608,8 @@ textile==4.0.3
     # via django-markup
 tornado==6.5.5
     # via flower
+typer==0.27.0
+    # via maykin-common
 typing-extensions==4.12.2
     # via
     #   azure-core

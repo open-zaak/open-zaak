@@ -4,6 +4,7 @@ import os
 
 import sentry_sdk
 from celery.schedules import crontab
+from maykin_common.branding import ProductDefinition
 from notifications_api_common.settings import *  # noqa
 
 os.environ["_USE_STRUCTLOG"] = "True"
@@ -14,6 +15,8 @@ from maykin_common.config import config, DocumentationParams
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.utils.monitoring import filter_sensitive_data
+
+from maykin_common.health_checks import default_health_check_apps
 
 from .api import *  # noqa
 from .plugins import PLUGIN_INSTALLED_APPS
@@ -86,6 +89,9 @@ INSTALLED_APPS = (
     INSTALLED_APPS
     + [
         "maykin_common",
+        # health check + plugins
+        *default_health_check_apps,
+        "maykin_common.health_checks.celery",
         # Optional applications.
         "django.contrib.gis",
         # `django.contrib.sites` added at the project level because it has been removed at the packages level.
@@ -419,6 +425,75 @@ CONTENT_SECURITY_POLICY["DIRECTIVES"]["style-src"] += [
     "cdnjs.cloudflare.com",
     "cdn.jsdelivr.net",
 ]
+
+
+#
+# MAYKIN-COMMON branding
+#
+MKN_BRANDING_PRODUCT_DEFINITION = ProductDefinition(
+    name="Open Zaak",
+    hyperlink="https://github.com/open-zaak/open-zaak",
+    logo_path="ico/open-zaak-icon.svg",
+)
+
+custom_product_name: str = config(
+    "CUSTOM_PRODUCT_NAME",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Specify the custom product name when redistributing the application, e.g. "
+            "as part of your own software suite."
+        ),
+        group="Branding",
+    ),
+)
+custom_product_url: str = config(
+    "CUSTOM_PRODUCT_URL",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Optional link for the custom product when redistributing the "
+            "application. If provided, the product name will be clickable."
+        ),
+        group="Branding",
+    ),
+)
+custom_product_logo_path: str = config(
+    "CUSTOM_PRODUCT_LOGO_PATH",
+    default="",
+    documentation=DocumentationParams(group="Branding"),
+)
+custom_product_logo_url: str = config(
+    "CUSTOM_PRODUCT_LOGO_URL",
+    default="",
+    documentation=DocumentationParams(
+        help_text=(
+            "Optional link for the custom product logo when redistributing the "
+            "application. When using externally hosted assets, note that you may "
+            "need to tweak the Content-Security-Policy settings."
+        ),
+        group="Branding",
+    ),
+)
+MKN_BRANDING_DERIVED_PRODUCT_DEFINITION = (
+    ProductDefinition(
+        name=custom_product_name,
+        hyperlink=custom_product_url,
+        logo_path=custom_product_logo_path,
+        logo_url=custom_product_logo_url,
+    )
+    if custom_product_name
+    else None
+)
+
+#
+# MAYKIN-COMMON health checks
+#
+MKN_HEALTH_CHECKS_BEAT_LIVENESS_FILE = BASE_DIR / "tmp" / "celery_beat.live"
+MKN_HEALTH_CHECKS_WORKER_EVENT_LOOP_LIVENESS_FILE = (
+    BASE_DIR / "tmp" / "celery_worker_event_loop.live"
+)
+MKN_HEALTH_CHECKS_WORKER_READINESS_FILE = BASE_DIR / "tmp" / "celery_worker.ready"
 
 
 #

@@ -13,4 +13,4 @@ ${SCRIPTPATH}/wait_for_db.sh
 
 
 echo "Starting celery beat service"
-exec celery --app openzaak --workdir src beat --loglevel $LOGLEVEL
+exec celery --app openzaak.celery --workdir src beat --loglevel $LOGLEVEL

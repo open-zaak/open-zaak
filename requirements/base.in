@@ -31,7 +31,7 @@ drf-writable-nested
 humanize
 
 commonground-api-common[setup-configuration,testutils,oas]
-maykin-common[axes,mfa,otel]
+maykin-common[axes,mfa,otel,cli,health-checks]
 psycopg[pool, binary]
 zgw-consumers[oauth2]
 
