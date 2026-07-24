@@ -11,7 +11,7 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils.urls import reverse
+from openzaak.utils.urls import reverse
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase

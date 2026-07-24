@@ -87,7 +87,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "besluittype": f"http://testserver{besluittype_url}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -103,7 +104,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
             ]
         )
@@ -149,7 +151,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "besluittype": f"http://testserver{besluittype_url}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluittype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
             ]
         )
@@ -257,7 +260,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -289,7 +293,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -321,7 +326,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -397,7 +403,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "besluittype": f"http://testserver{besluittype_url}",
                             "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -413,7 +420,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
             ]
         )
@@ -472,6 +480,35 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         self.assertEqual(m.last_request.json(), message)
         self.assertEqual(FailedNotification.objects.count(), 1)
         self.assertEqual(NotificationResponse.objects.count(), 1)
+
+    def test_besluit_create_with_zaak_fail_send_notification_create_db_entry(self, m):
+        zaak = ZaakFactory.create()
+        zaak_url = reverse(zaak)
+        besluittype = BesluitTypeFactory.create(concept=False)
+        besluittype.zaaktypen.add(zaak.zaaktype)
+        besluittype_url = reverse(besluittype)
+        url = get_operation_url("besluit_create")
+        data = {
+            "verantwoordelijkeOrganisatie": "517439943",  # RSIN
+            "besluittype": f"http://testserver{besluittype_url}",
+            "zaak": f"http://testserver{zaak_url}",
+            "identificatie": "123123",
+            "datum": "2018-09-06",
+            "toelichting": "Vergunning verleend.",
+            "ingangsdatum": "2018-10-01",
+            "vervaldatum": "2018-11-01",
+            "vervalreden": VervalRedenen.tijdelijk,
+        }
+
+        mock_notification_send(m, status_code=403)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(FailedNotification.objects.count(), 2)
+        self.assertEqual(NotificationResponse.objects.count(), 2)
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self, m):
         besluit = BesluitFactory.create()
