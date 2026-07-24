@@ -157,37 +157,12 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         max_length=1000, blank=True, help_text="Een toelichting op de zaak."
     )
 
-    _zaaktype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
-    )
-    _zaaktype_relative_url = RelativeURLField(
-        _("zaaktype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar het extern ZAAKTYPE (in een andere Catalogi API).",
-    )
-    _zaaktype_url = ServiceUrlField(
-        base_field="_zaaktype_base_url",
-        relative_field="_zaaktype_relative_url",
-        verbose_name=_("extern zaaktype"),
-        null=True,
-        blank=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern ZAAKTYPE (in een andere Catalogi API)."
-        ),
-    )
-    _zaaktype = models.ForeignKey(
+    zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
         null=True,
         blank=True,
-    )
-    zaaktype = FkOrServiceUrlField(
-        fk_field="_zaaktype",
-        url_field="_zaaktype_url",
-        help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
     )
 
     registratiedatum = models.DateField(
@@ -801,37 +776,12 @@ class Status(ETagMixin, APIMixin, models.Model):
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
 
-    _statustype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
-    )
-    _statustype_relative_url = RelativeURLField(
-        _("statustype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern STATUSTYPE (in een andere Catalogi API).",
-    )
-    _statustype_url = ServiceUrlField(
-        base_field="_statustype_base_url",
-        relative_field="_statustype_relative_url",
-        verbose_name=_("extern statustype"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern STATUSTYPE (in een andere Catalogi API)."
-        ),
-    )
-    _statustype = models.ForeignKey(
+    statustype = models.ForeignKey(
         "catalogi.StatusType",
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
         null=True,
         blank=True,
-    )
-    statustype = FkOrServiceUrlField(
-        fk_field="_statustype",
-        url_field="_statustype_url",
-        help_text=_("URL-referentie naar het STATUSTYPE (in de Catalogi API)."),
     )
 
     # extra informatie

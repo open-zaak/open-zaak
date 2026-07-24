@@ -340,7 +340,7 @@ class ZaakFilter(FilterSetWithGroups):
         latest_status_subquery = (
             Status.objects.filter(zaak=OuterRef("pk"))
             .order_by("-datum_status_gezet", "-pk")
-            .values("_statustype_id")[:1]
+            .values("statustype_id")[:1]
         )
 
         return queryset.annotate(
