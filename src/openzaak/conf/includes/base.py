@@ -154,26 +154,6 @@ MIDDLEWARE = [
 # Sending EMAIL
 #
 
-#
-# LOGGING
-#
-LOGGING["filters"]["failed_notification"] = {
-    "()": "openzaak.notifications.filters.FailedNotificationFilter"
-}
-LOGGING["handlers"]["failed_notification"] = {
-    "level": "DEBUG",
-    "filters": ["failed_notification"],
-    "class": "openzaak.notifications.handlers.DatabaseLogHandler",
-}
-LOGGING["loggers"]["notifications_api_common.tasks"] = {
-    "handlers": [
-        "failed_notification",  # always log this to the database!
-        *logging_root_handlers,
-    ],
-    "level": "WARNING",
-    "propagate": True,
-}
-
 
 #
 # AUTH settings - user accounts, passwords, backends...
@@ -607,6 +587,23 @@ NOTIFICATIONS_SOURCE = config(
         help_text="**EXPERIMENTAL**: the identifier of this application to use as the source in notifications and cloudevents"
     ),
 )
+
+LOG_NOTIFICATIONS_IN_DB = config(
+    "LOG_NOTIFICATIONS_IN_DB",
+    default=True,
+    documentation=DocumentationParams(
+        help_text="Indicates whether or not failed notifications/cloud events should be saved to the database"
+    ),
+)
+
+NOTIFICATION_NUMBER_OF_DAYS_RETAINED = config(
+    "NOTIFICATION_NUMBER_OF_DAYS_RETAINED",
+    default=60,
+    documentation=DocumentationParams(
+        help_text="the number of days for which you wish to keep failed notifications/cloud events in the database"
+    ),
+)
+
 
 #
 # SECURITY settings

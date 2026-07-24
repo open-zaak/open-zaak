@@ -6,24 +6,9 @@ LOGGING_SETTINGS = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {},
-    "filters": {
-        "failed_notification": {
-            "()": "openzaak.notifications.filters.FailedNotificationFilter"
-        },
-    },
-    "handlers": {
-        "failed_notification": {
-            "level": "DEBUG",
-            "filters": ["failed_notification"],
-            "class": "openzaak.notifications.handlers.DatabaseLogHandler",
-        },
-    },
+    "filters": {},
+    "handlers": {},
     "loggers": {
-        "notifications_api_common.tasks": {
-            "handlers": ["failed_notification"],
-            "level": "WARNING",
-            "propagate": False,
-        },
         "vng_api_common.exception_handling": {
             "handlers": [],
             "level": "CRITICAL",

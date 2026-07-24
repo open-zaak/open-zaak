@@ -40,7 +40,10 @@ from .utils import (
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
 @override_settings(
-    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+    NOTIFICATIONS_SOURCE="oz-test",
+    ENABLE_CLOUD_EVENTS=True,
+    SITE_DOMAIN="testserver",
+    LOG_NOTIFICATIONS_IN_DB=False,
 )
 class DocumentConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
@@ -118,7 +121,8 @@ class DocumentConvenienceCloudEventTest(
                             "zaaktype": f"http://testserver{zaaktype_url}",
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -137,7 +141,8 @@ class DocumentConvenienceCloudEventTest(
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                             "zaak.zaaktype": f"http://testserver{zaaktype_url}",
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,

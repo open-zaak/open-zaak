@@ -8,10 +8,12 @@ from django.test import override_settings, tag
 from django.utils.timezone import now
 
 import requests_mock
-from django_db_logger.models import StatusLog
 from freezegun import freeze_time
-from notifications_api_common.models import NotificationsConfig
-from notifications_api_common.tasks import NotificationException, send_notification
+from notifications_api_common.models import (
+    FailedNotification,
+    NotificationResponse,
+    NotificationsConfig,
+)
 from privates.test import temp_private_root
 from requests.exceptions import RequestException
 from rest_framework import status
@@ -45,8 +47,7 @@ from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import StatusFactory
-from openzaak.notifications.models import FailedNotification
-from openzaak.notifications.tests import mock_notification_send, mock_nrc_oas_get
+from openzaak.notifications.tests import mock_notification_send
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 
@@ -73,7 +74,7 @@ VERANTWOORDELIJKE_ORGANISATIE = "517439943"
 @tag("notifications")
 @freeze_time("2012-01-14")
 @temp_private_root()
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
@@ -122,6 +123,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
+            None,
         )
 
     def test_send_notif_create_substatus(self, mock_notif):
@@ -170,6 +172,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
+            None,
         )
 
     @tag("external-urls")
@@ -233,6 +236,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
+            None,
         )
 
     @tag("external-urls")
@@ -299,6 +303,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                 },
             },
+            None,
         )
 
     @tag("convenience-endpoints")
@@ -402,7 +407,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -418,7 +424,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -434,7 +441,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -450,7 +458,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -466,7 +475,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -482,7 +492,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -549,7 +560,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -565,7 +577,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -633,7 +646,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -649,7 +663,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -665,7 +680,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -743,7 +759,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -759,7 +776,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -775,7 +793,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -877,7 +896,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -893,7 +913,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -909,7 +930,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -925,7 +947,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -941,7 +964,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -1008,7 +1032,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -1024,7 +1049,8 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                             "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
                             "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -1062,6 +1088,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
+            None,
         )
 
     def test_send_notif_update_zaakobject(self, mock_notif):
@@ -1092,6 +1119,7 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
+            None,
         )
 
     def test_send_notif_update_zaak_eigenschap(self, mock_notif):
@@ -1124,20 +1152,24 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
                     "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                 },
             },
+            None,
         )
 
 
-@tag("notifications", "DEPRECATED")
+@tag("notifications")
 @requests_mock.Mocker()
 @temp_private_root()
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(
+    NOTIFICATIONS_DISABLED=False,
+    LOG_NOTIFICATIONS_IN_DB=True,
+    CELERY_TASK_ALWAYS_EAGER=True,
+)
 @freeze_time("2019-01-01T12:00:00Z")
-@patch("notifications_api_common.viewsets.send_notification.delay")
 class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     maxDiff = None
 
-    def test_zaak_create_fail_send_notification_create_db_entry(self, m, mock_notif):
+    def test_zaak_create_fail_send_notification_create_db_entry(self, m):
         url = get_operation_url("zaak_create")
         zaaktype = ZaakTypeFactory.create(concept=False)
         zaaktype_url = reverse(zaaktype)
@@ -1156,7 +1188,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
 
@@ -1177,28 +1210,17 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "zaak",
             "resourceUrl": data["url"],
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_zaak_delete_fail_send_notification_create_db_entry(self, m, mock_notif):
+    def test_zaak_delete_fail_send_notification_create_db_entry(self, m):
         zaak = ZaakFactory.create()
         url = reverse(zaak)
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
@@ -1218,24 +1240,12 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "zaak",
             "resourceUrl": f"http://testserver{url}",
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_status_create_fail_send_notification_create_db_entry(self, m, mock_notif):
+    def test_status_create_fail_send_notification_create_db_entry(self, m):
         url = get_operation_url("status_create")
         zaak = ZaakFactory.create(
             einddatum=now(),
@@ -1255,7 +1265,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "datumStatusGezet": "2019-01-01T12:00:00Z",
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1276,26 +1287,12 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "status",
             "resourceUrl": data["url"],
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_zaakobject_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_zaakobject_create_fail_send_notification_create_db_entry(self, m):
         url = get_operation_url("zaakobject_create")
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
@@ -1310,7 +1307,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1332,25 +1330,12 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": data["url"],
         }
 
-        mock_notif.assert_called_with(message)
-
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
     def test_zaakinformatieobject_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
+        self, m
     ):
         url = get_operation_url("zaakinformatieobject_create")
 
@@ -1368,7 +1353,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "zaak": f"http://testserver{zaak_url}",
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1389,33 +1375,22 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "zaakinformatieobject",
             "resourceUrl": data["url"],
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
     @skip(reason="Standard does not prescribe ZIO destroy notifications.")
     def test_zaakinformatieobject_delete_fail_send_notification_create_db_entry(
-        self, m, mock_notif
+        self, m
     ):
         zio = ZaakInformatieObjectFactory.create()
         url = reverse(zio)
 
         # this endpoint does not run in a transaction.atomic() block, so the
         # self.captureOnCommitCallbacks context manager is not useful
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -1434,26 +1409,12 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "zaakinformatieobject",
             "resourceUrl": f"http://testserver{url}",
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_zaakeigenschap_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_zaakeigenschap_create_fail_send_notification_create_db_entry(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -1465,6 +1426,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "eigenschap": f"http://testserver{eigenschap_url}",
             "waarde": "ja",
         }
+        mock_notification_send(m, status_code=403)
 
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
@@ -1486,26 +1448,12 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "zaakeigenschap",
             "resourceUrl": data["url"],
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_klantcontact_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_klantcontact_create_fail_send_notification_create_db_entry(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -1515,7 +1463,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "datumtijd": "2019-01-01T12:00:00Z",
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1537,24 +1486,11 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": data["url"],
         }
 
-        mock_notif.assert_called_with(message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_rol_create_fail_send_notification_create_db_entry(self, m, mock_notif):
+    def test_rol_create_fail_send_notification_create_db_entry(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -1575,7 +1511,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             },
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1597,28 +1534,16 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": data["url"],
         }
 
-        mock_notif.assert_called_with(message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_rol_delete_fail_send_notification_create_db_entry(self, m, mock_notif):
+    def test_rol_delete_fail_send_notification_create_db_entry(self, m):
         rol = RolFactory.create()
         url = reverse(rol)
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
@@ -1639,26 +1564,11 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": f"http://testserver{url}",
         }
 
-        mock_notif.assert_called_with(message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_resultaat_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_resultaat_create_fail_send_notification_create_db_entry(self, m):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -1671,7 +1581,8 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resultaattype": f"http://testserver{resultaattype_url}",
         }
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(url, data)
 
@@ -1693,30 +1604,16 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": data["url"],
         }
 
-        mock_notif.assert_called_with(message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
-
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_resultaat_delete_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_resultaat_delete_fail_send_notification_create_db_entry(self, m):
         resultaat = ResultaatFactory.create()
         url = reverse(resultaat)
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.delete(url)
 
@@ -1736,31 +1633,18 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resource": "resultaat",
             "resourceUrl": f"http://testserver{url}",
         }
-        mock_notif.assert_called_with(message)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
-        mock_notification_send(m, status_code=403)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
-
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
-
-    def test_zaakbesluit_create_fail_send_notification_create_db_entry(
-        self, m, mock_notif
-    ):
+    def test_zaakbesluit_create_fail_send_notification_create_db_entry(self, m):
         besluit = BesluitFactory.create(for_zaak=True)
         besluit_url = reverse(besluit)
         url = reverse("zaakbesluit-list", kwargs={"zaak_uuid": besluit.zaak.uuid})
 
-        # 1. check that notification task is called
+        mock_notification_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(
                 url, data={"besluit": f"http://testserver{besluit_url}"}
@@ -1784,22 +1668,103 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
             "resourceUrl": data["url"],
         }
 
-        mock_notif.assert_called_with(message)
+        self.assertEqual(m.last_request.json(), message)
+        self.assertEqual(FailedNotification.objects.count(), 1)
+        self.assertEqual(NotificationResponse.objects.count(), 1)
 
-        # 2. check that if task is failed, DB object is created for failed notification
-        mock_nrc_oas_get(m)
+    def test_zaak_registreren_create_fail_send_notification_create_db_entry(self, m):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+
+        zaaktype = ZaakTypeFactory.create(
+            concept=False, catalogus=informatieobjecttype.catalogus
+        )
+        zaaktype_url = self.check_for_instance(zaaktype)
+
+        ZaakTypeInformatieObjectTypeFactory.create(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        roltype = RolTypeFactory(zaaktype=zaaktype)
+        roltype_url = self.check_for_instance(roltype)
+
+        statustype = StatusTypeFactory.create(zaaktype=zaaktype)
+        statustype_url = self.check_for_instance(statustype)
+
+        StatusTypeFactory.create(zaaktype=zaaktype)
+
+        informatieobject = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype
+        )
+        informatieobject_url = reverse(informatieobject)
+
+        url = get_operation_url("registreerzaak_create")
+
         mock_notification_send(m, status_code=403)
 
-        with self.assertRaises(NotificationException):
-            send_notification(message)
+        data = {
+            "zaak": {
+                "zaaktype": zaaktype_url,
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2011-06-11",
+                "startdatum": "2018-06-11",
+                "toelichting": "toelichting",
+            },
+            "rollen": [
+                {
+                    "betrokkene": BETROKKENE,
+                    "betrokkene_type": RolTypes.natuurlijk_persoon,
+                    "roltype": roltype_url,
+                    "roltoelichting": "awerw",
+                }
+            ],
+            "zaakinformatieobjecten": [
+                {
+                    "informatieobject": f"http://testserver{informatieobject_url}",
+                    "titel": "string",
+                    "beschrijving": "string",
+                    "vernietigingsdatum": "2011-08-24T14:15:22Z",
+                }
+            ],
+            "zaakobjecten": [
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "some value"}},
+                },
+                {
+                    "objectType": ZaakobjectTypes.overige,
+                    "objectTypeOverige": "test",
+                    "relatieomschrijving": "test",
+                    "objectIdentificatie": {"overigeData": {"someField": "test"}},
+                },
+            ],
+            "status": {
+                "statustype": statustype_url,
+                "datumStatusGezet": "2011-01-01T00:00:00",
+            },
+        }
 
-        self.assertEqual(StatusLog.objects.count(), 1)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
 
-        logged_warning = StatusLog.objects.get()
-        failed = FailedNotification.objects.get()
-
-        self.assertEqual(failed.statuslog_ptr, logged_warning)
-        self.assertEqual(failed.message, message)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(FailedNotification.objects.count(), 6)
+        self.assertCountEqual(
+            list(
+                FailedNotification.objects.values_list("message__resource", flat=True)
+            ),
+            [
+                "zaak",
+                "status",
+                "rol",
+                "zaakinformatieobject",
+                "zaakobject",
+                "zaakobject",
+            ],
+        )
 
 
 @tag("notifications")

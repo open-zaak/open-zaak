@@ -7,7 +7,8 @@ from django.db import models, transaction
 import structlog
 from cloudevents.exceptions import GenericException
 from cloudevents.http import CloudEvent, from_http
-from notifications_api_common.tasks import send_notification
+from notifications_api_common.models import NotificationTypes
+from notifications_api_common.tasks import create_failed_notification, send_notification
 from notifications_api_common.viewsets import NotificationMixin
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -51,7 +52,12 @@ class MultipleNotificationMixin(NotificationMixin):
                     action=config.get("action"),
                 )
 
-                transaction.on_commit(lambda msg=message: send_notification.delay(msg))
+                pk = create_failed_notification(message, NotificationTypes.notification)
+                transaction.on_commit(
+                    lambda msg=message, notification_id=pk: send_notification.delay(
+                        msg, notification_id
+                    )
+                )
 
 
 type CloudEventHandler = Callable[[CloudEvent], None]

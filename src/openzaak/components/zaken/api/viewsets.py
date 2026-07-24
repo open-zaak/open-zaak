@@ -20,7 +20,8 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.tasks import send_notification
+from notifications_api_common.models import NotificationTypes
+from notifications_api_common.tasks import create_failed_notification, send_notification
 from notifications_api_common.viewsets import (
     NotificationCreateMixin,
     NotificationViewSetMixin,
@@ -2462,7 +2463,14 @@ class ZaakBijwerkenViewset(
                 model=config["model"],
                 action=action,
             )
-            transaction.on_commit(lambda msg=message: send_notification.delay(msg))
+
+            pk = create_failed_notification(message, NotificationTypes.notification)
+
+            transaction.on_commit(
+                lambda msg=message, notification_id=pk: send_notification.delay(
+                    msg, notification_id
+                )
+            )
 
         config = self.notification_fields["rollen"]
 

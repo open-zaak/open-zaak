@@ -29,7 +29,11 @@ from ..test_cloud_events import (
     "notifications_api_common.cloudevents.uuid.uuid4",
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
-@override_settings(NOTIFICATIONS_SOURCE="oz-test", SITE_DOMAIN="testserver")
+@override_settings(
+    NOTIFICATIONS_SOURCE="oz-test",
+    SITE_DOMAIN="testserver",
+    LOG_NOTIFICATIONS_IN_DB=False,
+)
 class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
     def setUp(self):
         super().setUp()
@@ -72,7 +76,8 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                         self.zaak.vertrouwelijkheidaanduiding
                     ),
                 },
-            }
+            },
+            None,
         )
 
     def test_admin_add_status_triggers_zaak_gemuteerd(self, mock_send_cloudevent):
@@ -108,7 +113,8 @@ class ZaakAdminCloudEventTests(CloudEventSettingMixin, TestCase):
                         "zaaktype.catalogus": f"http://testserver{reverse(self.zaak.zaaktype.catalogus)}",
                         "vertrouwelijkheidaanduiding": self.zaak.vertrouwelijkheidaanduiding,
                     },
-                }
+                },
+                None,
             )
 
         mock_send_cloudevent.reset_mock()

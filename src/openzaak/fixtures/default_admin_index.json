@@ -151,7 +151,7 @@
                 "statuslog"
             ],
             [
-                "notifications_log",
+                "notifications_api_common",
                 "failednotification"
             ],
             [

@@ -23,9 +23,13 @@ from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 
 
 @freeze_time("2024-01-01T12:00:00Z")
-@override_settings(NOTIFICATIONS_DISABLED=False, SITE_DOMAIN="testserver")
+@override_settings(
+    NOTIFICATIONS_DISABLED=False,
+    SITE_DOMAIN="testserver",
+    LOG_NOTIFICATIONS_IN_DB=False,
+)
 @patch("notifications_api_common.viewsets.send_notification.delay")
-@tag("gh-1661")
+@tag("gh-1661", "notifications")
 class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -93,7 +97,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -104,7 +109,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -133,7 +139,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -144,7 +151,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -155,7 +163,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -181,7 +190,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -192,7 +202,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -216,7 +227,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -227,7 +239,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -258,7 +271,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -269,7 +283,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -280,7 +295,8 @@ class CatalogusAutorisatieSyncTestCase(NotificationsConfigMixin, TestCase):
                         "actie": "update",
                         "aanmaakdatum": "2024-01-01T12:00:00Z",
                         "kenmerken": {},
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,

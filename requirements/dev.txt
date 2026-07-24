@@ -748,7 +748,7 @@ nh3==0.3.0
     #   textile
 nodeenv==1.9.1
     # via pre-commit
-notifications-api-common==0.10.1
+notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@ddf949f57843cbbbe83cf46ee3ad67bb94ca5438
     # via
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
@@ -1299,6 +1299,7 @@ structlog==25.4.0
     #   -c requirements/ci.txt
     #   -r requirements/ci.txt
     #   django-structlog
+    #   notifications-api-common
 tblib==1.7.0
     # via
     #   -c requirements/ci.txt

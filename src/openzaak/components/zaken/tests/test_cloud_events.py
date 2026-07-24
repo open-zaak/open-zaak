@@ -169,7 +169,7 @@ class CloudEventSettingMixin(TestCase):
 
         args, kwargs = mock_send.call_args
 
-        self.assertEqual(len(args), 1)
+        self.assertEqual(len(args), 2)
         self.assertEqual(len(kwargs), 0)
 
         event_payload = args[0]
@@ -213,16 +213,15 @@ class CloudEventSettingMixin(TestCase):
     "notifications_api_common.cloudevents.uuid.uuid4",
     return_value=UUID("627a7fd2-6b9a-4963-8723-6ce7650f37c0"),
 )
-@patch("notifications_api_common.tasks.send_cloudevent.delay")
 @patch(
     "notifications_api_common.tasks.send_cloudevent.retry",
     side_effect=Retry,
 )
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver", CELERY_TASK_ALWAYS_EAGER=True)
 class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    def test_cloud_event_client_error_retry(self, m, retry_mock, mock_send, mock_uuid):
+    def test_cloud_event_client_error_retry(self, m, retry_mock, mock_uuid):
         """
         Verify that a retry is called when the sending of the notification didn't
         succeed due to an invalid response.
@@ -273,6 +272,8 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
 
         status_url = get_operation_url("status_create")
 
+        mock_cloud_event_send(m, status_code=403)
+
         with self.captureOnCommitCallbacks(execute=True):
             status_response = self.client.post(
                 status_url, status_request_data, **ZAAK_WRITE_KWARGS
@@ -296,17 +297,10 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
-        mock_send.assert_called_with(message)
-
-        # 2. check that if task is failed, celery retry is called
-        mock_cloud_event_send(m, status_code=403)
-
-        with self.assertRaises(Retry):
-            send_cloudevent(message)
-
+        self.assertEqual(m.last_request.json(), message)
         retry_mock.assert_called_once()
 
-    def test_cloud_event_timeout_retry(self, m, retry_mock, mock_send, mock_uuid):
+    def test_cloud_event_timeout_retry(self, m, retry_mock, mock_uuid):
         """
         Verify that a retry is called when sending the notification times out.
 
@@ -331,6 +325,8 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
                 "coordinates": [4.9106495, 52.3724009],
             },
         }
+
+        mock_cloud_event_send(m, exc=Timeout)
 
         response = self.client.post(url, request_data, **ZAAK_WRITE_KWARGS)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -384,19 +380,12 @@ class CloudEventCeleryRetryTestCase(CloudEventSettingMixin, JWTAuthMixin, APITes
             "time": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
-        mock_send.assert_called_with(message)
-
-        # 2. check that if task is failed, celery retry is called
-        mock_cloud_event_send(m, exc=Timeout)
-
-        with self.assertRaises(Retry):
-            send_cloudevent(message)
-
+        self.assertEqual(m.last_request.json(), message)
         retry_mock.assert_called_once()
 
 
 @tag("cloudevents")
-@override_settings(SITE_DOMAIN="testserver")
+@override_settings(SITE_DOMAIN="testserver", LOG_NOTIFICATIONS_IN_DB=False)
 class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
@@ -412,7 +401,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
             args, kwargs = mock_send.call_args
 
-            self.assertEqual(len(args), 1)
+            self.assertEqual(len(args), 2)
             self.assertEqual(len(kwargs), 0)
 
             event_payload = args[0]
@@ -467,7 +456,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
         args, kwargs = mock_send.call_args
 
-        self.assertEqual(len(args), 1)
+        self.assertEqual(len(args), 2)
         self.assertEqual(len(kwargs), 0)
 
         event_payload = args[0]
@@ -528,7 +517,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
         args, kwargs = mock_send.call_args
 
-        self.assertEqual(len(args), 1)
+        self.assertEqual(len(args), 2)
         self.assertEqual(len(kwargs), 0)
 
         event_payload = args[0]
@@ -582,7 +571,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
         with requests_mock.Mocker() as m:
             m.post("http://webhook.local/cloudevents")
 
-            send_cloudevent(payload)
+            send_cloudevent(payload, None)
 
         self.assertEqual(len(m.request_history), 1)
 
@@ -626,7 +615,7 @@ class ZaakCloudEventTests(CloudEventSettingMixin, JWTAuthMixin, APITestCase):
 
             args, kwargs = mock_send.call_args
 
-            self.assertEqual(len(args), 1)
+            self.assertEqual(len(args), 2)
             self.assertEqual(len(kwargs), 0)
 
             event_payload = args[0]
@@ -848,7 +837,7 @@ class ZaakContactMomentCloudEventTests(
         )
         cls.zaak = ZaakFactory.create()
 
-    def test_zaak_contanct_create_sends_gemuteerd_cloud_event(self, *mocks):
+    def test_zaak_contact_create_sends_gemuteerd_cloud_event(self, *mocks):
         with requests_mock.Mocker() as m:
             m.post(
                 f"{self.CONTACTMOMENTEN_BASE}objectcontactmomenten",
@@ -872,7 +861,7 @@ class ZaakContactMomentCloudEventTests(
                 )
                 self.assert_cloud_event_sent(ZAAK_GEMUTEERD, self.zaak, mock_send)
 
-    def test_zaak_contanct_destroy_sends_gemuteerd_cloud_event(self, *mocks):
+    def test_zaak_contact_destroy_sends_gemuteerd_cloud_event(self, *mocks):
         zaak_contactmoment = ZaakContactMomentFactory.create(
             zaak=self.zaak,
             _objectcontactmoment=f"{self.CONTACTMOMENTEN_BASE}objectcontactmomenten/1",
