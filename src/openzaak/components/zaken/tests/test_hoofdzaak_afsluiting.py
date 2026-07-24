@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 
-from django.test import override_settings, tag
+from django.test import tag
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
@@ -297,66 +297,6 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
         )
 
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_validation_with_external_deelzaak_catalogi(self):
-        deelzaak = ZaakFactory.create(zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak)
-
-        with self.subTest("deelzaak without status"):
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": self.zaak_url,
-                    "statustype": f"http://testserver{self.int_statustype2_url}",
-                    "datumStatusGezet": utcdatetime(
-                        2018, 10, 22, 10, 00, 00
-                    ).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
-            )
-
-        with self.subTest("deelzaak with open status"):
-            StatusFactory.create(
-                zaak=deelzaak,
-                statustype=self.ext_statustype1,
-                datum_status_gezet=utcdatetime(2024, 4, 4),
-            )
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": self.zaak_url,
-                    "statustype": f"http://testserver{self.int_statustype2_url}",
-                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(
-                response.data["invalid_params"][0]["code"], "deelzaken-not-closed"
-            )
-
-        with self.subTest("deelzaak with end status without resultaat"):
-            StatusFactory.create(
-                zaak=deelzaak,
-                statustype=self.ext_statustype2,
-                datum_status_gezet=utcdatetime(2024, 4, 5),
-            )
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": self.zaak_url,
-                    "statustype": f"http://testserver{self.int_statustype2_url}",
-                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(
-                response.data["invalid_params"][0]["code"],
-                "deelzaak-resultaat-does-not-exist",
-            )
-
     def test_zaak_afsluiten_with_closed_deelzaak_with_internal_deelzaak_catalogi(self):
         deelzaak_same_termijn = ZaakFactory.create(
             zaaktype=self.int_zaaktype, hoofdzaak=self.zaak
@@ -389,66 +329,6 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                 archiefactietermijn=relativedelta(years=5),
                 brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
             ),
-        )
-
-        response = self.client.post(
-            self.status_list_url,
-            {
-                "zaak": self.zaak_url,
-                "statustype": f"http://testserver{self.int_statustype2_url}",
-                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
-            },
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        self.zaak.refresh_from_db()
-        deelzaak_same_termijn.refresh_from_db()
-        deelzaak_different_termijn.refresh_from_db()
-
-        # Assert that the same brondatum/startdatum_bewaartermijn is used to calculate
-        # the archiefactiedatum, but that the termijn can differ
-        self.assertTrue(
-            self.zaak.startdatum_bewaartermijn
-            == deelzaak_same_termijn.startdatum_bewaartermijn
-            == deelzaak_different_termijn.startdatum_bewaartermijn
-        )
-        self.assertEqual(
-            self.zaak.archiefactiedatum,
-            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
-        )
-        self.assertEqual(
-            deelzaak_same_termijn.archiefactiedatum,
-            self.zaak.startdatum_bewaartermijn + relativedelta(years=10),
-        )
-        self.assertEqual(
-            deelzaak_different_termijn.archiefactiedatum,
-            self.zaak.startdatum_bewaartermijn + relativedelta(years=5),
-        )
-
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_zaak_afsluiten_with_closed_deelzaak_with_external_catalogi(self):
-        deelzaak_same_termijn = ZaakFactory.create(
-            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
-        )
-        deelzaak_different_termijn = ZaakFactory.create(
-            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
-        )
-        StatusFactory.create(
-            zaak=deelzaak_same_termijn,
-            statustype=self.ext_statustype2,
-            datum_status_gezet=utcdatetime(2024, 4, 5),
-        )
-        ResultaatFactory.create(
-            zaak=deelzaak_same_termijn, resultaattype=self.ext_resultaattype1
-        )
-        StatusFactory.create(
-            zaak=deelzaak_different_termijn,
-            statustype=self.ext_statustype2,
-            datum_status_gezet=utcdatetime(2024, 4, 5),
-        )
-        ResultaatFactory.create(
-            zaak=deelzaak_different_termijn, resultaattype=self.ext_resultaattype2
         )
 
         response = self.client.post(
@@ -536,73 +416,23 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
                 response.data["invalid_params"][0]["code"], "hoofdzaak-closed"
             )
 
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_reopen_deelzaak_with_external_catalogi(self):
-        deelzaak = ZaakFactory.create(zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak)
-        StatusFactory.create(
-            zaak=deelzaak,
-            statustype=self.ext_statustype2,
-            datum_status_gezet=utcdatetime(2024, 4, 5),
-        )
-        ResultaatFactory.create(zaak=deelzaak, resultaattype=self.ext_resultaattype1)
-
-        with self.subTest("opened hoofdzaak"):
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": reverse(
-                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
-                    ),
-                    "statustype": self.ext_statustype1,
-                    "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        with self.subTest("closed hoofdzaak"):
-            StatusFactory.create(
-                zaak=self.zaak,
-                statustype=self.int_statustype2,
-                datum_status_gezet=utcdatetime(2024, 4, 5),
-            )
-
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": reverse(
-                        "zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}
-                    ),
-                    "statustype": self.ext_statustype1,
-                    "datumStatusGezet": utcdatetime(2024, 4, 7).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(
-                response.data["invalid_params"][0]["code"], "hoofdzaak-closed"
-            )
-
-    def _generate_deelzaken(self, n: int, internal=True):
-        for i in range(n):
+    def _generate_deelzaken(self, n: int):
+        for _ in range(n):
             deelzaak = ZaakFactory.create(
-                zaaktype=self.int_zaaktype if internal else self.ext_zaaktype,
+                zaaktype=self.int_zaaktype,
                 hoofdzaak=self.zaak,
             )
             StatusFactory.create(
                 zaak=deelzaak,
-                statustype=self.int_statustype2 if internal else self.ext_statustype2,
+                statustype=self.int_statustype2,
                 datum_status_gezet=utcdatetime(2024, 4, 5),
             )
             ResultaatFactory.create(
                 zaak=deelzaak,
-                resultaattype=(
-                    ResultaatTypeFactory.create(
-                        zaaktype=self.int_zaaktype,
-                        archiefactietermijn=relativedelta(years=20),
-                        brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
-                    )
-                    if internal
-                    else self.ext_resultaattype1
+                resultaattype=ResultaatTypeFactory.create(
+                    zaaktype=self.int_zaaktype,
+                    archiefactietermijn=relativedelta(years=20),
+                    brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
                 ),
             )
 
@@ -619,49 +449,17 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_queries_with_one_deelzaak_with_internal_catalogi(self):
-        self._generate_deelzaken(1, True)
+        self._generate_deelzaken(1)
         """
-        An Deelzaak with an external catalogi has 5 extra queries compared to no deelzaken.
+        Query count when closing a hoofdzaak with one internal deelzaak.
 
         (1) 39: deelzaak reopen filter query
         (2) 40: deelzaak eindstatus filter query
-        (3) 41: cursor from exist()
-        (4) 54-55: savepoints transaction management
-        (5) 70: update the deelzaak
-        (6) 71: cursor from exist()
-        (7) 76: savepoint transaction management
-        (8) 77: archiving recalculation query
-        (9) 78: savepoints transaction management for archiving update
+        (3) 53: savepoint transaction management
+        (4) 64: update the deelzaak (archiving fields)
+        (5) 76: savepoint release
         """
-        with self.assertNumQueries(78):
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": self.zaak_url,
-                    "statustype": f"http://testserver{self.int_statustype2_url}",
-                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_queries_with_one_deelzaak_with_external_catalogi(self):
-        """
-        An Deelzaak with an external catalogi has 12 extra queries compared to a deelzaak with an internal catalogi.
-
-        (1) 42: Lookup the current status
-        (2-3) 43-44: select from zgw_consumers_service
-        (4) 57-58: savepoints transaction management
-        (8) 75: lookup the deelzaak resultaat
-        (9-10) 76-77: select from zgw_consumers_service
-        (11) 78: update the deelzaak
-        (12) 84-85: savepoints transaction management
-        (13-17) 85-86 select related zaak data
-        (17) 87-91: archiving recalculation query
-        """
-        self._generate_deelzaken(1, False)
-        with self.assertNumQueries(91):
+        with self.assertNumQueries(76):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -678,16 +476,12 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
 
         (1) 39: deelzaak reopen filter query
         (2) 40: deelzaak eindstatus filter query
-        (3) 41: cursor from exist()
-        (4) 54-55: savepoints transaction management
-        (5) 70: update the deelzaak
-        (6) 71: cursor from exist()
-        (7) 76: savepoint transaction management
-        (9) 77: archiving recalculation query
-        (10) 78: savepoint transaction management for archiving update
+        (3) 53: savepoint transaction management
+        (4) 64: archiving update
+        (5) 76: savepoint release
         """
-        self._generate_deelzaken(10, True)
-        with self.assertNumQueries(78):
+        self._generate_deelzaken(10)
+        with self.assertNumQueries(76):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -698,32 +492,10 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_queries_with_many_deelzaken_with_external_catalogi(self):
-        """
-        A single deelzaak with external catalogi has 13 extra queries over an internal catalogi.
-        78 + (10*13) = 208
-        """
-        self._generate_deelzaken(10, False)
-        with self.assertNumQueries(208):
-            response = self.client.post(
-                self.status_list_url,
-                {
-                    "zaak": self.zaak_url,
-                    "statustype": f"http://testserver{self.int_statustype2_url}",
-                    "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
-                },
-            )
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_queries_with_many_deelzaken(self):
-        self._generate_deelzaken(10, True)
-        self._generate_deelzaken(10, False)
+        self._generate_deelzaken(20)
 
-        with self.assertNumQueries(208):
+        with self.assertNumQueries(76):
             response = self.client.post(
                 self.status_list_url,
                 {
@@ -734,16 +506,18 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             )
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    @tag("external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_close_and_reopen_hoofdzaak(self):
-        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
-        ext_deelzaak = ZaakFactory.create(
-            zaaktype=self.ext_zaaktype, hoofdzaak=self.zaak
+        deelzaak1 = ZaakFactory.create(
+            zaaktype=self.int_zaaktype,
+            hoofdzaak=self.zaak,
+        )
+        deelzaak2 = ZaakFactory.create(
+            zaaktype=self.int_zaaktype,
+            hoofdzaak=self.zaak,
         )
 
         ResultaatFactory.create(
-            zaak=deelzaak,
+            zaak=deelzaak1,
             resultaattype=ResultaatTypeFactory.create(
                 zaaktype=self.int_zaaktype,
                 archiefactietermijn=relativedelta(years=20),
@@ -752,28 +526,32 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
             ),
         )
         ResultaatFactory.create(
-            zaak=ext_deelzaak, resultaattype=self.ext_resultaattype1
+            zaak=deelzaak2,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefactietermijn=relativedelta(years=20),
+                archiefnominatie=Archiefnominatie.vernietigen,
+                brondatum_archiefprocedure_afleidingswijze=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak,
+            ),
         )
 
-        # close deelzaak
+        # close first deelzaak
         response = self.client.post(
             self.status_list_url,
             {
-                "zaak": reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                "zaak": reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak1.uuid}),
                 "statustype": f"http://testserver{self.int_statustype2_url}",
                 "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # close ext deelzaak
+        # close second deelzaak
         response = self.client.post(
             self.status_list_url,
             {
-                "zaak": reverse(
-                    "zaken:zaak-detail", kwargs={"uuid": ext_deelzaak.uuid}
-                ),
-                "statustype": self.ext_statustype2,
+                "zaak": reverse("zaken:zaak-detail", kwargs={"uuid": deelzaak2.uuid}),
+                "statustype": f"http://testserver{self.int_statustype2_url}",
                 "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
             },
         )
@@ -802,20 +580,20 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.zaak.refresh_from_db()
-        deelzaak.refresh_from_db()
-        ext_deelzaak.refresh_from_db()
+        deelzaak1.refresh_from_db()
+        deelzaak2.refresh_from_db()
 
         self.assertIsNone(self.zaak.archiefnominatie)
         self.assertIsNone(self.zaak.archiefactiedatum)
         self.assertIsNone(self.zaak.startdatum_bewaartermijn)
 
-        self.assertIsNone(deelzaak.archiefnominatie)
-        self.assertIsNone(deelzaak.zaak.archiefactiedatum)
-        self.assertIsNone(deelzaak.startdatum_bewaartermijn)
+        self.assertIsNone(deelzaak1.archiefnominatie)
+        self.assertIsNone(deelzaak1.archiefactiedatum)
+        self.assertIsNone(deelzaak1.startdatum_bewaartermijn)
 
-        self.assertIsNone(ext_deelzaak.archiefnominatie)
-        self.assertIsNone(ext_deelzaak.zaak.archiefactiedatum)
-        self.assertIsNone(ext_deelzaak.startdatum_bewaartermijn)
+        self.assertIsNone(deelzaak2.archiefnominatie)
+        self.assertIsNone(deelzaak2.archiefactiedatum)
+        self.assertIsNone(deelzaak2.startdatum_bewaartermijn)
 
     @tag("gh-2098")
     def test_change_deelzaak_status_without_resultaat(self):

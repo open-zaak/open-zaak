@@ -1020,14 +1020,7 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
 
         Archiefnominatie is based on the resulttype and is set when the deelzaak itself is closed.
         """
-        self._update_deelzaken_with_internal_catalogi(
-            qs.filter(_zaaktype__isnull=False),
-            brondatum,
-        )
-        self._update_deelzaken_with_external_catalogi(
-            qs.filter(_zaaktype_relative_url__isnull=False),
-            brondatum,
-        )
+        self._update_deelzaken_with_internal_catalogi(qs, brondatum)
 
     def _update_deelzaken_with_internal_catalogi(self, qs, brondatum: date | None):
         resultaat_qs = Resultaat.objects.filter(zaak_id=OuterRef("pk"))
@@ -1062,31 +1055,6 @@ class StatusSerializer(serializers.HyperlinkedModelSerializer):
             archiefactiedatum=F("computed_archiefactiedatum") if brondatum else None,
             startdatum_bewaartermijn=brondatum,
         )
-
-    def _update_deelzaken_with_external_catalogi(self, qs, brondatum: date | None):
-        for deelzaak in qs.iterator():
-            resultaattype = deelzaak.resultaat.resultaattype
-
-            if (
-                resultaattype.brondatum_archiefprocedure_afleidingswijze
-                == Afleidingswijze.hoofdzaak
-            ):
-                deelzaak.archiefactiedatum = (
-                    brondatum + resultaattype.archiefactietermijn
-                    if brondatum
-                    else brondatum
-                )
-                deelzaak.startdatum_bewaartermijn = brondatum
-                deelzaak.archiefnominatie = (
-                    resultaattype.archiefnominatie if brondatum else None
-                )
-                deelzaak.save(
-                    update_fields=[
-                        "archiefnominatie",
-                        "archiefactiedatum",
-                        "startdatum_bewaartermijn",
-                    ]
-                )
 
 
 class StatusSubSerializer(SubSerializerMixin, StatusSerializer):

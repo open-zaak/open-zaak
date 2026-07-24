@@ -343,10 +343,7 @@ class EndStatusDeelZakenValidator:
             return
 
         self.check_status_exists(zaak.deelzaken)
-        self.check_internal_status_types(zaak.deelzaken.filter(_zaaktype__isnull=False))
-        self.check_external_status_types(
-            zaak.deelzaken.filter(_zaaktype_relative_url__isnull=False)
-        )
+        self.check_internal_status_types(zaak.deelzaken)
 
     def check_status_exists(self, qs):
         if qs.filter(status__isnull=True).exists():
@@ -363,7 +360,7 @@ class EndStatusDeelZakenValidator:
             Status.objects.filter(zaak=OuterRef("pk"))
             .order_by("-datum_status_gezet")
             .select_related("statustype")
-            .values("_statustype__statustypevolgnummer")[:1]
+            .values("statustype__statustypevolgnummer")[:1]
         )
 
         qs = qs.annotate(
@@ -377,11 +374,6 @@ class EndStatusDeelZakenValidator:
 
         if qs.exists():
             raise serializers.ValidationError(self.message, code=self.code)
-
-    def check_external_status_types(self, qs):
-        for deelzaak in qs.iterator():
-            if not deelzaak.current_status.statustype._initial_data["is_eindstatus"]:
-                raise serializers.ValidationError(self.message, code=self.code)
 
 
 class EndStatusIOsIndicatieGebruiksrechtValidator:

@@ -124,7 +124,7 @@ def get_sl_resultaten() -> list[dict]:
 # django doesn't allow bulk crate for multitable inheritance, so
 # here is some work-around how to do it including custom queryset and factory
 class ZaakBulkFactory(factory.django.DjangoModelFactory):
-    _zaaktype = factory.SubFactory(ZaakTypeFactory)
+    zaaktype = factory.SubFactory(ZaakTypeFactory)
     vertrouwelijkheidaanduiding = factory.fuzzy.FuzzyChoice(
         choices=VertrouwelijkheidsAanduiding.values
     )
@@ -467,7 +467,7 @@ class Command(BaseCommand):
             )
             zaken = ZaakBulkFactory.build_batch(
                 zaken_per_zaaktype,
-                _zaaktype=zaaktype,
+                zaaktype=zaaktype,
                 zaakgeometrie=zaakgeometrie,
                 selectielijstklasse=self.sl_result_mapping[
                     zaaktype.selectielijst_procestype
@@ -494,7 +494,7 @@ class Command(BaseCommand):
             lambda zaak: [
                 StatusFactory.build(
                     zaak=zaak,
-                    statustype=zaaktype_statustypen[zaak._zaaktype_id][i],
+                    statustype=zaaktype_statustypen[zaak.zaaktype_id][i],
                     datum_status_gezet=timezone.now(),
                 )
                 for i in range(3)
@@ -514,7 +514,7 @@ class Command(BaseCommand):
             lambda zaak: [
                 ResultaatFactory.build(
                     zaak=zaak,
-                    resultaattype=zaaktype_resultaattypen[zaak._zaaktype_id][
+                    resultaattype=zaaktype_resultaattypen[zaak.zaaktype_id][
                         random.randint(0, 1)
                     ],
                 )
@@ -531,7 +531,7 @@ class Command(BaseCommand):
         rollen_generator = generate_zaak_resource(
             lambda zaak: [
                 RolFactory.build(
-                    zaak=zaak, roltype=zaaktype_roltypen[zaak._zaaktype_id][0]
+                    zaak=zaak, roltype=zaaktype_roltypen[zaak.zaaktype_id][0]
                 )
             ]
         )
@@ -546,7 +546,7 @@ class Command(BaseCommand):
         zaakeigenschappen_generator = generate_zaak_resource(
             lambda zaak: [
                 ZaakEigenschapFactory.build(
-                    zaak=zaak, eigenschap=zaaktype_eigenschappen[zaak._zaaktype_id][0]
+                    zaak=zaak, eigenschap=zaaktype_eigenschappen[zaak.zaaktype_id][0]
                 )
             ]
         )

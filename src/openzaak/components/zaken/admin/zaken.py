@@ -77,12 +77,10 @@ class StatusForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_statustype") and not cleaned_data.get(
-            "_statustype_base_url"
-        ):
+        if not cleaned_data.get("statustype"):
             raise forms.ValidationError(
                 "Je moet een statustype opgeven: "
-                "selecteer een statustype uit de catalogus of vul een externe URL in."
+                "selecteer een statustype uit de catalogus."
             )
 
         return cleaned_data
@@ -98,7 +96,7 @@ class SubStatusForStatusInline(EditInlineAdminMixin, admin.TabularInline):
 @admin.register(Status)
 class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "datum_status_gezet")
-    list_select_related = ("zaak", "_statustype", "_statustype_base_url")
+    list_select_related = ("zaak", "statustype")
     list_filter = ("datum_status_gezet",)
     search_fields = (
         "uuid",
@@ -109,7 +107,7 @@ class StatusAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = StatusForm
     ordering = ("datum_status_gezet",)
     date_hierarchy = "datum_status_gezet"
-    raw_id_fields = ("zaak", "_statustype", "_statustype_base_url", "gezetdoor")
+    raw_id_fields = ("zaak", "statustype", "gezetdoor")
     viewset = "openzaak.components.zaken.api.viewsets.StatusViewSet"
     inlines = [SubStatusForStatusInline]
 
@@ -779,9 +777,7 @@ class ZaakForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not cleaned_data.get("_zaaktype") and not cleaned_data.get(
-            "_zaaktype_base_url"
-        ):
+        if not cleaned_data.get("zaaktype"):
             raise forms.ValidationError(
                 "Je moet een zaaktype opgeven: "
                 "selecteer een zaaktype of vul een externe URL in."
@@ -805,13 +801,12 @@ class ZaakAdmin(
         "get_resultaat",
         "archiefstatus",
     )
-    list_select_related = ("_zaaktype", "_zaaktype_base_url")
+    list_select_related = ("zaaktype",)
     search_fields = (
         "identificatie",
         "uuid",
-        "zaaktype_url",
-        "_zaaktype__identificatie",
-        "_zaaktype__zaaktype_omschrijving",
+        "zaaktype__identificatie",
+        "zaaktype__zaaktype_omschrijving",
         "rol__natuurlijkpersoon__inp_bsn",
         "rol__nietnatuurlijkpersoon__inn_nnp_id",
     )
@@ -842,15 +837,15 @@ class ZaakAdmin(
         KlantContactInline,
         ZaakNotitieInline,
     ]
-    raw_id_fields = ("_zaaktype", "hoofdzaak", "_zaaktype_base_url")
+    raw_id_fields = ("zaaktype", "hoofdzaak")
     viewset = "openzaak.components.zaken.api.viewsets.ZaakViewSet"
 
     @admin.display(description="Zaaktype")
     def get_zaaktype(self, obj) -> str:
-        if not obj._zaaktype:
+        if not obj.zaaktype:
             return ""
 
-        return obj._zaaktype.identificatie
+        return obj.zaaktype.identificatie
 
     @admin.display(description="Resultaat")
     def get_resultaat(self, obj) -> str:
@@ -865,10 +860,10 @@ class ZaakAdmin(
     def get_status(self, obj) -> str:
         status = obj.current_status
 
-        if not status or not status._statustype:
+        if not status or not status.statustype:
             return ""
 
-        statustype = status._statustype
+        statustype = status.statustype
         return statustype.statustype_omschrijving
 
     def get_object_actions(self, obj):
@@ -895,8 +890,8 @@ class ZaakAdmin(
         status_prefetch = Prefetch(
             "status_set",
             queryset=(
-                Status.objects.select_related("_statustype")
-                .filter(_statustype__isnull=False)
+                Status.objects.select_related("statustype")
+                .filter(statustype__isnull=False)
                 .order_by("-datum_status_gezet")
             ),
         )
@@ -910,14 +905,6 @@ class ZaakAdmin(
             ),
         )
 
-        return (
-            queryset.select_related("_zaaktype")
-            .prefetch_related(resultaat_prefetch, status_prefetch)
-            .annotate(
-                zaaktype_url=Concat(
-                    F("_zaaktype_base_url__api_root"),
-                    F("_zaaktype_relative_url"),
-                    output_field=CharField(),
-                )
-            )
+        return queryset.select_related("zaaktype").prefetch_related(
+            resultaat_prefetch, status_prefetch
         )
