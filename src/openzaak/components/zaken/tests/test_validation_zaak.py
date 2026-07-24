@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+import uuid
 from unittest.mock import patch
 
 from django.test import override_settings, tag
@@ -16,20 +17,16 @@ from zgw_consumers.test.factories import ServiceFactory
 from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.selectielijst.tests import mock_selectielijst_oas_get
 from openzaak.selectielijst.tests.mixins import SelectieLijstMixin
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..constants import AardZaakRelatie, BetalingsIndicatie
 from .factories import ZaakFactory
-from .utils import ZAAK_WRITE_KWARGS, get_zaaktype_response
+from .utils import ZAAK_WRITE_KWARGS
 
 
 class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-
-    # Needed to pass Django's URLValidator, since the default APIClient domain
-    # is not considered a valid URL by Django
-    valid_testserver_url = "testserver.nl"
 
     @classmethod
     def setUpTestData(cls):
@@ -39,56 +36,6 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         cls.zaaktype_url = reverse(cls.zaaktype)
 
         ServiceFactory.create(api_root="https://example.com/", api_type=APITypes.ztc)
-
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_validate_zaaktype_bad_url(self):
-        url = reverse("zaken:zaak-list")
-
-        self.requests_mocker.get("https://example.com/zrc/zaken/1234", status_code=404)
-
-        response = self.client.post(
-            url,
-            {
-                "zaaktype": "https://example.com/zrc/zaken/1234",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        validation_error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(validation_error["code"], "bad-url")
-        self.assertEqual(validation_error["name"], "zaaktype")
-
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_validate_zaaktype_invalid_resource(self):
-        url = reverse("zaken:zaak-list")
-
-        self.requests_mocker.get(
-            "https://example.com/", status_code=200, text="<html></html>"
-        )
-
-        response = self.client.post(
-            url,
-            {
-                "zaaktype": "https://example.com/",
-                "bronorganisatie": "517439943",
-                "verantwoordelijkeOrganisatie": "517439943",
-                "registratiedatum": "2018-06-11",
-                "startdatum": "2018-06-11",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        validation_error = get_validation_errors(response, "zaaktype")
-        self.assertEqual(validation_error["code"], "invalid-resource")
-        self.assertEqual(validation_error["name"], "zaaktype")
 
     def test_validate_zaaktype_valid(self, *mocks):
         url = reverse("zaken:zaak-list")
@@ -107,6 +54,30 @@ class ZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_validate_zaaktype_bad_url(self):
+        """
+        A local zaaktype URL that doesn't resolve to an existing zaaktype
+        should be a regular validation error, not a server error.
+        """
+        url = reverse("zaken:zaak-list")
+
+        response = self.client.post(
+            url,
+            {
+                "zaaktype": f"http://testserver/catalogi/api/v1/zaaktypen/{uuid.uuid4()}",
+                "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+                "bronorganisatie": "517439943",
+                "verantwoordelijkeOrganisatie": "517439943",
+                "registratiedatum": "2018-06-11",
+                "startdatum": "2018-06-11",
+            },
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        validation_error = get_validation_errors(response, "zaaktype")
+        self.assertEqual(validation_error["code"], "does_not_exist")
 
     def test_validate_zaaktype_unpublished(self):
         zaaktype = ZaakTypeFactory.create()
@@ -615,50 +586,6 @@ class DeelZaakValidationTests(SelectieLijstMixin, JWTAuthMixin, APITestCase):
             url,
             {
                 "zaaktype": f"http://testserver{reverse(unrelated_zaaktype)}",
-                "hoofdzaak": reverse(hoofdzaak),
-                "bronorganisatie": "123456782",
-                "verantwoordelijkeOrganisatie": "123456782",
-                "startdatum": "1970-01-01",
-            },
-            **ZAAK_WRITE_KWARGS,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "hoofdzaak")
-        self.assertEqual(error["code"], "invalid-deelzaaktype")
-
-    @tag("gh-992", "external-urls")
-    @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_validate_hoofdzaaktype_deelzaaktypen_remote_zaaktype(self):
-        """
-        Assert that the zaaktype allowed deelzaaktypen is validated.
-        """
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.ztc
-        )
-
-        # set up zaaktypen
-        catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        hoofdzaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        unrelated_zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/fd2fe097-d033-4a9f-99f4-78abd652e6fd"
-        mock_ztc_oas_get(self.requests_mocker)
-        self.requests_mocker.get(
-            hoofdzaaktype,
-            json=get_zaaktype_response(catalogus, hoofdzaaktype, deelzaaktypen=[]),
-        )
-        self.requests_mocker.get(
-            unrelated_zaaktype,
-            json=get_zaaktype_response(catalogus, unrelated_zaaktype),
-        )
-        # set up hoofdzaak
-        hoofdzaak = ZaakFactory.create(zaaktype=hoofdzaaktype)
-        url = reverse("zaken:zaak-list")
-
-        response = self.client.post(
-            url,
-            {
-                "zaaktype": unrelated_zaaktype,
                 "hoofdzaak": reverse(hoofdzaak),
                 "bronorganisatie": "123456782",
                 "verantwoordelijkeOrganisatie": "123456782",

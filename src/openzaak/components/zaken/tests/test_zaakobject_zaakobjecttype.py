@@ -2,23 +2,17 @@
 # Copyright (C) 2023 Dimpact
 from django.test import override_settings, tag
 
-import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import ZaakobjectTypes
 from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.catalogi.tests.factories import ZaakObjectTypeFactory
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..models import ZaakObject
 from .factories import ZaakFactory, ZaakObjectFactory
-from .utils import (
-    get_catalogus_response,
-    get_zaakobjecttype_response,
-    get_zaaktype_response,
-)
 
 OBJECT = "http://example.org/api/zaakobjecten/8768c581-2817-4fe5-933d-37af92d819dd"
 
@@ -192,122 +186,6 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
             },
         )
 
-    @requests_mock.Mocker()
-    def test_create_with_zaakobjecttype_external(self, m):
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaken:zaakobject-list")
-        data = {
-            "zaak": f"http://testserver{reverse(zaak)}",
-            "object": OBJECT,
-            "objectType": ZaakobjectTypes.adres,
-            "relatieomschrijving": "test",
-            "zaakobjecttype": self.zaakobjecttype,
-        }
-        # mocks
-        mock_ztc_oas_get(m)
-        m.get(
-            self.zaakobjecttype,
-            json=get_zaakobjecttype_response(
-                self.zaakobjecttype, self.zaaktype, catalogus=self.catalogus
-            ),
-        )
-        m.get(self.zaaktype, json=get_zaaktype_response(self.catalogus, self.zaaktype))
-        m.get(
-            self.catalogus, json=get_catalogus_response(self.catalogus, self.zaaktype)
-        )
-        m.get(OBJECT, json={"url": OBJECT})
-
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ZaakObject.objects.count(), 1)
-
-        zaakobject = ZaakObject.objects.get()
-
-        self.assertEqual(zaakobject.zaakobjecttype, self.zaakobjecttype)
-
-    def test_create_with_zaakobjecttype_bad_url_fail(self):
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaken:zaakobject-list")
-        data = {
-            "zaak": f"http://testserver{reverse(zaak)}",
-            "object": OBJECT,
-            "objectType": ZaakobjectTypes.adres,
-            "relatieomschrijving": "test",
-            "zaakobjecttype": "abcd",
-        }
-
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaakobjecttype")
-        self.assertEqual(error["code"], "bad-url")
-
-    @requests_mock.Mocker()
-    def test_create_with_zaakobjecttype_invalid_schema_fail(self, m):
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaken:zaakobject-list")
-        data = {
-            "zaak": f"http://testserver{reverse(zaak)}",
-            "object": OBJECT,
-            "objectType": ZaakobjectTypes.adres,
-            "relatieomschrijving": "test",
-            "zaakobjecttype": self.zaakobjecttype,
-        }
-        # mocks
-        mock_ztc_oas_get(m)
-        m.get(
-            self.zaakobjecttype,
-            json={"url": self.zaakobjecttype, "zaaktype": self.zaaktype},
-        )
-        m.get(self.zaaktype, json=get_zaaktype_response(self.catalogus, self.zaaktype))
-        m.get(
-            self.catalogus, json=get_catalogus_response(self.catalogus, self.zaaktype)
-        )
-        m.get(OBJECT, json={"url": OBJECT})
-
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaakobjecttype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    @requests_mock.Mocker()
-    def test_create_with_zaakobjecttype_zaaktype_mismatch_fail(self, m):
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        url = reverse("zaken:zaakobject-list")
-        data = {
-            "zaak": f"http://testserver{reverse(zaak)}",
-            "object": OBJECT,
-            "objectType": ZaakobjectTypes.adres,
-            "relatieomschrijving": "test",
-            "zaakobjecttype": self.zaakobjecttype,
-        }
-        # mocks
-        mock_ztc_oas_get(m)
-        m.get(
-            self.zaakobjecttype,
-            json=get_zaakobjecttype_response(
-                self.zaakobjecttype, self.zaaktype, catalogus=self.catalogus
-            ),
-        )
-        m.get(self.zaaktype, json=get_zaaktype_response(self.catalogus, self.zaaktype))
-        m.get(
-            self.catalogus, json=get_catalogus_response(self.catalogus, self.zaaktype)
-        )
-        m.get(OBJECT, json={"url": OBJECT})
-
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ZaakObject.objects.count(), 1)
-
-        zaakobject = ZaakObject.objects.get()
-
-        self.assertEqual(zaakobject.zaakobjecttype, self.zaakobjecttype)
-
     def test_create_with_zaakobjecttype_unknown_service(self):
         zaak = ZaakFactory.create()
         url = reverse("zaken:zaakobject-list")
@@ -325,54 +203,3 @@ class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
 
         error = get_validation_errors(response, "zaakobjecttype")
         self.assertEqual(error["code"], "unknown-service")
-
-    def test_patch_with_zaakobjecttype_external(self):
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object=OBJECT,
-            zaakobjecttype=self.zaakobjecttype,
-            relatieomschrijving="old",
-        )
-        url = reverse(zaakobject)
-
-        response = self.client.patch(url, {"relatieomschrijving": "new"})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        zaakobject.refresh_from_db()
-
-        self.assertEqual(zaakobject.relatieomschrijving, "new")
-
-    @requests_mock.Mocker()
-    def test_patch_change_zaakobjecttype_fail(self, m):
-        another_zot = "https://externe.catalogus.nl/api/v1/zaakobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
-        zaakobject = ZaakObjectFactory.create(
-            zaak=zaak,
-            object=OBJECT,
-            zaakobjecttype=self.zaakobjecttype,
-            relatieomschrijving="old",
-        )
-        url = reverse(zaakobject)
-        # mocks
-        mock_ztc_oas_get(m)
-        m.get(
-            self.zaakobjecttype,
-            json=get_zaakobjecttype_response(
-                self.zaakobjecttype, self.zaaktype, catalogus=self.catalogus
-            ),
-        )
-        m.get(
-            another_zot,
-            json=get_zaakobjecttype_response(
-                another_zot, self.zaaktype, catalogus=self.catalogus
-            ),
-        )
-
-        response = self.client.patch(url, {"zaakobjecttype": another_zot})
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        validation_error = get_validation_errors(response, "zaakobjecttype")
-        self.assertEqual(validation_error["code"], "wijzigen-niet-toegelaten")

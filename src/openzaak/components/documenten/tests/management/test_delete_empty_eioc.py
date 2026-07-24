@@ -134,7 +134,7 @@ class DeleteEmptyEIOCMigrationTests(TestMigrations):
         )
         zaak = Zaak(
             identificatie_ptr=zaak_identificatie,
-            _zaaktype=zaaktype,
+            zaaktype=zaaktype,
             verantwoordelijke_organisatie="063308836",
             startdatum=date(2024, 1, 1),
             vertrouwelijkheidaanduiding="openbaar",
