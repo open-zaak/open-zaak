@@ -596,7 +596,7 @@ class StatusViewSet(
     """
 
     queryset = (
-        Status.objects.select_related("_statustype", "zaak", "gezetdoor")
+        Status.objects.select_related("statustype", "zaak", "gezetdoor")
         .prefetch_related("zaakinformatieobjecten")
         .annotate_with_max_datum_status_gezet()
         .order_by("-datum_status_gezet", "-pk")

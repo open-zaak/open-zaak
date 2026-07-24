@@ -779,8 +779,7 @@ class ZaakForm(forms.ModelForm):
 
         if not cleaned_data.get("zaaktype"):
             raise forms.ValidationError(
-                "Je moet een zaaktype opgeven: "
-                "selecteer een zaaktype of vul een externe URL in."
+                "Je moet een zaaktype opgeven: selecteer een zaaktype uit de catalogus."
             )
 
         return cleaned_data
