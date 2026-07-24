@@ -37,4 +37,4 @@ zgw-consumers[oauth2]
 
 cloudevents
 
-notifications-api-common @ git+https://github.com/maykinmedia/notifications-api-common.git@feature/ok-598-changes
+notifications-api-common
