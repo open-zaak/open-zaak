@@ -47,7 +47,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def test_create_besluit(self):
         besluit = self._create_besluit()
-        besluit_url = reverse(besluit, namespace="zaken")
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -59,9 +58,15 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluit")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, besluit.unique_representation())
 
         self.assertEqual(audittrail.oud, None)
@@ -71,7 +76,6 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
 
     def test_change_besluit(self):
         besluit = BesluitFactory.create(toelichting="old")
-        besluit_url = reverse(besluit, namespace="zaken")
         change_url = django_reverse(
             "admin:besluiten_besluit_change", args=(besluit.pk,)
         )
@@ -98,9 +102,15 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluit")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, besluit.unique_representation())
 
         old_data, new_data = audittrail.oud, audittrail.nieuw

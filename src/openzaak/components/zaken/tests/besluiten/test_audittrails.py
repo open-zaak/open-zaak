@@ -386,24 +386,26 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(AuditTrail.objects.count(), 3)
 
-        besluit_audittrail = AuditTrail.objects.get(
-            hoofd_object=response.data["besluit"]["url"]
-        )
+        besluit_audittrail = AuditTrail.objects.get(resource="besluit")
 
         besluit = Besluit.objects.get()
 
         self.assertEqual(besluit_audittrail.bron, "BRC")
         self.assertEqual(besluit_audittrail.actie, "create")
-        self.assertEqual(besluit_audittrail.resource, "besluit")
         self.assertEqual(besluit_audittrail.oud, None)
-        self.assertEqual(besluit_audittrail.nieuw, response.data["besluit"])
+        self.assertEqual(
+            besluit_audittrail.nieuw,
+            response.data["besluit"]
+            | {"url": f"http://testserver{reverse(besluit, namespace='besluiten')}"},
+        )
+        self.assertEqual(
+            besluit_audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
 
-        for trail in AuditTrail.objects.filter(
-            nieuw__in=response.data["besluitinformatieobjecten"]
-        ):
+        for trail in AuditTrail.objects.filter(resource="besluitinfromatieobject"):
             self.assertEqual(trail.bron, "BRC")
             self.assertEqual(trail.actie, "create")
-            self.assertEqual(trail.resource, "besluitinformatieobject")
             self.assertEqual(trail.oud, None)
             self.assertEqual(
                 trail.hoofd_object,
@@ -411,7 +413,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
             )
 
     @tag("convenience-endpoints")
-    def test_verwerk_besluit__with_zaak_audittrails(self):
+    def test_verwerk_besluit_with_zaak_audittrails(self):
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
         besluittype = BesluitTypeFactory.create(concept=False)
@@ -539,6 +541,77 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         zrc_delete_trail = audittrails.get(actie="destroy")
         self.assertEqual(zrc_delete_trail.bron, "ZRC")
         self.assertEqual(zrc_delete_trail.hoofd_object, f"http://testserver{zaak_url}")
+
+    def test_delete_besluitinformatieobject(self):
+        besluit_data = self._create_besluit()
+
+        besluit = Besluit.objects.get()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = reverse(io)
+        besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": besluit_data["url"],
+                "informatieobject": f"http://testserver{io_url}",
+            },
+        )
+        bio_data = response.json()
+
+        # Delete the Besluit
+        response = self.client.delete(bio_data["url"])
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 3)
+
+        bio_delete_trail = audittrails.get(actie="destroy")
+        self.assertEqual(bio_delete_trail.bron, "BRC")
+
+    def test_delete_besluitinformatieobject_with_zaak(self):
+        zaak = ZaakFactory.create()
+        besluit_data = self._create_besluit(zaak=zaak)
+
+        besluit = Besluit.objects.get()
+        io = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype__concept=False
+        )
+        io_url = reverse(io)
+        besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
+        url = reverse(BesluitInformatieObject, namespace="besluiten")
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": besluit_data["url"],
+                "informatieobject": f"http://testserver{io_url}",
+            },
+        )
+        bio_data = response.json()
+        bio = BesluitInformatieObject.objects.get()
+
+        # Delete the Besluit
+        response = self.client.delete(bio_data["url"])
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        audittrails = AuditTrail.objects
+        self.assertEqual(audittrails.count(), 6)
+
+        bio_delete_trail = audittrails.get(actie="destroy", bron="ZRC")
+        self.assertEqual(
+            bio_delete_trail.oud,
+            bio_data
+            | {
+                "url": f"http://testserver{reverse(bio, namespace='zaken')}",
+                "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
+            },
+        )
 
     def test_delete_zaak(self):
         zaak = ZaakFactory.create()

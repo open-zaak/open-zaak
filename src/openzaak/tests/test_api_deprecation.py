@@ -250,15 +250,20 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
 
         audittrail = AuditTrail.objects.get()
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace="zaken")
 
         with self.subTest("audittrail model"):
             self.assertEqual(audittrail.bron, "BRC")  # TODO see BRC_AUDIT comment
             self.assertEqual(audittrail.actie, "create")
             self.assertEqual(audittrail.resultaat, 201)
-            self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+            self.assertEqual(
+                audittrail.hoofd_object,
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
             self.assertEqual(audittrail.resource, "besluit")
-            self.assertEqual(audittrail.resource_url, f"http://testserver{besluit_url}")
+            self.assertEqual(
+                audittrail.resource_url,
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
             self.assertEqual(
                 audittrail.resource_weergave, besluit.unique_representation()
             )
@@ -274,14 +279,20 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
             data = response.json()[0]
 
             self.assertEqual(data["bron"], "BRC")
-            self.assertEqual(data["hoofdObject"], f"http://testserver{besluit_url}")
-            self.assertEqual(data["resourceUrl"], f"http://testserver{besluit_url}")
+            self.assertEqual(
+                data["hoofdObject"],
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
+            self.assertEqual(
+                data["resourceUrl"],
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
             self.assertEqual(
                 data["wijzigingen"],
                 {
                     "oud": None,
                     "nieuw": {
-                        "url": f"http://testserver{besluit_url}",
+                        "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
                         "zaak": "",
                         "datum": "2026-05-05",
                         "besluittype": self.besluittype_url,
@@ -311,14 +322,20 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
             data = response.json()[0]
 
             self.assertEqual(data["bron"], "BRC")
-            self.assertEqual(data["hoofdObject"], f"http://testserver{besluit_url}")
-            self.assertEqual(data["resourceUrl"], f"http://testserver{besluit_url}")
+            self.assertEqual(
+                data["hoofdObject"],
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
+            self.assertEqual(
+                data["resourceUrl"],
+                f"http://testserver{reverse(besluit, namespace='besluiten')}",
+            )
             self.assertEqual(
                 data["wijzigingen"],
                 {
                     "oud": None,
                     "nieuw": {
-                        "url": f"http://testserver{besluit_url}",
+                        "url": f"http://testserver{reverse(besluit, namespace='besluiten')}",
                         "zaak": "",
                         "datum": "2026-05-05",
                         "besluittype": self.besluittype_url,
@@ -361,9 +378,7 @@ class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
         self.assertIn("/besluiten/api/v1/besluiten/", create_trail.nieuw["url"])
 
         self.assertEqual(update_trail.actie, "partial_update")
-        self.assertIn("/zaken/api/v1/besluiten/", update_trail.hoofd_object)
-        self.assertIn("/zaken/api/v1/besluiten/", update_trail.resource_url)
-        self.assertIn(
-            "/zaken/api/v1/besluiten/", update_trail.oud["url"]
-        )  # TODO old data is generate from serializer and uses current namespace.
-        self.assertIn("/zaken/api/v1/besluiten/", update_trail.nieuw["url"])
+        self.assertIn("/besluiten/api/v1/besluiten/", update_trail.hoofd_object)
+        self.assertIn("/besluiten/api/v1/besluiten/", update_trail.resource_url)
+        self.assertIn("/besluiten/api/v1/besluiten/", update_trail.oud["url"])
+        self.assertIn("/besluiten/api/v1/besluiten/", update_trail.nieuw["url"])

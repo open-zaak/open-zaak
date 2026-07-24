@@ -26,7 +26,6 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
     def test_create_bio(self):
         besluit = BesluitFactory.create()
-        besluit_url = reverse(besluit, namespace="zaken")
         informatieobject = EnkelvoudigInformatieObjectFactory.create()
         add_url = django_reverse("admin:besluiten_besluitinformatieobject_add")
         data = {
@@ -40,7 +39,6 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(BesluitInformatieObject.objects.count(), 1)
 
         bio = BesluitInformatieObject.objects.get()
-        bio_url = reverse(bio, namespace="zaken")
 
         self.assertEqual(AuditTrail.objects.count(), 1)
 
@@ -52,19 +50,27 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluitinformatieobject")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{bio_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(bio, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, bio.unique_representation())
         self.assertEqual(audittrail.oud, None)
 
         new_data = audittrail.nieuw
-        self.assertEqual(new_data["besluit"], f"http://testserver{besluit_url}")
+        self.assertEqual(
+            new_data["besluit"],
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
 
     def test_change_bio(self):
         besluit_old, besluit_new = BesluitFactory.create_batch(2)
         bio = BesluitInformatieObjectFactory.create(besluit=besluit_old)
-        bio_url = reverse(bio, namespace="zaken")
         change_url = django_reverse(
             "admin:besluiten_besluitinformatieobject_change", args=(bio.pk,)
         )
@@ -80,8 +86,6 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
 
         bio.refresh_from_db()
         audittrail = AuditTrail.objects.get()
-        besluit_old_url = reverse(besluit_old, namespace="zaken")
-        besluit_new_url = reverse(besluit_new, namespace="zaken")
 
         self.assertEqual(audittrail.bron, "BRC")
         self.assertEqual(audittrail.actie, "update")
@@ -89,20 +93,30 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_new_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(besluit_new, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluitinformatieobject")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{bio_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(bio, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, bio.unique_representation())
 
         old_data, new_data = audittrail.oud, audittrail.nieuw
 
-        self.assertEqual(old_data["besluit"], f"http://testserver{besluit_old_url}")
-        self.assertEqual(new_data["besluit"], f"http://testserver{besluit_new_url}")
+        self.assertEqual(
+            old_data["besluit"],
+            f"http://testserver{reverse(besluit_old, namespace='besluiten')}",
+        )
+        self.assertEqual(
+            new_data["besluit"],
+            f"http://testserver{reverse(besluit_new, namespace='besluiten')}",
+        )
 
     def test_delete_bio_action(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_url = reverse(bio, namespace="zaken")
-        besluit_url = reverse(bio.besluit, namespace="zaken")
         change_list_url = django_reverse(
             "admin:besluiten_besluitinformatieobject_changelist"
         )
@@ -124,20 +138,27 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(bio.besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluitinformatieobject")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{bio_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(bio, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, bio.unique_representation())
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data["besluit"], f"http://testserver{besluit_url}")
+        self.assertEqual(
+            old_data["besluit"],
+            f"http://testserver{reverse(bio.besluit, namespace='besluiten')}",
+        )
 
     def test_delete_bio(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_url = reverse(bio, namespace="zaken")
-        besluit_url = reverse(bio.besluit, namespace="zaken")
         delete_url = django_reverse(
             "admin:besluiten_besluitinformatieobject_delete", args=(bio.pk,)
         )
@@ -155,12 +176,21 @@ class BesluitInformatieObjectAdminTests(AdminTestMixin, TestCase):
         self.assertEqual(audittrail.applicatie_weergave, "admin")
         self.assertEqual(audittrail.gebruikers_id, f"{self.user.id}")
         self.assertEqual(audittrail.gebruikers_weergave, self.user.get_full_name())
-        self.assertEqual(audittrail.hoofd_object, f"http://testserver{besluit_url}")
+        self.assertEqual(
+            audittrail.hoofd_object,
+            f"http://testserver{reverse(bio.besluit, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource, "besluitinformatieobject")
-        self.assertEqual(audittrail.resource_url, f"http://testserver{bio_url}")
+        self.assertEqual(
+            audittrail.resource_url,
+            f"http://testserver{reverse(bio, namespace='besluiten')}",
+        )
         self.assertEqual(audittrail.resource_weergave, bio.unique_representation())
         self.assertEqual(audittrail.nieuw, None)
 
         old_data = audittrail.oud
 
-        self.assertEqual(old_data["besluit"], f"http://testserver{besluit_url}")
+        self.assertEqual(
+            old_data["besluit"],
+            f"http://testserver{reverse(bio.besluit, namespace='besluiten')}",
+        )

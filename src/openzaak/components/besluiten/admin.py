@@ -7,9 +7,9 @@ from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 
 from openzaak.utils.admin import (
-    AuditTrailAdminMixin,
     EditInlineAdminMixin,
     ListObjectActionsAdminMixin,
+    MultipleAuditTrailAdminMixin,
     UUIDAdminMixin,
     link_to_related_objects,
 )
@@ -44,7 +44,7 @@ class BesluitInformatieObjectForm(forms.ModelForm):
 
 @admin.register(BesluitInformatieObject)
 class BesluitInformatieObjectAdmin(
-    AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    MultipleAuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin
 ):
     form = BesluitInformatieObjectForm
     list_display = (
@@ -112,7 +112,10 @@ class BesluitForm(forms.ModelForm):
 
 @admin.register(Besluit)
 class BesluitAdmin(
-    AuditTrailAdminMixin, ListObjectActionsAdminMixin, UUIDAdminMixin, admin.ModelAdmin
+    MultipleAuditTrailAdminMixin,
+    ListObjectActionsAdminMixin,
+    UUIDAdminMixin,
+    admin.ModelAdmin,
 ):
     form = BesluitForm
     list_display = ("verantwoordelijke_organisatie", "identificatie", "datum")
