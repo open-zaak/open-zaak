@@ -31,7 +31,7 @@ class StatusAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "_statustype": statustype.id,
+            "statustype": statustype.id,
             "datum_status_gezet_0": date(2018, 1, 1),
             "datum_status_gezet_1": time(10, 0, 0),
         }
@@ -82,7 +82,7 @@ class StatusAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": status.uuid,
             "zaak": status.zaak.id,
-            "_statustype": statustype.id,
+            "statustype": statustype.id,
             "datum_status_gezet_0": timezone.now().date(),
             "datum_status_gezet_1": timezone.now().time(),
             "statustoelichting": "new",
