@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.db import transaction
 from django.db.models.base import Model, ModelBase
 from django.http import HttpRequest
@@ -161,12 +162,27 @@ class AuditTrailAdminMixin:
         serializer = viewset.get_serializer(obj)
         return serializer.data
 
-    def trail(self, obj, viewset, request, action, data_before, data_after):
+    def trail(
+        self,
+        obj,
+        viewset,
+        request,
+        action,
+        data_before,
+        data_after,
+        audit=None,
+        main_object=None,
+    ):
         model = obj.__class__
         basename = model._meta.object_name.lower()
         data = data_after or data_before
 
-        if basename == viewset.audit.main_resource:
+        if not audit:
+            audit = viewset.audit
+
+        if main_object:
+            pass
+        elif basename == viewset.audit.main_resource:
             main_object = data["url"]
         elif hasattr(viewset, "audittrail_main_resource_key"):
             main_object = data[viewset.audittrail_main_resource_key]
@@ -177,7 +193,7 @@ class AuditTrailAdminMixin:
             zip(CommonResourceAction.names, CommonResourceAction.labels)
         )
         trail = AuditTrail(
-            bron=viewset.audit.component_name,
+            bron=audit.component_name,
             applicatie_weergave="admin",
             actie=action,
             actie_weergave=action_labels.get(action, ""),
@@ -294,6 +310,77 @@ class AuditTrailAdminMixin:
             self.trail(
                 obj, viewset, request, CommonResourceAction.create, None, data_after
             )
+
+
+class MultipleAuditTrailAdminMixin(AuditTrailAdminMixin):
+    def save_model(self, request, obj, form, change):
+        viewset = self.get_viewset(request)
+        if not viewset:
+            ModelAdmin.delete_model(self, request, obj)
+            return
+
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+        action = CommonResourceAction.update if change else CommonResourceAction.create
+
+        # data before
+        data_before = None
+        if change:
+            obj_before = model.objects.filter(pk=obj.pk).get()
+            data_before = self.get_serializer_data(request, viewset, obj_before)
+
+        ModelAdmin.save_model(self, request, obj, form, change)
+
+        # data after
+        data = self.get_serializer_data(request, viewset, obj)
+
+        if data_before != data:
+            for audit in viewset.audits:
+                main_object, data_before, data = viewset._handle_namespacing(
+                    audit,
+                    obj,
+                    version_before_edit=data_before,
+                    version_after_edit=data,
+                    basename=basename,
+                )
+
+                if main_object is None:
+                    continue
+
+                self.trail(
+                    obj, viewset, request, action, data_before, data, audit, main_object
+                )
+
+    def delete_model(self, request, obj):
+        viewset = self.get_viewset(request)
+        if not viewset:
+            ModelAdmin.delete_model(self, request, obj)
+            return
+
+        model = obj.__class__
+        basename = model._meta.object_name.lower()
+        action = CommonResourceAction.destroy
+
+        data = self.get_serializer_data(request, viewset, obj)
+
+        with transaction.atomic():
+            ModelAdmin.delete_model(self, request, obj)
+            for audit in viewset.audits:
+                main_object, data, _ = viewset._handle_namespacing(
+                    audit, obj, version_before_edit=data, basename=basename
+                )
+
+                if main_object is None:
+                    continue
+
+                if basename == audit.main_resource:
+                    with transaction.atomic():
+                        AuditTrail.objects.filter(hoofd_object=data["url"]).delete()
+                        return
+
+                self.trail(
+                    obj, viewset, request, action, data, None, audit, main_object
+                )
 
 
 class AuditTrailInlineAdminMixin:

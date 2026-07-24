@@ -47,9 +47,9 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
         return obj.get_absolute_api_url(request=self.request) if obj else None
 
     def _get_audittrail_main_object_url(
-        self, data: dict, audit: Audit, instance: Type[models.Model]
+        self, data: dict, audit: Audit, instance: Type[models.Model], basename: str
     ) -> str | None:
-        if self.basename == audit.main_resource:
+        if basename == audit.main_resource:
             return data["url"]
 
         if audit.main_resource not in data:
@@ -71,6 +71,7 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
         instance: Type[models.Model],
         version_before_edit: dict | None = None,
         version_after_edit: dict | None = None,
+        basename: str | None = None,
     ):
         fields = getattr(self, "audittrail_replace_urls_for", [])
         fields.append("url")
@@ -90,7 +91,13 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
             )
 
         data = version_after_edit or version_before_edit
-        main_object = self._get_audittrail_main_object_url(data, audit, instance)
+
+        if not basename:
+            basename = self.basename
+
+        main_object = self._get_audittrail_main_object_url(
+            data, audit, instance, basename
+        )
 
         return main_object, version_before_edit, version_after_edit
 
