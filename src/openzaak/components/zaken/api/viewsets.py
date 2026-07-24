@@ -300,7 +300,7 @@ class ZaakViewSet(
         Zaak.objects.prefetch_related(
             # Prefetch _zaaktype instead of using `.select_related`, because using the latter
             # causes the main Zaak query to contain a lot of duplicate data, increasing overhead
-            "_zaaktype",
+            "zaaktype",
             "deelzaken",
             models.Prefetch(
                 "relevante_andere_zaken",
@@ -364,7 +364,7 @@ class ZaakViewSet(
             # Catalogus is only relevant for notifications (to include the `zaaktype.catalogus`)
             # kenmerk. The read operations are slightly slower if we include this `select_related`
             # on the base queryset, because it adds an extra join
-            qs = qs.select_related("_zaaktype__catalogus")
+            qs = qs.select_related("zaaktype__catalogus")
 
         return qs
 

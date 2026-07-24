@@ -146,7 +146,7 @@ class ZaakFilter(FilterSetWithGroups):
         lookup_expr="icontains",
     )
     zaaktype__omschrijving = filters.CharFilter(
-        field_name="_zaaktype__zaaktype_omschrijving",
+        field_name="zaaktype__zaaktype_omschrijving",
         help_text=mark_experimental(
             "Omschrijving van de aard van ZAAKen van het ZAAKTYPE"
             "(bevat de zaaktype omschrijving de gegeven waarden (hoofdletterongevoelig))"
@@ -340,7 +340,7 @@ class ZaakFilter(FilterSetWithGroups):
         latest_status_subquery = (
             Status.objects.filter(zaak=OuterRef("pk"))
             .order_by("-datum_status_gezet", "-pk")
-            .values("_statustype_id")[:1]
+            .values("statustype_id")[:1]
         )
 
         return queryset.annotate(

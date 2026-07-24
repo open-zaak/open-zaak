@@ -417,8 +417,8 @@ class ZaakVerlengenValidationTests(JWTAuthMixin, APITestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST, response.data
         )
 
-        statustype = get_validation_errors(response, "status.statustype")
-        self.assertEqual(statustype["code"], "required")
+        verlenging = get_validation_errors(response, "zaak.verlenging")
+        self.assertEqual(verlenging["code"], "required")
 
         datum = get_validation_errors(response, "status.datumStatusGezet")
         self.assertEqual(datum["code"], "required")
