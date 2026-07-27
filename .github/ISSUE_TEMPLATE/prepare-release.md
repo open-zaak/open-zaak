@@ -23,7 +23,7 @@ projects: ["maykinmedia/15"]
   - [ ] Run performance tests and add the results to the docs
 - [ ] Update changelog
 - [ ] Update ``docs/introduction/versioning.rst``
-- [ ] Check the impact of this release on the Helm charts and make issues for this in https://github.com/maykinmedia/charts if needed, e.g.
+- [ ] Make an issue in https://github.com/maykinmedia/charts to make the Helm chart up to date with the new application version, mention the changes that have been made in this version, like:
   - [ ] New environment variables were added
   - [ ] New setup configuration steps or changes to format
   - [ ] New containers required

@@ -685,23 +685,18 @@
                 "subscription"
             ],
             [
-                "add_failednotification",
-                "notifications_log",
-                "failednotification"
-            ],
-            [
                 "change_failednotification",
-                "notifications_log",
+                "notifications_api_common",
                 "failednotification"
             ],
             [
                 "delete_failednotification",
-                "notifications_log",
+                "notifications_api_common",
                 "failednotification"
             ],
             [
                 "view_failednotification",
-                "notifications_log",
+                "notifications_api_common",
                 "failednotification"
             ],
             [
