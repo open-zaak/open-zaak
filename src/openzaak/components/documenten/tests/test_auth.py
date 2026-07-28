@@ -134,7 +134,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
-            f"http://testserver{reverse(self.informatieobjecttype)}",
+            f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
@@ -189,7 +189,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
-            f"http://testserver{reverse(self.informatieobjecttype)}",
+            f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
@@ -266,7 +266,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
-            f"http://testserver{reverse(self.informatieobjecttype)}",
+            f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
         )
         self.assertEqual(
             results[0]["vertrouwelijkheidaanduiding"],
@@ -410,7 +410,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.geheim,
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
@@ -428,7 +428,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
@@ -446,7 +446,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.post(
                 url,
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
                     "titel": "foo",
@@ -492,7 +492,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.put(
                 reverse(self.eio_incorrect_catalogus),
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
@@ -510,7 +510,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.put(
                 reverse(self.eio_incorrect_va),
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
@@ -528,7 +528,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
             response = self.client.put(
                 reverse(self.eio_allowed),
                 {
-                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype)}",
+                    "informatieobjecttype": f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
                     "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
                     "bronorganisatie": "517439943",
                     "creatiedatum": "2018-12-24",
@@ -922,7 +922,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
-            f"http://testserver{reverse(self.informatieobjecttype)}",
+            f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
         )
 
     def test_eio_list_internal_and_external_with_filtering(self):
@@ -975,7 +975,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(
             results[0]["informatieobjecttype"],
-            f"http://testserver{reverse(self.informatieobjecttype)}",
+            f"http://testserver{reverse(self.informatieobjecttype, namespace='documenten')}",
         )
         self.assertEqual(
             results[1]["informatieobjecttype"],

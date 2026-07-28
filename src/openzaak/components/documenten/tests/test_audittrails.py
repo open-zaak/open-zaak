@@ -44,7 +44,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
     def _create_enkelvoudiginformatieobject(self, **headers):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -319,7 +319,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
     @tag("convenience-endpoints")
     def test_register_document_audittrails(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)

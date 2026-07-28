@@ -435,7 +435,9 @@ class DocumentRegistrerenValidationTests(JWTAuthMixin, APITestCase):
         self.zaak_url = reverse(self.zaak)
 
         self.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        self.informatieobjecttype_url = reverse(self.informatieobjecttype)
+        self.informatieobjecttype_url = reverse(
+            self.informatieobjecttype, namespace="documenten"
+        )
 
         ZaakTypeInformatieObjectTypeFactory.create(
             zaaktype=self.zaak.zaaktype, informatieobjecttype=self.informatieobjecttype

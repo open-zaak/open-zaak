@@ -4518,7 +4518,8 @@ paths:
   /informatieobjecttypen:
     get:
       operationId: informatieobjecttype_list
-      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      description: '**EXPERIMENTEEL** Deze lijst kan gefilterd wordt met query-string
+        parameters.'
       summary: Alle INFORMATIEOBJECTTYPEn opvragen.
       parameters:
       - in: query
@@ -4709,7 +4710,7 @@ paths:
           description: Internal server error
     post:
       operationId: informatieobjecttype_create
-      description: Maak een INFORMATIEOBJECTTYPE aan.
+      description: '**EXPERIMENTEEL** Maak een INFORMATIEOBJECTTYPE aan.'
       summary: Maak een INFORMATIEOBJECTTYPE aan.
       parameters:
       - in: header
@@ -4860,7 +4861,7 @@ paths:
   /informatieobjecttypen/{uuid}:
     get:
       operationId: informatieobjecttype_read
-      description: Een specifieke INFORMATIEOBJECTTYPE opvragen.
+      description: '**EXPERIMENTEEL** Een specifieke INFORMATIEOBJECTTYPE opvragen.'
       summary: Een specifieke INFORMATIEOBJECTTYPE opvragen.
       parameters:
       - in: header
@@ -5020,8 +5021,8 @@ paths:
           description: Internal server error
     put:
       operationId: informatieobjecttype_update
-      description: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij. Dit kan alleen
-        als het een concept betreft.
+      description: '**EXPERIMENTEEL** Werk een INFORMATIEOBJECTTYPE in zijn geheel
+        bij. Dit kan alleen als het een concept betreft.'
       summary: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij.
       parameters:
       - in: header
@@ -5185,8 +5186,8 @@ paths:
           description: Internal server error
     patch:
       operationId: informatieobjecttype_partial_update
-      description: Werk een INFORMATIEOBJECTTYPE deels bij. Dit kan alleen als het
-        een concept betreft.
+      description: '**EXPERIMENTEEL** Werk een INFORMATIEOBJECTTYPE deels bij. Dit
+        kan alleen als het een concept betreft.'
       summary: Werk een INFORMATIEOBJECTTYPE deels bij.
       parameters:
       - in: header
@@ -5349,8 +5350,8 @@ paths:
           description: Internal server error
     delete:
       operationId: informatieobjecttype_delete
-      description: Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een
-        concept betreft.
+      description: '**EXPERIMENTEEL** Verwijder een INFORMATIEOBJECTTYPE. Dit kan
+        alleen als het een concept betreft.'
       summary: Verwijder een INFORMATIEOBJECTTYPE.
       parameters:
       - in: path
@@ -5484,7 +5485,8 @@ paths:
           description: Internal server error
     head:
       operationId: informatieobjecttype_head
-      description: Vraag de headers op die je bij een GET request zou krijgen.
+      description: '**EXPERIMENTEEL** Vraag de headers op die je bij een GET request
+        zou krijgen.'
       summary: 'De headers voor een specifiek(e) INFORMATIEOBJECTTYPE opvragen '
       parameters:
       - in: header

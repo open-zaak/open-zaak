@@ -194,7 +194,9 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
     def setUp(self):
         super().setUp()
         self.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        self.informatieobjecttype_url = reverse(self.informatieobjecttype)
+        self.informatieobjecttype_url = reverse(
+            self.informatieobjecttype, namespace="documenten"
+        )
 
     def test_post_without_identificatie_generates_unique_identificatie(self):
         EnkelvoudigInformatieObjectFactory.create(

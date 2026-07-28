@@ -570,7 +570,10 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         verzending_data = self.client.get(reverse(verzending)).json()
         io_data = self.client.get(reverse(verzending.get_informatieobject())).json()
         iotype_data = self.client.get(
-            reverse(verzending.get_informatieobject().informatieobjecttype)
+            reverse(
+                verzending.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(
@@ -601,7 +604,10 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         verzending_data = self.client.get(url).json()
         io_data = self.client.get(reverse(verzending.get_informatieobject())).json()
         iotype_data = self.client.get(
-            reverse(verzending.get_informatieobject().informatieobjecttype)
+            reverse(
+                verzending.get_informatieobject().informatieobjecttype,
+                namespace="documenten",
+            )
         ).json()
 
         response = self.client.get(

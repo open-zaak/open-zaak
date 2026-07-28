@@ -45,7 +45,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_create(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -131,7 +131,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_create_with_very_big_bestandsomvang(self):
         three_giga_bites = 3_221_225_472  # 3gb in bytes
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         content = {
             "bronorganisatie": "159351741",
@@ -155,7 +155,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     @tag("gh-1306")
     def test_create_identificatie_all_characters_allowed(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": "some docüment",
             "bronorganisatie": "159351741",
@@ -240,7 +240,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_create_without_identificatie(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "bronorganisatie": "159351741",
             "creatiedatum": "2018-06-27",
@@ -272,7 +272,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_create_two_docs_with_same_identificatie_and_bronorganisatie(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": "12345",
             "bronorganisatie": "159351741",
@@ -304,7 +304,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_create_fail_informatieobjecttype_max_length(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -485,7 +485,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that integrity is optional.
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -515,7 +515,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Assert that integrity is saved.
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -632,7 +632,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_invalid_inhoud(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",
@@ -663,7 +663,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_inhoud_invalid_utf8_char_not_b64_encoded(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "identificatie": uuid.uuid4().hex,
             "bronorganisatie": "159351741",

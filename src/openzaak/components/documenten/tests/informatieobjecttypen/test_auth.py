@@ -18,7 +18,6 @@ from openzaak.components.catalogi.api.scopes import (
     SCOPE_CATALOGI_FORCED_WRITE,
 )
 from openzaak.components.catalogi.models import (
-    BesluitType,
     InformatieObjectType,
 )
 from openzaak.components.catalogi.tests.base import APITestCase
@@ -35,9 +34,9 @@ class ReadTests(AuthCheckMixin, _APITestCase):
     def test_cannot_read_without_correct_scope(self):
         dummy_uuid = str(uuid.uuid4())
         urls = [
-            reverse("catalogi:informatieobjecttype-list"),
+            reverse("documenten:informatieobjecttype-list"),
             reverse(
-                "catalogi:informatieobjecttype-detail", kwargs={"uuid": dummy_uuid}
+                "documenten:informatieobjecttype-detail", kwargs={"uuid": dummy_uuid}
             ),
         ]
 
@@ -51,18 +50,9 @@ class PublishedTypesForcedDeletionTests(APITestCase):
     scopes = [SCOPE_CATALOGI_FORCED_DELETE]
     component = ComponentTypes.ztc
 
-    def test_force_delete_besluittype_not_concept(self):
-        besluittype = BesluitTypeFactory.create(concept=False)
-        besluittype_url = reverse(besluittype)
-
-        response = self.client.delete(besluittype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(BesluitType.objects.exists())
-
     def test_force_delete_informatieobjecttype_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         response = self.client.delete(informatieobjecttype_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -76,7 +66,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
             zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -90,7 +80,7 @@ class PublishedTypesForcedDeletionTests(APITestCase):
             informatieobjecttypen=[informatieobjecttype], concept=False
         )
 
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         response = self.client.delete(informatieobjecttype_url)
 
@@ -105,7 +95,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_update_informatieobjecttype_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
@@ -122,7 +112,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
     def test_partial_update_informatieobjecttype_not_concept(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "same"})
 
@@ -143,7 +133,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             informatieobjecttypen=[informatieobjecttype],
             catalogus=self.catalogus,
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         data = {
             "catalogus": f"http://testserver{self.catalogus_detail_url}",
             "omschrijving": "test",
@@ -171,7 +161,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             informatieobjecttypen=[informatieobjecttype],
             catalogus=self.catalogus,
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         response = self.client.patch(informatieobjecttype_url, {"omschrijving": "test"})
 

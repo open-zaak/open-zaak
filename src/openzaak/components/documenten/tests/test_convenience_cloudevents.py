@@ -52,7 +52,7 @@ class DocumentConvenienceCloudEventTest(
 
     def test_document_registreren_cloudevent(self, mock_send_cloudevent):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         catalogus_url = reverse(informatieobjecttype.catalogus)
 
         with freeze_time("2026-01-02T12:00:00Z"):

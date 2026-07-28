@@ -3,13 +3,15 @@
 from unittest.mock import patch
 
 from django.test import override_settings, tag
-from django.urls import reverse
+from django.urls import reverse as django_reverse
 
 from django_webtest import WebTest
 from freezegun import freeze_time
 from maykin_2fa.test import disable_admin_mfa
 
-from openzaak.components.catalogi.models import InformatieObjectType
+from openzaak.components.catalogi.models import (
+    InformatieObjectType,
+)
 from openzaak.components.catalogi.tests.factories import (
     CatalogusFactory,
     InformatieObjectTypeFactory,
@@ -19,11 +21,12 @@ from openzaak.selectielijst.models import ReferentieLijstConfig
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
+from openzaak.utils.urls import reverse
 
 
 @tag("notifications")
 @disable_admin_mfa()
-@override_settings(NOTIFICATIONS_DISABLED=False)
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
 @freeze_time("2022-01-01")
 @patch("notifications_api_common.viewsets.send_notification.delay")
 class NotificationAdminTests(
@@ -50,7 +53,7 @@ class NotificationAdminTests(
         )
 
     def test_informatieobjecttype_notify_on_create(self, mock_notif):
-        url = reverse("admin:catalogi_informatieobjecttype_add")
+        url = django_reverse("admin:catalogi_informatieobjecttype_add")
 
         response = self.app.get(url)
 
@@ -65,10 +68,7 @@ class NotificationAdminTests(
             form.submit("_save")
 
         iotype = InformatieObjectType.objects.get()
-        iotype_url = reverse(
-            "catalogi:informatieobjecttype-detail",
-            kwargs={"uuid": iotype.uuid, "version": 1},
-        )
+        iotype_url = reverse(iotype, namespace="documenten")
         mock_notif.assert_called_with(
             {
                 "hoofdObject": f"http://testserver{iotype_url}",
@@ -80,7 +80,8 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_informatieobjecttype_notify_on_change(self, mock_notif):
@@ -90,7 +91,7 @@ class NotificationAdminTests(
             vertrouwelijkheidaanduiding="openbaar",
             catalogus=self.catalogus,
         )
-        url = reverse(
+        url = django_reverse(
             "admin:catalogi_informatieobjecttype_change",
             args=(informatieobjecttype.pk,),
         )
@@ -102,10 +103,8 @@ class NotificationAdminTests(
         with self.captureOnCommitCallbacks(execute=True):
             form.submit("_save")
 
-        iotype_url = reverse(
-            "catalogi:informatieobjecttype-detail",
-            kwargs={"uuid": informatieobjecttype.uuid, "version": 1},
-        )
+        iotype = InformatieObjectType.objects.get()
+        iotype_url = reverse(iotype, namespace="documenten")
         mock_notif.assert_called_with(
             {
                 "hoofdObject": f"http://testserver{iotype_url}",
@@ -117,14 +116,15 @@ class NotificationAdminTests(
                 "kenmerken": {
                     "catalogus": f"http://testserver{self.catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
     def test_no_informatieobjecttype_notify_on_no_change(self, mock_notif):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=True, omschrijving="test", vertrouwelijkheidaanduiding="openbaar"
         )
-        url = reverse(
+        url = django_reverse(
             "admin:catalogi_informatieobjecttype_change",
             args=(informatieobjecttype.pk,),
         )

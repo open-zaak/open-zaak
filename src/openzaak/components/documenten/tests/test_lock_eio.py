@@ -138,7 +138,7 @@ class EioLockAPITests(JWTAuthMixin, APITestCase):
 
     def test_create_ignores_lock(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = get_operation_url("enkelvoudiginformatieobject_create")
         data = {
             "identificatie": uuid.uuid4().hex,

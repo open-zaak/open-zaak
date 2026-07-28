@@ -45,7 +45,7 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
         help_text=get_help_text(
             "catalogi.ZaakTypeInformatieObjectType", "informatieobjecttype"
         ),
-        label="Informatie object type",  # TODO is this needed bio.besluit did not have this?
+        label="Informatie object type",
         lookup_field="uuid",
         queryset=InformatieObjectType.objects.all(),
         view_name="documenten:informatieobjecttype-detail",

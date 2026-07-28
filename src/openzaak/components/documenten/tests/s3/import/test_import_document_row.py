@@ -60,7 +60,8 @@ class ImportDocumentRowTests(S3torageMixin, ImportTestMixin, VCRMixin, TestCase)
             reverse(cls.catalogus), request=cls.request
         )
         cls.informatieobjecttype_url = build_absolute_url(
-            reverse(cls.informatieobjecttype), request=cls.request
+            reverse(cls.informatieobjecttype, namespace="documenten"),
+            request=cls.request,
         )
 
         now = timezone.now()
@@ -700,7 +701,8 @@ class ImportDocumentRowWithoutOverwriteTests(
             reverse(cls.catalogus), request=cls.request
         )
         cls.informatieobjecttype_url = build_absolute_url(
-            reverse(cls.informatieobjecttype), request=cls.request
+            reverse(cls.informatieobjecttype, namespace="documenten"),
+            request=cls.request,
         )
 
         now = timezone.now()

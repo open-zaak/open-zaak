@@ -40,7 +40,7 @@ class US39TestCase(JWTAuthMixin, APITestCase):
         Registreer een ENKELVOUDIGINFORMATIEOBJECT
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = get_operation_url("enkelvoudiginformatieobject_create")
         data = {
             "identificatie": "AMS20180701001",

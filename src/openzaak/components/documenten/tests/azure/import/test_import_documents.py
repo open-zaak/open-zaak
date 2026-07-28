@@ -73,7 +73,8 @@ class ImportDocumentTestCase(
             reverse(cls.catalogus), request=cls.request
         )
         cls.informatieobjecttype_url = build_absolute_url(
-            reverse(cls.informatieobjecttype), request=cls.request
+            reverse(cls.informatieobjecttype, namespace="documenten"),
+            request=cls.request,
         )
 
         cls.request_headers = {"SERVER_NAME": "testserver", "SERVER_PORT": 80}
