@@ -9,6 +9,7 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
+from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
@@ -91,6 +92,7 @@ class InformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
+    NotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
