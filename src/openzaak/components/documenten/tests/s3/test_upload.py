@@ -50,9 +50,7 @@ class SmallFileUpload(JWTAuthMixin, VCRMixin, S3torageMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.informatieobjecttype_url = (
-            f"http://testserver{reverse(cls.informatieobjecttype)}"
-        )
+        cls.informatieobjecttype_url = f"http://testserver{reverse(cls.informatieobjecttype, namespace='documenten')}"
 
         super().setUpTestData()
 
@@ -565,9 +563,7 @@ class LargeFileAPITests(JWTAuthMixin, S3torageMixin, VCRMixin, APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        cls.informatieobjecttype_url = (
-            f"http://testserver{reverse(cls.informatieobjecttype)}"
-        )
+        cls.informatieobjecttype_url = f"http://testserver{reverse(cls.informatieobjecttype, namespace='documenten')}"
 
         super().setUpTestData()
 

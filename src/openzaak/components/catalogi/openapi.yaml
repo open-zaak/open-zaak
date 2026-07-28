@@ -12276,7 +12276,6 @@ components:
         informatieobjecttype:
           type: string
           format: uri
-          title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           maxLength: 1000
           minLength: 1
@@ -13702,7 +13701,6 @@ components:
         informatieobjecttype:
           type: string
           format: uri
-          title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           maxLength: 1000
           minLength: 1
@@ -13761,7 +13759,6 @@ components:
         informatieobjecttype:
           type: string
           format: uri
-          title: Informatie object type
           description: URL-referentie naar het INFORMATIEOBJECTTYPE.
           maxLength: 1000
           minLength: 1
