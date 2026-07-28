@@ -6,11 +6,11 @@ Open Zaak
     :height: 100px
     :alt: Open Zaak
 
-*Productiewaardige API's voor Zaakgericht Werken*
+*Production-ready APIs for Case-Oriented Working*
 
-`Read this in English`_
+`Read this in Dutch`_
 
-.. _`Read this in English`: README.en.md
+.. _`Read this in Dutch`: README.NL.rst
 
 :Version: 1.29.1
 :Source: https://github.com/open-zaak/open-zaak
@@ -19,82 +19,102 @@ Open Zaak
 
 |build-status| |docs| |coverage| |code-quality| |ruff| |docker| |docker| |python-version|
 
-Deze repository bevat broncode en documentatie voor productiewaardige API's voor Zaakgericht Werken (ZGW). Deze API's volgen de standaard van VNG Realisatie "API's voor Zaakgericht Werken".
 
-Zaakgericht Werken
-==================
+This repository contains source code and documentation for production-ready APIs for Case-Oriented Working (ZGW).
+These APIs adhere to the VNG Realisatie standard "APIs for Case-Oriented Working" (API's voor Zaakgericht Werken).
 
-Zaakgericht werken is een vorm van procesgericht werken die door de Nederlandse gemeenten, en steeds meer landelijke overheden, wordt toegepast om verzoeken van burgers en bedrijven te behandelen. De zaak staat hierbij centraal. Een zaak is een samenhangende hoeveelheid werk met een gedefinieerde aanleiding en een gedefinieerd resultaat waarvan kwaliteit en doorlooptijd bewaakt moeten worden. De API's voor Zaakgericht Werken ondersteunen de registratie van alle metadata en gegevens die komen kijken bij Zaakgericht Werken. Zie ook `Zaakgericht werken in het gemeentelijk gegevenslandschap`_.
+Case-oriented working
+=====================
 
-.. _`Zaakgericht werken in het gemeentelijk gegevenslandschap`: https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf
+Case-oriented working is a form of process-oriented working adopted by Dutch municipalities, and
+increasingly by national government bodies, to handle requests from citizens and businesses.
+The "case" is central to this approach. A case is a coherent body of work with a defined trigger and a
+defined outcome, requiring the monitoring of both quality and turnaround time. The APIs for Case-Oriented
+Working support the registration of all metadata and data associated with this way of working.
+See also `Case-oriented working in the municipal data landscape`_.
 
+.. _`Case-oriented working in the municipal data landscape`: https://www.gemmaonline.nl/images/gemmaonline/f/f6/20190620_-_Zaakgericht_werken_in_het_Gemeentelijk_Gegevenslandschap_v101.pdf
 
-Standaard "API's voor Zaakgericht Werken"
+Standard "APIs for Case-Oriented Working"
 =========================================
 
-In het kader van Common Ground heeft VNG Realisatie deze standaard ontwikkeld. Daarbij zijn tegelijk met API-specificaties referentie-implementaties gerealiseerd om aan te tonen dat de specificaties in software kunnen worden geïmplementeerd. De volgende inhoudelijke API's maken onderdeel uit van de standaard:
+* Catalogi (Catalogs) - for registering case type catalogs, case types, and all associated types.
+* Zaken (Cases) - for registering cases. Cases can be linked to items such as documents, decisions, and contacts.
+  The API provides functionality for audit trails and archiving.
+* Documenten (Documents) - for registering information objects, which can include documents as well as other
+  information carriers such as photos and film.
+* Besluiten (Decisions) - for registering decisions made within the context of case-oriented working.
 
-* Catalogi - voor de registratie van zaaktype-catalogi, zaaktype en alle daarbij horende typen.
-* Zaken - voor de registratie van zaken. Zaken kunnen o.a. relaties hebben met documenten, besluiten, contacten. De API biedt functionaliteit voor audit trail en archiveren.
-* Documenten - voor de registratie van informatieobjecten, hetgeen zowel documenten als andere informatiedragers zoals foto's en film kunnen zijn.
-* Besluiten - voor de registratie van besluiten die in het kader van zaakgericht werken worden genomen.
+In addition, there are a few generic APIs required to use these APIs:
 
-Daarnaast zijn er een paar generieke API's die nodig om gebruik te maken van deze API's:
+* Notifications - in Common Ground, data is registered and maintained at the source.
+  Consumers are not automatically notified when changes occur; to receive updates,
+  they can register a subscription with the Notifications API.
+* Authorizations - the Authorizations API manages application access to data.
 
-* Notificaties - in Common Ground worden gegevens bij de bron geregistreerd en bijgehouden. Consumers krijgen niet vanzelf bericht als er iets is gewijzigd. Hiervoor kunnen ze een abonnement registreren bij de Notificaties API.
-* Autorisaties - via de Autorisaties API wordt de toegang van applicaties tot gegevens geregeld.
+Production-ready APIs
+=====================
 
-Productiewaardige API's
-=======================
+In developing production-ready APIs, attention was paid to several key aspects:
 
-Bij de realisatie van productiewaardige API's is aandacht besteed aan een aantal belangrijke aspecten:
+* Management: A management portal has been set up to allow functional administrators to manage the various APIs.
+* Performance: Performance measurements were conducted based on estimated loads from end-user applications.
+  Necessary improvements were implemented to ensure that a load generated by 2,000 end-users should not cause issues.
+* Documentation of the components, particularly the management applications. (Documentation regarding
+  the APIs themselves is part of the standard.)
+* Deployment: A Docker image is available to simplify deployment to servers. These containers are
+  components that can be easily deployed to a server and put into operation. This enables municipalities to
+  easily run the APIs—or have them hosted—by a hosting provider.
 
-* Beheer: er is een beheerportaal ingericht waarmee de verschillende API's door functioneel beheerders kunnen worden beheerd.
-* Performance: er zijn performance-metingen verricht op basis van schattingen van de verwachte belasting door applicaties die eindgebruikers gebruiken. Benodigde verbeteringen zijn doorgevoerd waardoor een belasting door 2000 eindgebruikers geen problemen zou moeten opleveren.
-* Documentatie van de componenten, met name van de beheer applicaties. (De inhoudelijke documentatie over de API's is onderdeel van de standaard.)
-* Uitrol: Om de uitrol naar servers te vereenvoudigen is er een Docker container beschikbaar. Dit zijn een soort componenten die gemakkelijk kunnen worden uitgerold op een server om ze vervolgens in gebruik te nemen. Hiermee kunnen gemeenten de API’s op eenvoudige wijze (laten) draaien bij een hostingpartij.
+Architecture of Open Zaak
+=========================
 
-Architectuur van Open Zaak
-==========================
+The architecture of Open Zaak is based on a limited number of components. The most important
+component is the registration component, which provides the APIs for ZGW. In addition,
+there are the following components:
 
-De architectuur van Open Zaak is gebaseerd op een beperkt aantal componenten. De belangrijkste component is de registratiecomponent die de API's voor ZGW aanbiedt. Daarnaast zijn er de volgende componenten:
-
-* Notificatie-component, noodzakelijk voor de werking van Open Zaak.
-* Selectielijst component die wordt gebruikt om de VNG Selectielijst voor archiveren te ontsluiten
-* Beheerportaal dat toegang biedt tot de verschillende beheerapps die bij de API's horen
+* Notification component, necessary for the operation of Open Zaak.
+* Selection list component, which is used to provide access to the VNG Selection List (Selectielijst) for archiving.
+* Management portal, which provides access to the various management apps associated with the APIs.
 
 .. image:: docs/introduction/_assets/architecture.png
     :width: 100%
-    :alt: Open-Zaak Componenten-overzicht
+    :alt: Open-Zaak components-overview
 
-Implementatie
-=============
+Implementation
+==============
 
-Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke nieuwe versie van Open Zaak een Docker container die direct kunnen worden uitgerold in een Kubernetes cluster.
+This repository contains the source code for the APIs. To use the APIs, they must be hosted
+somewhere as a service. As part of the development pipeline, with every new version of Open Zaak,
+a Docker image is built that can be deployed directly to a Kubernetes cluster.
+
+Deze repository bevat de broncode voor de API's. Om gebruik te kunnen maken van de API's moeten
+deze ergens gehost worden als een service. Als onderdeel van de ontwikkelstraat worden bij elke
+nieuwe versie van Open Zaak een Docker container die direct kunnen worden uitgerold in een Kubernetes cluster.
 
 Links
 =====
 
-* `VNG Standaard API's voor Zaakgericht Werken`_
-* `Documentatie`_
+* `VNG standard APIs voor Zaakgericht Werken`_
+* `Documentation`_
 * `Docker Hub`_
 
-.. _`Documentatie`: https://open-zaak.readthedocs.io/en/latest/
+.. _`Documentation`: https://open-zaak.readthedocs.io/en/latest/
 .. _`Docker Hub`: https://hub.docker.com/u/openzaak
-.. _`VNG Standaard API's voor Zaakgericht Werken`: https://github.com/VNG-Realisatie/gemma-zaken
+.. _`VNG standard APIs voor Zaakgericht Werken`: https://github.com/VNG-Realisatie/gemma-zaken
 
-Bouw
-====
+Development
+===========
 
-Deze API's zijn ontwikkeld door `Maykin B.V.`_ in opdracht van Amsterdam,
-Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft en een coalitie
-van Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), onder regie van `Dimpact`_.
+These APIs were developed by `Maykin B.V.`_ commissioned by Amsterdam,
+Rotterdam, Utrecht, Tilburg, Arnhem, Haarlem, 's-Hertogenbosch, Delft and a coalition
+of Hoorn, Medemblik, Stede Broec, Drechteland, Enkhuizen (SED), under the direction of `Dimpact`_.
 
 .. _Maykin B.V.: https://www.maykin.nl
 .. _Dimpact: https://www.dimpact.nl
 
-Licentie
-========
+License
+=======
 
 Licensed under the EUPL_
 
@@ -112,7 +132,7 @@ Licensed under the EUPL_
     :target: https://open-zaak.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. |coverage| image:: https://codecov.io/github/open-zaak/open-zaak/branch/main/graphs/badge.svg?branch=main
+.. |coverage| image:: https://codecov.io/gh/open-zaak/open-zaak/graph/badge.svg?token=1ggPK0Ffg2
     :alt: Coverage
     :target: https://codecov.io/gh/open-zaak/open-zaak
 
