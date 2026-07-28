@@ -4515,6 +4515,1171 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+  /informatieobjecttypen:
+    get:
+      operationId: informatieobjecttype_list
+      description: Deze lijst kan gefilterd wordt met query-string parameters.
+      summary: Alle INFORMATIEOBJECTTYPEn opvragen.
+      parameters:
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+          behoort.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+      - in: query
+        name: omschrijving__icontains
+        schema:
+          type: string
+        description: '**EXPERIMENTEEL** Omschrijving van de aard van informatieobjecten
+          van dit INFORMATIEOBJECTTYPE. Filter op (een deel van de) omschrijving (hoofdletterongevoelig).'
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
+
+
+      - in: query
+        name: zaaktype
+        schema:
+          type: string
+          format: uri
+        description: '**EXPERIMENTEEL** URL-referentie naar het ZAAKTYPE.'
+      tags:
+      - informatieobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInformatieObjectTypeList'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    post:
+      operationId: informatieobjecttype_create
+      description: Maak een INFORMATIEOBJECTTYPE aan.
+      summary: Maak een INFORMATIEOBJECTTYPE aan.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - informatieobjecttypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformatieObjectTypeRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - catalogi.schrijven
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformatieObjectType'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+  /informatieobjecttypen/{uuid}:
+    get:
+      operationId: informatieobjecttype_read
+      description: Een specifieke INFORMATIEOBJECTTYPE opvragen.
+      summary: Een specifieke INFORMATIEOBJECTTYPE opvragen.
+      parameters:
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            ETag:
+              schema:
+                type: string
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformatieObjectType'
+          description: OK
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    put:
+      operationId: informatieobjecttype_update
+      description: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij. Dit kan alleen
+        als het een concept betreft.
+      summary: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformatieObjectTypeRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformatieObjectType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    patch:
+      operationId: informatieobjecttype_partial_update
+      description: Werk een INFORMATIEOBJECTTYPE deels bij. Dit kan alleen als het
+        een concept betreft.
+      summary: Werk een INFORMATIEOBJECTTYPE deels bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInformatieObjectTypeRequest'
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformatieObjectType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    delete:
+      operationId: informatieobjecttype_delete
+      description: Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een
+        concept betreft.
+      summary: Verwijder een INFORMATIEOBJECTTYPE.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    head:
+      operationId: informatieobjecttype_head
+      description: Vraag de headers op die je bij een GET request zou krijgen.
+      summary: 'De headers voor een specifiek(e) INFORMATIEOBJECTTYPE opvragen '
+      parameters:
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            ETag:
+              schema:
+                type: string
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+          description: No response body
+  /informatieobjecttypen/{uuid}/publish:
+    post:
+      operationId: informatieobjecttype_publish
+      description: Publiceren van het informatieobjecttype zorgt ervoor dat dit in
+        een Documenten API kan gebruikt worden. Na het publiceren van een informatieobjecttype
+        zijn geen inhoudelijke wijzigingen meer mogelijk. Indien er na het publiceren
+        nog wat gewijzigd moet worden, dan moet je een nieuwe versie aanmaken.
+      summary: Publiceer het concept INFORMATIEOBJECTTYPE.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - informatieobjecttypen
+      security:
+      - JWT-Claims:
+        - catalogi.schrijven
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InformatieObjectType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /objectinformatieobjecten:
     get:
       operationId: objectinformatieobject_list
@@ -7685,6 +8850,181 @@ components:
       - reportUrl
       - statusUrl
       - uploadUrl
+    InformatieObjectType:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+            behoort.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          description: |-
+            Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        concept:
+          type: boolean
+          readOnly: true
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+        besluittypen:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: URL-referenties naar de BESLUITTYPEN
+        informatieobjectcategorie:
+          type: string
+          title: Categorie
+          description: Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        trefwoord:
+          type: array
+          items:
+            type: string
+            maxLength: 30
+          description: Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE
+            kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar
+            te onderscheiden.)
+        omschrijvingGeneriek:
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriek'
+          description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
+        zaaktypen:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: URL-referenties naar de ZAAKTYPEN
+        beginObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop de eerst versie van het object ontstaan is.
+        eindeObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum van de aller laatste versie van het object.
+      required:
+      - beginGeldigheid
+      - beginObject
+      - besluittypen
+      - catalogus
+      - concept
+      - eindeObject
+      - informatieobjectcategorie
+      - omschrijving
+      - url
+      - vertrouwelijkheidaanduiding
+      - zaaktypen
+    InformatieObjectTypeRequest:
+      type: object
+      properties:
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+            behoort.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          minLength: 1
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          description: |-
+            Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        informatieobjectcategorie:
+          type: string
+          minLength: 1
+          title: Categorie
+          description: Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        trefwoord:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+          description: Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE
+            kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar
+            te onderscheiden.)
+        omschrijvingGeneriek:
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
+          description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
+      required:
+      - beginGeldigheid
+      - catalogus
+      - informatieobjectcategorie
+      - omschrijving
+      - vertrouwelijkheidaanduiding
     Integriteit:
       type: object
       properties:
@@ -7842,6 +9182,72 @@ components:
       - zaak
       - verzoek
       type: string
+    OmschrijvingGeneriek:
+      type: object
+      properties:
+        informatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van het type informatieobject.
+          maxLength: 80
+        definitieInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Definitie
+          description: Nauwkeurige beschrijving van het generieke type informatieobject
+          maxLength: 255
+        herkomstInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Herkomst
+          description: De naam van de waardenverzameling, of van de beherende organisatie
+            daarvan, waaruit de waarde is overgenomen.
+          maxLength: 12
+        hierarchieInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Hierarchie
+          description: De plaats in de rangorde van het informatieobjecttype.
+          maxLength: 80
+        opmerkingInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Opmerking
+          description: Zinvolle toelichting bij het informatieobjecttype
+          maxLength: 255
+      required:
+      - definitieInformatieobjecttypeOmschrijvingGeneriek
+      - herkomstInformatieobjecttypeOmschrijvingGeneriek
+      - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      - informatieobjecttypeOmschrijvingGeneriek
+    OmschrijvingGeneriekRequest:
+      type: object
+      properties:
+        informatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van het type informatieobject.
+          maxLength: 80
+        definitieInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Definitie
+          description: Nauwkeurige beschrijving van het generieke type informatieobject
+          maxLength: 255
+        herkomstInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Herkomst
+          description: De naam van de waardenverzameling, of van de beherende organisatie
+            daarvan, waaruit de waarde is overgenomen.
+          maxLength: 12
+        hierarchieInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Hierarchie
+          description: De plaats in de rangorde van het informatieobjecttype.
+          maxLength: 80
+        opmerkingInformatieobjecttypeOmschrijvingGeneriek:
+          type: string
+          title: Opmerking
+          description: Zinvolle toelichting bij het informatieobjecttype
+          maxLength: 255
+      required:
+      - definitieInformatieobjecttypeOmschrijvingGeneriek
+      - herkomstInformatieobjecttypeOmschrijvingGeneriek
+      - hierarchieInformatieobjecttypeOmschrijvingGeneriek
+      - informatieobjecttypeOmschrijvingGeneriek
     Ondertekening:
       type: object
       properties:
@@ -7959,6 +9365,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExpandVerzending'
+    PaginatedInformatieObjectTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InformatieObjectType'
     PaginatedVerzendingList:
       type: object
       required:
@@ -8169,6 +9598,65 @@ components:
           minLength: 1
           description: Omschrijving van de van toepassing zijnde voorwaarden aan het
             gebruik anders dan raadpleging
+    PatchedInformatieObjectTypeRequest:
+      type: object
+      properties:
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit INFORMATIEOBJECTTYPE
+            behoort.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          minLength: 1
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        vertrouwelijkheidaanduiding:
+          allOf:
+          - $ref: '#/components/schemas/VertrouwelijkheidaanduidingEnum'
+          description: |-
+            Aanduiding van de mate waarin informatieobjecten van dit INFORMATIEOBJECTTYPE voor de openbaarheid bestemd zijn.
+
+            Uitleg bij mogelijke waarden:
+
+            * `openbaar` - Openbaar
+            * `beperkt_openbaar` - Beperkt openbaar
+            * `intern` - Intern
+            * `zaakvertrouwelijk` - Zaakvertrouwelijk
+            * `vertrouwelijk` - Vertrouwelijk
+            * `confidentieel` - Confidentieel
+            * `geheim` - Geheim
+            * `zeer_geheim` - Zeer geheim
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        informatieobjectcategorie:
+          type: string
+          minLength: 1
+          title: Categorie
+          description: Typering van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+          maxLength: 80
+        trefwoord:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+          description: Trefwoord(en) waarmee informatieobjecten van het INFORMATIEOBJECTTYPE
+            kunnen worden gekarakteriseerd. (Gebruik een komma om waarden van elkaar
+            te onderscheiden.)
+        omschrijvingGeneriek:
+          allOf:
+          - $ref: '#/components/schemas/OmschrijvingGeneriekRequest'
+          description: Algemeen gehanteerde omschrijving van het informatieobjecttype.
     PatchedVerzendingRequest:
       type: object
       description: |-
