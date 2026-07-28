@@ -31,7 +31,7 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
             concept=False,
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -65,7 +65,7 @@ class US609TestCase(TypeCheckMixin, JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zaakvertrouwelijk,
             concept=False,
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(

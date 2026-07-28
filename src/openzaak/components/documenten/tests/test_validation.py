@@ -94,7 +94,7 @@ class EnkelvoudigInformatieObjectTests(JWTAuthMixin, APITestCase):
 
     def test_validate_informatieobjecttype_unpublished(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         url = reverse("documenten:enkelvoudiginformatieobject-list")
 
         response = self.client.post(
@@ -278,7 +278,7 @@ class InformatieObjectStatusTests(JWTAuthMixin, APITestCase):
         informatieobjecten.
         """
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         invalid_statuses = (Statussen.in_bewerking, Statussen.ter_vaststelling)
         data = {
             "bronorganisatie": "319582462",
