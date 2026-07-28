@@ -68,7 +68,6 @@ COPY ./bin/uninstall_adfs.sh \
     ./bin/uninstall_django_auth_adfs_db.sql \
     ./bin/dump_configuration.sh \
     /app/bin/
-COPY ./bin/check_celery_worker_liveness.py ./bin/
 COPY ./bin/setup_configuration.sh /setup_configuration.sh
 COPY ./bin/load_fixtures.sh /load_fixtures.sh
 COPY ./bin/dump_data.sh /dump_data.sh
@@ -83,6 +82,7 @@ VOLUME ["/app/log", "/app/media", "/app/private-media"]
 COPY --from=build /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=build /usr/local/bin/uwsgi /usr/local/bin/uwsgi
 COPY --from=build /usr/local/bin/celery /usr/local/bin/celery
+COPY --from=build /usr/local/bin/maykin-common /usr/local/bin/maykin-common
 
 # copy frontend build statics
 COPY --from=frontend-build /app/src/openzaak/static/ /app/src/openzaak/static/

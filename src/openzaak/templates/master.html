@@ -5,10 +5,12 @@
     <head>
         <meta charset="utf-8">
         <title>{% block title %}{% if title %}{{ title }}{% else %}{{ settings.SITE_TITLE }}{% endif %} | {{ settings.PROJECT_NAME }}{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" href="{% static 'ico/favicon.png' %}" type="image/png">
-        <link rel="icon" href="{% static 'ico/favicon.svg' %}" type="image/svg+xml">
+        <link href="{% static 'maykin_common/ico/favicon.svg' %}" sizes="any" rel="icon" type="image/svg+xml" />
+        <link href="{% static 'maykin_common/ico/favicon-96x96.png' %}" sizes="96x96" rel="icon" type="image/png" />
+        <link href="{% static 'maykin_common/ico/favicon-32x32.png' %}" sizes="32x32" rel="icon" type="image/png" />
+        <link href="{% static 'maykin_common/ico/favicon.png' %}" sizes="16x16" rel="icon" type="image/png" />
+        <link href="{% static 'maykin_common/ico/favicon.png' %}" rel="shortcut icon">
         <link href="{% static 'bundles/openzaak-css.css' %}" media="all" rel="stylesheet" />
         {% block extra_css %}{% endblock %}
     </head>

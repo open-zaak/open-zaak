@@ -65,7 +65,10 @@ from .utils import (
     lambda: "f347fd1f-dac1-4870-9dd0-f6c00edf4bf7",
 )
 @override_settings(
-    NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
+    NOTIFICATIONS_SOURCE="oz-test",
+    ENABLE_CLOUD_EVENTS=True,
+    SITE_DOMAIN="testserver",
+    LOG_NOTIFICATIONS_IN_DB=False,
 )
 class ZaakConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
@@ -193,7 +196,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -212,7 +216,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -344,7 +349,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": zaaktype_url,
                             "zaaktype.catalogus": catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -363,7 +369,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": zaaktype_url,
                             "zaaktype.catalogus": catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -419,7 +426,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -438,7 +446,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -501,7 +510,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -520,7 +530,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -575,7 +586,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -594,7 +606,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,
@@ -647,7 +660,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
                 call(
                     {
@@ -666,7 +680,8 @@ class ZaakConvenienceCloudEventTest(
                             "zaaktype": self.zaaktype_url,
                             "zaaktype.catalogus": self.catalogus_url,
                         },
-                    }
+                    },
+                    None,
                 ),
             ],
             any_order=True,

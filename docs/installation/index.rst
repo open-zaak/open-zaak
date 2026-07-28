@@ -49,6 +49,7 @@ Guides
    docker_compose
    kubernetes
    provision_superuser
+   health_checks
    config/index
    self_signed
    post_install

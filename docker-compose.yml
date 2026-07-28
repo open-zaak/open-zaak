@@ -12,13 +12,23 @@ services:
     volumes:
       - ./docker/postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
       - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "11234:5432"
     networks:
       - open-zaak-dev
 
   redis:
-    image: redis
+    image: redis:8
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 1s
+      retries: 3
     networks:
       - open-zaak-dev
 
@@ -44,8 +54,10 @@ services:
       DJANGO_SUPERUSER_PASSWORD: admin
       OPENZAAK_SUPERUSER_EMAIL: admin@localhost
       DISABLE_2FA: true
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      # Celery
+      CELERY_WORKER_NAME: celery@docker
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
       CELERY_RESULT_EXPIRES: 3600
       CELERY_LOGLEVEL: DEBUG
       CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-4}
@@ -69,10 +81,10 @@ services:
       OTEL_EXPORTER_OTLP_METRICS_INSECURE: ${OTEL_EXPORTER_OTLP_METRICS_INSECURE:-true}
       _OTEL_ENABLE_CONTAINER_RESOURCE_DETECTOR: true
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])"]
+      test: ["CMD", "maykin-common", "health-check"]
       interval: 30s
       timeout: 5s
-      retries: 3
+      retries: 5
       # This should allow for enough time for migrations to run before the max
       # retries have passed. This healthcheck in turn allows other containers
       # to wait for the database migrations.
@@ -85,6 +97,8 @@ services:
       - ./import-data:/app/import-data
       - ./docker/fixtures/catalogi.json:/app/fixtures/catalogi.json
     depends_on:
+      db:
+        condition: service_healthy
       web-init:
         condition: service_completed_successfully
     labels:
@@ -114,8 +128,16 @@ services:
     environment: *app-env
     command: /celery_worker.sh
     healthcheck:
-      test: ["CMD", "python", "/app/bin/check_celery_worker_liveness.py"]
-      interval: 30s
+      test: [
+        "CMD",
+        "maykin-common",
+        "worker-health-check",
+        "--liveness-file=/app/tmp/celery_worker_event_loop.live",
+        "--max-age=70",
+        "--broker=redis://redis:6379/0",
+        "--worker-name=celery@docker",
+      ]
+      interval: 60s
       timeout: 5s
       retries: 3
       start_period: 10s
@@ -130,8 +152,21 @@ services:
     image: openzaak/open-zaak:${TAG:-latest}
     environment: *app-env
     command: /celery_beat.sh
+    healthcheck:
+      test: [
+        "CMD",
+        "maykin-common",
+        "beat-health-check",
+        "--file=/app/tmp/celery_beat.live",
+        "--max-age=120"
+      ]
+      interval: 60s
+      timeout: 5s
+      retries: 5
     depends_on:
       - celery
+      - db
+      - redis
     networks:
       - open-zaak-dev
 
@@ -144,6 +179,13 @@ services:
     depends_on:
       - redis
       - celery
+    healthcheck:
+      test: [
+        "CMD",
+        "maykin-common",
+        "health-check",
+        "--endpoint=http://localhost:5555/"
+      ]
     networks:
       - open-zaak-dev
 
@@ -156,6 +198,12 @@ services:
       - "9000:80"
     depends_on:
       - web.local
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:80/_healthz/livez/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       - open-zaak-dev
 
