@@ -3,7 +3,7 @@
 from unittest.mock import patch
 
 from django.test import override_settings, tag
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse as django_reverse, reverse_lazy
 from django.utils.translation import gettext as _, ngettext_lazy
 
 from django_webtest import WebTest
@@ -23,6 +23,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils.admin import AdminTestMixin
+from openzaak.utils.urls import reverse
 
 
 @disable_admin_mfa()
@@ -105,7 +106,9 @@ class IoTypePublishAdminTests(AdminTestMixin, WebTest):
             catalogus=self.catalogus, concept=True
         )
 
-        url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
+        url = django_reverse(
+            "admin:catalogi_informatieobjecttype_change", args=(iotype.pk,)
+        )
 
         response = self.app.get(url)
         response = response.forms["informatieobjecttype_form"].submit("_publish")
@@ -132,7 +135,9 @@ class IoTypePublishAdminTests(AdminTestMixin, WebTest):
             datum_begin_geldigheid="2020-10-30",
         )
 
-        url = reverse("admin:catalogi_informatieobjecttype_change", args=(iotype.pk,))
+        url = django_reverse(
+            "admin:catalogi_informatieobjecttype_change", args=(iotype.pk,)
+        )
 
         response = self.app.get(url)
         form = response.forms["informatieobjecttype_form"]
@@ -156,7 +161,7 @@ class IoTypePublishAdminTests(AdminTestMixin, WebTest):
 class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
     url = reverse_lazy("admin:catalogi_informatieobjecttype_add")
 
-    @override_settings(NOTIFICATIONS_DISABLED=False)
+    @override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
     @freeze_time("2022-01-01")
     @patch("notifications_api_common.viewsets.send_notification.delay")
     def test_create_notification_actie(self, mock_notif):
@@ -178,8 +183,8 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
 
         iotype = InformatieObjectType.objects.get()
         iotype_url = reverse(
-            "catalogi:informatieobjecttype-detail",
-            kwargs={"uuid": iotype.uuid, "version": 1},
+            iotype,
+            namespace="documenten",
         )
         catalogus_url = reverse(
             "catalogi:catalogus-detail", kwargs={"uuid": catalogus.uuid, "version": 1}
@@ -195,7 +200,8 @@ class CreateIotypeTests(NotificationsConfigMixin, AdminTestMixin, WebTest):
                 "kenmerken": {
                     "catalogus": f"http://testserver{catalogus_url}",
                 },
-            }
+            },
+            None,
         )
 
 
@@ -213,7 +219,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
             informatieobjecttype=non_concept_informatieobjecttype
         )
 
-        admin_url = reverse(
+        admin_url = django_reverse(
             "admin:catalogi_informatieobjecttype_delete",
             args=(non_concept_informatieobjecttype.id,),
         )
@@ -248,7 +254,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
             informatieobjecttype=non_concept_informatieobjecttype
         )
 
-        admin_url = reverse("admin:catalogi_informatieobjecttype_changelist")
+        admin_url = django_reverse("admin:catalogi_informatieobjecttype_changelist")
         form = self.app.get(admin_url).forms["changelist-form"]
         form["action"] = "delete_selected"
         form["_selected_action"] = [
@@ -283,7 +289,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
             concept=False
         )
 
-        admin_url = reverse(
+        admin_url = django_reverse(
             "admin:catalogi_informatieobjecttype_delete",
             args=(non_concept_informatieobjecttype.id,),
         )
@@ -311,7 +317,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
             concept=False
         )
 
-        admin_url = reverse("admin:catalogi_informatieobjecttype_changelist")
+        admin_url = django_reverse("admin:catalogi_informatieobjecttype_changelist")
         form = self.app.get(admin_url).forms["changelist-form"]
         form["action"] = "delete_selected"
         form["_selected_action"] = [
@@ -339,7 +345,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
     def test_delete_concept_informatieobjecttype_allowed_if_no_documenten_related(self):
         concept_informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
 
-        admin_url = reverse(
+        admin_url = django_reverse(
             "admin:catalogi_informatieobjecttype_delete",
             args=(concept_informatieobjecttype.id,),
         )
@@ -365,7 +371,7 @@ class InformatieObjectTypeDeleteAdminTests(AdminTestMixin, WebTest):
         concept_informatieobjecttype1 = InformatieObjectTypeFactory.create(concept=True)
         concept_informatieobjecttype2 = InformatieObjectTypeFactory.create(concept=True)
 
-        admin_url = reverse("admin:catalogi_informatieobjecttype_changelist")
+        admin_url = django_reverse("admin:catalogi_informatieobjecttype_changelist")
         form = self.app.get(admin_url).forms["changelist-form"]
         form["action"] = "delete_selected"
         form["_selected_action"] = [
