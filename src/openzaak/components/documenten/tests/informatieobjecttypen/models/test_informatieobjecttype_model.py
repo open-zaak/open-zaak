@@ -4,8 +4,11 @@ from datetime import date
 
 from django.test import TestCase
 
-from ...models import InformatieObjectType
-from ..factories import CatalogusFactory, InformatieObjectTypeFactory
+from openzaak.components.catalogi.models import InformatieObjectType
+from openzaak.components.catalogi.tests.factories import (
+    CatalogusFactory,
+    InformatieObjectTypeFactory,
+)
 
 
 class InformatieObjectTypeDatesTests(TestCase):
