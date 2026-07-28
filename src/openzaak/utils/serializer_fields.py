@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from vng_api_common.serializers import (
+    CachedHyperlinkedRelatedField,
     LengthHyperlinkedRelatedField as _LengthHyperlinkedRelatedField,
 )
 from vng_api_common.validators import URLValidator
@@ -151,7 +152,7 @@ class DeprecatedNamespaceMixin:
     request namespaces is used for all models in _MOVED_MODELS
     """
 
-    _MOVED_MODELS = ["besluit", "besluitinformatieobject"]
+    _MOVED_MODELS = ["besluit", "besluitinformatieobject", "informatieobjecttype"]
 
     def get_url(
         self, obj: Model, view_name: str, request: Request, format: str | None
@@ -173,9 +174,15 @@ class DeprecatedNamespaceHyperlinkIdentityField(
     pass
 
 
-class DeprecatedNamespaceLengthHyperlinkedRelatedField(
-    DeprecatedNamespaceMixin, _LengthHyperlinkedRelatedField
+class DeprecatedNamespaceHyperlinkedRelatedField(
+    DeprecatedNamespaceMixin, serializers.HyperlinkedRelatedField
 ):
+
+    # TODO what happens in DeprecatedNamespaceMixin when MOVED_MODEL is part of response from non depredcated api namespace?
+    # TODO will it be get the request namespace even though it should be zaken/besluiten for example.
+    # besluit & iot are only in old & new namespaces
+    # but check for other catalogi models.
+
     def fail(self, key, **kwargs):
         """
         Checks if incorrect_match happend with deprecated namespace which is allowed.
@@ -183,3 +190,15 @@ class DeprecatedNamespaceLengthHyperlinkedRelatedField(
         if key == "incorrect_match" and self.source in self._MOVED_MODELS:
             return
         super().fail(key, kwargs)
+
+
+class DeprecatedNamespaceLengthHyperlinkedRelatedField(
+    DeprecatedNamespaceHyperlinkedRelatedField, _LengthHyperlinkedRelatedField
+):
+    pass
+
+
+class DeprecatedNamespaceCachedHyperlinkedRelatedField(
+    DeprecatedNamespaceHyperlinkedRelatedField, CachedHyperlinkedRelatedField
+):
+    pass
