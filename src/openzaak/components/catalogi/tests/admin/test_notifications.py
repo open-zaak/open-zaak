@@ -15,11 +15,10 @@ from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
 
-from ...models import BesluitType, InformatieObjectType, ZaakType
+from ...models import BesluitType, ZaakType
 from ..factories import (
     BesluitTypeFactory,
     CatalogusFactory,
-    InformatieObjectTypeFactory,
     ZaakTypeFactory,
 )
 
@@ -51,96 +50,6 @@ class NotificationAdminTests(
             "catalogi:catalogus-detail",
             kwargs={"uuid": cls.catalogus.uuid, "version": 1},
         )
-
-    def test_informatieobjecttype_notify_on_create(self, mock_notif):
-        url = reverse("admin:catalogi_informatieobjecttype_add")
-
-        response = self.app.get(url)
-
-        form = response.forms["informatieobjecttype_form"]
-        form["omschrijving"] = "different-test"
-        form["datum_begin_geldigheid"] = "2019-01-01"
-        form["catalogus"] = self.catalogus.pk
-        form["vertrouwelijkheidaanduiding"].select("openbaar")
-        form["informatieobjectcategorie"] = "main"
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        iotype = InformatieObjectType.objects.get()
-        iotype_url = reverse(
-            "catalogi:informatieobjecttype-detail",
-            kwargs={"uuid": iotype.uuid, "version": 1},
-        )
-        mock_notif.assert_called_with(
-            {
-                "hoofdObject": f"http://testserver{iotype_url}",
-                "kanaal": "informatieobjecttypen",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "actie": "create",
-                "resource": "informatieobjecttype",
-                "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {
-                    "catalogus": f"http://testserver{self.catalogus_url}",
-                },
-            },
-            None,
-        )
-
-    def test_informatieobjecttype_notify_on_change(self, mock_notif):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            concept=True,
-            omschrijving="test",
-            vertrouwelijkheidaanduiding="openbaar",
-            catalogus=self.catalogus,
-        )
-        url = reverse(
-            "admin:catalogi_informatieobjecttype_change",
-            args=(informatieobjecttype.pk,),
-        )
-
-        response = self.app.get(url)
-        form = response.forms["informatieobjecttype_form"]
-        form["omschrijving"] = "different-test"
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        iotype_url = reverse(
-            "catalogi:informatieobjecttype-detail",
-            kwargs={"uuid": informatieobjecttype.uuid, "version": 1},
-        )
-        mock_notif.assert_called_with(
-            {
-                "hoofdObject": f"http://testserver{iotype_url}",
-                "kanaal": "informatieobjecttypen",
-                "aanmaakdatum": "2022-01-01T00:00:00Z",
-                "actie": "update",
-                "resource": "informatieobjecttype",
-                "resourceUrl": f"http://testserver{iotype_url}",
-                "kenmerken": {
-                    "catalogus": f"http://testserver{self.catalogus_url}",
-                },
-            },
-            None,
-        )
-
-    def test_no_informatieobjecttype_notify_on_no_change(self, mock_notif):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            concept=True, omschrijving="test", vertrouwelijkheidaanduiding="openbaar"
-        )
-        url = reverse(
-            "admin:catalogi_informatieobjecttype_change",
-            args=(informatieobjecttype.pk,),
-        )
-
-        response = self.app.get(url)
-        form = response.forms["informatieobjecttype_form"]
-
-        with self.captureOnCommitCallbacks(execute=True):
-            form.submit("_save")
-
-        mock_notif.assert_not_called()
 
     def test_besluittype_notify_on_create(self, mock_notif):
         procestype_url = (

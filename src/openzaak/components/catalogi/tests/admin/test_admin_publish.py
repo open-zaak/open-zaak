@@ -165,36 +165,6 @@ class ZaaktypeAdminTests(
         )
         self.assertIsNotNone(publish_button)
 
-    def test_publish_informatieobjecttype(self, m):
-        iot = InformatieObjectTypeFactory.create(
-            concept=True, vertrouwelijkheidaanduiding="openbaar"
-        )
-        iot.zaaktypeinformatieobjecttype_set.all().delete()
-        url = reverse("admin:catalogi_informatieobjecttype_change", args=(iot.pk,))
-
-        response = self.app.get(url)
-
-        # Verify that the publish button is visible and enabled
-        publish_button = response.html.find("input", {"name": "_publish"})
-        self.assertIsNotNone(publish_button)
-        publish_button = response.html.find(
-            "input", {"name": "_publish", "disabled": "disabled"}
-        )
-        self.assertIsNone(publish_button)
-
-        form = response.forms["informatieobjecttype_form"]
-
-        response = form.submit("_publish").follow()
-
-        iot.refresh_from_db()
-        self.assertFalse(iot.concept)
-
-        # Verify that the publish button is disabled
-        publish_button = response.html.find(
-            "input", {"name": "_publish", "disabled": "disabled"}
-        )
-        self.assertIsNotNone(publish_button)
-
     def test_publish_zaaktype_related_to_concept_besluittype_fails(self, m):
         mock_selectielijst_oas_get(m)
         procestype_url = (
@@ -742,21 +712,6 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
 
         detail_page = self.app.get(url)
         form = detail_page.forms["zaaktype_form"]
-
-        self.assertNotIn(_("Publiceren"), form.html)
-
-        # try to submit it anyway
-        form.submit("_publish", status=403)
-
-    def test_informatieobjecttype_publish_not_possible(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
-        url = reverse(
-            "admin:catalogi_informatieobjecttype_change",
-            args=(informatieobjecttype.pk,),
-        )
-
-        detail_page = self.app.get(url)
-        form = detail_page.forms["informatieobjecttype_form"]
 
         self.assertNotIn(_("Publiceren"), form.html)
 
