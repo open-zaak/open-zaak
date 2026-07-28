@@ -22,14 +22,16 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_informatieobjecttype_get_cache_header(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        response = self.client.get(reverse(informatieobjecttype))
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace="documenten")
+        )
 
         self.assertHasETag(response)
 
     def test_informatieobjecttype_head_cache_header(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(informatieobjecttype))
+        self.assertHeadHasETag(reverse(informatieobjecttype, namespace="documenten"))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -41,7 +43,7 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace="documenten"),
             headers={"if-none-match": f'"{informatieobjecttype._etag}"'},
         )
 
@@ -51,7 +53,8 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(informatieobjecttype, namespace="documenten"),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -85,7 +88,8 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
         informatieobjecttype.save()
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(informatieobjecttype, namespace="documenten"),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -100,6 +104,7 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
         etag = informatieobjecttype._etag
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(informatieobjecttype, namespace="documenten"),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
