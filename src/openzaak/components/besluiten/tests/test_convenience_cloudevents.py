@@ -57,7 +57,7 @@ class BesluitConvenienceCloudEventTest(
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)
@@ -139,7 +139,7 @@ class BesluitConvenienceCloudEventTest(
         informatieobjecttype = InformatieObjectTypeFactory.create(
             concept=False, catalogus=besluittype.catalogus
         )
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
 
         besluittype.informatieobjecttypen.add(informatieobjecttype)
         besluittype.zaaktypen.add(zaak.zaaktype)

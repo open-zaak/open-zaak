@@ -7,6 +7,8 @@ from rest_framework import serializers
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import add_choice_values_help_text
 
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
+
 from ...models import InformatieObjectType
 from ..validators import (
     ConceptUpdateValidator,
@@ -50,7 +52,7 @@ class OmschrijvingGeneriekSerializer(serializers.ModelSerializer):
         }
 
 
-class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
+class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     omschrijving_generiek = OmschrijvingGeneriekSerializer(
         source="*",
         required=False,
@@ -70,7 +72,7 @@ class InformatieObjectTypeSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             "url": {
                 "lookup_field": "uuid",
-                "view_name": "catalogi:informatieobjecttype-detail",
+                "view_name": "documenten:informatieobjecttype-detail",
             },
             "catalogus": {
                 "lookup_field": "uuid",

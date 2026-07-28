@@ -5,6 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from vng_api_common.serializers import CachedHyperlinkedRelatedField
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
+
 from ...models import Catalogus
 
 
@@ -31,11 +35,11 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    informatieobjecttypen = CachedHyperlinkedRelatedField(
+    informatieobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="informatieobjecttype_set",
-        view_name="catalogi:informatieobjecttype-detail",
+        view_name="documenten:informatieobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar INFORMATIEOBJECTTYPEn die in deze CATALOGUS worden ontsloten."
