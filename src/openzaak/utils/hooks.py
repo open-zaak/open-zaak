@@ -33,7 +33,10 @@ def get_lib_doc_excludes():
     ]
 
 
-DEPRECATED_URLCONFS = ["openzaak.components.besluiten.api.urls"]
+DEPRECATED_URLCONFS = [
+    "openzaak.components.besluiten.api.urls",
+    "openzaak.components.catalogi.api.urls",
+]
 
 
 def postprocess_deprecate_apis(result, generator, request, public):
@@ -59,7 +62,11 @@ def postprocess_mark_moved_apis_as_experimental(result, generator, request, publ
             "/besluiten/{uuid}",
             "/besluitinformatieobjecten",
             "/besluitinformatieobjecten/{uuid}",
-        ]
+        ],
+        "openzaak.components.documenten.api.urls": [
+            "/informatieobjecttypen",
+            "/informatieobjecttypen/{uuid}",
+        ],
     }
 
     if generator.urlconf in list(urlconfs.keys()):

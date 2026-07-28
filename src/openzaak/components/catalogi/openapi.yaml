@@ -315,6 +315,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: besluittype_create
       description: Maak een BESLUITTYPE aan.
@@ -465,6 +466,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /besluittypen/{uuid}:
     get:
       operationId: besluittype_read
@@ -626,6 +628,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: besluittype_update
       description: Werk een BESLUITTYPE in zijn geheel bij. Dit kan alleen als het
@@ -791,6 +794,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: besluittype_partial_update
       description: Werk een BESLUITTYPE deels bij. Dit kan alleen als het een concept
@@ -955,6 +959,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: besluittype_delete
       description: Verwijder een BESLUITTYPE. Dit kan alleen als het een concept betreft.
@@ -1089,6 +1094,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: besluittype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -1137,6 +1143,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /besluittypen/{uuid}/publish:
     post:
       operationId: besluittype_publish
@@ -1287,6 +1294,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /catalogussen:
     get:
       operationId: catalogus_list
@@ -1462,6 +1470,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: catalogus_create
       description: Maak een CATALOGUS aan.
@@ -1612,6 +1621,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /catalogussen/{uuid}:
     get:
       operationId: catalogus_read
@@ -1773,6 +1783,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: catalogus_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -1821,6 +1832,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /eigenschappen:
     get:
       operationId: eigenschap_list
@@ -2000,6 +2012,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: eigenschap_create
       description: Maak een EIGENSCHAP aan. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -2151,6 +2164,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /eigenschappen/{uuid}:
     get:
       operationId: eigenschap_read
@@ -2312,6 +2326,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: eigenschap_update
       description: Werk een EIGENSCHAP in zijn geheel bij. Dit kan alleen als het
@@ -2477,6 +2492,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: eigenschap_partial_update
       description: Werk een EIGENSCHAP deels bij. Dit kan alleen als het bijbehorende
@@ -2641,6 +2657,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: eigenschap_delete
       description: Verwijder een EIGENSCHAP. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -2776,6 +2793,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: eigenschap_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -2824,6 +2842,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /informatieobjecttypen:
     get:
       operationId: informatieobjecttype_list
@@ -3017,6 +3036,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: informatieobjecttype_create
       description: Maak een INFORMATIEOBJECTTYPE aan.
@@ -3167,6 +3187,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /informatieobjecttypen/{uuid}:
     get:
       operationId: informatieobjecttype_read
@@ -3328,6 +3349,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: informatieobjecttype_update
       description: Werk een INFORMATIEOBJECTTYPE in zijn geheel bij. Dit kan alleen
@@ -3493,6 +3515,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: informatieobjecttype_partial_update
       description: Werk een INFORMATIEOBJECTTYPE deels bij. Dit kan alleen als het
@@ -3657,6 +3680,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: informatieobjecttype_delete
       description: Verwijder een INFORMATIEOBJECTTYPE. Dit kan alleen als het een
@@ -3792,6 +3816,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: informatieobjecttype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -3840,6 +3865,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /informatieobjecttypen/{uuid}/publish:
     post:
       operationId: informatieobjecttype_publish
@@ -3990,6 +4016,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /resultaattypen:
     get:
       operationId: resultaattype_list
@@ -4169,6 +4196,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: resultaattype_create
       description: Maak een RESULTAATTYPE aan. Dit kan alleen als het bijbehorende
@@ -4320,6 +4348,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /resultaattypen/{uuid}:
     get:
       operationId: resultaattype_read
@@ -4481,6 +4510,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: resultaattype_update
       description: Werk een RESULTAATTYPE in zijn geheel bij. Dit kan alleen als het
@@ -4646,6 +4676,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: resultaattype_partial_update
       description: Werk een RESULTAATTYPE deels bij. Dit kan alleen als het bijbehorende
@@ -4810,6 +4841,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: resultaattype_delete
       description: Verwijder een RESULTAATTYPE. Dit kan alleen als het bijbehorende
@@ -4945,6 +4977,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: resultaattype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -4993,6 +5026,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /roltypen:
     get:
       operationId: roltype_list
@@ -5193,6 +5227,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: roltype_create
       description: Maak een ROLTYPE aan. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -5344,6 +5379,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /roltypen/{uuid}:
     get:
       operationId: roltype_read
@@ -5504,6 +5540,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: roltype_update
       description: Werk een ROLTYPE in zijn geheel bij. Dit kan alleen als het bijbehorende
@@ -5668,6 +5705,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: roltype_partial_update
       description: Werk een ROLTYPE deels bij. Dit kan alleen als het bijbehorende
@@ -5831,6 +5869,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: roltype_delete
       description: Verwijder een ROLTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -5965,6 +6004,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: roltype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -6012,6 +6052,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /statustypen:
     get:
       operationId: statustype_list
@@ -6191,6 +6232,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: statustype_create
       description: Maak een STATUSTYPE aan. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -6342,6 +6384,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /statustypen/{uuid}:
     get:
       operationId: statustype_read
@@ -6503,6 +6546,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: statustype_update
       description: Werk een STATUSTYPE in zijn geheel bij. Dit kan alleen als het
@@ -6668,6 +6712,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: statustype_partial_update
       description: Werk een STATUSTYPE deels bij. Dit kan alleen als het bijbehorende
@@ -6832,6 +6877,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: statustype_delete
       description: Verwijder een STATUSTYPE. Dit kan alleen als het bijbehorende ZAAKTYPE
@@ -6967,6 +7013,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: statustype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -7015,6 +7062,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /zaakobjecttypen:
     get:
       operationId: zaakobjecttype_list
@@ -7229,6 +7277,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: zaakobjecttype_create
       description: Maak een ZAAKOBJECTTYPE aan.
@@ -7379,6 +7428,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /zaakobjecttypen/{uuid}:
     get:
       operationId: zaakobjecttype_read
@@ -7540,6 +7590,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: zaakobjecttype_update
       description: Werk een ZAAKOBJECTTYPE in zijn geheel bij.
@@ -7704,6 +7755,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: zaakobjecttype_partial_update
       description: Werk een ZAAKOBJECTTYPE deels bij.
@@ -7867,6 +7919,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: zaakobjecttype_delete
       description: Verwijder een ZAAKOBJECTTYPE.
@@ -8001,6 +8054,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: zaakobjecttype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -8049,6 +8103,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /zaaktype-informatieobjecttypen:
     get:
       operationId: zaaktypeinformatieobjecttype_list
@@ -8226,6 +8281,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: zaaktypeinformatieobjecttype_create
       description: |-
@@ -8380,6 +8436,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /zaaktype-informatieobjecttypen/{uuid}:
     get:
       operationId: zaaktypeinformatieobjecttype_read
@@ -8541,6 +8598,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: zaaktypeinformatieobjecttype_update
       description: |-
@@ -8709,6 +8767,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: zaaktypeinformatieobjecttype_partial_update
       description: |-
@@ -8876,6 +8935,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: zaaktypeinformatieobjecttype_delete
       description: |-
@@ -9014,6 +9074,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: zaaktypeinformatieobjecttype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -9062,6 +9123,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /zaaktypen:
     get:
       operationId: zaaktype_list
@@ -9265,6 +9327,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     post:
       operationId: zaaktype_create
       description: |-
@@ -9421,6 +9484,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
   /zaaktypen/{uuid}:
     get:
       operationId: zaaktype_read
@@ -9582,6 +9646,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     put:
       operationId: zaaktype_update
       description: |-
@@ -9750,6 +9815,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     patch:
       operationId: zaaktype_partial_update
       description: |-
@@ -9917,6 +9983,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     delete:
       operationId: zaaktype_delete
       description: Verwijder een ZAAKTYPE. Dit kan alleen als het een concept betreft.
@@ -10051,6 +10118,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
     head:
       operationId: zaaktype_head
       description: Vraag de headers op die je bij een GET request zou krijgen.
@@ -10099,6 +10167,7 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+      deprecated: true
   /zaaktypen/{uuid}/publish:
     post:
       operationId: zaaktype_publish
@@ -10250,6 +10319,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Fout'
           description: Internal server error
+      deprecated: true
 components:
   schemas:
     AardRelatieEnum:
