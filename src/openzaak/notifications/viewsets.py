@@ -80,7 +80,11 @@ class MultipleObjectsNotificationMixin(NotificationMixin):
         instance: models.Model | None = None,
         **kwargs,
     ) -> None:
-        # TODO add comment why this is needed
+        """
+        ZaakBijwerkenViewset overrides notify to add more parameters, but notify call
+        is done in ZaakUpdateActionViewSet which is used by other convenience viewsets.
+        For the other ones the kwargs can be ignored but this override allows them.
+        """
         super().notify(status_code, data, instance)
 
     def _message(self, data, instance=None):
@@ -228,15 +232,6 @@ class MultipleChannelNotificationMixin(NotificationMixin):
             _schedule(message)
 
 
-class MultipleChannelNotificationViewSetMixin(
-    MultipleChannelNotificationMixin,
-    NotificationCreateMixin,
-    NotificationUpdateMixin,
-    NotificationDestroyMixin,
-):
-    pass
-
-
 class MultipleChannelNotificationCreateMixin(
     MultipleChannelNotificationMixin,
     NotificationCreateMixin,
@@ -244,9 +239,24 @@ class MultipleChannelNotificationCreateMixin(
     pass
 
 
+class MultipleChannelNotificationUpdateMixin(
+    MultipleChannelNotificationMixin,
+    NotificationUpdateMixin,
+):
+    pass
+
+
 class MultipleChannelNotificationDestroyMixin(
     MultipleChannelNotificationMixin,
     NotificationDestroyMixin,
+):
+    pass
+
+
+class MultipleChannelNotificationViewSetMixin(
+    MultipleChannelNotificationCreateMixin,
+    MultipleChannelNotificationUpdateMixin,
+    MultipleChannelNotificationDestroyMixin,
 ):
     pass
 
