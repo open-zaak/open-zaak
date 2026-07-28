@@ -65,7 +65,7 @@ class JWTAuthMixin:
         if cls.heeft_alle_autorisaties is False:
             zaaktype_url = cls.check_for_instance(cls.zaaktype)
             besluittype_url = cls.check_for_instance(cls.besluittype)
-            informatieobjecttype_url = cls.check_for_instance(cls.informatieobjecttype)
+            informatieobjecttype_url = cls.check_for_instance(cls.informatieobjecttype) # TODO still using url which is not compatible
 
             cls.autorisatie = Autorisatie.objects.create(
                 applicatie=cls.applicatie,

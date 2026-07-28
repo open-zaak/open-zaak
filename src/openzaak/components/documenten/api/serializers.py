@@ -312,7 +312,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
     )
-    informatieobjecttype = FKOrServiceUrlField(
+    informatieobjecttype = FKOrServiceUrlField(  # TODO deprecated namespace
         lookup_field="uuid",
         max_length=200,
         min_length=1,
@@ -396,7 +396,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
                     ),
                     PublishValidator(),
                 ],
-                "view_name": "catalogi:informatieobjecttype-detail",
+                "view_name": "documenten:informatieobjecttype-detail",
             },
             # todo mark 'deprecated' in OAS after moving to drf-spectacular
             "verzenddatum": {

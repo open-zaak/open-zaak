@@ -9,10 +9,13 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.validators import UniqueTogetherValidator
 
 from ...constants import RichtingChoices
-from ...models import ZaakTypeInformatieObjectType
+from ...models import InformatieObjectType, ZaakTypeInformatieObjectType
 from ..validators import ZaakTypeInformatieObjectTypeCatalogusValidator, is_force_write
 
 
@@ -38,6 +41,15 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "Unieke identificatie van het ZAAKTYPE binnen de CATALOGUS waarin het ZAAKTYPE voorkomt."
         ),
     )
+    informatieobjecttype = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text=get_help_text(
+            "catalogi.ZaakTypeInformatieObjectType", "informatieobjecttype"
+        ),
+        label="Informatie object type",  # TODO is this needed bio.besluit did not have this?
+        lookup_field="uuid",
+        queryset=InformatieObjectType.objects.all(),
+        view_name="documenten:informatieobjecttype-detail",
+    )
 
     class Meta:
         model = ZaakTypeInformatieObjectType
@@ -59,10 +71,6 @@ class ZaakTypeInformatieObjectTypeSerializer(serializers.HyperlinkedModelSeriali
             "zaaktype": {
                 "lookup_field": "uuid",
                 "view_name": "catalogi:zaaktype-detail",
-            },
-            "informatieobjecttype": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:informatieobjecttype-detail",
             },
             "statustype": {
                 "lookup_field": "uuid",

@@ -17,6 +17,9 @@ from vng_api_common.serializers import (
     add_choice_values_help_text,
 )
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceCachedHyperlinkedRelatedField,
+)
 from openzaak.utils.validators import ResourceValidator
 
 from ...constants import AardRelatieChoices, RichtingChoices
@@ -100,10 +103,10 @@ class ZaakTypeSerializer(
     )
 
     # relations
-    informatieobjecttypen = CachedHyperlinkedRelatedField(
+    informatieobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name="catalogi:informatieobjecttype-detail",
+        view_name="documenten:informatieobjecttype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar de INFORMATIEOBJECTTYPEN die mogelijk zijn binnen dit ZAAKTYPE."

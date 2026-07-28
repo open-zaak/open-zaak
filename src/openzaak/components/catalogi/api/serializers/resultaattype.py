@@ -17,9 +17,12 @@ from vng_api_common.serializers import (
 )
 from vng_api_common.utils import get_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.validators import ResourceValidator, UniqueTogetherValidator
 
-from ...models import ResultaatType
+from ...models import InformatieObjectType, ResultaatType
 from ...validators import ProcestermijnAfleidingswijzeValidator
 from ..validators import (
     BrondatumArchiefprocedureValidator,
@@ -84,6 +87,14 @@ class ResultaatTypeSerializer(
         read_only=True,
         slug_field="omschrijving",
         help_text=_("Omschrijving van de aard van BESLUITen van het BESLUITTYPE."),
+    )
+    informatieobjecttypen = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text=get_help_text("catalogi.ResultaatType", "informatieobjecttypen"),
+        lookup_field="uuid",
+        many=True,
+        queryset=InformatieObjectType.objects.all(),
+        required=False,
+        view_name="documenten:informatieobjecttype-detail",
     )
     informatieobjecttype_omschrijving = serializers.SlugRelatedField(
         many=True,
@@ -165,11 +176,6 @@ class ResultaatTypeSerializer(
                 "lookup_field": "uuid",
                 "required": False,
                 "view_name": "catalogi:besluittype-detail",
-            },
-            "informatieobjecttypen": {
-                "lookup_field": "uuid",
-                "required": False,
-                "view_name": "catalogi:informatieobjecttype-detail",
             },
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
