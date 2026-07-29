@@ -49,7 +49,7 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
     def prefix(self):
         return ""
 
-    def build_queryset(self, local_filters, external_filters) -> models.QuerySet:
+    def build_queryset(self, filters) -> models.QuerySet:
         order_case = VertrouwelijkheidsAanduiding.get_order_expression(
             "vertrouwelijkheidaanduiding"
         )
@@ -64,15 +64,13 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
 
             filtered = (
                 model.objects.annotate(**annotations)
-                .filter(local_filters | external_filters)
+                .filter(filters)
                 .values("canonical")
             )
             queryset = self.filter(informatieobject__in=filtered)
             # bring it all together now to build the resulting queryset
         else:
-            queryset = self.annotate(**annotations).filter(
-                local_filters | external_filters
-            )
+            queryset = self.annotate(**annotations).filter(filters)
 
         return queryset
 

@@ -60,6 +60,7 @@ def is_local_url(autorisatie):
     return True
 
 
+# TODO ADMIN REFACTOR
 def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
