@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
@@ -21,6 +21,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import (
     RolTypeFactory,
@@ -88,9 +89,7 @@ class ZaakBijwerkenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=scopes,
-            zaaktype=self.zaaktype_url if zaaktype is None else zaaktype,
-            informatieobjecttype="",
-            besluittype="",
+            zaaktype=self.zaaktype if zaaktype is None else zaaktype,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 

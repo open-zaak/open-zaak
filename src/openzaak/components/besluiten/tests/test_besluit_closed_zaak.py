@@ -8,12 +8,12 @@ from django.utils.translation import gettext as _
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import (
     ComponentTypes,
     VertrouwelijkheidsAanduiding,
 )
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
 from openzaak.components.besluiten.constants import VervalRedenen
@@ -49,8 +49,8 @@ class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
             scopes=[SCOPE_BESLUITEN_AANMAKEN],
-            zaaktype=zaaktype if zaaktype else "",
-            besluittype=self.besluittype_url if besluittype is None else besluittype,
+            zaaktype=zaaktype,
+            besluittype=self.besluittype if besluittype is None else besluittype,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -62,7 +62,7 @@ class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=scopes,
-            zaaktype=zaaktype if zaaktype else "",
+            zaaktype=zaaktype,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -121,13 +121,13 @@ class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
         self.assertTrue(zaak.is_closed)
 
         self._add_besluiten_auth(
-            besluittype=self.besluittype_url,
-            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+            besluittype=self.besluittype,
+            zaaktype=zaak.zaaktype,
         )
 
         self._add_zaken_auth(
             scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN],
-            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+            zaaktype=zaak.zaaktype,
         )
 
         content = self.content.copy()
@@ -148,8 +148,8 @@ class BesluitClosedZaakTests(JWTAuthMixin, APITestCase):
         self.assertTrue(zaak.is_closed)
 
         self._add_besluiten_auth(
-            besluittype=self.besluittype_url,
-            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+            besluittype=self.besluittype,
+            zaaktype=zaak.zaaktype,
         )
 
         self._add_catalogi_auth(

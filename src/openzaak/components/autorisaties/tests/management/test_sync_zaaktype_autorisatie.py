@@ -13,6 +13,7 @@ from openzaak.components.catalogi.tests.factories import ZaakTypeFactory
 from openzaak.utils import build_absolute_url
 
 
+# TODO see sync
 @override_settings(SITE_DOMAIN="testserver", ALLOWED_HOSTS=["testserver"])
 class ZaaktypeSyncAutorisatieTests(TestCase):
     def test_management_sync_autorisatie_delete_all(self):
