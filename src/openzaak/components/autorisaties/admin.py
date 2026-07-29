@@ -12,10 +12,11 @@ from django.utils.translation import gettext_lazy as _
 from vng_api_common.authorizations.models import (
     Applicatie,
     AuthorizationsConfig,
-    Autorisatie,
 )
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
+
+from openzaak.components.autorisaties.models import Autorisatie
 
 from .admin_filters import InvalidApplicationsFilter
 from .admin_views import AutorisatiesView

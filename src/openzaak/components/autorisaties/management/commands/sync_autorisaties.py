@@ -31,6 +31,7 @@ def get_out_of_sync_autorisaties(field: str) -> List[Autorisatie]:
     return to_delete
 
 
+# TODO change on delete to cascade?
 class Command(BaseCommand):
     help = _(
         "Remove any existing authorisations related to zaaktypen that have been removed"

@@ -162,6 +162,7 @@ def get_scope_choices() -> List[Tuple[str, str]]:
     return list(zip(labels, labels))
 
 
+# TODO ADMIN REFACTOR
 class AutorisatieForm(forms.Form):
     component = forms.ChoiceField(
         label=_("component"),

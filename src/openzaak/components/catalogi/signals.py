@@ -7,9 +7,9 @@ from django.db.models.signals import ModelSignal, post_delete
 from django.dispatch import receiver
 
 import structlog
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie
 
-from openzaak.utils import build_absolute_url
+from openzaak.components.autorisaties.models import Autorisatie
 
 from .models import BesluitType, InformatieObjectType, ZaakType
 
@@ -22,6 +22,7 @@ FIELD_MAP = {
 }
 
 
+# TODO not needed anymore with on_delete_cascade
 @receiver(
     post_delete, sender=ZaakType, dispatch_uid="catalogi.sync_autorisaties_zaaktype"
 )
@@ -47,10 +48,7 @@ def sync_autorisaties(
         sender=sender,
     )
 
-    instance_path = instance.get_absolute_api_url()
-    instance_url = build_absolute_url(instance_path)
-
-    filter_kwargs = {FIELD_MAP[type(instance)]: instance_url}
+    filter_kwargs = {FIELD_MAP[type(instance)]: instance}
 
     autorisaties = Autorisatie.objects.filter(**filter_kwargs)
     app_ids = list(autorisaties.values_list("applicatie_id", flat=True))
