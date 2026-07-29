@@ -5,8 +5,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import Applicatie
-from vng_api_common.constants import ComponentTypes
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
+from vng_api_common.models import APIMixin
 
 CATALOGUS_AUTORISATIE_COMPONENTS = [
     ComponentTypes.zrc,
@@ -92,3 +93,96 @@ class CatalogusAutorisatie(models.Model):
 
         for applicatie in changed:
             send_applicatie_changed_notification(applicatie)
+
+
+class AutorisatieManager(models.Manager):
+    def get_by_natural_key(self, applicatie, component, scopes):
+        return self.get(applicatie=applicatie, component=component, scopes=scopes)
+
+
+# TODO
+# remove types from Autorisatie in cg-a-c
+# subclass here with fks added?
+class Autorisatie(APIMixin, models.Model):
+    applicatie = models.ForeignKey(
+        Applicatie,
+        on_delete=models.CASCADE,
+        related_name="oz_autorisaties",  # TODO autorisaties taken by original Autorisatie
+        verbose_name=_("applicatie"),
+    )
+    component = models.CharField(
+        _("component"),
+        max_length=50,
+        choices=ComponentTypes.choices,
+        help_text=_("Component waarop autorisatie van toepassing is."),
+    )
+    scopes = ArrayField(
+        models.CharField(max_length=100),
+        verbose_name=_("scopes"),
+        help_text=_("Komma-gescheiden lijst van scope labels."),
+    )
+
+    # ZRC exclusive
+    zaaktype = models.ForeignKey(
+        "catalogi.ZaakType",
+        models.SET_NULL,
+        related_name="autorisaties",
+        help_text=_("het zaaktype waarop de autorisatie van toepassing is."),
+        blank=True,
+        null=True,
+    )
+
+    # DRC exclusive
+    informatieobjecttype = models.ForeignKey(
+        "catalogi.InformatieObjectType",
+        models.SET_NULL,
+        related_name="autorisaties",
+        help_text=_(
+            "het informatieobjecttype waarop de autorisatie van toepassing is."
+        ),
+        blank=True,
+        null=True,
+    )
+
+    # BRC exclusive
+    besluittype = models.ForeignKey(
+        "catalogi.BesluitType",
+        models.SET_NULL,
+        related_name="autorisaties",
+        help_text=_("het besluittype waarop de autorisatie van toepassing is."),
+        blank=True,
+        null=True,
+    )
+
+    # ZRC & DRC exclusive
+    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduidingField(
+        help_text=_("Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief)."),
+        blank=True,
+    )
+
+    objects = AutorisatieManager()
+
+    class Meta:
+        ordering = ["pk"]
+        verbose_name = _("autorisatie")
+        verbose_name_plural = _("autorisaties")
+
+    def natural_key(self):
+        return (
+            self.applicatie,
+            self.component,
+            self.scopes,
+        )
+
+    def satisfy_vertrouwelijkheid(self, vertrouwelijkheidaanduiding: str) -> bool:
+        max_confid_level = VertrouwelijkheidsAanduiding.get_choice_order(
+            self.max_vertrouwelijkheidaanduiding
+        )
+        provided_confid_level = VertrouwelijkheidsAanduiding.get_choice_order(
+            vertrouwelijkheidaanduiding
+        )
+
+        if max_confid_level is None or provided_confid_level is None:
+            raise ValueError("Invalid vertrouwelijkheidaanduiding value")
+
+        return max_confid_level >= provided_confid_level

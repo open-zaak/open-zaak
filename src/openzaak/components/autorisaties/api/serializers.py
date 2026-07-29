@@ -3,7 +3,7 @@
 from django.db import transaction
 
 import structlog
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.authorizations.serializers import (
     ApplicatieSerializer as _ApplicatieSerializer,
     AutorisatieBaseSerializer,
@@ -11,6 +11,7 @@ from vng_api_common.authorizations.serializers import (
 from vng_api_common.constants import ComponentTypes
 from vng_api_common.models import JWTSecret
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.utils import build_absolute_url
 from openzaak.utils.urls import reverse
 
