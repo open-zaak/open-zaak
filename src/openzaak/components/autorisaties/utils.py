@@ -3,17 +3,17 @@
 from typing import Any, Dict, Optional, Union
 
 from django.conf import settings
-from django.db.models.base import ModelBase
 from django.http import HttpRequest
 from django.urls import reverse
 
 import dictdiffer
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import ComponentTypes
 
 from openzaak.components.autorisaties.api.serializers import ApplicatieSerializer
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.catalogi.models import (
     BesluitType,
     InformatieObjectType,
@@ -26,28 +26,15 @@ from .api.viewsets import ApplicatieViewSet
 RelatedTypeObject = Union[ZaakType, InformatieObjectType, BesluitType]
 
 
-def _get_related_object(model: ModelBase, url: str) -> Optional[RelatedTypeObject]:
-    if url == "":
-        return None
-    uuid = url.rsplit("/")[-1]
-    try:
-        obj = model.objects.get(uuid=uuid)
-        return obj
-    except model.DoesNotExist:
-        return None
-
-
 def get_related_object(autorisatie: Autorisatie) -> Optional[RelatedTypeObject]:
     if autorisatie.component == ComponentTypes.zrc:
-        return _get_related_object(ZaakType, autorisatie.zaaktype)
+        return autorisatie.zaaktype
 
     if autorisatie.component == ComponentTypes.drc:
-        return _get_related_object(
-            InformatieObjectType, autorisatie.informatieobjecttype
-        )
+        return autorisatie.informatieobjecttype
 
     if autorisatie.component == ComponentTypes.brc:
-        return _get_related_object(BesluitType, autorisatie.besluittype)
+        return autorisatie.besluittype
 
     return None
 

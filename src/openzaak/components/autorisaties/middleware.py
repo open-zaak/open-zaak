@@ -11,9 +11,8 @@ from vng_api_common.authorizations.middleware import (
     AuthMiddleware as _AuthMiddleware,
     JWTAuth as _JWTAuth,
 )
-from vng_api_common.authorizations.models import Autorisatie
 
-from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.autorisaties.models import Autorisatie, CatalogusAutorisatie
 from openzaak.utils.constants import COMPONENT_MAPPING
 
 loader = get_loader_class()()
@@ -107,9 +106,13 @@ class JWTAuth(_JWTAuth):
                         catalogus_autorisaties, field_value
                     )
             else:
-                autorisaties = self.filter_default(
-                    autorisaties, field_name, field_value
+                # TODO refactor
+                resolved = (
+                    get_resource_for_path(urlparse(field_value).path)
+                    if field_value is not None
+                    else None
                 )
+                autorisaties = self.filter_default(autorisaties, field_name, resolved)
                 if (
                     has_catalogus_autorisaties
                     and field_value
