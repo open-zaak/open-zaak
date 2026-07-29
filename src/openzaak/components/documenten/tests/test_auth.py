@@ -9,10 +9,10 @@ from django.test import override_settings, tag
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, get_validation_errors, reverse_lazy
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
@@ -926,16 +926,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         )
 
     def test_eio_list_internal_and_external_with_filtering(self):
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            component=self.component,
-            scopes=self.scopes or [],
-            zaaktype="",
-            informatieobjecttype=IOTYPE_EXTERNAL,
-            besluittype="",
-            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
         EnkelvoudigInformatieObjectFactory.create(
             informatieobjecttype=self.informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
@@ -972,33 +962,31 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
             f"http://testserver{reverse(self.informatieobjecttype)}",
         )
+
+    def test_eio_retreive(self):
+        eio1 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=self.informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        eio2 = EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=IOTYPE_EXTERNAL,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        url1 = reverse(eio1)
+        url2 = reverse(eio2)
+
+        response1 = self.client.get(url1)
+        response2 = self.client.get(url2)
+
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            results[1]["informatieobjecttype"],
-            IOTYPE_EXTERNAL,
-        )
-
-    def test_eio_retreive(self):
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        url1 = reverse(eio1)
-        url2 = reverse(eio2)
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
     def test_oio_list(self):
         url = reverse("documenten:objectinformatieobject-list")
@@ -1066,127 +1054,9 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
-
-
-@temp_private_root()
-@tag("external-urls")
-@override_settings(
-    ALLOWED_HOSTS=["testserver"], DEBUG=True, OPENZAAK_DOMAIN="testserver"
-)
-class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
-    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
-    informatieobjecttype = IOTYPE_EXTERNAL
-    component = ComponentTypes.drc
-
-    def test_eio_list(self):
-        EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file1.bin",
-        )
-        EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file2.bin",
-        )
-        url = reverse("documenten:enkelvoudiginformatieobject-list")
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
-
-        results = response.data["results"]
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["informatieobjecttype"], IOTYPE_EXTERNAL)
-
-    def test_eio_retreive(self):
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file3.bin",
-        )
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file4.bin",
-        )
-        url1 = reverse(eio1)
-        url2 = reverse(eio2)
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK, response1.content)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_oio_list(self):
-        url = reverse("documenten:objectinformatieobject-list")
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response_data = response.json()
-
-        self.assertEqual(len(response_data), 1)
-        self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
-
-    def test_oio_retrieve(self):
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-        url1 = reverse(oio1)
-        url2 = reverse(oio2)
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
 
 @override_settings(OPENZAAK_DOMAIN="testserver")

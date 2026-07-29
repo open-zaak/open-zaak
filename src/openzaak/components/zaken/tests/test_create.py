@@ -561,7 +561,7 @@ class PerformanceTests(
         # (most notable figuring out the PG/postgres version)
         ZaakFactory.create()
 
-        EXPECTED_NUM_QUERIES = 48
+        EXPECTED_NUM_QUERIES = 48  # TODO update
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")
@@ -599,7 +599,7 @@ class PerformanceTests(
 
         # Two additional queries when there are any number of related zaken specified
         # and 9 per specified related zaak
-        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)
+        EXPECTED_NUM_QUERIES = 48 + 2 + (9 * num_gerelateerde_zaken)  # TODO update
 
         zaaktype_url = reverse(self.zaaktype)
         url = get_operation_url("zaak_create")

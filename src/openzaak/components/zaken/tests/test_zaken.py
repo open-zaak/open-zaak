@@ -466,7 +466,7 @@ class ZakenTests(JWTAuthMixin, APITestCase):
         hoofdzaak = ZaakFactory.create(zaaktype=self.zaaktype)
         autorisatie = copy(self.autorisatie)
         autorisatie.pk = None
-        autorisatie.zaaktype = zaaktype2_url
+        autorisatie.zaaktype = zaaktype2
         autorisatie.save()
         detail_url = reverse(hoofdzaak)
 

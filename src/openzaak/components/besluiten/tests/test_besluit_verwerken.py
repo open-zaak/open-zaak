@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
+from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
@@ -18,6 +18,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.besluiten.api.scopes import SCOPE_BESLUITEN_AANMAKEN
 from openzaak.components.besluiten.constants import VervalRedenen
@@ -69,7 +70,9 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
 
         cls.besluittype_url = cls.check_for_instance(cls.besluittype)
 
-    def _add_besluiten_auth(self, besluittype=None, zaaktype=None, scopes=None):
+    def _add_besluiten_auth(
+        self, besluittype=None, zaaktype=None, scopes=None, use_default=True
+    ):
         if scopes is None:
             scopes = []
 
@@ -77,9 +80,12 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.brc,
             scopes=[SCOPE_BESLUITEN_AANMAKEN],
-            zaaktype=zaaktype if zaaktype else "",
-            informatieobjecttype="",
-            besluittype=self.besluittype_url if besluittype is None else besluittype,
+            zaaktype=zaaktype,
+            besluittype=besluittype
+            if besluittype
+            else self.besluittype
+            if use_default
+            else None,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -91,7 +97,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             scopes=scopes,
-            zaaktype=zaaktype if zaaktype else "",
+            zaaktype=zaaktype,
             max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
         )
 
@@ -141,7 +147,7 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_verwerk_besluit_no_besluittype_in_auth(self):
-        self._add_besluiten_auth(besluittype="")
+        self._add_besluiten_auth(use_default=False)
 
         response = self.client.post(self.url, self.content)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -187,14 +193,11 @@ class BesluitVerwerkenAuthTests(JWTAuthMixin, APITestCase):
 
         self.assertTrue(zaak.is_closed)
 
-        self._add_besluiten_auth(
-            besluittype=self.besluittype_url,
-            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
-        )
+        self._add_besluiten_auth(besluittype=self.besluittype, zaaktype=zaak.zaaktype)
 
         self._add_zaken_auth(
             scopes=[SCOPE_ZAKEN_GEFORCEERD_BIJWERKEN],
-            zaaktype=f"http://testserver{reverse(zaak.zaaktype)}",
+            zaaktype=zaak.zaaktype,
         )
 
         content = self.content.copy()
