@@ -5,10 +5,10 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.documenten.api.scopes import (
     SCOPE_DOCUMENTEN_AANMAKEN,
     SCOPE_DOCUMENTEN_ALLES_LEZEN,
@@ -193,9 +193,6 @@ class ImportDocumentenReportTests(ImportTestMixin, JWTAuthMixin, APITestCase):
                 SCOPE_DOCUMENTEN_LOCK,
                 SCOPE_DOCUMENTEN_GEFORCEERD_UNLOCK,
             ],
-            zaaktype="",
-            informatieobjecttype="",
-            besluittype="",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
         )
 

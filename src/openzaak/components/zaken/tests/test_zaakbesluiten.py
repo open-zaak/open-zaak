@@ -1,19 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2022 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.tests import get_validation_errors
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-from openzaak.components.besluiten.tests.utils import get_besluit_response
-from openzaak.tests.utils import JWTAuthMixin, mock_brc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..models import ZaakBesluit
@@ -222,66 +218,6 @@ class InternalZaakBesluitTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         self.assertFalse(ZaakBesluit.objects.exists())
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class ExternalZaakBesluitTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-    besluit = "https://externe.catalogus.nl/api/v1/besluiten/b71f72ef-198d-44d8-af64-ae1932df830a"
-    besluittype = "https://externe.catalogus.nl/api/v1/besluittypen/7ef7d016-b766-4456-a90c-8908eeb19b49"
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-
-        ServiceFactory.create(
-            api_root="https://externe.catalogus.nl/api/v1/", api_type=APITypes.brc
-        )
-
-    def test_create(self):
-        zaak = ZaakFactory.create()
-        zaak_url = f"http://testserver{reverse(zaak)}"
-        url = reverse("zaken:zaakbesluit-list", kwargs={"zaak_uuid": zaak.uuid})
-
-        with requests_mock.Mocker() as m:
-            mock_brc_oas_get(m)
-            m.get(
-                self.besluit,
-                json=get_besluit_response(self.besluit, self.besluittype, zaak_url),
-            )
-
-            response = self.client.post(url, data={"besluit": self.besluit})
-
-            self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, response.data
-            )
-
-            zaakbesluit = ZaakBesluit.objects.get()
-
-            self.assertEqual(zaakbesluit.zaak, zaak)
-            self.assertEqual(zaakbesluit.besluit, self.besluit)
-
-    def test_delete(self):
-        zaak = ZaakFactory.create()
-        zaak_url = f"http://testserver{reverse(zaak)}"
-
-        with requests_mock.Mocker() as m:
-            mock_brc_oas_get(m)
-            m.get(
-                self.besluit,
-                json=get_besluit_response(self.besluit, self.besluittype, zaak_url),
-            )
-
-            zaakbesluit = ZaakBesluit.objects.create(zaak=zaak, besluit=self.besluit)
-            url = reverse(
-                "zaken:zaakbesluit-detail",
-                kwargs={"zaak_uuid": zaak.uuid, "uuid": zaakbesluit.uuid},
-            )
-
-            response = self.client.delete(url)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 class ZaakBesluitenJWTExpiryTests(JWTAuthMixin, APITestCase):

@@ -359,7 +359,6 @@ class ReadAuthorizationsTests(JWTAuthMixin, APITestCase):
             applicatie__client_ids=["id1", "id2"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype="https://example.com",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
 
@@ -669,7 +668,7 @@ class UpdateAuthorizationsTests(JWTAuthMixin, APITestCase):
             applicatie__client_ids=["id1", "id2"],
             component=ComponentTypes.zrc,
             scopes=["dummy.scope"],
-            zaaktype=f"http://testserver{reverse(cls.zaaktype)}",
+            zaaktype=cls.zaaktype,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         cls.applicatie = autorisatie.applicatie

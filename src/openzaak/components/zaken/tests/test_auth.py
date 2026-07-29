@@ -12,7 +12,6 @@ from django.utils.translation import gettext as _
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, get_validation_errors
 
@@ -250,7 +249,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             applicatie=self.applicatie,
             component=ComponentTypes.zrc,
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
-            zaaktype=f"http://testserver{reverse(zaaktype2)}",
+            zaaktype=zaaktype2,
             scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
         )
         # should show up
@@ -2532,7 +2531,9 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
     def test_statussen_list(self):
         url = reverse("zaken:status-list")
@@ -2581,7 +2582,9 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2, **ZAAK_READ_KWARGS)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
     def test_resultaten_list(self):
         url = reverse("zaken:resultaat-list")
