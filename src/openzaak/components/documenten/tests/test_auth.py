@@ -9,10 +9,10 @@ from django.test import override_settings, tag
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import AuthCheckMixin, get_validation_errors, reverse_lazy
 
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import (
@@ -968,7 +968,7 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 2)
+        self.assertEqual(len(results), 1)
         self.assertEqual(
             results[0]["informatieobjecttype"],
             f"http://testserver{reverse(self.informatieobjecttype)}",
@@ -993,7 +993,9 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
     def test_oio_list(self):
         url = reverse("documenten:objectinformatieobject-list")

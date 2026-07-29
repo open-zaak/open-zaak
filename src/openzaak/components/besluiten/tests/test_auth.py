@@ -8,8 +8,7 @@ from django.test import tag
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Autorisatie
-from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
+from vng_api_common.constants import ComponentTypes
 from vng_api_common.tests import AuthCheckMixin
 
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
@@ -542,7 +541,9 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response2.status_code, status.HTTP_403_FORBIDDEN
+        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
 
     def test_bio_list(self):
         other_besluittype = BesluitTypeFactory.create()
@@ -574,8 +575,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             besluit__besluittype=other_besluittype
         )
 
-        url1 = reverse(bio1)
-        url2 = reverse(bio2)
+        url1 = reverse(bio1, namespace=self.NAMESPACE)
+        url2 = reverse(bio2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
