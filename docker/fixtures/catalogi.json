@@ -2,7 +2,7 @@
 {
     "model": "catalogi.catalogus",
     "fields": {
-        "_etag": "bcbe289e00b0d75bf0190eb44ade91e9",
+        "_etag": "7ce7a35209b6a5b4bced63a45b3c3aa0",
         "naam": "Test catalogus",
         "uuid": "d785f428-9ae6-4f84-82f6-26414500b2aa",
         "domein": "BBBBB",
@@ -45,7 +45,7 @@
     "model": "catalogi.informatieobjecttype",
     "pk": 501,
     "fields": {
-        "_etag": "7bee1d0c9c84a6fe9576d52f18d13a1e",
+        "_etag": "764e8562f5937d3a2ab3f4154b880856",
         "datum_begin_geldigheid": "2025-12-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -68,7 +68,7 @@
     "model": "catalogi.zaaktypeinformatieobjecttype",
     "pk": 501,
     "fields": {
-        "_etag": "ceb014e163f6f134a9d57855955639fd",
+        "_etag": "3182110d2b6b61e24dc6bd063b30275d",
         "uuid": "781dbfd1-e076-410d-a9ba-3a78eff83d86",
         "zaaktype": 504,
         "informatieobjecttype": 501,
@@ -81,7 +81,7 @@
     "model": "catalogi.zaaktypeinformatieobjecttype",
     "pk": 502,
     "fields": {
-        "_etag": "3381d090eaaa58b26fb31294a9fc7a3d",
+        "_etag": "88038164ca1be8422a26e7f12d45180d",
         "uuid": "b45a3edf-1e6a-402b-83a3-7c667bc51d69",
         "zaaktype": 517,
         "informatieobjecttype": 501,
@@ -124,7 +124,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1006,
     "fields": {
-        "_etag": "bef41fe75d2917fefd688cdd87aef093",
+        "_etag": "fc7b3b256d59f4f9feb8eab25bb83e4c",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "2e0db4c3-4300-42d5-afa7-97b41a08c821",
@@ -154,7 +154,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1007,
     "fields": {
-        "_etag": "5dbcfb37fb09d2ea25cea6dac97f9d5d",
+        "_etag": "7dc3a39aadc96067822c19133328cfbb",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "24fa75bf-01fc-4894-a439-99c31b2eb65c",
@@ -184,7 +184,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1017,
     "fields": {
-        "_etag": "6880f9f19c16b0310453e240c07a850e",
+        "_etag": "409f9481bc59499ff74458912feed608",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "02eda1ea-d6d4-4c38-8935-85327fe7940d",
@@ -214,7 +214,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1018,
     "fields": {
-        "_etag": "cf5ea51386947869f2faa6f61e7a44df",
+        "_etag": "60341692dd104b004a8dbfeb24d89f48",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "a5ca1ad9-ad01-48a3-9b7c-da671064cc3f",
@@ -244,7 +244,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1019,
     "fields": {
-        "_etag": "44bce3e826642cd4a1a1ac568b6b74c2",
+        "_etag": "05689ba62c1d541169e53be8789bf7fe",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "95d4645c-c322-48b7-852f-aea3692cb45b",
@@ -274,7 +274,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1020,
     "fields": {
-        "_etag": "43c6fce338ec13cec463226fc5c29bc9",
+        "_etag": "cc9c8d87830639d85acaac8743928d30",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "6753f1e7-aedc-418e-a5c3-6a638517101d",
@@ -304,7 +304,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1021,
     "fields": {
-        "_etag": "ab73f3f6e14461c34df0019a31827375",
+        "_etag": "e4aa4f7eecc5e2a89a960bcded85d5a0",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "18814900-a5a2-4048-b4af-2b48e38a7288",
@@ -334,7 +334,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1022,
     "fields": {
-        "_etag": "1134a2b4ed2258d41ffef5998fe88cc0",
+        "_etag": "56d45413f7669826eb94baa6efa2d791",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "b7750448-6fdc-4e2a-b700-721efec60390",
@@ -451,10 +451,100 @@
     }
 },
 {
+    "model": "catalogi.resultaattype",
+    "pk": 1034,
+    "fields": {
+        "_etag": "3bc8fbeffc3521bc319ea2ba4a69da5e",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "e4df12c5-b5ed-4893-8f75-7a71dae12942",
+        "zaaktype": 504,
+        "omschrijving": "bewaren",
+        "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+        "omschrijving_generiek": "Afgehandeld",
+        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/4bb7842e-094b-4079-872a-ce0dbaee3ae7",
+        "archiefnominatie": "blijvend_bewaren",
+        "archiefactietermijn": "P15Y",
+        "brondatum_archiefprocedure_afleidingswijze": "afgehandeld",
+        "brondatum_archiefprocedure_datumkenmerk": "",
+        "brondatum_archiefprocedure_einddatum_bekend": false,
+        "brondatum_archiefprocedure_objecttype": "",
+        "brondatum_archiefprocedure_registratie": "",
+        "brondatum_archiefprocedure_procestermijn": "P0D",
+        "toelichting": "bewaren",
+        "procesobjectaard": "",
+        "indicatie_specifiek": null,
+        "procestermijn": null,
+        "informatieobjecttypen": [],
+        "besluittypen": [],
+        "zaakobjecttypen": []
+    }
+},
+{
+    "model": "catalogi.resultaattype",
+    "pk": 1035,
+    "fields": {
+        "_etag": "cd15e29d07db33e9724d7db08cbebc78",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "6cbb6a64-1fae-4f1e-9d9f-e316324df4cd",
+        "zaaktype": 518,
+        "omschrijving": "blijvend_bewaren",
+        "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+        "omschrijving_generiek": "Afgehandeld",
+        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/74d67abd-d690-458c-83ae-8e8147468830",
+        "archiefnominatie": "blijvend_bewaren",
+        "archiefactietermijn": null,
+        "brondatum_archiefprocedure_afleidingswijze": "hoofdzaak",
+        "brondatum_archiefprocedure_datumkenmerk": "",
+        "brondatum_archiefprocedure_einddatum_bekend": false,
+        "brondatum_archiefprocedure_objecttype": "",
+        "brondatum_archiefprocedure_registratie": "",
+        "brondatum_archiefprocedure_procestermijn": "P0D",
+        "toelichting": "",
+        "procesobjectaard": "",
+        "indicatie_specifiek": null,
+        "procestermijn": null,
+        "informatieobjecttypen": [],
+        "besluittypen": [],
+        "zaakobjecttypen": []
+    }
+},
+{
+    "model": "catalogi.resultaattype",
+    "pk": 1036,
+    "fields": {
+        "_etag": "53ce00893fd58d01c4b3e77a10591d04",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "2075ce74-0e3e-4c8d-ac24-349f7d90973c",
+        "zaaktype": 519,
+        "omschrijving": "blijvend_bewaren",
+        "resultaattypeomschrijving": "https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/7cb315fb-4f7b-4a43-aca1-e4522e4c73b3",
+        "omschrijving_generiek": "Afgehandeld",
+        "selectielijstklasse": "https://selectielijst.openzaak.nl/api/v1/resultaten/74d67abd-d690-458c-83ae-8e8147468830",
+        "archiefnominatie": "blijvend_bewaren",
+        "archiefactietermijn": null,
+        "brondatum_archiefprocedure_afleidingswijze": "afgehandeld",
+        "brondatum_archiefprocedure_datumkenmerk": "",
+        "brondatum_archiefprocedure_einddatum_bekend": false,
+        "brondatum_archiefprocedure_objecttype": "",
+        "brondatum_archiefprocedure_registratie": "",
+        "brondatum_archiefprocedure_procestermijn": "P0D",
+        "toelichting": "",
+        "procesobjectaard": "",
+        "indicatie_specifiek": null,
+        "procestermijn": null,
+        "informatieobjecttypen": [],
+        "besluittypen": [],
+        "zaakobjecttypen": []
+    }
+},
+{
     "model": "catalogi.roltype",
     "pk": 503,
     "fields": {
-        "_etag": "3392783a148587e8c11fb9f2289e670e",
+        "_etag": "7475c891324a90825e382a8def13a750",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "e8ccf688-671c-45ab-8a32-798ffe937627",
@@ -467,7 +557,7 @@
     "model": "catalogi.roltype",
     "pk": 504,
     "fields": {
-        "_etag": "b48563921bc47eddc677641a324ea32e",
+        "_etag": "340fb3726c56eb4723fa67ccdd0d941a",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "9f3888e7-7bbd-44fa-9ca9-ebadc61403c1",
@@ -506,7 +596,7 @@
     "model": "catalogi.statustype",
     "pk": 1506,
     "fields": {
-        "_etag": "e361b65ca30c7d5337f425d5c3236a98",
+        "_etag": "0b8519fc22ee162a2ab2edbebec26d36",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "52f18809-ae97-46ef-8c5c-15a9903d879b",
@@ -524,7 +614,7 @@
     "model": "catalogi.statustype",
     "pk": 1507,
     "fields": {
-        "_etag": "ee29fbbe41570a4103f3bb9119dbc876",
+        "_etag": "d90da5e9eb571df33d82a83b4e65c19a",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "936657e2-368d-4ad8-85e8-b97120c9fee2",
@@ -542,7 +632,7 @@
     "model": "catalogi.statustype",
     "pk": 1508,
     "fields": {
-        "_etag": "6ec283c97e3f439d7cfb8d68890b89bb",
+        "_etag": "0db43cd35731a46c244b4b2747d06c31",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "b8395b44-0f24-4007-b2a2-98d6133f66dc",
@@ -611,10 +701,82 @@
     }
 },
 {
+    "model": "catalogi.statustype",
+    "pk": 1521,
+    "fields": {
+        "_etag": "e25c3f961adcc9751f6f398dab7fab6d",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "ad4e3d0e-dbf0-4ad9-9c5d-f647988ef992",
+        "zaaktype": 518,
+        "statustype_omschrijving": "start",
+        "statustype_omschrijving_generiek": "",
+        "statustypevolgnummer": 1,
+        "doorlooptijd": null,
+        "informeren": false,
+        "statustekst": "",
+        "toelichting": null
+    }
+},
+{
+    "model": "catalogi.statustype",
+    "pk": 1522,
+    "fields": {
+        "_etag": "57ab2baa54c4313df2355ab11fe12a2e",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "6829504f-6d7e-480e-b650-9b543e951b4d",
+        "zaaktype": 518,
+        "statustype_omschrijving": "end",
+        "statustype_omschrijving_generiek": "",
+        "statustypevolgnummer": 2,
+        "doorlooptijd": null,
+        "informeren": false,
+        "statustekst": "",
+        "toelichting": null
+    }
+},
+{
+    "model": "catalogi.statustype",
+    "pk": 1523,
+    "fields": {
+        "_etag": "3e2bd1877e8f421612a83ecff7ab162e",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "cc9e518b-2387-4c07-82b9-29641308b6cc",
+        "zaaktype": 519,
+        "statustype_omschrijving": "start",
+        "statustype_omschrijving_generiek": "",
+        "statustypevolgnummer": 1,
+        "doorlooptijd": null,
+        "informeren": false,
+        "statustekst": "",
+        "toelichting": null
+    }
+},
+{
+    "model": "catalogi.statustype",
+    "pk": 1524,
+    "fields": {
+        "_etag": "6ec34ee9b87bfa2884daed26c5726699",
+        "datum_begin_geldigheid": null,
+        "datum_einde_geldigheid": null,
+        "uuid": "78ade303-640f-48b6-9a2d-e84207bfab76",
+        "zaaktype": 519,
+        "statustype_omschrijving": "end",
+        "statustype_omschrijving_generiek": "",
+        "statustypevolgnummer": 2,
+        "doorlooptijd": null,
+        "informeren": false,
+        "statustekst": "",
+        "toelichting": null
+    }
+},
+{
     "model": "catalogi.zaaktype",
     "pk": 504,
     "fields": {
-        "_etag": "7bf1e87f7f7518aedec683b82e25355f",
+        "_etag": "2a5969908f14f2309e6811986f32408b",
         "datum_begin_geldigheid": "2024-04-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -709,10 +871,108 @@
     }
 },
 {
+    "model": "catalogi.zaaktype",
+    "pk": 518,
+    "fields": {
+        "_etag": "4845dceac27b93ecc2cf28cb00d025e2",
+        "datum_begin_geldigheid": "2026-07-30",
+        "datum_einde_geldigheid": null,
+        "concept": true,
+        "uuid": "2bea847a-d886-45b5-a910-e39945abd727",
+        "identificatie": "ZAAKTYPE-2026-0000000001",
+        "zaaktype_omschrijving": "deelzaaktype blijvend bewaren",
+        "zaaktype_omschrijving_generiek": "",
+        "vertrouwelijkheidaanduiding": "openbaar",
+        "doel": "deelzaaktype blijvend bewaren",
+        "aanleiding": "deelzaaktype blijvend bewaren",
+        "toelichting": "",
+        "indicatie_intern_of_extern": "extern",
+        "handeling_initiator": "foo",
+        "onderwerp": "foo",
+        "handeling_behandelaar": "foo",
+        "doorlooptijd_behandeling": "P1Y",
+        "servicenorm_behandeling": null,
+        "opschorting_en_aanhouding_mogelijk": false,
+        "verlenging_mogelijk": false,
+        "verlengingstermijn": null,
+        "trefwoorden": "[]",
+        "publicatie_indicatie": false,
+        "publicatietekst": "",
+        "verantwoordingsrelatie": "[]",
+        "versiedatum": "2026-07-30",
+        "verantwoordelijke": "foo",
+        "producten_of_diensten": "[]",
+        "selectielijst_procestype": "https://selectielijst.openzaak.nl/api/v1/procestypen/8c160b66-2247-43f3-9afc-e5e48aefa41c",
+        "selectielijst_procestype_jaar": 2020,
+        "referentieproces_naam": "foo",
+        "referentieproces_link": "",
+        "broncatalogus_url": "",
+        "broncatalogus_domein": "",
+        "broncatalogus_rsin": "",
+        "bronzaaktype_url": "",
+        "bronzaaktype_identificatie": "",
+        "bronzaaktype_omschrijving": "",
+        "catalogus": [
+            "d785f428-9ae6-4f84-82f6-26414500b2aa"
+        ],
+        "deelzaaktypen": []
+    }
+},
+{
+    "model": "catalogi.zaaktype",
+    "pk": 519,
+    "fields": {
+        "_etag": "f83638daaea229e924a7ea792baa63de",
+        "datum_begin_geldigheid": "2026-07-30",
+        "datum_einde_geldigheid": null,
+        "concept": true,
+        "uuid": "88d6b91a-b57c-4766-9f41-98bc8069b943",
+        "identificatie": "ZAAKTYPE-2026-0000000002",
+        "zaaktype_omschrijving": "blijvend_bewaren",
+        "zaaktype_omschrijving_generiek": "",
+        "vertrouwelijkheidaanduiding": "openbaar",
+        "doel": "blijvend_bewaren",
+        "aanleiding": "blijvend_bewaren",
+        "toelichting": "",
+        "indicatie_intern_of_extern": "extern",
+        "handeling_initiator": "blijvend_bewaren",
+        "onderwerp": "blijvend_bewaren",
+        "handeling_behandelaar": "blijvend_bewaren",
+        "doorlooptijd_behandeling": "P1Y",
+        "servicenorm_behandeling": null,
+        "opschorting_en_aanhouding_mogelijk": false,
+        "verlenging_mogelijk": false,
+        "verlengingstermijn": null,
+        "trefwoorden": "[]",
+        "publicatie_indicatie": false,
+        "publicatietekst": "",
+        "verantwoordingsrelatie": "[]",
+        "versiedatum": "2026-07-30",
+        "verantwoordelijke": "blijvend_bewaren",
+        "producten_of_diensten": "[]",
+        "selectielijst_procestype": "https://selectielijst.openzaak.nl/api/v1/procestypen/8c160b66-2247-43f3-9afc-e5e48aefa41c",
+        "selectielijst_procestype_jaar": 2020,
+        "referentieproces_naam": "blijvend_bewaren",
+        "referentieproces_link": "",
+        "broncatalogus_url": "",
+        "broncatalogus_domein": "",
+        "broncatalogus_rsin": "",
+        "bronzaaktype_url": "",
+        "bronzaaktype_identificatie": "",
+        "bronzaaktype_omschrijving": "",
+        "catalogus": [
+            "d785f428-9ae6-4f84-82f6-26414500b2aa"
+        ],
+        "deelzaaktypen": [
+            518
+        ]
+    }
+},
+{
     "model": "catalogi.besluittype",
     "pk": 501,
     "fields": {
-        "_etag": "5576c0ebce9b124d0af0a3709e2793d3",
+        "_etag": "5ea29603b182180dd7300d4dd3555e03",
         "datum_begin_geldigheid": "2025-11-28",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -728,7 +988,9 @@
         "catalogus": [
             "d785f428-9ae6-4f84-82f6-26414500b2aa"
         ],
-        "informatieobjecttypen": [],
+        "informatieobjecttypen": [
+            501
+        ],
         "zaaktypen": [
             504,
             517
