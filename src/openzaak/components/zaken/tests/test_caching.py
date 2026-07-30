@@ -8,9 +8,10 @@ from django.db import transaction
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from .factories import (
@@ -24,7 +25,7 @@ from .factories import (
 from .utils import ZAAK_READ_KWARGS
 
 
-class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ZaakCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaak_get_cache_header(self):
@@ -88,7 +89,7 @@ class ZaakCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class StatusCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_status_get_cache_header(self):
@@ -132,7 +133,7 @@ class StatusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaakinformatieobject_get_cache_header(self):
@@ -171,7 +172,7 @@ class ZaakInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ZaakEigenschapCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaakeigenschap_get_cache_header(self):
@@ -218,7 +219,7 @@ class ZaakEigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class RolCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class RolCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_rol_get_cache_header(self):
@@ -257,7 +258,7 @@ class RolCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ResultaatCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ResultaatCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_resultaat_get_cache_header(self):

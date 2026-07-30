@@ -148,6 +148,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to see Besluiten in the list view
         that belong to Besluittypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -183,6 +184,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to read Besluiten
         that belong to Besluittypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -226,6 +228,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         # Different catalogus, should not be allowed
         cls.besluittype_not_allowed = BesluitTypeFactory.create(concept=False)
+
         cls.applicatie.autorisaties.all().delete()
         CatalogusAutorisatieFactory.create(
             catalogus=cls.besluittype.catalogus,

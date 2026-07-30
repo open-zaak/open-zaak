@@ -9,18 +9,23 @@ import requests_mock
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie, AuthorizationsConfig
+from vng_api_common.authorizations.models import AuthorizationsConfig
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.tests.utils import JWTAuthMixin
 
+from .factories import ZaakTypeFactory
 
+
+# TODO ????????????
 @skip("Authorization component is internal. Webhooks are not used")
 class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @requests_mock.Mocker()
     def test_handle_create_auth(self, m):
+        zaaktype = ZaakTypeFactory.create()
         config = AuthorizationsConfig.get_solo()
         uuid = _uuid.uuid4()
         applicatie_url = f"{config.api_root}applicaties/{uuid}"
@@ -38,7 +43,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -66,6 +71,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
 
     @requests_mock.Mocker()
     def test_handle_update_auth(self, m):
+        zaaktype = ZaakTypeFactory.create()
         applicatie = Applicatie.objects.create(
             client_ids=["id1"], label="before", heeft_alle_autorisaties=True
         )
@@ -93,7 +99,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
                             "zds.scopes.zaken.lezen",
                             "zds.scopes.zaken.aanmaken",
                         ],
-                        "zaaktype": "https://ref.tst.vng.cloud/zrc/api/v1/catalogus/1/zaaktypen/1",
+                        "zaaktype": f"http://testserver{reverse(zaaktype)}",
                         "maxVertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.beperkt_openbaar,
                     }
                 ],
@@ -120,6 +126,7 @@ class HandleAuthNotifTestCase(JWTAuthMixin, APITestCase):
         self.assertEqual(applicatie.uuid, uuid)
         self.assertEqual(applicatie.heeft_alle_autorisaties, False)
         self.assertEqual(applicatie.label, "after")
+
         self.assertEqual(applicatie.autorisaties.count(), 1)
 
     def test_handle_delete_auth(self):
