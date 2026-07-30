@@ -16,7 +16,6 @@ from vng_api_common.constants import (
     VertrouwelijkheidsAanduiding,
     ZaakobjectTypes,
 )
-from vng_api_common.tests import JWTAuthMixin as _JWTAuthMixin
 
 from openzaak.components.catalogi.tests.factories import (
     InformatieObjectTypeFactory,
@@ -31,6 +30,7 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from ..api.cloudevents import (
@@ -575,7 +575,7 @@ class ZaakConvenienceCloudEventTest(
 @override_settings(
     NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
 )
-class CloudEventTransactionTests(_JWTAuthMixin, APITransactionTestCase):
+class CloudEventTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     # TODO

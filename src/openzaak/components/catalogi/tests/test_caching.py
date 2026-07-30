@@ -7,7 +7,7 @@ Test that the caching mechanisms are in place.
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 from vng_api_common.caching import calculate_etag
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
@@ -21,10 +21,11 @@ from openzaak.components.catalogi.tests.factories import (
     ZaakTypeInformatieObjectTypeFactory,
 )
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 
-class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class BesluitTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_besluittype_get_cache_header(self):
@@ -64,7 +65,7 @@ class BesluitTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class BesluitTypeCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -110,7 +111,7 @@ class BesluitTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class CatalogusCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_catalogus_get_cache_header(self):
@@ -150,7 +151,7 @@ class CatalogusCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class CatalogusCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -196,7 +197,7 @@ class CatalogusCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class EigenschapCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_eigenschap_get_cache_header(self):
@@ -236,7 +237,7 @@ class EigenschapCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class EigenschapCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -282,7 +283,7 @@ class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_informatieobjecttype_get_cache_header(self):
@@ -323,7 +324,9 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class InformatieObjectTypeCacheTransactionTests(
+    JWTAuthCacheMixin, APITransactionTestCase
+):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -371,7 +374,7 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ResultaatTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_resultaattype_get_cache_header(self):
@@ -412,7 +415,7 @@ class ResultaatTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class ResultaatTypeCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -460,7 +463,7 @@ class ResultaatTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class RolTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_roltype_get_cache_header(self):
@@ -500,7 +503,7 @@ class RolTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class RolTypeCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -546,7 +549,7 @@ class RolTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class StatusTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_statustype_get_cache_header(self):
@@ -586,7 +589,7 @@ class StatusTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class StatusTypeCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -632,7 +635,7 @@ class StatusTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaakinformatieobjecttype_get_cache_header(self):
@@ -678,7 +681,7 @@ class ZaakInformatieobjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 
 class ZaakInformatieobjectTypeCacheTransactionTests(
-    JWTAuthMixin, APITransactionTestCase
+    JWTAuthCacheMixin, APITransactionTestCase
 ):
     heeft_alle_autorisaties = True
 
@@ -729,7 +732,7 @@ class ZaakInformatieobjectTypeCacheTransactionTests(
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ZaakTypeCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_zaaktype_get_cache_header(self):
@@ -769,7 +772,7 @@ class ZaakTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
+class ZaakTypeCacheTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):
@@ -815,7 +818,7 @@ class ZaakTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
 
-class M2MRelationCachingTests(JWTAuthMixin, APITransactionTestCase):
+class M2MRelationCachingTests(JWTAuthCacheMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     def setUp(self):

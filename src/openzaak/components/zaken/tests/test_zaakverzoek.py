@@ -5,13 +5,14 @@ from django.test import override_settings
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.zaken.models import ZaakVerzoek
 from openzaak.components.zaken.tests.factories import ZaakFactory, ZaakVerzoekFactory
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 VERZOEKEN_BASE = "https://verzoeken.nl/api/v1/"
@@ -20,7 +21,7 @@ VERZOEK = f"{VERZOEKEN_BASE}verzoeken/1234"
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 @patch_resource_validator
-class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
+class ZaakVerzoekTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -121,7 +122,7 @@ class ZaakVerzoekTests(JWTAuthMixin, APITestCase):
 
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
-class ZaakVerzoekFilterTests(JWTAuthMixin, APITestCase):
+class ZaakVerzoekFilterTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @override_settings(ALLOWED_HOSTS=["testserver.com"])

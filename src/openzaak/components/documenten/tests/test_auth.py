@@ -224,6 +224,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to see EnkelvoudigInformatieObjecten in the list view
         that belong to Informatieobjecttypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -276,6 +277,7 @@ class InformatieObjectReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to read EnkelvoudigInformatieObjecten
         that belong to Informatieobjecttypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -359,6 +361,7 @@ class InformatieObjectWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         cls.informatieobjecttype_not_allowed = InformatieObjectTypeFactory.create(
             concept=False
         )
+
         cls.applicatie.autorisaties.all().delete()
         CatalogusAutorisatieFactory.create(
             catalogus=cls.informatieobjecttype.catalogus,

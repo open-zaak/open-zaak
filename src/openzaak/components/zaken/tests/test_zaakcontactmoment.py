@@ -5,11 +5,12 @@ from django.test import override_settings
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import patch_resource_validator
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from ..models import ZaakContactMoment
@@ -21,7 +22,7 @@ CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 @patch_resource_validator
-class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
+class ZaakContactMomentTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -126,7 +127,7 @@ class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
     NOTIFICATIONS_DISABLED=True,
     ALLOWED_HOSTS=["testserver", "testserver.com"],
 )
-class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
+class ZaakContactMomentFilterTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_zaak(self):

@@ -6,8 +6,9 @@ from django.utils import timezone
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import JWTAuthMixin, get_validation_errors
+from vng_api_common.tests import get_validation_errors
 
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from ..constants import Doelgroep
@@ -15,7 +16,7 @@ from ..models import SubStatus
 from .factories import StatusFactory, SubStatusFactory, ZaakFactory
 
 
-class SubStatusTests(JWTAuthMixin, APITestCase):
+class SubStatusTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_detail_substatus(self):
@@ -207,7 +208,7 @@ class SubStatusTests(JWTAuthMixin, APITestCase):
         self.assertEqual(data["doelgroep"], "betrokkenen")
 
 
-class SubStatusValidationTests(JWTAuthMixin, APITestCase):
+class SubStatusValidationTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_substatus_validate_status_belongs_to_zaak(self):
@@ -236,7 +237,7 @@ class SubStatusValidationTests(JWTAuthMixin, APITestCase):
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
-class SubStatusFilterTests(JWTAuthMixin, APITestCase):
+class SubStatusFilterTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_list_substatus_filter_by_zaak(self):
