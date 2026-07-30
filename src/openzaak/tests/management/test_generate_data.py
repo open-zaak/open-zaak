@@ -240,12 +240,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            zaaktype_uri = reverse(
-                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
-            )
-            self.assertEqual(
-                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
-            )
+            self.assertEqual(autorisatie.zaaktype, zaaktype)
 
             drc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.drc
@@ -352,12 +347,7 @@ class GenerateDataTests(SelectieLijstMixin, APITestCase):
                 autorisatie.max_vertrouwelijkheidaanduiding,
                 VertrouwelijkheidsAanduiding.zeer_geheim,
             )
-            zaaktype_uri = reverse(
-                "catalogi:zaaktype-detail", kwargs={"uuid": zaaktype.uuid, "version": 1}
-            )
-            self.assertEqual(
-                autorisatie.zaaktype, f"http://openzaak.local{zaaktype_uri}"
-            )
+            self.assertEqual(autorisatie.zaaktype, zaaktype)
 
             drc_autorisaties = applicatie.autorisaties.filter(
                 component=ComponentTypes.drc
