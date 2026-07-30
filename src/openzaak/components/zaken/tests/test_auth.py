@@ -319,6 +319,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to see Zaken in the list view
         that belong to Zaaktypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -453,6 +454,7 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to read Zaken
         that belong to Zaaktypen in the Catalogus
         """
+
         self.applicatie.autorisaties.all().delete()
 
         CatalogusAutorisatieFactory.create(
@@ -646,6 +648,7 @@ class ZaakWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         # Different catalogus, should not be allowed
         cls.zaaktype_not_allowed = ZaakTypeFactory.create(concept=False)
+
         cls.applicatie.autorisaties.all().delete()
         CatalogusAutorisatieFactory.create(
             catalogus=cls.zaaktype.catalogus,

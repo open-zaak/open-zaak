@@ -9,7 +9,6 @@ from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     BrondatumArchiefprocedureAfleidingswijze,
     ComponentTypes,
@@ -18,7 +17,7 @@ from vng_api_common.constants import (
 from vng_api_common.models import JWTSecret
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.components.autorisaties.models import Autorisatie
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.autorisaties.tests.factories import CatalogusAutorisatieFactory
 from openzaak.components.catalogi.constants import ArchiefNominatieChoices
 from openzaak.components.catalogi.tests.factories import (

@@ -18,7 +18,6 @@ from privates.test import temp_private_root
 from requests.exceptions import RequestException
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import (
     Archiefnominatie,
     BrondatumArchiefprocedureAfleidingswijze,
@@ -32,6 +31,7 @@ from vng_api_common.models import JWTSecret
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.autorisaties.models import Applicatie
 from openzaak.components.besluiten.tests.factories import BesluitFactory
 from openzaak.components.catalogi.tests.factories import (
     EigenschapFactory,

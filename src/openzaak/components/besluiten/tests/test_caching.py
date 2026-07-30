@@ -6,15 +6,16 @@ Test that the caching mechanisms are in place.
 
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
-class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class BesluitCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_besluit_get_cache_header(self):
@@ -57,7 +58,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_besluitinformatieobject_get_cache_header(self):

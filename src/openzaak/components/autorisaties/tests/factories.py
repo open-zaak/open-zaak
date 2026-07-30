@@ -11,7 +11,7 @@ class ApplicatieFactory(factory.django.DjangoModelFactory):
     label = factory.Faker("word")
 
     class Meta:
-        model = "authorizations.Applicatie"
+        model = "autorisaties.Applicatie"
 
 
 class AutorisatieFactory(factory.django.DjangoModelFactory):
