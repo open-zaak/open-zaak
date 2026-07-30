@@ -1,6 +1,18 @@
 Changelog
 =========
 
+1.28.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
 1.28.3 (2026-07-02)
 -------------------
 
