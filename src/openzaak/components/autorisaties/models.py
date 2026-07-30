@@ -1,13 +1,64 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from vng_api_common.authorizations.models import Applicatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.fields import VertrouwelijkheidsAanduidingField
 from vng_api_common.models import APIMixin
+
+
+class ApplicatieManager(models.Manager):
+    def get_by_natural_key(self, uuid):
+        return self.get(uuid=uuid)
+
+
+# TODO change setup config step to use this model
+class Applicatie(APIMixin, models.Model):
+    """
+    Client level of authorization
+    """
+
+    uuid = models.UUIDField(
+        unique=True, default=uuid.uuid4, help_text="Unique resource identifier (UUID4)"
+    )
+    client_ids = ArrayField(
+        models.CharField(max_length=50),
+        verbose_name=_("client IDs"),
+        help_text=_("Comma separated list of consumer identifiers (client_ids)"),
+    )
+    label = models.CharField(
+        max_length=100,
+        help_text=_(
+            "A human readable representation of the application, for end users."
+        ),
+    )
+    heeft_alle_autorisaties = models.BooleanField(
+        _("has all authorizations"),
+        default=False,
+        help_text=_(
+            "If all authorizations are given to this applicatie, no individual "
+            "permissions have to be configured. Only enable this if you "
+            "fully trust the consumer."
+        ),
+    )
+
+    objects = ApplicatieManager()
+
+    class Meta:
+        ordering = ["pk"]
+        verbose_name = _("applicatie")
+        verbose_name_plural = _("applicaties")
+
+    def natural_key(self):
+        return (str(self.uuid),)
+
+    def __str__(self):
+        return f"Applicatie ({self.label})"
+
 
 CATALOGUS_AUTORISATIE_COMPONENTS = [
     ComponentTypes.zrc,
@@ -107,7 +158,7 @@ class Autorisatie(APIMixin, models.Model):
     applicatie = models.ForeignKey(
         Applicatie,
         on_delete=models.CASCADE,
-        related_name="oz_autorisaties",  # TODO autorisaties taken by original Autorisatie
+        related_name="autorisaties",
         verbose_name=_("applicatie"),
     )
     component = models.CharField(
@@ -125,7 +176,7 @@ class Autorisatie(APIMixin, models.Model):
     # ZRC exclusive
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
-        models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="autorisaties",
         help_text=_("het zaaktype waarop de autorisatie van toepassing is."),
         blank=True,
@@ -135,7 +186,7 @@ class Autorisatie(APIMixin, models.Model):
     # DRC exclusive
     informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
-        models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="autorisaties",
         help_text=_(
             "het informatieobjecttype waarop de autorisatie van toepassing is."
@@ -147,7 +198,7 @@ class Autorisatie(APIMixin, models.Model):
     # BRC exclusive
     besluittype = models.ForeignKey(
         "catalogi.BesluitType",
-        models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="autorisaties",
         help_text=_("het besluittype waarop de autorisatie van toepassing is."),
         blank=True,
