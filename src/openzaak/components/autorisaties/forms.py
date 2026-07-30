@@ -3,33 +3,30 @@
 from typing import List, Tuple
 
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
-from django_better_admin_arrayfield.forms.fields import DynamicArrayField
 from notifications_api_common.constants import (
     SCOPE_NOTIFICATIES_CONSUMEREN_LABEL,
     SCOPE_NOTIFICATIES_PUBLICEREN_LABEL,
 )
-from rest_framework import exceptions
-from vng_api_common.authorizations.models import Applicatie, Autorisatie
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import SCOPE_REGISTRY
 
-from openzaak.components.autorisaties.models import CatalogusAutorisatie
+from openzaak.components.autorisaties.models import (
+    Applicatie,
+    Autorisatie,
+    CatalogusAutorisatie,
+)
 from openzaak.components.catalogi.models import (
     BesluitType,
     Catalogus,
     InformatieObjectType,
     ZaakType,
 )
-from openzaak.utils import build_absolute_url
-from openzaak.utils.auth import get_auth
 from openzaak.utils.middleware import override_request_host
-from openzaak.utils.validators import ResourceValidator
 
 from .constants import RelatedTypeSelectionMethods
 from .utils import (
@@ -235,14 +232,6 @@ class AutorisatieForm(forms.Form):
         queryset=BesluitType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
-    externe_typen = DynamicArrayField(
-        base_field=forms.URLField(
-            max_length=1000,
-            required=True,
-        ),
-        required=False,
-        error_messages={"item_invalid": ""},
-    )
 
     def has_changed(self) -> bool:
         # We don't consider an empty form that was left empty changed
@@ -273,7 +262,6 @@ class AutorisatieForm(forms.Form):
 
         self._validate_scopes(component)
         self._validate_required_fields(component)
-        self._validate_external_types(component)
 
     def _validate_scopes(self, component: str):
         scopes = self.cleaned_data.get("scopes")
@@ -325,9 +313,7 @@ class AutorisatieForm(forms.Form):
 
         # check that values for the typen have been selected manually
         types_field = _field_info["types_field"]
-        if not self.cleaned_data.get(types_field) and not self.cleaned_data.get(
-            "externe_typen"
-        ):
+        if not self.cleaned_data.get(types_field):
             error = forms.ValidationError(
                 _("Je moet minimaal 1 {verbose_name} kiezen").format(
                     verbose_name=_field_info["verbose_name"]
@@ -335,28 +321,6 @@ class AutorisatieForm(forms.Form):
                 code="required",
             )
             self.add_error(types_field, error)
-
-    def _validate_external_types(self, component):
-        _field_info = COMPONENT_TO_FIELDS_MAP.get(component)
-        if _field_info is None:
-            return
-
-        external_typen = self.cleaned_data.get("externe_typen")
-
-        if not external_typen:
-            return
-
-        validator = ResourceValidator(
-            _field_info["resource_name"], settings.ZTC_API_STANDARD, get_auth=get_auth
-        )
-        for _type in external_typen:
-            try:
-                validator(_type)
-            except exceptions.ValidationError as exc:
-                error = forms.ValidationError(
-                    str(exc.detail[0]), code=exc.detail[0].code
-                )
-                self.add_error("externe_typen", error)
 
     def get_types(self, component):
         related_type_selection = self.cleaned_data.get("related_type_selection")
@@ -435,26 +399,13 @@ class AutorisatieForm(forms.Form):
             for _type in types:
                 data = autorisatie_kwargs.copy()
 
-                # signal uses build_absolute_url to find autorisaties to delete
-                data[_field_info["_autorisatie_type_field"]] = build_absolute_url(
-                    _type.get_absolute_api_url()
-                )
+                data[_field_info["_autorisatie_type_field"]] = _type
                 autorisaties.append(
                     Autorisatie(
                         max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
                         **data,
                     )
                 )
-            if self.cleaned_data.get("externe_typen"):
-                for _type in self.cleaned_data.get("externe_typen"):
-                    data = autorisatie_kwargs.copy()
-                    data[_field_info["_autorisatie_type_field"]] = _type
-                    autorisaties.append(
-                        Autorisatie(
-                            max_vertrouwelijkheidaanduiding=vertrouwelijkheidaanduiding,
-                            **data,
-                        )
-                    )
 
             Autorisatie.objects.bulk_create(autorisaties)
 
@@ -467,6 +418,7 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
 
     @transaction.atomic
     def save(self, commit=True):
+        # TODO what does this do?
         # use the API representation to figure out if there were any changes
         # we have to explicitly override the request host (because this is not an API request)
         # to ensure the notification has the right URLs

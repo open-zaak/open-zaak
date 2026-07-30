@@ -5,7 +5,8 @@ from typing import List
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework.serializers import ValidationError
-from vng_api_common.authorizations.models import Applicatie
+
+from openzaak.components.autorisaties.models import Applicatie
 
 
 class UniqueClientIDValidator:
