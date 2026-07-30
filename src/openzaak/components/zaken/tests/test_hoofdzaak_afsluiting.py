@@ -4,6 +4,7 @@
 from datetime import date
 
 from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
@@ -902,6 +903,13 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(
             response.data["invalid_params"][0]["code"], "archiefactiedatum-error"
+        )
+        self.assertEqual(
+            response.data["invalid_params"][0]["reason"],
+            _(
+                "De archiefactiedatum kan niet bepaald worden, omdat de afleidingswijze `{hoofdzaak}` "
+                "gebruikt wordt, maar de zaak geen hoofdzaak heeft."
+            ).format(hoofdzaak=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak),
         )
 
     @tag("gh-2098")
