@@ -66,7 +66,6 @@ class SendNotifTestCase(NotificationsConfigMixin, JWTAuthMixin, APITestCase):
         """
         autorisatie = AutorisatieFactory.create(
             applicatie__client_ids=["id1", "id2"],
-            zaaktype="https://example.com",
             scopes=["dummy.scope"],
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )

@@ -7,10 +7,11 @@ Test that the caching mechanisms are in place.
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
-from vng_api_common.tests import CacheMixin, JWTAuthMixin
+from vng_api_common.tests import CacheMixin
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from ..caching import get_etag_cache_key, set_etag
@@ -19,7 +20,7 @@ from ..tests.factories import EnkelvoudigInformatieObjectFactory, Gebruiksrechte
 
 
 @temp_private_root()
-class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_eio_get_cache_header(self):
@@ -64,7 +65,7 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_oio_get_cache_header(self):
@@ -119,7 +120,7 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
+class GebruiksrechtenCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_gebruiksrecht_get_cache_header(self):
@@ -170,7 +171,7 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 @temp_private_root()
 class EnkelvoudigInformatieObjectCacheTransactionTests(
-    JWTAuthMixin, APITransactionTestCase
+    JWTAuthCacheMixin, APITransactionTestCase
 ):
     heeft_alle_autorisaties = True
 

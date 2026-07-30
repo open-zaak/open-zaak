@@ -9,10 +9,7 @@ from furl import furl
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import (
-    JWTAuthMixin,
-    get_validation_errors,
-)
+from vng_api_common.tests import get_validation_errors
 from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
@@ -37,6 +34,7 @@ from openzaak.contrib.verzoeken.tests.utils import (
     get_verzoekinformatieobject_response,
 )
 from openzaak.tests.utils import mock_brc_oas_get, mock_vrc_oas_get, mock_zrc_oas_get
+from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse, reverse_lazy
 
 from ..constants import ObjectInformatieObjectTypes
@@ -49,7 +47,7 @@ from .factories import EnkelvoudigInformatieObjectFactory
 @override_settings(
     ALLOWED_HOSTS=["testserver", "openzaak.nl"], SITE_DOMAIN="testserver"
 )
-class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy("documenten:objectinformatieobject-list")
 
@@ -289,7 +287,7 @@ class ObjectInformatieObjectTests(JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "unknown-parameters")
 
 
-class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
+class ObjectInformatieObjectDestroyTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_destroy_oio_remote_gone(self):
@@ -334,7 +332,7 @@ class ObjectInformatieObjectDestroyTests(JWTAuthMixin, APITestCase):
 @tag("external-urls")
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
-class OIOCreateExternalURLsTests(JWTAuthMixin, APITestCase):
+class OIOCreateExternalURLsTests(JWTAuthCacheMixin, APITestCase):
     heeft_alle_autorisaties = True
     list_url = reverse_lazy(ObjectInformatieObject)
 
