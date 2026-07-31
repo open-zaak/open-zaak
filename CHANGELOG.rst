@@ -1,6 +1,18 @@
 Changelog
 =========
 
+1.29.2 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
 1.29.1 (2026-07-02)
 -------------------
 
@@ -97,6 +109,18 @@ Changelog
 * [:open-api-framework:`217`] Use new logos and icons and apply new styling
 * [:open-zaak:`2369`] use Sphinx directive from ``maykin-common`` to generate environment variable documentation
 * [:open-api-framework:`217`] Replace references to maykinmedia.nl with maykin.nl
+
+1.28.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
 
 1.28.3 (2026-07-02)
 -------------------
@@ -209,6 +233,18 @@ Changelog
 * [:open-api-framework:`213`] Consistent styling for documentation for all applications
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
+
+1.27.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
 
 1.27.3 (2026-07-02)
 -------------------
