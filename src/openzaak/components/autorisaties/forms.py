@@ -159,7 +159,6 @@ def get_scope_choices() -> List[Tuple[str, str]]:
     return list(zip(labels, labels))
 
 
-# TODO ADMIN REFACTOR
 class AutorisatieForm(forms.Form):
     component = forms.ChoiceField(
         label=_("component"),
@@ -418,7 +417,6 @@ class AutorisatieBaseFormSet(forms.BaseFormSet):
 
     @transaction.atomic
     def save(self, commit=True):
-        # TODO what does this do?
         # use the API representation to figure out if there were any changes
         # we have to explicitly override the request host (because this is not an API request)
         # to ensure the notification has the right URLs
