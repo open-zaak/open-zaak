@@ -18,7 +18,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
-from openzaak.components.autorisaties.models import Applicatie, Autorisatie
+from openzaak.components.autorisaties.models import Autorisatie
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -567,8 +567,10 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
         with self.assertRaises(Autorisatie.DoesNotExist):
             autorisatie.refresh_from_db()
         self.assertEqual(Autorisatie.objects.count(), 0)
-        # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
-        self.assertEqual(Applicatie.objects.count(), 0)  # TODO signal to task
+
+        # 2.0 empty applications are now deleted in a celery task (on a daily schedule)
+        # # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
+        # self.assertEqual(Applicatie.objects.count(), 0)
 
     @tag("gh-1661")
     def test_create_catalogus_autorisatie_for_zaken_api(self):

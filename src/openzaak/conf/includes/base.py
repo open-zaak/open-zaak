@@ -379,6 +379,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "openzaak.import_data.tasks.remove_imports",
         "schedule": crontab(hour="9"),
     },
+    "daily-remove-empty-applications": {
+        "task": "openzaak.components.autorisaties.tasks.remove_empty_applications",
+        "schedule": crontab(hour="2"),
+    },
 }
 CELERY_RESULT_EXPIRES = config(
     "CELERY_RESULT_EXPIRES",
