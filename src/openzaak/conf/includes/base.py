@@ -513,6 +513,8 @@ ZAAK_IDENTIFICATIE_GENERATOR = config(
     ),
 )
 
+DEFAULT_NOTIFICATIONS_HANDLER = "openzaak.utils.handlers.default"
+
 STORE_FAILED_NOTIFS = True
 # silence using upper case in enums
 SILENCED_SYSTEM_CHECKS = SILENCED_SYSTEM_CHECKS + ["vng_api_common.enums.W001"]

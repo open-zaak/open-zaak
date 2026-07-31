@@ -254,3 +254,13 @@ class ApplicatieSerializer(serializers.HyperlinkedModelSerializer):
         self.create_missing_credentials(applicatie)
 
         return applicatie
+
+
+class ApplicatieUuidSerializer(ApplicatieSerializer):
+    """
+    Serializer for saving data in local auth DB
+    uuid is used for synchronizing identifiers with AC DB
+    """
+
+    class Meta(ApplicatieSerializer.Meta):
+        fields = ApplicatieSerializer.Meta.fields + ("uuid",)
