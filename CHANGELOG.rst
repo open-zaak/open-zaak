@@ -98,6 +98,31 @@ Changelog
 * [:open-zaak:`2369`] use Sphinx directive from ``maykin-common`` to generate environment variable documentation
 * [:open-api-framework:`217`] Replace references to maykinmedia.nl with maykin.nl
 
+1.28.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` while the zaak has no hoofdzaak from a generic
+  message to a specific one: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
+1.28.3 (2026-07-02)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2429` / :open-zaak:`2427`] Allow closing Zaken with ``archiefnominatie=blijvend_bewaren`` when no
+  ``archiefactiedatum`` can be determined. In this case the ``archiefnominatie`` is still
+  stored while ``archiefactiedatum`` and ``startdatumBewaartermijn`` remain ``null``.
+
+* [:open-zaak:`2415`] Rename environment variable ``UWSGI_PORT`` to ``OPENZAAK_PORT`` to avoid uWSGI strict-mode
+  interpreting the environment variable as an unknown configuration directive, preventing
+  Open Zaak from starting.
+
 1.28.2 (2026-06-16)
 -------------------
 
@@ -196,6 +221,31 @@ Changelog
 * [:open-api-framework:`213`] Consistent styling for documentation for all applications
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
+
+1.27.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` while the zaak has no hoofdzaak from a generic
+  message to a specific one: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
+1.27.3 (2026-07-02)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2429` / :open-zaak:`2427`] Allow closing Zaken with ``archiefnominatie=blijvend_bewaren`` when no
+  ``archiefactiedatum`` can be determined. In this case the ``archiefnominatie`` is still
+  stored while ``archiefactiedatum`` and ``startdatumBewaartermijn`` remain ``null``.
+
+* [:open-zaak:`2415`] Rename environment variable ``UWSGI_PORT`` to ``OPENZAAK_PORT`` to avoid uWSGI strict-mode
+  interpreting the environment variable as an unknown configuration directive, preventing
+  Open Zaak from starting.
 
 1.27.2 (2026-06-16)
 -------------------
