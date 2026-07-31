@@ -88,7 +88,11 @@ class JWTAuthMixin:
 
 
 class JWTAuthCacheMixin(_JWTAuthMixin):
-    # TODO add docstring
+    """
+    Tests that used commonground-api-common's JWTAuthMixin need to use this subclass that uses the new
+    Applicatie and Autorisatie models
+    """
+
     @staticmethod
     def _create_credentials(
         client_id: str,

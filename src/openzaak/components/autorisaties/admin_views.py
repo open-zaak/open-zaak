@@ -59,7 +59,6 @@ def is_local_url(autorisatie):
     return True
 
 
-# TODO ADMIN REFACTOR
 def get_initial_for_component(
     component: str,
     autorisaties: List[Autorisatie],
@@ -260,7 +259,7 @@ class AutorisatiesView(AdminContextMixin, DetailView):
         if formset.is_valid():
             formset.save()
             return redirect(
-                "admin:authorizations_applicatie_change", object_id=applicatie.pk
+                "admin:autorisaties_applicatie_change", object_id=applicatie.pk
             )
 
         context = self.get_context_data(formset=formset)

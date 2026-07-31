@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from vng_api_common.authorizations.models import (
-    AuthorizationsConfig,  # TODO what is this
+    AuthorizationsConfig,
 )
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.models import JWTSecret
