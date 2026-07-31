@@ -1,0 +1,14 @@
+vng_api_common_applicaties_config_enable: true
+vng_api_common_applicaties:
+  items:
+  - uuid: 78591bab-9a00-4887-849c-53b21a67782f
+    client_ids:
+      - user-id
+      - user-id2
+    label: applicatie1
+    heeft_alle_autorisaties: true
+  - uuid: fa0f6d18-5900-4d74-aad4-a748afb2c505
+    client_ids:
+      - user-id2
+    label: applicatie2
+    heeft_alle_autorisaties: true
