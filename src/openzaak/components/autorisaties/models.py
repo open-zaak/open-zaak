@@ -73,6 +73,20 @@ class CatalogusAutorisatieManager(models.Manager):
 
 
 class CatalogusAutorisatie(models.Model):
+    # applicatie = models.ForeignKey(
+    #     _Applicatie,
+    #     on_delete=models.CASCADE,
+    #     help_text=_("The application to which this authorisation belongs"),
+    #     null=True,
+    #     blank=True,
+    # )
+    # new_applicatie = models.ForeignKey(
+    #     Applicatie,
+    #     on_delete=models.CASCADE,
+    #     help_text=_("The application to which this authorisation belongs"),
+    #     null=True,
+    #     blank=True,
+    # )
     applicatie = models.ForeignKey(
         Applicatie,
         on_delete=models.CASCADE,
@@ -151,9 +165,6 @@ class AutorisatieManager(models.Manager):
         return self.get(applicatie=applicatie, component=component, scopes=scopes)
 
 
-# TODO
-# remove types from Autorisatie in cg-a-c
-# subclass here with fks added?
 class Autorisatie(APIMixin, models.Model):
     applicatie = models.ForeignKey(
         Applicatie,
