@@ -126,9 +126,7 @@ class JWTAuth(_JWTAuth):
                 if (
                     has_catalogus_autorisaties
                     and field_value
-                    and loader.is_local_url(
-                        field_value
-                    )  # TODO why? is this not always local?
+                    and loader.is_local_url(field_value)
                 ):
                     resolved = get_resource_for_path(urlparse(field_value).path)
                     catalogus_autorisaties = self.filter_default(

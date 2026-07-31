@@ -80,7 +80,7 @@ urlpatterns = [
         name="scopes",
     ),
     path("ref/", include("vng_api_common.urls")),
-    path("ref/", include("notifications_api_common.urls")),  # TODO authhandler
+    path("ref/", include("notifications_api_common.urls")),
     # auth backends
     path("oidc/", include("mozilla_django_oidc.urls")),
     path("events", CloudEventWebhook.as_view(), name="cloudevent-webhook"),

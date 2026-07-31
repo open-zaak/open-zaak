@@ -16,7 +16,6 @@ class ApplicatieManager(models.Manager):
         return self.get(uuid=uuid)
 
 
-# TODO change setup config step to use this model
 class Applicatie(APIMixin, models.Model):
     """
     Client level of authorization
@@ -73,20 +72,6 @@ class CatalogusAutorisatieManager(models.Manager):
 
 
 class CatalogusAutorisatie(models.Model):
-    # applicatie = models.ForeignKey(
-    #     _Applicatie,
-    #     on_delete=models.CASCADE,
-    #     help_text=_("The application to which this authorisation belongs"),
-    #     null=True,
-    #     blank=True,
-    # )
-    # new_applicatie = models.ForeignKey(
-    #     Applicatie,
-    #     on_delete=models.CASCADE,
-    #     help_text=_("The application to which this authorisation belongs"),
-    #     null=True,
-    #     blank=True,
-    # )
     applicatie = models.ForeignKey(
         Applicatie,
         on_delete=models.CASCADE,
