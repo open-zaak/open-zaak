@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
 
+from datetime import date
+
 from django.test import override_settings, tag
+from django.utils.translation import gettext as _
 
 import requests_mock
 from dateutil.relativedelta import relativedelta
@@ -801,6 +804,109 @@ class HoofdzaakAfsluitingTests(JWTAuthMixin, APITestCase):
         self.assertIsNone(ext_deelzaak.archiefnominatie)
         self.assertIsNone(ext_deelzaak.zaak.archiefactiedatum)
         self.assertIsNone(ext_deelzaak.startdatum_bewaartermijn)
+
+    @tag("gh-2448")
+    def test_close_hoofdzaak_with_deelzaak_with_blijvend_bewaren_archiefnominatie(self):
+        self.zaak.resultaat.delete()
+        ResultaatFactory.create(
+            zaak=self.zaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                selectielijstklasse="",
+                archiefactietermijn=None,
+                archiefnominatie=Archiefnominatie.blijvend_bewaren,
+            ),
+        )
+
+        deelzaak = ZaakFactory.create(zaaktype=self.int_zaaktype, hoofdzaak=self.zaak)
+        ResultaatFactory.create(
+            zaak=deelzaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                archiefnominatie=Archiefnominatie.blijvend_bewaren,
+                brondatum_archiefprocedure_afleidingswijze=(
+                    BrondatumArchiefprocedureAfleidingswijze.hoofdzaak
+                ),
+            ),
+        )
+
+        # close the deelzaak first
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": reverse("zaak-detail", kwargs={"uuid": deelzaak.uuid}),
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 5).isoformat(),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # close the hoofdzaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": self.zaak_url,
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.zaak.refresh_from_db()
+        deelzaak.refresh_from_db()
+
+        self.assertEqual(self.zaak.einddatum, date(2024, 4, 6))
+        self.assertEqual(self.zaak.archiefnominatie, Archiefnominatie.blijvend_bewaren)
+        self.assertIsNone(self.zaak.archiefactiedatum)
+        self.assertIsNone(self.zaak.startdatum_bewaartermijn)
+
+        self.assertEqual(deelzaak.einddatum, date(2024, 4, 5))
+        self.assertEqual(deelzaak.archiefnominatie, Archiefnominatie.blijvend_bewaren)
+        self.assertIsNone(deelzaak.archiefactiedatum)
+        self.assertIsNone(deelzaak.startdatum_bewaartermijn)
+
+    @tag("gh-2448")
+    def test_close_zaak_afleidingswijze_hoofdzaak_without_hoofdzaak(self):
+        self.zaak.resultaat.delete()
+        ResultaatFactory.create(
+            zaak=self.zaak,
+            resultaattype=ResultaatTypeFactory.create(
+                zaaktype=self.int_zaaktype,
+                selectielijstklasse="",
+                archiefnominatie=Archiefnominatie.vernietigen,
+                archiefactietermijn=relativedelta(years=10),
+                brondatum_archiefprocedure_afleidingswijze=(
+                    BrondatumArchiefprocedureAfleidingswijze.hoofdzaak
+                ),
+            ),
+        )
+
+        self.assertIsNone(self.zaak.hoofdzaak)
+
+        # close the zaak
+        response = self.client.post(
+            self.status_list_url,
+            {
+                "zaak": f"http://testserver{self.zaak_url}",
+                "statustype": f"http://testserver{self.int_statustype2_url}",
+                "datumStatusGezet": utcdatetime(2024, 4, 6).isoformat(),
+            },
+        )
+
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
+        )
+        self.assertEqual(
+            response.data["invalid_params"][0]["code"], "archiefactiedatum-error"
+        )
+        self.assertEqual(
+            response.data["invalid_params"][0]["reason"],
+            _(
+                "De archiefactiedatum kan niet bepaald worden, omdat de afleidingswijze `{hoofdzaak}` "
+                "gebruikt wordt, maar de zaak geen hoofdzaak heeft."
+            ).format(hoofdzaak=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak),
+        )
 
     @tag("gh-2098")
     def test_change_deelzaak_status_without_resultaat(self):
