@@ -112,6 +112,51 @@ Changelog
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
 
+1.27.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
+1.27.3 (2026-07-02)
+-------------------
+
+**Bugfixes**
+
+* [:open-zaak:`2429` / :open-zaak:`2427`] Allow closing Zaken with ``archiefnominatie=blijvend_bewaren`` when no
+  ``archiefactiedatum`` can be determined. In this case the ``archiefnominatie`` is still
+  stored while ``archiefactiedatum`` and ``startdatumBewaartermijn`` remain ``null``.
+
+* [:open-zaak:`2415`] Rename environment variable ``UWSGI_PORT`` to ``OPENZAAK_PORT`` to avoid uWSGI strict-mode
+  interpreting the environment variable as an unknown configuration directive, preventing
+  Open Zaak from starting.
+
+1.27.2 (2026-06-16)
+-------------------
+
+**Security patches**
+
+* [`CVE-2026-54657`_] See `GHSA-f29q-7rpr-jmjx`_ for more information.
+
+  * Ensure results from ``/zaken/_zoek`` and ``/enkelvoudiginformatieobjecten/_zoek``
+    endpoints are filtered according to authorizations belonging to the used token
+* [`CVE-2026-55836`_] See `GHSA-x5cj-23hr-5r54`_ for more information
+
+  * Ensure document bulk import only allows filepaths relative to the ``IMPORT_DOCUMENTEN_BASE_DIR`` to avoid path traversal
+  * Change default ``IMPORT_DOCUMENTEN_BASE_DIR`` to be ``<BASE_DIR>/import-data`` (``/app/import-data`` when
+    running a containerized environment) instead of ``BASE_DIR`` and disallow setting it to be equal to ``BASE_DIR``
+
+.. _CVE-2026-54657: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-54657
+.. _GHSA-f29q-7rpr-jmjx: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-f29q-7rpr-jmjx
+.. _CVE-2026-55836: https://www.cve.org/CVERecord/SearchResults?query=CVE-2026-55836
+.. _GHSA-x5cj-23hr-5r54: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-x5cj-23hr-5r54
+
 1.27.1 (2026-05-01)
 -------------------
 
