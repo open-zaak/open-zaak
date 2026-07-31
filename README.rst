@@ -12,7 +12,7 @@ Open Zaak
 
 .. _`Read this in English`: README.en.md
 
-:Version: 1.29.1
+:Version: 1.29.2
 :Source: https://github.com/open-zaak/open-zaak
 :Keywords: zaken, zaakgericht werken, zaken-api, catalogi-api, besluiten-api, documenten-api
 :PythonVersion: 3.12

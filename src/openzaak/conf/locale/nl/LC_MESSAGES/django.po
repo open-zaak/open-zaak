@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-11 11:49+0000\n"
+"POT-Creation-Date: 2026-07-31 07:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4297,17 +4297,17 @@ msgstr ""
 msgid "Array van zaaktypen."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:908
+#: openzaak/components/zaken/api/serializers/zaken.py:915
 msgid "De archiefactiedatum kon niet worden bepaald."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1223
-#: openzaak/components/zaken/api/serializers/zaken.py:1620
-#: openzaak/components/zaken/api/serializers/zaken.py:1672
+#: openzaak/components/zaken/api/serializers/zaken.py:1247
+#: openzaak/components/zaken/api/serializers/zaken.py:1644
+#: openzaak/components/zaken/api/serializers/zaken.py:1696
 msgid "Could not create remote relation due to an unexpected error"
 msgstr "Kon externe relatie niet aanmaken door een onverwachte error"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1340
+#: openzaak/components/zaken/api/serializers/zaken.py:1364
 msgid ""
 "De gegevens van de persoon die anderen desgevraagd in contact brengt met "
 "medewerkers van de BETROKKENE, een NIET-NATUURLIJK PERSOON of VESTIGING "
@@ -4315,40 +4315,40 @@ msgid ""
 "belang van BETROKKENE in haar ROL bij een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1393
+#: openzaak/components/zaken/api/serializers/zaken.py:1417
 #: openzaak/components/zaken/models/zaken.py:854
 msgid ""
 "De BETROKKENE die in zijn/haar ROL in een ZAAK heeft geregistreerd dat "
 "STATUSsen in die ZAAK bereikt zijn."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1423
+#: openzaak/components/zaken/api/serializers/zaken.py:1447
 msgid "betrokkene or betrokkeneIdentificatie must be provided"
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1434
+#: openzaak/components/zaken/api/serializers/zaken.py:1458
 msgid "`eindeGeldigheid` date cannot be before `beginGeldigheid` date"
 msgstr ""
 "`eindeGeldigheid` datum kan niet eerder zijn dan `beginGeldigheid` datum"
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1691
+#: openzaak/components/zaken/api/serializers/zaken.py:1715
 msgid "URL-referentie naar een ZAAK."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1705
+#: openzaak/components/zaken/api/serializers/zaken.py:1729
 #: openzaak/components/zaken/tests/test_notitie.py:137
 msgid "Notitie can only be modified when status is `concept`."
 msgstr "Een Notitie kan alleen aangepast worden als de status `concept` is."
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1899
+#: openzaak/components/zaken/api/serializers/zaken.py:1923
 msgid "Dubbel uuid: {}."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1906
+#: openzaak/components/zaken/api/serializers/zaken.py:1930
 msgid "uuid {} is niet onderdeel van de zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/serializers/zaken.py:1911
+#: openzaak/components/zaken/api/serializers/zaken.py:1935
 msgid "uuid {} bestaat niet."
 msgstr ""
 
@@ -4497,56 +4497,64 @@ msgid ""
 "worden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:106
+#: openzaak/components/zaken/brondatum.py:102
+#: openzaak/components/zaken/tests/test_hoofdzaak_afsluiting.py:910
+#, python-brace-format
+msgid ""
+"De archiefactiedatum kan niet bepaald worden, omdat de afleidingswijze "
+"`{hoofdzaak}` gebruikt wordt, maar de zaak geen hoofdzaak heeft."
+msgstr ""
+
+#: openzaak/components/zaken/brondatum.py:112
 msgid ""
 "Geen datumkenmerk aanwezig om de eigenschap te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:120
+#: openzaak/components/zaken/brondatum.py:126
 msgid "Geen geldige datumwaarde in eigenschap \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:133
+#: openzaak/components/zaken/brondatum.py:139
 msgid ""
 "Geen objecttype aanwezig om het zaakobject te achterhalen voor het bepalen "
 "van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:139
+#: openzaak/components/zaken/brondatum.py:145
 msgid ""
 "Geen datumkenmerk aanwezig om het attribuut van het zaakobject te "
 "achterhalen voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:157
+#: openzaak/components/zaken/brondatum.py:163
 msgid "{} geen geldig attribuut voor ZaakObject van type {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:166
+#: openzaak/components/zaken/brondatum.py:172
 msgid "Geen geldige datumwaarde in attribuut \"{}\": {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:176
+#: openzaak/components/zaken/brondatum.py:182
 msgid ""
 "Geen attribuut gevonden die overeenkomt met het datumkenmerk \"{}\" voor het "
 "bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:187
+#: openzaak/components/zaken/brondatum.py:193
 msgid "Geen procestermijn aanwezig voor het bepalen van de brondatum."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:193
+#: openzaak/components/zaken/brondatum.py:199
 msgid "Geen geldige periode in procestermijn: {}"
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:202
+#: openzaak/components/zaken/brondatum.py:208
 msgid ""
 "Geen gerelateerde zaken aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
-#: openzaak/components/zaken/brondatum.py:232
+#: openzaak/components/zaken/brondatum.py:238
 msgid "Geen besluiten aan zaak gekoppeld om brondatum uit af te leiden."
 msgstr ""
 
@@ -5629,13 +5637,13 @@ msgstr "zaaknotitie"
 msgid "zaaknotities"
 msgstr "zaaknotities"
 
-#: openzaak/components/zaken/tests/test_auth.py:882
-#: openzaak/components/zaken/tests/test_auth.py:1015
-#: openzaak/components/zaken/tests/test_auth.py:1203
-#: openzaak/components/zaken/tests/test_auth.py:1335
-#: openzaak/components/zaken/tests/test_auth.py:1482
-#: openzaak/components/zaken/tests/test_auth.py:1872
-#: openzaak/components/zaken/tests/test_auth.py:2607
+#: openzaak/components/zaken/tests/test_auth.py:934
+#: openzaak/components/zaken/tests/test_auth.py:1067
+#: openzaak/components/zaken/tests/test_auth.py:1255
+#: openzaak/components/zaken/tests/test_auth.py:1387
+#: openzaak/components/zaken/tests/test_auth.py:1534
+#: openzaak/components/zaken/tests/test_auth.py:1924
+#: openzaak/components/zaken/tests/test_auth.py:2659
 #: openzaak/utils/permissions.py:119
 #, python-brace-format
 msgid "Incorrect resource. Expected: {expected}"
