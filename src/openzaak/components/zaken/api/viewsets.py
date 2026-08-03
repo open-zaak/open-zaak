@@ -1290,7 +1290,7 @@ class RolViewSet(
     """
 
     queryset = (
-        Rol.objects.select_related("_roltype", "zaak")
+        Rol.objects.select_related("roltype", "zaak")
         .prefetch_related(
             "natuurlijkpersoon",
             "nietnatuurlijkpersoon",
@@ -1409,9 +1409,7 @@ class ResultaatViewSet(
     Opvragen en beheren van resultaten.
     """
 
-    queryset = Resultaat.objects.select_related("_resultaattype", "zaak").order_by(
-        "-pk"
-    )
+    queryset = Resultaat.objects.select_related("resultaattype", "zaak").order_by("-pk")
     serializer_class = ResultaatSerializer
     filterset_class = ResultaatFilter
     lookup_field = "uuid"

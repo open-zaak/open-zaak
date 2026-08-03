@@ -28,7 +28,7 @@ class ResultaatAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "_resultaattype": resultaattype.id,
+            "resultaattype": resultaattype.id,
             "toelichting": "desc",
         }
         self.client.post(reverse("admin:zaken_resultaat_add"), data)
@@ -49,7 +49,7 @@ class ResultaatAdminTests(AdminTestMixin, TestCase):
         data = {
             "uuid": uuid.uuid4(),
             "zaak": zaak.id,
-            "_resultaattype": resultaattype.id,
+            "resultaattype": resultaattype.id,
             "toelichting": "desc",
         }
         response = self.client.post(reverse("admin:zaken_resultaat_add"), data)
