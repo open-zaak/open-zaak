@@ -1,15 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.test import override_settings, tag
+from django.test import tag
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.constants import RolTypes
 from vng_api_common.tests import TypeCheckMixin, get_validation_errors
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.components.catalogi.tests.factories import RolTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
@@ -708,76 +705,3 @@ class RolTestCase(JWTAuthMixin, TypeCheckMixin, APITestCase):
         self.assertEqual(
             data["next"], f"http://testserver{self.list_url}?page=2&pageSize=5"
         )
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class RolCreateExternalURLsTests(JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-    list_url = reverse(Rol)
-
-    def test_create_external_roltype_fail_bad_url(self):
-        zaak = ZaakFactory.create()
-        zaak_url = reverse(zaak)
-
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaak": f"http://testserver{zaak_url}",
-                "betrokkene": BETROKKENE,
-                "betrokkene_type": RolTypes.natuurlijk_persoon,
-                "roltype": "abcd",
-                "roltoelichting": "awerw",
-            },
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "roltype")
-        self.assertEqual(error["code"], "bad-url")
-
-    def test_create_external_roltype_fail_not_json_url(self):
-        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
-        zaak = ZaakFactory.create()
-        zaak_url = reverse(zaak)
-
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com/", status_code=200, text="<html></html>")
-
-            response = self.client.post(
-                self.list_url,
-                {
-                    "zaak": f"http://testserver{zaak_url}",
-                    "betrokkene": BETROKKENE,
-                    "betrokkene_type": RolTypes.natuurlijk_persoon,
-                    "roltype": "http://example.com/",
-                    "roltoelichting": "awerw",
-                },
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "roltype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    def test_create_external_roltype_fail_unknown_service(self):
-        zaak = ZaakFactory.create()
-        zaak_url = reverse(zaak)
-
-        response = self.client.post(
-            self.list_url,
-            {
-                "zaak": f"http://testserver{zaak_url}",
-                "betrokkene": BETROKKENE,
-                "betrokkene_type": RolTypes.natuurlijk_persoon,
-                "roltype": "https://other-externe.catalogus.nl/api/v1/roltypen/1",
-                "roltoelichting": "awerw",
-            },
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "roltype")
-        self.assertEqual(error["code"], "unknown-service")

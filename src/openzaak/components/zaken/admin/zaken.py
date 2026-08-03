@@ -339,49 +339,22 @@ class ResultaatForm(forms.ModelForm):
         model = Resultaat
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_resultaattype") and not cleaned_data.get(
-            "_resultaattype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een resultaattype opgeven: "
-                "selecteer een resultaattype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Resultaat)
 class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "toelichting")
-    list_select_related = ("zaak", "_resultaattype", "_resultaattype_base_url")
+    list_select_related = ("zaak", "resultaattype")
     search_fields = (
         "uuid",
         "toelichting",
-        "_resultaattype__uuid",
-        "resultaattype_url",
+        "resultaattype__uuid",
         "zaak__identificatie",
         "zaak__uuid",
     )
     form = ResultaatForm
     ordering = ("zaak",)
-    raw_id_fields = ("zaak", "_resultaattype", "_resultaattype_base_url")
+    raw_id_fields = ("zaak", "resultaattype")
     viewset = "openzaak.components.zaken.api.viewsets.ResultaatViewSet"
-
-    def get_queryset(self, request):
-        """
-        annotate queryset with composite url field for search purposes
-        """
-        queryset = super().get_queryset(request)
-        return queryset.annotate(
-            resultaattype_url=Concat(
-                F("_resultaattype_base_url__api_root"),
-                F("_resultaattype_relative_url"),
-                output_field=CharField(),
-            )
-        )
 
 
 class RolForm(forms.ModelForm):
@@ -389,24 +362,11 @@ class RolForm(forms.ModelForm):
         model = Rol
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_roltype") and not cleaned_data.get(
-            "_roltype_base_url"
-        ):
-            raise forms.ValidationError(
-                "Je moet een roltype opgeven: "
-                "selecteer een roltype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Rol)
 class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     list_display = ("zaak", "betrokkene", "betrokkene_type")
-    list_select_related = ("zaak", "_roltype", "_roltype_base_url")
+    list_select_related = ("zaak", "roltype")
     list_filter = ("betrokkene_type", "indicatie_machtiging", "registratiedatum")
     search_fields = (
         "uuid",
@@ -419,7 +379,7 @@ class RolAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
     form = RolForm
     date_hierarchy = "registratiedatum"
     ordering = ("registratiedatum", "betrokkene")
-    raw_id_fields = ("zaak", "_roltype", "_roltype_base_url")
+    raw_id_fields = ("zaak", "roltype")
     viewset = "openzaak.components.zaken.api.viewsets.RolViewSet"
     inlines = [
         NatuurlijkPersoonInline,
@@ -829,7 +789,7 @@ class ZaakAdmin(
     def get_resultaat(self, obj) -> str:
         try:
             resultaat = obj.resultaat
-            resultaattype = resultaat._resultaattype
+            resultaattype = resultaat.resultaattype
             return resultaattype.omschrijving if resultaattype else ""
         except Resultaat.DoesNotExist:
             return ""
@@ -876,11 +836,7 @@ class ZaakAdmin(
 
         resultaat_prefetch = Prefetch(
             "resultaat",
-            queryset=(
-                Resultaat.objects.select_related("_resultaattype").filter(
-                    _resultaattype__isnull=False
-                )
-            ),
+            queryset=Resultaat.objects.select_related("resultaattype"),
         )
 
         return queryset.select_related("zaaktype").prefetch_related(

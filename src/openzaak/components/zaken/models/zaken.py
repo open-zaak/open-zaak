@@ -915,40 +915,11 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
     zaak = models.OneToOneField(
         Zaak, on_delete=models.CASCADE, help_text=("URL-referentie naar de ZAAK.")
     )
-
-    _resultaattype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
-    )
-    _resultaattype_relative_url = RelativeURLField(
-        _("resultaattype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API).",
-    )
-    _resultaattype_url = ServiceUrlField(
-        base_field="_resultaattype_base_url",
-        relative_field="_resultaattype_relative_url",
-        verbose_name=_("extern resultaattype"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern RESULTAATTYPE (in een andere Catalogi API)."
-        ),
-    )
-    _resultaattype = models.ForeignKey(
+    resultaattype = models.ForeignKey(
         "catalogi.ResultaatType",
         on_delete=models.PROTECT,
-        help_text="URL-referentie naar het RESULTAATTYPE (in de Catalogi API).",
-        null=True,
-        blank=True,
-    )
-    resultaattype = FkOrServiceUrlField(
-        fk_field="_resultaattype",
-        url_field="_resultaattype_url",
         help_text=_("URL-referentie naar het RESULTAATTYPE (in de Catalogi API)."),
     )
-
     toelichting = models.TextField(
         max_length=1000,
         blank=True,
@@ -963,6 +934,7 @@ class Resultaat(ETagMixin, APIMixin, models.Model):
 
     def full_clean(self, *args, **kwargs):
         super().full_clean(*args, **kwargs)
+
         CorrectZaaktypeValidator("resultaattype")(
             {
                 "resultaattype": self.resultaattype,
@@ -1054,34 +1026,9 @@ class Rol(ETagMixin, APIMixin, models.Model):
         blank=True,
     )
 
-    _roltype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
-    )
-    _roltype_relative_url = RelativeURLField(
-        _("roltype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern ROLTYPE (in een andere Catalogi API).",
-    )
-    _roltype_url = ServiceUrlField(
-        base_field="_roltype_base_url",
-        relative_field="_roltype_relative_url",
-        verbose_name=_("extern roltype"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_("URL-referentie naar extern ROLTYPE (in een andere Catalogi API)."),
-    )
-    _roltype = models.ForeignKey(
+    roltype = models.ForeignKey(
         "catalogi.RolType",
         on_delete=models.PROTECT,
-        help_text="URL-referentie naar het ROLTYPE (in de Catalogi API).",
-        null=True,
-        blank=True,
-    )
-    roltype = FkOrServiceUrlField(
-        fk_field="_roltype",
-        url_field="_roltype_url",
         help_text=_("URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK."),
     )
 

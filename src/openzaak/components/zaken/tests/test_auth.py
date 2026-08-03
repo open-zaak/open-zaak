@@ -2586,20 +2586,23 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
     def test_resultaten_list(self):
         url = reverse("zaken:resultaat-list")
 
+        resultaattype = ResultaatTypeFactory.create(zaaktype=self.zaaktype)
+
         # must show up
         resultaat = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/1",
+            resultaattype=resultaattype,
         )
 
         other_zaaktype = ZaakTypeFactory.create()
+        other_resultaattype = ResultaatTypeFactory.create(zaaktype=other_zaaktype)
 
         # must not show up
         ResultaatFactory.create(
             zaak__zaaktype=other_zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/2",
+            resultaattype=other_resultaattype,
         )
 
         response = self.client.get(url, **ZAAK_READ_KWARGS)
@@ -2614,18 +2617,21 @@ class InternalZaaktypeScopeTests(JWTAuthMixin, APITestCase):
         )
 
     def test_resultaten_retrieve(self):
+        resultaattype1 = ResultaatTypeFactory.create(zaaktype=self.zaaktype)
+
         resultaat1 = ResultaatFactory.create(
             zaak__zaaktype=self.zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/1",
+            resultaattype=resultaattype1,
         )
 
         other_zaaktype = ZaakTypeFactory.create()
+        resultaattype2 = ResultaatTypeFactory.create(zaaktype=other_zaaktype)
 
         resultaat2 = ResultaatFactory.create(
             zaak__zaaktype=other_zaaktype,
             zaak__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            resultaattype="https://externe.catalogus.nl/api/v1/resultaattypen/2",
+            resultaattype=resultaattype2,
         )
 
         url1 = reverse(resultaat1)
