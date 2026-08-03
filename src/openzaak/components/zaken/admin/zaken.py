@@ -339,6 +339,17 @@ class ResultaatForm(forms.ModelForm):
         model = Resultaat
         fields = "__all__"
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("resultaattype"):
+            raise forms.ValidationError(
+                "Je moet een resultaattype opgeven: "
+                "selecteer een resultaattype uit de catalogus."
+            )
+
+        return cleaned_data
+
 
 @admin.register(Resultaat)
 class ResultaatAdmin(AuditTrailAdminMixin, UUIDAdminMixin, admin.ModelAdmin):
