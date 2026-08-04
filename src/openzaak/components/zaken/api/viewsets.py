@@ -2173,12 +2173,12 @@ class ZaakUpdateActionViewSet(
         "zaak": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Zaak,
-            "action": "partial_update",
+            "action_override": "partial_update",
         },
         "status": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Status,
-            "action": "create",
+            "action_override": "create",
         },
     }
 
@@ -2352,7 +2352,7 @@ class ZaakBijwerkenViewset(
         "rollen": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Rol,
-            "action": "create",
+            "action_override": "create",
         },
     }
     cloudevent = ZAAK_BIJGEWERKT
@@ -2536,7 +2536,7 @@ class ZaakAfsluitenViewSet(ZaakUpdateActionViewSet):
         "resultaat": {
             "notifications_kanaal": KANAAL_ZAKEN,
             "model": Resultaat,
-            "action": "create",
+            "action_override": "create",
         },
     }
 
