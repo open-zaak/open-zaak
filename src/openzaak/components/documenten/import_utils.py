@@ -43,6 +43,7 @@ class DocumentRow:
     _informatieobjecttype: str
     _zaak_uuid: str
     _trefwoorden: str
+    _inhoud_is_vervallen: str
 
     row_index: int
 
@@ -85,6 +86,7 @@ class DocumentRow:
             "informatieobjecttype",
             "zaakUuid",
             "trefwoorden",
+            "inhoudIsVervallen",
         ]
 
     @classproperty
@@ -201,6 +203,13 @@ class DocumentRow:
         return trefwoorden.split(",")
 
     @property
+    def inhoud_is_vervallen(self) -> bool | None:
+        value = self._inhoud_is_vervallen.lower()
+        if value in ("none", "null", ""):
+            return None
+        return value == "true"
+
+    @property
     def processed(self) -> bool:
         return self._processed
 
@@ -254,6 +263,7 @@ class DocumentRow:
             "integriteit": self.integriteit,
             "informatieobjecttype": self._informatieobjecttype,
             "trefwoorden": self.trefwoorden,
+            "inhoud_is_vervallen": self.inhoud_is_vervallen,
         }
 
     def as_original(self):
@@ -285,6 +295,7 @@ class DocumentRow:
             "informatieobjecttype": self._informatieobjecttype,
             "zaakUuid": self._zaak_uuid,
             "trefwoorden": self._trefwoorden,
+            "inhoudIsVervallen": self._inhoud_is_vervallen,
         }
 
     def as_export_data(self):
