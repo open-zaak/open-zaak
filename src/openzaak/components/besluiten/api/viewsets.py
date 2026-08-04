@@ -152,7 +152,10 @@ class BesluitViewSet(
         "update": SCOPE_BESLUITEN_BIJWERKEN,
         "partial_update": SCOPE_BESLUITEN_BIJWERKEN,
     }
-    notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
+    notifications_kanalen = [
+        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+        {"kanaal": KANAAL_ZAKEN},
+    ]
     audit = AUDIT_BRC
 
     def perform_create(self, serializer):
@@ -272,7 +275,10 @@ class BesluitInformatieObjectViewSet(
         "create": SCOPE_BESLUITEN_AANMAKEN,
         "destroy": SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     }
-    notifications_kanalen = [KANAAL_BESLUITEN, KANAAL_ZAKEN]
+    notifications_kanalen = [
+        {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+        {"kanaal": KANAAL_ZAKEN},
+    ]
     notifications_main_resource_keys = {"zaken": "besluit.zaak"}
     notifications_replace_urls_for = ["besluit"]
     audit = AUDIT_BRC
@@ -393,11 +399,17 @@ class BesluitVerwerkenViewSet(
 
     notification_fields = {
         "besluit": {
-            "notifications_kanalen": [KANAAL_BESLUITEN, KANAAL_ZAKEN],
+            "notifications_kanalen": [
+                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+                {"kanaal": KANAAL_ZAKEN},
+            ],
             "model": Besluit,
         },
         "besluitinformatieobjecten": {
-            "notifications_kanalen": [KANAAL_BESLUITEN, KANAAL_ZAKEN],
+            "notifications_kanalen": [
+                {"kanaal": KANAAL_BESLUITEN, "deprecated": True},
+                {"kanaal": KANAAL_ZAKEN},
+            ],
             "model": BesluitInformatieObject,
             "notifications_replace_urls_for": ["besluit"],
             "notifications_main_resource_keys": {"zaken": "besluit.zaak"},
