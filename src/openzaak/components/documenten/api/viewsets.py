@@ -194,8 +194,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- correcte `lock` waarde\n"
             "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
             "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
-            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
-            "- status NIET `definitief`"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
         ),
         responses={
             status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
@@ -213,8 +212,7 @@ REGISTRATIE_QUERY_PARAM = OpenApiParameter(
             "- correcte `lock` waarde\n"
             "- geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen "
             "worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.\n"
-            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn\n"
-            "- status NIET `definitief`"
+            "- publicatie `informatieobjecttype` - `concept` moet `false` zijn"
         ),
         responses={
             status.HTTP_200_OK: EnkelvoudigInformatieObjectSerializer,
