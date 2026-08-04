@@ -121,6 +121,12 @@ def move_applications(apps, schema_editor):
 
     ApplicationOld.objects.all().delete()
 
+def reverse(apps, schema_editor):
+    # TODO this makes sure that rolling back works even though all data will be lost
+    # could reverse all data as well but external urls wil always be lost ofc.
+    CatalogusAutorisatie = apps.get_model("autorisaties", "CatalogusAutorisatie")
+    CatalogusAutorisatie.objects.all().delete()
+
 
 class Migration(migrations.Migration):
     dependencies = [
@@ -131,5 +137,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        RunPython(move_applications, migrations.RunPython.noop),
+        RunPython(move_applications, reverse),
     ]
