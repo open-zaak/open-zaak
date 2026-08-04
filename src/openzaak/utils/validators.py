@@ -19,6 +19,11 @@ from vng_api_common.validators import IsImmutableValidator, URLValidator
 from openzaak.api_standards import APIStandard
 from openzaak.components.documenten.models import EnkelvoudigInformatieObject
 from openzaak.config.models import FeatureFlags
+from openzaak.utils.jq_wrappers import (
+    JQExecutionError,
+    JQInvalidExpressionError,
+    validate_jq,
+)
 
 from ..loaders import AuthorizedRequestsLoader
 from .serializer_fields import FKOrServiceUrlValidator
@@ -253,3 +258,21 @@ class ResourceValidator(ResourceValidatorMixin, URLValidator):
             raise error
 
         return obj
+
+
+class JQExpressionValidator:
+    message = _("This is not a valid jq expression.")
+    code = "invalid"
+
+    def __call__(self, value: str):
+        try:
+            validate_jq(value)
+        except JQInvalidExpressionError:
+            logger.exception("jq_expression_invalid")
+            raise serializers.ValidationError(self.message, code=self.code)
+        except JQExecutionError:
+            logger.exception("jq_expression_execution_error")
+            raise serializers.ValidationError(
+                _("An error occurred while executing the jq expression."),
+                code=self.code,
+            )
