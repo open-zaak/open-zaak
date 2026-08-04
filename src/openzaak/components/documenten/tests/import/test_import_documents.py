@@ -141,6 +141,13 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             all((row[-1] == ImportRowResultChoices.imported.label) for row in rows[1:])
         )
 
+        # Dynamically get the index of inhoud_is_vervallen
+        inhoud_is_vervallen_idx = rows[0].index("inhoudIsVervallen")
+        self.assertTrue(rows[1][inhoud_is_vervallen_idx], "true")
+        self.assertEqual(rows[2][inhoud_is_vervallen_idx], "")
+        self.assertTrue(eios.filter(inhoud_is_vervallen=True).count(), 2)
+        self.assertTrue(eios.filter(inhoud_is_vervallen__isnull=True).count(), 2)
+
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))
 
@@ -206,6 +213,10 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertTrue(
             all((row[-1] == ImportRowResultChoices.imported.label) for row in rows[1:])
         )
+
+        # Dynamically get the index of inhoud_is_vervallen
+        inhoud_is_vervallen_idx = rows[0].index("inhoudIsVervallen")
+        self.assertEqual(rows[1][inhoud_is_vervallen_idx], "")
 
         # no comments on all the rows
         self.assertTrue(all((row[-2] == "") for row in rows[1:]))

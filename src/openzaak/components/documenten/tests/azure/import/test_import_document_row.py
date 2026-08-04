@@ -167,6 +167,7 @@ class ImportDocumentRowTests(
             informatieobjecttype=self.informatieobjecttype_url,
             zaak_uuid=str(zaak.uuid),
             trefwoorden='"foo,bar"',
+            inhoud_is_vervallen="false",
         )
 
         identifier = generate_unique_identification(
@@ -223,6 +224,8 @@ class ImportDocumentRowTests(
         self.assertTrue(documenten_storage.exists(str(imported_path)))
         # assert the file does not exist on disk
         self.assertFalse(imported_path.exists())
+
+        self.assertFalse(eio.inhoud_is_vervallen)
 
     def test_upload_dir_does_not_exist(self):
         """
