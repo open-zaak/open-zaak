@@ -213,6 +213,18 @@ class InformatieObject(models.Model):
         url_field="_informatieobjecttype_url",
         help_text="URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
     )
+    inhoud_is_vervallen = models.BooleanField(
+        _("inhoud is vervallen"),
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet "
+            "vervallen, dus niet langer geldig is.\n"
+            "* `true` De inhoud van het INFORMATIEOBJECT is vervallen.\n"
+            "* `false` De inhoud van het INFORMATIEOBJECT is niet vervallen."
+        ),
+    )
 
     objects = InformatieobjectQuerySet.as_manager()
 
