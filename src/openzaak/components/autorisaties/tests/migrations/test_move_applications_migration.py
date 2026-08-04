@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2026 Dimpact
 from datetime import date, timedelta
 
 from openzaak.tests.utils import TestMigrations
