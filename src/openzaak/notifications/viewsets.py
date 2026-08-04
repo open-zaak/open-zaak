@@ -1,6 +1,16 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from typing import Callable, Dict, List, NotRequired, Type, TypedDict, Union
+from typing import (
+    Callable,
+    Dict,
+    Generator,
+    Generic,
+    List,
+    NotRequired,
+    TypedDict,
+    TypeVar,
+    Union,
+)
 
 from django.db import models, transaction
 
@@ -31,7 +41,7 @@ from .scopes import SCOPE_CLOUDEVENTS_BEZORGEN
 logger = structlog.stdlib.get_logger(__name__)
 
 
-def _schedule(message: dict):
+def _schedule(message: dict) -> None:
     pk = create_failed_notification(message, NotificationTypes.notification)
     transaction.on_commit(
         lambda msg=message, notification_id=pk: send_notification.delay(
@@ -42,31 +52,45 @@ def _schedule(message: dict):
 
 class NotificationFieldConfig(TypedDict):
     notifications_kanaal: Kanaal
-    model: Type[models.Model]
-    action: str | None
+    model: models.Model
+    action_override: str | None
+
+
+class KanaalConfig(TypedDict):
+    kanaal: Kanaal
+    deprecated: NotRequired[bool]
+    namespace: NotRequired[str]  # kanaal.label override
 
 
 class MultipleChannelNotificationFieldConfig(TypedDict):
-    notifications_kanalen: list[Kanaal]
-    model: Type[models.Model]
+    notifications_kanalen: list[KanaalConfig]
+    model: models.Model
     action: NotRequired[str]
-    replace_urls_for: NotRequired[list[str]]
+    notifications_replace_urls_for: NotRequired[list[str]]
+    notifications_main_resource_keys: NotRequired[dict[str, str]]
 
 
-class MultipleObjectsNotificationMixin(NotificationMixin):
-    """
-    NotificationMixin that adds support for sending notification per object in convenience endpoints.
-    """
+TNotificationFieldConfig = TypeVar(
+    "TNotificationFieldConfig",
+    NotificationFieldConfig,
+    MultipleChannelNotificationFieldConfig,
+)
 
-    notification_fields: dict[str, NotificationFieldConfig]
+
+class _MultipleObjectsNotificationMixin(
+    Generic[TNotificationFieldConfig], NotificationMixin
+):
+    notification_fields: dict[str, TNotificationFieldConfig]
 
     def _iter_field_notifications(
         self,
         data: dict,
-        notification_fields: dict[
-            str, NotificationFieldConfig | MultipleChannelNotificationFieldConfig
-        ],
-    ):
+        notification_fields: dict[str, TNotificationFieldConfig],
+    ) -> Generator[
+        tuple[TNotificationFieldConfig, dict],
+        None,
+        None,
+    ]:
         for field, config in notification_fields.items():
             field_data = data[field]
             notifications = field_data if isinstance(field_data, list) else [field_data]
@@ -87,7 +111,17 @@ class MultipleObjectsNotificationMixin(NotificationMixin):
         """
         super().notify(status_code, data, instance)
 
-    def _message(self, data, instance=None):
+
+class MultipleObjectsNotificationMixin(
+    _MultipleObjectsNotificationMixin[NotificationFieldConfig]
+):
+    """
+    NotificationMixin that adds support for sending notification per object in convenience endpoints.
+    """
+
+    notification_fields: dict[str, NotificationFieldConfig]
+
+    def _message(self, data, instance=None) -> None:
         for config, notification in self._iter_field_notifications(
             data, self.notification_fields
         ):
@@ -96,7 +130,7 @@ class MultipleObjectsNotificationMixin(NotificationMixin):
                 instance=instance,
                 kanaal=config["notifications_kanaal"],
                 model=config["model"],
-                action=config.get("action"),
+                action=config.get("action_override"),
             )
 
             _schedule(message)
@@ -107,78 +141,50 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     NotificationMixin that adds support for sending notifications over multiple channels in deprecated APIS.
     """
 
-    notifications_kanalen: list[Kanaal]
-    notifications_main_resource_keys: dict[str, str]  # kanaal label, main_resource_key
-    replace_urls_for: list[str]
+    notifications_kanalen: list[KanaalConfig]
 
-    def _get_main_resource_key(
-        self, main_resource_keys: dict[str, str] | None, kanaal: Kanaal
-    ) -> str:
-        """
-        Get the main_resource defined for the kanaal label
-        Otherwise use the kanaal main resource.
+    # kanaal label, main_resource_key
+    notifications_main_resource_keys: dict[str, str] | None = None
+    notifications_replace_urls_for: list[str] | None = None
 
-        main_resource_keys are only used for nested fields
-        besluitInformatieObject -> besluit -> zaak
-        """
-        if main_resource_keys and main_resource_keys.get(kanaal.label):
-            return main_resource_keys.get(kanaal.label)
-
-        return kanaal.main_resource._meta.model_name
-
-    def _get_nested_main_object_url_from_instance(self, key, instance):
-        """Returns the url of an nested FK field"""
+    def _get_nested_main_object_url_from_instance(
+        self, key: str, instance: models.Model
+    ) -> str | None:
+        """Returns the url of a nested FK field"""
         obj = instance
         for field in key.split("."):
             obj = getattr(obj, field, None)
-        return obj.get_absolute_api_url(request=self.request) if obj else ""
+        return obj.get_absolute_api_url(request=self.request) if obj else None
 
-    def _get_nested_main_object_url_from_dict(self, key, data):
+    def _get_nested_main_object_url_from_dict(
+        self, key: str, data: object
+    ) -> str | None:
         """Returns a nested url field from a dict"""
         for field in key.split("."):
-            if data is None:
-                return ""
+            if not isinstance(data, dict):
+                raise KeyError
             data = data.get(field)
-        return data if isinstance(data, str) else ""
+        return data if isinstance(data, str) else None
 
     def _get_nested_main_object_url(
         self,
         key: str,  # format a.b.c
-        nested_main_object_resource: Type[models.Model] | dict | None,
-    ):
+        nested_main_object_resource: models.Model | dict,
+    ) -> dict[str, str] | None:
         """returns the nested url key field from an instance or dict"""
+        url = None
         if isinstance(nested_main_object_resource, dict):
-            return self._get_nested_main_object_url_from_dict(
+            url = self._get_nested_main_object_url_from_dict(
                 key, nested_main_object_resource
             )
 
-        if isinstance(nested_main_object_resource, models.Model):
-            return self._get_nested_main_object_url_from_instance(
+        elif isinstance(nested_main_object_resource, models.Model):
+            url = self._get_nested_main_object_url_from_instance(
                 key, nested_main_object_resource
             )
 
-        return ""
-
-    def _main_object_url_exists(
-        self,
-        data: dict,
-        key: str,
-        nested_main_object_resource: Type[models.Model] | dict | None,
-    ) -> bool:
-        """
-        Checks if the main object url exists
-        E.g. besluit zaak is not required
-        if the main_object_url is not part of the notification data it is fetched from an
-        instance or dict and added to the notification data
-        """
-        if "." not in key:
-            # original flow
-            url = data.get(key)
-        else:
-            url = self._get_nested_main_object_url(key, nested_main_object_resource)
-            final_key = key.split(".")[-1]
-            data[final_key] = url
-        return url != ""
+        final_key = key.split(".")[-1]
+        return {final_key: url} if url else None
 
     def _replace_namespace(self, url: str, namespace: str) -> str:
         prefix, sep, rest = url.partition("/api")
@@ -188,42 +194,74 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         base, _, old_namespace = prefix.rpartition("/")
         return f"{base}/{namespace}{sep}{rest}"
 
-    def _iter_kanalen(
-        self,
-        data: dict,
-        model: models.Model,
-        kanalen: list[Kanaal],
-        replace_urls_for: list[str] | None = None,
-        main_resource_keys: dict[str, str] | None = None,
-        nested_main_object_resource: Type[models.Model] | dict | None = None,
-    ):
+    def _replace_urls(
+        self, replace_urls_for: list[str] | None, data: dict, namespace: str
+    ) -> None:
         if replace_urls_for is None:
             replace_urls_for = []
         replace_urls_for.append("url")
 
-        notification_data = data.copy()
-        for kanaal in kanalen:
-            if model != kanaal.main_resource and not self._main_object_url_exists(
-                notification_data,
-                self._get_main_resource_key(main_resource_keys, kanaal),
-                nested_main_object_resource,
-            ):
-                continue
+        for field in replace_urls_for:
+            data[field] = self._replace_namespace(data[field], namespace)
 
-            for field in replace_urls_for:
-                notification_data[field] = self._replace_namespace(
-                    notification_data[field], kanaal.label
-                )
+    def _iter_kanalen(
+        self,
+        data: dict,
+        model: models.Model,
+        kanaal_configs: list[KanaalConfig],
+        replace_urls_for: list[str] | None = None,
+        nested_main_resource_keys: dict[str, str] | None = None,
+        nested_main_object_resource: models.Model | dict | None = None,
+    ) -> Generator[tuple[Kanaal, dict], None, None]:
+        notification_data = data.copy()
+        for kanaal_config in kanaal_configs:
+            kanaal = kanaal_config["kanaal"]
+            namespace = kanaal_config.get("namespace", kanaal.label)
+            # if model == main_resource the url field is used which is always set
+            # if the model is not main_resource it can be port of notification_data or from a related model.
+            # No notification should be sent if the main resource is not set (because it's not required on the model).
+            if model != kanaal.main_resource:
+                if (
+                    not nested_main_resource_keys
+                    or namespace not in nested_main_resource_keys
+                ):
+                    # original flow
+                    url = self.get_notification_main_object_url(
+                        notification_data, kanaal
+                    )
+
+                    if url == "":
+                        # is is possible the main_object_url is empty (zaak is not required on besluit)
+                        continue
+
+                else:
+                    # main_object is not part of the notification data and needs to be fetched from an instance or dict (nested_main_object_resource)
+                    # to make NotificationMixin.construct_message work without too many changes.
+                    # the urls is added with its expected key e.g. {zaak: <zaak_url>}
+
+                    assert nested_main_object_resource is not None
+
+                    url_data = self._get_nested_main_object_url(
+                        nested_main_resource_keys[namespace],
+                        nested_main_object_resource,
+                    )
+                    if not url_data:
+                        # is is possible the main_object_url is empty (zaak is not required on besluit for besluitinformatieobject)
+                        continue
+                    else:
+                        notification_data.update(url_data)
+
+            self._replace_urls(replace_urls_for, notification_data, namespace)
 
             yield kanaal, notification_data
 
-    def _message(self, data, instance=None):
+    def _message(self, data, instance=None) -> None:
         for kanaal, notification_data in self._iter_kanalen(
             data,
             self.get_queryset().model,
             self.notifications_kanalen,
-            getattr(self, "notifications_replace_urls_for", None),
-            getattr(self, "notifications_main_resource_keys", None),
+            self.notifications_replace_urls_for,
+            self.notifications_main_resource_keys,
             data.serializer.instance,
         ):
             message = self.construct_message(
@@ -262,7 +300,8 @@ class MultipleChannelNotificationViewSetMixin(
 
 
 class MultipleObjectsMultipleChannelNotificationMixin(
-    MultipleChannelNotificationMixin, MultipleObjectsNotificationMixin
+    MultipleChannelNotificationMixin,
+    _MultipleObjectsNotificationMixin[MultipleChannelNotificationFieldConfig],
 ):
     notification_fields: dict[str, MultipleChannelNotificationFieldConfig]
 
