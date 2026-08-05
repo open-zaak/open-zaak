@@ -1025,7 +1025,7 @@ pygments==2.20.0
     #   rich
     #   sphinx
     #   sphinx-tabs
-pygraphviz==1.14
+pygraphviz==2.0.1
     # via -r requirements/dev.in
 pyinstrument==5.0.1
     # via -r requirements/dev.in
