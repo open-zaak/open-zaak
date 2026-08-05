@@ -22,6 +22,7 @@ from openzaak.selectielijst.tests import (
 )
 from openzaak.selectielijst.tests.mixins import ReferentieLijstServiceMixin
 from openzaak.tests.utils import ClearCachesMixin
+from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import (
     BesluitTypeFactory,
@@ -773,3 +774,108 @@ class ReadOnlyUserTests(ClearCachesMixin, WebTest):
 
         # try to submit it anyway
         form.submit("_publish", status=403)
+
+
+@tag("check-readonly")
+@disable_admin_mfa()
+class ReadOnlyFieldsTests(ClearCachesMixin, AdminTestMixin, WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        catalogus = CatalogusFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(
+            catalogus=catalogus,
+            vertrouwelijkheidaanduiding="openbaar",
+            trefwoorden=[
+                "<script>/*",
+                "*/alert(document.domain)/*",
+                "*/</script>",
+            ],
+            verantwoordingsrelatie=["<script>/*", "*/alert(1)/*", "*/</script>"],
+            producten_of_diensten=[
+                "https://example.com/?q=<script>alert(1)</script>",
+                'https://example.com/?q="><script>alert(2)</script>',
+            ],
+        )
+        cls.url = reverse("admin:catalogi_zaaktype_change", args=[cls.zaaktype.pk])
+
+    def test_escape_array_field(self):
+        # zaaktype must be editable
+        self.assertTrue(self.zaaktype.concept)
+
+        # chack editable `trefwoorden` and `verantwoordingsrelatie` fields
+        response = self.app.get(self.url, user=self.user)
+
+        self.assertEqual(
+            "<script>/*", response.html.find("input", id="id_trefwoorden_0")["value"]
+        )
+        self.assertEqual(
+            "*/alert(document.domain)/*",
+            response.html.find("input", id="id_trefwoorden_1")["value"],
+        )
+        self.assertEqual(
+            "*/</script>", response.html.find("input", id="id_trefwoorden_2")["value"]
+        )
+        self.assertEqual(
+            "<script>/*",
+            response.html.find("input", id="id_verantwoordingsrelatie_0")["value"],
+        )
+        self.assertEqual(
+            "*/alert(1)/*",
+            response.html.find("input", id="id_verantwoordingsrelatie_1")["value"],
+        )
+        self.assertEqual(
+            "*/</script>",
+            response.html.find("input", id="id_verantwoordingsrelatie_2")["value"],
+        )
+
+        # publish zaaktype
+        self.zaaktype.concept = False
+        self.zaaktype.save()
+
+        # chack readonly fields
+        response = self.app.get(self.url)
+        label = response.html.find("label", string="Trefwoorden:")
+        readonly = label.find_next("div", class_="readonly")
+        self.assertEqual(
+            readonly.decode_contents(),
+            "&lt;script&gt;/*<br/>*/alert(document.domain)/*<br/>*/&lt;/script&gt;",
+        )
+        label = response.html.find("label", string="Verantwoordingsrelatie:")
+        readonly = label.find_next("div", class_="readonly")
+        self.assertEqual(
+            readonly.decode_contents(),
+            "&lt;script&gt;/*<br/>*/alert(1)/*<br/>*/&lt;/script&gt;",
+        )
+
+    def test_escape_url_field(self):
+        # zaaktype must be editable
+        self.assertTrue(self.zaaktype.concept)
+
+        # chack editable fields
+        response = self.app.get(self.url, user=self.user)
+        self.assertEqual(
+            "https://example.com/?q=<script>alert(1)</script>",
+            response.html.find("input", id="id_producten_of_diensten_0")["value"],
+        )
+
+        self.assertEqual(
+            'https://example.com/?q="><script>alert(2)</script>',
+            response.html.find("input", id="id_producten_of_diensten_1")["value"],
+        )
+
+        # publish zaaktype
+        self.zaaktype.concept = False
+        self.zaaktype.save()
+
+        # chack readonly fields
+        response = self.app.get(self.url)
+        label = response.html.find("label", string="Producten of diensten:")
+        readonly = label.find_next("div", class_="readonly")
+        self.assertEqual(
+            readonly.decode_contents(),
+            '<a href="https://example.com/?q=&lt;script&gt;alert(1)&lt;/script&gt;">'
+            "https://example.com/?q=&lt;script&gt;alert(1)&lt;/script&gt;</a><br/>"
+            "<a href='https://example.com/?q=\"&gt;&lt;script&gt;alert(2)&lt;/script&gt;'>"
+            'https://example.com/?q="&gt;&lt;script&gt;alert(2)&lt;/script&gt;</a>',
+        )

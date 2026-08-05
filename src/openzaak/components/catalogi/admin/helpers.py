@@ -13,10 +13,9 @@ from django.contrib.admin.utils import (
 )
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from django.db.models.fields.related import ManyToManyRel
 from django.template.defaultfilters import linebreaksbr
-from django.utils.html import conditional_escape, mark_safe, urlize
+from django.utils.html import conditional_escape, format_html_join
 
 from openzaak.utils.fields import DurationField
 
@@ -130,9 +129,6 @@ def display_for_field(value, field, empty_value_display):
     if not value:
         return _display_for_field(value, field, empty_value_display)
 
-    if isinstance(field, models.URLField):
-        return mark_safe(urlize(value))
-
     if isinstance(field, DurationField):
         res = format_duration(value)
         return res
@@ -143,8 +139,6 @@ def display_for_field(value, field, empty_value_display):
             formatted_parts.append(
                 display_for_field(value_part, field.base_field, empty_value_display)
             )
-
-        formatted = "\n".join(formatted_parts)
-        return mark_safe(formatted)
+        return format_html_join("\n", "{}", ((part,) for part in formatted_parts))
 
     return _display_for_field(value, field, empty_value_display)
