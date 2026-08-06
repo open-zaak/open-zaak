@@ -648,6 +648,14 @@ NOTIFICATION_NUMBER_OF_DAYS_RETAINED = config(
     ),
 )
 
+SEND_NOTIFICATIONS_ON_DEPRECATED_CHANNELS = config(
+    "SEND_NOTIFICATIONS_ON_DEPRECATED_CHANNELS",
+    default=True,
+    documentation=DocumentationParams(
+        help_text="**EXPERIMENTAL**: indicates whether or not notifications should sent be over deprecated channels"
+    ),
+)
+
 
 #
 # SECURITY settings

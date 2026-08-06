@@ -12,6 +12,7 @@ from typing import (
     Union,
 )
 
+from django.conf import settings
 from django.db import models, transaction
 
 import structlog
@@ -215,6 +216,11 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     ) -> Generator[tuple[Kanaal, dict], None, None]:
         notification_data = data.copy()
         for kanaal_config in kanaal_configs:
+            if (
+                kanaal_config.get("deprecated", False)
+                and not settings.SEND_NOTIFICATIONS_ON_DEPRECATED_CHANNELS
+            ):
+                continue
             kanaal = kanaal_config["kanaal"]
             namespace = kanaal_config.get("namespace", kanaal.label)
             # if model == main_resource the url field is used which is always set
