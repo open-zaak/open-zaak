@@ -27,4 +27,5 @@ projects: ["maykinmedia/15"]
   - [ ] New environment variables were added
   - [ ] New setup configuration steps or changes to format
   - [ ] New containers required
-  - [ ] ...
+  - [ ] ... 
+- [ ] Make two issues (one for test/acceptance environments and one for production) in the Taiga project `Maykin Intranet` to deploy the new version (see https://docs.maykin.nl/en/docs/management/product-management/release-process for details and issue template) 
