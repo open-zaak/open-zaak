@@ -14,8 +14,9 @@ because for the use case in Open Zaak, `jq` is overkill.
 
 import json
 import subprocess
+from shutil import which
 
-from .typing import JSONObject
+from .typing import JSONValue
 
 _MAX_INPUT_BYTES = 4 * 1024 * 1024  # 4 MiB
 _MAX_EXPRESSION_BYTES = 64 * 1024  # 64 KiB
@@ -40,12 +41,16 @@ def validate_jq(expression: str, timeout: float = 1) -> None:
     if len(expression.encode("utf-8")) > _MAX_EXPRESSION_BYTES:
         raise JQInvalidExpressionError("jq expression is too large")
 
+    jq_binary_path = which("jq")
+    assert jq_binary_path, "jq binary not installed!"
+
     try:
         result = subprocess.run(
-            ["/usr/bin/jq", "-c", expression],
+            [jq_binary_path, "-c", expression],
             input="null",
             text=True,
-            capture_output=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             timeout=timeout,
             check=False,
             shell=False,  # to avoid shell injection
@@ -60,9 +65,11 @@ def validate_jq(expression: str, timeout: float = 1) -> None:
         raise JQInvalidExpressionError(f"invalid jq expression: {result.stderr[:4000]}")
 
 
-def run_jq(expression: str, data: JSONObject, timeout: float = 1) -> dict[str, object]:
+def get_first_jq_result(
+    expression: str, input_json: bytes, timeout: float = 1
+) -> JSONValue:
     """
-    Execute a jq expression against data.
+    Execute a jq expression against data and return the first result.
 
     This is run via `subprocess` with an explicit timeout, because executing user
     supplied jq expressions can lead to high resource consumption and potentially DoS.
@@ -77,16 +84,17 @@ def run_jq(expression: str, data: JSONObject, timeout: float = 1) -> dict[str, o
     if len(expression.encode("utf-8")) > _MAX_EXPRESSION_BYTES:
         raise JQInvalidExpressionError("jq expression is too large")
 
-    input_json = json.dumps(data)
-
-    if len(input_json.encode("utf-8")) > _MAX_INPUT_BYTES:
+    if len(input_json) > _MAX_INPUT_BYTES:
         raise JQExecutionError("jq input is too large")
+
+    jq_binary_path = which("jq")
+    assert jq_binary_path, "jq binary not installed!"
 
     try:
         result = subprocess.run(
-            ["/usr/bin/jq", "-c", expression],
+            [jq_binary_path, "-c", f"[{expression}][0]"],
             input=input_json,
-            text=True,
+            text=False,
             capture_output=True,
             timeout=timeout,
             check=False,

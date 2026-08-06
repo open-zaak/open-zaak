@@ -194,7 +194,7 @@ class ZaakObjectObjectTypeOverigeDefinitie(JWTAuthMixin, APITestCase):
         )
 
     @patch(
-        "openzaak.components.zaken.api.validators.run_jq",
+        "openzaak.components.zaken.api.validators.get_first_jq_result",
         side_effect=JQExecutionError("jq execution timed out"),
     )
     @requests_mock.Mocker()

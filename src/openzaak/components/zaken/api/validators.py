@@ -31,7 +31,7 @@ from openzaak.utils.auth import get_auth
 from openzaak.utils.jq_wrappers import (
     JQExecutionError,
     JQInvalidExpressionError,
-    run_jq,
+    get_first_jq_result,
 )
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
@@ -500,7 +500,8 @@ class ObjectTypeOverigeDefinitieValidator:
 
         response = url_validator(object_type_overige_definitie["url"])
         try:
-            object_type = response.json()
+            response.json()
+            object_type = response.content
         except json.JSONDecodeError:
             raise serializers.ValidationError(
                 {
@@ -512,7 +513,7 @@ class ObjectTypeOverigeDefinitieValidator:
             )
 
         try:
-            json_schema_definition = run_jq(
+            json_schema_definition = get_first_jq_result(
                 object_type_overige_definitie["schema"], object_type
             )
         except (JQInvalidExpressionError, JQExecutionError):
@@ -539,14 +540,15 @@ class ObjectTypeOverigeDefinitieValidator:
         # validate the object
         object_response = url_validator(object_url)
         try:
-            object_resource = object_response.json()
+            object_response.json()
+            object_resource = object_response.content
         except json.JSONDecodeError:
             raise serializers.ValidationError(
                 {"object": _("The endpoint did not return valid JSON.")}, code="invalid"
             )
 
         try:
-            object_data = run_jq(
+            object_data = get_first_jq_result(
                 object_type_overige_definitie["object_data"], object_resource
             )
         except (JQInvalidExpressionError, JQExecutionError):
