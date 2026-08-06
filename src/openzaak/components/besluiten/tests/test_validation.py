@@ -18,14 +18,19 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
+from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory
 
 
 class BesluitValidationTests(JWTAuthMixin, APITestCase):
-    url = reverse_lazy("besluiten:besluit-list")
+    NAMESPACE = "besluiten"
     heeft_alle_autorisaties = True
+
+    @property
+    def url(self):
+        return reverse(Besluit, namespace=self.NAMESPACE)
 
     def test_rsin_invalid(self):
         cases = [
@@ -94,7 +99,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(identificatie="123456")
         besluit2 = BesluitFactory.create(identificatie="123456")
 
-        url = reverse(besluit, namespace="besluiten")
+        url = reverse(besluit, namespace=self.NAMESPACE)
 
         response = self.client.patch(
             url,
@@ -119,7 +124,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_validate_besluittype_valid(self):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -139,7 +144,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         ServiceFactory.create(
             api_type=APITypes.ztc, api_root="https://example.com/zrc/"
         )
-        list_url = reverse("besluiten:besluit-list")
+        list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             m.get("https://example.com/zrc/zaken/1234", status_code=404)
@@ -163,7 +168,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
     def test_besluittype_unpublished(self):
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(besluittype)
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -187,7 +192,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
         besluittype.zaaktypen.add(zaak.zaaktype)
-        list_url = reverse("besluiten:besluit-list")
+        list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             list_url,
@@ -208,7 +213,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         besluittype_url = reverse(besluittype)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
-        list_url = reverse("besluiten:besluit-list")
+        list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             list_url,
@@ -231,7 +236,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_update(self):
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         besluittype_url = reverse(besluit.besluittype)
         response = self.client.put(
@@ -254,7 +259,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
     def test_update_besluittype_fails(self):
         besluit = BesluitFactory.create()
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         besluittype = BesluitTypeFactory.create()
         besluittype_url = reverse(besluittype)
@@ -272,6 +277,7 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
 
 class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_validate_informatieobject_invalid(self):
@@ -280,8 +286,8 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
             api_root="https://foo.bar/",
         )
         besluit = BesluitFactory.create()
-        besluit_url = reverse("besluiten:besluit-detail", kwargs={"uuid": besluit.uuid})
-        url = reverse("besluiten:besluitinformatieobject-list")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -298,11 +304,11 @@ class BesluitInformatieObjectTests(JWTAuthMixin, APITestCase):
     def test_validate_no_informatieobjecttype_besluittype_relation(self):
         zaak = ZaakFactory.create()
         besluit = BesluitFactory.create(zaak=zaak)
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
-        url = reverse("besluiten:besluitinformatieobject-list")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
