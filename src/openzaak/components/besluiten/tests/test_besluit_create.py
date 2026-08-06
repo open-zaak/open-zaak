@@ -22,15 +22,16 @@ from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
 from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
-from ..models import Besluit
+from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_besluittype_response, get_operation_url
+from .utils import get_besluittype_response
 
 
 @temp_private_root()
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     @freeze_time("2018-09-06T12:08+0200")
     def test_us162_voeg_besluit_toe_aan_zaak(self):
@@ -46,7 +47,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype.informatieobjecttypen.add(io.informatieobjecttype)
 
         with self.subTest(part="besluit_create"):
-            url = get_operation_url("besluit_create")
+            url = reverse(Besluit, namespace=self.NAMESPACE)
 
             response = self.client.post(
                 url,
@@ -99,12 +100,12 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             self.assertEqual(besluit.vervalreden, VervalRedenen.tijdelijk)
 
         with self.subTest(part="besluitinformatieobject_create"):
-            url = get_operation_url("besluitinformatieobject_create")
+            url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
             response = self.client.post(
                 url,
                 {
-                    "besluit": reverse(besluit, namespace="besluiten"),
+                    "besluit": reverse(besluit, namespace=self.NAMESPACE),
                     "informatieobject": f"http://testserver{io_url}",
                 },
             )
@@ -124,13 +125,13 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     def test_opvragen_informatieobjecten_besluit(self):
         besluit1, besluit2 = BesluitFactory.create_batch(2)
 
-        besluit1_uri = reverse(besluit1)
-        besluit2_uri = reverse(besluit2)
+        besluit1_uri = reverse(besluit1, namespace=self.NAMESPACE)
+        besluit2_uri = reverse(besluit2, namespace=self.NAMESPACE)
 
         BesluitInformatieObjectFactory.create_batch(3, besluit=besluit1)
         BesluitInformatieObjectFactory.create_batch(2, besluit=besluit2)
 
-        base_uri = get_operation_url("besluitinformatieobject_list")
+        base_uri = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response1 = self.client.get(
             base_uri,
@@ -150,7 +151,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaak = ZaakFactory.create(zaaktype__concept=False)
         zaak_url = reverse(zaak)
 
-        url = get_operation_url("besluit_create")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -187,7 +188,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
-        url = get_operation_url("besluit_create")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -210,6 +211,7 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver"])
 class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_create_external_besluittype(self):
         catalogi_api = "https://externe.catalogus.nl/api/v1/"
@@ -217,7 +219,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
 
-        url = get_operation_url("besluit_create")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
@@ -258,7 +260,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_external_besluittype_fail_bad_url(self):
-        url = reverse(Besluit, namespace="besluiten")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -287,7 +289,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
             api_root="http://example.com",
         )
 
-        url = reverse(Besluit, namespace="besluiten")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             m.get("http://example.com/some-type", status_code=200)
@@ -317,7 +319,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
 
-        url = get_operation_url("besluit_create")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             mock_ztc_oas_get(m)
@@ -364,7 +366,7 @@ class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         self.assertEqual(error["code"], "invalid-resource")
 
     def test_create_external_besluittype_fail_not_service_found(self):
-        url = get_operation_url("besluit_create")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,

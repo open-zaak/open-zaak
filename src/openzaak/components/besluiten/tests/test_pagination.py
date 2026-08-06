@@ -4,20 +4,22 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
+from ..models import Besluit
 from .factories import BesluitFactory
-from .utils import get_operation_url
 
 
 class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_pagination_default(self):
         """
         Deleting a Besluit causes all related objects to be deleted as well.
         """
         BesluitFactory.create_batch(2)
-        besluit_list_url = get_operation_url("besluit_list")
+        besluit_list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(besluit_list_url)
 
@@ -30,7 +32,7 @@ class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
 
     def test_pagination_page_param(self):
         BesluitFactory.create_batch(2)
-        besluit_list_url = get_operation_url("besluit_list")
+        besluit_list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(besluit_list_url, {"page": 1})
 
@@ -43,7 +45,7 @@ class BesluitPaginationTestCase(JWTAuthMixin, APITestCase):
 
     def test_pagination_pagesize_param(self):
         BesluitFactory.create_batch(10)
-        besluit_list_url = get_operation_url("besluit_list")
+        besluit_list_url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(besluit_list_url, {"pageSize": 5})
 

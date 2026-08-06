@@ -4,14 +4,15 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from openzaak.tests.utils import JWTAuthMixin
+from openzaak.utils.urls import reverse
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_operation_url
 
 
 class BesluitDeleteTestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_delete_besluit_cascades_properly(self):
         """
@@ -19,7 +20,7 @@ class BesluitDeleteTestCase(JWTAuthMixin, APITestCase):
         """
         besluit = BesluitFactory.create()
         BesluitInformatieObjectFactory.create(besluit=besluit)
-        besluit_delete_url = get_operation_url("besluit_delete", uuid=besluit.uuid)
+        besluit_delete_url = reverse(besluit, namespace=self.NAMESPACE)
 
         response = self.client.delete(besluit_delete_url)
 
