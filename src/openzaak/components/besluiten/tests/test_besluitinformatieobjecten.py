@@ -25,7 +25,7 @@ from openzaak.components.documenten.tests.utils import (
     get_oio_response,
 )
 from openzaak.tests.utils import JWTAuthMixin, get_eio_response, mock_drc_oas_get
-from openzaak.utils.urls import reverse, reverse_lazy
+from openzaak.utils.urls import reverse
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
@@ -34,9 +34,13 @@ from .utils import get_besluittype_response
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
-    list_url = reverse_lazy(
-        "besluiten:besluitinformatieobject-list", kwargs={"version": "1"}
-    )
+    NAMESPACE = "besluiten"
+
+    @property
+    def list_url(self):
+        return reverse(
+            f"{self.NAMESPACE}:besluitinformatieobject-list", kwargs={"version": "1"}
+        )
 
     heeft_alle_autorisaties = True
 
@@ -46,7 +50,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             informatieobjecttype__concept=False
         )
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
         io_url = reverse(io)
         content = {
             "informatieobject": f"http://testserver{io_url}",
@@ -64,7 +68,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         stored_object = BesluitInformatieObject.objects.get()
         self.assertEqual(stored_object.besluit, besluit)
 
-        expected_url = reverse(stored_object)
+        expected_url = reverse(stored_object, namespace=self.NAMESPACE)
 
         expected_response = content.copy()
         expected_response.update({"url": f"http://testserver{expected_url}"})
@@ -75,7 +79,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         Test the (informatieobject, object) unique together validation.
         """
         bio = BesluitInformatieObjectFactory.create()
-        besluit_url = reverse(bio.besluit)
+        besluit_url = reverse(bio.besluit, namespace=self.NAMESPACE)
         io_url = reverse(bio.informatieobject.latest_version)
 
         content = {
@@ -96,13 +100,13 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_read_besluit(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_detail_url = reverse(bio)
+        bio_detail_url = reverse(bio, namespace=self.NAMESPACE)
 
         response = self.client.get(bio_detail_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        besluit_url = reverse(bio.besluit)
+        besluit_url = reverse(bio.besluit, namespace=self.NAMESPACE)
         io_url = reverse(bio.informatieobject.latest_version)
         expected = {
             "url": f"http://testserver{bio_detail_url}",
@@ -114,8 +118,8 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_filter_by_besluit(self):
         bio = BesluitInformatieObjectFactory.create()
-        besluit_url = reverse(bio.besluit)
-        bio_list_url = reverse("besluiten:besluitinformatieobject-list")
+        besluit_url = reverse(bio.besluit, namespace=self.NAMESPACE)
+        bio_list_url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response = self.client.get(
             bio_list_url,
@@ -132,7 +136,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     def test_filter_by_informatieobject(self):
         bio = BesluitInformatieObjectFactory.create()
         io_url = reverse(bio.informatieobject.latest_version)
-        bio_list_url = reverse("besluiten:besluitinformatieobject-list")
+        bio_list_url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response = self.client.get(
             bio_list_url,
@@ -148,9 +152,9 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_put_besluit_not_allowed(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_detail_url = reverse(bio)
+        bio_detail_url = reverse(bio, namespace=self.NAMESPACE)
         besluit = BesluitFactory.create()
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
@@ -168,9 +172,9 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_patch_besluit_not_allowed(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_detail_url = reverse(bio)
+        bio_detail_url = reverse(bio, namespace=self.NAMESPACE)
         besluit = BesluitFactory.create()
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
         io = EnkelvoudigInformatieObjectFactory.create()
         io_url = reverse(io)
 
@@ -188,7 +192,7 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_delete(self):
         bio = BesluitInformatieObjectFactory.create()
-        bio_url = reverse(bio)
+        bio_url = reverse(bio, namespace=self.NAMESPACE)
 
         response = self.client.delete(bio_url)
 
@@ -205,8 +209,12 @@ class BesluitInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy(BesluitInformatieObject)
+    NAMESPACE = "besluiten"
     base = "https://external.documenten.nl/api/v1/"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
     @classmethod
     def setUpTestData(cls):
@@ -226,7 +234,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         )
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
@@ -291,7 +299,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 
     def test_create_bio_fail_bad_url(self):
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         data = {"besluit": besluit_url, "informatieobject": "abcd"}
 
         response = self.client.post(
@@ -312,7 +320,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
             auth_type=AuthTypes.no_auth,
         )
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         data = {"besluit": besluit_url, "informatieobject": "http://example.com/"}
         m.get("http://example.com", status_code=200, text="<html></html>")
 
@@ -334,7 +342,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         base = "https://external.documenten.nl/api/v1/"
         document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
@@ -368,7 +376,7 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
     def test_create_bio_fail_unknown_service(self):
         document = f"https://other.documenten.nl/api/v1/enkelvoudiginformatieobjecten/{uuid.uuid4()}"
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
@@ -390,8 +398,12 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
 class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy(BesluitInformatieObject)
+    NAMESPACE = "besluiten"
     base = "https://external.documenten.nl/api/v1/"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
     @classmethod
     def setUpClass(cls):
@@ -410,7 +422,7 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
         document = f"{self.base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
 
         besluit = BesluitFactory.create(besluittype__concept=False)
-        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = f"http://openzaak.nl{reverse(besluit, namespace=self.NAMESPACE)}"
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
@@ -457,9 +469,14 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
 @override_settings(ALLOWED_HOSTS=["openbesluit.nl"])
 class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
-    list_url = reverse_lazy(BesluitInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+
+    NAMESPACE = "besluiten"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
     @classmethod
     def setUpClass(cls):
@@ -475,7 +492,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_besluittype_internal_iotype_internal_fail(self):
         besluit = BesluitFactory.create()
-        besluit_url = f"http://openbesluit.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = (
+            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create()
         eio_response = get_eio_response(
             self.document,
@@ -503,7 +522,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = f"http://openbesluit.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = (
+            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
+        )
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
         besluittype_data = get_besluittype_response(catalogus, besluittype)
         besluittype_data["informatieobjecttypen"] = [informatieobjecttype]
@@ -540,7 +561,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = f"http://openbesluit.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = (
+            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
+        )
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
 
         with requests_mock.Mocker() as m:
@@ -573,7 +596,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 
     def test_besluittype_internal_iotype_external(self):
         besluit = BesluitFactory.create()
-        besluit_url = f"http://openbesluit.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = (
+            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
+        )
         informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
 
@@ -611,7 +636,9 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
         besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
         besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = f"http://openbesluit.nl{reverse(besluit, namespace='besluiten')}"
+        besluit_url = (
+            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
+        )
         informatieobjecttype = InformatieObjectTypeFactory.create()
         eio_response = get_eio_response(
             self.document,
@@ -643,9 +670,13 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
 class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
-    list_url = reverse_lazy(BesluitInformatieObject)
     base = "https://external.documenten.nl/api/v1/"
     document = f"{base}enkelvoudiginformatieobjecten/{uuid.uuid4()}"
+    NAMESPACE = "besluiten"
+
+    @property
+    def list_url(self):
+        return reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
     @classmethod
     def setUpClass(cls):
@@ -676,7 +707,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
                 informatieobject=self.document,
                 _objectinformatieobject_url=oio,
             )
-            bio_url = reverse(bio)
+            bio_url = reverse(bio, namespace=self.NAMESPACE)
 
             response = self.client.delete(bio_url, headers={"host": "openzaak.nl"})
 
@@ -710,7 +741,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
                 informatieobject=self.document,
                 _objectinformatieobject_url=oio,
             )
-            bio_url = reverse(bio)
+            bio_url = reverse(bio, namespace=self.NAMESPACE)
 
             response = self.client.delete(bio_url, headers={"host": "openzaak.nl"})
 

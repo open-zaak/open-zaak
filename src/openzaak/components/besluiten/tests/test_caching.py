@@ -16,18 +16,19 @@ from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_besluit_get_cache_header(self):
         besluit = BesluitFactory.create()
 
-        response = self.client.get(reverse(besluit, namespace="besluiten"))
+        response = self.client.get(reverse(besluit, namespace=self.NAMESPACE))
 
         self.assertHasETag(response)
 
     def test_besluit_head_cache_header(self):
         besluit = BesluitFactory.create()
 
-        self.assertHeadHasETag(reverse(besluit, namespace="besluiten"))
+        self.assertHeadHasETag(reverse(besluit, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("besluiten")
@@ -40,7 +41,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(besluit, namespace="besluiten"),
+            reverse(besluit, namespace=self.NAMESPACE),
             headers={"if-none-match": f'"{besluit._etag}"'},
         )
 
@@ -50,7 +51,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         besluit = BesluitFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(besluit, namespace="besluiten"),
+            reverse(besluit, namespace=self.NAMESPACE),
             headers={"if-none-match": '"not-an-md5"'},
         )
 
@@ -59,12 +60,13 @@ class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def test_besluitinformatieobject_get_cache_header(self):
         besluitinformatieobject = BesluitInformatieObjectFactory.create()
 
         response = self.client.get(
-            reverse(besluitinformatieobject, namespace="besluiten")
+            reverse(besluitinformatieobject, namespace=self.NAMESPACE)
         )
 
         self.assertHasETag(response)
@@ -72,7 +74,9 @@ class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_besluitinformatieobject_head_cache_header(self):
         besluitinformatieobject = BesluitInformatieObjectFactory.create()
 
-        self.assertHeadHasETag(reverse(besluitinformatieobject, namespace="besluiten"))
+        self.assertHeadHasETag(
+            reverse(besluitinformatieobject, namespace=self.NAMESPACE)
+        )
 
     def test_head_in_apischema(self):
         spec = get_spec("besluiten")
@@ -85,7 +89,8 @@ class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         bio = BesluitInformatieObjectFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(bio), headers={"if-none-match": f'"{bio._etag}"'}
+            reverse(bio, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{bio._etag}"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
@@ -93,6 +98,8 @@ class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_stale(self):
         bio = BesluitInformatieObjectFactory.create(with_etag=True)
 
-        response = self.client.get(reverse(bio), headers={"if-none-match": '"old"'})
+        response = self.client.get(
+            reverse(bio, namespace=self.NAMESPACE), headers={"if-none-match": '"old"'}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

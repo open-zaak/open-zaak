@@ -1,34 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2025 Dimpact
-from datetime import datetime
-from unittest.mock import call, patch
-
-from django.conf import settings
-from django.test import override_settings, tag
-from django.utils import timezone
-
-from freezegun.api import freeze_time
-from rest_framework import status
-from rest_framework.test import APITestCase
-
-from openzaak.components.besluiten.api.cloudevents import BESLUIT_VERWERKT
-from openzaak.components.besluiten.constants import VervalRedenen
-from openzaak.components.besluiten.models import Besluit
-from openzaak.components.catalogi.tests.factories import (
-    BesluitTypeFactory,
-    InformatieObjectTypeFactory,
+from openzaak.components.besluiten.tests.test_convenience_cloudevents import (
+    BesluitConvenienceCloudEventTest as _BesluitConvenienceCloudEventTest,
 )
-from openzaak.components.documenten.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
-from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
-from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.tests.utils import JWTAuthMixin
-from openzaak.utils.urls import reverse
-
-from ..factories import ZaakFactory
 
 
+<<<<<<< HEAD
 @tag("convenience-endpoints", "cloudevents")
 @freeze_time("2025-10-10")
 @patch(
@@ -233,3 +210,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(
             zaak.laatst_gemuteerd, timezone.make_aware(datetime(2025, 10, 10, 0, 10, 0))
         )
+=======
+class BesluitConvenienceCloudEventTest(_BesluitConvenienceCloudEventTest):
+    NAMESPACE = "zaken"
+>>>>>>> 5482aae8 (:white_check_mark: [#2451] refactor besluiten api tests to use NAMESPACE classvar)

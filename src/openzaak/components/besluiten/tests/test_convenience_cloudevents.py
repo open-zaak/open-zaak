@@ -43,13 +43,14 @@ class BesluitConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_without_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
-        catalogus_url = reverse(besluittype.catalogus)
+        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
         zaak = ZaakFactory.create()
 
@@ -71,7 +72,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("besluiten:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -98,7 +99,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -129,7 +130,7 @@ class BesluitConvenienceCloudEventTest(
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
-        catalogus_url = reverse(besluittype.catalogus)
+        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
         zaak = ZaakFactory.create(bronorganisatie="517439943")
         zaak_url = reverse(zaak)
@@ -153,7 +154,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("besluiten:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -182,7 +183,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace="besluiten")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         mock_send_cloudevent.assert_has_calls(
             [
@@ -200,7 +201,7 @@ class BesluitConvenienceCloudEventTest(
                             "bronorganisatie": "517439943",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                             "zaaktype": f"http://testserver{zaaktype_url}",
-                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus, namespace='catalogi')}",
                         },
                     },
                     None,
