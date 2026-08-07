@@ -4949,7 +4949,7 @@ paths:
       - in: query
         name: statustype
         schema:
-          type: string
+          type: integer
         description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
       - in: query
         name: zaak
@@ -11280,7 +11280,7 @@ paths:
       - in: query
         name: zaaktype
         schema:
-          type: string
+          type: integer
         description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
       - in: query
         name: zaaktype__omschrijving
@@ -14627,7 +14627,7 @@ paths:
                     type: string
                   description: Meerdere waarden kunnen gescheiden worden door komma's.
                 zaaktype:
-                  type: string
+                  type: integer
                   description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
                 archiefnominatie:
                   type: string
@@ -19249,9 +19249,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         registratiedatum:
           type: string
@@ -19489,9 +19489,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         registratiedatum:
           type: string
@@ -20230,8 +20230,8 @@ components:
           maxLength: 1000
         statustype:
           type: string
-          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         datumStatusGezet:
@@ -20290,9 +20290,9 @@ components:
           maxLength: 1000
         statustype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         datumStatusGezet:
           type: string
@@ -20341,8 +20341,8 @@ components:
           maxLength: 1000
         statustype:
           type: string
-          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         datumStatusGezet:
@@ -20390,9 +20390,9 @@ components:
       properties:
         statustype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het STATUSTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         datumStatusGezet:
           type: string
@@ -20965,8 +20965,8 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         registratiedatum:
@@ -22129,9 +22129,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
+          format: uri
           readOnly: true
           description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
-          format: uri
           minLength: 1
           maxLength: 1000
         registratiedatum:
@@ -22569,9 +22569,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         registratiedatum:
           type: string
@@ -22827,8 +22827,8 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           minLength: 1
           maxLength: 1000
         registratiedatum:
@@ -23149,9 +23149,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
-          minLength: 1
-          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
           format: uri
+          description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
+          minLength: 1
           maxLength: 1000
         registratiedatum:
           type: string
@@ -23431,9 +23431,9 @@ components:
           maxLength: 1000
         zaaktype:
           type: string
+          format: uri
           readOnly: true
           description: URL-referentie naar het ZAAKTYPE (in de Catalogi API).
-          format: uri
           minLength: 1
           maxLength: 1000
         registratiedatum:

@@ -78,6 +78,8 @@ class LooseFkAuthorizationsFilterMixin:
         use_va=True,
     ) -> Q:
         prefix = self.prefix
+        # TODO (Open Zaak 2.0): Remove this once all external type support has been
+        # removed. At that point every loose FK field will be a regular FK.
         supports_external_field = getattr(self, "supports_external_field", True)
         if supports_external_field:
             loose_fk_field = (
@@ -177,10 +179,17 @@ class LooseFkAuthorizationsFilterMixin:
         authorizations_local = []
         authorizations_external = []
         allowed_hosts = settings.ALLOWED_HOSTS
+        # TODO (Open Zaak 2.0): Remove this once all external type support has been
+        # removed. At that point every loose FK field will be a regular FK.
+        supports_external_field = getattr(self, "supports_external_field", True)
 
         for auth in authorizations:
             # test if this authorization has the scope that's needed
             if not scope.is_contained_in(auth.scopes):
+                continue
+
+            if not supports_external_field:
+                authorizations_local.append(auth)
                 continue
 
             loose_fk_host = urlparse(getattr(auth, self.loose_fk_field)).hostname

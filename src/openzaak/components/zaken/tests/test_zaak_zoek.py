@@ -228,3 +228,32 @@ class ZaakZoekTests(JWTAuthMixin, TypeCheckMixin, APITestCase):
             data[0]["_expand"]["zaaktype"]["identificatie"],
             zaak3.zaaktype.identificatie,
         )
+
+    @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
+    def test_zoek_zaaktype_not_in(self):
+        zaak1, zaak2, zaak3 = ZaakFactory.create_batch(3)
+
+        url = get_operation_url("zaak__zoek")
+        data = {
+            "zaaktype__not_in": [
+                f"http://testserver.com{reverse(zaak1.zaaktype)}",
+                f"http://testserver.com{reverse(zaak2.zaaktype)}",
+            ]
+        }
+
+        response = self.client.post(
+            url,
+            data,
+            **POST_KWARGS,
+            HTTP_HOST="testserver.com",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.json()["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["url"],
+            f"http://testserver.com{reverse(zaak3)}",
+        )
