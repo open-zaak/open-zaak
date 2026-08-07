@@ -1168,7 +1168,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
 
     def test_besluit_delete_fail_send_notification_create_db_entry(self, m):
         besluit = BesluitFactory.create()
-        url = reverse(besluit, namespace="besluiten")
+        url = reverse(besluit, namespace=self.NAMESPACE)
 
         mock_notification_send(m, status_code=403)
 
@@ -1180,7 +1180,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
-            "hoofdObject": f"http://testserver{url}",
+            "hoofdObject": f"http://testserver{reverse(besluit, namespace='besluiten')}",
             "kanaal": "besluiten",
             "kenmerken": {
                 "verantwoordelijkeOrganisatie": besluit.verantwoordelijke_organisatie,
@@ -1188,7 +1188,7 @@ class FailedNotificationTests(NotificationsConfigMixin, JWTAuthMixin, APITestCas
                 "besluittype.catalogus": f"http://testserver{reverse(besluit.besluittype.catalogus, namespace='catalogi')}",
             },
             "resource": "besluit",
-            "resourceUrl": f"http://testserver{url}",
+            "resourceUrl": f"http://testserver{reverse(besluit, namespace='besluiten')}",
         }
 
         self.assertEqual(m.last_request.json(), message)
