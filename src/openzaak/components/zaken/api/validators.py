@@ -347,13 +347,13 @@ class EndStatusDeelZakenValidator:
             return
 
         self.check_status_exists(zaak.deelzaken)
-        self.check_internal_status_types(zaak.deelzaken)
+        self.check_status_types(zaak.deelzaken)
 
     def check_status_exists(self, qs):
         if qs.filter(status__isnull=True).exists():
             raise serializers.ValidationError(self.message, code=self.code)
 
-    def check_internal_status_types(self, qs):
+    def check_status_types(self, qs):
         eind_statustypevolgnummer = (
             StatusType.objects.filter(zaaktype=OuterRef("zaaktype"))
             .order_by("-statustypevolgnummer")

@@ -74,17 +74,6 @@ class StatusForm(forms.ModelForm):
         model = Status
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("statustype"):
-            raise forms.ValidationError(
-                "Je moet een statustype opgeven: "
-                "selecteer een statustype uit de catalogus."
-            )
-
-        return cleaned_data
-
 
 class SubStatusForStatusInline(EditInlineAdminMixin, admin.TabularInline):
     model = SubStatus
@@ -773,16 +762,6 @@ class ZaakForm(forms.ModelForm):
         model = Zaak
         fields = "__all__"
         exclude = ("_id", "_bronorganisatie", "_identificatie")  # legacy fields
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("zaaktype"):
-            raise forms.ValidationError(
-                "Je moet een zaaktype opgeven: selecteer een zaaktype uit de catalogus."
-            )
-
-        return cleaned_data
 
 
 @admin.register(Zaak)

@@ -405,6 +405,8 @@ class ZaakViewSet(
         for name, value in search_input.items():
             if name == "zaakgeometrie":
                 queryset = queryset.filter(zaakgeometrie__within=value["within"])
+            elif name == "zaaktype__not_in":
+                queryset = queryset.exclude(zaaktype__in=value)
             else:
                 queryset = queryset.filter(**{name: value})
 

@@ -161,8 +161,6 @@ class Zaak(ETagMixin, AuditTrailMixin, APIMixin, ZaakIdentificatie):
         "catalogi.ZaakType",
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het ZAAKTYPE (in de Catalogi API).",
-        null=True,
-        blank=True,
     )
 
     registratiedatum = models.DateField(
@@ -790,8 +788,8 @@ class Status(ETagMixin, APIMixin, models.Model):
         "catalogi.StatusType",
         on_delete=models.PROTECT,
         help_text="URL-referentie naar het STATUSTYPE (in de Catalogi API).",
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
     )
 
     # extra informatie
