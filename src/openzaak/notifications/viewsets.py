@@ -170,18 +170,16 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     def _get_nested_main_object_url(
         self,
         key: str,  # format a.b.c
-        nested_main_object_resource: models.Model | dict,
+        main_object_resource: models.Model | dict,
     ) -> dict[str, str] | None:
         """returns the nested url key field from an instance or dict"""
         url = None
-        if isinstance(nested_main_object_resource, dict):
-            url = self._get_nested_main_object_url_from_dict(
-                key, nested_main_object_resource
-            )
+        if isinstance(main_object_resource, dict):
+            url = self._get_nested_main_object_url_from_dict(key, main_object_resource)
 
-        elif isinstance(nested_main_object_resource, models.Model):
+        elif isinstance(main_object_resource, models.Model):
             url = self._get_nested_main_object_url_from_instance(
-                key, nested_main_object_resource
+                key, main_object_resource
             )
 
         final_key = key.split(".")[-1]
@@ -211,8 +209,8 @@ class MultipleChannelNotificationMixin(NotificationMixin):
         model: models.Model,
         kanaal_configs: list[KanaalConfig],
         replace_urls_for: list[str] | None = None,
-        nested_main_resource_keys: dict[str, str] | None = None,
-        nested_main_object_resource: models.Model | dict | None = None,
+        main_resource_keys: dict[str, str] | None = None,
+        main_object_resource: models.Model | dict | None = None,
     ) -> Generator[tuple[Kanaal, dict], None, None]:
         notification_data = data.copy()
         for kanaal_config in kanaal_configs:
@@ -227,10 +225,7 @@ class MultipleChannelNotificationMixin(NotificationMixin):
             # if the model is not main_resource it can be port of notification_data or from a related model.
             # No notification should be sent if the main resource is not set (because it's not required on the model).
             if model != kanaal.main_resource:
-                if (
-                    not nested_main_resource_keys
-                    or namespace not in nested_main_resource_keys
-                ):
+                if not main_resource_keys or namespace not in main_resource_keys:
                     # original flow
                     url = self.get_notification_main_object_url(
                         notification_data, kanaal
@@ -241,15 +236,15 @@ class MultipleChannelNotificationMixin(NotificationMixin):
                         continue
 
                 else:
-                    # main_object is not part of the notification data and needs to be fetched from an instance or dict (nested_main_object_resource)
+                    # main_object is not part of the notification data and needs to be fetched from an instance or dict (main_object_resource)
                     # to make NotificationMixin.construct_message work without too many changes.
                     # the urls is added with its expected key e.g. {zaak: <zaak_url>}
 
-                    assert nested_main_object_resource is not None
+                    assert main_object_resource is not None
 
                     url_data = self._get_nested_main_object_url(
-                        nested_main_resource_keys[namespace],
-                        nested_main_object_resource,
+                        main_resource_keys[namespace],
+                        main_object_resource,
                     )
                     if not url_data:
                         # is is possible the main_object_url is empty (zaak is not required on besluit for besluitinformatieobject)
