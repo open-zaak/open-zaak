@@ -74,7 +74,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype.besluittypen.add(besluittype)
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
         zaakbesluit_data = get_zaakbesluit_response(zaak)
-        url = reverse(Besluit, namespace="besluiten")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
@@ -117,7 +117,7 @@ class BesluitCreateExternalZaakTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         zaaktype_url = f"http://testserver{reverse(zaaktype)}"
 
         zaak = f"{self.base}zaken/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        url = reverse(Besluit, namespace="besluiten")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with requests_mock.Mocker() as m:
             m.get(zaak, json=get_zaak_response(zaak, zaaktype_url))
