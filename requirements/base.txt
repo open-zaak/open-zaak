@@ -231,7 +231,7 @@ django-setup-configuration==0.11.0
     # via
     #   commonground-api-common
     #   open-api-framework
-django-simple-certmanager==2.4.1
+django-simple-certmanager==4.0.0
     # via zgw-consumers
 django-sniplates==0.7.2
     # via -r requirements/base.in
