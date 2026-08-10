@@ -215,6 +215,7 @@ django-privates==4.0.3
     # via
     #   -r requirements/base.in
     #   django-simple-certmanager
+    #   zgw-consumers
 django-redis==6.0.0
     # via open-api-framework
 django-relativedelta==2.0.0
@@ -665,7 +666,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
-zgw-consumers==1.2.0
+zgw-consumers==2.0.3
     # via
     #   -r requirements/base.in
     #   commonground-api-common

@@ -361,6 +361,7 @@ django-privates==4.0.3
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-simple-certmanager
+    #   zgw-consumers
 django-redis==6.0.0
     # via
     #   -c requirements/base.txt
@@ -1258,7 +1259,7 @@ wrapt==1.16.0
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-redis
     #   vcrpy
-zgw-consumers==1.2.0
+zgw-consumers==2.0.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
