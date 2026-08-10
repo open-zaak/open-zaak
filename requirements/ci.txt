@@ -356,12 +356,11 @@ django-phonenumber-field==7.3.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-two-factor-auth
-django-privates==3.1.1
+django-privates==4.0.3
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-simple-certmanager
-    #   open-api-framework
 django-redis==6.0.0
     # via
     #   -c requirements/base.txt
@@ -395,7 +394,6 @@ django-simple-certmanager==2.4.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   open-api-framework
     #   zgw-consumers
 django-sniplates==0.7.2
     # via
@@ -647,7 +645,6 @@ maykin-common==0.20.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
-    #   open-api-framework
 mdurl==0.1.2
     # via
     #   -c requirements/base.txt
@@ -689,7 +686,7 @@ oauthlib==3.3.1
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   requests-oauthlib
-open-api-framework==0.14.0
+open-api-framework==0.13.4
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
@@ -964,6 +961,7 @@ python-decouple==3.8
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   maykin-common
+    #   open-api-framework
 python-dotenv==1.2.2
     # via
     #   -c requirements/base.txt

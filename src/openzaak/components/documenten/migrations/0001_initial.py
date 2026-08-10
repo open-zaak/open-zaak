@@ -4,14 +4,14 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import django_loose_fk.fields
 import openzaak.utils.mixins
 import privates.fields
-import privates.storages
 import uuid
 import vng_api_common.fields
 import vng_api_common.models
 import vng_api_common.validators
+
+from openzaak.components.documenten.storage import get_private_media_storage
 
 
 class Migration(migrations.Migration):
@@ -209,7 +209,7 @@ class Migration(migrations.Migration):
                 (
                     "inhoud",
                     privates.fields.PrivateMediaFileField(
-                        storage=privates.storages.PrivateMediaFileSystemStorage(),
+                        storage=get_private_media_storage(),
                         upload_to="uploads/%Y/%m/",
                     ),
                 ),

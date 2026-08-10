@@ -5,9 +5,9 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import privates.fields
-import privates.storages
 import uuid
 
+from openzaak.components.documenten.storage import get_private_media_storage
 
 class Migration(migrations.Migration):
 
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                     privates.fields.PrivateMediaFileField(
                         blank=True,
                         help_text="De (binaire) bestandsinhoud van dit specifieke bestandsdeel.",
-                        storage=privates.storages.PrivateMediaFileSystemStorage(),
+                        storage=get_private_media_storage(),
                         upload_to="part-uploads/%Y/%m/",
                     ),
                 ),

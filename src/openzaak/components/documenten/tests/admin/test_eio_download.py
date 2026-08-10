@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
-from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
@@ -14,7 +13,6 @@ from ..factories import EnkelvoudigInformatieObjectFactory
 
 @temp_private_root()
 @disable_admin_mfa()
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 class EnkelvoudigInformatieObjectDownloadAdminTests(AdminTestMixin, WebTest):
     def test_eio_download_inhoud(self):
         eio = EnkelvoudigInformatieObjectFactory.create(

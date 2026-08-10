@@ -9,6 +9,7 @@ from django.test import RequestFactory, TestCase, override_settings, tag
 
 from freezegun import freeze_time
 from maykin_common.vcr import VCRMixin
+from privates.storages import private_media_storage
 from privates.test import temp_private_root
 from vng_api_common.tests import reverse
 
@@ -121,11 +122,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -165,11 +164,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -217,11 +214,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -268,11 +263,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 6)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -316,11 +309,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -404,11 +395,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -491,11 +480,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -552,11 +539,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -618,11 +603,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(report_path) as report_file:
+        with private_media_storage.open(report_path, "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -685,11 +668,9 @@ class ImportDocumentTestCase(
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 3)
         self.assertEqual(DocumentRow.export_headers, rows[0])

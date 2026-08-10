@@ -4,14 +4,14 @@
 from typing import cast
 
 from django.conf import settings
-from django.core.files.storage import Storage
+from django.core.files.storage import Storage, storages
 from django.utils.functional import LazyObject
 
 import structlog
 from azure.core.exceptions import AzureError
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient
-from privates.storages import PrivateMediaFileSystemStorage
+from privates.storages import STORAGE_ALIAS as PRIVATE_MEDIA_STORAGE_ALIAS
 from storages.backends.azure_storage import AzureStorage as _AzureStorage
 from storages.backends.s3 import S3Storage as _S3Storage
 
@@ -99,7 +99,7 @@ class DocumentenStorage(LazyObject):
             case DocumentenBackendTypes.s3_storage:
                 self._wrapped = S3Storage()
             case DocumentenBackendTypes.filesystem:
-                self._wrapped = PrivateMediaFileSystemStorage()
+                self._wrapped = get_private_media_storage()
             case _:
                 raise DocumentBackendNotImplementedError(
                     settings.DOCUMENTEN_API_BACKEND
@@ -108,7 +108,11 @@ class DocumentenStorage(LazyObject):
     def connection_check(self):
         if hasattr(self._wrapped, "connection_check"):
             return self._wrapped.connection_check()
-        return True  # PrivateMediaFileSystemStorage
+        return True  # PrivateMediaStorage
+
+
+def get_private_media_storage() -> Storage:
+    return storages[PRIVATE_MEDIA_STORAGE_ALIAS]
 
 
 documenten_storage = cast(Storage, DocumentenStorage())

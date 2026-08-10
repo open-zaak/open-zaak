@@ -10,6 +10,7 @@ from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils import timezone
 
 import requests_mock
+from privates.storages import private_media_storage
 from privates.test import temp_private_root
 from vng_api_common.fields import VertrouwelijkheidsAanduiding
 from vng_api_common.utils import generate_unique_identification
@@ -112,6 +113,8 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
 
         document_row = _import_document_row(row, 0, identifier, [], {}, self.request)
 
+        self.shutil_mock.assert_called_once()
+
         eio = document_row.instance
 
         self.assertIs(type(eio), EnkelvoudigInformatieObject)
@@ -126,7 +129,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
-        with open(imported_path) as file:
+        with private_media_storage.open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_all_fields(self):
@@ -226,7 +229,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
 
-        with open(imported_path) as file:
+        with private_media_storage.open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_upload_dir_does_not_exist(self):
@@ -276,7 +279,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.vertrouwelijkheidaanduiding, "")
 
-        with open(imported_path) as file:
+        with private_media_storage.open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
 
     def test_lower_column_count(self):
