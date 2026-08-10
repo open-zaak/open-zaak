@@ -530,6 +530,10 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_eigenschap_invalid_url(self):
+        """
+        An eigenschap value that doesn't match any known URL pattern should
+        be a regular validation error, not a server error.
+        """
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
@@ -542,32 +546,32 @@ class ZaakEigenschapValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "eigenschap")
-        self.assertEqual(validation_error["code"], "bad-url")
+        self.assertEqual(validation_error["code"], "no_match")
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_eigenschap_invalid_resource(self):
-        ServiceFactory.create(api_root="http://example.com/", api_type=APITypes.ztc)
+        """
+        A local eigenschap URL that doesn't resolve to an existing eigenschap
+        should be a regular validation error, not a server error.
+        """
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
         list_url = reverse("zaken:zaakeigenschap-list", kwargs={"zaak_uuid": zaak.uuid})
 
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com/", status_code=200, text="<html></html>")
-
-            response = self.client.post(
-                list_url,
-                {
-                    "zaak": zaak_url,
-                    "eigenschap": "http://example.com/",
-                    "waarde": "test",
-                },
-            )
+        response = self.client.post(
+            list_url,
+            {
+                "zaak": zaak_url,
+                "eigenschap": f"http://testserver/catalogi/api/v1/eigenschappen/{uuid.uuid4()}",
+                "waarde": "test",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         validation_error = get_validation_errors(response, "eigenschap")
-        self.assertEqual(validation_error["code"], "invalid-resource")
+        self.assertEqual(validation_error["code"], "does_not_exist")
 
     def test_zaak_is_archived(self):
         zaak = ZaakFactory.create(archiefstatus=Archiefstatus.gearchiveerd)

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
-from django.conf import settings
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
@@ -10,14 +9,11 @@ from vng_api_common.polymorphism import Discriminator, PolymorphicSerializer
 from vng_api_common.serializers import add_choice_values_help_text
 from vng_api_common.validators import IsImmutableValidator, URLValidator
 
+from openzaak.components.catalogi.models import ZaakObjectType
 from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import SubSerializerMixin
-from openzaak.utils.validators import (
-    JQExpressionValidator,
-    LooseFkIsImmutableValidator,
-    LooseFkResourceValidator,
-)
+from openzaak.utils.validators import JQExpressionValidator
 
 from ...models import ZaakObject
 from ..validators import (
@@ -184,15 +180,8 @@ class ZaakObjectSerializer(PolymorphicSerializer):
             },
             "zaakobjecttype": {
                 "lookup_field": "uuid",
-                "max_length": 1000,
-                "allow_null": False,
-                "allow_blank": True,
-                "validators": [
-                    LooseFkResourceValidator(
-                        "ZaakObjectType", settings.ZTC_API_STANDARD
-                    ),
-                    LooseFkIsImmutableValidator(),
-                ],
+                "queryset": ZaakObjectType.objects.all(),
+                "validators": [IsImmutableValidator()],
                 "view_name": "catalogi:zaakobjecttype-detail",
             },
         }
