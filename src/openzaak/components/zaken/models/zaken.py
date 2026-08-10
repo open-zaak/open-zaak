@@ -1338,39 +1338,12 @@ class ZaakObject(APIMixin, models.Model):
         'waarde "overige" heeft.',
     )
 
-    _zaakobjecttype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern ZAAKOBJECTTYPE (in een andere Catalogi API).",
-    )
-    _zaakobjecttype_relative_url = RelativeURLField(
-        _("zaakobjecttype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern ZAAKOBJECTTYPE (in een andere Catalogi API).",
-    )
-    _zaakobjecttype_url = ServiceUrlField(
-        base_field="_zaakobjecttype_base_url",
-        relative_field="_zaakobjecttype_relative_url",
-        verbose_name=_("extern zaakobjecttype"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern ZAAKOBJECTTYPE (in een andere Catalogi API)."
-        ),
-    )
-    _zaakobjecttype = models.ForeignKey(
+    zaakobjecttype = models.ForeignKey(
         "catalogi.ZaakObjectType",
         on_delete=models.PROTECT,
-        help_text="URL-referentie naar het ZAAKOBJECTTYPE (in de lokale Catalogi API).",
+        help_text="URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API).",
         null=True,
         blank=True,
-    )
-    zaakobjecttype = FkOrServiceUrlField(
-        fk_field="_zaakobjecttype",
-        url_field="_zaakobjecttype_url",
-        blank=True,
-        null=True,
-        help_text=_("URL-referentie naar het ZAAKOBJECTTYPE (in de Catalogi API)."),
     )
 
     objects = ZaakRelatedQuerySet.as_manager()
@@ -1431,36 +1404,9 @@ class ZaakEigenschap(ETagMixin, APIMixin, models.Model):
     )
     zaak = models.ForeignKey(Zaak, on_delete=models.CASCADE)
 
-    _eigenschap_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
-    )
-    _eigenschap_relative_url = RelativeURLField(
-        _("eigenschap relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern EIGENSCHAP (in een andere Catalogi API).",
-    )
-    _eigenschap_url = ServiceUrlField(
-        base_field="_eigenschap_base_url",
-        relative_field="_eigenschap_relative_url",
-        verbose_name=_("externe eigenschap"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar externe EIGENSCHAP (in een andere Catalogi API)."
-        ),
-    )
-    _eigenschap = models.ForeignKey(
+    eigenschap = models.ForeignKey(
         "catalogi.Eigenschap",
         on_delete=models.PROTECT,
-        help_text="URL-referentie naar de EIGENSCHAP (in de Catalogi API).",
-        null=True,
-        blank=True,
-    )
-    eigenschap = FkOrServiceUrlField(
-        fk_field="_eigenschap",
-        url_field="_eigenschap_url",
         help_text=_("URL-referentie naar de EIGENSCHAP (in de Catalogi API)."),
     )
 

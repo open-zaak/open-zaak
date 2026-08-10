@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
-from django.test import override_settings, tag
+from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -140,66 +140,3 @@ class ZaakObjectZaakobjecttypeTestCase(JWTAuthMixin, APITestCase):
 
         validation_error = get_validation_errors(response, "zaakobjecttype")
         self.assertEqual(validation_error["code"], "wijzigen-niet-toegelaten")
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class ZaakObjectExternalURLsTestCase(JWTAuthMixin, APITestCase):
-    """
-    tests with external zaakobject.zaakobjecttype
-    """
-
-    catalogus = "https://externe.catalogus.nl/api/v1/catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-    zaaktype = "https://externe.catalogus.nl/api/v1/zaaktypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-    zaakobjecttype = "https://externe.catalogus.nl/api/v1/zaakobjecttypen/7a3e4a22-d789-4381-939b-401dbce29426"
-
-    heeft_alle_autorisaties = True
-    maxDiff = None
-
-    def test_read_with_zaakobjecttype_external(self):
-        zaakobject = ZaakObjectFactory.create(
-            object=OBJECT,
-            object_type=ZaakobjectTypes.adres,
-            zaakobjecttype=self.zaakobjecttype,
-        )
-        url = reverse(zaakobject)
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.json()
-
-        self.assertEqual(
-            data,
-            {
-                "url": f"http://testserver{url}",
-                "uuid": str(zaakobject.uuid),
-                "zaak": f"http://testserver{reverse(zaakobject.zaak)}",
-                "object": OBJECT,
-                "objectType": ZaakobjectTypes.adres,
-                "objectTypeOverige": "",
-                "relatieomschrijving": "",
-                "objectTypeOverigeDefinitie": None,
-                "zaakobjecttype": self.zaakobjecttype,
-                "objectIdentificatie": None,
-            },
-        )
-
-    def test_create_with_zaakobjecttype_unknown_service(self):
-        zaak = ZaakFactory.create()
-        url = reverse("zaken:zaakobject-list")
-        data = {
-            "zaak": f"http://testserver{reverse(zaak)}",
-            "object": OBJECT,
-            "objectType": ZaakobjectTypes.adres,
-            "relatieomschrijving": "test",
-            "zaakobjecttype": self.zaakobjecttype,
-        }
-
-        response = self.client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "zaakobjecttype")
-        self.assertEqual(error["code"], "unknown-service")

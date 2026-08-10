@@ -13,14 +13,12 @@ class Command(BaseCommand):
     )
 
     def handle(self, **options):
-        # check only resources with local eigenschap
         zaakeigenschappen = (
             ZaakEigenschap.objects.select_related(
-                "zaak", "_eigenschap", "_eigenschap__specificatie_van_eigenschap"
+                "zaak", "eigenschap", "eigenschap__specificatie_van_eigenschap"
             )
             .filter(
-                _eigenschap__isnull=False,
-                _eigenschap__specificatie_van_eigenschap__isnull=False,
+                eigenschap__specificatie_van_eigenschap__isnull=False,
             )
             .order_by("zaak", "_naam")
         )
@@ -34,7 +32,7 @@ class Command(BaseCommand):
         )
         total_invalid = 0
         for zaakeigenschap in zaakeigenschappen:
-            specificatie = zaakeigenschap._eigenschap.specificatie_van_eigenschap
+            specificatie = zaakeigenschap.eigenschap.specificatie_van_eigenschap
             valid = match_eigenschap_specificatie(
                 specificatie,
                 zaakeigenschap.waarde,

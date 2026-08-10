@@ -808,7 +808,7 @@ class ZaakObjectViewSet(
     Opvragen en bewerken van ZAAKOBJECTen.
     """
 
-    queryset = ZaakObject.objects.select_related("zaak", "_zaakobjecttype").order_by(
+    queryset = ZaakObject.objects.select_related("zaak", "zaakobjecttype").order_by(
         "-pk"
     )
     serializer_class = ZaakObjectSerializer
@@ -1095,7 +1095,7 @@ class ZaakEigenschapViewSet(
     Opvragen en bewerken van ZAAKEIGENSCHAPpen
     """
 
-    queryset = ZaakEigenschap.objects.select_related("zaak", "_eigenschap").order_by(
+    queryset = ZaakEigenschap.objects.select_related("zaak", "eigenschap").order_by(
         "-pk"
     )
     serializer_class = ZaakEigenschapSerializer

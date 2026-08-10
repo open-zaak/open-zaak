@@ -33,7 +33,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
-        form["_zaakobjecttype"] = zaakobjecttype.id
+        form["zaakobjecttype"] = zaakobjecttype.id
         form.submit()
 
         self.assertEqual(ZaakObject.objects.count(), 1)
@@ -55,7 +55,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         form["zaak"] = zaak.id
         form["object"] = "http://example.com/adres/1"
         form["object_type"] = "adres"
-        form["_zaakobjecttype"] = zaakobjecttype.id
+        form["zaakobjecttype"] = zaakobjecttype.id
         response = form.submit()
 
         self.assertContains(
@@ -77,7 +77,7 @@ class ZaakObjectAdminTests(AdminTestMixin, WebTest):
         )
         form = get_response.forms["zaakobject_form"]
         form["object"] = "http://example.com/adres/2"
-        form["_zaakobjecttype"] = zaakobjecttype.id
+        form["zaakobjecttype"] = zaakobjecttype.id
         form.submit()
 
         self.assertEqual(ZaakObject.objects.count(), 1)
