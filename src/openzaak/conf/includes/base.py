@@ -571,28 +571,6 @@ ZAAK_EIGENSCHAP_WAARDE_VALIDATION = config(
         )
     ),
 )
-# improve performance by removing exact count from pagination
-FUZZY_PAGINATION = config(
-    "FUZZY_PAGINATION",
-    default=False,
-    documentation=DocumentationParams(
-        help_text=(
-            "if this variable is set to ``true``, ``yes`` or ``1``, fuzzy pagination will be applied "
-            "to all paginated API endpoints. This is to optimize performance of the endpoints and results in "
-            "the ``count`` property to return a non-exact (fuzzy) value."
-        )
-    ),
-)
-FUZZY_PAGINATION_COUNT_LIMIT = config(
-    "FUZZY_PAGINATION_COUNT_LIMIT",
-    default=500,
-    documentation=DocumentationParams(
-        help_text=(
-            "an integer value to indicate the maximum number of objects where the exact "
-            "count is calculated in pagination when ``FUZZY_PAGINATION`` is enabled"
-        )
-    ),
-)
 
 # Import settings
 IMPORT_RETENTION_DAYS = config(
