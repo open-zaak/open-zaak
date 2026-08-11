@@ -72,6 +72,3 @@ class FuzzyPagination(DynamicPageSizeMixin, PageNumberPagination):
         }
 
         return paginated_schema
-
-
-OptimizedPagination = FuzzyPagination if settings.FUZZY_PAGINATION else ExactPagination
