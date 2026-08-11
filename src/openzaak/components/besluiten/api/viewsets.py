@@ -38,7 +38,7 @@ from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
 
@@ -141,7 +141,7 @@ class BesluitViewSet(
     serializer_class = BesluitSerializer
     filterset_class = BesluitFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     permission_classes = (BesluitAuthRequired,)
     required_scopes = {
         "list": SCOPE_BESLUITEN_ALLES_LEZEN,

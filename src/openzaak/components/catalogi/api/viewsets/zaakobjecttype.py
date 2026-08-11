@@ -8,7 +8,7 @@ from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.components.catalogi.models import ZaakObjectType
 from openzaak.utils.mixins import CacheQuerysetMixin
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 
 from ..filters import ZaakObjectTypeFilter
@@ -73,7 +73,7 @@ class ZaakObjectTypeViewSet(
     serializer_class = ZaakObjectTypeSerializer
     filterset_class = ZaakObjectTypeFilter
     lookup_field = "uuid"
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
