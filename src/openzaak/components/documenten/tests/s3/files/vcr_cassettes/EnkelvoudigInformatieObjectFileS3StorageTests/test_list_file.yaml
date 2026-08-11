@@ -7,13 +7,6 @@ interactions:
       - 0
       - null
     headers:
-      Authorization:
-      - !!binary |
-        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMjAvdXMtZWFzdC0x
-        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1jb250ZW50LXR5cGU7aG9zdDt4LWFtei1j
-        aGVja3N1bS1jcmMzMjt4LWFtei1jb250ZW50LXNoYTI1Njt4LWFtei1kYXRlO3gtYW16LXNkay1j
-        aGVja3N1bS1hbGdvcml0aG0sIFNpZ25hdHVyZT1lZjU5ODMyNDNkODlmMGNmZGI1M2UzNTQ5Nzhm
-        MzRiM2Y5MGIyMmM0YTE5MDg3YTczNDRjODg0YmFhMDY2NzJh
       Content-Length:
       - '9'
       Content-Type:
@@ -24,20 +17,20 @@ interactions:
         MTAwLWNvbnRpbnVl
       User-Agent:
       - !!binary |
-        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
-        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
-        eXRob24gbS9HLGUsRCxOLFosYixVIGNmZy9yZXRyeS1tb2RlI2xlZ2FjeSBCb3RvY29yZS8xLjQy
-        LjI3IFJlc291cmNl
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAzMC1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL1UsZSxaLEQsTixHLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIu
+        MjcgUmVzb3VyY2U=
       X-Amz-Content-SHA256:
       - !!binary |
         MTMwNzk5MGU2YmE1Y2ExNDVlYjM1ZTk5MTgyYTliZWM0NjUzMWJjNTRkZGY2NTZhNjAyYzc4MGZh
         MDI0MGRlZQ==
       X-Amz-Date:
       - !!binary |
-        MjAyNjAxMjBUMTM1NzI5Wg==
+        MjAyNjA4MTFUMTM1NzM3Wg==
       amz-sdk-invocation-id:
       - !!binary |
-        M2M3NTQwMDQtOTdkZS00OTRmLWEzMmItMjI2MDgzN2UxZmJm
+        NjNkNDk2MWMtOWI1Zi00OWFmLWJiMmMtNjM2NmU2NDE0MGI5
       amz-sdk-request:
       - !!binary |
         YXR0ZW1wdD0x
@@ -58,7 +51,7 @@ interactions:
       Content-Length:
       - '0'
       Date:
-      - Tue, 20 Jan 2026 13:57:29 GMT
+      - Tue, 11 Aug 2026 13:57:37 GMT
       ETag:
       - '"1e50210a0202497fb79bc38b6ade6c34"'
       Server:
@@ -75,13 +68,13 @@ interactions:
       X-Amz-Id-2:
       - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
       X-Amz-Request-Id:
-      - 188C750C3D6427AB
+      - 18CAC4DD74E77025
       X-Content-Type-Options:
       - nosniff
       X-Ratelimit-Limit:
-      - '6332'
+      - '4472'
       X-Ratelimit-Remaining:
-      - '6332'
+      - '4472'
       X-Xss-Protection:
       - 1; mode=block
     status:
@@ -90,28 +83,22 @@ interactions:
 - request:
     body: null
     headers:
-      Authorization:
-      - !!binary |
-        QVdTNC1ITUFDLVNIQTI1NiBDcmVkZW50aWFsPW1pbmlvYWRtaW4vMjAyNjAxMjAvdXMtZWFzdC0x
-        L3MzL2F3czRfcmVxdWVzdCwgU2lnbmVkSGVhZGVycz1ob3N0O3gtYW16LWNvbnRlbnQtc2hhMjU2
-        O3gtYW16LWRhdGUsIFNpZ25hdHVyZT04YzI2MjZmMGQ2NDQ1MGQ0ZjU3YzY1NGFmZjZmNzM0YThh
-        ODBjZGQzOTI4MjE3ZDgwNGZkMTQyMDI1YWZhMTRk
       User-Agent:
       - !!binary |
-        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE0LjAt
-        MzctZ2VuZXJpYyBtZC9hcmNoI3g4Nl82NCBsYW5nL3B5dGhvbiMzLjEyLjMgbWQvcHlpbXBsI0NQ
-        eXRob24gbS9lLEQsTixaLGIgY2ZnL3JldHJ5LW1vZGUjbGVnYWN5IEJvdG9jb3JlLzEuNDIuMjcg
-        UmVzb3VyY2U=
+        Qm90bzMvMS40Mi4yNyBtZC9Cb3RvY29yZSMxLjQyLjI3IHVhLzIuMSBvcy9saW51eCM2LjE3LjAt
+        MTAzMC1vZW0gbWQvYXJjaCN4ODZfNjQgbGFuZy9weXRob24jMy4xMi4xMiBtZC9weWltcGwjQ1B5
+        dGhvbiBtL2UsWixELE4sYiBjZmcvcmV0cnktbW9kZSNsZWdhY3kgQm90b2NvcmUvMS40Mi4yNyBS
+        ZXNvdXJjZQ==
       X-Amz-Content-SHA256:
       - !!binary |
         ZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3
         ODUyYjg1NQ==
       X-Amz-Date:
       - !!binary |
-        MjAyNjAxMjBUMTM1NzI5Wg==
+        MjAyNjA4MTFUMTM1NzM3Wg==
       amz-sdk-invocation-id:
       - !!binary |
-        YzZmYzE4ODUtM2NjNC00Yjg1LWE4OTEtZWFiM2YxMmM1ZmQ4
+        MGU2NjdkOGYtNDU2YS00NmE0LWEyYmItZDk0YmNjZWYzNWI4
       amz-sdk-request:
       - !!binary |
         YXR0ZW1wdD0x
@@ -128,11 +115,11 @@ interactions:
       Content-Type:
       - application/octet-stream
       Date:
-      - Tue, 20 Jan 2026 13:57:29 GMT
+      - Tue, 11 Aug 2026 13:57:37 GMT
       ETag:
       - '"1e50210a0202497fb79bc38b6ade6c34"'
       Last-Modified:
-      - Tue, 20 Jan 2026 13:57:29 GMT
+      - Tue, 11 Aug 2026 13:57:37 GMT
       Server:
       - MinIO
       Strict-Transport-Security:
@@ -143,13 +130,13 @@ interactions:
       X-Amz-Id-2:
       - dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8
       X-Amz-Request-Id:
-      - 188C750C3E7CACF5
+      - 18CAC4DD768BB558
       X-Content-Type-Options:
       - nosniff
       X-Ratelimit-Limit:
-      - '6332'
+      - '4472'
       X-Ratelimit-Remaining:
-      - '6332'
+      - '4472'
       X-Xss-Protection:
       - 1; mode=block
     status:
