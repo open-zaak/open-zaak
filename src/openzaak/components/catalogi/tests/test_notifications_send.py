@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2020 Dimpact
+from unittest.mock import call, patch
 
 from django.test import override_settings, tag
 
 import requests_mock
 from freezegun import freeze_time
 from notifications_api_common.models import FailedNotification, NotificationResponse
+from privates.test import temp_private_root
 from rest_framework import status
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
@@ -16,8 +18,129 @@ from openzaak.utils.urls import reverse
 
 from ..constants import AardRelatieChoices, InternExtern
 from .base import APITestCase
-from .factories import BesluitTypeFactory, InformatieObjectTypeFactory, ZaakTypeFactory
+from .factories import (
+    BesluitTypeFactory,
+    CatalogusFactory,
+    InformatieObjectTypeFactory,
+    ZaakTypeFactory,
+)
 from .utils import get_operation_url
+
+
+@tag("notifications")
+@freeze_time("2018-09-07T00:00:00Z")
+@temp_private_root()
+@override_settings(NOTIFICATIONS_DISABLED=False, LOG_NOTIFICATIONS_IN_DB=False)
+@patch("notifications_api_common.viewsets.send_notification.delay")
+class InformatieObjectTypeSendNotifTestCase(NotificationsConfigMixin, APITestCase):
+    heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
+
+    def test_send_notif_create_informatieobjecttype(self, mock_notif):
+        catalogus = CatalogusFactory.create()
+        catalogus_url = reverse(catalogus)
+        url = reverse(InformatieObjectType, namespace=self.NAMESPACE)
+
+        data = {
+            "catalogus": f"http://testserver{catalogus_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": VertrouwelijkheidsAanduiding.openbaar,
+            "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
+        }
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        data = response.json()
+        iot = InformatieObjectType.objects.get()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(iot, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "informatieobjecttypen",
+                        "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "resource": "informatieobjecttype",
+                        "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "actie": "create",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{catalogus_url}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
+
+    def test_send_notif_update_informatieobjecttype(self, mock_notif):
+        iot = InformatieObjectTypeFactory.create()
+        url = reverse(iot, namespace=self.NAMESPACE)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(url, {"omschrijving": "Blabla"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = response.json()
+        self.assertEqual(
+            data["url"],
+            f"http://testserver{reverse(iot, namespace=self.NAMESPACE)}",
+        )
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "informatieobjecttypen",
+                        "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "resource": "informatieobjecttype",
+                        "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "actie": "partial_update",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
+
+    def test_send_notif_delete_informatieobjecttype(self, mock_notif):
+        iot = InformatieObjectTypeFactory.create()
+        url = reverse(iot, namespace=self.NAMESPACE)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(url)
+
+        self.assertEqual(
+            response.status_code, status.HTTP_204_NO_CONTENT, response.data
+        )
+
+        mock_notif.assert_has_calls(
+            [
+                call(
+                    {
+                        "kanaal": "informatieobjecttypen",
+                        "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "resource": "informatieobjecttype",
+                        "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
+                        "actie": "destroy",
+                        "aanmaakdatum": "2018-09-07T00:00:00Z",
+                        "kenmerken": {
+                            "catalogus": f"http://testserver{reverse(iot.catalogus)}",
+                        },
+                    },
+                    None,
+                ),
+            ]
+        )
 
 
 @tag("notifications")
