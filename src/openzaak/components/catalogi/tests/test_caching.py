@@ -284,18 +284,21 @@ class EigenschapCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
 
 class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_informatieobjecttype_get_cache_header(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        response = self.client.get(reverse(informatieobjecttype))
+        response = self.client.get(
+            reverse(informatieobjecttype, namespace=self.NAMESPACE)
+        )
 
         self.assertHasETag(response)
 
     def test_informatieobjecttype_head_cache_header(self):
         informatieobjecttype = InformatieObjectTypeFactory.create()
 
-        self.assertHeadHasETag(reverse(informatieobjecttype))
+        self.assertHeadHasETag(reverse(informatieobjecttype, namespace=self.NAMESPACE))
 
     def test_head_in_apischema(self):
         spec = get_spec("catalogi")
@@ -307,7 +310,7 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     def test_conditional_get_304(self):
         informatieobjecttype = InformatieObjectTypeFactory.create(with_etag=True)
         response = self.client.get(
-            reverse(informatieobjecttype),
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
             headers={"if-none-match": f'"{informatieobjecttype._etag}"'},
         )
 
@@ -317,7 +320,8 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(with_etag=True)
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": '"not-an-md5"'}
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": '"not-an-md5"'},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -325,6 +329,7 @@ class InformatieObjectTypeCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
 
 class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def setUp(self):
         super().setUp()
@@ -351,7 +356,8 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
         informatieobjecttype.save()
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -366,7 +372,8 @@ class InformatieObjectTypeCacheTransactionTests(JWTAuthMixin, APITransactionTest
         etag = informatieobjecttype._etag
 
         response = self.client.get(
-            reverse(informatieobjecttype), headers={"if-none-match": f'"{etag}"'}
+            reverse(informatieobjecttype, namespace=self.NAMESPACE),
+            headers={"if-none-match": f'"{etag}"'},
         )
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
 
