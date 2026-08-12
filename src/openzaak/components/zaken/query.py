@@ -7,10 +7,10 @@ from django.db import models
 from django_loose_fk.virtual_models import ProxyMixin
 
 from openzaak.components.besluiten.models import Besluit
-from openzaak.utils.query import BlockChangeMixin, LooseFkAuthorizationsFilterMixin
+from openzaak.utils.query import BlockChangeMixin, FkAuthorizationsFilterMixin
 
 
-class ZaakAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
+class ZaakAuthorizationsFilterMixin(FkAuthorizationsFilterMixin):
     """
     Filter objects whitelisted by the authorizations.
 
