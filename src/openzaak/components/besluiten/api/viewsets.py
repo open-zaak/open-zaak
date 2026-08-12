@@ -39,6 +39,7 @@ from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
+from openzaak.utils.namespacing import replace_namespaces
 from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.views import AuditTrailViewSet
@@ -430,9 +431,7 @@ class BesluitVerwerkenViewSet(
 
         response = Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        brc_data = self._replace_namespaces(
-            serializer.data["besluit"], ["url"], "besluiten"
-        )
+        brc_data = replace_namespaces(serializer.data["besluit"], ["url"], "besluiten")
         self.create_audittrail(
             response.status_code,
             CommonResourceAction.create,
@@ -449,9 +448,7 @@ class BesluitVerwerkenViewSet(
         zaak = serializer.data["besluit"]["zaak"]
 
         if zaak:
-            zrc_data = self._replace_namespaces(
-                serializer.data["besluit"], ["url"], "zaken"
-            )
+            zrc_data = replace_namespaces(serializer.data["besluit"], ["url"], "zaken")
             self.create_audittrail(
                 response.status_code,
                 CommonResourceAction.create,
@@ -466,7 +463,7 @@ class BesluitVerwerkenViewSet(
             )
 
         for i, data in enumerate(serializer.data["besluitinformatieobjecten"]):
-            brc_data = self._replace_namespaces(data, ["url", "besluit"], "besluiten")
+            brc_data = replace_namespaces(data, ["url", "besluit"], "besluiten")
             self.create_audittrail(
                 response.status_code,
                 CommonResourceAction.create,
@@ -481,7 +478,7 @@ class BesluitVerwerkenViewSet(
             )
 
             if zaak:
-                zrc_data = self._replace_namespaces(data, ["url", "besluit"], "zaken")
+                zrc_data = replace_namespaces(data, ["url", "besluit"], "zaken")
                 self.create_audittrail(
                     response.status_code,
                     CommonResourceAction.create,

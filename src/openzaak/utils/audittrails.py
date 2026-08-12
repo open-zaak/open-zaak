@@ -5,12 +5,18 @@ from typing import Type
 from django.db import models, transaction
 
 from vng_api_common.audittrails.audits import Audit
-from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.audittrails.viewsets import (
+    AuditTrailCreateMixin,
+    AuditTrailDestroyMixin,
     AuditTrailMixin,
+    AuditTrailUpdateMixin,
 )
 from vng_api_common.constants import CommonResourceAction
-from vng_api_common.utils import get_uuid_from_path
+
+from openzaak.utils.namespacing import (
+    get_nested_main_object_url_from_instance,
+    replace_namespaces,
+)
 
 
 class MultipleAuditTrailsMixin(AuditTrailMixin):
@@ -19,33 +25,6 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
 
     _AUDIT_NAMESPACE_MAPPING = {"BRC": "besluiten", "ZRC": "zaken"}
 
-    def _replace_namespace(self, url: str, namespace: str) -> str:
-        # TODO move to deprecated api utils
-        prefix, sep, rest = url.partition("/api")
-        if not sep:
-            return url
-
-        base, _, old_namespace = prefix.rpartition("/")
-        return f"{base}/{namespace}{sep}{rest}"
-
-    def _replace_namespaces(
-        self, data: dict, fields: list[str], namespace: str
-    ) -> list[str]:
-        new_data = data.copy()
-        for field in fields:
-            new_data[field] = self._replace_namespace(new_data[field], namespace)
-
-        return new_data
-
-    def _get_nested_main_resource_url_from_instance(
-        self, key: str, instance: Type[models.Model]
-    ) -> str | None:
-        """Returns the url of an nested FK field"""
-        obj = instance
-        for field in key.split("."):
-            obj = getattr(obj, field, None)
-        return obj.get_absolute_api_url(request=self.request) if obj else None
-
     def _get_audittrail_main_object_url(
         self, data: dict, audit: Audit, instance: Type[models.Model], basename: str
     ) -> str | None:
@@ -53,10 +32,10 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
             return data["url"]
 
         if audit.main_resource not in data:
-            # TODO WATCH OUT MultipleChannelNotificationMixin methods are also accessible since everything is a mixin on the viewset
-            url = self._get_nested_main_resource_url_from_instance(
+            url = get_nested_main_object_url_from_instance(
                 self.audittrail_main_resource_keys[audit.component_name],
                 instance,
+                self.request,
             )
         else:
             url = data[audit.main_resource]
@@ -77,14 +56,14 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
         fields.append("url")
 
         if version_before_edit:
-            version_before_edit = self._replace_namespaces(
+            version_before_edit = replace_namespaces(
                 version_before_edit,
                 fields,
                 self._AUDIT_NAMESPACE_MAPPING[audit.component_name],
             )
 
         if version_after_edit:
-            version_after_edit = self._replace_namespaces(
+            version_after_edit = replace_namespaces(
                 version_after_edit,
                 fields,
                 self._AUDIT_NAMESPACE_MAPPING[audit.component_name],
@@ -102,23 +81,9 @@ class MultipleAuditTrailsMixin(AuditTrailMixin):
         return main_object, version_before_edit, version_after_edit
 
 
-class MultipleAuditTrailsCreateMixin(MultipleAuditTrailsMixin):
-    # TODO
-    def get_audittrail_instance(self, response):
-        if self._audittrail_serializer is not None:
-            return self._audittrail_serializer.instance
-        zaak_uuid = get_uuid_from_path(response.data["url"])
-        instance = self.get_queryset().get(uuid=zaak_uuid)  # type: ignore
-        return instance
-
-    # TODO
-    def perform_create(self, serializer):
-        super().perform_create(serializer)  # type: ignore
-        # cache for future re-use
-        self._audittrail_serializer = serializer
-
+class MultipleAuditTrailsCreateMixin(AuditTrailCreateMixin, MultipleAuditTrailsMixin):
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)  # type: ignore
+        response = super(AuditTrailCreateMixin, self).create(request, *args, **kwargs)  # type: ignore
         instance = self.get_audittrail_instance(response)
         version_after_edit = response.data
 
@@ -144,7 +109,7 @@ class MultipleAuditTrailsCreateMixin(MultipleAuditTrailsMixin):
         return response
 
 
-class MultipleAuditTrailsUpdateMixin(MultipleAuditTrailsMixin):
+class MultipleAuditTrailsUpdateMixin(AuditTrailUpdateMixin, MultipleAuditTrailsMixin):
     def update(self, request, *args, **kwargs):
         # Retrieve the data stored in the object before updating
         instance = self.get_object()  # type: ignore
@@ -157,7 +122,7 @@ class MultipleAuditTrailsUpdateMixin(MultipleAuditTrailsMixin):
             else CommonResourceAction.update
         )
 
-        response = super().update(request, *args, **kwargs)  # type: ignore
+        response = super(AuditTrailUpdateMixin, self).update(request, *args, **kwargs)  # type: ignore
         version_after_edit = response.data
 
         for audit in self.audits:
@@ -187,7 +152,7 @@ class MultipleAuditTrailsUpdateMixin(MultipleAuditTrailsMixin):
         return response
 
 
-class MultipleAuditTrailsDestroyMixin(MultipleAuditTrailsMixin):
+class MultipleAuditTrailsDestroyMixin(AuditTrailDestroyMixin, MultipleAuditTrailsMixin):
     def destroy(self, request, *args, **kwargs):
         # Retrieve the data stored in the object before updating
         instance = self.get_object()  # type: ignore
@@ -195,7 +160,9 @@ class MultipleAuditTrailsDestroyMixin(MultipleAuditTrailsMixin):
         version_before_edit = serializer.data
 
         with transaction.atomic():
-            response = super().destroy(request, *args, **kwargs)
+            response = super(AuditTrailDestroyMixin, self).destroy(
+                request, *args, **kwargs
+            )
             for audit in self.audits:
                 main_object, version_before_edit, _ = self._handle_namespacing(
                     audit, instance, version_before_edit=version_before_edit
@@ -222,9 +189,6 @@ class MultipleAuditTrailsDestroyMixin(MultipleAuditTrailsMixin):
                     )
 
             return response
-
-    def _destroy_related_audittrails(self, main_object_url):
-        AuditTrail.objects.filter(hoofd_object=main_object_url).delete()
 
 
 class MultipleAuditTrailsViewsetMixin(
