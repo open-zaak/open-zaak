@@ -36,9 +36,9 @@ class BlockChangeMixin:
     delete.queryset_only = True
 
 
-class LooseFkAuthorizationsFilterMixin:
+class FkAuthorizationsFilterMixin:
     auth_fields = []
-    loose_fk_field = None
+    fk_field = None
     vertrouwelijkheidaanduiding_use = True
     authorizations_lookup = None
 
@@ -62,7 +62,6 @@ class LooseFkAuthorizationsFilterMixin:
             queryset = self.filter(filters)
         return queryset
 
-    # TODO rename loose_fk stuff
     def get_filters(
         self,
         scope,
@@ -71,36 +70,16 @@ class LooseFkAuthorizationsFilterMixin:
         use_va=True,
     ) -> Q:
         prefix = self.prefix
-        loose_fk_field = f"_{self.loose_fk_field}"
+        fk_field = f"_{self.fk_field}"
 
-        # # resource URLs to either use as-is or resolve to database records
-        # resource_urls = [
-        #     getattr(authorization, self.loose_fk_field)
-        #     for authorization in authorizations
-        # ]
-
-        # keep a list of allowed loose-fk objects
-        loose_fk_objecten = []
+        fk_objecten = []
         # build the case/when to map the max_vertrouwelijkheidaanduiding based
         # on the ``zaaktype``
         va_mapping = defaultdict(list)
 
-        # # prepare to get the loose_fk_objects in bulk from the DB
-        # loose_fk_object_paths = [urlparse(url).path for url in resource_urls]
-        # loose_fk_objects = get_resources_for_paths(loose_fk_object_paths)
-        # # nothing to resolve
-        # if loose_fk_objects is None:
-        #     loose_fk_object_map = {}
-        # else:
-        #     # keep the sorting so we can zip them correctly
-        #     sorted_objects = sorted(
-        #         loose_fk_objects, key=lambda o: o.get_absolute_api_url()
-        #     )
-        #     loose_fk_object_map = dict(zip(sorted(resource_urls), sorted_objects))
-
         for authorization in authorizations:
-            resource = getattr(authorization, self.loose_fk_field)
-            loose_fk_objecten.append(resource)
+            resource = getattr(authorization, self.fk_field)
+            fk_objecten.append(resource)
 
             # extract the order and map it to the database value
             if authorization.max_vertrouwelijkheidaanduiding:
@@ -112,11 +91,11 @@ class LooseFkAuthorizationsFilterMixin:
         if catalogus_authorizations:
             for catalogus_authorisation in catalogus_authorizations:
                 resources = getattr(
-                    catalogus_authorisation.catalogus, f"{self.loose_fk_field}_set"
+                    catalogus_authorisation.catalogus, f"{self.fk_field}_set"
                 ).all()
 
                 for instance in resources:
-                    loose_fk_objecten.append(instance)
+                    fk_objecten.append(instance)
 
                     # extract the order and map it to the database value
                     if catalogus_authorisation.max_vertrouwelijkheidaanduiding:
@@ -128,7 +107,7 @@ class LooseFkAuthorizationsFilterMixin:
                         va_mapping[choice_item_order].append(instance)
 
         if not use_va:
-            return Q(**{f"{prefix}{loose_fk_field}__in": loose_fk_objecten})
+            return Q(**{f"{prefix}{fk_field}__in": fk_objecten})
 
         # Combine the filters: group the minimum required confidentiality with
         # the instances (zaaktypen/informatieobjecttypen) for which this constraint
@@ -136,7 +115,7 @@ class LooseFkAuthorizationsFilterMixin:
         filters = Q()
         for max_va, instances in va_mapping.items():
             filters |= Q(_va_order__lte=max_va) & Q(
-                **{f"{prefix}{loose_fk_field}__in": instances}
+                **{f"{prefix}{fk_field}__in": instances}
             )
         return filters
 
