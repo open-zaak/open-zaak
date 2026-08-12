@@ -5,6 +5,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.audittrails.models import AuditTrail
+from vng_api_common.tests import get_validation_errors
 
 from openzaak.components.besluiten.models import Besluit, BesluitInformatieObject
 from openzaak.components.besluiten.tests.factories import (
@@ -15,6 +16,7 @@ from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
+from openzaak.components.zaken.tests.factories import ZaakFactory
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
@@ -160,6 +162,62 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_bio_in_zaken_with_non_existent_namespace(self):
+        """
+        resolve_path in permission check returns ObjectNotFound
+        """
+        url = reverse(BesluitInformatieObject, namespace="zaken")
+
+        besluit = BesluitFactory.create()
+        eio = EnkelvoudigInformatieObjectFactory.create()
+        eio.informatieobjecttype.besluittypen.add(besluit.besluittype)
+
+        response = self.client.post(
+            url,
+            {
+                "besluit": f"http://testserver/blabla/api/v1/besluiten/{besluit.uuid}",
+                "informatieobject": f"http://testserver{reverse(eio)}",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = get_validation_errors(response, "besluit")
+        self.assertEqual(error["code"], "object-does-not-exist")
+
+    def test_create_zaakbesluit(self):
+        zaak = ZaakFactory.create()
+        besluit = BesluitFactory.create(zaak=zaak)
+        besluit.besluittype.zaaktypen.add(zaak.zaaktype)
+
+        with self.subTest("both in zaken namespace"):
+            url = f"{reverse(zaak, namespace='zaken')}/besluiten"
+            response = self.client.post(
+                url,
+                {
+                    "besluit": f"http://testserver{reverse(besluit, namespace='zaken')}",
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        with self.subTest("besluit namespace"):
+            url = f"{reverse(zaak, namespace='zaken')}/besluiten"
+            response = self.client.post(
+                url,
+                {
+                    "besluit": f"http://testserver{reverse(besluit, namespace='besluiten')}",
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        with self.subTest("non existent namespace"):
+            url = f"{reverse(zaak, namespace='zaken')}/besluiten"
+            response = self.client.post(
+                url,
+                {
+                    "besluit": f"http://testserver/blabla/api/v1/besluiten/{besluit.uuid}",
+                },
+            )
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class BesluitAudittrailTests(JWTAuthMixin, APITestCase):
