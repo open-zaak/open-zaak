@@ -152,7 +152,25 @@ class DeprecatedNamespaceMixin:
     request namespaces is used for all models in _MOVED_MODELS
     """
 
-    _MOVED_MODELS = ["besluit", "besluitinformatieobject", "informatieobjecttype"]
+    # TODO what happens in DeprecatedNamespaceMixin when MOVED_MODEL is part of response from non depredcated api namespace?
+    # TODO will it be get the request namespace even though it should be zaken/besluiten for example.
+    # besluit & iot are only in old & new namespaces
+    # but check for other catalogi models.
+    # if besluiten was part of catalogi response it would get catalogi namespace currently
+
+    _MOVED_MODELS = [
+        "besluit",
+        "besluitinformatieobject",
+        "informatieobjecttype",
+    ]  # TODO remove
+    _MODED_MODEL_VIEW_NAMES = [
+        "besluiten:besluit-detail",
+        "zaken:besluit-detail",
+        "besluiten:besluitinformatieobject-detail",
+        "zaken:besluitinformatieobject-detail",
+        "catalogi:informatieobjecttype-detail",
+        "documenten:informatieobjecttype-detail",
+    ]
 
     def get_url(
         self, obj: Model, view_name: str, request: Request, format: str | None
@@ -177,17 +195,11 @@ class DeprecatedNamespaceHyperlinkIdentityField(
 class DeprecatedNamespaceHyperlinkedRelatedField(
     DeprecatedNamespaceMixin, serializers.HyperlinkedRelatedField
 ):
-
-    # TODO what happens in DeprecatedNamespaceMixin when MOVED_MODEL is part of response from non depredcated api namespace?
-    # TODO will it be get the request namespace even though it should be zaken/besluiten for example.
-    # besluit & iot are only in old & new namespaces
-    # but check for other catalogi models.
-
     def fail(self, key, **kwargs):
         """
         Checks if incorrect_match happend with deprecated namespace which is allowed.
         """
-        if key == "incorrect_match" and self.source in self._MOVED_MODELS:
+        if key == "incorrect_match" and self.view_name in self._MODED_MODEL_VIEW_NAMES:
             return
         super().fail(key, kwargs)
 

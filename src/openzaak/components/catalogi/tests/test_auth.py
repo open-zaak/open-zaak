@@ -66,10 +66,6 @@ class ReadTests(AuthCheckMixin, _APITestCase):
             # nested one level
             reverse("catalogi:zaaktype-list"),
             reverse("catalogi:zaaktype-detail", kwargs={"uuid": dummy_uuid}),
-            reverse("catalogi:informatieobjecttype-list"),
-            reverse(
-                "catalogi:informatieobjecttype-detail", kwargs={"uuid": dummy_uuid}
-            ),
             reverse("catalogi:besluittype-list"),
             reverse("catalogi:besluittype-detail", kwargs={"uuid": dummy_uuid}),
             # nested two levels
@@ -81,6 +77,24 @@ class ReadTests(AuthCheckMixin, _APITestCase):
             reverse("catalogi:roltype-detail", kwargs={"uuid": dummy_uuid}),
             reverse("catalogi:zaakobjecttype-list"),
             reverse("catalogi:zaakobjecttype-detail", kwargs={"uuid": dummy_uuid}),
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertForbidden(url, method="get")
+
+
+class InformatieObjectTypeReadTests(AuthCheckMixin, _APITestCase):
+    NAMESPACE = "catalogi"
+
+    def test_cannot_read_without_correct_scope(self):
+        dummy_uuid = str(uuid.uuid4())
+        urls = [
+            reverse(f"{self.NAMESPACE}:informatieobjecttype-list"),
+            reverse(
+                f"{self.NAMESPACE}:informatieobjecttype-detail",
+                kwargs={"uuid": dummy_uuid},
+            ),
         ]
 
         for url in urls:
@@ -125,43 +139,6 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Eigenschap.objects.exists())
-
-    def test_force_delete_informatieobjecttype_not_concept(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
-
-        response = self.client.delete(informatieobjecttype_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(InformatieObjectType.objects.exists())
-
-    def test_force_delete_informatieobjecttype_related_to_non_concept_zaaktype(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
-
-        zaaktype = ZaakTypeFactory.create(concept=False)
-        ZaakTypeInformatieObjectTypeFactory(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-
-        informatieobjecttype_url = reverse(informatieobjecttype)
-
-        response = self.client.delete(informatieobjecttype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(InformatieObjectType.objects.exists())
-
-    def test_force_delete_informatieobjecttype_related_to_non_concept_besluittype(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create()
-
-        BesluitTypeFactory.create(
-            informatieobjecttypen=[informatieobjecttype], concept=False
-        )
-
-        informatieobjecttype_url = reverse(informatieobjecttype)
-
-        response = self.client.delete(informatieobjecttype_url)
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(InformatieObjectType.objects.exists())
 
     def test_force_delete_ziot_not_concept_zaaktype(self):
         ziot = ZaakTypeInformatieObjectTypeFactory.create(zaaktype__concept=False)
@@ -251,6 +228,56 @@ class PublishedTypesForcedDeletionTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ZaakType.objects.exists())
+
+
+class InformatieObjectTypePublishedTypesForcedDeletionTests(APITestCase):
+    heeft_alle_autorisaties = False
+    scopes = [SCOPE_CATALOGI_FORCED_DELETE]
+    component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
+
+    def test_force_delete_informatieobjecttype_not_concept(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+
+        response = self.client.delete(informatieobjecttype_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(InformatieObjectType.objects.exists())
+
+    def test_force_delete_informatieobjecttype_related_to_non_concept_zaaktype(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        zaaktype = ZaakTypeFactory.create(concept=False)
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+
+        response = self.client.delete(informatieobjecttype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(InformatieObjectType.objects.exists())
+
+    def test_force_delete_informatieobjecttype_related_to_non_concept_besluittype(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+
+        BesluitTypeFactory.create(
+            informatieobjecttypen=[informatieobjecttype], concept=False
+        )
+
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+
+        response = self.client.delete(informatieobjecttype_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(InformatieObjectType.objects.exists())
 
 
 class PublishedTypesForcedWriteTests(APITestCase):
@@ -400,82 +427,6 @@ class PublishedTypesForcedWriteTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         eigenschap.refresh_from_db()
         self.assertEqual(eigenschap.eigenschapnaam, "aangepast")
-
-    def test_update_informatieobjecttype_not_concept(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
-        data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "omschrijving": "test",
-            "vertrouwelijkheidaanduiding": "openbaar",
-            "beginGeldigheid": "2019-01-01",
-            "informatieobjectcategorie": "main",
-        }
-
-        response = self.client.put(informatieobjecttype_url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        informatieobjecttype.refresh_from_db()
-        self.assertEqual(informatieobjecttype.omschrijving, "test")
-
-    def test_partial_update_informatieobjecttype_not_concept(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
-        informatieobjecttype_url = reverse(informatieobjecttype)
-
-        response = self.client.patch(informatieobjecttype_url, {"omschrijving": "same"})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        informatieobjecttype.refresh_from_db()
-        self.assertEqual(informatieobjecttype.omschrijving, "same")
-
-    def test_update_informatieobjecttype_related_to_non_concept_resources(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus
-        )
-        zaaktype = ZaakTypeFactory.create(concept=False, catalogus=self.catalogus)
-        ZaakTypeInformatieObjectTypeFactory(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        BesluitTypeFactory.create(
-            concept=False,
-            informatieobjecttypen=[informatieobjecttype],
-            catalogus=self.catalogus,
-        )
-        informatieobjecttype_url = reverse(informatieobjecttype)
-        data = {
-            "catalogus": f"http://testserver{self.catalogus_detail_url}",
-            "omschrijving": "test",
-            "vertrouwelijkheidaanduiding": "openbaar",
-            "beginGeldigheid": "2019-01-01",
-            "informatieobjectcategorie": "main",
-        }
-
-        response = self.client.put(informatieobjecttype_url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        informatieobjecttype.refresh_from_db()
-        self.assertEqual(informatieobjecttype.omschrijving, "test")
-
-    def test_partial_update_informatieobjecttype_related_to_non_concept_resources(self):
-        informatieobjecttype = InformatieObjectTypeFactory.create(
-            catalogus=self.catalogus
-        )
-        zaaktype = ZaakTypeFactory.create(concept=False, catalogus=self.catalogus)
-        ZaakTypeInformatieObjectTypeFactory(
-            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
-        )
-        BesluitTypeFactory.create(
-            concept=False,
-            informatieobjecttypen=[informatieobjecttype],
-            catalogus=self.catalogus,
-        )
-        informatieobjecttype_url = reverse(informatieobjecttype)
-
-        response = self.client.patch(informatieobjecttype_url, {"omschrijving": "test"})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        informatieobjecttype.refresh_from_db()
-        self.assertEqual(informatieobjecttype.omschrijving, "test")
 
     def test_create_ziot_not_concept_zaaktype_and_informatieobjecttype(self):
         zaaktype = ZaakTypeFactory.create(concept=False)
@@ -841,3 +792,94 @@ class PublishedTypesForcedWriteTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         zaaktype.refresh_from_db()
         self.assertEqual(zaaktype.aanleiding, "aangepast")
+
+
+class InformatieObjectTypePublishedTypesForcedWriteTests(APITestCase):
+    heeft_alle_autorisaties = False
+    scopes = [SCOPE_CATALOGI_FORCED_WRITE]
+    component = ComponentTypes.ztc
+    NAMESPACE = "catalogi"
+
+    def test_update_informatieobjecttype_not_concept(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": "openbaar",
+            "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
+        }
+
+        response = self.client.put(informatieobjecttype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        informatieobjecttype.refresh_from_db()
+        self.assertEqual(informatieobjecttype.omschrijving, "test")
+
+    def test_partial_update_informatieobjecttype_not_concept(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+
+        response = self.client.patch(informatieobjecttype_url, {"omschrijving": "same"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        informatieobjecttype.refresh_from_db()
+        self.assertEqual(informatieobjecttype.omschrijving, "same")
+
+    def test_update_informatieobjecttype_related_to_non_concept_resources(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus
+        )
+        zaaktype = ZaakTypeFactory.create(concept=False, catalogus=self.catalogus)
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+        BesluitTypeFactory.create(
+            concept=False,
+            informatieobjecttypen=[informatieobjecttype],
+            catalogus=self.catalogus,
+        )
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+        data = {
+            "catalogus": f"http://testserver{self.catalogus_detail_url}",
+            "omschrijving": "test",
+            "vertrouwelijkheidaanduiding": "openbaar",
+            "beginGeldigheid": "2019-01-01",
+            "informatieobjectcategorie": "main",
+        }
+
+        response = self.client.put(informatieobjecttype_url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        informatieobjecttype.refresh_from_db()
+        self.assertEqual(informatieobjecttype.omschrijving, "test")
+
+    def test_partial_update_informatieobjecttype_related_to_non_concept_resources(self):
+        informatieobjecttype = InformatieObjectTypeFactory.create(
+            catalogus=self.catalogus
+        )
+        zaaktype = ZaakTypeFactory.create(concept=False, catalogus=self.catalogus)
+        ZaakTypeInformatieObjectTypeFactory(
+            zaaktype=zaaktype, informatieobjecttype=informatieobjecttype
+        )
+        BesluitTypeFactory.create(
+            concept=False,
+            informatieobjecttypen=[informatieobjecttype],
+            catalogus=self.catalogus,
+        )
+        informatieobjecttype_url = reverse(
+            informatieobjecttype, namespace=self.NAMESPACE
+        )
+
+        response = self.client.patch(informatieobjecttype_url, {"omschrijving": "test"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        informatieobjecttype.refresh_from_db()
+        self.assertEqual(informatieobjecttype.omschrijving, "test")

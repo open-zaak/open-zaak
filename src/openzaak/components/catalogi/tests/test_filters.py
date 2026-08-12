@@ -95,9 +95,13 @@ class EigenschapFilterTests(JWTAuthMixin, APITestCase):
 
 class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "catalogi"
 
     def test_filter_by_invalid_url(self):
-        response = self.client.get(reverse(InformatieObjectType), {"catalogus": "bla"})
+        response = self.client.get(
+            reverse(InformatieObjectType, namespace=self.NAMESPACE),
+            {"catalogus": "bla"},
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -109,7 +113,8 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         informatieobjecttype.zaaktypen.clear()
 
         response = self.client.get(
-            reverse(InformatieObjectType), {"catalogus": "https://google.com"}
+            reverse(InformatieObjectType, namespace=self.NAMESPACE),
+            {"catalogus": "https://google.com"},
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -121,7 +126,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=False)
         informatieobjecttype.zaaktypen.clear()
 
-        url = f"{reverse(InformatieObjectType)}?status=alle"
+        url = f"{reverse(InformatieObjectType, namespace=self.NAMESPACE)}?status=alle"
 
         response = self.client.get(url)
 
@@ -140,7 +145,7 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
             omschrijving="Another thing", concept=False
         )
 
-        url = f"{reverse('catalogi:informatieobjecttype-list')}?omschrijving__icontains=descript"
+        url = f"{reverse(f'{self.NAMESPACE}:informatieobjecttype-list')}?omschrijving__icontains=descript"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -149,9 +154,15 @@ class InformatieObjectTypeFilterTests(JWTAuthMixin, APITestCase):
             for item in response.data["results"]
         ]
         self.assertEqual(response.data["count"], 2)
-        self.assertIn(obj1.get_absolute_api_url(), returned_urls)
-        self.assertIn(obj2.get_absolute_api_url(), returned_urls)
-        self.assertNotIn(obj3.get_absolute_api_url(), returned_urls)
+        self.assertIn(
+            obj1.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertIn(
+            obj2.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
+        self.assertNotIn(
+            obj3.get_absolute_api_url(namespace=self.NAMESPACE), returned_urls
+        )
 
 
 class ResultaatTypeFilterTests(JWTAuthMixin, APITestCase):
