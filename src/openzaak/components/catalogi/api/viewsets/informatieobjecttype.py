@@ -9,13 +9,15 @@ from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
 )
-from notifications_api_common.viewsets import NotificationViewSetMixin
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from vng_api_common.caching import conditional_retrieve
 from vng_api_common.utils import get_help_text
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
+from openzaak.notifications.viewsets import (
+    MultipleChannelNotificationViewSetMixin,
+)
 from openzaak.utils.help_text import mark_experimental
 from openzaak.utils.mixins import CacheQuerysetMixin
 from openzaak.utils.pagination import OptimizedPagination
@@ -92,7 +94,7 @@ class InformatieObjectTypeViewSet(
     CheckQueryParamsMixin,
     ConceptMixin,
     M2MConceptDestroyMixin,
-    NotificationViewSetMixin,
+    MultipleChannelNotificationViewSetMixin,
     viewsets.ModelViewSet,
 ):
     """
@@ -133,7 +135,9 @@ class InformatieObjectTypeViewSet(
         "destroy": SCOPE_CATALOGI_WRITE | SCOPE_CATALOGI_FORCED_DELETE,
         "publish": SCOPE_CATALOGI_WRITE,
     }
-    notifications_kanaal = KANAAL_INFORMATIEOBJECTTYPEN
+    notifications_kanalen = [
+        {"kanaal": KANAAL_INFORMATIEOBJECTTYPEN, "namespace": "documenten"},
+    ]
     concept_related_fields = ["besluittypen", "zaaktypen"]
 
     def perform_create(self, serializer):
