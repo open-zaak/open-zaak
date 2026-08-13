@@ -12,14 +12,18 @@ from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
 
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
 from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import JWTAuthMixin, MockSchemasMixin
 
+from ..api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..models import EnkelvoudigInformatieObject, EnkelvoudigInformatieObjectCanonical
 from .factories import EnkelvoudigInformatieObjectFactory
 from .utils import (
@@ -1301,3 +1305,50 @@ class EIOFilterTests(JWTAuthMixin, APITestCase):
         data = response.json()["results"]
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["url"], f"http://testserver{reverse(eio)}")
+
+    def test_permissions_expand(self):
+        eio_url = reverse("enkelvoudiginformatieobject-list")
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        EnkelvoudigInformatieObjectFactory.create(
+            informatieobjecttype=informatieobjecttype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # disable all autorisaties
+        self.applicatie.heeft_alle_autorisaties = False
+        self.applicatie.save()
+
+        # add only SCOPE_DOCUMENTEN_ALLES_LEZEN
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_DOCUMENTEN_ALLES_LEZEN],
+            informatieobjecttype=reverse(informatieobjecttype),
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(eio_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
+        response = self.client.get(reverse("informatieobjecttype-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read eio with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
+        response = self.client.get(
+            eio_url,
+            {"expand": "informatieobjecttype"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add a Catalogi authorization with SCOPE_CATALOGI_READ
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_READ],
+        )
+        # Read eio with expand informatieobjecttype is allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN and SCOPE_CATALOGI_READ
+        response = self.client.get(
+            eio_url,
+            {"expand": "informatieobjecttype"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
