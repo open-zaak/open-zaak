@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-30 14:53+0000\n"
+"POT-Creation-Date: 2026-08-13 08:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -468,13 +468,13 @@ msgid "The resource has been published successfully!"
 msgstr "Het publiceren is gelukt!"
 
 #: openzaak/components/catalogi/admin/admin_views.py:307
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:319
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:320
 #, python-brace-format
 msgid "Auto-published related besluittypen: {besluittypen}"
 msgstr ""
 
 #: openzaak/components/catalogi/admin/admin_views.py:316
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:459
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:460
 #, python-brace-format
 msgid "Auto-published related informatieobjecttypen: {iots}"
 msgstr ""
@@ -592,66 +592,66 @@ msgstr ""
 "zaaktype die een selectielijstklasse hebben die hoort bij het huidige "
 "procestype."
 
-#: openzaak/components/catalogi/admin/forms.py:280
+#: openzaak/components/catalogi/admin/forms.py:281
 #: openzaak/components/catalogi/tests/admin/test_resultaattype_admin.py:144
 #, python-brace-format
 msgid "Could not determine the selectielijstklasse service for URL {url}"
 msgstr "Kon de selectielijstklasse-service voor URL {url} niet bepalen"
 
-#: openzaak/components/catalogi/admin/forms.py:291
+#: openzaak/components/catalogi/admin/forms.py:292
 #, python-format
 msgid "URL %s for selectielijstklasse did not resolve"
 msgstr "De URL %s voor de selectielijstklasse kan niet opgehaald worden"
 
-#: openzaak/components/catalogi/admin/forms.py:314
+#: openzaak/components/catalogi/admin/forms.py:315
 msgid "Er is geen Selectielijst-procestype gedefinieerd op het zaaktype!"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:317
+#: openzaak/components/catalogi/admin/forms.py:318
 msgid "Zaaktype bewerken"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:323
+#: openzaak/components/catalogi/admin/forms.py:324
 msgid ""
 "De selectielijstklasse hoort niet bij het selectielijst procestype van het "
 "zaaktype"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:417
-#: openzaak/components/catalogi/admin/forms.py:440
+#: openzaak/components/catalogi/admin/forms.py:418
+#: openzaak/components/catalogi/admin/forms.py:441
 msgid "bestand"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:419
+#: openzaak/components/catalogi/admin/forms.py:420
 msgid "Het ZIP-bestand met de catalogus."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:422
-#: openzaak/components/catalogi/admin/forms.py:445
+#: openzaak/components/catalogi/admin/forms.py:423
+#: openzaak/components/catalogi/admin/forms.py:446
 msgid "Genereer nieuwe UUIDs"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:425
-#: openzaak/components/catalogi/admin/forms.py:448
+#: openzaak/components/catalogi/admin/forms.py:426
+#: openzaak/components/catalogi/admin/forms.py:449
 msgid ""
 "Zorgt ervoor dat er nieuwe UUIDs gegenereerd worden in plaats van dat de "
 "bestaande UUIDs uit het bestand gebruikt worden"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:434
+#: openzaak/components/catalogi/admin/forms.py:435
 msgid "identificatie prefix"
 msgstr "identificatie prefix"
 
-#: openzaak/components/catalogi/admin/forms.py:436
+#: openzaak/components/catalogi/admin/forms.py:437
 msgid "Zaaktype identification prefix. Leave blank to use imported."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:442
+#: openzaak/components/catalogi/admin/forms.py:443
 msgid "Het ZIP-bestand met het zaaktype."
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:475
-#: openzaak/components/catalogi/admin/forms.py:485
+#: openzaak/components/catalogi/admin/forms.py:476
+#: openzaak/components/catalogi/admin/forms.py:486
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:895
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:913
 #: openzaak/components/catalogi/tests/admin/test_import_export_zaaktype.py:1185
@@ -661,11 +661,11 @@ msgstr ""
 msgid "Create new"
 msgstr "Nieuw object aanmaken"
 
-#: openzaak/components/catalogi/admin/forms.py:610
+#: openzaak/components/catalogi/admin/forms.py:611
 msgid "Kies óf een intern, óf een extern zaaktype"
 msgstr ""
 
-#: openzaak/components/catalogi/admin/forms.py:635
+#: openzaak/components/catalogi/admin/forms.py:636
 msgid ""
 "Het gerelateerde zaaktype: er kan een intern zaaktype uit de lokale "
 "Catalogus gekozen worden met het vergrootglas; of er kan een URL van een "
@@ -707,7 +707,7 @@ msgstr[1] "%d objecten zijn al gepubliceerd"
 
 #: openzaak/components/catalogi/admin/mixins.py:111
 #: openzaak/components/catalogi/admin/mixins.py:122
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:595
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:596
 #: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:927
 #: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:1085
 #, python-format
@@ -715,7 +715,7 @@ msgid "%(obj)s can't be published: %(error)s"
 msgstr "%(obj)s kan niet gepubliceerd worden: %(error)s"
 
 #: openzaak/components/catalogi/admin/mixins.py:131
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:615
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:616
 #: openzaak/components/catalogi/tests/admin/test_besluittype_admin.py:234
 #: openzaak/components/catalogi/tests/admin/test_informatieobjecttype_admin.py:196
 #: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:845
@@ -2616,18 +2616,18 @@ msgstr ""
 msgid "Zaaktypen"
 msgstr ""
 
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:250
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:385
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:658
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:703
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:251
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:386
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:659
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:704
 #: openzaak/components/catalogi/tests/admin/test_zaaktype_admin.py:930
 #: openzaak/components/catalogi/validators.py:118
 msgid "All related resources should be published"
 msgstr "Alle gerelateerde resources moeten gepubliceerd zijn"
 
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:745
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:760
-#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:772
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:746
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:761
+#: openzaak/components/catalogi/tests/admin/test_admin_publish.py:773
 #: openzaak/templates/admin/catalogi/change_form.html:24
 #: openzaak/templates/admin/catalogi/change_form_zaaktype.html:12
 #: openzaak/templates/admin/catalogi/publish_zaaktype.html:57
@@ -3004,7 +3004,7 @@ msgstr "De velden 'object' en 'informatieobject' moeten samen uniek zijn."
 
 #: openzaak/components/documenten/api/validators.py:82
 #: openzaak/components/documenten/tests/test_validation.py:256
-#: openzaak/components/zaken/api/validators.py:92
+#: openzaak/components/zaken/api/validators.py:96
 #: openzaak/components/zaken/tests/test_zaak_identificatie.py:80
 #, python-brace-format
 msgid ""
@@ -4212,119 +4212,123 @@ msgstr ""
 msgid "uuid {} bestaat niet."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:48
+#: openzaak/components/zaken/api/validators.py:52
 #, python-brace-format
 msgid "There are already {num} `{value}` occurences"
 msgstr "De waarde `{value}` komt al {num} keer voor"
 
-#: openzaak/components/zaken/api/validators.py:101
+#: openzaak/components/zaken/api/validators.py:105
 #, python-brace-format
 msgid "The '{field_name}' may not be a self-reference"
 msgstr "Het veld '{field_name}` mag geen referentie naar zichzelf zijn"
 
-#: openzaak/components/zaken/api/validators.py:113
+#: openzaak/components/zaken/api/validators.py:117
 msgid "Deelzaken van deelzaken wordt niet ondersteund."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:122
+#: openzaak/components/zaken/api/validators.py:126
 msgid "Zaaktype niet vastgelegd in deelzaaktypen van hoofdzaak.zaaktype"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:141
+#: openzaak/components/zaken/api/validators.py:145
 msgid "Deze datum mag niet in de toekomst zijn"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:179
+#: openzaak/components/zaken/api/validators.py:183
 msgid ""
 "Er zijn gerelateerde informatieobjecten waarvan de `status` nog niet gelijk "
 "is aan `gearchiveerd`. Dit is een voorwaarde voor het zetten van de "
 "`archiefstatus` op een andere waarde dan `nog_te_archiveren`."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:235
+#: openzaak/components/zaken/api/validators.py:239
 msgid ""
 "Moet van een waarde voorzien zijn als de 'Archiefstatus' een waarde heeft "
 "anders dan "
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:283
+#: openzaak/components/zaken/api/validators.py:287
 msgid "Het is niet toegestaan om een zaak te sluiten via deze endpoint"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:292
+#: openzaak/components/zaken/api/validators.py:296
 msgid "De status moet een eindstatus zijn voor deze actie."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:306
+#: openzaak/components/zaken/api/validators.py:310
 msgid ""
 "Een deelzaak kan alleen worden heropend als de hoofzaak niet afgesloten is."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:332
+#: openzaak/components/zaken/api/validators.py:336
 msgid ""
 "Er zijn gerelateerde deelzaken die nog niet afgesloten zijn. Deze deelzaken "
 "moeten eerst afgesloten worden voordat de zaak afgesloten kan worden."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:441
+#: openzaak/components/zaken/api/validators.py:445
 #, python-format
 msgid "One of %(fields)s must be provided"
 msgstr "Je moet één van de velden %(fields)s opgeven"
 
-#: openzaak/components/zaken/api/validators.py:467
-msgid "This is not a valid jq expression."
-msgstr "Dit is geen geldige jq-expressie."
-
-#: openzaak/components/zaken/api/validators.py:494
+#: openzaak/components/zaken/api/validators.py:487
 msgid ""
 "Indien je `objectTypeOverigeDefinitie` gebruikt, dan moet je een OBJECT url "
 "opgeven."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:515
-#: openzaak/components/zaken/api/validators.py:545
+#: openzaak/components/zaken/api/validators.py:509
+#: openzaak/components/zaken/api/validators.py:547
 msgid "The endpoint did not return valid JSON."
 msgstr "De endpoint gaf geen geldige JSON terug."
 
-#: openzaak/components/zaken/api/validators.py:533
+#: openzaak/components/zaken/api/validators.py:524
+#: openzaak/components/zaken/api/validators.py:559
+#: openzaak/components/zaken/tests/test_zaakobject_overige.py:247
+#: openzaak/utils/validators.py:276
+msgid "An error occurred while executing the jq expression."
+msgstr "Er is een fout opgetreden bij het uitvoeren van de jq-expressie."
+
+#: openzaak/components/zaken/api/validators.py:534
+#: openzaak/components/zaken/tests/test_zaakobject_overige.py:153
 msgid "No schema was found at the specified path."
 msgstr "Er is geen schema gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:556
+#: openzaak/components/zaken/api/validators.py:569
 msgid "No data was found at the specified path."
 msgstr "Er zijn geen gegevens gevonden op het opgegeven pad."
 
-#: openzaak/components/zaken/api/validators.py:567
+#: openzaak/components/zaken/api/validators.py:580
 msgid "The object data does not match the specified schema."
 msgstr "De objectgegevens komen niet overeen met het opgegeven schema."
 
-#: openzaak/components/zaken/api/validators.py:574
+#: openzaak/components/zaken/api/validators.py:587
 msgid "De 'gezetdoor' rol hoort niet bij het zaak."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:589
+#: openzaak/components/zaken/api/validators.py:602
 msgid ""
 "De huidige zaak archiefstatus staat dit request niet toe. Archiefstatus moet "
 "gelijk zijn aan 'nog_te_archiveren'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:650
+#: openzaak/components/zaken/api/validators.py:663
 #, python-brace-format
 msgid ""
 "The 'waarde' value doesn't match the related eigenschap.specificatie '{spec}'"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:678
+#: openzaak/components/zaken/api/validators.py:691
 msgid "The mandate context is required when a representee is specified."
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:690
+#: openzaak/components/zaken/api/validators.py:703
 msgid ""
 "`indicatieMachtiging` must be set to 'gemachtigde' when a representee is "
 "specified"
 msgstr ""
 
-#: openzaak/components/zaken/api/validators.py:709
+#: openzaak/components/zaken/api/validators.py:722
 msgid "`overigeRelatie` is verplicht als de relatie aard overig is."
 msgstr ""
 
@@ -5497,14 +5501,14 @@ msgstr "zaaknotitie"
 msgid "zaaknotities"
 msgstr "zaaknotities"
 
-#: openzaak/components/zaken/tests/test_auth.py:934
-#: openzaak/components/zaken/tests/test_auth.py:1067
-#: openzaak/components/zaken/tests/test_auth.py:1255
-#: openzaak/components/zaken/tests/test_auth.py:1387
-#: openzaak/components/zaken/tests/test_auth.py:1534
-#: openzaak/components/zaken/tests/test_auth.py:1924
-#: openzaak/components/zaken/tests/test_auth.py:2659
-#: openzaak/utils/permissions.py:119
+#: openzaak/components/zaken/tests/test_auth.py:1107
+#: openzaak/components/zaken/tests/test_auth.py:1240
+#: openzaak/components/zaken/tests/test_auth.py:1428
+#: openzaak/components/zaken/tests/test_auth.py:1560
+#: openzaak/components/zaken/tests/test_auth.py:1707
+#: openzaak/components/zaken/tests/test_auth.py:2097
+#: openzaak/components/zaken/tests/test_auth.py:2832
+#: openzaak/utils/permissions.py:120
 #, python-brace-format
 msgid "Incorrect resource. Expected: {expected}"
 msgstr "Onjuiste resource. Verwacht: {expected}"
@@ -6122,11 +6126,11 @@ msgid ""
 "van dit object."
 msgstr ""
 
-#: openzaak/utils/permissions.py:95
+#: openzaak/utils/permissions.py:96
 msgid "{} is required for permissions"
 msgstr "{} is een verplicht veld voor permissies"
 
-#: openzaak/utils/permissions.py:104
+#: openzaak/utils/permissions.py:105
 msgid "The object does not exist in the database"
 msgstr "Dit object bestaat niet in de database"
 
@@ -6241,11 +6245,11 @@ msgid ""
 "Je kan %(rel_model_name)s toevoegen nadat dit/deze %(model_name)s bewaard is."
 msgstr ""
 
-#: openzaak/utils/validators.py:31
+#: openzaak/utils/validators.py:36
 msgid "The resource is not published."
 msgstr "De resource is niet gepubliceerd."
 
-#: openzaak/utils/validators.py:122 openzaak/utils/validators.py:233
+#: openzaak/utils/validators.py:127 openzaak/utils/validators.py:238
 #, python-brace-format
 msgid ""
 "The URL {url} resource did not look like a(n) `{resource}`. Please provide a "
@@ -6254,16 +6258,20 @@ msgstr ""
 "De URL {url} resource lijkt niet op een `{resource}`. Geef een geldige URL "
 "op."
 
-#: openzaak/utils/validators.py:158
+#: openzaak/utils/validators.py:163
 msgid "Het informatieobjecttype hoort niet bij het {} van de {}."
 msgstr ""
 
-#: openzaak/utils/validators.py:187
+#: openzaak/utils/validators.py:192
 #, python-brace-format
 msgid ""
 "Het informatieobjecttype en het {objecttype_field} van de/het {object_field} "
 "moeten tot dezelfde catalogus behoren."
 msgstr ""
+
+#: openzaak/utils/validators.py:264
+msgid "This is not a valid jq expression."
+msgstr "Dit is geen geldige jq-expressie."
 
 #: openzaak/config/models.py:15
 msgid "API type"
