@@ -2,7 +2,7 @@
 {
     "model": "catalogi.catalogus",
     "fields": {
-        "_etag": "7ce7a35209b6a5b4bced63a45b3c3aa0",
+        "_etag": "5be479f56f46f2cee2348c0687359b60",
         "naam": "Test catalogus",
         "uuid": "d785f428-9ae6-4f84-82f6-26414500b2aa",
         "domein": "BBBBB",
@@ -29,7 +29,7 @@
     "model": "catalogi.eigenschap",
     "pk": 501,
     "fields": {
-        "_etag": "51b936fc7e544dd0908f534d6c153684",
+        "_etag": "8b5978a20bbcb92bf808534cbc54ca4b",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "14fcf400-e5f0-4d72-b9ec-db7617b87ade",
@@ -45,7 +45,7 @@
     "model": "catalogi.informatieobjecttype",
     "pk": 501,
     "fields": {
-        "_etag": "764e8562f5937d3a2ab3f4154b880856",
+        "_etag": "6cec76fa85446c07f0487874480b5180",
         "datum_begin_geldigheid": "2025-12-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -68,7 +68,7 @@
     "model": "catalogi.zaaktypeinformatieobjecttype",
     "pk": 501,
     "fields": {
-        "_etag": "3182110d2b6b61e24dc6bd063b30275d",
+        "_etag": "c3317875068f41f79dbb3912bd626f43",
         "uuid": "781dbfd1-e076-410d-a9ba-3a78eff83d86",
         "zaaktype": 504,
         "informatieobjecttype": 501,
@@ -81,7 +81,7 @@
     "model": "catalogi.zaaktypeinformatieobjecttype",
     "pk": 502,
     "fields": {
-        "_etag": "88038164ca1be8422a26e7f12d45180d",
+        "_etag": "ff9a8d14c50edd209f0c8ba02a33952f",
         "uuid": "b45a3edf-1e6a-402b-83a3-7c667bc51d69",
         "zaaktype": 517,
         "informatieobjecttype": 501,
@@ -94,7 +94,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1005,
     "fields": {
-        "_etag": "5ec24c3a15da2a287a182e099686f00d",
+        "_etag": "27c25429559c7387112601f72ad3822b",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "cb5a069b-48a1-4969-b9bb-ea5e3368c070",
@@ -124,7 +124,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1006,
     "fields": {
-        "_etag": "fc7b3b256d59f4f9feb8eab25bb83e4c",
+        "_etag": "2248ccc185af23a5df5be6bba1bcd1b6",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "2e0db4c3-4300-42d5-afa7-97b41a08c821",
@@ -154,7 +154,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1007,
     "fields": {
-        "_etag": "7dc3a39aadc96067822c19133328cfbb",
+        "_etag": "b318ba174e43175bc20ab3810f4e47f5",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "24fa75bf-01fc-4894-a439-99c31b2eb65c",
@@ -184,7 +184,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1017,
     "fields": {
-        "_etag": "409f9481bc59499ff74458912feed608",
+        "_etag": "ef4e63d33c033edc49a71f4aa043d246",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "02eda1ea-d6d4-4c38-8935-85327fe7940d",
@@ -214,7 +214,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1018,
     "fields": {
-        "_etag": "60341692dd104b004a8dbfeb24d89f48",
+        "_etag": "8c6438699ed249d9b5a349768ba32ae7",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "a5ca1ad9-ad01-48a3-9b7c-da671064cc3f",
@@ -244,7 +244,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1019,
     "fields": {
-        "_etag": "05689ba62c1d541169e53be8789bf7fe",
+        "_etag": "5f48d8cf8df591189e9b67ab0868c653",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "95d4645c-c322-48b7-852f-aea3692cb45b",
@@ -274,7 +274,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1020,
     "fields": {
-        "_etag": "cc9c8d87830639d85acaac8743928d30",
+        "_etag": "13b31495b615c8f190f6e5cdc64be894",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "6753f1e7-aedc-418e-a5c3-6a638517101d",
@@ -304,7 +304,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1021,
     "fields": {
-        "_etag": "e4aa4f7eecc5e2a89a960bcded85d5a0",
+        "_etag": "d215f5d9c3b648dce073cff0693316e5",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "18814900-a5a2-4048-b4af-2b48e38a7288",
@@ -334,7 +334,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1022,
     "fields": {
-        "_etag": "56d45413f7669826eb94baa6efa2d791",
+        "_etag": "aa479a09199245a8419dfe6996fd2403",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "b7750448-6fdc-4e2a-b700-721efec60390",
@@ -364,7 +364,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1023,
     "fields": {
-        "_etag": "99d180b90995511f6da43677dcf00267",
+        "_etag": "f586915ac69a4260011253a44b8e538f",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "25712ce9-a16b-492f-bfe1-c7c74d77f66e",
@@ -394,7 +394,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1032,
     "fields": {
-        "_etag": "4f3f59fd2f22592e5427a80709bb48b1",
+        "_etag": "a54d00f22bc9dec778e3fee6fe5e9b0f",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "ed17d745-61a9-4175-a0f8-fd846e0ad168",
@@ -424,7 +424,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1033,
     "fields": {
-        "_etag": "3793da3b009fa1bcdb7500827dbaafd8",
+        "_etag": "4dcea40754853b21da8e4ec924396955",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "f67224dd-cff3-4e83-afb1-7d0b437ef752",
@@ -454,7 +454,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1034,
     "fields": {
-        "_etag": "3bc8fbeffc3521bc319ea2ba4a69da5e",
+        "_etag": "c47af8b37659702096706d143013a7da",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "e4df12c5-b5ed-4893-8f75-7a71dae12942",
@@ -484,7 +484,7 @@
     "model": "catalogi.resultaattype",
     "pk": 1035,
     "fields": {
-        "_etag": "cd15e29d07db33e9724d7db08cbebc78",
+        "_etag": "f2cf6f29af50e713787ddb74277f0084",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "6cbb6a64-1fae-4f1e-9d9f-e316324df4cd",
@@ -544,7 +544,7 @@
     "model": "catalogi.roltype",
     "pk": 503,
     "fields": {
-        "_etag": "7475c891324a90825e382a8def13a750",
+        "_etag": "0e65c929a3bb2238595202dc4fd350d2",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "e8ccf688-671c-45ab-8a32-798ffe937627",
@@ -557,7 +557,7 @@
     "model": "catalogi.roltype",
     "pk": 504,
     "fields": {
-        "_etag": "340fb3726c56eb4723fa67ccdd0d941a",
+        "_etag": "879ee6ba31c3ea8ee04aa9e6540a7e7e",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "9f3888e7-7bbd-44fa-9ca9-ebadc61403c1",
@@ -570,7 +570,7 @@
     "model": "catalogi.roltype",
     "pk": 512,
     "fields": {
-        "_etag": "19ac97335a085a8e4d6c7e3a85a34ed9",
+        "_etag": "1745c01d877795c93f80127b8f849cd0",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "2d50bbe8-5255-4f21-a747-6f818eb1f2ac",
@@ -583,7 +583,7 @@
     "model": "catalogi.roltype",
     "pk": 513,
     "fields": {
-        "_etag": "372494b947d62dad25779176f089dfe9",
+        "_etag": "40adbb8500e45860820b4dad3bac574c",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "d1800600-dbae-4d35-9494-25d053f6f491",
@@ -596,7 +596,7 @@
     "model": "catalogi.statustype",
     "pk": 1506,
     "fields": {
-        "_etag": "0b8519fc22ee162a2ab2edbebec26d36",
+        "_etag": "3569031de73752c5850f5468549e3b19",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "52f18809-ae97-46ef-8c5c-15a9903d879b",
@@ -614,7 +614,7 @@
     "model": "catalogi.statustype",
     "pk": 1507,
     "fields": {
-        "_etag": "d90da5e9eb571df33d82a83b4e65c19a",
+        "_etag": "4345783aed6f4c04ca761877892f7f18",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "936657e2-368d-4ad8-85e8-b97120c9fee2",
@@ -632,7 +632,7 @@
     "model": "catalogi.statustype",
     "pk": 1508,
     "fields": {
-        "_etag": "0db43cd35731a46c244b4b2747d06c31",
+        "_etag": "3e24190bd5fd929aa24eae0633942e43",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "b8395b44-0f24-4007-b2a2-98d6133f66dc",
@@ -650,7 +650,7 @@
     "model": "catalogi.statustype",
     "pk": 1518,
     "fields": {
-        "_etag": "b6b1b6608516328690abda70055bfda0",
+        "_etag": "9449f9dc167f539fc261c5270e0c38a7",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "35135ca2-e765-4d92-84a7-15f587fa40de",
@@ -668,7 +668,7 @@
     "model": "catalogi.statustype",
     "pk": 1519,
     "fields": {
-        "_etag": "800716fbbd98f24d6c14f382a39c1f95",
+        "_etag": "602c2c2a569a1a4dac39b40d57537356",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "a4565cda-4c41-4a2c-ac55-1b87af5e86c0",
@@ -686,7 +686,7 @@
     "model": "catalogi.statustype",
     "pk": 1520,
     "fields": {
-        "_etag": "866127e3bdb99ee2e500bdc617a9d456",
+        "_etag": "ea2e8d983fce0eb31d84d833ffdd8e19",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "5d1d1ffa-9e14-4b79-8e54-981c67dc3ad3",
@@ -704,7 +704,7 @@
     "model": "catalogi.statustype",
     "pk": 1521,
     "fields": {
-        "_etag": "e25c3f961adcc9751f6f398dab7fab6d",
+        "_etag": "2e222979d815a4f190a90af1e77b8ae2",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "ad4e3d0e-dbf0-4ad9-9c5d-f647988ef992",
@@ -722,7 +722,7 @@
     "model": "catalogi.statustype",
     "pk": 1522,
     "fields": {
-        "_etag": "57ab2baa54c4313df2355ab11fe12a2e",
+        "_etag": "ba4c229ce2b22446b55b6c21cfbceb9e",
         "datum_begin_geldigheid": null,
         "datum_einde_geldigheid": null,
         "uuid": "6829504f-6d7e-480e-b650-9b543e951b4d",
@@ -776,7 +776,7 @@
     "model": "catalogi.zaaktype",
     "pk": 504,
     "fields": {
-        "_etag": "2a5969908f14f2309e6811986f32408b",
+        "_etag": "66f0b524b435ad780655dba9c72c56d1",
         "datum_begin_geldigheid": "2024-04-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -826,7 +826,7 @@
     "model": "catalogi.zaaktype",
     "pk": 517,
     "fields": {
-        "_etag": "eca386fe826ffea63fcac2a0fcd9d98b",
+        "_etag": "3aa3e1aa1de4fd997eced5c31581e099",
         "datum_begin_geldigheid": "2024-04-02",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -874,7 +874,7 @@
     "model": "catalogi.zaaktype",
     "pk": 518,
     "fields": {
-        "_etag": "4845dceac27b93ecc2cf28cb00d025e2",
+        "_etag": "d8468bf217dba218d9dcd53f8e48ed10",
         "datum_begin_geldigheid": "2026-07-30",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -922,7 +922,7 @@
     "model": "catalogi.zaaktype",
     "pk": 519,
     "fields": {
-        "_etag": "f83638daaea229e924a7ea792baa63de",
+        "_etag": "1efccce9542bddbdcc26947f9fdba56c",
         "datum_begin_geldigheid": "2026-07-30",
         "datum_einde_geldigheid": null,
         "concept": true,
@@ -969,10 +969,17 @@
     }
 },
 {
+    "model": "config.featureflags",
+    "pk": 1,
+    "fields": {
+        "allow_unpublished_typen": true
+    }
+},
+{
     "model": "catalogi.besluittype",
     "pk": 501,
     "fields": {
-        "_etag": "5ea29603b182180dd7300d4dd3555e03",
+        "_etag": "b0b42f178c1be142afc5042646a0ffda",
         "datum_begin_geldigheid": "2025-11-28",
         "datum_einde_geldigheid": null,
         "concept": true,
