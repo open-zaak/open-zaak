@@ -581,7 +581,7 @@ self-certifi==1.0.0
     # via -r requirements/base.in
 semantic-version==2.10.0
     # via django-upgrade-check
-sentry-sdk==2.13.0
+sentry-sdk==2.67.1
     # via
     #   commonground-api-common
     #   open-api-framework
