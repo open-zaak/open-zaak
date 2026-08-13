@@ -1077,7 +1077,7 @@ semantic-version==2.10.0
     #   -c requirements/base.txt
     #   -r requirements/base.txt
     #   django-upgrade-check
-sentry-sdk==2.13.0
+sentry-sdk==2.67.1
     # via
     #   -c requirements/base.txt
     #   -r requirements/base.txt
