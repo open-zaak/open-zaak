@@ -17,6 +17,7 @@ from rest_framework.request import Request
 from rest_framework.serializers import ValidationError, as_serializer_error
 from rest_framework.viewsets import ViewSetMixin
 from vng_api_common.permissions import bypass_permissions, get_required_scopes
+from vng_api_common.scopes import Scope
 from vng_api_common.utils import get_resource_for_path, get_viewset_for_path
 
 logger = structlog.stdlib.get_logger(__name__)
@@ -302,3 +303,55 @@ class AuthScopesRequired(permissions.BasePermission):
 
         scopes_required = get_required_scopes(request, view)
         return request.jwt_auth.has_auth(scopes_required, component=component)
+
+
+class ExpandAuthRequired(permissions.BasePermission):
+    """
+    Permission class that ensures users have read access to the resources
+    included through the ``expand`` query parameter.
+
+    Since expanding related resources is only supported for read requests,
+    this permission checks that the user has the ``<component>.lezen`` scope
+    for each component associated with the expanded resource.
+    """
+
+    def __init__(self, expand_serializers: list | None = None):
+        self.expand_serializers = expand_serializers or []
+
+    @staticmethod
+    def get_component_from_serializer(serializer) -> str | None:
+        model = getattr(getattr(serializer, "Meta", None), "model", None)
+
+        if model is None:
+            logger.warning(
+                "serializer_missing_meta_model", serializer=serializer.__name__
+            )
+            return None
+
+        return model._meta.app_label
+
+    def has_permission(self, request: Request, view) -> bool:
+        """Check whether the request has read permissions for expanded serializers."""
+        if bypass_permissions(request):
+            return True
+
+        if not self.expand_serializers:
+            return True
+
+        components = {
+            component
+            for serializer_class in self.expand_serializers
+            if (component := self.get_component_from_serializer(serializer_class))
+            is not None
+        }
+        for component in components:
+            # The "expand" query parameter is only allowed on read requests,
+            # so the required scope is always the read scope (.lezen)
+            if not request.jwt_auth.has_auth(Scope(f"{component}.lezen"), component):
+                return False
+
+        return True
+
+    def has_object_permission(self, request: Request, view, obj) -> bool:
+        """Allow object-level permission checks after permissions were validated."""
+        return True

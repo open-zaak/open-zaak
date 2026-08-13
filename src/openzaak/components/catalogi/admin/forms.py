@@ -242,11 +242,12 @@ class ResultaatTypeForm(forms.ModelForm):
         # make the selectielijstklasse field readonly if we don't have sufficient
         # information to validate/filter it
         if not self._zaaktype or not self._zaaktype.selectielijst_procestype:
-            self.fields["selectielijstklasse"].required = False
-            self.fields["selectielijstklasse"].disabled = True
-            self.fields[
-                "selectielijstklasse"
-            ].choices = EMPTY_SELECTIELIJSTKLASSE_CHOICES
+            if "selectielijstklasse" in self.fields:
+                self.fields["selectielijstklasse"].required = False
+                self.fields["selectielijstklasse"].disabled = True
+                self.fields[
+                    "selectielijstklasse"
+                ].choices = EMPTY_SELECTIELIJSTKLASSE_CHOICES
 
     def clean(self):
         super().clean()
