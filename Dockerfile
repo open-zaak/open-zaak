@@ -66,6 +66,7 @@ COPY ./cache /app/cache
 COPY ./bin/docker_start.sh /start.sh
 COPY ./bin/wait_for_db.sh /wait_for_db.sh
 COPY ./bin/celery_worker.sh /celery_worker.sh
+COPY ./bin/celery_worker_liveness_probe.sh /celery_worker_liveness_probe.sh
 COPY ./bin/celery_flower.sh /celery_flower.sh
 COPY ./bin/celery_beat.sh /celery_beat.sh
 COPY ./bin/reset_migrations.sh /app/bin/reset_migrations.sh
