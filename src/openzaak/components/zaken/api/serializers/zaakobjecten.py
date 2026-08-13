@@ -14,6 +14,7 @@ from openzaak.components.zaken.validators import CorrectZaaktypeValidator
 from openzaak.utils.auth import get_auth
 from openzaak.utils.serializers import SubSerializerMixin
 from openzaak.utils.validators import (
+    JQExpressionValidator,
     LooseFkIsImmutableValidator,
     LooseFkResourceValidator,
 )
@@ -21,7 +22,6 @@ from openzaak.utils.validators import (
 from ...models import ZaakObject
 from ..validators import (
     EitherFieldRequiredValidator,
-    JQExpressionValidator,
     ObjectTypeOverigeDefinitieValidator,
     ZaakArchiefStatusValidator,
 )
