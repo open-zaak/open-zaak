@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
@@ -56,6 +57,6 @@ class JQExpressionValidatorTests(SimpleTestCase):
         )
         self.assertEqual(
             str(context.exception.detail[0]),
-            "An error occurred while executing the jq expression.",
+            _("An error occurred while executing the jq expression."),
         )
         mock_validate_jq.assert_called_once_with(".foo")
