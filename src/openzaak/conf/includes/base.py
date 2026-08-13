@@ -153,15 +153,6 @@ MIDDLEWARE = [
 ]
 
 #
-# SERVING of static and media files
-#
-
-#
-# Sending EMAIL
-#
-
-
-#
 # AUTH settings - user accounts, passwords, backends...
 #
 
@@ -295,22 +286,6 @@ SENDFILE_BACKEND = config(
 )
 SENDFILE_ROOT = PRIVATE_MEDIA_ROOT
 SENDFILE_URL = PRIVATE_MEDIA_URL
-
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-    "privates": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-        "OPTIONS": {
-            "location": PRIVATE_MEDIA_ROOT,
-            "base_url": PRIVATE_MEDIA_URL,
-        },
-    },
-}
 
 #
 # ZGW-CONSUMERS-OAS

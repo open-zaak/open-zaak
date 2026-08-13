@@ -19,7 +19,9 @@ SESSION_CACHE_ALIAS = "default"
 
 # The file storage engine to use when collecting static files with the
 # collectstatic management command.
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+STORAGES["staticfiles"]["BACKEND"] = (  # pyright: ignore
+    "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+)
 
 # Caching templates.
 TEMPLATES[0]["OPTIONS"]["loaders"] = [

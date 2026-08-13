@@ -215,6 +215,7 @@ django-privates==4.0.3
     # via
     #   -r requirements/base.in
     #   django-simple-certmanager
+    #   open-api-framework
     #   zgw-consumers
 django-redis==6.0.0
     # via open-api-framework
@@ -233,7 +234,9 @@ django-setup-configuration==0.11.0
     #   commonground-api-common
     #   open-api-framework
 django-simple-certmanager==4.0.0
-    # via zgw-consumers
+    # via
+    #   open-api-framework
+    #   zgw-consumers
 django-sniplates==0.7.2
     # via -r requirements/base.in
 django-solo==2.0.0
@@ -353,7 +356,9 @@ maykin-2fa==1.0.1
     #   maykin-common
     #   open-api-framework
 maykin-common==0.20.1
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   open-api-framework
 mdurl==0.1.2
     # via markdown-it-py
 mozilla-django-oidc==5.0.2
@@ -374,7 +379,7 @@ notifications-api-common==0.13.0
     #   commonground-api-common
 oauthlib==3.3.1
     # via requests-oauthlib
-open-api-framework==0.13.4
+open-api-framework==0.14.1
     # via -r requirements/base.in
 opentelemetry-api==1.38.0
     # via
@@ -522,9 +527,7 @@ python-dateutil==2.8.2
     #   faker
     #   python-crontab
 python-decouple==3.8
-    # via
-    #   maykin-common
-    #   open-api-framework
+    # via maykin-common
 python-dotenv==1.2.2
     # via
     #   open-api-framework
