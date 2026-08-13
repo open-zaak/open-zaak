@@ -170,6 +170,11 @@ class LooseFkAuthorizationsFilterMixin:
 
         return authorizations_local, authorizations_external
 
+    def get_catalogus_authorizations(
+        self, scope: Scope, catalogus_authorizations: models.QuerySet
+    ):
+        return catalogus_authorizations.filter(scopes__contains=[scope])
+
     def filter_for_authorizations(
         self,
         scope: Scope,
@@ -180,6 +185,10 @@ class LooseFkAuthorizationsFilterMixin:
 
         authorizations_local, authorizations_external = self.get_authorizations(
             scope, authorizations
+        )
+
+        catalogus_authorizations = self.get_catalogus_authorizations(
+            scope, catalogus_authorizations
         )
 
         local_filters = self.get_filters(

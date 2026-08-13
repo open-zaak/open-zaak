@@ -1,11 +1,17 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
 
+from django.utils.module_loading import import_string
+
 from dictdiffer import diff
+from rest_framework_inclusions.renderer import (
+    get_allowed_paths,
+)
 from vng_api_common.audittrails.models import AuditTrail
 from vng_api_common.models import APIMixin as _APIMixin
 
 from .expansion import EXPAND_QUERY_PARAM, ExpandJSONRenderer
+from .permissions import ExpandAuthRequired
 
 
 def format_dict_diff(changes):
@@ -51,8 +57,33 @@ class ExpandMixin:
     def get_requested_inclusions(self, request):
         # Pull expand parameter from request body in case of _zoek operation
         if request.method == "POST":
-            return ",".join(request.data.get(self.expand_param, []))
+            if isinstance(request.data, dict):
+                return ",".join(
+                    request.data.get(self.expand_param, [])
+                    + [request.query_params.get(self.expand_param, "")]
+                )
         return request.GET.get(self.expand_param)
+
+    def get_permissions(self):
+        permissions = [permission() for permission in self.permission_classes]
+
+        inclusion_serializers = getattr(
+            self.get_serializer(), "inclusion_serializers", {}
+        )
+        inclusions = get_allowed_paths(self.request, view=self)
+
+        expand_serializers = set()
+
+        for inclusion in inclusions:
+            inclusion_path = ".".join(inclusion)
+            serializer = inclusion_serializers.get(inclusion_path)
+            if serializer is not None:
+                expand_serializers.add(import_string(serializer))
+
+        if expand_serializers:
+            permissions.append(ExpandAuthRequired(expand_serializers))
+
+        return permissions
 
 
 class CacheQuerysetMixin:

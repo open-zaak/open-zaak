@@ -11,7 +11,6 @@ from django.db.models import F, IntegerField, Max, OuterRef, Subquery
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-import jq
 import jsonschema
 import structlog
 from rest_framework import serializers
@@ -29,6 +28,11 @@ from openzaak.components.documenten.models import (
     EnkelvoudigInformatieObjectCanonical,
 )
 from openzaak.utils.auth import get_auth
+from openzaak.utils.jq_wrappers import (
+    JQExecutionError,
+    JQInvalidExpressionError,
+    get_first_jq_result,
+)
 from openzaak.utils.serializers import get_from_serializer_data_or_instance
 
 from ...catalogi.models import StatusType
@@ -463,17 +467,6 @@ class EitherFieldRequiredValidator:
             raise serializers.ValidationError(self.message, code=self.code)
 
 
-class JQExpressionValidator:
-    message = _("This is not a valid jq expression.")
-    code = "invalid"
-
-    def __call__(self, value: str):
-        try:
-            jq.compile(value)
-        except ValueError:
-            raise serializers.ValidationError(self.message, code=self.code)
-
-
 class ObjectTypeOverigeDefinitieValidator:
     code = "invalid"
 
@@ -507,7 +500,8 @@ class ObjectTypeOverigeDefinitieValidator:
 
         response = url_validator(object_type_overige_definitie["url"])
         try:
-            object_type = response.json()
+            response.json()
+            object_type = response.content
         except json.JSONDecodeError:
             raise serializers.ValidationError(
                 {
@@ -518,13 +512,20 @@ class ObjectTypeOverigeDefinitieValidator:
                 code="invalid",
             )
 
-        schema_jq = jq.compile(object_type_overige_definitie["schema"])
-        record_data_jq = jq.compile(object_type_overige_definitie["object_data"])
-
         try:
-            json_schema_definition = schema_jq.input(object_type).first()
-        except ValueError:
-            json_schema_definition = None
+            json_schema_definition = get_first_jq_result(
+                object_type_overige_definitie["schema"], object_type
+            )
+        except (JQInvalidExpressionError, JQExecutionError):
+            logger.exception("object_type_overige_could_not_execute_jq_expression")
+            raise serializers.ValidationError(
+                {
+                    "objectTypeOverigeDefinitie.schema": _(
+                        "An error occurred while executing the jq expression."
+                    )
+                },
+                code="invalid",
+            )
 
         if not json_schema_definition:
             raise serializers.ValidationError(
@@ -539,16 +540,28 @@ class ObjectTypeOverigeDefinitieValidator:
         # validate the object
         object_response = url_validator(object_url)
         try:
-            object_resource = object_response.json()
+            object_response.json()
+            object_resource = object_response.content
         except json.JSONDecodeError:
             raise serializers.ValidationError(
                 {"object": _("The endpoint did not return valid JSON.")}, code="invalid"
             )
 
         try:
-            object_data = record_data_jq.input(object_resource).first()
-        except ValueError:
-            object_data = None
+            object_data = get_first_jq_result(
+                object_type_overige_definitie["object_data"], object_resource
+            )
+        except (JQInvalidExpressionError, JQExecutionError):
+            logger.exception("object_type_overige_could_not_execute_jq_expression")
+            raise serializers.ValidationError(
+                {
+                    "objectTypeOverigeDefinitie.objectData": _(
+                        "An error occurred while executing the jq expression."
+                    )
+                },
+                code="invalid",
+            )
+
         if object_data is None:
             raise serializers.ValidationError(
                 {
