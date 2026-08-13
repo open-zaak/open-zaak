@@ -6,10 +6,15 @@ from django.test import override_settings
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import get_validation_errors, reverse, reverse_lazy
 
+from openzaak.components.catalogi.api.scopes import SCOPE_CATALOGI_READ
+from openzaak.components.catalogi.tests.factories import InformatieObjectTypeFactory
 from openzaak.tests.utils import JWTAuthMixin
 
+from ..api.scopes import SCOPE_DOCUMENTEN_ALLES_LEZEN
 from ..constants import AfzenderTypes, PostAdresTypes
 from ..models import Verzending
 from .factories import EnkelvoudigInformatieObjectFactory, VerzendingFactory
@@ -622,3 +627,53 @@ class VerzendingFilterTests(JWTAuthMixin, APITestCase):
         }
 
         self.assertEqual(data, expected_results)
+
+    def test_permissions_expand(self):
+        verzending_url = reverse("verzending-list")
+        informatieobjecttype = InformatieObjectTypeFactory.create()
+        VerzendingFactory.create(
+            informatieobject__latest_version__informatieobjecttype=informatieobjecttype,
+            informatieobject__latest_version__vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # disable all autorisaties
+        self.applicatie.heeft_alle_autorisaties = False
+        self.applicatie.save()
+
+        # add only SCOPE_DOCUMENTEN_ALLES_LEZEN
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.drc,
+            scopes=[SCOPE_DOCUMENTEN_ALLES_LEZEN],
+            informatieobjecttype=reverse(informatieobjecttype),
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        response = self.client.get(verzending_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(verzending_url, {"expand": "informatieobject"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
+        response = self.client.get(reverse("informatieobjecttype-list"))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read verzending with expand informatieobjecttype is NOT allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN
+        response = self.client.get(
+            verzending_url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add a Catalogi authorization with SCOPE_CATALOGI_READ
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_READ],
+        )
+        # Read verzending with expand informatieobjecttype is allowed with SCOPE_DOCUMENTEN_ALLES_LEZEN and SCOPE_CATALOGI_READ
+        response = self.client.get(
+            verzending_url,
+            {"expand": "informatieobject,informatieobject.informatieobjecttype"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
