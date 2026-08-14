@@ -28,11 +28,8 @@ class SelectielijstAPIConfig(ConfigurationModel):
         }
 
 
+#  Copied over from commonground-api-common because of new applicatie model
 class SingleApplicatieConfigurationModel(ConfigurationModel):
-    """
-    Copied over from commonground-api-common because of new applicatie model
-    """
-
     uuid: str
     client_ids: list[str]
     label: str

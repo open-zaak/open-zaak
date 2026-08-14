@@ -996,9 +996,7 @@ class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response2.status_code, status.HTTP_403_FORBIDDEN
-        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
+        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_oio_list(self):
         url = reverse("documenten:objectinformatieobject-list")

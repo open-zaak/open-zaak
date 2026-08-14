@@ -24,7 +24,6 @@ def remove_empty_applications():
     Originally added a signal on Autorisatie but the admin & api delete and recreate everything on update.
 
     """
-    # TODO this could also check for empty autorisaties even though they should not be able to exist?
 
     apps_to_delete = Applicatie.objects.filter(
         heeft_alle_autorisaties=False,
