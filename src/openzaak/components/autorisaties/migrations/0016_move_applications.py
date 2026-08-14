@@ -10,7 +10,7 @@ from django.urls import Resolver404, resolve
 from django_loose_fk.loaders import BaseLoader
 
 SIZE = 500
-loader = BaseLoader()  # TODO what if loose_fk dep is removed?
+loader = BaseLoader()
 
 
 def move_applications(apps, schema_editor):
@@ -33,23 +33,20 @@ def move_applications(apps, schema_editor):
             return None
 
         if not loader.is_local_url(url):
-            # TODO raise error?
-            return None
+            raise ValueError(f"{url} is not a local URL")
 
         path = urlparse(url).path
 
         try:
             resolve(path)
         except Resolver404:
-            # TODO raise error?
-            return None
+            raise ValueError(f"{url} is not a valid URL")
 
         path_parts = path.split("/")
         resource = path_parts[-2]
 
         if resource != expected_resource:
-            # TODO raise error?
-            return None
+            raise ValueError(f"{url} is not a expected {expected_resource} resource")
 
         uuid = path_parts[-1]
 
@@ -66,8 +63,7 @@ def move_applications(apps, schema_editor):
         try:
             return model.objects.get(uuid=uuid)
         except model.DoesNotExist:
-            # TODO raise error?
-            return None
+            raise ValueError(f"{url} does not exist")
 
     new_apps = [
         ApplicationNew(
@@ -92,8 +88,7 @@ def move_applications(apps, schema_editor):
         )
         besluittype = _parse_url(autorisatie_old.besluittype, "besluittypen")
 
-        if not any((zaaktype, informatieobjecttype, besluittype)):
-            # do not create autorisatie if it does not have any (valid) type
+        if any([autorisatie_old.component == "zrc" and not zaaktype, autorisatie_old.component == "drc" and not informatieobjecttype,  autorisatie_old.component == "brc" and not besluittype]):
             continue
 
         autorisaties.append(
@@ -109,12 +104,13 @@ def move_applications(apps, schema_editor):
         )
     AutorisatieNew.objects.bulk_create(autorisaties, batch_size=SIZE)
 
-    catalogus_autorisaties = list(
-        CatalogusAutorisatie.objects.select_related("applicatie")
-    )
-    for ca in catalogus_autorisaties:
+    catalogus_autorisaties = []
+
+    for ca in CatalogusAutorisatie.objects.select_related("applicatie").iterator(chunk_size=SIZE):
         ca.new_applicatie_id = new_pk_by_uuid[ca.applicatie.uuid]
         ca.applicatie_id = None
+        catalogus_autorisaties.append(ca)
+
     CatalogusAutorisatie.objects.bulk_update(
         catalogus_autorisaties, ["new_applicatie_id", "applicatie_id"], batch_size=SIZE
     )
@@ -122,8 +118,7 @@ def move_applications(apps, schema_editor):
     ApplicationOld.objects.all().delete()
 
 def reverse(apps, schema_editor):
-    # TODO this makes sure that rolling back works even though all data will be lost
-    # could reverse all data as well but external urls wil always be lost ofc.
+    # TODO could reverse all data as well but external urls wil always be lost ofc.
     CatalogusAutorisatie = apps.get_model("autorisaties", "CatalogusAutorisatie")
     CatalogusAutorisatie.objects.all().delete()
 

@@ -17,6 +17,7 @@ class TestMigrations(TestCase):
     migrate_from = unset
     migrate_to = unset
     setting_overrides = None
+    execute_in_setup = True
 
     def setUp(self):
         _checks = (
@@ -38,6 +39,10 @@ class TestMigrations(TestCase):
 
         self.setUpBeforeMigration(old_apps)
 
+        if self.execute_in_setup:
+            self.execute()
+
+    def execute(self):
         # Run the migration to test
         overrides = self.setting_overrides or {}
         with override_settings(**overrides):
