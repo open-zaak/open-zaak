@@ -18,6 +18,9 @@ class ApplicatieManager(models.Manager):
 
 class Applicatie(APIMixin, models.Model):
     """
+    Copied over from commonground_api_common.models.Applicatie so that the new autorisatie model can have a FK to it.
+    Otherwise, the commonground_api_common.models.Applicatie would have the old autorisaties with urls and the new ones with fks to zt/bt/iot.
+
     Client level of authorization
     """
 
@@ -151,6 +154,10 @@ class AutorisatieManager(models.Manager):
 
 
 class Autorisatie(APIMixin, models.Model):
+    """
+    New Autorsatie model, commonground_api_common.models.Autorisatie has urls to zt/bt/iot which are now FKs.
+    """
+
     applicatie = models.ForeignKey(
         Applicatie,
         on_delete=models.CASCADE,
@@ -173,7 +180,7 @@ class Autorisatie(APIMixin, models.Model):
     zaaktype = models.ForeignKey(
         "catalogi.ZaakType",
         on_delete=models.CASCADE,
-        related_name="autorisaties",
+        related_name="+",
         help_text=_("het zaaktype waarop de autorisatie van toepassing is."),
         blank=True,
         null=True,
@@ -183,7 +190,7 @@ class Autorisatie(APIMixin, models.Model):
     informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
         on_delete=models.CASCADE,
-        related_name="autorisaties",
+        related_name="+",
         help_text=_(
             "het informatieobjecttype waarop de autorisatie van toepassing is."
         ),
@@ -195,7 +202,7 @@ class Autorisatie(APIMixin, models.Model):
     besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.CASCADE,
-        related_name="autorisaties",
+        related_name="+",
         help_text=_("het besluittype waarop de autorisatie van toepassing is."),
         blank=True,
         null=True,

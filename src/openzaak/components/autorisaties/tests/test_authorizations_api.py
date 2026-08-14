@@ -44,7 +44,6 @@ from .factories import (
 from .utils import get_operation_url
 
 
-@override_settings(ALLOWED_HOSTS=["testserver"])
 class SetAuthorizationsTests(JWTAuthMixin, APITestCase):
     scopes = [str(SCOPE_AUTORISATIES_BIJWERKEN)]
     component = ComponentTypes.ac

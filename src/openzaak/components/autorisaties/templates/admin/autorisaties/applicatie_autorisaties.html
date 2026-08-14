@@ -13,7 +13,7 @@
     {% endif %}
     {% block breadcrumbs_pre_changelist %}{% endblock %}
     &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
-    &rsaquo; <a href="{% url 'admin:authorizations_applicatie_change' original.pk %}">{{ original|truncatewords:"18" }}</a>
+    &rsaquo; <a href="{% url 'admin:autorisaties_applicatie_change' original.pk %}">{{ original|truncatewords:"18" }}</a>
     &rsaquo; {% trans "Autorisaties" %}
 </div>
 {% endblock %}
