@@ -7,6 +7,9 @@ from rest_framework import serializers
 from vng_api_common.constants import VertrouwelijkheidsAanduiding
 from vng_api_common.serializers import add_choice_values_help_text
 
+from openzaak.utils.serializer_fields import (
+    DeprecatedNamespaceLengthHyperlinkedRelatedField,
+)
 from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import InformatieObjectType
@@ -67,6 +70,14 @@ class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializ
         help_text=_("De datum van de aller laatste versie van het object."),
     )
 
+    besluittypen = DeprecatedNamespaceLengthHyperlinkedRelatedField(
+        help_text="URL-referenties naar de BESLUITTYPEN",
+        lookup_field="uuid",
+        many=True,
+        read_only=True,
+        view_name="zaken:besluittype-detail",
+    )
+
     class Meta:
         model = InformatieObjectType
         extra_kwargs = {
@@ -81,13 +92,6 @@ class InformatieObjectTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializ
             "begin_geldigheid": {"source": "datum_begin_geldigheid"},
             "einde_geldigheid": {"source": "datum_einde_geldigheid"},
             "concept": {"read_only": True},
-            "besluittypen": {
-                "lookup_field": "uuid",
-                "view_name": "catalogi:besluittype-detail",
-                "read_only": True,
-                "many": True,
-                "help_text": _("URL-referenties naar de BESLUITTYPEN"),
-            },
             "zaaktypen": {
                 "lookup_field": "uuid",
                 "view_name": "catalogi:zaaktype-detail",
