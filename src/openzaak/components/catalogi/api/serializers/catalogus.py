@@ -24,11 +24,11 @@ class CatalogusSerializer(serializers.HyperlinkedModelSerializer):
         ),
     )
 
-    besluittypen = CachedHyperlinkedRelatedField(
+    besluittypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         many=True,
         read_only=True,
         source="besluittype_set",
-        view_name="catalogi:besluittype-detail",
+        view_name="zaken:besluittype-detail",
         lookup_field="uuid",
         help_text=_(
             "URL-referenties naar BESLUITTYPEn die in deze CATALOGUS worden ontsloten."

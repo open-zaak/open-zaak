@@ -9,6 +9,7 @@ from vng_api_common.utils import get_help_text
 from openzaak.utils.serializer_fields import (
     DeprecatedNamespaceCachedHyperlinkedRelatedField,
 )
+from openzaak.utils.serializers import DeprecatedNamespaceHyperlinkedModelSerializer
 
 from ...models import BesluitType, InformatieObjectType
 from ..validators import (
@@ -21,7 +22,7 @@ from ..validators import (
 )
 
 
-class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
+class BesluitTypeSerializer(DeprecatedNamespaceHyperlinkedModelSerializer):
     informatieobjecttypen = DeprecatedNamespaceCachedHyperlinkedRelatedField(
         view_name="documenten:informatieobjecttype-detail",
         many=True,
@@ -78,7 +79,7 @@ class BesluitTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = BesluitType
         extra_kwargs = {
-            "url": {"lookup_field": "uuid", "view_name": "catalogi:besluittype-detail"},
+            "url": {"lookup_field": "uuid", "view_name": "zaken:besluittype-detail"},
             "catalogus": {
                 "lookup_field": "uuid",
                 "view_name": "catalogi:catalogus-detail",
