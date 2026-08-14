@@ -42,7 +42,6 @@ from openzaak.components.zaken.api.scopes import (
     SCOPE_ZAKEN_CREATE,
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
-from openzaak.utils import build_absolute_url
 
 from ...constants import RelatedTypeSelectionMethods
 from ...models import CatalogusAutorisatie
@@ -101,42 +100,6 @@ class PermissionTests(WebTest):
         response = self.app.get(url, user=self.privileged_user)
 
         self.assertEqual(response.status_code, 200)
-
-
-@tag("admin-autorisaties")
-@disable_admin_mfa()
-@override_settings(SITE_DOMAIN="testserver")
-class ApplicatieInlinesAdminTests(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        # priv user
-        cls.user = UserFactory.create(is_staff=True)
-        _perms = [
-            ("change_applicatie", "autorisaties", "applicatie"),
-            ("view_autorisatie", "autorisaties", "autorisatie"),
-        ]
-        perms = [Permission.objects.get_by_natural_key(*_perm) for _perm in _perms]
-        cls.user.user_permissions.add(*perms)
-
-        cls.applicatie = ApplicatieFactory.create()
-
-        cls.url = reverse(
-            "admin:autorisaties_applicatie_change",
-            kwargs={"object_id": cls.applicatie.id},
-        )
-
-    def setUp(self):
-        super().setUp()
-
-        self.app.set_user(self.user)
-
-    def _add_autorisatie(self, obj, **kwargs):
-        url = build_absolute_url(obj.get_absolute_api_url())
-        field = obj._meta.model_name
-        Autorisatie.objects.create(
-            applicatie=self.applicatie,
-            **{field: url, **kwargs},
-        )
 
 
 @tag("admin-autorisaties", "notifications")

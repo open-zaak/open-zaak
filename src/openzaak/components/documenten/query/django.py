@@ -10,13 +10,13 @@ from vng_api_common.constants import VertrouwelijkheidsAanduiding
 
 from openzaak.components.besluiten.models import BesluitInformatieObject
 from openzaak.components.zaken.models import ZaakInformatieObject
-from openzaak.utils.query import BlockChangeMixin, FkAuthorizationsFilterMixin
+from openzaak.utils.query import AuthorizationsFilterMixin, BlockChangeMixin
 
 from ..constants import ObjectInformatieObjectTypes
 from ..typing import IORelation
 
 
-class InformatieobjectAuthorizationsFilterMixin(FkAuthorizationsFilterMixin):
+class InformatieobjectAuthorizationsFilterMixin(AuthorizationsFilterMixin):
     """
     Filter objects whitelisted by the authorizations.
 

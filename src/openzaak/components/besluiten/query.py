@@ -2,10 +2,10 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from django.db import models
 
-from openzaak.utils.query import BlockChangeMixin, FkAuthorizationsFilterMixin
+from openzaak.utils.query import AuthorizationsFilterMixin, BlockChangeMixin
 
 
-class BesluitAuthorizationsFilterMixin(FkAuthorizationsFilterMixin):
+class BesluitAuthorizationsFilterMixin(AuthorizationsFilterMixin):
     """
     Filter objects whitelisted by the authorizations.
 

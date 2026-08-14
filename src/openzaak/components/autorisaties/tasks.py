@@ -34,7 +34,7 @@ def remove_empty_applications():
     app_ids_to_delete = list(apps_to_delete.values_list("id", flat=True))
 
     logger.info(
-        "deleting_applications",
+        "empty_applications_deleted",
         apps_to_delete=app_ids_to_delete,
     )
     apps_to_delete.delete()

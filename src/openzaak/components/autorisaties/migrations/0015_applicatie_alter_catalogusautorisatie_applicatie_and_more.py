@@ -53,9 +53,9 @@ class Migration(migrations.Migration):
                 ('scopes', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), help_text='Komma-gescheiden lijst van scope labels.', size=None, verbose_name='scopes')),
                 ('max_vertrouwelijkheidaanduiding', vng_api_common.fields.VertrouwelijkheidsAanduidingField(blank=True, choices=[('openbaar', 'Openbaar'), ('beperkt_openbaar', 'Beperkt openbaar'), ('intern', 'Intern'), ('zaakvertrouwelijk', 'Zaakvertrouwelijk'), ('vertrouwelijk', 'Vertrouwelijk'), ('confidentieel', 'Confidentieel'), ('geheim', 'Geheim'), ('zeer_geheim', 'Zeer geheim')], help_text='Maximaal toegelaten vertrouwelijkheidaanduiding (inclusief).', max_length=20)),
                 ('applicatie', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='autorisaties', to='autorisaties.applicatie', verbose_name='applicatie')),
-                ('besluittype', models.ForeignKey(blank=True, help_text='het besluittype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='autorisaties', to='catalogi.besluittype')),
-                ('informatieobjecttype', models.ForeignKey(blank=True, help_text='het informatieobjecttype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='autorisaties', to='catalogi.informatieobjecttype')),
-                ('zaaktype', models.ForeignKey(blank=True, help_text='het zaaktype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='autorisaties', to='catalogi.zaaktype')),
+                ('besluittype', models.ForeignKey(blank=True, help_text='het besluittype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='catalogi.besluittype')),
+                ('informatieobjecttype', models.ForeignKey(blank=True, help_text='het informatieobjecttype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='catalogi.informatieobjecttype')),
+                ('zaaktype', models.ForeignKey(blank=True, help_text='het zaaktype waarop de autorisatie van toepassing is.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='catalogi.zaaktype')),
             ],
             options={
                 'verbose_name': 'autorisatie',

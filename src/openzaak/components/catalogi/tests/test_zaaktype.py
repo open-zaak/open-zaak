@@ -2156,5 +2156,4 @@ class ZaaktypeDeleteAutorisatieTests(TestCase):
         self.assertEqual(Autorisatie.objects.all().count(), 1)
 
         zaaktype.delete()
-        # TODO change on_delete to cascade
         self.assertEqual(Autorisatie.objects.all().count(), 0)
