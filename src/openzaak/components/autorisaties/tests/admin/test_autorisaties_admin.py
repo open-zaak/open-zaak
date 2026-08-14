@@ -18,7 +18,7 @@ from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduidin
 
 from openzaak.accounts.tests.factories import UserFactory
 from openzaak.components.autorisaties.api.scopes import SCOPE_AUTORISATIES_BIJWERKEN
-from openzaak.components.autorisaties.models import Autorisatie
+from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.components.besluiten.api.scopes import (
     SCOPE_BESLUITEN_AANMAKEN,
     SCOPE_BESLUITEN_ALLES_LEZEN,
@@ -112,8 +112,8 @@ class ApplicatieInlinesAdminTests(WebTest):
         # priv user
         cls.user = UserFactory.create(is_staff=True)
         _perms = [
-            ("change_applicatie", "authorizations", "applicatie"),
-            ("view_autorisatie", "authorizations", "autorisatie"),
+            ("change_applicatie", "autorisaties", "applicatie"),
+            ("view_autorisatie", "autorisaties", "autorisatie"),
         ]
         perms = [Permission.objects.get_by_natural_key(*_perm) for _perm in _perms]
         cls.user.user_permissions.add(*perms)
@@ -121,7 +121,7 @@ class ApplicatieInlinesAdminTests(WebTest):
         cls.applicatie = ApplicatieFactory.create()
 
         cls.url = reverse(
-            "admin:authorizations_applicatie_change",
+            "admin:autorisaties_applicatie_change",
             kwargs={"object_id": cls.applicatie.id},
         )
 
@@ -570,7 +570,7 @@ class ManageAutorisatiesAdmin(NotificationsConfigMixin, TestCase):
 
         # 2.0 empty applications are now deleted in a celery task (on a daily schedule)
         # # Because the last Autorisatie was deleted, the Applicatie itself is deleted as well
-        # self.assertEqual(Applicatie.objects.count(), 0)
+        self.assertEqual(Applicatie.objects.count(), 1)
 
     @tag("gh-1661")
     def test_create_catalogus_autorisatie_for_zaken_api(self):
