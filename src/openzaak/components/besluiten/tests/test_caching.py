@@ -9,13 +9,13 @@ from rest_framework.test import APITestCase
 from vng_api_common.tests import CacheMixin
 
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 
-class BesluitCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "besluiten"
 
@@ -59,7 +59,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     NAMESPACE = "besluiten"
 

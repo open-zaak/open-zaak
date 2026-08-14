@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from vng_api_common.tests import get_validation_errors
 
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..constants import Doelgroep
@@ -16,7 +16,7 @@ from ..models import SubStatus
 from .factories import StatusFactory, SubStatusFactory, ZaakFactory
 
 
-class SubStatusTests(JWTAuthCacheMixin, APITestCase):
+class SubStatusTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_detail_substatus(self):
@@ -208,7 +208,7 @@ class SubStatusTests(JWTAuthCacheMixin, APITestCase):
         self.assertEqual(data["doelgroep"], "betrokkenen")
 
 
-class SubStatusValidationTests(JWTAuthCacheMixin, APITestCase):
+class SubStatusValidationTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_substatus_validate_status_belongs_to_zaak(self):
@@ -237,7 +237,7 @@ class SubStatusValidationTests(JWTAuthCacheMixin, APITestCase):
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "testserver.com"])
-class SubStatusFilterTests(JWTAuthCacheMixin, APITestCase):
+class SubStatusFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_list_substatus_filter_by_zaak(self):

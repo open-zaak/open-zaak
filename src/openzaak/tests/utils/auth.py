@@ -1,15 +1,13 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
-from typing import ClassVar, Collection, List, Optional
+from typing import ClassVar, Collection
 
 from django.db.models import Model
 
-from vng_api_common.authorizations.models import AuthorizationsConfig
 from vng_api_common.authorizations.utils import generate_jwt
 from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.models import JWTSecret
 from vng_api_common.scopes import Scope
-from vng_api_common.tests.auth import JWTAuthMixin as _JWTAuthMixin
 
 from openzaak.components.autorisaties.models import Applicatie, Autorisatie
 from openzaak.utils.urls import reverse
@@ -85,48 +83,3 @@ class JWTAuthMixin:
             self.user_representation,
         )
         self.client.credentials(HTTP_AUTHORIZATION=token)
-
-
-class JWTAuthCacheMixin(_JWTAuthMixin):
-    """
-    Tests that used commonground-api-common's JWTAuthMixin need to use this subclass that uses the new
-    Applicatie and Autorisatie models
-    """
-
-    @staticmethod
-    def _create_credentials(
-        client_id: str,
-        secret: str,
-        heeft_alle_autorisaties: bool,
-        max_vertrouwelijkheidaanduiding: str,
-        scopes: Optional[List[str]] = None,
-        zaaktype: Optional[str] = None,
-        informatieobjecttype: Optional[str] = None,
-        besluittype: Optional[str] = None,
-    ):
-        JWTSecret.objects.get_or_create(
-            identifier=client_id, defaults={"secret": secret}
-        )
-
-        config = AuthorizationsConfig.get_solo()
-
-        applicatie = Applicatie.objects.create(
-            client_ids=[client_id],
-            label="for test",
-            heeft_alle_autorisaties=heeft_alle_autorisaties,
-        )
-
-        if heeft_alle_autorisaties is False:
-            autorisatie = Autorisatie.objects.create(
-                applicatie=applicatie,
-                component=config.component,
-                scopes=scopes or [],
-                zaaktype=zaaktype or "",
-                informatieobjecttype=informatieobjecttype or "",
-                besluittype=besluittype or "",
-                max_vertrouwelijkheidaanduiding=max_vertrouwelijkheidaanduiding,
-            )
-        else:
-            autorisatie = None
-
-        return applicatie, autorisatie
