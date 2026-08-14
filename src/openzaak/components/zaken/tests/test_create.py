@@ -524,7 +524,7 @@ class PerformanceTests(
            5-8:   Check feature flag config (PublishValidator) (savepoint, select, insert
                   and savepoint release)
              9:   Lookup zaaktype for permission checks
-         10-15:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
+         10-14:   Application/CatalogusAutorisatie/Autorisatie lookup for permission checks
             15:   Begin transaction (savepoint) (from NotificationsCreateMixin)
             16:   Savepoint for zaakidentificatie generation
             17:   advisory lock for zaakidentificatie generation

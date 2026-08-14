@@ -482,6 +482,33 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
         )
 
+    def test_besluit_list_with_filtering(self):
+        # Should show up
+        BesluitFactory.create(
+            besluittype=self.besluittype, verantwoordelijke_organisatie="000000000"
+        )
+
+        # Should not show up due to filtering
+        BesluitFactory.create(
+            besluittype=self.besluittype, verantwoordelijke_organisatie="123456789"
+        )
+
+        # Should not show up due to other bt
+        BesluitFactory.create(verantwoordelijke_organisatie="123456789")
+
+        url = reverse("zaken:besluit-list")
+
+        response = self.client.get(url, {"verantwoordelijkeOrganisatie": "000000000"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["besluittype"], f"http://testserver{reverse(self.besluittype)}"
+        )
+
     def test_besluit_retrieve(self):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
@@ -492,9 +519,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         response2 = self.client.get(url2)
 
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response2.status_code, status.HTTP_403_FORBIDDEN
-        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
+        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
         url = reverse(BesluitInformatieObject, namespace="zaken")
@@ -533,4 +558,4 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_200_OK, response1.data)
         self.assertEqual(
             response2.status_code, status.HTTP_403_FORBIDDEN, response2.data
-        )  # TODO 500 since external url is still allowed on model and it tries to get the object for it
+        )
