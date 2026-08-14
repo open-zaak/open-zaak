@@ -33,7 +33,6 @@ from openzaak.components.documenten.tests.factories import (
 )
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
 from openzaak.utils.urls import reverse
 
 from ...documenten.tests.utils import get_informatieobjecttype_response
@@ -736,19 +735,13 @@ class ZaakConvenienceCloudEventTest(
 @override_settings(
     NOTIFICATIONS_SOURCE="oz-test", ENABLE_CLOUD_EVENTS=True, SITE_DOMAIN="testserver"
 )
-class CloudEventTransactionTests(JWTAuthCacheMixin, APITransactionTestCase):
+class CloudEventTransactionTests(JWTAuthMixin, APITransactionTestCase):
     heeft_alle_autorisaties = True
 
     # TODO
     def setUp(self):
         super().setUp()
-
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_transaction_failure_does_not_send_zaak_gemuteerd_cloud_event(
         self, mock_send_cloudevent

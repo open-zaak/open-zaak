@@ -13,11 +13,11 @@ from openzaak.components.besluiten.tests.factories import (
     BesluitInformatieObjectFactory,
 )
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 
-class BesluitCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class BesluitCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_besluit_get_cache_header(self):
@@ -60,7 +60,7 @@ class BesluitCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class BesluitInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_besluitinformatieobject_get_cache_header(self):

@@ -11,7 +11,7 @@ from vng_api_common.tests import CacheMixin
 
 from openzaak.components.zaken.tests.factories import ZaakInformatieObjectFactory
 from openzaak.tests.utils import get_spec
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..caching import get_etag_cache_key, set_etag
@@ -20,7 +20,7 @@ from ..tests.factories import EnkelvoudigInformatieObjectFactory, Gebruiksrechte
 
 
 @temp_private_root()
-class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_eio_get_cache_header(self):
@@ -65,7 +65,7 @@ class EnkelvoudigInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITe
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_oio_get_cache_header(self):
@@ -120,7 +120,7 @@ class ObjectInformatieObjectCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCas
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class GebruiksrechtenCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
+class GebruiksrechtenCacheTests(CacheMixin, JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_gebruiksrecht_get_cache_header(self):
@@ -171,18 +171,13 @@ class GebruiksrechtenCacheTests(CacheMixin, JWTAuthCacheMixin, APITestCase):
 
 @temp_private_root()
 class EnkelvoudigInformatieObjectCacheTransactionTests(
-    JWTAuthCacheMixin, APITransactionTestCase
+    JWTAuthMixin, APITransactionTestCase
 ):
     heeft_alle_autorisaties = True
 
     def setUp(self):
         super().setUp()
-        self._create_credentials(
-            self.client_id,
-            self.secret,
-            self.heeft_alle_autorisaties,
-            self.max_vertrouwelijkheidaanduiding,
-        )
+        super().setUpTestData()
 
     def test_invalidate_etag_after_change(self):
         """
