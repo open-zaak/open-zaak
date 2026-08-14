@@ -36,7 +36,7 @@ class BlockChangeMixin:
     delete.queryset_only = True
 
 
-class FkAuthorizationsFilterMixin:
+class AuthorizationsFilterMixin:
     auth_fields = []
     fk_field = None
     vertrouwelijkheidaanduiding_use = True

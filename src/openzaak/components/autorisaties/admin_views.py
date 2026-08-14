@@ -65,12 +65,9 @@ def get_initial_for_component(
 ) -> List[Dict[str, Any]]:
     _related_objs = {}
 
-    internal_autorisaties = []
-
     for autorisatie in autorisaties:
         obj = get_related_object(autorisatie)
         _related_objs[autorisatie.pk] = obj
-        internal_autorisaties.append(autorisatie)
 
     related_objs = {pk: obj.id for pk, obj in _related_objs.items() if obj is not None}
 
@@ -78,7 +75,7 @@ def get_initial_for_component(
 
     if component == ComponentTypes.zrc:
         grouped_by_va = defaultdict(list)
-        for autorisatie in internal_autorisaties:
+        for autorisatie in autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
@@ -102,7 +99,7 @@ def get_initial_for_component(
 
     elif component == ComponentTypes.drc:
         grouped_by_va = defaultdict(list)
-        for autorisatie in internal_autorisaties:
+        for autorisatie in autorisaties:
             grouped_by_va[autorisatie.max_vertrouwelijkheidaanduiding].append(
                 autorisatie
             )
