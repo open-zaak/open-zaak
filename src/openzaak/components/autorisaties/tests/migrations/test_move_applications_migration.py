@@ -9,8 +9,8 @@ from openzaak.utils.urls import reverse
 class TestMoveApplicationsMigrations(TestMigrations):
     migrate_from = "0015_applicatie_alter_catalogusautorisatie_applicatie_and_more"
     migrate_to = "0016_move_applications"
-
     app = "autorisaties"
+    execute_in_setup = False
 
     def setUpBeforeMigration(self, apps):
         self.ApplicatieOld = apps.get_model("authorizations", "Applicatie")
@@ -56,7 +56,7 @@ class TestMoveApplicationsMigrations(TestMigrations):
             catalogus=self.catalogus,
         )
 
-        app = self.ApplicatieOld.objects.create(
+        self.app = self.ApplicatieOld.objects.create(
             uuid="5b5486fc-6e29-4861-a39f-b478762758ad",
             client_ids=["a", "b", "c"],
             label="admin",
@@ -64,7 +64,7 @@ class TestMoveApplicationsMigrations(TestMigrations):
         )
 
         self.CatalogusAutorisatie.objects.create(
-            applicatie=app,
+            applicatie=self.app,
             catalogus=self.catalogus,
             component="zrc",
             scopes=["zaken.lezen"],
@@ -73,7 +73,7 @@ class TestMoveApplicationsMigrations(TestMigrations):
 
         # internal besluittype
         self.AutorisatieOld.objects.create(
-            applicatie=app,
+            applicatie=self.app,
             component="brc",
             scopes=["besluiten.lezen"],
             besluittype=f"http://testserver{reverse(self.besluittype)}",
@@ -82,7 +82,7 @@ class TestMoveApplicationsMigrations(TestMigrations):
 
         # internal zaaktype
         self.AutorisatieOld.objects.create(
-            applicatie=app,
+            applicatie=self.app,
             component="zrc",
             scopes=["zaken.lezen"],
             zaaktype=f"http://testserver{reverse(self.zaaktype)}",
@@ -91,55 +91,40 @@ class TestMoveApplicationsMigrations(TestMigrations):
 
         # internal iot
         self.AutorisatieOld.objects.create(
-            applicatie=app,
+            applicatie=self.app,
             component="drc",
             scopes=["documenten.lezen"],
             informatieobjecttype=f"http://testserver{reverse(self.informatieobjecttype)}",
             max_vertrouwelijkheidaanduiding="openbaar",
         )
 
-        # external zaaktype
         self.AutorisatieOld.objects.create(
-            applicatie=app,
-            component="brc",
-            scopes=["besluiten.aanmaken"],
-            besluittype="http://external/zaken/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7",
-            max_vertrouwelijkheidaanduiding="openbaar",
+            applicatie=self.app,
+            component="nrc",
+            scopes=["notificaties.consumeren"],
         )
 
-        # Non existent zaaktype
         self.AutorisatieOld.objects.create(
-            applicatie=app,
-            component="brc",
-            scopes=["besluiten.lezen"],
-            besluittype="http://testserver/zaken/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7",
-            max_vertrouwelijkheidaanduiding="openbaar",
+            applicatie=self.app,
+            component="ac",
+            scopes=["autorisatie.lezen"],
         )
 
-        # invalid internal url
         self.AutorisatieOld.objects.create(
-            applicatie=app,
-            component="brc",
-            scopes=["besluiten.lezen"],
-            besluittype="http://testserver/zaken/api/v1/zaaktyp/ea55d56b-1149-4148-a9cf-3208375765d7",
-            max_vertrouwelijkheidaanduiding="openbaar",
+            applicatie=self.app,
+            component="ztc",
+            scopes=["catalogi.lezen"],
         )
 
-        # model url in wrong field
-        self.AutorisatieOld.objects.create(
-            applicatie=app,
-            component="brc",
-            scopes=["besluiten.lezen"],
-            besluittype=f"http://testserver{reverse(self.zaaktype)}",
-            max_vertrouwelijkheidaanduiding="openbaar",
-        )
+
 
     def test_move(self):
+        self.execute()
         self.assertEqual(self.ApplicatieOld.objects.count(), 0)
         self.assertEqual(self.AutorisatieOld.objects.count(), 0)
         self.assertEqual(self.CatalogusAutorisatie.objects.count(), 1)
         self.assertEqual(self.ApplicatieNew.objects.count(), 2)
-        self.assertEqual(self.AutorisatieNew.objects.count(), 3)
+        self.assertEqual(self.AutorisatieNew.objects.count(), 6)
 
         superuser_app = self.ApplicatieNew.objects.get(
             uuid="ea55d56b-1149-4148-a9cf-3208375765d7"
@@ -155,7 +140,7 @@ class TestMoveApplicationsMigrations(TestMigrations):
         self.assertEqual(app.label, "admin")
         self.assertEqual(app.heeft_alle_autorisaties, False)
         self.assertEqual(app.client_ids, ["a", "b", "c"])
-        self.assertEqual(app.autorisaties.count(), 3)
+        self.assertEqual(app.autorisaties.count(), 6)
 
         cat_auth = self.CatalogusAutorisatie.objects.get()
         self.assertEqual(cat_auth.applicatie, None)
@@ -188,3 +173,73 @@ class TestMoveApplicationsMigrations(TestMigrations):
         self.assertEqual(drc_auth.besluittype, None)
         self.assertEqual(drc_auth.zaaktype, None)
         self.assertEqual(drc_auth.informatieobjecttype, self.informatieobjecttype)
+
+        nrc_auth = self.AutorisatieNew.objects.get(component="nrc")
+        self.assertEqual(nrc_auth.applicatie, app)
+        self.assertEqual(nrc_auth.scopes, ["notificaties.consumeren"])
+        self.assertEqual(nrc_auth.besluittype, None)
+        self.assertEqual(nrc_auth.zaaktype, None)
+        self.assertEqual(nrc_auth.informatieobjecttype, None)
+
+        ac_auth = self.AutorisatieNew.objects.get(component="ac")
+        self.assertEqual(ac_auth.applicatie, app)
+        self.assertEqual(ac_auth.scopes, ["autorisatie.lezen"])
+        self.assertEqual(ac_auth.besluittype, None)
+        self.assertEqual(ac_auth.zaaktype, None)
+        self.assertEqual(ac_auth.informatieobjecttype, None)
+
+        ztc_auth = self.AutorisatieNew.objects.get(component="ztc")
+        self.assertEqual(ztc_auth.applicatie, app)
+        self.assertEqual(ztc_auth.scopes, ["catalogi.lezen"])
+        self.assertEqual(ztc_auth.besluittype, None)
+        self.assertEqual(ztc_auth.zaaktype, None)
+        self.assertEqual(ztc_auth.informatieobjecttype, None)
+
+    def test_external_url(self):
+        self.AutorisatieOld.objects.create(
+            applicatie=self.app,
+            component="brc",
+            scopes=["besluiten.aanmaken"],
+            besluittype="http://external/catalogi/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7",
+            max_vertrouwelijkheidaanduiding="openbaar",
+        )
+
+        with self.assertRaisesMessage(ValueError, "http://external/catalogi/api/v1/zaaktypen/ea55d56b-1149-4148-a9cf-3208375765d7 is not a local URL"):
+            self.execute()
+
+    def test_invalid_internal_url(self):
+        self.AutorisatieOld.objects.create(
+            applicatie=self.app,
+            component="brc",
+            scopes=["besluiten.lezen"],
+            besluittype="http://testserver/catalogi/api/v1/blabla/ea55d56b-1149-4148-a9cf-3208375765d7",
+            max_vertrouwelijkheidaanduiding="openbaar",
+        )
+
+        with self.assertRaisesMessage(ValueError, "http://testserver/catalogi/api/v1/blabla/ea55d56b-1149-4148-a9cf-3208375765d7 is not a valid URL"):
+            self.execute()
+
+    def test_unexpected_resource(self):
+        self.AutorisatieOld.objects.create(
+            applicatie=self.app,
+            component="brc",
+            scopes=["besluiten.lezen"],
+            besluittype=f"http://testserver{reverse(self.zaaktype)}",
+            max_vertrouwelijkheidaanduiding="openbaar",
+        )
+
+        with self.assertRaisesMessage(ValueError, f"http://testserver{reverse(self.zaaktype)} is not a expected besluittypen resource"):
+            self.execute()
+
+    def test_non_existent_uuid(self):
+        self.AutorisatieOld.objects.create(
+            applicatie=self.app,
+            component="brc",
+            scopes=["besluiten.lezen"],
+            besluittype="http://testserver/catalogi/api/v1/besluittypen/255c2111-774a-4c2a-bb77-34301101c09d",
+            max_vertrouwelijkheidaanduiding="openbaar",
+        )
+
+        with self.assertRaisesMessage(ValueError,
+                                      "http://testserver/catalogi/api/v1/besluittypen/255c2111-774a-4c2a-bb77-34301101c09d does not exist"):
+            self.execute()
