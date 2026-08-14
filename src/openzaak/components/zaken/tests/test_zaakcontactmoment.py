@@ -10,7 +10,7 @@ from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 from openzaak.tests.utils import patch_resource_validator
-from openzaak.tests.utils.auth import JWTAuthCacheMixin
+from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..models import ZaakContactMoment
@@ -22,7 +22,7 @@ CONTACTMOMENT = f"{CONTACTMOMENTEN_BASE}contactmomenten/1234"
 
 @override_settings(LINK_FETCHER="vng_api_common.mocks.link_fetcher_200")
 @patch_resource_validator
-class ZaakContactMomentTests(JWTAuthCacheMixin, APITestCase):
+class ZaakContactMomentTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     @classmethod
@@ -127,7 +127,7 @@ class ZaakContactMomentTests(JWTAuthCacheMixin, APITestCase):
     NOTIFICATIONS_DISABLED=True,
     ALLOWED_HOSTS=["testserver", "testserver.com"],
 )
-class ZaakContactMomentFilterTests(JWTAuthCacheMixin, APITestCase):
+class ZaakContactMomentFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
 
     def test_filter_zaak(self):
