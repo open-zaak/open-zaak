@@ -6,10 +6,9 @@ from openzaak.components.autorisaties.models import Applicatie
 from openzaak.config.setup_configuration.models import ApplicatieConfigurationModel
 
 
+# Copied over from commonground-api-common because of new applicatie model
 class ApplicatieConfigurationStep(BaseConfigurationStep[ApplicatieConfigurationModel]):
     """
-    Copied over from commonground-api-common because of new applicatie model
-
     Configure Applicaties used for authorization.
 
     .. note:: The values of ``client_ids`` must match the values of the ``identifier`` field(s)

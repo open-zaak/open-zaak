@@ -7,10 +7,8 @@ from openzaak.utils.urls import reverse
 
 
 class TestMoveApplicationsMigrations(TestMigrations):
-    # migrate_from = "0014_remove_orphaned_jwtsecrets"
     migrate_from = "0015_applicatie_alter_catalogusautorisatie_applicatie_and_more"
     migrate_to = "0016_move_applications"
-    # migrate_to = "0017_remove_old_application_fk_on_catalogiautorisatie"
 
     app = "autorisaties"
 
