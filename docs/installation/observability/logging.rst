@@ -198,6 +198,10 @@ Convenience endpoints
 * ``besluit_verwerkt`` (INFO). Additional context: ``besluit_url``. ``besluitinformatieobjecten_urls``.
 * ``document_geregistreerd`` (INFO). Additional context: ``enkelvoudiginformatieobject_url``. ``zaak_url``.
 
+Celery tasks
+^^^^^^^^^^^^
+* ``empty_applications_deleted`` (INFO). Additional context: ``apps_to_delete``.
+
 .. _manual_logging_exceptions:
 
 Exceptions
