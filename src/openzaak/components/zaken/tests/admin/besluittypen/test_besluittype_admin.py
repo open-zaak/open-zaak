@@ -10,9 +10,12 @@ from maykin_2fa.test import disable_admin_mfa
 
 from openzaak.accounts.tests.factories import SuperUserFactory
 from openzaak.components.besluiten.tests.factories import BesluitFactory
-
-from ...models import BesluitType, InformatieObjectType, ZaakType
-from ..factories import (
+from openzaak.components.catalogi.models import (
+    BesluitType,
+    InformatieObjectType,
+    ZaakType,
+)
+from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     CatalogusFactory,
     InformatieObjectTypeFactory,

@@ -20,7 +20,6 @@ from openzaak.tests.utils import ClearCachesMixin
 from openzaak.tests.utils.admin import AdminTestMixin
 
 from ..factories import (
-    BesluitTypeFactory,
     ResultaatTypeFactory,
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -84,29 +83,6 @@ class ReadonlyAdminTests(
             class_="field-producten_of_diensten"
         ).div.div
         self.assertEqual(len(producten_of_diensten.find_all("a")), 2)
-
-    def test_readonly_besluittype(self, m):
-        """
-        check that in case of published besluittype only "datum_einde_geldigheid" field is editable
-        """
-        mock_selectielijst_oas_get(m)
-
-        besluittype = BesluitTypeFactory.create(concept=False)
-        url = reverse("admin:catalogi_besluittype_change", args=(besluittype.pk,))
-
-        response = self.app.get(url)
-
-        form = response.forms["besluittype_form"]
-        form_fields = list(form.fields.keys())
-        besluittype_fields = [
-            f.name
-            for f in besluittype._meta.get_fields()
-            if f.name != "datum_einde_geldigheid"
-        ]
-
-        self.assertEqual("datum_einde_geldigheid" in form_fields, True)
-        for field in besluittype_fields:
-            self.assertEqual(field in form_fields, False)
 
     def test_readonly_statustype(self, m):
         """

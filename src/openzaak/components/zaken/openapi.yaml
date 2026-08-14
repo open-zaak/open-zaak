@@ -2272,6 +2272,1171 @@ paths:
                 resources exact dezelfde ETag hebben, dan zijn deze resources identiek
                 aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
           description: No response body
+  /besluittypen:
+    get:
+      operationId: besluittype_list
+      description: '**EXPERIMENTEEL** Deze lijst kan gefilterd wordt met query-string
+        parameters.'
+      summary: Alle BESLUITTYPEn opvragen.
+      parameters:
+      - in: query
+        name: catalogus
+        schema:
+          type: integer
+        description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+      - in: query
+        name: datumGeldigheid
+        schema:
+          type: string
+          format: date
+        description: filter objecten op hun geldigheids datum.
+      - in: query
+        name: informatieobjecttypen
+        schema:
+          type: string
+        description: Het INFORMATIEOBJECTTYPE van informatieobjecten waarin besluiten
+          van dit BESLUITTYPE worden vastgelegd.
+      - in: query
+        name: omschrijving
+        schema:
+          type: string
+        description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+      - name: page
+        required: false
+        in: query
+        description: Een pagina binnen de gepagineerde set resultaten.
+        schema:
+          type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - alles
+          - concept
+          - definitief
+        description: |+
+          filter objecten op basis van de publicatiestatus:
+          * `alles`: Toon objecten waarvan het attribuut `concept` true of false is.
+          * `concept`: Toon objecten waarvan het attribuut `concept` true is.
+          * `definitief`: Toon objecten waarvan het attribuut `concept` false is (standaard).
+
+          Object versies zijn gebaseerd op het veld `omschrijving`, dit betekent dat objecten met hetzelfde
+          `omschrijving` alleen gepubliceerd kunnen worden (en dus de status `definitief` hebben) als de geldigheidsperioden van deze objecten niet overlappen.
+
+
+      - in: query
+        name: zaaktypen
+        schema:
+          type: string
+        description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
+      tags:
+      - besluittypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBesluitTypeList'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    post:
+      operationId: besluittype_create
+      description: '**EXPERIMENTEEL** Maak een BESLUITTYPE aan.'
+      summary: Maak een BESLUITTYPE aan.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      tags:
+      - besluittypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BesluitTypeRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - catalogi.schrijven
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL waar de resource leeft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitType'
+          description: Created
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+  /besluittypen/{uuid}:
+    get:
+      operationId: besluittype_read
+      description: '**EXPERIMENTEEL** Een specifieke BESLUITTYPE opvragen.'
+      summary: Een specifieke BESLUITTYPE opvragen.
+      parameters:
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            ETag:
+              schema:
+                type: string
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitType'
+          description: OK
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    put:
+      operationId: besluittype_update
+      description: '**EXPERIMENTEEL** Werk een BESLUITTYPE in zijn geheel bij. Dit
+        kan alleen als het een concept betreft.'
+      summary: Werk een BESLUITTYPE in zijn geheel bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BesluitTypeRequest'
+        required: true
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    patch:
+      operationId: besluittype_partial_update
+      description: '**EXPERIMENTEEL** Werk een BESLUITTYPE deels bij. Dit kan alleen
+        als het een concept betreft.'
+      summary: Werk een BESLUITTYPE deels bij.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBesluitTypeRequest'
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-schrijven)
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    delete:
+      operationId: besluittype_delete
+      description: '**EXPERIMENTEEL** Verwijder een BESLUITTYPE. Dit kan alleen als
+        het een concept betreft.'
+      summary: Verwijder een BESLUITTYPE.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      security:
+      - JWT-Claims:
+        - (catalogi.schrijven | catalogi.geforceerd-verwijderen)
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '404':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not found
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
+    head:
+      operationId: besluittype_head
+      description: '**EXPERIMENTEEL** Vraag de headers op die je bij een GET request
+        zou krijgen.'
+      summary: 'De headers voor een specifiek(e) BESLUITTYPE opvragen '
+      parameters:
+      - in: header
+        name: If-None-Match
+        schema:
+          type: string
+        description: Voer een voorwaardelijk verzoek uit. Deze header moet één of
+          meerdere ETag-waardes bevatten van resources die de consumer gecached heeft.
+          Indien de waarde van de ETag van de huidige resource voorkomt in deze set,
+          dan antwoordt de provider met een lege HTTP 304 request. Zie [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
+          voor meer informatie.
+        examples:
+          OneValue:
+            value: '"79054025255fb1a26e4bc422aef54eb4"'
+            summary: Eén ETag-waarde
+          MultipleValues:
+            value: '"79054025255fb1a26e4bc422aef54eb4", "e4d909c290d0fb1ca068ffaddf22cbd0"'
+            summary: Meerdere ETag-waardes
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      security:
+      - JWT-Claims:
+        - catalogi.lezen
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+            ETag:
+              schema:
+                type: string
+              description: De ETag berekend op de response body JSON. Indien twee
+                resources exact dezelfde ETag hebben, dan zijn deze resources identiek
+                aan elkaar. Je kan de ETag gebruiken om caching te implementeren.
+          description: No response body
+  /besluittypen/{uuid}/publish:
+    post:
+      operationId: besluittype_publish
+      description: Publiceren van het besluittype zorgt ervoor dat dit in een Besluiten
+        API kan gebruikt worden. Na het publiceren van een besluittype zijn geen inhoudelijke
+        wijzigingen meer mogelijk. Indien er na het publiceren nog wat gewijzigd moet
+        worden, dan moet je een nieuwe versie aanmaken.
+      summary: Publiceer het concept BESLUITTYPE.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          enum:
+          - application/json
+        description: Content type van de verzoekinhoud.
+        required: true
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+          description: Unieke resource identifier (UUID4)
+        required: true
+      tags:
+      - besluittypen
+      security:
+      - JWT-Claims:
+        - catalogi.schrijven
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BesluitType'
+          description: OK
+        '400':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidatieFout'
+          description: Bad request
+        '401':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unauthorized
+        '403':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Forbidden
+        '406':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Not acceptable
+        '409':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Conflict
+        '410':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Gone
+        '415':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Unsupported media type
+        '429':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Too many requests
+        '500':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Fout'
+          description: Internal server error
   /klantcontacten:
     get:
       operationId: klantcontact_list
@@ -16726,6 +17891,201 @@ components:
       - datum
       - ingangsdatum
       - verantwoordelijkeOrganisatie
+    BesluitType:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL-referentie naar dit object. Dit is de unieke identificatie
+            en locatie van dit object.
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+          minLength: 1
+          maxLength: 1000
+        zaaktypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: ZAAKTYPE met ZAAKen die relevant kunnen zijn voor dit BESLUITTYPE
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 80
+        omschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van de aard van BESLUITen
+            van het BESLUITTYPE
+          maxLength: 80
+        besluitcategorie:
+          type: string
+          description: Typering van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 40
+        reactietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
+            mogelijk is.
+        publicatieIndicatie:
+          type: boolean
+          description: Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            worden.
+        publicatietekst:
+          type: string
+          description: De generieke tekst van de publicatie van BESLUITen van dit
+            BESLUITTYPE
+        publicatietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            blijven.
+        toelichting:
+          type: string
+          description: Een eventuele toelichting op dit BESLUITTYPE.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+        concept:
+          type: boolean
+          readOnly: true
+          description: Geeft aan of het object een concept betreft. Concepten zijn
+            niet-definitieve versies en zouden niet gebruikt moeten worden buiten
+            deze API.
+        resultaattypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          readOnly: true
+          description: Het RESULTAATTYPE van resultaten die gepaard gaan met besluiten
+            van het BESLUITTYPE.
+        resultaattypenOmschrijving:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van resultaten van het RESULTAATTYPE.
+        vastgelegdIn:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Omschrijving van de aard van informatieobjecten van dit INFORMATIEOBJECTTYPE.
+        beginObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum waarop de eerst versie van het object ontstaan is.
+        eindeObject:
+          type: string
+          format: date
+          readOnly: true
+          description: De datum van de aller laatste versie van het object.
+      required:
+      - beginGeldigheid
+      - beginObject
+      - catalogus
+      - concept
+      - eindeObject
+      - informatieobjecttypen
+      - publicatieIndicatie
+      - resultaattypen
+      - resultaattypenOmschrijving
+      - url
+      - vastgelegdIn
+      - zaaktypen
+    BesluitTypeRequest:
+      type: object
+      properties:
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 80
+        omschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van de aard van BESLUITen
+            van het BESLUITTYPE
+          maxLength: 80
+        besluitcategorie:
+          type: string
+          description: Typering van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 40
+        reactietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
+            mogelijk is.
+        publicatieIndicatie:
+          type: boolean
+          description: Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            worden.
+        publicatietekst:
+          type: string
+          description: De generieke tekst van de publicatie van BESLUITen van dit
+            BESLUITTYPE
+        publicatietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            blijven.
+        toelichting:
+          type: string
+          description: Een eventuele toelichting op dit BESLUITTYPE.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
+      required:
+      - beginGeldigheid
+      - catalogus
+      - informatieobjecttypen
+      - publicatieIndicatie
     BesluitVerwerken:
       type: object
       properties:
@@ -18791,6 +20151,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Besluit'
+    PaginatedBesluitTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BesluitType'
     PaginatedExpandZaakList:
       type: object
       required:
@@ -19074,6 +20457,69 @@ components:
           format: date
           nullable: true
           description: De datum tot wanneer verweer tegen het besluit mogelijk is.
+    PatchedBesluitTypeRequest:
+      type: object
+      properties:
+        catalogus:
+          type: string
+          format: uri
+          description: URL-referentie naar de CATALOGUS waartoe dit BESLUITTYPE behoort.
+          minLength: 1
+          maxLength: 1000
+        omschrijving:
+          type: string
+          description: Omschrijving van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 80
+        omschrijvingGeneriek:
+          type: string
+          description: Algemeen gehanteerde omschrijving van de aard van BESLUITen
+            van het BESLUITTYPE
+          maxLength: 80
+        besluitcategorie:
+          type: string
+          description: Typering van de aard van BESLUITen van het BESLUITTYPE.
+          maxLength: 40
+        reactietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, waarbinnen verweer tegen een besluit van het besluittype
+            mogelijk is.
+        publicatieIndicatie:
+          type: boolean
+          description: Aanduiding of BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            worden.
+        publicatietekst:
+          type: string
+          description: De generieke tekst van de publicatie van BESLUITen van dit
+            BESLUITTYPE
+        publicatietermijn:
+          type: string
+          format: duration
+          nullable: true
+          description: De duur (typisch een aantal dagen), gerekend vanaf de verzend-
+            of publicatiedatum, dat BESLUITen van dit BESLUITTYPE gepubliceerd moeten
+            blijven.
+        toelichting:
+          type: string
+          description: Een eventuele toelichting op dit BESLUITTYPE.
+        informatieobjecttypen:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: URL-referenties naar het INFORMATIEOBJECTTYPE van informatieobjecten
+            waarin besluiten van dit BESLUITTYPE worden vastgelegd.
+        beginGeldigheid:
+          type: string
+          format: date
+          description: De datum waarop het is ontstaan.
+        eindeGeldigheid:
+          type: string
+          format: date
+          nullable: true
+          description: De datum waarop het is opgeheven.
     PatchedResultaatRequest:
       type: object
       properties:
