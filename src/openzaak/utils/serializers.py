@@ -107,3 +107,4 @@ class DeprecatedNamespaceHyperlinkedModelSerializer(
     serializers.HyperlinkedModelSerializer
 ):
     serializer_url_field = DeprecatedNamespaceHyperlinkIdentityField
+    serializer_related_field = DeprecatedNamespaceLengthHyperlinkedRelatedField

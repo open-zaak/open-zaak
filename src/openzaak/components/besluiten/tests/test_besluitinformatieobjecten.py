@@ -237,7 +237,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
-        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype_url = (
+            f"http://openzaak.nl{reverse(informatieobjecttype, namespace='catalogi')}"
+        )
         informatieobjecttype.besluittypen.add(besluit.besluittype)
         eio_response = get_eio_response(
             document, informatieobjecttype=informatieobjecttype_url
@@ -345,7 +347,9 @@ class ExternalDocumentsAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
-        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype_url = (
+            f"http://openzaak.nl{reverse(informatieobjecttype, namespace='catalogi')}"
+        )
         informatieobjecttype.besluittypen.add(besluit.besluittype)
 
         with requests_mock.Mocker() as m:
@@ -425,7 +429,9 @@ class ExternalDocumentsAPITransactionTests(JWTAuthMixin, APITransactionTestCase)
         informatieobjecttype = InformatieObjectTypeFactory.create(
             catalogus=besluit.besluittype.catalogus, concept=False
         )
-        informatieobjecttype_url = f"http://openzaak.nl{reverse(informatieobjecttype)}"
+        informatieobjecttype_url = (
+            f"http://openzaak.nl{reverse(informatieobjecttype, namespace='catalogi')}"
+        )
         informatieobjecttype.besluittypen.add(besluit.besluittype)
         eio_response = get_eio_response(
             document, informatieobjecttype=informatieobjecttype_url
@@ -497,7 +503,7 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         informatieobjecttype = InformatieObjectTypeFactory.create()
         eio_response = get_eio_response(
             self.document,
-            informatieobjecttype=f"http://openbesluit.nl{reverse(informatieobjecttype)}",
+            informatieobjecttype=f"http://openbesluit.nl{reverse(informatieobjecttype, namespace='catalogi')}",
         )
 
         with requests_mock.Mocker() as m:
@@ -589,7 +595,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
                 self.document,
                 json=get_eio_response(
                     self.document,
-                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
+                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype, namespace='catalogi')}",
                 ),
             )
             m.delete(oio, status_code=204)
@@ -623,7 +629,7 @@ class ExternalDocumentDestroyTests(JWTAuthMixin, APITestCase):
                 self.document,
                 json=get_eio_response(
                     self.document,
-                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype)}",
+                    informatieobjecttype=f"http://openzaak.nl{reverse(informatieobjecttype, namespace='catalogi')}",
                 ),
             )
             m.delete(oio, status_code=404, text="Not found")
