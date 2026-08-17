@@ -37,7 +37,7 @@ class ZaakAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin):
     """
 
     vertrouwelijkheidaanduiding_use = True
-    loose_fk_field = "zaaktype"
+    fk_field = "zaaktype"
     supports_external_field = False
 
 

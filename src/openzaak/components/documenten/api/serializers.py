@@ -34,10 +34,7 @@ from vng_api_common.serializers import (
 from vng_api_common.utils import get_help_text
 
 from openzaak.contrib.verzoeken.validators import verzoek_validator
-from openzaak.utils.serializer_fields import (
-    FKOrServiceUrlField,
-    LengthHyperlinkedRelatedField,
-)
+from openzaak.utils.serializer_fields import LengthHyperlinkedRelatedField
 from openzaak.utils.serializers import (
     ConvenienceSerializer,
     SubSerializerMixin,
@@ -312,18 +309,6 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "Uitdrukking van mate van volledigheid en onbeschadigd zijn van digitaal bestand."
         ),
     )
-    informatieobjecttype = FKOrServiceUrlField(
-        lookup_field="uuid",
-        max_length=200,
-        min_length=1,
-        help_text=_(
-            "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
-        ),
-        validators=[
-            LooseFkResourceValidator("InformatieObjectType", settings.ZTC_API_STANDARD),
-            PublishValidator(),
-        ],
-    )
     # TODO: validator!
     ondertekening = OndertekeningSerializer(
         label=_("ondertekening"),
@@ -388,12 +373,7 @@ class EnkelvoudigInformatieObjectSerializer(serializers.HyperlinkedModelSerializ
             "taal": {"min_length": 3},
             "informatieobjecttype": {
                 "lookup_field": "uuid",
-                "max_length": 200,
-                "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator(
-                        "InformatieObjectType", settings.ZTC_API_STANDARD
-                    ),
                     PublishValidator(),
                 ],
                 "view_name": "catalogi:informatieobjecttype-detail",

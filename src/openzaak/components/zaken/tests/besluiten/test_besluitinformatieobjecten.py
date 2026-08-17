@@ -24,7 +24,3 @@ class ExternalDocumentsAPITransactionTests(_ExternalDocumentsAPITransactionTests
 
 class ExternalInformatieObjectAPITests(_ExternalInformatieObjectAPITests):
     NAMESPACE = "zaken"
-
-
-class ExternalDocumentDestroyTests(_ExternalDocumentDestroyTests):
-    NAMESPACE = "zaken"

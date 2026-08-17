@@ -31,7 +31,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         add_url = django_reverse("admin:besluiten_besluit_add")
         data = {
             "uuid": uuid.uuid4(),
-            "_besluittype": besluittype.id,
+            "besluittype": besluittype.id,
             "verantwoordelijke_organisatie": "517439943",
             "datum": "15-11-2019",
             "ingangsdatum": "15-11-2019",
@@ -77,7 +77,7 @@ class BesluitAdminTests(AdminTestMixin, TestCase):
         )
         data = {
             "uuid": besluit.uuid,
-            "_besluittype": besluit._besluittype.id,
+            "besluittype": besluit.besluittype.id,
             "verantwoordelijke_organisatie": besluit.verantwoordelijke_organisatie,
             "datum": besluit.datum,
             "ingangsdatum": "15-11-2019",

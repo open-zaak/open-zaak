@@ -37,9 +37,6 @@ from .factories import (
 )
 from .utils import get_operation_url
 
-IOTYPE_EXTERNAL = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-IOTYPE_EXTERNAL2 = "https://externe.catalogus.nl/api/v1/informatieobjecttypen/a7634cc6-b312-4d75-ba4d-a12e1fdb1dee"
-
 
 class InformatieObjectScopeForbiddenTests(AuthCheckMixin, APITestCase):
     def test_cannot_create_io_without_correct_scope(self):
@@ -893,7 +890,7 @@ class OioReadTests(JWTAuthMixin, APITestCase):
 
 @tag("external-urls")
 @override_settings(ALLOWED_HOSTS=["testserver"], OPENZAAK_DOMAIN="testserver")
-class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
+class InformatietypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
     max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
     component = ComponentTypes.drc
@@ -909,7 +906,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url = reverse("documenten:enkelvoudiginformatieobject-list")
@@ -925,13 +921,14 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             f"http://testserver{reverse(self.informatieobjecttype)}",
         )
 
-    def test_eio_list_internal_and_external_with_filtering(self):
+    def test_eio_list_with_filtering(self):
+        other_informatieobjecttype = InformatieObjectTypeFactory.create()
         Autorisatie.objects.create(
             applicatie=self.applicatie,
             component=self.component,
             scopes=self.scopes or [],
             zaaktype="",
-            informatieobjecttype=IOTYPE_EXTERNAL,
+            informatieobjecttype=f"http://testserver{reverse(other_informatieobjecttype)}",
             besluittype="",
             max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
@@ -942,7 +939,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             bronorganisatie="000000000",
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
+            informatieobjecttype=other_informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             bronorganisatie="000000000",
         )
@@ -955,12 +952,11 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         )
         # Should not show up due to lacking permissions
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
+            informatieobjecttype=other_informatieobjecttype,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.geheim,
             bronorganisatie="000000000",
         )
         EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL2,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
             bronorganisatie="000000000",
         )
@@ -979,7 +975,7 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
         )
         self.assertEqual(
             results[1]["informatieobjecttype"],
-            IOTYPE_EXTERNAL,
+            f"http://testserver{reverse(other_informatieobjecttype)}",
         )
 
     def test_eio_retreive(self):
@@ -988,7 +984,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         url1 = reverse(eio1)
@@ -1017,7 +1012,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         ObjectInformatieObject.objects.create(
@@ -1050,7 +1044,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
 
         # must not show up
         eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=IOTYPE_EXTERNAL,
             vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
         )
         oio2 = ObjectInformatieObject.objects.create(
@@ -1059,126 +1052,6 @@ class InternalInformatietypeScopeTests(JWTAuthMixin, APITestCase):
             object_type=ObjectInformatieObjectTypes.zaak,
         )
 
-        url1 = reverse(oio1)
-        url2 = reverse(oio2)
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
-
-
-@temp_private_root()
-@tag("external-urls")
-@override_settings(
-    ALLOWED_HOSTS=["testserver"], DEBUG=True, OPENZAAK_DOMAIN="testserver"
-)
-class ExternalInformatieObjectInformatieObjectTypescopeTests(JWTAuthMixin, APITestCase):
-    scopes = [SCOPE_DOCUMENTEN_ALLES_LEZEN]
-    max_vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar
-    informatieobjecttype = IOTYPE_EXTERNAL
-    component = ComponentTypes.drc
-
-    def test_eio_list(self):
-        EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file1.bin",
-        )
-        EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file2.bin",
-        )
-        url = reverse("documenten:enkelvoudiginformatieobject-list")
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
-
-        results = response.data["results"]
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["informatieobjecttype"], IOTYPE_EXTERNAL)
-
-    def test_eio_retreive(self):
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file3.bin",
-        )
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-            inhoud__filename="file4.bin",
-        )
-        url1 = reverse(eio1)
-        url2 = reverse(eio2)
-
-        response1 = self.client.get(url1)
-        response2 = self.client.get(url2)
-
-        self.assertEqual(response1.status_code, status.HTTP_200_OK, response1.content)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_oio_list(self):
-        url = reverse("documenten:objectinformatieobject-list")
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-
-        ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        response_data = response.json()
-
-        self.assertEqual(len(response_data), 1)
-        self.assertEqual(response_data[0]["url"], f"http://testserver{reverse(oio1)}")
-
-    def test_oio_retrieve(self):
-        zaak = ZaakFactory.create()
-        # must show up
-        eio1 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype=self.informatieobjecttype,
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio1 = ObjectInformatieObject.objects.create(
-            informatieobject=eio1.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
-
-        # must not show up
-        eio2 = EnkelvoudigInformatieObjectFactory.create(
-            informatieobjecttype="https://externe.catalogus.nl/api/v1/informatieobjecttypen/1",
-            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
-        )
-        oio2 = ObjectInformatieObject.objects.create(
-            informatieobject=eio2.canonical,
-            zaak=zaak,
-            object_type=ObjectInformatieObjectTypes.zaak,
-        )
         url1 = reverse(oio1)
         url2 = reverse(oio2)
 

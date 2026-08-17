@@ -96,19 +96,6 @@ class BesluitForm(forms.ModelForm):
         model = Besluit
         fields = "__all__"
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if not cleaned_data.get("_besluittype_base_url") and not cleaned_data.get(
-            "_besluittype"
-        ):
-            raise forms.ValidationError(
-                "Je moet een besluittype opgeven: "
-                "selecteer een besluittype uit de catalogus of vul een externe URL in."
-            )
-
-        return cleaned_data
-
 
 @admin.register(Besluit)
 class BesluitAdmin(
@@ -124,7 +111,7 @@ class BesluitAdmin(
         "uuid",
     )
     ordering = ("datum", "identificatie")
-    raw_id_fields = ("_besluittype", "_zaak", "_besluittype_base_url", "_zaak_base_url")
+    raw_id_fields = ("besluittype", "_zaak", "_zaak_base_url")
     inlines = (BesluitInformatieObjectInline,)
     viewset = "openzaak.components.besluiten.api.viewsets.BesluitViewSet"
 

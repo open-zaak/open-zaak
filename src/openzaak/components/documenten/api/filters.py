@@ -137,13 +137,6 @@ class EnkelvoudigInformatieObjectListFilter(FilterSet):
         verzoek_field_name="canonical__objectinformatieobject__verzoek",
     )
 
-    informatieobjecttype = FkOrUrlFieldFilter(
-        help_text=mark_experimental(
-            "URL-referentie naar de gerelateerde informatieobjecttype (in deze of een andere API)."
-        ),
-        queryset=EnkelvoudigInformatieObject.objects.all(),
-    )
-
     ordering = OrderingFilter(
         help_text=mark_experimental("Sorteer op."),
         fields=(

@@ -179,39 +179,12 @@ class InformatieObject(models.Model):
         ),
     )
 
-    _informatieobjecttype_base_url = ServiceFkField(
-        help_text="Basis deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
-    )
-    _informatieobjecttype_relative_url = RelativeURLField(
-        _("informatieobjecttype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API).",
-    )
-    _informatieobjecttype_url = ServiceUrlField(
-        base_field="_informatieobjecttype_base_url",
-        relative_field="_informatieobjecttype_relative_url",
-        verbose_name=_("extern informatieobjecttype"),
-        blank=True,
-        null=True,
-        max_length=1000,
-        help_text=_(
-            "URL-referentie naar extern INFORMATIEOBJECTTYPE (in een andere Catalogi API)."
-        ),
-    )
-    _informatieobjecttype = models.ForeignKey(
+    informatieobjecttype = models.ForeignKey(
         "catalogi.InformatieObjectType",
         on_delete=models.PROTECT,
         help_text=_(
             "URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API)."
         ),
-        null=True,
-        blank=True,
-    )
-    informatieobjecttype = FkOrServiceUrlField(
-        fk_field="_informatieobjecttype",
-        url_field="_informatieobjecttype_url",
-        help_text="URL-referentie naar het INFORMATIEOBJECTTYPE (in de Catalogi API).",
     )
 
     objects = InformatieobjectQuerySet.as_manager()

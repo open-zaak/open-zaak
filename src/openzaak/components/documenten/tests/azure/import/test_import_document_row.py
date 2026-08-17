@@ -388,7 +388,7 @@ class ImportDocumentRowTests(
 
     def test_existing_uuid(self):
         existing_eio = EnkelvoudigInformatieObjectFactory(
-            informatieobjecttype=self.informatieobjecttype_url,
+            informatieobjecttype=self.informatieobjecttype,
             inhoud__filename="test_existing_uuid.bin",
         )
 
@@ -590,47 +590,6 @@ class ImportDocumentRowTests(
         self.assertFalse(document_row.succeeded)
 
         self.assertIn("Unable to copy file for row", document_row.comment)
-
-        self.assertFalse(imported_path.exists())
-        self.assertFalse(documenten_storage.exists(str(imported_path)))
-
-    def test_invalid_host_header(self):
-        import_file_path = Path("import-test-files/foo10.txt")
-        import_file_content = "minimum fields"
-
-        default_imported_file_path = get_default_path(
-            EnkelvoudigInformatieObject.inhoud.field
-        )
-
-        imported_path = Path(default_imported_file_path) / import_file_path.name
-
-        row = DocumentRowFactory(
-            bronorganisatie="706284513",
-            creatiedatum="2024-01-01",
-            titel="Document XYZ",
-            auteur="Auteur Y",
-            taal="nld",
-            bestandspad=str(import_file_path),
-            import_file_content=import_file_content,
-            informatieobjecttype=self.informatieobjecttype_url,
-        )
-
-        identifier = generate_unique_identification(
-            EnkelvoudigInformatieObject(creatiedatum=self.creatiedatum), "creatiedatum"
-        )
-
-        request = self.request_factory.get("/", headers={"Host": "foobar.com"})
-
-        document_row = _import_document_row(row, 0, identifier, [], {}, request)
-
-        eio = document_row.instance
-
-        self.assertIsNone(eio)
-
-        self.assertTrue(document_row.processed)
-        self.assertFalse(document_row.succeeded)
-
-        self.assertIn("Unable to import line", document_row.comment)
 
         self.assertFalse(imported_path.exists())
         self.assertFalse(documenten_storage.exists(str(imported_path)))

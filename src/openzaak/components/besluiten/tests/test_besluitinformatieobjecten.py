@@ -29,7 +29,6 @@ from openzaak.utils.urls import reverse
 
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_besluittype_response
 
 
 @override_settings(ALLOWED_HOSTS=["testserver", "openzaak.nl"])
@@ -518,82 +517,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             error["code"], "missing-besluittype-informatieobjecttype-relation"
         )
 
-    def test_besluittype_external_iotype_external_success(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = (
-            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
-        )
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
-        besluittype_data = get_besluittype_response(catalogus, besluittype)
-        besluittype_data["informatieobjecttypen"] = [informatieobjecttype]
-
-        with requests_mock.Mocker() as m:
-            mock_drc_oas_get(m)
-            mock_drc_oas_get(m, oas_url=f"{self.base}schema/openapi.yaml?v=3")
-            m.get(besluittype, json=besluittype_data)
-            m.get(
-                informatieobjecttype,
-                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
-            )
-            m.get(
-                self.document,
-                json=get_eio_response(
-                    self.document, informatieobjecttype=informatieobjecttype
-                ),
-            )
-            m.post(
-                f"{self.base}objectinformatieobjecten",
-                json=get_oio_response(self.document, besluit_url),
-                status_code=201,
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {"besluit": besluit_url, "informatieobject": self.document},
-                headers={"host": "openbesluit.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_besluittype_external_iotype_external_fail(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = (
-            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
-        )
-        informatieobjecttype = f"{self.base}informatieobjecttypen/{uuid.uuid4()}"
-
-        with requests_mock.Mocker() as m:
-            mock_drc_oas_get(m)
-            m.get(besluittype, json=get_besluittype_response(catalogus, besluittype))
-            m.get(
-                informatieobjecttype,
-                json=get_informatieobjecttype_response(catalogus, informatieobjecttype),
-            )
-            m.get(
-                self.document,
-                json=get_eio_response(
-                    self.document, informatieobjecttype=informatieobjecttype
-                ),
-            )
-
-            response = self.client.post(
-                self.list_url,
-                {"besluit": besluit_url, "informatieobject": self.document},
-                headers={"host": "openbesluit.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        assert error
-        self.assertEqual(
-            error["code"], "missing-besluittype-informatieobjecttype-relation"
-        )
-
     def test_besluittype_internal_iotype_external(self):
         besluit = BesluitFactory.create()
         besluit_url = (
@@ -617,38 +540,6 @@ class ExternalInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                     self.document, informatieobjecttype=informatieobjecttype
                 ),
             )
-
-            response = self.client.post(
-                self.list_url,
-                {"besluit": besluit_url, "informatieobject": self.document},
-                headers={"host": "openbesluit.nl"},
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "nonFieldErrors")
-        assert error
-        self.assertEqual(
-            error["code"], "missing-besluittype-informatieobjecttype-relation"
-        )
-
-    def test_besluittype_external_iotype_internal(self):
-        catalogus = f"{self.base}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = f"{self.base}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        besluit = BesluitFactory.create(besluittype=besluittype)
-        besluit_url = (
-            f"http://openbesluit.nl{reverse(besluit, namespace=self.NAMESPACE)}"
-        )
-        informatieobjecttype = InformatieObjectTypeFactory.create()
-        eio_response = get_eio_response(
-            self.document,
-            informatieobjecttype=f"http://openbesluit.nl{reverse(informatieobjecttype)}",
-        )
-
-        with requests_mock.Mocker() as m:
-            mock_drc_oas_get(m)
-            m.get(besluittype, json=get_besluittype_response(catalogus, besluittype))
-            m.get(self.document, json=eio_response)
 
             response = self.client.post(
                 self.list_url,

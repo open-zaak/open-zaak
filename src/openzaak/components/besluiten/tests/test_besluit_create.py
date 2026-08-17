@@ -2,29 +2,25 @@
 # Copyright (C) 2019 - 2020 Dimpact
 from datetime import date
 
-from django.test import override_settings, tag
+from django.test import override_settings
 
-import requests_mock
 from freezegun import freeze_time
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
-from vng_api_common.tests import TypeCheckMixin, get_validation_errors
-from zgw_consumers.constants import APITypes
-from zgw_consumers.test.factories import ServiceFactory
+from vng_api_common.tests import TypeCheckMixin
 
 from openzaak.components.catalogi.tests.factories import BesluitTypeFactory
 from openzaak.components.documenten.tests.factories import (
     EnkelvoudigInformatieObjectFactory,
 )
 from openzaak.components.zaken.tests.factories import ZaakFactory
-from openzaak.tests.utils import JWTAuthMixin, mock_ztc_oas_get
+from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
 from ..constants import VervalRedenen
 from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
-from .utils import get_besluittype_response
 
 
 @temp_private_root()
@@ -205,184 +201,3 @@ class BesluitCreateTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-
-@tag("external-urls")
-@override_settings(ALLOWED_HOSTS=["testserver"])
-class BesluitCreateExternalURLsTests(TypeCheckMixin, JWTAuthMixin, APITestCase):
-    heeft_alle_autorisaties = True
-    NAMESPACE = "besluiten"
-
-    def test_create_external_besluittype(self):
-        catalogi_api = "https://externe.catalogus.nl/api/v1/"
-        catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
-
-        url = reverse(Besluit, namespace=self.NAMESPACE)
-
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(
-                besluittype,
-                json=get_besluittype_response(catalogus, besluittype),
-            )
-
-            m.get(
-                catalogus,
-                json={
-                    "url": catalogus,
-                    "domein": "PUB",
-                    "contactpersoonBeheerTelefoonnummer": "0612345678",
-                    "rsin": "517439943",
-                    "contactpersoonBeheerNaam": "Jan met de Pet",
-                    "contactpersoonBeheerEmailadres": "jan@petten.nl",
-                    "informatieobjecttypen": [],
-                    "zaaktypen": [],
-                    "besluittypen": [besluittype],
-                },
-            )
-
-            response = self.client.post(
-                url,
-                {
-                    "verantwoordelijke_organisatie": "517439943",  # RSIN
-                    "identificatie": "123123",
-                    "besluittype": besluittype,
-                    "datum": "2018-09-06",
-                    "toelichting": "Vergunning verleend.",
-                    "ingangsdatum": "2018-10-01",
-                    "vervaldatum": "2018-11-01",
-                    "vervalreden": VervalRedenen.tijdelijk,
-                },
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-    def test_create_external_besluittype_fail_bad_url(self):
-        url = reverse(Besluit, namespace=self.NAMESPACE)
-
-        response = self.client.post(
-            url,
-            {
-                "verantwoordelijke_organisatie": "517439943",  # RSIN
-                "identificatie": "123123",
-                "besluittype": "abcd",
-                "datum": "2018-09-06",
-                "toelichting": "Vergunning verleend.",
-                "ingangsdatum": "2018-10-01",
-                "vervaldatum": "2018-11-01",
-                "vervalreden": VervalRedenen.tijdelijk,
-            },
-        )
-
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
-
-        error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "bad-url")
-
-    def test_create_external_besluittype_fail_not_json_url(self):
-        ServiceFactory.create(
-            api_type=APITypes.ztc,
-            api_root="http://example.com",
-        )
-
-        url = reverse(Besluit, namespace=self.NAMESPACE)
-
-        with requests_mock.Mocker() as m:
-            m.get("http://example.com/some-type", status_code=200)
-
-            response = self.client.post(
-                url,
-                {
-                    "verantwoordelijke_organisatie": "517439943",  # RSIN
-                    "identificatie": "123123",
-                    "besluittype": "http://example.com/some-type",
-                    "datum": "2018-09-06",
-                    "toelichting": "Vergunning verleend.",
-                    "ingangsdatum": "2018-10-01",
-                    "vervaldatum": "2018-11-01",
-                    "vervalreden": VervalRedenen.tijdelijk,
-                },
-            )
-
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    def test_create_external_besluittype_fail_invalid_schema(self):
-        catalogi_api = "https://externe.catalogus.nl/api/v1/"
-        catalogus = f"{catalogi_api}catalogussen/1c8e36be-338c-4c07-ac5e-1adf55bec04a"
-        besluittype = f"{catalogi_api}besluittypen/b71f72ef-198d-44d8-af64-ae1932df830a"
-        ServiceFactory.create(api_type=APITypes.ztc, api_root=catalogi_api)
-
-        url = reverse(Besluit, namespace=self.NAMESPACE)
-
-        with requests_mock.Mocker() as m:
-            mock_ztc_oas_get(m)
-            m.get(
-                besluittype,
-                json={
-                    "url": besluittype,
-                    "catalogus": catalogus,
-                    "zaaktypen": [],
-                    "informatieobjecttypen": [],
-                    "beginGeldigheid": "2018-01-01",
-                    "eindeGeldigheid": None,
-                    "concept": False,
-                },
-            )
-            m.get(
-                catalogus,
-                json={
-                    "url": catalogus,
-                    "domein": "PUB",
-                    "informatieobjecttypen": [],
-                    "zaaktypen": [],
-                    "besluittypen": [besluittype],
-                },
-            )
-
-            response = self.client.post(
-                url,
-                {
-                    "verantwoordelijke_organisatie": "517439943",  # RSIN
-                    "identificatie": "123123",
-                    "besluittype": besluittype,
-                    "datum": "2018-09-06",
-                    "toelichting": "Vergunning verleend.",
-                    "ingangsdatum": "2018-10-01",
-                    "vervaldatum": "2018-11-01",
-                    "vervalreden": VervalRedenen.tijdelijk,
-                },
-            )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "invalid-resource")
-
-    def test_create_external_besluittype_fail_not_service_found(self):
-        url = reverse(Besluit, namespace=self.NAMESPACE)
-
-        response = self.client.post(
-            url,
-            {
-                "verantwoordelijke_organisatie": "517439943",  # RSIN
-                "identificatie": "123123",
-                "besluittype": "https://externe.catalogus.nl/api/v1/besluittypen/1",
-                "datum": "2018-09-06",
-                "toelichting": "Vergunning verleend.",
-                "ingangsdatum": "2018-10-01",
-                "vervaldatum": "2018-11-01",
-                "vervalreden": VervalRedenen.tijdelijk,
-            },
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "unknown-service")
