@@ -58,3 +58,33 @@ def azure_error_handler(exc, context):
         {"detail": error_message},
         status=status.HTTP_502_BAD_GATEWAY,
     )
+
+
+def client_error_handler(exc, context):
+    """
+    Error handler for vng_api_common.exceptions.ClientError used in AuthHandler
+    """
+    error_message = "Client error occurred"
+    exc.detail = error_message
+    exc.default_detail = error_message
+    exc.status_code = status.HTTP_400_BAD_REQUEST
+
+    return Response(
+        {"detail": error_message},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+
+def no_service_configured_error_handler(exc, context):
+    """
+    Error handler for vng_api_common.exceptions.NoServiceConfigured used in AuthHandler
+    """
+    error_message = "No service configured"
+    exc.detail = error_message
+    exc.default_detail = error_message
+    exc.status_code = status.HTTP_400_BAD_REQUEST
+
+    return Response(
+        {"detail": error_message},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
