@@ -61,7 +61,7 @@ class EnkelvoudigInformatieObjectAdminTests(
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
         form["creatiedatum"] = "2010-01-01"
-        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["informatieobjecttype"] = informatieobjecttype.pk
         form["titel"] = "test"
         form["auteur"] = "test"
         form["taal"] = "nld"
@@ -92,7 +92,7 @@ class EnkelvoudigInformatieObjectAdminTests(
         form["canonical"] = canonical.pk
         form["bronorganisatie"] = "000000000"
         form["creatiedatum"] = "2010-01-01"
-        form["_informatieobjecttype"] = informatieobjecttype.pk
+        form["informatieobjecttype"] = informatieobjecttype.pk
         form["titel"] = "test"
         form["auteur"] = "test"
         form["taal"] = "nld"

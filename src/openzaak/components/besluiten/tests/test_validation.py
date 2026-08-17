@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2019 - 2020 Dimpact
+import uuid
+
 from django.test import override_settings
 from django.utils.translation import gettext_lazy as _
 
-import requests_mock
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -135,30 +136,52 @@ class BesluitValidationTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
-    def test_besluittype_invalid(self):
-        ServiceFactory.create(
-            api_type=APITypes.ztc, api_root="https://example.com/zrc/"
-        )
+    def test_besluittype_bad_url(self):
+        """
+        A besluittype value that doesn't match any known URL pattern should
+        be a regular validation error, not a server error.
+        """
         list_url = reverse("besluiten:besluit-list")
 
-        with requests_mock.Mocker() as m:
-            m.get("https://example.com/zrc/zaken/1234", status_code=404)
-
-            response = self.client.post(
-                list_url,
-                {
-                    "verantwoordelijkeOrganisatie": "000000000",
-                    "identificatie": "123456",
-                    "besluittype": "https://example.com/zrc/zaken/1234",
-                    "datum": "2018-09-06",
-                    "ingangsdatum": "2018-10-01",
-                },
-            )
+        response = self.client.post(
+            list_url,
+            {
+                "verantwoordelijkeOrganisatie": "000000000",
+                "identificatie": "123456",
+                "besluittype": "https://example.com/zrc/zaken/1234",
+                "datum": "2018-09-06",
+                "ingangsdatum": "2018-10-01",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         error = get_validation_errors(response, "besluittype")
-        self.assertEqual(error["code"], "bad-url")
+        self.assertEqual(error["code"], "no_match")
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_besluittype_invalid_resource(self):
+        """
+        A local besluittype URL that doesn't resolve to an existing
+        besluittype should be a regular validation error, not a server error.
+        """
+        list_url = reverse("besluiten:besluit-list")
+
+        response = self.client.post(
+            list_url,
+            {
+                "verantwoordelijkeOrganisatie": "000000000",
+                "identificatie": "123456",
+                "besluittype": f"http://testserver/catalogi/api/v1/besluittypen/{uuid.uuid4()}",
+                "datum": "2018-09-06",
+                "ingangsdatum": "2018-10-01",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        error = get_validation_errors(response, "besluittype")
+        self.assertEqual(error["code"], "does_not_exist")
 
     def test_besluittype_unpublished(self):
         besluittype = BesluitTypeFactory.create()

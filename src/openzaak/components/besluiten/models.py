@@ -44,33 +44,9 @@ class Besluit(ETagMixin, AuditTrailMixin, APIMixin, models.Model):
         "organisatie die het besluit heeft vastgesteld.",
         db_index=True,
     )
-    _besluittype_base_url = ServiceFkField(
-        help_text="Basisdeel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
-    )
-    _besluittype_relative_url = RelativeURLField(
-        _("besluittype relative url"),
-        blank=True,
-        null=True,
-        help_text="Relatief deel van URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
-    )
-    _besluittype_url = ServiceUrlField(
-        base_field="_besluittype_base_url",
-        relative_field="_besluittype_relative_url",
-        blank=True,
-        null=True,
-        help_text="URL-referentie naar het extern BESLUITTYPE (in een andere Catalogi API).",
-    )
-
-    _besluittype = models.ForeignKey(
+    besluittype = models.ForeignKey(
         "catalogi.BesluitType",
         on_delete=models.PROTECT,
-        help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
-        null=True,
-        blank=True,
-    )
-    besluittype = FkOrServiceUrlField(
-        fk_field="_besluittype",
-        url_field="_besluittype_url",
         help_text="URL-referentie naar het BESLUITTYPE (in de Catalogi API).",
     )
 

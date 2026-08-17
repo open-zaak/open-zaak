@@ -253,7 +253,7 @@ class EnkelvoudigInformatieObjectViewSet(
     """
 
     queryset = EnkelvoudigInformatieObject.objects.select_related(
-        "canonical", "_informatieobjecttype"
+        "canonical", "informatieobjecttype"
     ).prefetch_related("canonical__bestandsdelen")
     lookup_field = "uuid"
     serializer_class = EnkelvoudigInformatieObjectSerializer

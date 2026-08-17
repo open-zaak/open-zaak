@@ -82,7 +82,7 @@ class ZaakTypeInformatieObjectTypeAdmin(
             if ZaakInformatieObject.objects.filter(
                 zaak__zaaktype=obj.zaaktype,
                 _informatieobject__pk__in=EnkelvoudigInformatieObject.objects.filter(
-                    _informatieobjecttype=obj.informatieobjecttype
+                    informatieobjecttype=obj.informatieobjecttype
                 ).values_list("canonical", flat=True),
             ).exists():
                 return False

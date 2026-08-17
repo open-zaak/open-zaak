@@ -80,8 +80,7 @@ class BesluitSerializer(
                 "max_length": 200,
                 "min_length": 1,
                 "validators": [
-                    LooseFkResourceValidator("BesluitType", settings.ZTC_API_STANDARD),
-                    LooseFkIsImmutableValidator(),
+                    IsImmutableValidator(),
                     PublishValidator(),
                 ],
             },

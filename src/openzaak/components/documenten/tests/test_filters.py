@@ -462,33 +462,7 @@ class EnkelvoudigInformatieObjectFilterTests(JWTAuthMixin, APITestCase):
     @override_settings(
         ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
     )
-    def test_internal_informatieobjecttype_filter(self):
-        ServiceFactory.create(
-            api_root="http://externe.catalogi.com/catalogi/",
-            api_type=APITypes.ztc,
-        )
-
-        iot = "http://externe.catalogi.com/catalogi/api/v1/informatieobjecttypen/a7a49f9e-3de9-43f0-b2b6-1a59d307f01a"
-        EnkelvoudigInformatieObjectFactory.create(informatieobjecttype=iot, titel="one")
-        EnkelvoudigInformatieObjectFactory.create(titel="two")
-        EnkelvoudigInformatieObjectFactory.create(titel="three")
-        EnkelvoudigInformatieObjectFactory.create(titel="four")
-
-        response = self.client.get(
-            reverse(EnkelvoudigInformatieObject),
-            {"informatieobjecttype": iot},
-            headers={"host": "testserver.com"},
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.json()
-        self.assertEqual(data["count"], 1)
-        self.assertEqual(data["results"][0]["titel"], "one")
-
-    @tag("external-urls")
-    @override_settings(
-        ALLOWED_HOSTS=["testserver.com", "openzaak.nl"],
-    )
-    def test_external_informatieobjecttype_filter(self):
+    def test_informatieobjecttype_filter(self):
         iot1 = InformatieObjectTypeFactory.create()
         iot2, iot3, iot4 = InformatieObjectTypeFactory.create_batch(3)
         iot1_url = f"http://testserver.com{iot1.get_absolute_api_url()}"

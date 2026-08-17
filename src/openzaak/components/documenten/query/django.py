@@ -43,7 +43,8 @@ class InformatieobjectAuthorizationsFilterMixin(LooseFkAuthorizationsFilterMixin
     """
 
     vertrouwelijkheidaanduiding_use = True
-    loose_fk_field = "informatieobjecttype"
+    fk_field = "informatieobjecttype"
+    supports_external_field = False
 
     @property
     def prefix(self):

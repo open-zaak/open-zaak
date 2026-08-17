@@ -113,7 +113,7 @@ class EioAdminInlineTests(AdminTestMixin, WebTest):
             form["enkelvoudiginformatieobject_set-0-creatiedatum"] = "18-11-2019"
             form["enkelvoudiginformatieobject_set-0-titel"] = "some titel"
             form["enkelvoudiginformatieobject_set-0-auteur"] = "some author"
-            form["enkelvoudiginformatieobject_set-0-_informatieobjecttype"] = (
+            form["enkelvoudiginformatieobject_set-0-informatieobjecttype"] = (
                 informatieobjecttype.id
             )
             form["enkelvoudiginformatieobject_set-0-taal"] = "Rus"
