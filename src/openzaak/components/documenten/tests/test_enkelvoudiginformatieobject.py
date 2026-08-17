@@ -707,7 +707,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
+@temp_private_root()
 class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
@@ -1000,6 +1000,7 @@ class EnkelvoudigInformatieObjectVersionHistoryAPITests(JWTAuthMixin, APITestCas
             self.assertEqual(response_download.content, b"inhoud1")
 
 
+@temp_private_root()
 class EnkelvoudigInformatieObjectPaginationAPITests(JWTAuthMixin, APITestCase):
     list_url = reverse_lazy(EnkelvoudigInformatieObject)
     heeft_alle_autorisaties = True
@@ -1248,6 +1249,7 @@ class InformatieobjectCreateExternalURLsTests(
         self.assertEqual(error["code"], "not-published")
 
 
+@temp_private_root()
 class EIOFilterTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
     url = reverse_lazy(EnkelvoudigInformatieObject)

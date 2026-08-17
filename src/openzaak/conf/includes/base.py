@@ -153,15 +153,6 @@ MIDDLEWARE = [
 ]
 
 #
-# SERVING of static and media files
-#
-
-#
-# Sending EMAIL
-#
-
-
-#
 # AUTH settings - user accounts, passwords, backends...
 #
 
