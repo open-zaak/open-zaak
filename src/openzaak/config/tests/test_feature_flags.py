@@ -56,7 +56,7 @@ class ConceptFeatureFlagTests(JWTAuthMixin, APITestCase):
     def test_informatieobject_create(self, mock_get_solo):
         eio_url = reverse(EnkelvoudigInformatieObject)
         informatieobjecttype = InformatieObjectTypeFactory.create(concept=True)
-        informatieobjecttype_url = reverse(informatieobjecttype)
+        informatieobjecttype_url = reverse(informatieobjecttype, namespace="documenten")
         content = {
             "bronorganisatie": "159351741",
             "creatiedatum": "2018-06-27",

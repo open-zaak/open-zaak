@@ -146,6 +146,10 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.json()["besluit"],
+            f"http://testserver{reverse(besluit, namespace='besluiten')}",
+        )
 
     def test_create_bio_in_zaken_with_besluiten_url(self):
         url = reverse(BesluitInformatieObject, namespace="zaken")
@@ -163,6 +167,10 @@ class BesluitenApiDeprecationTests(JWTAuthMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.json()["besluit"],
+            f"http://testserver{reverse(besluit, namespace='zaken')}",
+        )
 
     def test_create_bio_in_zaken_with_non_existent_namespace(self):
         """
