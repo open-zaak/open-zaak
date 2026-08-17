@@ -355,13 +355,13 @@ class InformatieObjectTypeFailedNotificationTests(
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "create",
-            "hoofdObject": data["url"],
+            "hoofdObject": f"http://testserver{reverse(iot, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
                 "catalogus": f"http://testserver{self.catalogus_detail_url}",
             },
             "resource": "informatieobjecttype",
-            "resourceUrl": data["url"],
+            "resourceUrl": f"http://testserver{reverse(iot, namespace='documenten')}",
         }
 
         self.assertEqual(m.last_request.json(), message)
@@ -384,13 +384,13 @@ class InformatieObjectTypeFailedNotificationTests(
         message = {
             "aanmaakdatum": "2019-01-01T12:00:00Z",
             "actie": "destroy",
-            "hoofdObject": f"http://testserver{url}",
+            "hoofdObject": f"http://testserver{reverse(iotype, namespace='documenten')}",
             "kanaal": "informatieobjecttypen",
             "kenmerken": {
-                "catalogus": f"http://testserver{reverse(iotype.catalogus)}",
+                "catalogus": f"http://testserver{reverse(iotype.catalogus, namespace='catalogi')}",
             },
             "resource": "informatieobjecttype",
-            "resourceUrl": f"http://testserver{url}",
+            "resourceUrl": f"http://testserver{reverse(iotype, namespace='documenten')}",
         }
 
         self.assertEqual(m.last_request.json(), message)

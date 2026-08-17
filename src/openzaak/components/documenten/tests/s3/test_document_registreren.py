@@ -68,7 +68,9 @@ class DocumentRegistrerenAuthTests(VCRMixin, S3torageMixin, JWTAuthMixin, APITes
                         "inhoud": b64encode(b"some file content").decode("utf-8"),
                         "link": "http://een.link",
                         "beschrijving": "test_beschrijving",
-                        "informatieobjecttype": build_absolute_url(reverse(iotype)),
+                        "informatieobjecttype": build_absolute_url(
+                            reverse(iotype, namespace="documenten")
+                        ),
                         "vertrouwelijkheidaanduiding": "geheim",
                         "verschijningsvorm": "Vorm A",
                         "trefwoorden": ["some", "other"],
