@@ -1,3 +1,5 @@
+.. _case_identification:
+
 ===================
 Case Identification
 ===================
