@@ -342,7 +342,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
             "publicatietermijn": None,
             "toelichting": "aangepast",
             "informatieobjecttypen": [
-                f"http://testserver{reverse(informatieobjecttype)}"
+                f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}"
             ],
             "beginGeldigheid": "2019-01-01",
         }
@@ -435,7 +435,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
         )
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
-            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype)}",
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
         }
@@ -458,7 +458,7 @@ class PublishedTypesForcedWriteTests(APITestCase):
 
         data = {
             "zaaktype": f"http://testserver{reverse(zaaktype)}",
-            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype)}",
+            "informatieobjecttype": f"http://testserver{reverse(informatieobjecttype, namespace='catalogi')}",
             "volgnummer": 13,
             "richting": RichtingChoices.inkomend,
         }

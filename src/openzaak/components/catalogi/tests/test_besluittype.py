@@ -463,7 +463,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietekst": "",
             "publicatietermijn": None,
             "toelichting": "aangepast",
-            "informatieobjecttypen": [reverse(informatieobjecttype)],
+            "informatieobjecttypen": [
+                reverse(informatieobjecttype, namespace="catalogi")
+            ],
             "beginGeldigheid": "2019-01-01",
         }
 
@@ -493,7 +495,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietekst": "",
             "publicatietermijn": None,
             "toelichting": "aangepast",
-            "informatieobjecttypen": [reverse(informatieobjecttype)],
+            "informatieobjecttypen": [
+                reverse(informatieobjecttype, namespace="catalogi")
+            ],
             "beginGeldigheid": "2019-01-01",
         }
 
@@ -523,7 +527,9 @@ class BesluitTypeAPITests(APITestCase):
             "publicatietekst": "",
             "publicatietermijn": None,
             "toelichting": "aangepast",
-            "informatieobjecttypen": [reverse(informatieobjecttype)],
+            "informatieobjecttypen": [
+                reverse(informatieobjecttype, namespace="catalogi")
+            ],
             "beginGeldigheid": "2019-01-01",
         }
 
@@ -581,7 +587,12 @@ class BesluitTypeAPITests(APITestCase):
         )
 
         response = self.client.patch(
-            besluittype_url, {"informatieobjecttypen": [reverse(informatieobjecttype)]}
+            besluittype_url,
+            {
+                "informatieobjecttypen": [
+                    reverse(informatieobjecttype, namespace="catalogi")
+                ]
+            },
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

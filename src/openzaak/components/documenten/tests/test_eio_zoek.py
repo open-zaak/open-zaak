@@ -82,7 +82,9 @@ class EIOZoekTests(JWTAuthMixin, APITestCase):
         data = {"uuid__in": [eio.uuid], "expand": ["informatieobjecttype"]}
 
         eio_data = self.client.get(reverse(eio)).json()
-        iotype_data = self.client.get(reverse(eio.informatieobjecttype)).json()
+        iotype_data = self.client.get(
+            reverse(eio.informatieobjecttype, namespace="documenten")
+        ).json()
 
         response = self.client.post(self.url, data)
 
