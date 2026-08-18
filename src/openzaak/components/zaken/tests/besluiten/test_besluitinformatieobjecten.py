@@ -3,7 +3,6 @@
 
 from openzaak.components.besluiten.tests.test_besluitinformatieobjecten import (
     BesluitInformatieObjectAPITests as _BesluitInformatieObjectAPITests,
-    ExternalDocumentDestroyTests as _ExternalDocumentDestroyTests,
     ExternalDocumentsAPITests as _ExternalDocumentsAPITests,
     ExternalDocumentsAPITransactionTests as _ExternalDocumentsAPITransactionTests,
     ExternalInformatieObjectAPITests as _ExternalInformatieObjectAPITests,
