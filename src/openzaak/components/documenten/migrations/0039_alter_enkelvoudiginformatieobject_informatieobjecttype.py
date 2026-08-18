@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("catalogi", "0026_set_P0D_servicenorms_to_none"),
-        ("documenten", "0037_enkelvoudiginformatieobjectcanonical_latest_version"),
+        ("documenten", "0038_alter_bestandsdeel_inhoud"),
     ]
 
     operations = [
