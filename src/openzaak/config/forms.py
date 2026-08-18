@@ -75,4 +75,5 @@ class ExternalServiceForm(ModelForm):
             "user_representation",
             "header_key",
             "header_value",
+            "slug",
         )
