@@ -64,9 +64,13 @@ const CheckBoxInputLabel = (props) => {
 
 
 const TextInput = (props) => {
-    const { id, name, initial, classes, errors } = props;
+    // `onChange` is used to update the controlledValue
+    const { id, name, initial, value: controlledValue, classes, errors, onChange } = props;
     const [value, setValue] = useState(initial || "");
     const [_errors, setErrors] = useState(errors);
+    const valueProps = controlledValue === undefined
+        ? {defaultValue: value}
+        : {value: controlledValue};
 
     return (
         <>
@@ -75,11 +79,16 @@ const TextInput = (props) => {
                 type="text"
                 name={name}
                 id={id}
-                onChange={ (event) => {
-                    setValue(event.text);
+                onChange={(event) => {
+                    const newValue = event.target.value;
+                    setValue(newValue);
                     setErrors([]);
+
+                    if (onChange) {
+                        onChange(newValue);
+                    }
                 }}
-                defaultValue={value}
+                {...valueProps}
                 className={classes}
             ></input>
         </>
