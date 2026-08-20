@@ -49,7 +49,7 @@ from openzaak.import_data.views import (
     ImportUploadView,
 )
 from openzaak.notifications.viewsets import (
-    MultipleNotificationMixin,
+    MultipleObjectsNotificationMixin,
 )
 from openzaak.utils.cloudevents import get_url, process_cloudevent
 from openzaak.utils.data_filtering import ListFilterByAuthorizationsMixin
@@ -1157,7 +1157,7 @@ class ReservedDocumentViewSet(viewsets.ViewSet):
 )
 class DocumentRegistrerenViewSet(
     viewsets.ViewSet,
-    MultipleNotificationMixin,
+    MultipleObjectsNotificationMixin,
     ClosedZaakMixin,
     AuditTrailMixin,
 ):

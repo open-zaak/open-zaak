@@ -18,15 +18,21 @@ from openzaak.components.catalogi.tests.factories import (
     BesluitTypeFactory,
     InformatieObjectTypeFactory,
 )
-from openzaak.components.documenten.tests.factories import (
-    EnkelvoudigInformatieObjectFactory,
-)
 from openzaak.components.zaken.api.cloudevents import ZAAK_GEMUTEERD
 from openzaak.notifications.tests.mixins import NotificationsConfigMixin
 from openzaak.tests.utils import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ....documenten.tests.factories import EnkelvoudigInformatieObjectFactory
 from ..factories import ZaakFactory
+
+# TODO
+# adding test_convenience_cloudevents & test_notification_send testscases as subclasses break random other tests
+# the only clue i have is that some failing tests have NOTIFICATIONS_SOURCE to the value from this testcase
+# got it working for BesluitConvenienceCloudEventTest when adding @override_settings from the parent class and adding
+# SOLO_CACHE=None, but in combination with test_notification_send it keeps having issues.
+# When updating test_convenience_cloudevents or test_notification_send in besluiten just copy over the whole file
+# and change the NAMESPACE to zaken.
 
 
 @tag("convenience-endpoints", "cloudevents")
@@ -45,13 +51,14 @@ class BesluitConvenienceCloudEventTest(
     NotificationsConfigMixin, JWTAuthMixin, APITestCase
 ):
     heeft_alle_autorisaties = True
+    NAMESPACE = "zaken"
 
     @patch("notifications_api_common.tasks.send_cloudevent.delay")
     def test_besluiten_verwerken_cloudevent_without_zaak(self, mock_send_cloudevent):
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
-        catalogus_url = reverse(besluittype.catalogus)
+        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
         zaak = ZaakFactory.create()
 
@@ -73,7 +80,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("zaken:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -100,7 +107,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 1)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace="zaken")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         mock_send_cloudevent.assert_called_once_with(
             {
@@ -131,7 +138,7 @@ class BesluitConvenienceCloudEventTest(
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
-        catalogus_url = reverse(besluittype.catalogus)
+        catalogus_url = reverse(besluittype.catalogus, namespace="catalogi")
 
         zaak = ZaakFactory.create(bronorganisatie="517439943")
         zaak_url = reverse(zaak)
@@ -155,7 +162,7 @@ class BesluitConvenienceCloudEventTest(
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("zaken:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -184,7 +191,7 @@ class BesluitConvenienceCloudEventTest(
         self.assertEqual(mock_send_cloudevent.call_count, 2)
 
         besluit = Besluit.objects.get()
-        besluit_url = reverse(besluit, namespace="zaken")
+        besluit_url = reverse(besluit, namespace=self.NAMESPACE)
 
         mock_send_cloudevent.assert_has_calls(
             [
@@ -202,7 +209,7 @@ class BesluitConvenienceCloudEventTest(
                             "bronorganisatie": "517439943",
                             "vertrouwelijkheidaanduiding": zaak.vertrouwelijkheidaanduiding,
                             "zaaktype": f"http://testserver{zaaktype_url}",
-                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus)}",
+                            "zaaktype.catalogus": f"http://testserver{reverse(zaak.zaaktype.catalogus, namespace='catalogi')}",
                         },
                     },
                     None,

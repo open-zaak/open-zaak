@@ -27,9 +27,10 @@ from .factories import BesluitFactory
 
 class AuditTrailTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     def _create_besluit(self, **headers):
-        url = reverse(Besluit, namespace="besluiten")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
         besluittype = BesluitTypeFactory.create(concept=False)
         besluittype_url = reverse(besluittype)
 
@@ -111,7 +112,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
         io_url = reverse(io)
         besluit.besluittype.informatieobjecttypen.add(io.informatieobjecttype)
-        url = reverse(BesluitInformatieObject, namespace="besluiten")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         response = self.client.post(
             url,
@@ -156,7 +157,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         )
         informatieobject_url_2 = reverse(informatieobject_2)
 
-        url = reverse("besluiten:verwerkbesluit-list")
+        url = reverse(f"{self.NAMESPACE}:verwerkbesluit-list")
 
         data = {
             "besluit": {
@@ -254,7 +255,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
         besluit = Besluit.objects.get()
         audittrails = AuditTrail.objects.get()
         audittrails_url = reverse(
-            audittrails, kwargs={"besluit_uuid": besluit.uuid}, namespace="besluiten"
+            audittrails, kwargs={"besluit_uuid": besluit.uuid}, namespace=self.NAMESPACE
         )
 
         response_audittrails = self.client.get(audittrails_url)
@@ -280,6 +281,7 @@ class AuditTrailTests(JWTAuthMixin, APITestCase):
 
 class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True
+    NAMESPACE = "besluiten"
 
     @freeze_time("2019-01-01T12:00:00")
     def setUp(self):
@@ -296,12 +298,12 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_besluit_audittrail_list_jwt_expired(self):
         besluit = BesluitFactory.create()
-        url = reverse(besluit, namespace="besluiten")
+        url = reverse(besluit, namespace=self.NAMESPACE)
 
         AuditTrail.objects.create(hoofd_object=url, resource="Besluit", resultaat=200)
 
         audit_url = reverse(
-            "besluiten:audittrail-list",
+            f"{self.NAMESPACE}:audittrail-list",
             kwargs={"besluit_uuid": besluit.uuid},
         )
 
@@ -314,14 +316,14 @@ class BesluitAuditTrailJWTExpiryTests(JWTAuthMixin, APITestCase):
     @freeze_time("2019-01-01T13:00:00")
     def test_besluit_audittrail_detail_jwt_expired(self):
         besluit = BesluitFactory.create()
-        url = reverse(besluit, namespace="besluiten")
+        url = reverse(besluit, namespace=self.NAMESPACE)
 
         audittrail = AuditTrail.objects.create(
             hoofd_object=url, resource="Besluit", resultaat=200
         )
 
         audit_url = reverse(
-            "besluiten:audittrail-detail",
+            f"{self.NAMESPACE}:audittrail-detail",
             kwargs={"besluit_uuid": besluit.uuid, "uuid": audittrail.uuid},
         )
 

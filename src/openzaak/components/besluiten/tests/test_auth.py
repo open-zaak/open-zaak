@@ -26,7 +26,7 @@ from ..api.scopes import (
     SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     SCOPE_BESLUITEN_BIJWERKEN,
 )
-from ..models import BesluitInformatieObject
+from ..models import Besluit, BesluitInformatieObject
 from .factories import BesluitFactory, BesluitInformatieObjectFactory
 
 BESLUITTYPE_EXTERNAL = (
@@ -38,18 +38,20 @@ BESLUITTYPE_EXTERNAL2 = (
 
 
 class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
+    NAMESPACE = "besluiten"
+
     def test_cannot_create_besluit_without_correct_scope(self):
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
         self.assertForbidden(url, method="post")
 
     def test_cannot_read_without_correct_scope(self):
         besluit = BesluitFactory.create()
         bio = BesluitInformatieObjectFactory.create(besluit=besluit)
         urls = [
-            reverse("besluiten:besluit-list"),
-            reverse(besluit, namespace="besluiten"),
-            reverse("besluiten:besluitinformatieobject-list"),
-            reverse(bio),
+            reverse(Besluit, namespace=self.NAMESPACE),
+            reverse(besluit, namespace=self.NAMESPACE),
+            reverse(BesluitInformatieObject, namespace=self.NAMESPACE),
+            reverse(bio, namespace=self.NAMESPACE),
         ]
 
         for url in urls:
@@ -60,6 +62,7 @@ class BesluitScopeForbiddenTests(AuthCheckMixin, APITestCase):
 class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     component = ComponentTypes.brc
+    NAMESPACE = "besluiten"
 
     @classmethod
     def setUpTestData(cls):
@@ -72,7 +75,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         """
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create()
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -94,7 +97,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create()
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -113,8 +116,8 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         """
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
-        url1 = reverse(besluit1)
-        url2 = reverse(besluit2)
+        url1 = reverse(besluit1, namespace=self.NAMESPACE)
+        url2 = reverse(besluit2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
@@ -131,7 +134,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create()
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -162,7 +165,7 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         # Different catalogus, should not be visible
         BesluitFactory.create()
 
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -197,8 +200,12 @@ class BesluitReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         # Should be visible
         besluit_allowed = BesluitFactory.create(besluittype=self.besluittype)
 
-        response_not_allowed = self.client.get(reverse(besluit_not_allowed))
-        response_allowed = self.client.get(reverse(besluit_allowed))
+        response_not_allowed = self.client.get(
+            reverse(besluit_not_allowed, namespace=self.NAMESPACE)
+        )
+        response_allowed = self.client.get(
+            reverse(besluit_allowed, namespace=self.NAMESPACE)
+        )
 
         self.assertEqual(response_not_allowed.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response_allowed.status_code, status.HTTP_200_OK)
@@ -211,6 +218,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         SCOPE_BESLUITEN_ALLES_VERWIJDEREN,
     ]
     component = ComponentTypes.brc
+    NAMESPACE = "besluiten"
 
     @classmethod
     def setUpTestData(cls):
@@ -236,7 +244,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         Assert that CatalogusAutorisatie gives permission to create Besluiten
         that belong to Besluittypen in the Catalogus
         """
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         with self.subTest("correct VA but incorrect catalogus"):
             response = self.client.post(
@@ -276,7 +284,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         """
         with self.subTest("correct VA but incorrect catalogus"):
             response = self.client.put(
-                reverse(self.besluit_incorrect_catalogus),
+                reverse(self.besluit_incorrect_catalogus, namespace=self.NAMESPACE),
                 {
                     "besluittype": f"http://testserver{reverse(self.besluit_incorrect_catalogus.besluittype)}",
                     "verantwoordelijkeOrganisatie": self.besluit_incorrect_catalogus.verantwoordelijke_organisatie,
@@ -292,7 +300,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("success"):
             response = self.client.put(
-                reverse(self.besluit_allowed),
+                reverse(self.besluit_allowed, namespace=self.NAMESPACE),
                 {
                     "besluittype": f"http://testserver{reverse(self.besluittype)}",
                     "verantwoordelijkeOrganisatie": self.besluit_allowed.verantwoordelijke_organisatie,
@@ -312,7 +320,8 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         """
         with self.subTest("correct VA but incorrect catalogus"):
             response = self.client.patch(
-                reverse(self.besluit_incorrect_catalogus), {"toelichting": "aangepast"}
+                reverse(self.besluit_incorrect_catalogus, namespace=self.NAMESPACE),
+                {"toelichting": "aangepast"},
             )
 
             self.assertEqual(
@@ -321,7 +330,8 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 
         with self.subTest("success"):
             response = self.client.patch(
-                reverse(self.besluit_allowed), {"toelichting": "aangepast"}
+                reverse(self.besluit_allowed, namespace=self.NAMESPACE),
+                {"toelichting": "aangepast"},
             )
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -333,14 +343,18 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
         that belong to Besluittypen in the Catalogus
         """
         with self.subTest("correct VA but incorrect catalogus"):
-            response = self.client.delete(reverse(self.besluit_incorrect_catalogus))
+            response = self.client.delete(
+                reverse(self.besluit_incorrect_catalogus, namespace=self.NAMESPACE)
+            )
 
             self.assertEqual(
                 response.status_code, status.HTTP_403_FORBIDDEN, response.data
             )
 
         with self.subTest("success"):
-            response = self.client.delete(reverse(self.besluit_allowed))
+            response = self.client.delete(
+                reverse(self.besluit_allowed, namespace=self.NAMESPACE)
+            )
 
             self.assertEqual(
                 response.status_code, status.HTTP_204_NO_CONTENT, response.data
@@ -350,6 +364,7 @@ class BesluitWriteCorrectScopeTests(JWTAuthMixin, APITestCase):
 class BioReadTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN, SCOPE_BESLUITEN_AANMAKEN]
     component = ComponentTypes.brc
+    NAMESPACE = "besluiten"
 
     @classmethod
     def setUpTestData(cls):
@@ -360,7 +375,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        url = reverse(BesluitInformatieObject, namespace="besluiten")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(besluit=besluit1)
@@ -375,7 +390,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(response_data), 1)
 
-        besluit_url = reverse(bio1.besluit)
+        besluit_url = reverse(bio1.besluit, namespace=self.NAMESPACE)
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     @tag("gh-1661")
@@ -393,7 +408,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create()
 
-        url = reverse(BesluitInformatieObject, namespace="besluiten")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(besluit=besluit1)
@@ -408,7 +423,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(response_data), 1)
 
-        besluit_url = reverse(bio1.besluit)
+        besluit_url = reverse(bio1.besluit, namespace=self.NAMESPACE)
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     def test_create_bio_limited_to_authorized_besluiten(self):
@@ -427,20 +442,19 @@ class BioReadTests(JWTAuthMixin, APITestCase):
             informatieobject.informatieobjecttype
         )
 
-        besluit_uri1 = reverse(besluit1)
+        besluit_uri1 = reverse(besluit1, namespace=self.NAMESPACE)
         besluit_url1 = f"http://testserver{besluit_uri1}"
 
-        besluit_uri2 = reverse(besluit2)
+        besluit_uri2 = reverse(besluit2, namespace=self.NAMESPACE)
         besluit_url2 = f"http://testserver{besluit_uri2}"
 
-        url1 = reverse("besluiten:besluitinformatieobject-list")
-        url2 = reverse("besluiten:besluitinformatieobject-list")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
 
         data1 = {"informatieobject": informatieobject_url, "besluit": besluit_url1}
         data2 = {"informatieobject": informatieobject_url, "besluit": besluit_url2}
 
-        response1 = self.client.post(url1, data1)
-        response2 = self.client.post(url2, data2)
+        response1 = self.client.post(url, data1)
+        response2 = self.client.post(url, data2)
 
         self.assertEqual(response1.status_code, status.HTTP_201_CREATED, response1.data)
         self.assertEqual(
@@ -453,6 +467,7 @@ class BioReadTests(JWTAuthMixin, APITestCase):
 class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     component = ComponentTypes.brc
+    NAMESPACE = "besluiten"
 
     @classmethod
     def setUpTestData(cls):
@@ -463,7 +478,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -503,7 +518,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         BesluitFactory.create(
             besluittype=BESLUITTYPE_EXTERNAL2, verantwoordelijke_organisatie="000000000"
         )
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url, {"verantwoordelijkeOrganisatie": "000000000"})
 
@@ -520,8 +535,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     def test_besluit_retrieve(self):
         besluit1 = BesluitFactory.create(besluittype=self.besluittype)
         besluit2 = BesluitFactory.create(besluittype=BESLUITTYPE_EXTERNAL)
-        url1 = reverse(besluit1)
-        url2 = reverse(besluit2)
+        url1 = reverse(besluit1, namespace=self.NAMESPACE)
+        url2 = reverse(besluit2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
@@ -530,7 +545,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
-        url = reverse(BesluitInformatieObject, namespace="besluiten")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype,
@@ -546,7 +561,7 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(response_data), 1)
 
-        besluit_url = reverse(bio1.besluit)
+        besluit_url = reverse(bio1.besluit, namespace=self.NAMESPACE)
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     def test_bio_retrieve(self):
@@ -557,8 +572,8 @@ class InternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
             besluit__besluittype=BESLUITTYPE_EXTERNAL
         )
 
-        url1 = reverse(bio1)
-        url2 = reverse(bio2)
+        url1 = reverse(bio1, namespace=self.NAMESPACE)
+        url2 = reverse(bio2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
@@ -575,13 +590,14 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
     scopes = [SCOPE_BESLUITEN_ALLES_LEZEN]
     besluittype = BESLUITTYPE_EXTERNAL
     component = ComponentTypes.brc
+    NAMESPACE = "besluiten"
 
     def test_besluit_list(self):
         BesluitFactory.create(besluittype=self.besluittype)
         BesluitFactory.create(
             besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
         )
-        url = reverse("besluiten:besluit-list")
+        url = reverse(Besluit, namespace=self.NAMESPACE)
 
         response = self.client.get(url)
 
@@ -597,8 +613,8 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         besluit2 = BesluitFactory.create(
             besluittype="https://externe.catalogus.nl/api/v1/besluiten/1"
         )
-        url1 = reverse(besluit1)
-        url2 = reverse(besluit2)
+        url1 = reverse(besluit1, namespace=self.NAMESPACE)
+        url2 = reverse(besluit2, namespace=self.NAMESPACE)
 
         response1 = self.client.get(url1)
         response2 = self.client.get(url2)
@@ -607,7 +623,7 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_bio_list(self):
-        url = reverse(BesluitInformatieObject, namespace="besluiten")
+        url = reverse(BesluitInformatieObject, namespace=self.NAMESPACE)
         # must show up
         bio1 = BesluitInformatieObjectFactory.create(
             besluit__besluittype=self.besluittype
@@ -625,7 +641,7 @@ class ExternalBesluittypeScopeTests(JWTAuthMixin, APITestCase):
 
         self.assertEqual(len(response_data), 1)
 
-        besluit_url = reverse(bio1.besluit)
+        besluit_url = reverse(bio1.besluit, namespace=self.NAMESPACE)
         self.assertEqual(response_data[0]["besluit"], f"http://testserver{besluit_url}")
 
     def test_bio_retrieve(self):
