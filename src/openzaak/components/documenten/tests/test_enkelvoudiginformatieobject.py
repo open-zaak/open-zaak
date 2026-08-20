@@ -65,6 +65,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": False,
         }
 
         # Send to the API
@@ -94,6 +95,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertFalse(stored_object.inhoud_is_vervallen)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -175,6 +177,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "vertrouwelijkheidaanduiding": "openbaar",
             "verschijningsvorm": "Vorm A",
             "trefwoorden": ["some", "other"],
+            "inhoudIsVervallen": None,
         }
 
         # Send to the API
@@ -204,6 +207,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
         self.assertEqual(stored_object.vertrouwelijkheidaanduiding, "openbaar")
         self.assertEqual(stored_object.verschijningsvorm, "Vorm A")
         self.assertEqual(stored_object.trefwoorden, ["some", "other"])
+        self.assertIsNone(stored_object.inhoud_is_vervallen)
 
         expected_url = reverse(stored_object)
         expected_file_url = get_operation_url(
@@ -231,6 +235,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
                 "locked": False,
                 "lock": "",
                 "verschijningsvorm": "Vorm A",
+                "inhoudIsVervallen": None,
             }
         )
 
@@ -380,6 +385,7 @@ class EnkelvoudigInformatieObjectAPITests(JWTAuthMixin, APITestCase):
             "verschijningsvorm": "",
             "trefwoorden": [],
             "_expand": {},
+            "inhoudIsVervallen": test_object.inhoud_is_vervallen,
         }
 
         response_data = response.json()

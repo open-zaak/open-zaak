@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Documenten API
-  version: 1.4.2
+  version: 1.5.0
   description: |
     Een API om een documentregistratiecomponent (DRC) te benaderen.
 
@@ -1549,7 +1549,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT in zijn geheel bij.
       parameters:
       - in: header
@@ -1730,7 +1729,6 @@ paths:
         - correcte `lock` waarde
         - geldigheid `informatieobjecttype` URL - de resource moet opgevraagd kunnen worden uit de catalogi API en de vorm van een INFORMATIEOBJECTTYPE hebben.
         - publicatie `informatieobjecttype` - `concept` moet `false` zijn
-        - status NIET `definitief`
       summary: Werk een (ENKELVOUDIG) INFORMATIEOBJECT deels bij.
       parameters:
       - in: header
@@ -3957,8 +3955,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**, **opmerking**, **resultaat**. Voor deze actie is een APPLICATIE
-        nodig met `heeft_alle_autorisaties` ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**, **opmerking**, **resultaat**. Voor
+        deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Het reportage bestand van een IMPORT downloaden.
       parameters:
       - in: path
@@ -4227,8 +4225,8 @@ paths:
         **ontvangstdatum**, **verzenddatum**, **indicatieGebruiksrecht**, **verschijningsvorm**,
         **ondertekening.soort**, **ondertekening.datum**, **integriteit.algoritme**,
         **integriteit.waarde**, **integriteit.datum**, **informatieobjecttype**, **zaakUuid**,
-        **trefwoorden**. Voor deze actie is een APPLICATIE nodig met `heeft_alle_autorisaties`
-        ingeschakeld.'
+        **trefwoorden**, **inhoudIsVervallen**. Voor deze actie is een APPLICATIE
+        nodig met `heeft_alle_autorisaties` ingeschakeld.'
       summary: Een IMPORT bestand uploaden
       parameters:
       - in: header
@@ -6773,6 +6771,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
       required:
       - auteur
       - beginRegistratie
@@ -6941,6 +6946,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
       required:
       - auteur
       - bronorganisatie
@@ -7128,6 +7140,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
         lock:
           type: string
           readOnly: true
@@ -7300,6 +7319,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
       required:
       - auteur
       - bronorganisatie
@@ -7463,6 +7489,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
         lock:
           type: string
           writeOnly: true
@@ -8138,6 +8171,13 @@ components:
             title: Trefwoord
             maxLength: 100
           description: Een lijst van trefwoorden gescheiden door comma's.
+        inhoudIsVervallen:
+          type: boolean
+          nullable: true
+          description: |-
+            Geeft aan of de inhoud van het INFORMATIEOBJECT al dan niet vervallen, dus niet langer geldig is.
+            * `true` De inhoud van het INFORMATIEOBJECT is vervallen.
+            * `false` De inhoud van het INFORMATIEOBJECT is niet vervallen.
         lock:
           type: string
           writeOnly: true

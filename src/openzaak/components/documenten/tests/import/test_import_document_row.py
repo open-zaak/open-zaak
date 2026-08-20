@@ -178,6 +178,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
             informatieobjecttype=self.informatieobjecttype,
             zaak_uuid=str(zaak.uuid),
             trefwoorden='"foo,bar"',
+            inhoud_is_vervallen="",
         )
 
         identifier = generate_unique_identification(
@@ -228,6 +229,7 @@ class ImportDocumentRowTests(ImportTestMixin, MockSchemasMixin, TestCase):
         )
         self.assertEqual(eio._informatieobjecttype_url, self.informatieobjecttype)
         self.assertEqual(eio.trefwoorden, ["foo", "bar"])
+        self.assertIsNone(eio.inhoud_is_vervallen)
 
         with private_media_storage.open(imported_path, "r") as file:
             self.assertEqual(file.read(), import_file_content)
