@@ -92,6 +92,28 @@ function AuthType(props) {
                     />
                 </div>) : null}
 
+            {(selectedAuthType === 'oauth2_client_credentials') ?
+                (<>
+                    <AuthField
+                        name='client_id'
+                        value={values.client_id}
+                        label='Client ID'
+                        errors={errors.client_id}
+                    />
+                    <AuthField
+                        name='secret'
+                        value={values.secret}
+                        label='Secret'
+                        errors={errors.secret}
+                    />
+                    <AuthField
+                        name='oauth2_token_url'
+                        value={values.oauth2_token_url}
+                        label='OAuth2 token-endpoint'
+                        errors={errors.oauth2_token_url}
+                    />
+                </>) : null}
+
         </>
     );
 }
