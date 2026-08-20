@@ -48,64 +48,68 @@ Performance test results
 ^^^^^^
 
 ====================== ========= ======================
-OZ version             Role      Median time (in ms, average over all endpoints)
+OZ version             Role      Relative change to median time compared to previous version
 ====================== ========= ======================
-1.20.0 (fuzzy on)      Superuser 480
-1.20.0 (fuzzy on)      Regular   590
-1.21.0 (fuzzy on)      Superuser 150
-1.21.0 (fuzzy on)      Regular   200
-1.21.1 (fuzzy on)      Superuser 160
-1.21.1 (fuzzy on)      Regular   210
-1.21.2 (fuzzy on)      Superuser 160
-1.21.2 (fuzzy on)      Regular   210
-1.22.0 (fuzzy on)      Superuser 170
-1.22.0 (fuzzy on)      Regular   230
-1.23.0 (fuzzy on)      Superuser 170
-1.23.0 (fuzzy on)      Regular   230
-1.24.0 (fuzzy on)      Superuser 150
-1.24.0 (fuzzy on)      Regular   230
-1.25.0 (fuzzy on)      Superuser 160
-1.25.0 (fuzzy on)      Regular   240
-1.26.0 (fuzzy on)      Superuser 140
-1.26.0 (fuzzy on)      Regular   200
-1.27.0 (fuzzy on)      Superuser 120
-1.27.0 (fuzzy on)      Regular   170
-1.28.0 (fuzzy on)      Superuser 130
-1.28.0 (fuzzy on)      Regular   170
-1.29.0 (fuzzy on)      Superuser 130
-1.29.0 (fuzzy on)      Regular   180
+1.20.0 (fuzzy on)      Superuser —
+1.20.0 (fuzzy on)      Regular   —
+1.21.0 (fuzzy on)      Superuser -68.75%
+1.21.0 (fuzzy on)      Regular   -66.10%
+1.21.1 (fuzzy on)      Superuser +6.67%
+1.21.1 (fuzzy on)      Regular   +5.00%
+1.21.2 (fuzzy on)      Superuser +0.00%
+1.21.2 (fuzzy on)      Regular   +0.00%
+1.22.0 (fuzzy on)      Superuser +6.25%
+1.22.0 (fuzzy on)      Regular   +9.52%
+1.23.0 (fuzzy on)      Superuser +0.00%
+1.23.0 (fuzzy on)      Regular   +0.00%
+1.24.0 (fuzzy on)      Superuser -11.76%
+1.24.0 (fuzzy on)      Regular   +0.00%
+1.25.0 (fuzzy on)      Superuser +6.67%
+1.25.0 (fuzzy on)      Regular   +4.35%
+1.26.0 (fuzzy on)      Superuser -12.50%
+1.26.0 (fuzzy on)      Regular   -16.67%
+1.27.0 (fuzzy on)      Superuser -14.29%
+1.27.0 (fuzzy on)      Regular   -15.00%
+1.28.0 (fuzzy on)      Superuser +8.33%
+1.28.0 (fuzzy on)      Regular   +0.00%
+1.29.0 (fuzzy on)      Superuser +0.00%
+1.29.0 (fuzzy on)      Regular   +5.88%
+1.30.0 (fuzzy on)      Superuser -11.76% (response time: 150ms)
+1.30.0 (fuzzy on)      Regular   -9.09% (response time: 200ms)
 ====================== ========= ======================
 
 16 users
 ^^^^^^^^
 
 ====================== ========= ======================
-OZ version             Role      Median time (in ms, average over all endpoints)
+OZ version             Role      Relative change to median time (compared to previous version)
 ====================== ========= ======================
-1.20.0 (fuzzy on)      Superuser 720
-1.20.0 (fuzzy on)      Regular   970
-1.21.0 (fuzzy on)      Superuser 240
-1.21.0 (fuzzy on)      Regular   320
-1.21.1 (fuzzy on)      Superuser 260
-1.21.1 (fuzzy on)      Regular   340
-1.21.2 (fuzzy on)      Superuser 260
-1.21.2 (fuzzy on)      Regular   340
-1.22.0 (fuzzy on)      Superuser 290
-1.22.0 (fuzzy on)      Regular   370
-1.23.0 (fuzzy on)      Superuser 280
-1.23.0 (fuzzy on)      Regular   370
-1.24.0 (fuzzy on)      Superuser 310
-1.24.0 (fuzzy on)      Regular   370
-1.25.0 (fuzzy on)      Superuser 300
-1.25.0 (fuzzy on)      Regular   390
-1.26.0 (fuzzy on)      Superuser 240
-1.26.0 (fuzzy on)      Regular   310
-1.27.0 (fuzzy on)      Superuser 220
-1.27.0 (fuzzy on)      Regular   290
-1.28.0 (fuzzy on)      Superuser 230
-1.28.0 (fuzzy on)      Regular   310
-1.29.0 (fuzzy on)      Superuser 230
-1.29.0 (fuzzy on)      Regular   320
+1.20.0 (fuzzy on)      Superuser —
+1.20.0 (fuzzy on)      Regular   —
+1.21.0 (fuzzy on)      Superuser -66.67%
+1.21.0 (fuzzy on)      Regular   -67.01%
+1.21.1 (fuzzy on)      Superuser +8.33%
+1.21.1 (fuzzy on)      Regular   +6.25%
+1.21.2 (fuzzy on)      Superuser 0.00%
+1.21.2 (fuzzy on)      Regular   0.00%
+1.22.0 (fuzzy on)      Superuser +11.54%
+1.22.0 (fuzzy on)      Regular   +8.82%
+1.23.0 (fuzzy on)      Superuser -3.45%
+1.23.0 (fuzzy on)      Regular   0.00%
+1.24.0 (fuzzy on)      Superuser +10.71%
+1.24.0 (fuzzy on)      Regular   0.00%
+1.25.0 (fuzzy on)      Superuser -3.23%
+1.25.0 (fuzzy on)      Regular   +5.41%
+1.26.0 (fuzzy on)      Superuser -20.00%
+1.26.0 (fuzzy on)      Regular   -20.51%
+1.27.0 (fuzzy on)      Superuser -8.33%
+1.27.0 (fuzzy on)      Regular   -6.45%
+1.28.0 (fuzzy on)      Superuser +4.55%
+1.28.0 (fuzzy on)      Regular   +6.90%
+1.29.0 (fuzzy on)      Superuser 0.00%
+1.29.0 (fuzzy on)      Regular   +3.23%
+1.30.0 (fuzzy on)      Superuser -0.00% (response time: 430ms)
+1.30.0 (fuzzy on)      Regular   -0.00% (response time: 320ms)
 ====================== ========= ======================
 
 Historical results for instance running in Docker
