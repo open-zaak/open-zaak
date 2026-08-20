@@ -1,6 +1,49 @@
 Changelog
 =========
 
+1.29.3 (2026-08-13)
+-------------------
+
+**Security patches**
+
+* [CVE ID pending] See `GHSA-v9vp-r9j9-9889`_ for more information
+
+  * Ensure that the API verifies that the used token has permission to read expanded objects when using ``expand``
+* [CVE ID pending] See `GHSA-vpvj-hgh4-8389`_ for more information
+
+  * Ensure catalog based authorizations are properly filtered by scope for list views
+* [CVE ID pending] See `GHSA-57hf-x26f-5cmh`_ for more information
+
+  * Fix potential DoS via user supplied jq expressions via ``/zaakobjecten`` endpoint
+* [CVE ID pending] See `GHSA-7jgm-gwhh-jp8v`_ for more information
+
+  * Fix potential stored XSS in the catalogi admin for published zaaktypen
+* [CVE ID pending] See `GHSA-g7g8-qrfj-hqf7`_ for more information
+
+  * Upgrade ``sentry-sdk`` to ``2.67.1`` to ensure that sensitive headers in requests are always scrubbed
+
+.. _GHSA-v9vp-r9j9-9889: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-v9vp-r9j9-9889
+.. _GHSA-vpvj-hgh4-8389: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-vpvj-hgh4-8389
+.. _GHSA-57hf-x26f-5cmh: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-57hf-x26f-5cmh
+.. _GHSA-7jgm-gwhh-jp8v: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-7jgm-gwhh-jp8v
+.. _GHSA-g7g8-qrfj-hqf7: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-g7g8-qrfj-hqf7
+
+**Maintenance**
+
+* [:open-api-workflows:`60`] Reenable OAS workflow and replace spectral-cli with vacuum
+
+1.29.2 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
+
 1.29.1 (2026-07-02)
 -------------------
 
@@ -97,6 +140,49 @@ Changelog
 * [:open-api-framework:`217`] Use new logos and icons and apply new styling
 * [:open-zaak:`2369`] use Sphinx directive from ``maykin-common`` to generate environment variable documentation
 * [:open-api-framework:`217`] Replace references to maykinmedia.nl with maykin.nl
+
+1.28.5 (2026-08-13)
+-------------------
+
+**Security patches**
+
+* [CVE ID pending] See `GHSA-v9vp-r9j9-9889`_ for more information
+
+  * Ensure that the API verifies that the used token has permission to read expanded objects when using ``expand``
+* [CVE ID pending] See `GHSA-vpvj-hgh4-8389`_ for more information
+
+  * Ensure catalog based authorizations are properly filtered by scope for list views
+* [CVE ID pending] See `GHSA-57hf-x26f-5cmh`_ for more information
+
+  * Fix potential DoS via user supplied jq expressions via ``/zaakobjecten`` endpoint
+* [CVE ID pending] See `GHSA-7jgm-gwhh-jp8v`_ for more information
+
+  * Fix potential stored XSS in the catalogi admin for published zaaktypen
+* [CVE ID pending] See `GHSA-g7g8-qrfj-hqf7`_ for more information
+
+  * Upgrade ``sentry-sdk`` to ``2.67.1`` to ensure that sensitive headers in requests are always scrubbed
+
+.. _GHSA-v9vp-r9j9-9889: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-v9vp-r9j9-9889
+.. _GHSA-vpvj-hgh4-8389: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-vpvj-hgh4-8389
+.. _GHSA-57hf-x26f-5cmh: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-57hf-x26f-5cmh
+.. _GHSA-7jgm-gwhh-jp8v: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-7jgm-gwhh-jp8v
+.. _GHSA-g7g8-qrfj-hqf7: https://github.com/open-zaak/open-zaak/security/advisories/GHSA-g7g8-qrfj-hqf7
+
+**Maintenance**
+
+* [:open-api-workflows:`60`] Reenable OAS workflow and replace spectral-cli with vacuum
+
+1.28.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
 
 1.28.3 (2026-07-02)
 -------------------
@@ -209,6 +295,18 @@ Changelog
 * [:open-api-framework:`213`] Consistent styling for documentation for all applications
 * [:open-zaak:`2233`] Mention that ``NOTIFICATIONS_SOURCE`` is required in cloud events config documentation
 * Regenerate notifcaties documentation to add substatus
+
+1.27.4 (2026-07-31)
+-------------------
+
+**Bugfixes / QoL**
+
+* [:open-zaak:`2448`] Fix error that made it impossible to close a hoofdzaak with archiefnominatie
+  ``blijvend_bewaren`` (because an error occurred during the calculation of the archiving parameters for the deelzaken)
+* [:open-zaak:`2448`] Change the message of the error that occurs when trying to
+  close a zaak with afleidingswijze ``hoofdzaak`` (while the zaak has no hoofdzaak) from a generic
+  message to: ``"De archiefactiedatum kan niet bepaald worden, omdat de
+  afleidingswijze hoofdzaak gebruikt wordt, maar de zaak geen hoofdzaak heeft."``
 
 1.27.3 (2026-07-02)
 -------------------

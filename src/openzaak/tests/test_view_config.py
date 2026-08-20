@@ -8,7 +8,7 @@ import requests_mock
 from django_webtest import WebTest
 from notifications_api_common.models import NotificationsConfig
 from requests.exceptions import ConnectionError
-from zgw_consumers.constants import APITypes
+from zgw_consumers.constants import APITypes, AuthTypes
 from zgw_consumers.test.factories import ServiceFactory
 
 
@@ -37,8 +37,7 @@ class ViewConfigTestCase(WebTest):
 
     def test_view_config_page_with_incorrect_notifs_service(self):
         self.config.notifications_api_service = ServiceFactory.create(
-            api_root=self.api_root,
-            api_type=APITypes.nrc,
+            api_root=self.api_root, api_type=APITypes.nrc, auth_type=AuthTypes.zgw
         )
         self.config.save()
 
@@ -62,8 +61,7 @@ class ViewConfigTestCase(WebTest):
 
     def test_view_config_page_with_unreachable_notifs_service(self):
         self.config.notifications_api_service = ServiceFactory.create(
-            api_root=self.api_root,
-            api_type=APITypes.nrc,
+            api_root=self.api_root, api_type=APITypes.nrc, auth_type=AuthTypes.zgw
         )
         self.config.save()
 
@@ -84,8 +82,7 @@ class ViewConfigTestCase(WebTest):
 
     def test_view_config_page_with_correct_notifs_service(self):
         self.config.notifications_api_service = ServiceFactory.create(
-            api_root=self.api_root,
-            api_type=APITypes.nrc,
+            api_root=self.api_root, api_type=APITypes.nrc, auth_type=AuthTypes.zgw
         )
         self.config.save()
 

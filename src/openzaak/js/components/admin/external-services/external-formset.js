@@ -57,6 +57,7 @@ function ExternalFormSet(props) {
                             <th className='external-formset__col'>Service</th>
                             <th className='external-formset__col'>API type</th>
                             <th className='external-formset__col--big'>URL</th>
+                            <th className='external-formset__col'>Slug</th>
                             <th className='external-formset__col'>NLX outway URL</th>
                             <th className='external-formset__col'>Authorization</th>
                             <th className='external-formset__col--small'>Verwijderen</th>

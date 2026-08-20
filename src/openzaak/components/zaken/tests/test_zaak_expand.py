@@ -6,8 +6,14 @@ from django.test import override_settings, tag
 import requests_mock
 from rest_framework import status
 from rest_framework.test import APITestCase
+from vng_api_common.authorizations.models import Autorisatie
+from vng_api_common.constants import ComponentTypes, VertrouwelijkheidsAanduiding
 from vng_api_common.tests import reverse_lazy
 
+from openzaak.components.catalogi.api.scopes import (
+    SCOPE_CATALOGI_READ,
+    SCOPE_CATALOGI_WRITE,
+)
 from openzaak.components.catalogi.tests.factories import (
     StatusTypeFactory,
     ZaakTypeFactory,
@@ -16,6 +22,10 @@ from openzaak.components.catalogi.tests.factories.catalogus import CatalogusFact
 from openzaak.tests.utils.auth import JWTAuthMixin
 from openzaak.utils.urls import reverse
 
+from ..api.scopes import (
+    SCOPE_ZAKEN_ALLES_LEZEN,
+    SCOPE_ZAKEN_CREATE,
+)
 from .constants import POLYGON_AMSTERDAM_CENTRUM
 from .factories import (
     ResultaatFactory,
@@ -202,6 +212,42 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
         ]
         self.assertEqual(data, expected_results)
 
+    def test_zaak_zoek_include_permissions(self):
+        # disable all autorisaties
+        self.applicatie.heeft_alle_autorisaties = False
+        self.applicatie.save()
+
+        zaak1, zaak2 = ZaakFactory.create_batch(2)
+        url = reverse("zaken:zaak--zoek")
+        data = {
+            "uuid__in": [zaak1.uuid, zaak2.uuid],
+            "expand": ["zaaktype"],
+        }
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # add only SCOPE_ZAKEN_ALLES_LEZEN
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.zrc,
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+            zaaktype=self.zaaktype_url,
+            max_vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Read zaaktypen is NOT allowed without catalogi scope
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_READ],
+        )
+
+        response = self.client.post(url, data, **ZAAK_WRITE_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_zaak_list_include_nested(self):
         """
         Test if nested related resources that are in the local database can be included
@@ -281,6 +327,214 @@ class ZakenIncludeTests(JWTAuthMixin, APITestCase):
             },
         }
         self.assertEqual(data, expected_results)
+
+
+@tag("expand-authorization")
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class ZakenIncludePermissionsTests(JWTAuthMixin, APITestCase):
+    heeft_alle_autorisaties = False
+    zaak_url = reverse_lazy("zaken:zaak-list")
+    zaaktype_url = reverse_lazy("catalogi:zaaktype-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.catalogus = CatalogusFactory.create()
+        cls.zaaktype = ZaakTypeFactory.create(concept=False, catalogus=cls.catalogus)
+        cls.zaaktype_url = reverse(cls.zaaktype)
+        super().setUpTestData()
+
+    def test_zaken_list_expand_zaken_resource(self):
+        # No permissions for the zaken resource
+        self.autorisatie.scopes = []
+        self.autorisatie.save()
+        response = self.client.get(
+            self.zaak_url, {"expand": "status"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaken is NOT allowed with SCOPE_ZAKEN_CREATE
+        self.autorisatie.scopes = [SCOPE_ZAKEN_CREATE]
+        self.autorisatie.save()
+        response = self.client.get(
+            self.zaak_url, {"expand": "status"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read the zaken resource with expand a zaken resource (status) is allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+        self.autorisatie.save()
+        response = self.client.get(
+            self.zaak_url, {"expand": "status"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_zaken_list_expand_catalogi_resource(self):
+        # No permissions for the catalogi and zaken resource
+        self.autorisatie.scopes = []
+        self.autorisatie.save()
+
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(
+            self.zaak_url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaken is NOT allowed with SCOPE_ZAKEN_CREATE
+        self.autorisatie.scopes = [SCOPE_ZAKEN_CREATE]
+        self.autorisatie.save()
+        response = self.client.get(
+            self.zaak_url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaken is allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+        self.autorisatie.save()
+        response = self.client.get(self.zaak_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read zaaktypen is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaken with zaaktypen expand is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(
+            self.zaak_url, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add a Catalogi authorization with a write-only scope.
+        catalogi_auth = Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_WRITE],
+        )
+
+        # Read zaaktypen is NOT allowed with SCOPE_CATALOGI_WRITE
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Grant Catalogi read permission.
+        catalogi_auth.scopes = [SCOPE_CATALOGI_READ]
+        catalogi_auth.save()
+
+        # Read zaaktypen is allowed with SCOPE_CATALOGI_READ
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read zaken with zaaktypen expand is allowed with SCOPE_ZAKEN_ALLES_LEZEN and SCOPE_CATALOGI_READ
+        response = self.client.get(
+            self.zaak_url,
+            {"expand": "zaaktype"},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_zaak_detail_expand_catalogi_resource(self):
+        zaak = ZaakFactory.create(zaaktype=self.zaaktype)
+        zaak_detail = reverse(zaak)
+
+        # No permissions for the catalogi and zaken resource
+        self.autorisatie.scopes = []
+        self.autorisatie.save()
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(
+            zaak_detail, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaak is allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+        self.autorisatie.save()
+        response = self.client.get(zaak_detail, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read zaaktypen is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaak with zaaktypen expand is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(
+            zaak_detail, {"expand": "zaaktype"}, **ZAAK_READ_KWARGS
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add a Catalogi authorization with a write-only scope.
+        catalogi_auth = Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_WRITE],
+        )
+
+        # Read zaaktypen is NOT allowed with SCOPE_CATALOGI_WRITE
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Grant Catalogi read permission.
+        catalogi_auth.scopes = [SCOPE_CATALOGI_READ]
+        catalogi_auth.save()
+
+        # Read zaaktypen is allowed with SCOPE_CATALOGI_READ
+        response = self.client.get(self.zaaktype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read zaak with zaaktypen expand is allowed with SCOPE_ZAKEN_ALLES_LEZEN and SCOPE_CATALOGI_READ
+        response = self.client.get(
+            zaak_detail,
+            {"expand": "zaaktype"},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_zaken_list_expand_nested_catalogi_resource(self):
+        resultaattype_url = reverse("catalogi:resultaattype-list")
+
+        # Read zaken is allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        self.autorisatie.scopes = [SCOPE_ZAKEN_ALLES_LEZEN]
+        self.autorisatie.save()
+        response = self.client.get(self.zaak_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read resultaattype is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(resultaattype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Read zaken with resultaat.resultaattype expand is NOT allowed with SCOPE_ZAKEN_ALLES_LEZEN
+        response = self.client.get(
+            self.zaak_url,
+            {"expand": "resultaat,resultaat.resultaattype"},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Add a Catalogi authorization with a write-only scope.
+        catalogi_auth = Autorisatie.objects.create(
+            applicatie=self.applicatie,
+            component=ComponentTypes.ztc,
+            scopes=[SCOPE_CATALOGI_WRITE],
+        )
+
+        # Read resultaattype is NOT allowed with SCOPE_CATALOGI_WRITE
+        response = self.client.get(resultaattype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Grant Catalogi read permission.
+        catalogi_auth.scopes = [SCOPE_CATALOGI_READ]
+        catalogi_auth.save()
+
+        # Read resultaattype is allowed with SCOPE_CATALOGI_READ
+        response = self.client.get(resultaattype_url, **ZAAK_READ_KWARGS)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Read zaken with resultaattype expand is allowed with SCOPE_ZAKEN_ALLES_LEZEN and SCOPE_CATALOGI_READ
+        response = self.client.get(
+            self.zaak_url,
+            {"expand": "resultaat,resultaat.resultaattype"},
+            **ZAAK_READ_KWARGS,
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 @tag("external-urls", "expand")

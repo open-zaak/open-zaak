@@ -8,6 +8,7 @@ from django.db import IntegrityError, OperationalError
 from django.test import TestCase, override_settings
 
 import requests_mock
+from privates.storages import private_media_storage
 from privates.test import temp_private_root
 from zgw_consumers.constants import APITypes
 from zgw_consumers.test.factories import ServiceFactory
@@ -128,11 +129,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -194,11 +193,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -246,11 +243,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -297,11 +292,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 6)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -345,11 +338,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -374,7 +365,7 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
     @patch("openzaak.components.documenten.tasks.uuid4")
     @patch(
-        "openzaak.components.documenten.tasks.EnkelvoudigInformatieObject.objects.bulk_create",
+        "openzaak.components.documenten.managers.AdapterManager.bulk_create",
         autospec=True,
     )
     def test_database_connection_loss(self, mocked_bulk_create, mocked_uuid):
@@ -433,11 +424,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -464,11 +453,12 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
             expected_path = Path(default_path / filename)
 
             with self.subTest(filename=filename):
+                self.assertFalse(private_media_storage.exists(expected_path))
                 self.assertFalse(expected_path.exists())
 
     @patch("openzaak.components.documenten.tasks.uuid4")
     @patch(
-        "openzaak.components.documenten.tasks.EnkelvoudigInformatieObject.objects.bulk_create",
+        "openzaak.components.documenten.managers.AdapterManager.bulk_create",
         autospec=True,
     )
     def test_integrity_error(self, mocked_bulk_create, mocked_uuid):
@@ -516,11 +506,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -577,11 +565,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -643,11 +629,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(report_path) as report_file:
+        with private_media_storage.open(report_path, "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 5)
         self.assertEqual(DocumentRow.export_headers, rows[0])
@@ -710,11 +694,9 @@ class ImportDocumentTestCase(ImportTestMixin, MockSchemasMixin, TestCase):
 
         report_path = Path(import_instance.report_file.path)
 
-        with open(str(report_path)) as report_file:
+        with private_media_storage.open(str(report_path), "r") as report_file:
             csv_reader = csv.reader(report_file, delimiter=",", quotechar='"')
             rows = [row for row in csv_reader]
-
-        self.addCleanup(report_path.unlink)
 
         self.assertEqual(len(rows), 3)
         self.assertEqual(DocumentRow.export_headers, rows[0])

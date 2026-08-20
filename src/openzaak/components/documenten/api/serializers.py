@@ -21,7 +21,6 @@ from django.utils.translation import gettext_lazy as _
 import structlog
 from drf_extra_fields.fields import Base64FileField
 from humanize import naturalsize
-from privates.storages import PrivateMediaFileSystemStorage
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from storages.backends.azure_storage import AzureStorage
@@ -69,6 +68,7 @@ from ..models import (
     ReservedDocument,
     Verzending,
 )
+from ..storage import get_private_media_storage
 from .fields import OnlyRemoteOrFKOrURLField
 from .utils import create_filename, merge_files
 from .validators import (
@@ -118,7 +118,7 @@ class AnyBase64File(Base64FileField):
         is_valid_storage = isinstance(
             file.storage,
             (
-                PrivateMediaFileSystemStorage,
+                get_private_media_storage().__class__,
                 AzureStorage,
                 S3Storage,
             ),

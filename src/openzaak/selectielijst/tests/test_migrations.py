@@ -40,11 +40,7 @@ class MigrateSelectielijstApiRootToService(TestMigrations):
             "selectielijst", "ReferentielijstConfig"
         )
 
-        config = (
-            ReferentielijstConfig.objects.select_related("service")
-            .defer("service__oas", "service__oas_file")
-            .get()
-        )
+        config = ReferentielijstConfig.objects.select_related("service").get()
 
         self.assertEqual(config.service.pk, self.selectielijst.pk)
         self.assertEqual(config.service.api_root, self.api_root)
@@ -79,11 +75,7 @@ class MigrateSelectielijstApiRootToServiceMissingService(TestMigrations):
             "selectielijst", "ReferentielijstConfig"
         )
 
-        config = (
-            ReferentielijstConfig.objects.select_related("service")
-            .defer("service__oas", "service__oas_file")
-            .get()
-        )
+        config = ReferentielijstConfig.objects.select_related("service").get()
 
         self.assertEqual(config.service.api_root, self.api_root)
         self.assertEqual(config.service.label, "VNG Selectielijst")

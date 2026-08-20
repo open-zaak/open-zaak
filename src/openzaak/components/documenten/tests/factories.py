@@ -15,6 +15,7 @@ import datetime
 import os
 import string
 from pathlib import Path
+from uuid import uuid4
 
 from django.conf import settings
 
@@ -81,7 +82,8 @@ class EnkelvoudigInformatieObjectFactory(
     formaat = "some formaat"
     taal = "nld"
     inhoud = factory.django.FileField(
-        data=b"some data", filename=factory.Sequence(lambda n: f"file-{n}.bin")
+        data=b"some data",
+        filename=factory.LazyAttribute(lambda n: f"file-{uuid4().hex}.bin"),
     )
     bestandsomvang = factory.LazyAttribute(
         lambda o: o.inhoud.size if o.inhoud else None

@@ -22,7 +22,7 @@ class JWTAuthMixin:
     """
 
     client_id = "testsuite"
-    secret = "letmein"
+    secret = "bab8d686-5d86-4de4-9794-2b18426ea303"
 
     user_id = "test_user_id"
     user_representation = "Test User"
