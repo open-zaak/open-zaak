@@ -96,8 +96,14 @@ def get_brondatum(
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.hoofdzaak:
         # TODO: Document that hoofdzaak can not an external zaak
-        # TODO: will always return None because deelzaken have to be closed before the hoofdzaak.
-        return zaak.hoofdzaak.einddatum if zaak.hoofdzaak else None
+        if not zaak.hoofdzaak:
+            raise DetermineProcessEndDateException(
+                _(
+                    "De archiefactiedatum kan niet bepaald worden, omdat de afleidingswijze `{hoofdzaak}` "
+                    "gebruikt wordt, maar de zaak geen hoofdzaak heeft."
+                ).format(hoofdzaak=BrondatumArchiefprocedureAfleidingswijze.hoofdzaak)
+            )
+        return zaak.hoofdzaak.einddatum
 
     elif afleidingswijze == BrondatumArchiefprocedureAfleidingswijze.eigenschap:
         if not datum_kenmerk:

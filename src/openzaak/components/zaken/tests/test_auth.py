@@ -179,6 +179,66 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
             VertrouwelijkheidsAanduiding.openbaar,
         )
 
+    @tag("gh-security-issues-12")
+    def test_zaak_zoek_with_catalogus_autorisatie_without_read_scope(self):
+        zaaktype = ZaakTypeFactory.create()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[
+                SCOPE_ZAKEN_BIJWERKEN,
+                SCOPE_ZAKEN_CREATE,
+                SCOPE_ZAKEN_ALLES_VERWIJDEREN,
+            ],
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        # Would be visible if scopes where correct
+        zaak1 = ZaakFactory.create(
+            zaaktype=zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Different catalogus, should not be visible
+        zaak2 = ZaakFactory.create(
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar
+        )
+        # Correct catalogus, but VA is too high, should not be visible
+        zaak3 = ZaakFactory.create(
+            zaaktype=zaaktype,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        url = get_operation_url("zaak__zoek")
+        data = {
+            "uuid__in": [
+                zaak1.uuid,
+                zaak2.uuid,
+                zaak3.uuid,
+            ]
+        }
+
+        response = self.client.post(
+            url,
+            data,
+            **ZAAK_WRITE_KWARGS,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 0)
+
+        with self.subTest("without any other autorisaties"):
+            self.applicatie.autorisaties.all().delete()
+            response = self.client.post(
+                url,
+                data,
+                **ZAAK_WRITE_KWARGS,
+            )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_zaak_list_multiple_confidentialities(self):
         """
         Assert you can be authorized for multiple zaaktypen
@@ -429,6 +489,119 @@ class ZaakReadCorrectScopeTests(JWTAuthMixin, APITestCase):
         self.assertEqual(response1.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response3.status_code, status.HTTP_200_OK)
+
+    @tag("gh-security-issues-12")
+    def test_zaak_list_with_catalogus_autorisatie_without_read_scope_does_not_return_zaken(
+        self,
+    ):
+        zaaktype1 = ZaakTypeFactory.create()
+        zaaktype2 = ZaakTypeFactory.create()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype1.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[SCOPE_ZAKEN_CREATE, SCOPE_ZAKEN_ALLES_VERWIJDEREN],
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        # Would be visible if scopes where correct
+        ZaakFactory.create(
+            zaaktype=zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Different catalogus, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Correct catalogus, but VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        # Different catalogus and VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+
+        url = reverse("zaken:zaak-list")
+
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 0)
+
+        with self.subTest("without any autorisaties"):
+            self.applicatie.autorisaties.all().delete()
+            response = self.client.get(url, **ZAAK_READ_KWARGS)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("gh-security-issues-12")
+    def test_zaak_list_with_catalogus_autorisaties_with_only_one_having_read_scope(
+        self,
+    ):
+        zaaktype1 = ZaakTypeFactory.create()
+        zaaktype2 = ZaakTypeFactory.create()
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype1.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[SCOPE_ZAKEN_ALLES_LEZEN],
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        CatalogusAutorisatieFactory.create(
+            catalogus=zaaktype2.catalogus,
+            applicatie=self.applicatie,
+            component=self.component,
+            scopes=[
+                SCOPE_ZAKEN_BIJWERKEN,
+                SCOPE_ZAKEN_CREATE,
+                SCOPE_ZAKEN_ALLES_VERWIJDEREN,
+            ],
+            max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
+        )
+
+        # should be visible
+        zaak = ZaakFactory.create(
+            zaaktype=zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+
+        # Different catalogus, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.openbaar,
+        )
+        # Correct catalogus, but VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype1,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+        # Different catalogus and VA is too high, should not be visible
+        ZaakFactory.create(
+            zaaktype=zaaktype2,
+            vertrouwelijkheidaanduiding=VertrouwelijkheidsAanduiding.zeer_geheim,
+        )
+
+        url = reverse("zaken:zaak-list")
+
+        response = self.client.get(url, **ZAAK_READ_KWARGS)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+
+        self.assertEqual(results[0]["url"], f"http://testserver{reverse(zaak)}")
 
     def test_read_superuser(self):
         """
@@ -706,7 +879,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
         # queries not directly involved with this endpoint in particular
         BASE_NUM_QUERIES = 4
         # queries because of the permission checks
-        PERMISSION_CHECK_NUM_QUERIES = 6
+        PERMISSION_CHECK_NUM_QUERIES = 10
         # queries because of the list endpoint itself
         ENDPOINT_NUM_QUERIES = 13
         TOTAL_EXPECTED_QUERIES = (
@@ -731,7 +904,7 @@ class ZaakListPerformanceTests(JWTAuthMixin, APITestCase):
                 max_vertrouwelijkheidaanduiding=self.max_vertrouwelijkheidaanduiding,
                 catalogus=catalogus,
             )
-            # Create unrelated CatalogusAutorisatie
+            # Create unrelated CatalogusAutorisaties
             CatalogusAutorisatieFactory.create(
                 applicatie=self.applicatie,
                 component=self.component,

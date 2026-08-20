@@ -30,7 +30,6 @@ from .factories import (
 from .utils import get_operation_url
 
 
-@override_settings(SENDFILE_BACKEND="django_sendfile.backends.simple")
 @temp_private_root()
 class US39TestCase(JWTAuthMixin, APITestCase):
     heeft_alle_autorisaties = True

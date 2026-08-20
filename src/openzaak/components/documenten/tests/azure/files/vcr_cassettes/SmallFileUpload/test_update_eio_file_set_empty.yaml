@@ -13,13 +13,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6008-cead-11f0-a667-a82bdd58bc01
+      - 432a6008-cead-11f0-a7bb-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -41,15 +41,15 @@ interactions:
       content-md5:
       - HlAhCgICSX+3m8OLat5sNA==
       date:
-      - Thu, 11 Jun 2026 10:33:43 GMT
+      - Tue, 11 Aug 2026 13:54:03 GMT
       etag:
-      - '"0x203BEA8D0C504A0"'
+      - '"0x1C4A1E99D2B8B10"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:43 GMT
+      - Tue, 11 Aug 2026 13:54:03 GMT
       x-ms-client-request-id:
-      - 432a6008-cead-11f0-a667-a82bdd58bc01
+      - 432a6008-cead-11f0-a7bb-a82bdd58bc01
       x-ms-request-id:
-      - 615c2062-2f8f-4e2e-a607-6598b606681d
+      - 7e7e0dd2-76ff-4a9a-b863-ea75aaf7582d
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:

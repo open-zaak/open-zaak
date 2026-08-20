@@ -13,13 +13,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6003-cead-11f0-838d-a82bdd58bc01
+      - 432a6003-cead-11f0-b00f-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -41,15 +41,15 @@ interactions:
       content-md5:
       - HlAhCgICSX+3m8OLat5sNA==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x209E544A1BCAB60"'
+      - '"0x2436D9ED871F9C0"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6003-cead-11f0-838d-a82bdd58bc01
+      - 432a6003-cead-11f0-b00f-a82bdd58bc01
       x-ms-request-id:
-      - 5d3e357d-e5f6-411b-8a24-d14146de10fc
+      - d98031d5-4727-4298-99f6-e5918f24097e
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -71,13 +71,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/octet-stream
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6004-cead-11f0-b581-a82bdd58bc01
+      - 432a6004-cead-11f0-b488-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -99,15 +99,15 @@ interactions:
       content-md5:
       - HlAhCgICSX+3m8OLat5sNA==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x243B6EB31E5E1E0"'
+      - '"0x1F77ED71F55C4C0"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6004-cead-11f0-b581-a82bdd58bc01
+      - 432a6004-cead-11f0-b488-a82bdd58bc01
       x-ms-request-id:
-      - 131c4dcb-963b-45e2-82be-23d198aace3d
+      - 60b0d67c-9e5d-4d43-a6ba-2dff4935315b
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -461,13 +461,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6005-cead-11f0-8a48-a82bdd58bc01
+      - 432a6005-cead-11f0-af93-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -489,15 +489,15 @@ interactions:
       content-md5:
       - c1zeeixHoMD3Z+T4wrvFEQ==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1CED2DD1D676B20"'
+      - '"0x1E3BCEC4AC77500"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6005-cead-11f0-8a48-a82bdd58bc01
+      - 432a6005-cead-11f0-af93-a82bdd58bc01
       x-ms-request-id:
-      - 9479020c-8ba8-4f16-936c-b10a609f9a2d
+      - 7c31c573-01f7-4823-bfc8-977f5d58299a
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -851,13 +851,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6006-cead-11f0-9aa2-a82bdd58bc01
+      - 432a6006-cead-11f0-b67a-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -879,15 +879,15 @@ interactions:
       content-md5:
       - Wqz9xUg6VEEikc4F4lczag==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1E0E240DB555A50"'
+      - '"0x23D2518765EB6A0"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6006-cead-11f0-9aa2-a82bdd58bc01
+      - 432a6006-cead-11f0-b67a-a82bdd58bc01
       x-ms-request-id:
-      - 100ed827-2f5c-4f30-9dde-f13daf3af1b2
+      - 46b5dc96-be8d-45d6-a730-2752cf30379f
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1241,13 +1241,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6007-cead-11f0-82eb-a82bdd58bc01
+      - 432a6007-cead-11f0-a37e-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1269,15 +1269,15 @@ interactions:
       content-md5:
       - 3+GvKbe94tVqwtpqDsF81Q==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1BB2E7B66A77100"'
+      - '"0x20B26C2E2C17EE0"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6007-cead-11f0-82eb-a82bdd58bc01
+      - 432a6007-cead-11f0-a37e-a82bdd58bc01
       x-ms-request-id:
-      - 34ee97f9-8064-492f-ae5a-cfa6983e9d8f
+      - 132c6a13-97b0-41fa-a0ab-819794ff0e4b
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1631,13 +1631,13 @@ interactions:
       Content-Type:
       - application/octet-stream
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-blob-content-type:
       - application/vnd.oasis.opendocument.text
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6008-cead-11f0-9856-a82bdd58bc01
+      - 432a6008-cead-11f0-8f7d-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1659,15 +1659,15 @@ interactions:
       content-md5:
       - 4Th75UY/hdMmecN/cogSrA==
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1DF845716C0D8A0"'
+      - '"0x1CB304D66E0B580"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a6008-cead-11f0-9856-a82bdd58bc01
+      - 432a6008-cead-11f0-8f7d-a82bdd58bc01
       x-ms-request-id:
-      - 06bebf75-5b1b-4168-89b8-8737ff9e085e
+      - 8073ffc3-e738-44f4-8a95-0fb568346c46
       x-ms-request-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1685,9 +1685,9 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a6009-cead-11f0-9e29-a82bdd58bc01
+      - 432a6009-cead-11f0-8f49-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1713,29 +1713,29 @@ interactions:
       content-type:
       - application/vnd.oasis.opendocument.text
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1BB2E7B66A77100"'
+      - '"0x20B26C2E2C17EE0"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a6009-cead-11f0-9e29-a82bdd58bc01
+      - 432a6009-cead-11f0-8f49-a82bdd58bc01
       x-ms-creation-time:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - c0e1ee96-913a-47c0-9f70-e7bd6424abe9
+      - 78982357-5a43-4076-9e5c-bd624c7e9278
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1755,9 +1755,9 @@ interactions:
       Content-Length:
       - '0'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a600a-cead-11f0-b3f3-a82bdd58bc01
+      - 432a600a-cead-11f0-9d20-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1777,13 +1777,13 @@ interactions:
       Server:
       - Azurite-Blob/3.35.0
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a600a-cead-11f0-b3f3-a82bdd58bc01
+      - 432a600a-cead-11f0-9d20-a82bdd58bc01
       x-ms-delete-type-permanent:
       - 'true'
       x-ms-request-id:
-      - c40b1a4e-0d51-4564-a859-8c276e8cd0df
+      - 8b9e9b58-1e3e-4900-a167-692cf1c60728
       x-ms-version:
       - '2025-11-05'
     status:
@@ -1799,9 +1799,9 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a600b-cead-11f0-aad0-a82bdd58bc01
+      - 432a600b-cead-11f0-b991-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1827,29 +1827,29 @@ interactions:
       content-type:
       - application/vnd.oasis.opendocument.text
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       etag:
-      - '"0x1DF845716C0D8A0"'
+      - '"0x1CB304D66E0B580"'
       last-modified:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-access-tier:
       - Hot
       x-ms-access-tier-change-time:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-access-tier-inferred:
       - 'true'
       x-ms-blob-type:
       - BlockBlob
       x-ms-client-request-id:
-      - 432a600b-cead-11f0-aad0-a82bdd58bc01
+      - 432a600b-cead-11f0-b991-a82bdd58bc01
       x-ms-creation-time:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-lease-state:
       - available
       x-ms-lease-status:
       - unlocked
       x-ms-request-id:
-      - a96a11cb-5aa4-4830-a77a-097f34572579
+      - d5a522f1-982a-4cc6-ba8c-da8503140983
       x-ms-server-encrypted:
       - 'true'
       x-ms-version:
@@ -1869,9 +1869,9 @@ interactions:
       Content-Length:
       - '0'
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a600c-cead-11f0-ae9f-a82bdd58bc01
+      - 432a600c-cead-11f0-b22d-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1891,13 +1891,13 @@ interactions:
       Server:
       - Azurite-Blob/3.35.0
       date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       x-ms-client-request-id:
-      - 432a600c-cead-11f0-ae9f-a82bdd58bc01
+      - 432a600c-cead-11f0-b22d-a82bdd58bc01
       x-ms-delete-type-permanent:
       - 'true'
       x-ms-request-id:
-      - ae67ba5a-b90f-4510-b447-1d6fd2733970
+      - 89e11fa3-3958-4c53-bb91-eebc7855b426
       x-ms-version:
       - '2025-11-05'
     status:
@@ -1913,9 +1913,9 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a600d-cead-11f0-b38b-a82bdd58bc01
+      - 432a600d-cead-11f0-93bc-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1929,7 +1929,7 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       Keep-Alive:
       - timeout=5
       Server:
@@ -1937,7 +1937,7 @@ interactions:
       x-ms-error-code:
       - BlobNotFound
       x-ms-request-id:
-      - 335a9d07-32fc-4df5-b235-756fad57b263
+      - e78df491-ed5d-4ade-a372-a343e2baaf96
     status:
       code: 404
       message: The specified blob does not exist.
@@ -1951,9 +1951,9 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1025-oem-x86_64-with-glibc2.39)
+      - azsdk-python-storage-blob/12.27.1 Python/3.12.12 (Linux-6.17.0-1030-oem-x86_64-with-glibc2.39)
       x-ms-client-request-id:
-      - 432a600e-cead-11f0-a5b8-a82bdd58bc01
+      - 432a600e-cead-11f0-b8d0-a82bdd58bc01
       x-ms-date:
       - Mon, 01 Dec 2025 12:00:00 GMT
       x-ms-version:
@@ -1967,7 +1967,7 @@ interactions:
       Connection:
       - keep-alive
       Date:
-      - Thu, 11 Jun 2026 10:33:36 GMT
+      - Tue, 11 Aug 2026 13:53:58 GMT
       Keep-Alive:
       - timeout=5
       Server:
@@ -1975,7 +1975,7 @@ interactions:
       x-ms-error-code:
       - BlobNotFound
       x-ms-request-id:
-      - 9d208513-25d6-4c92-a3ff-e31071960ee6
+      - 42de77e6-1799-4ba8-9f5c-c27626ac6106
     status:
       code: 404
       message: The specified blob does not exist.

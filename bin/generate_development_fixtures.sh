@@ -4,4 +4,5 @@ src/manage.py dumpdata \
     --natural-foreign \
     --natural-primary \
     -o "docker/fixtures/catalogi.json" \
-    catalogi
+    catalogi \
+    config.featureflags

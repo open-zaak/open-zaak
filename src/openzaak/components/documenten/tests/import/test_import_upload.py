@@ -7,6 +7,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.test import override_settings, tag
 
+from privates.storages import private_media_storage
 from privates.test import temp_private_root
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -60,7 +61,7 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
         file_contents = get_csv_data(rows, DocumentRow.import_headers)
         response = self.client.post(url, file_contents, content_type="text/csv")
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         import_instance.refresh_from_db()
 
@@ -68,10 +69,8 @@ class ImportDocumentenUploadTests(ImportTestMixin, JWTAuthMixin, APITestCase):
 
         import_path = Path(import_instance.import_file.path)
 
-        with open(str(import_path), newline="") as import_file:
+        with private_media_storage.open(str(import_path), "r") as import_file:
             self.assertEqual(file_contents, import_file.read())
-
-        self.addCleanup(import_path.unlink)
 
         import_document_task_mock.delay.assert_called()
 

@@ -2,14 +2,12 @@
 # Copyright (C) 2019 - 2020 Dimpact
 
 from math import ceil
-from typing import Dict, Union
+from typing import Mapping
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from vng_api_common.tests import get_operation_url as _get_operation_url
-
-JsonValue = Union[str, None, int, float]
 
 
 def get_operation_url(operation, **kwargs):
@@ -20,7 +18,7 @@ def get_operation_url(operation, **kwargs):
 
 def get_oio_response(
     io_url: str, object_url: str, object_type: str = "zaak"
-) -> Dict[str, JsonValue]:
+) -> Mapping[str, str]:
     start = io_url.split("enkelvoudiginformatieobjecten")[0]
     url = f"{start}objectinformatieobjecten"
     oio = {

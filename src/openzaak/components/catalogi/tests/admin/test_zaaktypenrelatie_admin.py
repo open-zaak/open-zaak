@@ -165,10 +165,13 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, AdminTestMixin, WebTest):
         )
         self.assertEqual(related_zaaktype_admin_link.text, str(zaaktype1))
 
+    # Since Django 5.2.17, URLFields are only made clickable if it passes URLValidation
+    # (which `http://testserver/foo/bar` doesn't pass)
+    @override_settings(ALLOWED_HOSTS=["testserver.com"])
     def test_zaaktypenrelatie_detail_not_concept(self):
         zaaktype1, zaaktype2 = ZaakTypeFactory.create_batch(2, concept=False)
 
-        zaaktype_url = f"http://testserver{_reverse(zaaktype1)}"
+        zaaktype_url = f"http://testserver.com{_reverse(zaaktype1)}"
 
         relatie = ZaakTypenRelatieFactory.create(
             gerelateerd_zaaktype=zaaktype_url, zaaktype=zaaktype2
@@ -176,7 +179,10 @@ class ZaakTypenRelatieAdminTests(ClearCachesMixin, AdminTestMixin, WebTest):
 
         url = reverse("admin:catalogi_zaaktypenrelatie_change", args=(relatie.pk,))
 
-        response = self.app.get(url)
+        response = self.app.get(
+            url,
+            headers={"host": "testserver.com"},
+        )
 
         self.assertEqual(response.status_code, 200)
 

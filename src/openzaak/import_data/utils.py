@@ -13,6 +13,7 @@ from django.db import DatabaseError
 from django.utils import timezone
 
 import structlog
+from privates.storages import private_media_storage
 
 from openzaak.import_data.models import Import, ImportStatusChoices
 from openzaak.utils.fields import get_default_path
@@ -21,7 +22,7 @@ logger = structlog.stdlib.get_logger(__name__)
 
 
 def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
-    with open(filename) as csv_file:
+    with private_media_storage.open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
 
         index = 1
@@ -33,7 +34,7 @@ def get_csv_generator(filename: str) -> Generator[tuple[int, list], None, None]:
 
 
 def get_total_count(filename: str, include_header: bool = False) -> int:
-    with open(filename) as csv_file:
+    with private_media_storage.open(filename, "r") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",", quotechar='"')
         total = sum(1 for _ in csv_reader)
 
@@ -156,8 +157,8 @@ def write_to_file(instance: Import, batch: list, headers: list) -> None:
     if not default_dir.exists():
         default_dir.mkdir(parents=True)
 
-    file_path = instance.report_file.file.name if instance.report_file else None
-    file_exists = Path(instance.report_file.file.name).exists() if file_path else False
+    file_path = instance.report_file.name if instance.report_file else None
+    file_exists = private_media_storage.exists(file_path) if file_path else False
     has_data = bool(get_total_count(file_path)) if file_exists else False
 
     if file_exists and has_data:
@@ -173,7 +174,14 @@ def write_to_file(instance: Import, batch: list, headers: list) -> None:
         file_path=str(file_path or default_path),
     )
 
-    with open(file_path or default_path, mode) as _export_file:
+    with private_media_storage.open(file_path or default_path, mode) as _export_file:
+        if mode == "a":
+            # Storages backed by an in-memory file (e.g. `InMemoryStorage`,
+            # used by `temp_private_root` in tests) don't seek to the end of
+            # the file when opened in append mode, unlike real filesystem
+            # storage. Seek explicitly so we don't overwrite existing content.
+            _export_file.seek(0, 2)
+
         csv_writer = csv.writer(_export_file, delimiter=",", quotechar='"')
 
         if mode in ("w", "w+"):

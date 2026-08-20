@@ -5,11 +5,13 @@ import shutil
 import tempfile
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import override_settings
 
 from celery.utils.text import StringIO
+from privates.storages import private_media_storage
 
 from openzaak.components.documenten.constants import DocumentenBackendTypes
 from openzaak.import_data.tests.factories import ImportFactory
@@ -32,24 +34,23 @@ class ImportTestMixin(TestCase):
 
         self.addCleanup(_remove_temp_dir)
 
-        if self.clean_documenten_files:
-            self.addCleanup(self.remove_documenten_files)
+        # django-privates `temp_private_root` now writes to memory instead, so we can't
+        # rely on shutil.copy2 since that explicitly expects files
+        def copy_to_mem(src, dst, *, follow_symlinks=True):
+            src = Path(src)
+            dst = Path(dst)
 
-        if self.clean_import_files:
-            self.addCleanup(self.remove_import_files)
+            name = dst.relative_to(private_media_storage.base_location)
 
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
+            with src.open("rb") as source:
+                private_media_storage.save(name, source)
 
-        import_dir = cls._get_import_dir()
-        documenten_dir = cls._get_documenten_dir()
+            return dst
 
-        if cls.clean_import_files and import_dir.exists():
-            shutil.rmtree(import_dir)
-
-        if cls.clean_documenten_files and documenten_dir.exists():
-            shutil.rmtree(documenten_dir)
+        self.shutil_mocker = patch(
+            "openzaak.components.documenten.tasks.shutil.copy2", side_effect=copy_to_mem
+        )
+        self.shutil_mock = self.shutil_mocker.start()
 
     @classmethod
     def _get_import_dir(cls) -> Path:
@@ -125,15 +126,6 @@ class ImportTestMixin(TestCase):
 
     def create_import(self, **kwargs):
         instance = ImportFactory(**kwargs)
-
-        if instance.report_file:
-            path = Path(instance.report_file.path)
-            self.addCleanup(path.unlink)
-
-        if instance.import_file:
-            path = Path(instance.import_file.path)
-            self.addCleanup(path.unlink)
-
         return instance
 
 

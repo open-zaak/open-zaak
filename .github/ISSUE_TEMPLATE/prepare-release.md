@@ -23,8 +23,5 @@ projects: ["maykinmedia/15"]
   - [ ] Run performance tests and add the results to the docs
 - [ ] Update changelog
 - [ ] Update ``docs/introduction/versioning.rst``
-- [ ] Make an issue in https://github.com/maykinmedia/charts to make the Helm chart up to date with the new application version, mention the changes that have been made in this version, like:
-  - [ ] New environment variables were added
-  - [ ] New setup configuration steps or changes to format
-  - [ ] New containers required
-  - [ ] ...
+- [ ] Make an issue in https://github.com/maykinmedia/charts/issues to make the Helm chart up to date with the new application version (using the `Upgrade application version` issue template)
+- [ ] Make two issues (one for test/acceptance environments and one for production) in the Taiga project `Maykin Intranet` to deploy the new version (see https://docs.maykin.nl/en/docs/management/product-management/release-process for details and issue template) 

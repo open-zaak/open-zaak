@@ -7,8 +7,8 @@ import uuid
 from django.db import migrations, models
 
 import privates.fields
-import privates.storages
 
+from openzaak.components.documenten.storage import get_private_media_storage
 
 class Migration(migrations.Migration):
 
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                     privates.fields.PrivateMediaFileField(
                         blank=True,
                         null=True,
-                        storage=privates.storages.PrivateMediaFileSystemStorage(),
+                        storage=get_private_media_storage(),
                         upload_to="import/import-files/",
                         verbose_name="Import metadata bestand",
                     ),
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
                     privates.fields.PrivateMediaFileField(
                         blank=True,
                         null=True,
-                        storage=privates.storages.PrivateMediaFileSystemStorage(),
+                        storage=get_private_media_storage(),
                         upload_to="import/report-files/",
                         verbose_name="Reportage bestand",
                     ),

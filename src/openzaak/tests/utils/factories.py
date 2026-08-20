@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 Dimpact
+from uuid import uuid4
+
 from furl import furl
 from zgw_consumers.constants import APITypes
 from zgw_consumers.models import Service
@@ -35,7 +37,13 @@ class FkOrServiceUrlFactoryMixin:
             # create Service instance for composite field
             base_url = furl(value).origin
             services.append(
-                Service(api_root=base_url, slug=base_url, api_type=APITypes.orc)
+                Service(
+                    api_root=base_url,
+                    slug=base_url,
+                    api_type=APITypes.orc,
+                    client_id=uuid4(),
+                    secret=uuid4(),
+                )
             )
 
         Service.objects.bulk_create(services, ignore_conflicts=True)

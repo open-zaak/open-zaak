@@ -52,15 +52,18 @@ class ZaakInformatieObjectValidationTests(JWTAuthMixin, APITestCase):
 
     @override_settings(ALLOWED_HOSTS=["testserver"])
     def test_informatieobject_invalid(self):
-        ServiceFactory.create(api_root="https://drc.nl/", api_type=APITypes.drc)
+        ServiceFactory.create(api_root="https://some-api.local/", api_type=APITypes.drc)
         zaak = ZaakFactory.create()
         zaak_url = reverse(zaak)
 
         url = reverse(ZaakInformatieObject)
 
-        response = self.client.post(
-            url, {"zaak": zaak_url, "informatieobject": "https://drc.nl/api/v1"}
-        )
+        with requests_mock.Mocker() as m:
+            m.get("https://some-api.local/api/v1", status_code=404)
+            response = self.client.post(
+                url,
+                {"zaak": zaak_url, "informatieobject": "https://some-api.local/api/v1"},
+            )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

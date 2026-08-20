@@ -83,7 +83,7 @@ class UWVIdentificationTests(TestCase):
 
         expected = ["A00000006", "A00000023", "A00000037", "A00000040", "A00000054"]
 
-        for i, iden in enumerate(ZaakIdentificatie.objects.all()):
+        for i, iden in enumerate(ZaakIdentificatie.objects.order_by("pk")):
             self.assertEqual(iden.identificatie, expected[i])
 
 
@@ -205,7 +205,7 @@ class CreationYearIdentificationTests(TestCase):
             "ZAAK-2026-0000000005",
         ]
 
-        for i, iden in enumerate(ZaakIdentificatie.objects.all()):
+        for i, iden in enumerate(ZaakIdentificatie.objects.order_by("pk")):
             self.assertEqual(iden.identificatie, expected[i])
 
 
