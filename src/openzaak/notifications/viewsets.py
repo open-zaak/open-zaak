@@ -53,8 +53,8 @@ def _schedule(message: dict) -> None:
 
 class NotificationFieldConfig(TypedDict):
     notifications_kanaal: Kanaal
-    model: models.Model
-    action_override: str | None
+    model: type[models.Model]
+    action_override: NotRequired[str]
 
 
 class KanaalConfig(TypedDict):
@@ -65,7 +65,7 @@ class KanaalConfig(TypedDict):
 
 class MultipleChannelNotificationFieldConfig(TypedDict):
     notifications_kanalen: list[KanaalConfig]
-    model: models.Model
+    model: type[models.Model]
     action: NotRequired[str]
     notifications_replace_urls_for: NotRequired[list[str]]
     notifications_main_resource_keys: NotRequired[dict[str, str]]
@@ -206,7 +206,7 @@ class MultipleChannelNotificationMixin(NotificationMixin):
     def _iter_kanalen(
         self,
         data: dict,
-        model: models.Model,
+        model: type[models.Model],
         kanaal_configs: list[KanaalConfig],
         replace_urls_for: list[str] | None = None,
         main_resource_keys: dict[str, str] | None = None,
