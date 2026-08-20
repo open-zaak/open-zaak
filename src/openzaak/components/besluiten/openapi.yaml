@@ -1613,8 +1613,8 @@ paths:
       - in: query
         name: besluit
         schema:
-          type: integer
-        description: URL-referentie naar het BESLUIT.
+          type: string
+          format: uri
       - in: query
         name: informatieobject
         schema:

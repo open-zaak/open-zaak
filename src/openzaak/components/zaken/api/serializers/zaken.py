@@ -47,6 +47,7 @@ from vng_api_common.serializers import (
     CachedHyperlinkedRelatedField,
     CachedNestedHyperlinkedRelatedField,
     GegevensGroepSerializer,
+    LengthHyperlinkedRelatedField,
     NestedGegevensGroepMixin,
     add_choice_values_help_text,
 )
@@ -1251,13 +1252,13 @@ class ZaakInformatieObjectSubZaakSerializer(
 
 class ZaakEigenschapSerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {"zaak_uuid": "zaak__uuid"}
-    zaak = CachedHyperlinkedRelatedField(
+    zaak = LengthHyperlinkedRelatedField(
         queryset=Zaak.objects.all(),
         view_name="zaken:zaak-detail",
         lookup_field="uuid",
         validators=[IsImmutableValidator()],
     )
-    eigenschap = CachedHyperlinkedRelatedField(
+    eigenschap = LengthHyperlinkedRelatedField(
         queryset=Eigenschap.objects.all(),
         view_name="catalogi:eigenschap-detail",
         lookup_field="uuid",

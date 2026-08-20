@@ -1,12 +1,44 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2023 Dimpact
+from copy import deepcopy
+
+from django.db import models
 from django.db.models import QuerySet
 
 import structlog
 from django_filters import OrderingFilter as _OrderingFilter, constants
-from vng_api_common.filtersets import FilterSet
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from vng_api_common.filters import URLModelChoiceFilter as _URLModelChoiceFilter
+from vng_api_common.filtersets import (
+    FILTER_FOR_DBFIELD_DEFAULTS as _VNG_FILTER_DEFAULTS,
+    FilterSet as _VngFilterSet,
+)
 
 logger = structlog.stdlib.get_logger(__name__)
+
+
+@extend_schema_field(OpenApiTypes.URI)
+class URLModelChoiceFilter(_URLModelChoiceFilter):
+    """
+    Identical to :class:`vng_api_common.filters.URLModelChoiceFilter`, but
+    with an explicit OAS type override.
+
+    Without this, drf-spectacular infers the schema type for this filter
+    from the underlying model field, which for a ``ForeignKey`` is the
+    related model's primary key (an integer) - even though this filter
+    actually accepts and resolves a resource URL (a string). See
+    ``DjangoFilterExtension._get_schema_from_model_field``.
+    """
+
+
+FILTER_FOR_DBFIELD_DEFAULTS = deepcopy(_VNG_FILTER_DEFAULTS)
+FILTER_FOR_DBFIELD_DEFAULTS[models.ForeignKey]["filter_class"] = URLModelChoiceFilter
+FILTER_FOR_DBFIELD_DEFAULTS[models.OneToOneField]["filter_class"] = URLModelChoiceFilter
+
+
+class FilterSet(_VngFilterSet):
+    FILTER_DEFAULTS = FILTER_FOR_DBFIELD_DEFAULTS
 
 
 class OrderingFilter(_OrderingFilter):

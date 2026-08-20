@@ -8,12 +8,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import OpenApiTypes, extend_schema_field
-from vng_api_common.filters import URLModelChoiceFilter
-from vng_api_common.filtersets import FilterSet
 from vng_api_common.utils import get_help_text, get_resource_for_path
 
 from openzaak.utils.filters import CharArrayFilter
+from openzaak.utils.filterset import FilterSet, URLModelChoiceFilter
 from openzaak.utils.help_text import mark_experimental
 
 from ..models import (
@@ -254,14 +252,12 @@ class InformatieObjectTypeFilter(FilterSet):
         method=geldigheid_filter,
         help_text=DATUM_GELDIGHEID_HELP_TEXT,
     )
-    zaaktype = extend_schema_field(OpenApiTypes.URI)(
-        URLModelChoiceFilter(
-            field_name="zaaktypeinformatieobjecttype__zaaktype",
-            queryset=ZaakType.objects.all(),
-            help_text=mark_experimental(
-                get_help_text("catalogi.ZaakTypeInformatieObjectType", "zaaktype")
-            ),
-        )
+    zaaktype = URLModelChoiceFilter(
+        field_name="zaaktypeinformatieobjecttype__zaaktype",
+        queryset=ZaakType.objects.all(),
+        help_text=mark_experimental(
+            get_help_text("catalogi.ZaakTypeInformatieObjectType", "zaaktype")
+        ),
     )
     omschrijving = filters.CharFilter(
         field_name="omschrijving",
