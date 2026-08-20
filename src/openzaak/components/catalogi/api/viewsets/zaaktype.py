@@ -9,7 +9,7 @@ from vng_api_common.caching import conditional_retrieve
 from vng_api_common.viewsets import CheckQueryParamsMixin
 
 from openzaak.utils.mixins import CacheQuerysetMixin
-from openzaak.utils.pagination import OptimizedPagination
+from openzaak.utils.pagination import ExactPagination
 from openzaak.utils.permissions import AuthRequired
 from openzaak.utils.schema import COMMON_ERROR_RESPONSES, VALIDATION_ERROR_RESPONSES
 
@@ -117,7 +117,7 @@ class ZaakTypeViewSet(
     publish_serializer = ZaakTypePublishSerializer
     lookup_field = "uuid"
     filterset_class = ZaakTypeFilter
-    pagination_class = OptimizedPagination
+    pagination_class = ExactPagination
     permission_classes = (AuthRequired,)
     required_scopes = {
         "list": SCOPE_CATALOGI_READ,
