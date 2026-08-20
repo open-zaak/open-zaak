@@ -118,7 +118,6 @@ def move_applications(apps, schema_editor):
     ApplicationOld.objects.all().delete()
 
 def reverse(apps, schema_editor):
-    # TODO could reverse all data as well but external urls wil always be lost ofc.
     CatalogusAutorisatie = apps.get_model("autorisaties", "CatalogusAutorisatie")
     CatalogusAutorisatie.objects.all().delete()
 
